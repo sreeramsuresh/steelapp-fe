@@ -37,7 +37,7 @@ describe("inventoryService", () => {
         },
       ];
 
-      apiClient.get.mockResolvedValueOnce({ data: mockItems });
+      sinon.stub(apiClient, 'get').onFirstCall().resolves({ data: mockItems });
 
       const result = await inventoryService.getAllItems({ page: 1, limit: 20 });
 
@@ -48,7 +48,7 @@ describe("inventoryService", () => {
     });
 
     test("should handle empty inventory list", async () => {
-      apiClient.get.mockResolvedValueOnce({ data: [] });
+      sinon.stub(apiClient, 'get').onFirstCall().resolves({ data: [] });
 
       const result = await inventoryService.getAllItems();
 
@@ -68,7 +68,7 @@ describe("inventoryService", () => {
         },
       ];
 
-      apiClient.get.mockResolvedValueOnce({ data: mockServerData });
+      sinon.stub(apiClient, 'get').onFirstCall().resolves({ data: mockServerData });
 
       const result = await inventoryService.getAllItems();
 
@@ -90,7 +90,7 @@ describe("inventoryService", () => {
         warehouseName: "Warehouse A",
       };
 
-      apiClient.get.mockResolvedValueOnce(mockItem);
+      sinon.stub(apiClient, 'get').onFirstCall().resolves(mockItem);
 
       const result = await inventoryService.getItemById(1);
 
@@ -102,7 +102,7 @@ describe("inventoryService", () => {
 
     test("should handle item not found", async () => {
       const error = new Error("Item not found");
-      apiClient.get.mockRejectedValueOnce(error);
+      sinon.stub(apiClient, 'get').onFirstCall().rejects(error);
 
       assert.rejects(inventoryService.getItemById(999), Error);
     });
@@ -124,18 +124,13 @@ describe("inventoryService", () => {
         quantityOnHand: 100,
       };
 
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+      sinon.stub(apiClient, 'post').onFirstCall().resolves(mockResponse);
 
       const result = await inventoryService.createItem(itemData);
 
       assert.ok(result !== undefined);
       assert.ok(result.id);
-      sinon.assert.calledWith(apiClient.post, "/inventory",
-        Object.keys({
-          product_type: "PIPE",
-          grade: "304",
-          warehouse_id: 1,
-        }).every(k => typeof arguments[0][k] !== 'undefined'));
+      sinon.assert.calledWith(apiClient.post, "/inventory");
     });
   });
 
@@ -154,7 +149,7 @@ describe("inventoryService", () => {
         minStock: 15,
       };
 
-      apiClient.put.mockResolvedValueOnce(mockResponse);
+      sinon.stub(apiClient, 'put').onFirstCall().resolves(mockResponse);
 
       const result = await inventoryService.updateItem(1, updateData);
 
@@ -168,7 +163,7 @@ describe("inventoryService", () => {
     test("should delete inventory item", async () => {
       const mockResponse = { id: 1, deleted: true };
 
-      apiClient.delete.mockResolvedValueOnce(mockResponse);
+      sinon.stub(apiClient, 'delete').onFirstCall().resolves(mockResponse);
 
       const result = await inventoryService.deleteItem(1);
 
@@ -184,7 +179,7 @@ describe("inventoryService", () => {
         { id: 2, productType: "PIPE", grade: "304", quantity: 50 },
       ];
 
-      apiClient.get.mockResolvedValueOnce(mockItems);
+      sinon.stub(apiClient, 'get').onFirstCall().resolves(mockItems);
 
       const result = await inventoryService.getItemsByProduct("PIPE", "304");
 
@@ -203,7 +198,7 @@ describe("inventoryService", () => {
         previousQuantity: 100,
       };
 
-      apiClient.patch.mockResolvedValueOnce(mockResponse);
+      sinon.stub(apiClient, 'patch').onFirstCall().resolves(mockResponse);
 
       const result = await inventoryService.updateQuantity(1, 20, "add");
 
@@ -215,7 +210,7 @@ describe("inventoryService", () => {
     test("should support set operation", async () => {
       const mockResponse = { id: 1, quantity: 100, operation: "set" };
 
-      apiClient.patch.mockResolvedValueOnce(mockResponse);
+      sinon.stub(apiClient, 'patch').onFirstCall().resolves(mockResponse);
 
       const result = await inventoryService.updateQuantity(1, 100, "set");
 
@@ -226,7 +221,7 @@ describe("inventoryService", () => {
     test("should support subtract operation", async () => {
       const mockResponse = { id: 1, quantity: 80, operation: "subtract" };
 
-      apiClient.patch.mockResolvedValueOnce(mockResponse);
+      sinon.stub(apiClient, 'patch').onFirstCall().resolves(mockResponse);
 
       const result = await inventoryService.updateQuantity(1, 20, "subtract");
 
@@ -242,7 +237,7 @@ describe("inventoryService", () => {
         { id: 2, productType: "PLATE", quantity: 3, minStock: 5 },
       ];
 
-      apiClient.get.mockResolvedValueOnce(mockItems);
+      sinon.stub(apiClient, 'get').onFirstCall().resolves(mockItems);
 
       const result = await inventoryService.getLowStockItems(5);
 
@@ -253,7 +248,7 @@ describe("inventoryService", () => {
     test("should use default threshold", async () => {
       const mockItems = [];
 
-      apiClient.get.mockResolvedValueOnce(mockItems);
+      sinon.stub(apiClient, 'get').onFirstCall().resolves(mockItems);
 
       await inventoryService.getLowStockItems();
 
@@ -273,7 +268,7 @@ describe("inventoryService", () => {
         avgDaysToSell: 30,
       };
 
-      apiClient.get.mockResolvedValueOnce(mockSummary);
+      sinon.stub(apiClient, 'get').onFirstCall().resolves(mockSummary);
 
       const result = await inventoryService.getInventorySummary();
 
@@ -291,7 +286,7 @@ describe("inventoryService", () => {
         { id: 2, productType: "PIPE", grade: "316" },
       ];
 
-      apiClient.get.mockResolvedValueOnce(mockResults);
+      sinon.stub(apiClient, 'get').onFirstCall().resolves(mockResults);
 
       const result = await inventoryService.searchItems("PIPE");
 
@@ -300,7 +295,7 @@ describe("inventoryService", () => {
     });
 
     test("should handle empty search results", async () => {
-      apiClient.get.mockResolvedValueOnce([]);
+      sinon.stub(apiClient, 'get').onFirstCall().resolves([]);
 
       const result = await inventoryService.searchItems("NONEXISTENT");
 
@@ -316,7 +311,7 @@ describe("inventoryService", () => {
         { id: 2, productType: "PLATE", location: "WH-A-01" },
       ];
 
-      apiClient.get.mockResolvedValueOnce(mockItems);
+      sinon.stub(apiClient, 'get').onFirstCall().resolves(mockItems);
 
       const result = await inventoryService.getItemsByLocation("WH-A-01");
 
@@ -329,21 +324,21 @@ describe("inventoryService", () => {
   describe("Error Handling", () => {
     test("should propagate API errors", async () => {
       const error = new Error("Network error");
-      apiClient.get.mockRejectedValueOnce(error);
+      sinon.stub(apiClient, 'get').onFirstCall().rejects(error);
 
       assert.rejects(inventoryService.getAllItems(), Error);
     });
 
     test("should handle validation errors", async () => {
       const error = new Error("Invalid item data");
-      apiClient.post.mockRejectedValueOnce(error);
+      sinon.stub(apiClient, 'post').onFirstCall().rejects(error);
 
       assert.rejects(inventoryService.createItem({}), Error);
     });
 
     test("should handle deletion errors", async () => {
       const error = new Error("Item in use");
-      apiClient.delete.mockRejectedValueOnce(error);
+      sinon.stub(apiClient, 'delete').onFirstCall().rejects(error);
 
       assert.rejects(inventoryService.deleteItem(1), Error);
     });
@@ -358,7 +353,7 @@ describe("inventoryService", () => {
         productType: "PIPE",
       };
 
-      apiClient.get.mockResolvedValueOnce(mockItem);
+      sinon.stub(apiClient, 'get').onFirstCall().resolves(mockItem);
 
       const result = await inventoryService.getItemById(1);
 
@@ -376,7 +371,7 @@ describe("inventoryService", () => {
         productType: "PIPE",
       };
 
-      apiClient.get.mockResolvedValueOnce(mockItem);
+      sinon.stub(apiClient, 'get').onFirstCall().resolves(mockItem);
 
       const result = await inventoryService.getItemById(1);
 

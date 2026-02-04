@@ -69,7 +69,7 @@ const ToggleSwitchQuotation = ({ enabled, onChange, label, description, isDarkMo
         }`}
       />
     </button>
-  </button>
+  </div>
 );
 
 const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange }) => {
@@ -1570,8 +1570,8 @@ const QuotationForm = () => {
     }, []);
 
     // Fuzzy match helpers
-    const norm = (s) => (s || "").toString().toLowerCase().trim();
-    const ed1 = (a, b) => {
+    const norm = useCallback((s) => (s || "").toString().toLowerCase().trim(), []);
+    const ed1 = useCallback((a, b) => {
       if (a === b) return 0;
       const la = a.length,
         lb = b.length;
@@ -1591,7 +1591,7 @@ const QuotationForm = () => {
         dpCurr = tmp;
       }
       return dpPrev[lb];
-    };
+    }, []);
 
     const tokenMatch = useCallback(
       (token, optLabel) => {
@@ -1910,7 +1910,7 @@ const QuotationForm = () => {
                 <h2 className={`text-base md:text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Basic Information
                 </h2>
-              </button>
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
                 <Input
@@ -2929,7 +2929,7 @@ const QuotationForm = () => {
                       <span className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? "bg-teal-400" : "bg-teal-500"}`} />
                     )}
                   </button>
-                </button>
+                </div>
               </div>
 
               {/* Action Buttons */}
