@@ -731,7 +731,7 @@ const POTab = ({ canManage }) => {
                 <div>
                   <div className="opacity-70">PO Date</div>
                   <div>{formatDate(drawer.item.poDate || drawer.item.date)}</div>
-                </div>
+                </button>
                 <div>
                   <div className="opacity-70">Due Date</div>
                   <div>{formatDate(drawer.item.dueDate)}</div>

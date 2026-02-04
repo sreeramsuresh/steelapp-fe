@@ -659,7 +659,7 @@ const DeliveryNoteForm = () => {
           <div className="col-span-12 lg:col-span-8 space-y-3">
             {/* Document Details Card */}
             <div className={CARD_CLASSES(isDarkMode)}>
-              <div className="text-sm font-extrabold mb-3">Document Details</div>
+              <div className="text-sm font-extrabold mb-3">Document Details</button>
               <div className="grid grid-cols-12 gap-3">
                 {/* DN Number */}
                 <div className="col-span-12 sm:col-span-3">

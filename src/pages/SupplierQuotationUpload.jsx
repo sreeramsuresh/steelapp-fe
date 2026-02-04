@@ -159,18 +159,20 @@ export function SupplierQuotationUpload() {
           </div>
 
           {/* Drop Zone */}
-          <button type="button" className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-       dragActive
-        ? "border-blue-500 bg-blue-50"
-        : file
-         ? "border-green-500 bg-green-50"
-         : "border-gray-300 hover:border-gray-400"
-      }`}
-      onDragEnter={handleDrag}
-      onDragLeave={handleDrag}
-      onDragOver={handleDrag}
-      onDrop={handleDrop}
-      onKeyDown={(e) => {
+          <button
+            type="button"
+            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+              dragActive
+                ? "border-blue-500 bg-blue-50"
+                : file
+                  ? "border-green-500 bg-green-50"
+                  : "border-gray-300 hover:border-gray-400"
+            }`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+            onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 fileInputRef.current?.click();
@@ -206,7 +208,7 @@ export function SupplierQuotationUpload() {
                 </Button>
               </div>
             )}
-          </div>
+          </button>
 
           {/* Error Display */}
           {error && <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">{error}</div>}

@@ -275,8 +275,10 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
       {/* Navigation */}
       <div className="flex-1 relative min-h-0">
         {/* Top fade indicator */}
-        <button type="button" onClick={handleScrollUp}
-     onKeyDown={(e) => {
+        <button
+          type="button"
+          onClick={handleScrollUp}
+          onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") handleScrollUp(e);
           }}
           className={`absolute top-0 left-0 right-0 h-8 z-10 transition-opacity duration-300 ${
@@ -295,7 +297,7 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
               style={{ opacity: 0.7 }}
             />
           </div>
-        </div>
+        </button>
 
         {/* Scrollable content */}
         <div ref={scrollContainerRef} className="absolute inset-0 overflow-y-auto py-2 no-scrollbar">
@@ -362,8 +364,10 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
         </div>
 
         {/* Bottom fade indicator */}
-        <button type="button" onClick={handleScrollDown}
-     onKeyDown={(e) => {
+        <button
+          type="button"
+          onClick={handleScrollDown}
+          onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") handleScrollDown(e);
           }}
           className={`absolute bottom-0 left-0 right-0 h-8 z-10 transition-opacity duration-300 ${
@@ -382,7 +386,7 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
               style={{ opacity: 0.7 }}
             />
           </div>
-        </div>
+        </button>
       </div>
     </div>
   );

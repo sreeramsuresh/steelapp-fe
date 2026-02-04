@@ -555,7 +555,7 @@ const StockReceiptForm = ({
                 <div className={`text-xs font-medium ${textMuted} flex items-center gap-2`}>
                   <FileText className="w-4 h-4" />
                   Goods Receipt Note (GRN)
-                </div>
+                </button>
                 {grnStatus === "draft" && (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-500 text-white">
                     Draft

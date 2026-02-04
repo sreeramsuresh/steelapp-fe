@@ -201,10 +201,12 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
           role="listbox"
         >
           {products.map((product, index) => (
-            <button type="button" key={product.id || `product-${index}`}
-       data-testid={`drawer-product-option-${index}`}
-       className={`product-option ${index === highlightedIndex ? "highlighted" : ""}`}
-       onClick={() => handleSelect(product)}
+            <button
+              type="button"
+              key={product.id || `product-${index}`}
+              data-testid={`drawer-product-option-${index}`}
+              className={`product-option ${index === highlightedIndex ? "highlighted" : ""}`}
+              onClick={() => handleSelect(product)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
@@ -215,7 +217,7 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
             >
               <div className="product-name">{formatProductDisplay(product)}</div>
               <div className="product-details">{formatProductDetails(product)}</div>
-            </div>
+            </button>
           ))}
         </div>
       )}

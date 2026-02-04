@@ -806,7 +806,7 @@ const ShippingDocumentList = () => {
                         >
                           <Trash2 size={16} />
                         </button>
-                      </div>
+                      </button>
                     </td>
                   </tr>
                 ))}

@@ -286,7 +286,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
             <p className={`${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Generate customer statements and track account balances
             </p>
-          </div>
+          </button>
           <button
             type="button"
             onClick={handleGenerateClick}

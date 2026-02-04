@@ -197,7 +197,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
       <button type="button" className="flex-1 bg-black/30"
     onClick={onClose}
     onKeyDown={(e) => e.key === "Enter" && onClose()}
-      ></div>
+      ></button>
 
       {/* Drawer */}
       <div className="w-full max-w-lg h-full overflow-auto bg-gradient-to-br from-orange-50 to-amber-50 dark:from-[#2A1E1A] dark:to-[#221A16] text-gray-900 dark:text-white shadow-xl border-l-2 border-orange-300 dark:border-orange-700">
@@ -251,7 +251,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                 <div className="font-bold text-lg text-orange-900 dark:text-orange-100">
                   {formatCurrency(invoice?.invoiceAmount || invoice?.total || 0)}
                 </div>
-              </div>
+              </button>
               <div>
                 <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">Paid Amount</div>
                 <div className="font-bold text-lg text-green-600 dark:text-green-400">

@@ -180,7 +180,7 @@ export default function StockDeductionPreview({
                       Some items will result in negative stock. You can still proceed (backorder), but please verify.
                     </p>
                   </div>
-                </div>
+                </button>
               </div>
             )}
 

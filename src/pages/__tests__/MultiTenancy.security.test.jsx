@@ -264,7 +264,7 @@ describe("Multi-Tenancy Security - Data Isolation", () => {
 
         return (
           <>
-            <div>Audit Logs for {currentCompanyId}:</div>
+            <div>Audit Logs for {currentCompanyId}:</button>
             {filteredLogs.map((log) => (
               <div key={log.id}>
                 {log.action} by {log.user}

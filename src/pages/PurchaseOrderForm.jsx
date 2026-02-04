@@ -2746,7 +2746,7 @@ const PurchaseOrderForm = () => {
                   className={INPUT_CLASSES(isDarkMode)}
                 />
               </div>
-            </div>
+            </button>
             <div className={DIVIDER_CLASSES(isDarkMode)} />
             {/* Discount */}
             <div className="grid grid-cols-2 gap-3">
@@ -2812,7 +2812,7 @@ const PurchaseOrderForm = () => {
         <div className="p-4">
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
-              <div className="text-sm font-extrabold">Delivery Terms</div>
+              <div className="text-sm font-extrabold">Delivery Terms</button>
               <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
                 Shipping, warehouse, and delivery settings
               </div>
@@ -2919,7 +2919,7 @@ const PurchaseOrderForm = () => {
         <div className="p-4">
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
-              <div className="text-sm font-extrabold">Notes & Terms</div>
+              <div className="text-sm font-extrabold">Notes & Terms</button>
               <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
                 Internal notes and payment terms
               </div>
@@ -2941,7 +2941,7 @@ const PurchaseOrderForm = () => {
                 placeholder="Additional notes..."
                 className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`}
               />
-            </div>
+            </button>
             <div>
               <label htmlFor="purchaseOrderTerms" className={LABEL_CLASSES(isDarkMode)}>
                 Terms & Conditions
@@ -2982,7 +2982,7 @@ const PurchaseOrderForm = () => {
         <div className="p-4">
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
-              <div className="text-sm font-extrabold">Buyer & Supplier Info</div>
+              <div className="text-sm font-extrabold">Buyer & Supplier Info</button>
               <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
                 Contact details for this order
               </div>
@@ -3122,7 +3122,7 @@ const PurchaseOrderForm = () => {
         <div className="p-4">
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
-              <div className="text-sm font-extrabold">Payment Details</div>
+              <div className="text-sm font-extrabold">Payment Details</button>
               <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
                 Payment terms, history, and status
               </div>
@@ -3150,7 +3150,7 @@ const PurchaseOrderForm = () => {
                   <SelectItem value="50% Advance, 50% on Delivery">50% Advance, 50% on Delivery</SelectItem>
                   <SelectItem value="Custom">Custom Terms</SelectItem>
                 </FormSelect>
-              </div>
+              </button>
               <div>
                 <label htmlFor="dueDate" className={LABEL_CLASSES(isDarkMode)}>
                   Due Date
@@ -3280,7 +3280,7 @@ const PurchaseOrderForm = () => {
         <div className="p-4">
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
-              <div className="text-sm font-extrabold">Approval Workflow</div>
+              <div className="text-sm font-extrabold">Approval Workflow</button>
               <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
                 Manage approval status and comments
               </div>
@@ -3301,7 +3301,7 @@ const PurchaseOrderForm = () => {
                   <SelectItem value="approved">Approved</SelectItem>
                   <SelectItem value="rejected">Rejected</SelectItem>
                 </FormSelect>
-              </div>
+              </button>
               <div>
                 <label htmlFor="approvedBy" className={LABEL_CLASSES(isDarkMode)}>
                   Approved By

@@ -541,7 +541,7 @@ export default function CustomerActivityTab({ customerId }) {
                         <div>
                           <span className={`text-sm font-medium ${config.color}`}>{config.label}</span>
                           <span className={`text-sm ${mutedText} ml-2`}>by {activity.user}</span>
-                        </div>
+                        </button>
                         <div className={`text-sm ${mutedText} flex items-center gap-1`}>
                           <Calendar size={14} />
                           {formatDate(activity.date)}

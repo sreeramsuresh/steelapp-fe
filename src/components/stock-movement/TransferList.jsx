@@ -271,7 +271,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
               }}
               className="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white border-gray-300 text-gray-900 placeholder-gray-400"
             />
-          </div>
+          </button>
 
           <select
             value={statusFilter}

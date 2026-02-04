@@ -186,7 +186,7 @@ describe("Payment Processing Feature", () => {
                     Invoice {alloc.invoiceId}: {alloc.amount}
                   </div>
                 ))}
-              </div>
+              </button>
             )}
           </>
         );
@@ -245,7 +245,7 @@ describe("Payment Processing Feature", () => {
 
         return (
           <>
-            <div>Credit Hold: {onCreditHold ? "Yes" : "No"}</div>
+            <div>Credit Hold: {onCreditHold ? "Yes" : "No"}</button>
             {error && <div className="alert-error">{error}</div>}
             <button type="button" onClick={handlePayment}>
               Process Payment
@@ -272,7 +272,7 @@ describe("Payment Processing Feature", () => {
 
         return (
           <>
-            <div>Bank Statement: {bankAmount}</div>
+            <div>Bank Statement: {bankAmount}</button>
             <div>Recorded Payments: {recordedAmount}</div>
             <div className={isReconciled ? "alert-success" : "alert-error"}>
               {isReconciled ? "Reconciled" : "Reconciliation mismatch"}

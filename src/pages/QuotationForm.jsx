@@ -1910,7 +1910,7 @@ const QuotationForm = () => {
                 <h2 className={`text-base md:text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Basic Information
                 </h2>
-              </div>
+              </button>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
                 <Input

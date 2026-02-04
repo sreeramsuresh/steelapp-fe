@@ -1468,7 +1468,7 @@ const TradeFinanceList = () => {
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto"></div>
             <p className="mt-2 text-gray-500">Loading trade finance documents...</p>
-          </div>
+          </button>
         ) : filteredRecords.length === 0 ? (
           <div className="p-8 text-center">
             <FileWarning size={48} className="mx-auto text-gray-400 mb-4" />

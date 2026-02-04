@@ -68,7 +68,7 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
 
       return (
         <>
-          <div>Invoice Status: {invoice.status}</div>
+          <div>Invoice Status: {invoice.status}</button>
           <button type="button" onClick={() => setInvoice({ ...invoice, status: "saved" })}>
             Save Invoice
           </button>
@@ -88,7 +88,7 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
 
       return (
         <>
-          <div>Delivery Status: {delivery.status}</div>
+          <div>Delivery Status: {delivery.status}</button>
           <div>Stock Level: {delivery.stock}</div>
           <button
             type="button"
@@ -175,7 +175,7 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
           {step === "payment" && (
             <>
               <PaymentStep />
-              <div className="alert-success">Sales Cycle Complete</div>
+              <div className="alert-success">Sales Cycle Complete</button>
             </>
           )}
         </>

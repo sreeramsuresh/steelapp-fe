@@ -493,7 +493,7 @@ const VATReturnReport = () => {
                 </div>
                 <TrendingUp className={`h-8 w-8 ${isDarkMode ? "text-blue-400" : "text-blue-500"}`} />
               </div>
-            </div>
+            </button>
 
             {/* Total Input VAT */}
             <div className={`${cardClass} border-l-4 border-l-green-500`}>
@@ -581,7 +581,7 @@ const VATReturnReport = () => {
                 Output VAT (Form 201 Boxes 1-7)
               </h3>
               {expandedSections.outputVat ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-            </div>
+            </button>
 
             {expandedSections.outputVat && (
               <div className="mt-4 space-y-4">
@@ -694,7 +694,7 @@ const VATReturnReport = () => {
                 Input VAT - Recoverable Tax (Form 201 Boxes 8-13)
               </h3>
               {expandedSections.inputVat ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-            </div>
+            </button>
 
             {expandedSections.inputVat && (
               <div className="mt-4 space-y-4">
@@ -822,7 +822,7 @@ const VATReturnReport = () => {
                 ) : (
                   <ChevronDown className="h-5 w-5" />
                 )}
-              </div>
+              </button>
 
               {expandedSections.supplierBills && (
                 <div className="mt-4 overflow-x-auto">
@@ -889,7 +889,7 @@ const VATReturnReport = () => {
                 ) : (
                   <ChevronDown className="h-5 w-5" />
                 )}
-              </div>
+              </button>
 
               {expandedSections.advancePayments && (
                 <div className="mt-4">
@@ -973,7 +973,7 @@ const VATReturnReport = () => {
                   Blocked Input VAT (Non-Recoverable)
                 </h3>
                 {expandedSections.blockedVat ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-              </div>
+              </button>
 
               {expandedSections.blockedVat && (
                 <div className="mt-4">
@@ -1099,7 +1099,7 @@ const VATReturnReport = () => {
                   Return Amendments ({amendments.length})
                 </h3>
                 {expandedSections.amendments ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-              </div>
+              </button>
 
               {expandedSections.amendments && (
                 <div className="mt-4 overflow-x-auto">
@@ -1177,7 +1177,7 @@ const VATReturnReport = () => {
                   Invoice Details ({vatReturn.invoices.length} invoices)
                 </h3>
                 {expandedSections.invoices ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-              </div>
+              </button>
 
               {expandedSections.invoices && (
                 <div className="mt-4 overflow-x-auto">

@@ -1071,7 +1071,7 @@ const AllocationDrawer = ({
                   </select>
                 </div>
               </div>
-            </div>
+            </button>
             <div className="form-row">
               <div className="form-group">
                 <div className="price-label-group">

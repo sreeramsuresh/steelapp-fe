@@ -75,7 +75,7 @@ describe("Edge Cases & Error Handling", () => {
 
         return (
           <>
-            <div>Stock: {stock}</div>
+            <div>Stock: {stock}</button>
             {errors.map((err, _idx) => (
               <div key={err} className="alert-error">
                 {err}
@@ -124,7 +124,7 @@ describe("Edge Cases & Error Handling", () => {
 
         return (
           <>
-            <div>Total Available: {totalAvailable}</div>
+            <div>Total Available: {totalAvailable}</button>
             <input
               type="number"
               value={requestedQty}
@@ -170,7 +170,7 @@ describe("Edge Cases & Error Handling", () => {
 
         return (
           <>
-            <div>Credit Limit: {customer.creditLimit}</div>
+            <div>Credit Limit: {customer.creditLimit}</button>
             <div>Current Balance: {customer.currentBalance}</div>
             <div>Available Credit: {customer.creditLimit - customer.currentBalance}</div>
             <input
@@ -216,7 +216,7 @@ describe("Edge Cases & Error Handling", () => {
 
         return (
           <>
-            <div>Submissions: {submissions}</div>
+            <div>Submissions: {submissions}</button>
             <button type="button" onClick={handleSubmit} disabled={isProcessing}>
               {isProcessing ? "Submitting..." : "Submit Invoice"}
             </button>
@@ -324,7 +324,7 @@ describe("Edge Cases & Error Handling", () => {
 
         return (
           <>
-            <div>Status: {status}</div>
+            <div>Status: {status}</button>
             {error && <div className="alert-error">{error}</div>}
             <button type="button" onClick={() => handleTransition("paid")}>
               Try Jump to Paid
@@ -365,7 +365,7 @@ describe("Edge Cases & Error Handling", () => {
 
         return (
           <>
-            <div>Current Version: {version}</div>
+            <div>Current Version: {version}</button>
             {conflictError && <div className="alert-error">{conflictError}</div>}
             <button type="button" onClick={() => handleUpdate(1)}>
               Update with v1
@@ -400,7 +400,7 @@ describe("Edge Cases & Error Handling", () => {
 
         return (
           <>
-            <div>Subtotal: {subtotal.toFixed(2)}</div>
+            <div>Subtotal: {subtotal.toFixed(2)}</button>
             <div>VAT (5%): {vat.toFixed(2)}</div>
             <div>Total: {roundedTotal.toFixed(2)}</div>
           </>

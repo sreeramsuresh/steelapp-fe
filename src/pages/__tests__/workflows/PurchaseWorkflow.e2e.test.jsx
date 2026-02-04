@@ -62,7 +62,7 @@ describe("E2E Workflow: Complete Purchase Cycle", () => {
 
           {step === "po" && (
             <>
-              <div>PO Status: Approved</div>
+              <div>PO Status: Approved</button>
               <div>From Supplier: {data.supplier}</div>
               <div>Order Quantity: {data.quantity}</div>
               <div>Expected Cost: {data.total}</div>
@@ -74,7 +74,7 @@ describe("E2E Workflow: Complete Purchase Cycle", () => {
 
           {step === "grn" && (
             <>
-              <div>GRN Status: Ready</div>
+              <div>GRN Status: Ready</button>
               <div>Current Stock: {data.stockLevel - data.quantity}</div>
               <button type="button" onClick={handleGRNReceived}>
                 Receive Goods (100 units)
@@ -84,7 +84,7 @@ describe("E2E Workflow: Complete Purchase Cycle", () => {
 
           {step === "bill" && (
             <>
-              <div>Stock After Receipt: {data.stockLevel}</div>
+              <div>Stock After Receipt: {data.stockLevel}</button>
               <div>Bill Amount: {data.total}</div>
               <div>3-Way Match: PO ✓ GRN ✓ Bill ✓</div>
               <button type="button" onClick={handleBilltoPayment}>
@@ -95,7 +95,7 @@ describe("E2E Workflow: Complete Purchase Cycle", () => {
 
           {step === "payment" && (
             <>
-              <div>Bill Amount Due: {data.total}</div>
+              <div>Bill Amount Due: {data.total}</button>
               <div>Payment Status: Unpaid</div>
               <button type="button" onClick={handlePayment}>
                 Record Full Payment
@@ -105,7 +105,7 @@ describe("E2E Workflow: Complete Purchase Cycle", () => {
 
           {step === "complete" && (
             <>
-              <div className="alert-success">Purchase Cycle Complete</div>
+              <div className="alert-success">Purchase Cycle Complete</button>
               <div>Final Stock Level: {data.stockLevel}</div>
               <div>Payment Status: Paid</div>
             </>
@@ -202,7 +202,7 @@ describe("E2E Workflow: Complete Purchase Cycle", () => {
 
       return (
         <>
-          <div>PO: {amounts.po}</div>
+          <div>PO: {amounts.po}</button>
           <div>GRN: {amounts.grn}</div>
           <div>Bill: {amounts.bill}</div>
           {!isMatched && (

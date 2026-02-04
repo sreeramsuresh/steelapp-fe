@@ -121,7 +121,7 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
           {loading ? (
             <div className="flex justify-center py-6">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-            </div>
+            </button>
           ) : error ? (
             <div className="mt-2 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">{error}</div>
           ) : movements.length === 0 ? (

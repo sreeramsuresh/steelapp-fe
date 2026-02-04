@@ -422,7 +422,7 @@ const InventoryList = () => {
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                 }`}
               />
-            </div>
+            </button>
             <div className="relative">
               <select
                 value={statusFilter}

@@ -314,7 +314,7 @@ const StockMovement = () => {
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                 }`}
               />
-            </div>
+            </button>
             {/* eslint-disable-next-line local-rules/no-dead-button */}
             <button
               type="button"
