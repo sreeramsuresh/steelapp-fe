@@ -1067,8 +1067,8 @@ const Autocomplete = ({
   }, [filteredOptions]);
 
   // Lightweight fuzzy match: token-based includes with typo tolerance (edit distance <= 1)
-  const norm = (s) => (s || "").toString().toLowerCase().trim();
-  const ed1 = (a, b) => {
+  const norm = useCallback((s) => (s || "").toString().toLowerCase().trim(), []);
+  const ed1 = useCallback((a, b) => {
     // Early exits
     if (a === b) return 0;
     const la = a.length,
@@ -1096,7 +1096,7 @@ const Autocomplete = ({
       dpCurr = tmp;
     }
     return dpPrev[lb];
-  };
+  }, []);
 
   const tokenMatch = useCallback(
     (token, optLabel) => {
@@ -2491,7 +2491,7 @@ const InvoiceForm = ({ onSave }) => {
   ]);
   // Note: Using granular dependencies (invoice.customer.id, invoice.items.length, etc.) instead of entire invoice object to avoid unnecessary re-validations
 
-  const checkTradeLicenseStatus = async (customerId) => {
+  const checkTradeLicenseStatus = useCallback(async (customerId) => {
     try {
       // Use axios-based client to benefit from auth + baseURL
       const { apiClient } = await import("../services/api");
@@ -2528,7 +2528,7 @@ const InvoiceForm = ({ onSave }) => {
         // console.debug('Trade license check unavailable:', fallbackErr.message);
       }
     }
-  };
+  }, []);
 
   const handleCustomerSelect = useCallback(
     async (customerId) => {

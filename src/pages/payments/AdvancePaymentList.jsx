@@ -169,8 +169,8 @@ const Autocomplete = ({
   }, [filteredOptions]);
 
   // Fuzzy match helpers
-  const norm = (s) => (s || "").toString().toLowerCase().trim();
-  const ed1 = (a, b) => {
+  const norm = useCallback((s) => (s || "").toString().toLowerCase().trim(), []);
+  const ed1 = useCallback((a, b) => {
     if (a === b) return 0;
     const la = a.length,
       lb = b.length;
@@ -190,7 +190,7 @@ const Autocomplete = ({
       dpCurr = tmp;
     }
     return dpPrev[lb];
-  };
+  }, []);
 
   const tokenMatch = useCallback(
     (token, optLabel) => {
@@ -449,13 +449,7 @@ const AdvancePaymentList = () => {
     loadCustomers();
   }, []);
 
-  // Load payments when filters change
-  useEffect(() => {
-    loadPayments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadPayments]); // loadPayments is stable
-
-  const loadPayments = async () => {
+  const loadPayments = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -490,7 +484,13 @@ const AdvancePaymentList = () => {
       setLoading(false);
       setInitialLoading(false);
     }
-  };
+  }, [currentPage, pageSize, debouncedSearch, statusFilter, customerFilter, startDate, endDate]);
+
+  // Load payments when filters change
+  useEffect(() => {
+    loadPayments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadPayments]); // loadPayments is stable
 
   const handleApplyToInvoice = (payment) => {
     navigate(`/app/advance-payments/${payment.id}/apply`);
