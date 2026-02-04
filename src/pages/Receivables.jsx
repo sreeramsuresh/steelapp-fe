@@ -287,15 +287,15 @@ const Receivables = () => {
   }, [fetchData]);
 
   // Helper to get invoice amount - handles both old and new API field names
-  const getInvoiceAmount = (r) => Number(r.invoiceAmount || r.totalAmount || r.total || 0);
+  const getInvoiceAmount = useCallback((r) => Number(r.invoiceAmount || r.totalAmount || r.total || 0), []);
   // Helper to get received amount - handles both old and new API field names
-  const getReceived = (r) => Number(r.received || r.amountPaid || 0);
+  const getReceived = useCallback((r) => Number(r.received || r.amountPaid || 0), []);
   // Helper to get outstanding amount - handles both old and new API field names
-  const getOutstanding = (r) => Number(r.outstanding || r.balanceDue || 0);
+  const getOutstanding = useCallback((r) => Number(r.outstanding || r.balanceDue || 0), []);
   // Helper to get customer name - handles both nested object and flat field
-  const getCustomerName = (r) => r.customer?.name || r.customerName || "";
+  const getCustomerName = useCallback((r) => r.customer?.name || r.customerName || "", []);
   // Helper to get customer ID
-  const getCustomerId = (r) => r.customer?.id || r.customerId || "";
+  const getCustomerId = useCallback((r) => r.customer?.id || r.customerId || "", []);
 
   const aggregates = useMemo(() => {
     // Use API aggregates if available (more accurate across all pages)
@@ -823,7 +823,11 @@ const Receivables = () => {
                         onClick={(e) => e.stopPropagation()}
                       />
                     </td>
-                    <td className="px-4 py-2 text-teal-600 font-semibold" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2 text-teal-600 font-semibold"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       {row.invoiceNo || row.invoiceNumber}
                     </td>
                     <td className="px-4 py-2">
@@ -845,44 +849,61 @@ const Receivables = () => {
                           {getCustomerName(row)}
                         </button>
                       ) : (
-                        <span
-                          className="text-gray-400"
-                          onClick={() => openDrawer(row)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              openDrawer(row);
-                            }
-                          }}
-                          role="button"
-                          tabIndex={0}
-                          style={{ cursor: "pointer" }}
-                        >
+                        <button type="button" className="text-gray-400 cursor-pointer" onClick={() => openDrawer(row)}>
                           No Customer
-                        </span>
+                        </button>
                       )}
                     </td>
-                    <td className="px-4 py-2 whitespace-nowrap" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2 whitespace-nowrap"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       {formatDateDMY(row.invoiceDate || row.date)}
                     </td>
-                    <td className="px-4 py-2 whitespace-nowrap" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2 whitespace-nowrap"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       <div className="flex items-center gap-2">
                         <span>{formatDateDMY(row.dueDate || row.dueDate)}</span>
                         {row.status === "overdue" && <Pill color="red">Overdue</Pill>}
                       </div>
                     </td>
-                    <td className="px-4 py-2" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       {row.currency || "AED"}
                     </td>
-                    <td className="px-4 py-2 text-right" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2 text-right"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       {formatCurrency(getInvoiceAmount(row))}
                     </td>
-                    <td className="px-4 py-2 text-right" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2 text-right"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       {formatCurrency(getReceived(row))}
                     </td>
-                    <td className="px-4 py-2 text-right" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2 text-right"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       {formatCurrency(getOutstanding(row))}
                     </td>
-                    <td className="px-4 py-2" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       <StatusPill status={row.status} />
                     </td>
                     <td className="px-4 py-2 text-right">

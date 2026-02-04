@@ -626,28 +626,56 @@ const POTab = ({ canManage }) => {
               ) : (
                 items.map((row) => (
                   <tr key={row.id} className={`hover:${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"} cursor-pointer`}>
-                    <td className="px-4 py-2 text-teal-600 font-semibold" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2 text-teal-600 font-semibold"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       {row.poNo || row.poNumber}
                     </td>
-                    <td className="px-4 py-2" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       {getVendorName(row)}
                     </td>
-                    <td className="px-4 py-2" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       {formatDate(row.poDate || row.date)}
                     </td>
-                    <td className="px-4 py-2" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       <div className="flex items-center gap-2">
                         <span>{formatDate(row.dueDate)}</span>
                         {row.status === "overdue" && <Pill color="red">Overdue</Pill>}
                       </div>
                     </td>
-                    <td className="px-4 py-2" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       {row.currency || "AED"}
                     </td>
-                    <td className="px-4 py-2 text-right" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2 text-right"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       {formatCurrency(getPOValue(row))}
                     </td>
-                    <td className="px-4 py-2 text-right" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2 text-right"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       <div>
                         <div className="font-medium">{formatCurrency(getPaid(row))}</div>
                         {row.payments && row.payments.filter((p) => !p.voided).length > 0 && (
@@ -658,7 +686,11 @@ const POTab = ({ canManage }) => {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-2" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       {row.payments && row.payments.length > 0 ? (
                         <div className="text-xs">
                           <div className="font-medium">
@@ -672,10 +704,18 @@ const POTab = ({ canManage }) => {
                         <span className="text-gray-400 text-xs">No payments</span>
                       )}
                     </td>
-                    <td className="px-4 py-2 text-right" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2 text-right"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       {formatCurrency(getBalance(row))}
                     </td>
-                    <td className="px-4 py-2" onClick={() => openDrawer(row)}>
+                    <td
+                      className="px-4 py-2"
+                      onClick={() => openDrawer(row)}
+                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
+                    >
                       <StatusPill status={row.status} />
                     </td>
                     <td className="px-4 py-2 text-right">
@@ -699,18 +739,7 @@ const POTab = ({ canManage }) => {
       {/* Drawer */}
       {drawer.open && drawer.item && (
         <div className="fixed inset-0 z-[1100] flex">
-          <div
-            className="flex-1 bg-black/30"
-            onClick={closeDrawer}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                closeDrawer();
-              }
-            }}
-            role="button"
-            tabIndex={0}
-            aria-label="Close drawer"
-          ></div>
+          <button type="button" className="flex-1 bg-black/30" onClick={closeDrawer} aria-label="Close drawer"></button>
           <div
             className={`w-full max-w-md h-full overflow-auto ${isDarkMode ? "bg-[#1E2328] text-white" : "bg-white text-gray-900"} shadow-xl`}
           >
@@ -731,7 +760,7 @@ const POTab = ({ canManage }) => {
                 <div>
                   <div className="opacity-70">PO Date</div>
                   <div>{formatDate(drawer.item.poDate || drawer.item.date)}</div>
-                </button>
+                </div>
                 <div>
                   <div className="opacity-70">Due Date</div>
                   <div>{formatDate(drawer.item.dueDate)}</div>

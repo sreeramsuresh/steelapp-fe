@@ -21,7 +21,7 @@ import {
   TrendingUp,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import PriceHistoryTab from "../components/pricelist/PriceHistoryTab";
 import { FormSelect } from "../components/ui/form-select";
@@ -181,7 +181,8 @@ const Toggle = ({ checked, onChange, label, isDarkMode }) => {
         }`}
         onClick={() => onChange(!checked)}
         onKeyDown={handleKeyDown}
-        role="button"
+        role="switch"
+        aria-checked={checked}
         tabIndex={0}
       >
         <div
@@ -742,27 +743,7 @@ export default function PriceListForm() {
     approvalDate: null,
   });
 
-  useEffect(() => {
-    fetchProducts();
-    if (isEdit) {
-      fetchPricelist();
-    } else if (copyFromId) {
-      copyPricelist(copyFromId);
-    } else {
-      // New pricelist - load default prices as starting point
-      loadDefaultPrices();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    copyFromId,
-    copyPricelist,
-    fetchPricelist,
-    fetchProducts,
-    isEdit, // New pricelist - load default prices as starting point
-    loadDefaultPrices,
-  ]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const response = await productService.getProducts({ limit: 500 });
       setProducts(response.products || []);
@@ -770,9 +751,9 @@ export default function PriceListForm() {
       console.error("Error fetching products:", error);
       notificationService.error("Failed to load products");
     }
-  };
+  }, []);
 
-  const fetchPricelist = async () => {
+  const fetchPricelist = useCallback(async () => {
     try {
       setLoading(true);
       const response = await pricelistService.getById(id);
@@ -802,9 +783,9 @@ export default function PriceListForm() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
-  const copyPricelist = async (sourceId) => {
+  const copyPricelist = useCallback(async (sourceId) => {
     try {
       setLoading(true);
       const response = await pricelistService.getById(sourceId);
@@ -828,9 +809,9 @@ export default function PriceListForm() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const loadDefaultPrices = async () => {
+  const loadDefaultPrices = useCallback(async () => {
     try {
       setLoading(true);
       // Get all pricelists to find the default one
@@ -854,7 +835,19 @@ export default function PriceListForm() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
+    if (isEdit) {
+      fetchPricelist();
+    } else if (copyFromId) {
+      copyPricelist(copyFromId);
+    } else {
+      // New pricelist - load default prices as starting point
+      loadDefaultPrices();
+    }
+  }, [copyFromId, copyPricelist, fetchPricelist, fetchProducts, isEdit, loadDefaultPrices]);
 
   const handleChange = (field, value) => {
     // Epic 9 - PRICE-008: Prevent editing approved pricelists
@@ -1259,10 +1252,13 @@ export default function PriceListForm() {
     return item?.sellingPrice || "";
   };
 
-  const getProductCurrentPrice = (productId) => {
-    const product = products.find((p) => p.id === productId);
-    return product?.sellingPrice || 0;
-  };
+  const getProductCurrentPrice = useCallback(
+    (productId) => {
+      const product = products.find((p) => p.id === productId);
+      return product?.sellingPrice || 0;
+    },
+    [products]
+  );
 
   const getProductCostPrice = (productId) => {
     const product = products.find((p) => p.id === productId);
@@ -2140,17 +2136,11 @@ export default function PriceListForm() {
       {showBulkDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Overlay */}
-          <div
+          <button
+            type="button"
             className="absolute inset-0 bg-black/55"
             onClick={() => setShowBulkDialog(false)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setShowBulkDialog(false);
-              }
-            }}
-            role="button"
-            tabIndex={0}
+            aria-label="Close dialog"
           />
           {/* Modal */}
           <div
