@@ -244,7 +244,9 @@ const CurrencyConversionModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Overlay */}
-      <button type="button" className="absolute inset-0 bg-black/55"
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/55"
         onClick={onClose}
         onKeyDown={handleOverlayKeyDown}
       />
@@ -267,7 +269,9 @@ const CurrencyConversionModal = ({
               {product.uniqueName || product.unique_name}
             </p>
           </div>
-          <button type="button" onClick={onClose}
+          <button
+            type="button"
+            onClick={onClose}
             className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"}`}
           >
             <X size={18} />
@@ -365,7 +369,9 @@ const CurrencyConversionModal = ({
 
           {/* Override Section */}
           {!showOverride && (
-            <button type="button" onClick={() => setShowOverride(true)}
+            <button
+              type="button"
+              onClick={() => setShowOverride(true)}
               className={`w-full text-xs ${isDarkMode ? "text-[#4aa3ff] hover:text-[#5bb2ff]" : "text-blue-600 hover:text-blue-700"} transition-colors`}
             >
               Override Exchange Rate (Manager Only)
@@ -392,7 +398,9 @@ const CurrencyConversionModal = ({
                 }`}
               />
               <div className="flex gap-2 mt-2">
-                <button type="button" onClick={() => {
+                <button
+                  type="button"
+                  onClick={() => {
                     setShowOverride(false);
                     setOverrideRate("");
                   }}
@@ -404,7 +412,9 @@ const CurrencyConversionModal = ({
                 >
                   Cancel
                 </button>
-                <button type="button" onClick={handleApplyOverride}
+                <button
+                  type="button"
+                  onClick={handleApplyOverride}
                   className="flex-1 px-3 py-2 text-xs rounded-xl bg-[#4aa3ff] text-[#001018] font-bold"
                 >
                   Apply Override
@@ -447,7 +457,9 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
   return (
     <>
       {/* Overlay */}
-      <button type="button" className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
+      <button
+        type="button"
+        className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
@@ -478,7 +490,9 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
                 View product information
               </p>
             </div>
-            <button type="button" onClick={onClose}
+            <button
+              type="button"
+              onClick={onClose}
               className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"}`}
             >
               <X size={18} />
@@ -654,7 +668,9 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
                 : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
             }}
           >
-            <button type="button" onClick={() => {
+            <button
+              type="button"
+              onClick={() => {
                 onClose();
                 navigate(`/products/${product.id}`);
               }}
@@ -1359,7 +1375,9 @@ export default function PriceListForm() {
       >
         <div className="max-w-[1400px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => navigate("/pricelists")}
+            <button
+              type="button"
+              onClick={() => navigate("/pricelists")}
               className={`p-2 rounded-xl transition-colors ${
                 isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
               }`}
@@ -1423,7 +1441,9 @@ export default function PriceListForm() {
             </button>
             {/* Approval Workflow Buttons (Epic 9 - PRICE-008) */}
             {formData.approvalStatus === "draft" && (
-              <button type="button" onClick={handleSubmitForApproval}
+              <button
+                type="button"
+                onClick={handleSubmitForApproval}
                 disabled={saving}
                 className={BTN_CLASSES(isDarkMode)}
               >
@@ -1431,7 +1451,9 @@ export default function PriceListForm() {
               </button>
             )}
             {formData.approvalStatus === "pending_approval" && (
-              <button type="button" onClick={handleApprove}
+              <button
+                type="button"
+                onClick={handleApprove}
                 disabled={saving}
                 className="bg-green-600 border-transparent text-white font-semibold hover:bg-green-700 rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors"
               >
@@ -1439,7 +1461,9 @@ export default function PriceListForm() {
                 Approve
               </button>
             )}
-            <button type="button" onClick={handleSubmit}
+            <button
+              type="button"
+              onClick={handleSubmit}
               disabled={saving || formData.approvalStatus === "approved"}
               className={BTN_PRIMARY}
             >
@@ -1696,7 +1720,9 @@ export default function PriceListForm() {
             <div className={CARD_CLASSES(isDarkMode)}>
               {/* Tab Navigation */}
               <div className={`flex border-b -mx-4 px-4 ${isDarkMode ? "border-[#2a3640]" : "border-gray-200"}`}>
-                <button type="button" onClick={() => setActiveTab("prices")}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("prices")}
                   className={`flex items-center gap-2 px-4 py-2.5 text-[13px] font-bold transition-colors border-b-2 -mb-px ${
                     activeTab === "prices"
                       ? `border-[#4aa3ff] ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-600"}`
@@ -1712,7 +1738,9 @@ export default function PriceListForm() {
                   </span>
                 </button>
                 {isEdit && (
-                  <button type="button" onClick={() => setActiveTab("history")}
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("history")}
                     className={`flex items-center gap-2 px-4 py-2.5 text-[13px] font-bold transition-colors border-b-2 -mb-px ${
                       activeTab === "history"
                         ? `border-[#4aa3ff] ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-600"}`
@@ -1741,7 +1769,9 @@ export default function PriceListForm() {
                           <Percent size={14} className="inline mr-1" />
                           Bulk Adjust
                         </button>
-                        <button type="button" onClick={handleResetToDefaults}
+                        <button
+                          type="button"
+                          onClick={handleResetToDefaults}
                           disabled={formData.items.length === 0}
                           className={BTN_SMALL(isDarkMode)}
                         >
@@ -1811,7 +1841,9 @@ export default function PriceListForm() {
                                 }`}
                               >
                                 <td className="py-2.5 px-4">
-                                  <button type="button" onClick={() => setSelectedProduct(product)}
+                                  <button
+                                    type="button"
+                                    onClick={() => setSelectedProduct(product)}
                                     className={`font-medium text-[13px] text-left hover:text-[#4aa3ff] transition-colors ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
                                   >
                                     {product.uniqueName || product.unique_name || "N/A"}
@@ -1860,7 +1892,9 @@ export default function PriceListForm() {
                                         >
                                           Cost: {costPrice?.toFixed(2)} {costCurrency}
                                         </div>
-                                        <button type="button" onClick={() => handleShowCurrencyConversion(product)}
+                                        <button
+                                          type="button"
+                                          onClick={() => handleShowCurrencyConversion(product)}
                                           className={`text-[9px] flex items-center justify-end gap-1 ${isDarkMode ? "text-[#4aa3ff] hover:text-[#5bb2ff]" : "text-blue-600 hover:text-blue-700"} transition-colors cursor-pointer`}
                                         >
                                           <DollarSign size={10} />
@@ -2028,7 +2062,9 @@ export default function PriceListForm() {
                     {saving ? "Saving..." : "Save Price List"}
                   </button>
                   {isEdit && (
-                    <button type="button" onClick={handleSaveAsNew}
+                    <button
+                      type="button"
+                      onClick={handleSaveAsNew}
                       disabled={saving}
                       className={`w-full flex items-center justify-center gap-2 ${BTN_CLASSES(isDarkMode)}`}
                     >
@@ -2134,7 +2170,9 @@ export default function PriceListForm() {
                   Apply percentage change to all prices
                 </p>
               </div>
-              <button type="button" onClick={() => setShowBulkDialog(false)}
+              <button
+                type="button"
+                onClick={() => setShowBulkDialog(false)}
                 className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"}`}
               >
                 <X size={18} />
@@ -2209,7 +2247,9 @@ export default function PriceListForm() {
 
               {/* Actions */}
               <div className="flex gap-2">
-                <button type="button" onClick={() => setShowBulkDialog(false)}
+                <button
+                  type="button"
+                  onClick={() => setShowBulkDialog(false)}
                   className={`flex-1 ${BTN_CLASSES(isDarkMode)}`}
                 >
                   Cancel
