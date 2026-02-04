@@ -401,7 +401,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         };
 
         // Remove undefined values
-        Object.keys(queryParams).forEach((key) => queryParams[key] === undefined && delete queryParams[key]);
+        Object.keys(queryParams).forEach((key) => {
+          if (queryParams[key] === undefined) {
+            delete queryParams[key];
+          }
+        });
 
         // Use invoiceService to get ALL invoices (including draft and proforma)
         const response = await invoiceService.getInvoices(queryParams, signal);

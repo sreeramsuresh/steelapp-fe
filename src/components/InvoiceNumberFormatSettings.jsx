@@ -41,9 +41,9 @@ export const InvoiceNumberFormatSettings = () => {
         className={`rounded-lg p-4 mb-6 border ${isDarkMode ? "bg-gray-900/50 border-gray-700" : "bg-gray-50 border-gray-200"}`}
       >
         <div className="mb-4">
-          <label className={`block text-xs font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+          <div className={`block text-xs font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
             Current Format Pattern
-          </label>
+          </div>
           <div
             className={`font-mono text-sm p-3 rounded ${isDarkMode ? "bg-gray-800 text-gray-200" : "bg-white text-gray-800"}`}
           >
@@ -52,9 +52,9 @@ export const InvoiceNumberFormatSettings = () => {
         </div>
 
         <div className="mb-4">
-          <label className={`block text-xs font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+          <div className={`block text-xs font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
             Example Output
-          </label>
+          </div>
           <div className="flex items-center gap-2">
             <div
               className={`font-mono text-sm p-3 rounded flex-1 ${isDarkMode ? "bg-gray-800 text-green-300" : "bg-white text-green-700"}`}
@@ -81,9 +81,9 @@ export const InvoiceNumberFormatSettings = () => {
         </div>
 
         <div>
-          <label className={`block text-xs font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+          <div className={`block text-xs font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
             Format Components
-          </label>
+          </div>
           <div className={`text-sm space-y-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
             <p>
               <span className="font-semibold">DFT</span> = Status prefix (DFT = Draft, INV = Invoice)

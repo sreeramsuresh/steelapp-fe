@@ -609,7 +609,7 @@ export const RecurringInvoiceSettings = ({ settings, onToggle, onUpdate, isDarkM
             `}
           />
         </button>
-      </button>
+      </div>
 
       {/* Settings (shown when enabled) */}
       {settings.enabled && (
@@ -708,7 +708,7 @@ export const RecurringInvoiceSettings = ({ settings, onToggle, onUpdate, isDarkM
                 `}
               />
             </button>
-          </button>
+          </div>
 
           {/* Info banner */}
           <div
