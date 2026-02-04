@@ -15,9 +15,9 @@
  * Acts as the final contract verification before product data enters UI components
  */
 
-// Environment configuration
-const IS_DEVELOPMENT = import.meta.env.DEV;
-const IS_PRODUCTION = import.meta.env.PROD;
+// Environment configuration (with fallback for Node testing)
+const IS_DEVELOPMENT = import.meta?.env?.DEV ?? true;
+const IS_PRODUCTION = import.meta?.env?.PROD ?? false;
 
 /**
  * Critical fields required for pricing logic
