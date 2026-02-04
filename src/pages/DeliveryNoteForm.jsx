@@ -826,17 +826,10 @@ const DeliveryNoteForm = () => {
                       className={`rounded-[14px] border ${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"}`}
                     >
                       {/* Item Header - Clickable to expand */}
-                      <div
-                        className={`p-3 cursor-pointer transition-colors ${isDarkMode ? "hover:bg-[#141a20]" : "hover:bg-gray-100"}`}
+                      <button
+                        type="button"
+                        className={`w-full p-3 cursor-pointer transition-colors border-0 bg-transparent text-left ${isDarkMode ? "hover:bg-[#141a20]" : "hover:bg-gray-100"}`}
                         onClick={() => toggleItemExpansion(index)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            toggleItemExpansion(index);
-                          }
-                        }}
-                        role="button"
-                        tabIndex={0}
                         aria-expanded={expandedItems.has(index)}
                         aria-label={`Toggle details for ${item.name}`}
                       >
@@ -1030,7 +1023,7 @@ const DeliveryNoteForm = () => {
                           )}
                         </div>
                       )}
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -1192,17 +1185,10 @@ const DeliveryNoteForm = () => {
 
       {/* ==================== DELIVERY ADDRESS DRAWER ==================== */}
 
-      <div
-        className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${showDeliveryAddressDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      <button
+        type="button"
+        className={`fixed inset-0 bg-black/55 z-30 transition-opacity border-0 ${showDeliveryAddressDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
         onClick={() => setShowDeliveryAddressDrawer(false)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setShowDeliveryAddressDrawer(false);
-          }
-        }}
-        role="button"
-        tabIndex={0}
         aria-label="Close delivery address drawer"
       />
       <div
@@ -1300,17 +1286,10 @@ const DeliveryNoteForm = () => {
 
       {/* ==================== TRANSPORT DETAILS DRAWER ==================== */}
 
-      <div
-        className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${showTransportDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      <button
+        type="button"
+        className={`fixed inset-0 bg-black/55 z-30 transition-opacity border-0 ${showTransportDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
         onClick={() => setShowTransportDrawer(false)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setShowTransportDrawer(false);
-          }
-        }}
-        role="button"
-        tabIndex={0}
         aria-label="Close transport details drawer"
       />
       <div
@@ -1402,17 +1381,10 @@ const DeliveryNoteForm = () => {
 
       {/* ==================== NOTES DRAWER ==================== */}
 
-      <div
-        className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${showNotesDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      <button
+        type="button"
+        className={`fixed inset-0 bg-black/55 z-30 transition-opacity border-0 ${showNotesDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
         onClick={() => setShowNotesDrawer(false)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setShowNotesDrawer(false);
-          }
-        }}
-        role="button"
-        tabIndex={0}
         aria-label="Close notes drawer"
       />
       <div
