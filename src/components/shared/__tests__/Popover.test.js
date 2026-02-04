@@ -26,7 +26,7 @@ const Popover = ({
 }) => {
   return (
     <div data-testid="popover-container">
-      <button
+      <button type="button"
         onClick={() => (!isOpen ? null : onClose())}
         className={triggerClassName}
         data-testid="popover-trigger"

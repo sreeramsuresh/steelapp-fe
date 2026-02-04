@@ -61,7 +61,7 @@ const Toast = ({
         {title && <h3 className="font-semibold mb-1">{title}</h3>}
         <p>{message}</p>
         {action && (
-          <button
+          <button type="button"
             onClick={action.onClick}
             className="mt-2 underline hover:opacity-80 font-semibold"
             data-testid="toast-action"
@@ -72,7 +72,7 @@ const Toast = ({
       </div>
 
       {showCloseButton && (
-        <button
+        <button type="button"
           onClick={onClose}
           className="flex-shrink-0 opacity-70 hover:opacity-100"
           aria-label="Close toast"

@@ -55,7 +55,7 @@ const Drawer = ({
           <div className="flex items-center justify-between border-b px-6 py-4">
             <h2 className="text-lg font-semibold">{title}</h2>
             {showCloseButton && (
-              <button
+              <button type="button"
                 onClick={onClose}
                 className="text-gray-500 hover:text-gray-700"
                 aria-label="Close drawer"

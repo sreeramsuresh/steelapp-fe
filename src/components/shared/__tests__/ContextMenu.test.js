@@ -64,6 +64,7 @@ const ContextMenu = ({ children, items = [], onItemSelect, onShow = null, onHide
         >
           {items.map((item, index) => (
             <button
+              type="button"
               key={index}
               onClick={() => handleItemClick(item)}
               disabled={item.disabled}

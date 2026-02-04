@@ -70,6 +70,7 @@ const AlertDialog = ({
             <div className="flex justify-end gap-3">
               {showCloseButton && (
                 <button
+                  type="button"
                   onClick={onClose}
                   className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
                   data-testid="alert-close"
@@ -78,6 +79,7 @@ const AlertDialog = ({
                 </button>
               )}
               <button
+                type="button"
                 onClick={onClose}
                 className={`px-4 py-2 text-white rounded ${
                   type === "error"
