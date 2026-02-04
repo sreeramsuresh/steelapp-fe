@@ -184,20 +184,13 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
           const reorderPercent = (product.reorderPoint / product.maxStock) * 100;
 
           return (
-            <div
+            <button
+              type="button"
               key={product.id}
-              className={`p-3 rounded-lg border transition-all cursor-pointer ${priority.bg} ${priority.border} ${
+              className={`p-3 rounded-lg border transition-all cursor-pointer w-full text-left ${priority.bg} ${priority.border} ${
                 isDarkMode ? "hover:ring-1" : "hover:ring-2"
               } hover:${priority.ringColor}`}
               onClick={() => onProductClick?.(product)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  onProductClick?.(product);
-                }
-              }}
             >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
@@ -261,7 +254,7 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
                 </div>
                 <ChevronRight size={14} className={isDarkMode ? "text-gray-500" : "text-gray-400"} />
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

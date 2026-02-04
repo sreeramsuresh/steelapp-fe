@@ -167,23 +167,16 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
           {/* Heatmap Rows */}
           {turnoverData.products.map((product) => (
             <div key={product.id} className="flex items-center mb-1 group">
-              <div
-                className={`w-24 flex-shrink-0 text-xs truncate pr-2 cursor-pointer ${
+              <button
+                type="button"
+                className={`w-24 flex-shrink-0 text-xs truncate pr-2 cursor-pointer text-left ${
                   isDarkMode ? "text-gray-300" : "text-gray-700"
                 } group-hover:text-teal-500`}
                 onClick={() => onProductClick?.(product)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onProductClick?.(product);
-                  }
-                }}
                 title={product.displayName || product.display_name || "N/A"}
               >
                 {product.displayName || product.display_name || "N/A"}
-              </div>
+              </button>
               <div className="flex-1 flex gap-0.5">
                 {product.data.map((value, monthIndex) => (
                   <div
