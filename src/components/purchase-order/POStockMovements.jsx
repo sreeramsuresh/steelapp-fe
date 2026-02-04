@@ -87,17 +87,10 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
 
   return (
     <div className="mt-2 p-4 bg-white rounded-lg shadow border border-gray-200">
-      <div
-        className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+      <button
+        type="button"
+        className="flex items-center justify-between hover:bg-gray-50 p-2 rounded transition-colors w-full text-left"
         onClick={() => setExpanded(!expanded)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setExpanded(!expanded);
-          }
-        }}
-        role="button"
-        tabIndex={0}
       >
         <div className="flex items-center gap-2">
           <Package className="w-5 h-5 text-blue-600" />
@@ -114,7 +107,7 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
         <button type="button" className="p-1 hover:bg-gray-100 rounded transition-colors">
           {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
         </button>
-      </div>
+      </button>
 
       {expanded && (
         <div className="mt-4">

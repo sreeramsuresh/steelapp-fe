@@ -665,8 +665,6 @@ const SupplierBillList = () => {
                               e.stopPropagation();
                             }
                           }}
-                          role="button"
-                          tabIndex={0}
                         >
                           {/* View */}
                           <button

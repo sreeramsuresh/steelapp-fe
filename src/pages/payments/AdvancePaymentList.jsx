@@ -933,8 +933,6 @@ const AdvancePaymentList = () => {
                               e.stopPropagation();
                             }
                           }}
-                          role="button"
-                          tabIndex={0}
                         >
                           {/* View */}
                           <button

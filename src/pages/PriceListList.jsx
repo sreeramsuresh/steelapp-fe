@@ -217,26 +217,19 @@ export default function PriceListList() {
             <Filter size={16} />
             QUICK FILTERS
           </button>
-          <div
-            className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${
+          <button
+            type="button"
+            className={`w-10 h-5 rounded-full relative transition-colors ${
               showFilters ? "bg-teal-500" : isDarkMode ? "bg-gray-600" : "bg-gray-300"
             }`}
             onClick={() => setShowFilters(!showFilters)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setShowFilters(!showFilters);
-              }
-            }}
-            role="button"
-            tabIndex={0}
           >
             <div
               className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
                 showFilters ? "translate-x-5" : "translate-x-0.5"
               }`}
             />
-          </div>
+          </button>
         </div>
 
         {/* Filter Chips */}
@@ -377,18 +370,11 @@ export default function PriceListList() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-stretch">
             {filteredPricelists.map((pricelist) => (
-              <div
+              <button
+                type="button"
                 key={pricelist.id}
                 onClick={() => navigate(`/pricelists/${pricelist.id}`)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    navigate(`/pricelists/${pricelist.id}`);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                className={`rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer flex flex-col ${
+                className={`rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col w-full text-left ${
                   isDarkMode
                     ? "bg-[#1E2328] border-[#37474F] hover:border-teal-500"
                     : "bg-white border-[#E0E0E0] hover:border-teal-500"
@@ -534,7 +520,7 @@ export default function PriceListList() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}

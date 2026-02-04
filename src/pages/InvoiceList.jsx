@@ -2609,18 +2609,12 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       {false && showRecordPaymentDrawer && paymentDrawerInvoice && (
         <div className="fixed inset-0 z-[1100] flex">
           {/* Backdrop: absolute overlay on mobile, flex-1 on desktop */}
-          <div
+          <button
+            type="button"
             className="absolute inset-0 bg-black/30 sm:relative sm:flex-1"
             onClick={handleCloseRecordPaymentDrawer}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                handleCloseRecordPaymentDrawer();
-              }
-            }}
-            role="button"
-            tabIndex={0}
             aria-label="Close payment drawer"
-          ></div>
+          ></button>
           {/* Drawer: full width on mobile, max-w-xl on desktop */}
           <div
             className={`relative z-10 w-full sm:max-w-xl h-full overflow-auto ${

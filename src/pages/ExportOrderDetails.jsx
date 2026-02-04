@@ -853,12 +853,10 @@ const ExportOrderDetails = () => {
               </button>
               {statusDropdownOpen && (
                 <>
-                  <div
+                  <button
+                    type="button"
                     className="fixed inset-0 z-10"
                     onClick={() => setStatusDropdownOpen(false)}
-                    onKeyDown={(e) => e.key === "Escape" && setStatusDropdownOpen(false)}
-                    role="button"
-                    tabIndex={-1}
                   />
                   <div
                     className={`absolute right-0 mt-2 w-56 rounded-lg shadow-lg z-20 border ${

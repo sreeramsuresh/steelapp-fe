@@ -161,18 +161,11 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
             {/* Credit Notes List */}
             <div className="space-y-2">
               {creditNotes.map((cn) => (
-                <div
+                <button
+                  type="button"
                   key={cn.id}
                   onClick={() => navigate(`/credit-notes/${cn.id}`)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      navigate(`/credit-notes/${cn.id}`);
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
+                  className={`flex items-center justify-between p-3 rounded-lg transition-colors w-full text-left ${
                     isDarkMode ? "bg-gray-700/50 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"
                   }`}
                 >
@@ -193,7 +186,7 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
                     {getStatusBadge(cn.status)}
                     <ExternalLink className={`h-4 w-4 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
                   </div>
-                </div>
+                </button>
               ))}
             </div>
 
