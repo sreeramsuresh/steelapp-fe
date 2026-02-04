@@ -239,18 +239,11 @@ const DesignatedZoneWidget = ({
             {zoneData.recentTransactions.slice(0, 3).map((tx) => {
               const docStatus = getDocumentStatus(tx.documents);
               return (
-                <div
+                <button
+                  type="button"
                   key={tx.id}
                   onClick={() => onViewTransaction?.(tx)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      onViewTransaction?.(tx);
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  className={`p-2.5 rounded-lg border cursor-pointer transition-all hover:scale-[1.01] ${
+                  className={`p-2.5 rounded-lg border transition-all hover:scale-[1.01] w-full text-left ${
                     isDarkMode
                       ? "bg-[#2E3B4E] border-[#37474F] hover:border-teal-600"
                       : "bg-white border-gray-200 hover:border-teal-400"
@@ -288,7 +281,7 @@ const DesignatedZoneWidget = ({
                       </div>
                     </div>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>

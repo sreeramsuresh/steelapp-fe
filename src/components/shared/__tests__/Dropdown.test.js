@@ -18,7 +18,8 @@ import { renderWithProviders, setupUser } from "../../../test/component-setup";
 const Dropdown = ({ isOpen, onClose, trigger = "Menu", items = [], onItemSelect, disabled = false }) => {
   return (
     <div data-testid="dropdown-container">
-      <button type="button"
+      <button
+        type="button"
         disabled={disabled}
         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
         aria-haspopup="menu"
@@ -38,7 +39,8 @@ const Dropdown = ({ isOpen, onClose, trigger = "Menu", items = [], onItemSelect,
             data-testid="dropdown-menu"
           >
             {items.map((item, index) => (
-              <button type="button"
+              <button
+                type="button"
                 key={index}
                 onClick={() => {
                   onItemSelect?.(item);

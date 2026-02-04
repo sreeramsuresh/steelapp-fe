@@ -345,18 +345,11 @@ const TRNValidationWidget = ({
             const StatusIcon = statusConfig.icon;
 
             return (
-              <div
+              <button
+                type="button"
                 key={validation.id}
                 onClick={() => onViewEntity?.(validation)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onViewEntity?.(validation);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                className={`p-2.5 rounded-lg border cursor-pointer transition-all hover:scale-[1.01] ${
+                className={`p-2.5 rounded-lg border transition-all hover:scale-[1.01] w-full text-left ${
                   statusConfig.bgColor
                 } ${statusConfig.borderColor}`}
               >
@@ -381,7 +374,7 @@ const TRNValidationWidget = ({
                     <span className={`text-xs font-medium ${statusConfig.textColor}`}>{statusConfig.label}</span>
                   </div>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
@@ -392,18 +385,11 @@ const TRNValidationWidget = ({
         <div className="space-y-2 max-h-48 overflow-y-auto">
           {trnData.invalidTRNs.length > 0 ? (
             trnData.invalidTRNs.map((invalid) => (
-              <div
+              <button
+                type="button"
                 key={invalid.id}
                 onClick={() => onViewEntity?.(invalid)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onViewEntity?.(invalid);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                className={`p-2.5 rounded-lg border cursor-pointer transition-all hover:scale-[1.01] ${
+                className={`p-2.5 rounded-lg border transition-all hover:scale-[1.01] w-full text-left ${
                   isDarkMode
                     ? "bg-red-900/20 border-red-700 hover:border-red-500"
                     : "bg-red-50 border-red-200 hover:border-red-400"
@@ -421,7 +407,7 @@ const TRNValidationWidget = ({
                   </div>
                   <XCircle size={16} className="text-red-500 flex-shrink-0 ml-2" />
                 </div>
-              </div>
+              </button>
             ))
           ) : (
             <div className={`p-6 text-center rounded-lg ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}>

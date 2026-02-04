@@ -309,18 +309,11 @@ const ReverseChargeWidget = ({
       {selectedView === "transactions" && (
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {reverseChargeData.recentTransactions.map((tx) => (
-            <div
+            <button
+              type="button"
               key={tx.id}
               onClick={() => onViewTransaction?.(tx)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  onViewTransaction?.(tx);
-                }
-              }}
-              role="button"
-              tabIndex={0}
-              className={`p-3 rounded-lg border cursor-pointer transition-all hover:scale-[1.01] ${
+              className={`p-3 rounded-lg border transition-all hover:scale-[1.01] w-full text-left ${
                 isDarkMode
                   ? "bg-[#2E3B4E] border-[#37474F] hover:border-orange-600"
                   : "bg-white border-gray-200 hover:border-orange-400"
@@ -354,7 +347,7 @@ const ReverseChargeWidget = ({
                   )}
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       )}
