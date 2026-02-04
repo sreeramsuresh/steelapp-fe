@@ -501,7 +501,9 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
 
   if (visibility.showVATAmount) {
     pdf.text(labels.vatAmount, totalsX, currentY);
-    pdf.text(`${currencySymbol} ${formatNumber(calc.vatAmount)}`, pageWidth - layout.marginRight, currentY, { align: "right" });
+    pdf.text(`${currencySymbol} ${formatNumber(calc.vatAmount)}`, pageWidth - layout.marginRight, currentY, {
+      align: "right",
+    });
     currentY += 5;
   }
 
@@ -624,20 +626,28 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
 
   if (visibility.showTerms && docStructure.invoice.terms) {
     pdf.text(`\u2022 ${labels.paymentTerm} `, layout.marginLeft, currentY);
-    const termsText = pdf.splitTextToSize(docStructure.invoice.terms, pageWidth - layout.marginLeft - layout.marginRight - 30);
+    const termsText = pdf.splitTextToSize(
+      docStructure.invoice.terms,
+      pageWidth - layout.marginLeft - layout.marginRight - 30
+    );
     pdf.text(termsText[0] || "", layout.marginLeft + 26, currentY);
     currentY += 5;
   }
 
   if (visibility.showNotes && docStructure.invoice.notes) {
     pdf.text(`\u2022 ${labels.comment} `, layout.marginLeft, currentY);
-    const notesText = pdf.splitTextToSize(docStructure.invoice.notes, pageWidth - layout.marginLeft - layout.marginRight - 25);
+    const notesText = pdf.splitTextToSize(
+      docStructure.invoice.notes,
+      pageWidth - layout.marginLeft - layout.marginRight - 25
+    );
     pdf.text(notesText[0] || "", layout.marginLeft + 20, currentY);
     currentY += 5;
   }
 
   if (visibility.showWarehouse && (docStructure.invoice.warehouseName || docStructure.invoice.warehouseCode)) {
-    const warehouseInfo = [docStructure.invoice.warehouseName, docStructure.invoice.warehouseCode].filter(Boolean).join(" - ");
+    const warehouseInfo = [docStructure.invoice.warehouseName, docStructure.invoice.warehouseCode]
+      .filter(Boolean)
+      .join(" - ");
     pdf.text(`\u2022 ${labels.warehouse} `, layout.marginLeft, currentY);
     pdf.text(warehouseInfo, layout.marginLeft + 22, currentY);
     currentY += 5;

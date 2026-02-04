@@ -264,7 +264,7 @@ describe("Multi-Tenancy Security - Data Isolation", () => {
 
         return (
           <>
-            <div>Audit Logs for {currentCompanyId}:</button>
+            <div>Audit Logs for {currentCompanyId}:</div>
             {filteredLogs.map((log) => (
               <div key={log.id}>
                 {log.action} by {log.user}
@@ -332,7 +332,7 @@ describe("Multi-Tenancy Security - Data Isolation", () => {
 
         React.useEffect(() => {
           handleAccessAttempt("COMPANY-B");
-          // eslint-disable-next-line react-hooks/exhaustive-deps
+          // biome-ignore lint/correctness/useExhaustiveDependencies: Test fixture - handleAccessAttempt is stable
         }, [handleAccessAttempt]);
 
         return (

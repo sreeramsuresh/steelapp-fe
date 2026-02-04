@@ -93,7 +93,7 @@ describe("Stock Management Feature", () => {
 
         return (
           <>
-            <div>Warehouse A: {warehouseA}</button>
+            <div>Warehouse A: {warehouseA}</div>
             <div>Warehouse B: {warehouseB}</div>
             <input
               type="number"
@@ -180,7 +180,7 @@ describe("Stock Management Feature", () => {
                   {batch.batchNo}: {batch.qty} units
                 </div>
                 <div>Exp: {batch.expDate}</div>
-              </button>
+              </div>
             ))}
           </>
         );

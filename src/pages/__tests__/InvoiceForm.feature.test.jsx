@@ -51,7 +51,7 @@ describe("Invoice Feature", () => {
                   {item.product} - Qty: {item.qty}
                 </div>
               ))}
-            </button>
+            </div>
             <div>Subtotal: {invoice.subtotal}</div>
             <div>VAT (5%): {invoice.vat}</div>
             <div>Total: {invoice.total}</div>
@@ -92,7 +92,7 @@ describe("Invoice Feature", () => {
         return (
           <>
             <input placeholder="Customer Name" />
-            <div>{errors.customer && <span id="customer-error">{errors.customer}</span>}</button>
+            <div>{errors.customer && <span id="customer-error">{errors.customer}</span>}</div>
             <button type="button" onClick={handleSave}>
               Save
             </button>
@@ -116,7 +116,7 @@ describe("Invoice Feature", () => {
 
         return (
           <>
-            <div>Subtotal: {subtotal}</button>
+            <div>Subtotal: {subtotal}</div>
             <div>VAT: {vat}</div>
             <div>Total: {total}</div>
           </>

@@ -34,7 +34,9 @@ export function buildReceiptDocumentStructure(payment, invoice, company, custome
   const invoiceNumber = invoice?.invoiceNumber || invoice?.invoice_number || "N/A";
   const invoiceDate = invoice?.invoiceDate || invoice?.invoice_date || "";
   const invoiceTotal = parseFloat(invoice?.total || invoice?.total_amount || 0);
-  const invoiceExcludingVAT = parseFloat(invoice?.amountExcludingVat || invoice?.amount_excluding_vat || invoiceTotal / 1.05);
+  const invoiceExcludingVAT = parseFloat(
+    invoice?.amountExcludingVat || invoice?.amount_excluding_vat || invoiceTotal / 1.05
+  );
   const invoiceVAT = parseFloat(invoice?.vat || invoice?.vat_amount || invoiceTotal - invoiceExcludingVAT);
 
   const paymentAmount = parseFloat(payment?.amount || 0);
@@ -166,7 +168,10 @@ export const generateReceiptHTML = (payment, invoice, company, customer, payment
         <td>${referenceNumber}</td>
       </tr>`;
     }
-  } else if (paymentMethodDisplay.toLowerCase() === "bank_transfer" || paymentMethodDisplay.toLowerCase() === "bank transfer") {
+  } else if (
+    paymentMethodDisplay.toLowerCase() === "bank_transfer" ||
+    paymentMethodDisplay.toLowerCase() === "bank transfer"
+  ) {
     paymentMethodHTML = "🏦 Bank Transfer";
     if (referenceNumber) {
       additionalPaymentDetails = `<tr>
@@ -176,7 +181,10 @@ export const generateReceiptHTML = (payment, invoice, company, customer, payment
     }
   } else if (paymentMethodDisplay.toLowerCase() === "cash") {
     paymentMethodHTML = "💵 Cash";
-  } else if (paymentMethodDisplay.toLowerCase() === "credit_card" || paymentMethodDisplay.toLowerCase() === "credit card") {
+  } else if (
+    paymentMethodDisplay.toLowerCase() === "credit_card" ||
+    paymentMethodDisplay.toLowerCase() === "credit card"
+  ) {
     paymentMethodHTML = "💳 Credit Card";
     if (referenceNumber) {
       additionalPaymentDetails = `<tr>
@@ -185,7 +193,6 @@ export const generateReceiptHTML = (payment, invoice, company, customer, payment
       </tr>`;
     }
   }
-
 
   // Build HTML
   const html = `

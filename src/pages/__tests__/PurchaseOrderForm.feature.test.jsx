@@ -48,7 +48,7 @@ describe("Purchase Order Feature", () => {
                   {item.product} - {item.qty} units @ {item.unitCost}
                 </div>
               ))}
-            </button>
+            </div>
             <div>Total: {po.total}</div>
             {/* eslint-disable-next-line local-rules/no-dead-button */}
             <button type="button">Save PO</button>
@@ -113,7 +113,7 @@ describe("Purchase Order Feature", () => {
 
         return (
           <>
-            <div>Current Stock: {stockLevel}</button>
+            <div>Current Stock: {stockLevel}</div>
             <button type="button" onClick={handleReceiveGoods}>
               Receive 50 Units
             </button>
@@ -192,7 +192,7 @@ describe("Purchase Order Feature", () => {
 
         return (
           <>
-            <div>PO Amount: {matches.poAmount}</button>
+            <div>PO Amount: {matches.poAmount}</div>
             <div>GRN Amount: {matches.grnAmount}</div>
             <div>Bill Amount: {matches.billAmount}</div>
             <div className={isMatched ? "alert-success" : "alert-error"}>
@@ -286,7 +286,7 @@ describe("Purchase Order Feature", () => {
 
         return (
           <>
-            <div>Batch: {batch.batchNo}</button>
+            <div>Batch: {batch.batchNo}</div>
             <div>Supplier: {batch.supplier}</div>
             <div>Qty: {batch.quantity}</div>
             <div>Received: {batch.dateReceived}</div>
