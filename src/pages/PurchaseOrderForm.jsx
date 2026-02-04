@@ -493,7 +493,7 @@ const ToggleSwitchPO = ({ enabled, onChange, label, description, isDarkMode }) =
         }`}
       />
     </button>
-  </button>
+  </div>
 );
 
 // Form Settings Panel Component
@@ -2704,7 +2704,7 @@ const PurchaseOrderForm = () => {
                   className={INPUT_CLASSES(isDarkMode)}
                 />
               </div>
-            </button>
+            </div>
             <div className={DIVIDER_CLASSES(isDarkMode)} />
             {/* Discount */}
             <div className="grid grid-cols-2 gap-3">
@@ -2892,7 +2892,7 @@ const PurchaseOrderForm = () => {
                 placeholder="Additional notes..."
                 className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`}
               />
-            </button>
+            </div>
             <div>
               <label htmlFor="purchaseOrderTerms" className={LABEL_CLASSES(isDarkMode)}>
                 Terms & Conditions
@@ -3093,7 +3093,7 @@ const PurchaseOrderForm = () => {
                   <SelectItem value="50% Advance, 50% on Delivery">50% Advance, 50% on Delivery</SelectItem>
                   <SelectItem value="Custom">Custom Terms</SelectItem>
                 </FormSelect>
-              </button>
+              </div>
               <div>
                 <label htmlFor="dueDate" className={LABEL_CLASSES(isDarkMode)}>
                   Due Date

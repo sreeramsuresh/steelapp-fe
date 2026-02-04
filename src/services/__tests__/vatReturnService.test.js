@@ -1,9 +1,8 @@
-import { test, describe, beforeEach, afterEach } from 'node:test';
-import assert from 'node:assert';
-import sinon from 'sinon';
-import vatReturnService, { FORM_201_BOXES, VAT_RETURN_STATUSES } from "../vatReturnService.js";
+import assert from "node:assert";
+import { afterEach, beforeEach, describe, test } from "node:test";
+import sinon from "sinon";
 import { apiClient } from "../api.js";
-
+import vatReturnService, { FORM_201_BOXES, VAT_RETURN_STATUSES } from "../vatReturnService.js";
 
 describe("vatReturnService", () => {
   beforeEach(() => {
@@ -75,7 +74,7 @@ describe("vatReturnService", () => {
         pagination: { total: 1, page: 1 },
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockResponse);
+      sinon.stub(apiClient, "get").resolves(mockResponse);
 
       const result = await vatReturnService.getAll();
 
@@ -85,7 +84,7 @@ describe("vatReturnService", () => {
     });
 
     test("should filter by status", async () => {
-      sinon.stub(apiClient, 'get').resolves({ data: [] });
+      sinon.stub(apiClient, "get").resolves({ data: [] });
 
       await vatReturnService.getAll({ status: "filed" });
 
@@ -93,7 +92,7 @@ describe("vatReturnService", () => {
     });
 
     test("should filter by period", async () => {
-      sinon.stub(apiClient, 'get').resolves({ data: [] });
+      sinon.stub(apiClient, "get").resolves({ data: [] });
 
       await vatReturnService.getAll({
         periodStart: "2024-01-01",
@@ -128,7 +127,7 @@ describe("vatReturnService", () => {
         netVatDue: 4750,
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockData);
+      sinon.stub(apiClient, "get").resolves(mockData);
 
       const result = await vatReturnService.getById(1);
 
@@ -147,7 +146,7 @@ describe("vatReturnService", () => {
         box7Vat: 8250,
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockData);
+      sinon.stub(apiClient, "get").resolves(mockData);
 
       const result = await vatReturnService.getById(1);
 
@@ -162,7 +161,7 @@ describe("vatReturnService", () => {
         box10Vat: 4500,
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockData);
+      sinon.stub(apiClient, "get").resolves(mockData);
 
       const result = await vatReturnService.getById(1);
 
@@ -177,7 +176,7 @@ describe("vatReturnService", () => {
         box11Vat: 4750,
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockData);
+      sinon.stub(apiClient, "get").resolves(mockData);
 
       const result = await vatReturnService.getById(1);
 
@@ -203,7 +202,7 @@ describe("vatReturnService", () => {
         box11Vat: 10000,
       };
 
-      sinon.stub(apiClient, 'post').resolves(mockResponse);
+      sinon.stub(apiClient, "post").resolves(mockResponse);
 
       const result = await vatReturnService.generateReturn({
         periodStart: "2024-01-01",
@@ -223,7 +222,7 @@ describe("vatReturnService", () => {
         box8Amount: 300000,
       };
 
-      sinon.stub(apiClient, 'post').resolves(mockResponse);
+      sinon.stub(apiClient, "post").resolves(mockResponse);
 
       const result = await vatReturnService.generateReturn({
         periodStart: "2024-01-01",
@@ -243,7 +242,7 @@ describe("vatReturnService", () => {
         acknowledgmentNumber: "ACK-2024-001",
       };
 
-      sinon.stub(apiClient, 'post').resolves(mockResponse);
+      sinon.stub(apiClient, "post").resolves(mockResponse);
 
       const result = await vatReturnService.submitReturn(1);
 
@@ -266,7 +265,7 @@ describe("vatReturnService", () => {
         { year: 2024, quarter: 2, startDate: "2024-04-01", endDate: "2024-06-30" },
       ];
 
-      sinon.stub(apiClient, 'get').resolves(mockResponse);
+      sinon.stub(apiClient, "get").resolves(mockResponse);
 
       const result = await vatReturnService.getPeriods();
 
@@ -284,7 +283,7 @@ describe("vatReturnService", () => {
         box1Amount: 500000,
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockResponse);
+      sinon.stub(apiClient, "get").resolves(mockResponse);
 
       const result = await vatReturnService.generateReport("2024-01-01", "2024-03-31");
 
@@ -301,7 +300,7 @@ describe("vatReturnService", () => {
         box1Amount: 500000,
       };
 
-      sinon.stub(apiClient, 'post').resolves(mockResponse);
+      sinon.stub(apiClient, "post").resolves(mockResponse);
 
       const result = await vatReturnService.saveReport("2024-01-01", "2024-03-31");
 
@@ -317,7 +316,7 @@ describe("vatReturnService", () => {
         { code: "AE-DU", name: "Dubai" },
       ];
 
-      sinon.stub(apiClient, 'get').resolves(mockResponse);
+      sinon.stub(apiClient, "get").resolves(mockResponse);
 
       const result = await vatReturnService.getEmirates();
 
@@ -334,7 +333,7 @@ describe("vatReturnService", () => {
         documents: [],
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockResponse);
+      sinon.stub(apiClient, "get").resolves(mockResponse);
 
       const result = await vatReturnService.getPreview(1);
 
@@ -351,7 +350,7 @@ describe("vatReturnService", () => {
         ftaReferenceNumber: "FTA-12345",
       };
 
-      sinon.stub(apiClient, 'post').resolves(mockResponse);
+      sinon.stub(apiClient, "post").resolves(mockResponse);
 
       const result = await vatReturnService.markAsFiled(1, {
         ftaReferenceNumber: "FTA-12345",
@@ -370,7 +369,7 @@ describe("vatReturnService", () => {
         box7Vat: 25000,
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockResponse);
+      sinon.stub(apiClient, "get").resolves(mockResponse);
 
       const result = await vatReturnService.getForm201Data(1);
 
@@ -383,7 +382,7 @@ describe("vatReturnService", () => {
     test("should get audit trail for VAT return", async () => {
       const mockResponse = [{ action: "created", timestamp: "2024-01-15T10:00:00Z", user: "admin" }];
 
-      sinon.stub(apiClient, 'get').resolves(mockResponse);
+      sinon.stub(apiClient, "get").resolves(mockResponse);
 
       const result = await vatReturnService.getAuditTrail(1);
 
@@ -399,7 +398,7 @@ describe("vatReturnService", () => {
         box8: { amount: 300000, vat: 15000 },
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockResponse);
+      sinon.stub(apiClient, "get").resolves(mockResponse);
 
       const result = await vatReturnService.getReconciliation(1);
 
@@ -415,7 +414,7 @@ describe("vatReturnService", () => {
         purchases: [],
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockResponse);
+      sinon.stub(apiClient, "get").resolves(mockResponse);
 
       const result = await vatReturnService.getSupportingDocuments(1);
 
@@ -428,7 +427,7 @@ describe("vatReturnService", () => {
     test("should get blocked VAT categories", async () => {
       const mockResponse = [{ code: "FUEL", description: "Fuel expenses" }];
 
-      sinon.stub(apiClient, 'get').resolves(mockResponse);
+      sinon.stub(apiClient, "get").resolves(mockResponse);
 
       const result = await vatReturnService.getBlockedVATCategories();
 
@@ -441,7 +440,7 @@ describe("vatReturnService", () => {
     test("should get blocked VAT log for a period", async () => {
       const mockResponse = { items: [] };
 
-      sinon.stub(apiClient, 'get').resolves(mockResponse);
+      sinon.stub(apiClient, "get").resolves(mockResponse);
 
       const result = await vatReturnService.getBlockedVATLog({
         startDate: "2024-01-01",
@@ -459,7 +458,7 @@ describe("vatReturnService", () => {
         status: "review",
       };
 
-      sinon.stub(apiClient, 'patch').resolves(mockResponse);
+      sinon.stub(apiClient, "patch").resolves(mockResponse);
 
       const result = await vatReturnService.updateStatus(1, "review");
 
@@ -475,7 +474,7 @@ describe("vatReturnService", () => {
         notes: "Updated notes",
       };
 
-      sinon.stub(apiClient, 'patch').resolves(mockResponse);
+      sinon.stub(apiClient, "patch").resolves(mockResponse);
 
       const result = await vatReturnService.addNotes(1, "Updated notes");
 
@@ -488,7 +487,7 @@ describe("vatReturnService", () => {
     test("should delete VAT return (draft only)", async () => {
       const mockResponse = { success: true };
 
-      sinon.stub(apiClient, 'delete').resolves(mockResponse);
+      sinon.stub(apiClient, "delete").resolves(mockResponse);
 
       const result = await vatReturnService.delete(1);
 
@@ -500,7 +499,7 @@ describe("vatReturnService", () => {
   describe("downloadPDF", () => {
     test("should download VAT return as PDF", async () => {
       const mockBlob = new Blob(["PDF content"], { type: "application/pdf" });
-      sinon.stub(apiClient, 'get').resolves(mockBlob);
+      sinon.stub(apiClient, "get").resolves(mockBlob);
 
       const result = await vatReturnService.downloadPDF(1, "VAT-2024-Q1");
 
@@ -514,7 +513,7 @@ describe("vatReturnService", () => {
       const mockBlob = new Blob(["Excel content"], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
-      sinon.stub(apiClient, 'get').resolves(mockBlob);
+      sinon.stub(apiClient, "get").resolves(mockBlob);
 
       const result = await vatReturnService.exportExcel(1);
 
@@ -530,7 +529,7 @@ describe("vatReturnService", () => {
         averageVat: 15000,
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockResponse);
+      sinon.stub(apiClient, "get").resolves(mockResponse);
 
       const result = await vatReturnService.getAnalytics({ year: 2024 });
 
@@ -547,7 +546,7 @@ describe("vatReturnService", () => {
         warnings: [],
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockResponse);
+      sinon.stub(apiClient, "get").resolves(mockResponse);
 
       const result = await vatReturnService.validate(1);
 
@@ -565,7 +564,7 @@ describe("vatReturnService", () => {
         box11Vat: 10000,
       };
 
-      sinon.stub(apiClient, 'post').resolves(mockResponse);
+      sinon.stub(apiClient, "post").resolves(mockResponse);
 
       const result = await vatReturnService.recalculate(1);
 
@@ -576,7 +575,7 @@ describe("vatReturnService", () => {
 
   describe("Multi-tenancy", () => {
     test("should maintain company context", async () => {
-      sinon.stub(apiClient, 'get').resolves({
+      sinon.stub(apiClient, "get").resolves({
         data: [{ id: 1, companyId: 1 }],
       });
 
@@ -594,7 +593,7 @@ describe("vatReturnService", () => {
         box3Vat: 0,
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockData);
+      sinon.stub(apiClient, "get").resolves(mockData);
 
       const result = await vatReturnService.getById(1);
 
@@ -608,7 +607,7 @@ describe("vatReturnService", () => {
         box9Vat: 5000,
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockData);
+      sinon.stub(apiClient, "get").resolves(mockData);
 
       const result = await vatReturnService.getById(1);
 
@@ -624,7 +623,7 @@ describe("vatReturnService", () => {
         box6Vat: -2500,
       };
 
-      sinon.stub(apiClient, 'get').resolves(mockData);
+      sinon.stub(apiClient, "get").resolves(mockData);
 
       const result = await vatReturnService.getById(1);
 

@@ -76,13 +76,7 @@ export const DashboardSection = ({
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {headerAction && (
-            <div
-              onClick={(e) => e.stopPropagation()}
-            >
-              {headerAction}
-            </div>
-          )}
+          {headerAction && <div onClick={(e) => e.stopPropagation()}>{headerAction}</div>}
           <button
             type="button"
             className={`p-1 rounded transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-200 text-gray-600"}`}

@@ -1485,12 +1485,10 @@ const ImportOrderForm = () => {
             </Card>
 
             {/* Shipping Summary Card - Click to open drawer */}
-            <div
-              className={`${isDarkMode ? "bg-[#141a20] border-[#2a3640]" : "bg-white border-gray-200"} border rounded-2xl p-4 cursor-pointer hover:border-[#4aa3ff] transition-colors`}
+            <button
+              type="button"
+              className={`${isDarkMode ? "bg-[#141a20] border-[#2a3640]" : "bg-white border-gray-200"} border rounded-2xl p-4 cursor-pointer hover:border-[#4aa3ff] transition-colors w-full text-left border-0 bg-transparent`}
               onClick={() => setShippingDrawerOpen(true)}
-              onKeyDown={(e) => e.key === "Enter" && setShippingDrawerOpen(true)}
-              role="button"
-              tabIndex={0}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -1535,7 +1533,7 @@ const ImportOrderForm = () => {
                   <AlertTriangle className="h-3 w-3" /> {errors.destination_port}
                 </div>
               )}
-            </div>
+            </button>
 
             {/* Line Items Section */}
             <Card title="Line Items" icon={Package}>

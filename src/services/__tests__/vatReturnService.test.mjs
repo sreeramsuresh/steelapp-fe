@@ -253,7 +253,7 @@ describe("vatReturnService", () => {
     });
 
     test("should validate return before submission", async () => {
-      apiClient.post.mockRejectedValue(new Error("Box 1 VAT exceeds expected threshold"));
+      sinon.stub(apiClient, 'post').rejects(new Error("Box 1 VAT exceeds expected threshold"));
 
       await assert.ok(vatReturnService.submitReturn(1)).rejects.toThrow();
     });
@@ -289,7 +289,7 @@ describe("vatReturnService", () => {
       const result = await vatReturnService.generateReport("2024-01-01", "2024-03-31");
 
       assert.strictEqual(result.returnNumber, "VAT-2024-Q1");
-      assert.ok(apiClient.get).toHaveBeenCalled();
+      assert.ok(apiClient.get).called === true;
     });
   });
 
@@ -403,7 +403,7 @@ describe("vatReturnService", () => {
 
       const result = await vatReturnService.getReconciliation(1);
 
-      assert.ok(result.box1).toBeDefined();
+      assert.ok(result.box1) !== undefined;
       assert.ok(apiClient.get.called);
     });
   });
@@ -419,7 +419,7 @@ describe("vatReturnService", () => {
 
       const result = await vatReturnService.getSupportingDocuments(1);
 
-      assert.ok(result.invoices).toBeDefined();
+      assert.ok(result.invoices) !== undefined;
       assert.ok(apiClient.get.called);
     });
   });
@@ -447,8 +447,8 @@ describe("vatReturnService", () => {
         startDate: "2024-01-01",
       });
 
-      assert.ok(result.items).toBeDefined();
-      assert.ok(apiClient.get).toHaveBeenCalled();
+      assert.ok(result.items) !== undefined;
+      assert.ok(apiClient.get).called === true;
     });
   });
 
@@ -519,7 +519,7 @@ describe("vatReturnService", () => {
       const result = await vatReturnService.exportExcel(1);
 
       assert.strictEqual(result, true);
-      assert.ok(apiClient.get).toHaveBeenCalled();
+      assert.ok(apiClient.get).called === true;
     });
   });
 
@@ -535,7 +535,7 @@ describe("vatReturnService", () => {
       const result = await vatReturnService.getAnalytics({ year: 2024 });
 
       assert.strictEqual(result.totalReturns, 4);
-      assert.ok(apiClient.get).toHaveBeenCalled();
+      assert.ok(apiClient.get).called === true;
     });
   });
 
@@ -634,13 +634,13 @@ describe("vatReturnService", () => {
 
   describe("Error Handling", () => {
     test("should handle API errors", async () => {
-      apiClient.get.mockRejectedValue(new Error("API Error"));
+      sinon.stub(apiClient, 'get').rejects(new Error("API Error"));
 
       await assert.ok(vatReturnService.getAll()).rejects.toThrow();
     });
 
     test("should validate return data before submission", async () => {
-      apiClient.post.mockRejectedValue(new Error("Invalid return data"));
+      sinon.stub(apiClient, 'post').rejects(new Error("Invalid return data"));
 
       await assert.ok(vatReturnService.submitReturn(1)).rejects.toThrow();
     });
