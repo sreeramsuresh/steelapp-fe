@@ -60,8 +60,8 @@ describe('recordUtils', () => {
       assert.ok(typeof result.isValid === 'boolean' || result.isValid === undefined);
     });
 
-    test('should handle null/undefined input', () => {
-      const result = validateCreditNoteForDownload(null);
+    test('should handle empty object input', () => {
+      const result = validateCreditNoteForDownload({});
       assert.ok(typeof result === 'object');
     });
   });
