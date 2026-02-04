@@ -106,16 +106,18 @@ const Input = ({ label, error, className = "", type = "text", id, ...props }) =>
   );
 };
 
-const Select = ({ label, options, value, onChange, placeholder = "Select...", className = "" }) => {
+const Select = ({ label, options, value, onChange, placeholder = "Select...", className = "", id }) => {
   const { isDarkMode } = useTheme();
+  const selectId = id || `select-${label?.toLowerCase().replace(/\s+/g, "-")}`;
 
   return (
     <div className="space-y-1">
       {label && (
-        <label className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
+        <label htmlFor={selectId} className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
       )}
       <div className="relative">
         <select
+          id={selectId}
           value={value}
           onChange={onChange}
           className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
