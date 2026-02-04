@@ -32,10 +32,8 @@ describe("Database Integrity & Data Consistency", () => {
             customerId: null,
             companyId: "COMPANY-A",
           });
-        }, [
-          // Try to save orphaned invoice
-          checkReferentialIntegrity,
-        ]);
+          // biome-ignore lint/correctness/useExhaustiveDependencies: Test fixture - checkReferentialIntegrity is stable
+        }, [checkReferentialIntegrity]);
 
         return (
           <>

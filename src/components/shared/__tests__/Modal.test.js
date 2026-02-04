@@ -19,7 +19,10 @@ const Modal = ({ isOpen, onClose, children, className = "", overlayClassName = "
   if (!isOpen) return null;
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: Test mock overlay - backdrop click to close
+    // biome-ignore lint/a11y/useKeyWithClickEvents: Test mock - simplified for testing
     <div className={`fixed inset-0 z-50 bg-black/80 ${overlayClassName}`} onClick={onClose} data-testid="modal-overlay">
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: Test mock - simplified for testing */}
       <div
         className={`fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-white rounded-lg shadow-lg p-6 ${className}`}
         onClick={(e) => e.stopPropagation()}
@@ -101,13 +104,15 @@ describe("Modal Component", () => {
     });
 
     it("should prevent backdrop click from propagating", async () => {
-      const user = setupUser();
       const handleOuterClick = vi.fn();
       const { getByTestId } = renderWithProviders(
+        // biome-ignore lint/a11y/noStaticElementInteractions: Test wrapper - testing event propagation
+        // biome-ignore lint/a11y/useKeyWithClickEvents: Test wrapper - simplified for testing
         <div onClick={handleOuterClick}>
           <Modal {...defaultProps} />
         </div>
       );
+      const user = setupUser();
       await user.click(getByTestId("modal-content"));
       expect(handleOuterClick).not.toHaveBeenCalled();
     });

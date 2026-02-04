@@ -38,6 +38,7 @@ const Tooltip = ({ content, children, position = "top", delay = 200, showArrow =
   };
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: Tooltip trigger - hover only, no click action
     <div
       data-testid="tooltip-container"
       onMouseEnter={handleMouseEnter}
@@ -85,7 +86,7 @@ describe("Tooltip Component", () => {
     });
 
     it("should display trigger text", () => {
-      const { getByText } = renderWithProviders(<Tooltip {...defaultProps} children="Click here" />);
+      const { getByText } = renderWithProviders(<Tooltip {...defaultProps}>Click here</Tooltip>);
       expect(getByText("Click here")).toBeInTheDocument();
     });
 

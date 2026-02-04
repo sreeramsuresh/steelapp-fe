@@ -48,6 +48,7 @@ const Toast = ({
   };
 
   return (
+    // biome-ignore lint/a11y/useSemanticElements: Toast notification - div with role="status" is semantic
     <div
       className={`fixed z-50 ${typeStyles[type]} rounded-lg shadow-lg p-4 max-w-sm flex items-start gap-3 toast-${position}`}
       role="status"

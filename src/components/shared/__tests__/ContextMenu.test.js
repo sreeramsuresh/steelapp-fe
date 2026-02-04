@@ -28,10 +28,10 @@ const ContextMenu = ({ children, items = [], onItemSelect, onShow = null, onHide
     onShow?.();
   };
 
-  const handleClose = () => {
+  const handleClose = React.useCallback(() => {
     setIsOpen(false);
     onHide?.();
-  };
+  }, [onHide]);
 
   const handleItemClick = (item) => {
     onItemSelect?.(item);
@@ -50,7 +50,8 @@ const ContextMenu = ({ children, items = [], onItemSelect, onShow = null, onHide
   }, [isOpen, handleClose]);
 
   return (
-    <div ref={containerRef} onContextMenu={handleContextMenu} data-testid="context-menu-trigger">
+    // biome-ignore lint/a11y/noStaticElementInteractions: Test mock - right-click context menu trigger
+    <div ref={containerRef} onContextMenu={handleContextMenu} data-testid="context-menu-trigger" role="presentation">
       {children}
 
       {isOpen && (
@@ -58,14 +59,15 @@ const ContextMenu = ({ children, items = [], onItemSelect, onShow = null, onHide
           className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden min-w-[180px]"
           style={{ top: `${position.y}px`, left: `${position.x}px` }}
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
           role="menu"
           aria-orientation="vertical"
           data-testid="context-menu"
         >
-          {items.map((item, index) => (
+          {items.map((item) => (
             <button
               type="button"
-              key={index}
+              key={item.id || item.label}
               onClick={() => handleItemClick(item)}
               disabled={item.disabled}
               className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 border-b last:border-b-0"

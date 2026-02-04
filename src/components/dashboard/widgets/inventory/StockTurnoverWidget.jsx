@@ -179,6 +179,7 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
               </button>
               <div className="flex-1 flex gap-0.5">
                 {product.data.map((value, monthIndex) => (
+                  // biome-ignore lint/a11y/useSemanticElements: Heatmap cell - div required for flex layout in grid
                   <div
                     key={value}
                     role="button"

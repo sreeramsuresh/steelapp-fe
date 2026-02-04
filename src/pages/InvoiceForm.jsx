@@ -2435,6 +2435,7 @@ const InvoiceForm = ({ onSave }) => {
   const _placeOfSupply = invoice.placeOfSupply || "";
   const _supplyDate = invoice.supplyDate || "";
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Dependencies extracted as variables above for granular tracking
   useEffect(() => {
     if (invoice) {
       validateField("customer", invoice.customer);

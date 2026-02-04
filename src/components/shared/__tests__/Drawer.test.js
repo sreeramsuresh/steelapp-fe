@@ -42,10 +42,20 @@ const Drawer = ({
   };
 
   return (
-    <div className="fixed inset-0 z-40 bg-black/50" data-testid="drawer-overlay" onClick={onClose}>
+    // biome-ignore lint/a11y/noStaticElementInteractions: Test mock overlay - backdrop click to close
+    <div
+      className="fixed inset-0 z-40 bg-black/50"
+      data-testid="drawer-overlay"
+      onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
+      role="presentation"
+    >
       <div
         className={`fixed ${positionStyles[position]} ${dimensionStyles[position]} bg-white shadow-lg z-50 overflow-y-auto`}
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         data-testid="drawer"
@@ -189,7 +199,8 @@ describe("Drawer Component", () => {
       const user = setupUser();
       const handleOuterClick = vi.fn();
       const { getByTestId } = renderWithProviders(
-        <div onClick={handleOuterClick}>
+        // biome-ignore lint/a11y/useSemanticElements: Test wrapper div - intentional for testing event propagation
+        <div onClick={handleOuterClick} onKeyDown={(e) => e.key === "Enter" && handleOuterClick()} role="button" tabIndex={0}>
           <Drawer {...defaultProps} />
         </div>
       );
@@ -238,6 +249,7 @@ describe("Drawer Component", () => {
         <Drawer {...defaultProps}>
           <div>
             {Array.from({ length: 50 }).map((_, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: Test fixture - static list, safe to use index
               <p key={i}>Line {i + 1}</p>
             ))}
           </div>

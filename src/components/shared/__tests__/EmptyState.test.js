@@ -95,7 +95,7 @@ describe("EmptyState", () => {
   });
 
   it("should render action button when provided", () => {
-    const action = <button data-testid="action-btn">Create New</button>;
+    const action = <button type="button" data-testid="action-btn">Create New</button>;
     render(<EmptyState title="Empty" description="No items" action={action} />);
 
     expect(screen.getByTestId("action-btn")).toBeInTheDocument();
@@ -103,22 +103,22 @@ describe("EmptyState", () => {
 
   it("should render action with wrapper div", () => {
     const action = <button type="button">Create</button>;
-    const { container } = render(<EmptyState title="Empty" description="No items" action={action} />);
+    render(<EmptyState title="Empty" description="No items" action={action} />);
 
     const actionDiv = screen.getByRole("button").closest("div");
     expect(actionDiv).toHaveClass("mt-4");
   });
 
   it("should handle null icon gracefully", () => {
-    const { container } = render(<EmptyState title="Test" icon={null} />);
+    render(<EmptyState title="Test" icon={null} />);
 
     // Conditional rendering - if Icon is falsy, it shouldn't render
-    const svg = container.querySelector("svg");
+    const svg = document.querySelector("svg");
     expect(svg).not.toBeInTheDocument();
   });
 
   it("should handle undefined title gracefully", () => {
-    const { container } = render(<EmptyState description="Just description" />);
+    render(<EmptyState description="Just description" />);
 
     expect(screen.getByText("Just description")).toBeInTheDocument();
     // Title section should not render if title is undefined
@@ -188,14 +188,14 @@ describe("EmptyState", () => {
   });
 
   it("should support minimal variant layout", () => {
-    const { container } = render(<EmptyState title="Minimal" description="Test" variant="minimal" />);
+    render(<EmptyState title="Minimal" description="Test" variant="minimal" />);
 
     const title = screen.getByText("Minimal");
     expect(title).toHaveClass("text-lg");
   });
 
   it("should support default variant layout", () => {
-    const { container } = render(<EmptyState title="Default" description="Test" variant="default" />);
+    render(<EmptyState title="Default" description="Test" variant="default" />);
 
     const title = screen.getByText("Default");
     expect(title).toHaveClass("text-xl");
@@ -204,8 +204,8 @@ describe("EmptyState", () => {
   it("should render multiple action elements", () => {
     const action = (
       <div>
-        <button data-testid="btn1">Action 1</button>
-        <button data-testid="btn2">Action 2</button>
+        <button type="button" data-testid="btn1">Action 1</button>
+        <button type="button" data-testid="btn2">Action 2</button>
       </div>
     );
     render(<EmptyState title="Empty" action={action} />);
@@ -276,7 +276,7 @@ describe("EmptyState", () => {
   });
 
   it("should render in proper semantic order: icon -> title -> description -> action", () => {
-    const action = <button data-testid="action">Click</button>;
+    const action = <button type="button" data-testid="action">Click</button>;
     const { container } = render(<EmptyState title="Title" description="Description" action={action} icon={Info} />);
 
     const children = container.firstChild.children;

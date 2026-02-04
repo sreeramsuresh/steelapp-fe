@@ -28,10 +28,20 @@ const ConfirmDialog = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80" data-testid="confirm-overlay" onClick={onCancel}>
+    // biome-ignore lint/a11y/noStaticElementInteractions: Test mock overlay - backdrop click to close
+    <div
+      className="fixed inset-0 z-50 bg-black/80"
+      data-testid="confirm-overlay"
+      onClick={onCancel}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onCancel();
+      }}
+      role="presentation"
+    >
       <div
         className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-white rounded-lg shadow-lg p-6 max-w-sm"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
         role="alertdialog"
         aria-modal="true"
         data-testid="confirm-dialog"

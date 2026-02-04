@@ -39,7 +39,10 @@ const Popover = ({
 
       {isOpen && (
         <>
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: Test mock - backdrop click to close */}
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: Test mock - simplified for testing */}
           <div className="fixed inset-0 z-40" onClick={onClose} data-testid="popover-backdrop" />
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: Test mock - simplified for testing */}
           <div
             className={`fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 ${contentClassName}`}
             onClick={(e) => e.stopPropagation()}
@@ -191,13 +194,15 @@ describe("Popover Component", () => {
     });
 
     it("should prevent event propagation from content click", async () => {
-      const user = setupUser();
       const handleOuterClick = vi.fn();
       const { getByTestId } = renderWithProviders(
+        // biome-ignore lint/a11y/noStaticElementInteractions: Test wrapper - testing event propagation
+        // biome-ignore lint/a11y/useKeyWithClickEvents: Test wrapper - simplified for testing
         <div onClick={handleOuterClick}>
           <Popover {...defaultProps} />
         </div>
       );
+      const user = setupUser();
       await user.click(getByTestId("popover-content"));
       expect(handleOuterClick).not.toHaveBeenCalled();
     });
@@ -306,7 +311,7 @@ describe("Popover Component", () => {
     it("should be keyboard navigable", () => {
       const { getByTestId } = renderWithProviders(
         <Popover {...defaultProps}>
-          <button data-testid="action-button">Action</button>
+          <button type="button" data-testid="action-button">Action</button>
         </Popover>
       );
       const button = getByTestId("action-button");

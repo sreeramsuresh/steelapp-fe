@@ -49,10 +49,20 @@ const AlertDialog = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80" data-testid="alert-overlay" onClick={onClose}>
+    // biome-ignore lint/a11y/noStaticElementInteractions: Test mock overlay - backdrop click to close
+    <div
+      className="fixed inset-0 z-50 bg-black/80"
+      data-testid="alert-overlay"
+      onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
+      role="presentation"
+    >
       <div
         className={`fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-white rounded-lg shadow-lg p-6 max-w-sm border ${typeStyles[type]}`}
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
         role="alertdialog"
         aria-modal="true"
         aria-live="assertive"
@@ -249,8 +259,8 @@ describe("AlertDialog Component", () => {
     });
 
     it("should call onClose when overlay clicked", async () => {
-      const user = setupUser();
       const { getByTestId } = renderWithProviders(<AlertDialog {...defaultProps} />);
+      const user = setupUser();
       await user.click(getByTestId("alert-overlay"));
       expect(mockOnClose).toHaveBeenCalled();
     });
@@ -259,7 +269,7 @@ describe("AlertDialog Component", () => {
   describe("Auto-Close", () => {
     it("should auto-close after specified delay", () => {
       vi.useFakeTimers();
-      const { rerender } = renderWithProviders(<AlertDialog {...defaultProps} autoCloseDelay={1000} />);
+      renderWithProviders(<AlertDialog {...defaultProps} autoCloseDelay={1000} />);
 
       vi.advanceTimersByTime(1000);
       expect(mockOnClose).toHaveBeenCalled();

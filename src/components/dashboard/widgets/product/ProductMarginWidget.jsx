@@ -287,6 +287,7 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
 
             return (
               <g key={product.id}>
+                {/* biome-ignore lint/a11y/useSemanticElements: SVG circle element - semantic button not applicable */}
                 <circle
                   role="button"
                   tabIndex={0}

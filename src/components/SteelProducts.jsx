@@ -216,6 +216,7 @@ const Tooltip = ({ content, children, position = "top" }) => {
 
   return (
     <div className="relative inline-flex items-center">
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: Tooltip trigger - hover only, no click action */}
       <div onMouseEnter={() => setIsVisible(true)} onMouseLeave={() => setIsVisible(false)} className="cursor-help">
         {children}
       </div>

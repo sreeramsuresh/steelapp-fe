@@ -31,17 +31,26 @@ const Dropdown = ({ isOpen, onClose, trigger = "Menu", items = [], onItemSelect,
 
       {isOpen && (
         <>
-          <div className="fixed inset-0 z-40" onClick={onClose} data-testid="dropdown-backdrop" />
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: Test mock - backdrop click to close */}
+          <div
+            className="fixed inset-0 z-40"
+            onClick={onClose}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") onClose();
+            }}
+            data-testid="dropdown-backdrop"
+            role="presentation"
+          />
           <div
             className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden min-w-[200px]"
             role="menu"
             aria-orientation="vertical"
             data-testid="dropdown-menu"
           >
-            {items.map((item, index) => (
+            {items.map((item) => (
               <button
                 type="button"
-                key={index}
+                key={item.id || item.label}
                 onClick={() => {
                   onItemSelect?.(item);
                   onClose();
@@ -178,15 +187,15 @@ describe("Dropdown Component", () => {
     });
 
     it("should pass correct item data on selection", async () => {
-      const user = setupUser();
       const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} />);
+      const user = setupUser();
       await user.click(getByTestId("dropdown-item-1"));
       expect(mockOnItemSelect).toHaveBeenCalledWith(defaultItems[1]);
     });
 
     it("should handle multiple selections sequentially", async () => {
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} />);
       const user = setupUser();
-      const { rerender, getByTestId } = renderWithProviders(<Dropdown {...defaultProps} />);
       await user.click(getByTestId("dropdown-item-0"));
       expect(mockOnItemSelect).toHaveBeenCalledWith(defaultItems[0]);
     });
