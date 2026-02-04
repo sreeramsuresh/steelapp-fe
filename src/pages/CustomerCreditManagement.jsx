@@ -175,18 +175,11 @@ export default function CustomerCreditManagement() {
                   </div>
                 ) : (
                   highRiskCustomers.map((customer) => (
-                    <div
+                    <button
+                      type="button"
                       key={customer.id}
                       onClick={() => handleSelectCustomer(customer)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          handleSelectCustomer(customer);
-                        }
-                      }}
-                      role="button"
-                      tabIndex={0}
-                      className={`p-4 cursor-pointer transition ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
+                      className={`p-4 cursor-pointer transition w-full text-left ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
                     >
                       <div className="flex justify-between items-start mb-2">
                         <div>
@@ -219,7 +212,7 @@ export default function CustomerCreditManagement() {
                           {customer.creditLimit?.toFixed(2)}
                         </div>
                       </div>
-                    </div>
+                    </button>
                   ))
                 )}
               </div>
@@ -244,18 +237,11 @@ export default function CustomerCreditManagement() {
                   </div>
                 ) : (
                   overLimitCustomers.map((customer) => (
-                    <div
+                    <button
+                      type="button"
                       key={customer.id}
                       onClick={() => handleSelectCustomer(customer)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          handleSelectCustomer(customer);
-                        }
-                      }}
-                      role="button"
-                      tabIndex={0}
-                      className={`p-4 cursor-pointer transition border-l-4 border-red-500 ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
+                      className={`p-4 cursor-pointer transition border-l-4 border-red-500 w-full text-left ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
                     >
                       <div className="flex justify-between items-start mb-2">
                         <div>
@@ -286,7 +272,7 @@ export default function CustomerCreditManagement() {
                           {(customer.outstandingAmount - customer.creditLimit)?.toFixed(2)}
                         </div>
                       </div>
-                    </div>
+                    </button>
                   ))
                 )}
               </div>

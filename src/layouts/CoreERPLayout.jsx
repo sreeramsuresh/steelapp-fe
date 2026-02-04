@@ -112,12 +112,10 @@ const CoreERPLayout = () => {
       }`}
     >
       {/* Sidebar Overlay for mobile */}
-      <div
+      <button
+        type="button"
         className={`md:hidden ${sidebarOpen ? "block" : "hidden"} fixed inset-0 bg-black bg-opacity-50 z-[999]`}
         onClick={toggleSidebar}
-        onKeyDown={(e) => e.key === "Escape" && toggleSidebar()}
-        role="button"
-        tabIndex={0}
         aria-label="Close sidebar"
       />
 

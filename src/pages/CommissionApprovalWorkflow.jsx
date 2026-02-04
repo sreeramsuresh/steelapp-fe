@@ -342,18 +342,11 @@ export default function CommissionApprovalWorkflow() {
                 const isSelected = selectedIds.has(invoiceId);
 
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={invoiceId}
-                    className={`p-4 cursor-pointer transition ${isSelected ? (isDarkMode ? "bg-blue-900/30" : "bg-blue-50") : ""} ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
+                    className={`p-4 cursor-pointer transition w-full text-left ${isSelected ? (isDarkMode ? "bg-blue-900/30" : "bg-blue-50") : ""} ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
                     onClick={() => setSelectedCommission(commission)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setSelectedCommission(commission);
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 flex-1">
@@ -407,7 +400,7 @@ export default function CommissionApprovalWorkflow() {
                         </button>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>

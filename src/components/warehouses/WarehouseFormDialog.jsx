@@ -147,12 +147,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <button
-        type="button"
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-        aria-label="Close dialog"
-      />
+      <button type="button" className="absolute inset-0 bg-black/50" onClick={onClose} aria-label="Close dialog" />
 
       {/* Dialog */}
       <div
