@@ -11,7 +11,7 @@
  * @param source - Source of the data for debugging
  * @returns Normalized PurchaseOrder with camelCase fields
  */
-export function normalizePurchaseOrder(rawPO: any, source = "unknown"): any | null {
+export function normalizePurchaseOrder(rawPO: unknown, source = "unknown"): unknown | null {
   if (!rawPO || typeof rawPO !== "object") {
     console.error(`❌ [PurchaseOrder Normalizer] Invalid purchase order data from ${source}:`, rawPO);
     return null;
@@ -19,7 +19,7 @@ export function normalizePurchaseOrder(rawPO: any, source = "unknown"): any | nu
 
   try {
     // Helper to safely parse numbers
-    const parseNumber = (value: any, fallback: unknown = undefined): number | undefined => {
+    const parseNumber = (value: unknown, fallback: unknown = undefined): number | undefined => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
       return Number.isNaN(parsed) ? fallback : parsed;
@@ -145,5 +145,5 @@ export function normalizePurchaseOrders(rawPOs: unknown[], source = "list"): unk
 
   return rawPOs
     .map((po, index) => normalizePurchaseOrder(po, `${source}[${index}]`))
-    .filter((po): po is any => po !== null);
+    .filter((po): po is unknown => po !== null);
 }

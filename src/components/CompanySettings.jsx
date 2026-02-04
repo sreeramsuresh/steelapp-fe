@@ -295,7 +295,12 @@ const TextField = ({
   return (
     <div className="space-y-1">
       {label && (
-        <label htmlFor={fieldId} className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
+        <label
+          htmlFor={fieldId}
+          className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+        >
+          {label}
+        </label>
       )}
       <div className="relative">
         {startAdornment && (
@@ -3262,28 +3267,22 @@ const CompanySettings = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {availableRoles.map((role) => (
-                    <div
+                    <label
                       key={role.id}
-                      role="checkbox"
-                      tabIndex={0}
-                      aria-checked={selectedUserRoles.includes(role.id)}
-                      onClick={() => {
-                        const isSelected = selectedUserRoles.includes(role.id);
-                        if (isSelected) {
-                          setSelectedUserRoles(selectedUserRoles.filter((id) => id !== role.id));
-                        } else {
-                          setSelectedUserRoles([...selectedUserRoles, role.id]);
-                        }
-                        if (userValidationErrors.roles) {
-                          setUserValidationErrors({
-                            ...userValidationErrors,
-                            roles: null,
-                          });
-                        }
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 flex items-center justify-between ${
+                        selectedUserRoles.includes(role.id)
+                          ? isDarkMode
+                            ? "border-teal-500 bg-teal-900/20"
+                            : "border-teal-500 bg-teal-50"
+                          : isDarkMode
+                            ? "border-gray-600 bg-gray-800 hover:border-gray-500"
+                            : "border-gray-300 bg-white hover:border-gray-400"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedUserRoles.includes(role.id)}
+                        onChange={() => {
                           const isSelected = selectedUserRoles.includes(role.id);
                           if (isSelected) {
                             setSelectedUserRoles(selectedUserRoles.filter((id) => id !== role.id));
@@ -3296,34 +3295,23 @@ const CompanySettings = () => {
                               roles: null,
                             });
                           }
-                        }
-                      }}
-                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                        selectedUserRoles.includes(role.id)
-                          ? isDarkMode
-                            ? "border-teal-500 bg-teal-900/20"
-                            : "border-teal-500 bg-teal-50"
-                          : isDarkMode
-                            ? "border-gray-600 bg-gray-800 hover:border-gray-500"
-                            : "border-gray-300 bg-white hover:border-gray-400"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <h5 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                            {role.displayName}
-                          </h5>
-                          {role.description && (
-                            <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                              {role.description}
-                            </p>
-                          )}
-                        </div>
-                        {selectedUserRoles.includes(role.id) && (
-                          <CheckCircle size={20} className="text-teal-500 flex-shrink-0 ml-2" />
+                        }}
+                        className="sr-only"
+                      />
+                      <div className="flex-1">
+                        <h5 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                          {role.displayName}
+                        </h5>
+                        {role.description && (
+                          <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                            {role.description}
+                          </p>
                         )}
                       </div>
-                    </div>
+                      {selectedUserRoles.includes(role.id) && (
+                        <CheckCircle size={20} className="text-teal-500 flex-shrink-0 ml-2" />
+                      )}
+                    </label>
                   ))}
                 </div>
                 <p className={`text-xs mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
@@ -3491,7 +3479,8 @@ const CompanySettings = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {availableRoles.map((role) => (
-                    <div
+                    <button
+                      type="button"
                       key={role.id}
                       onClick={() => {
                         const isSelected = selectedUserRoles.includes(role.id);
@@ -3501,21 +3490,8 @@ const CompanySettings = () => {
                           setSelectedUserRoles([...selectedUserRoles, role.id]);
                         }
                       }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          const isSelected = selectedUserRoles.includes(role.id);
-                          if (isSelected) {
-                            setSelectedUserRoles(selectedUserRoles.filter((id) => id !== role.id));
-                          } else {
-                            setSelectedUserRoles([...selectedUserRoles, role.id]);
-                          }
-                        }
-                      }}
-                      role="button"
-                      tabIndex={0}
                       aria-pressed={selectedUserRoles.includes(role.id)}
-                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 text-left ${
                         selectedUserRoles.includes(role.id)
                           ? isDarkMode
                             ? "border-teal-500 bg-teal-900/20"
@@ -3540,7 +3516,7 @@ const CompanySettings = () => {
                           <CheckCircle size={20} className="text-teal-500 flex-shrink-0 ml-2" />
                         )}
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
                 {userValidationErrors.roles && (
@@ -3758,8 +3734,9 @@ const CompanySettings = () => {
                               className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"} last:border-b-0`}
                             >
                               {/* Module Header */}
-                              <div
-                                className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${
+                              <button
+                                type="button"
+                                className={`w-full flex items-center justify-between p-3 cursor-pointer transition-colors border-0 bg-transparent text-left ${
                                   isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
                                 }`}
                                 onClick={() =>
@@ -3768,17 +3745,6 @@ const CompanySettings = () => {
                                     [module]: !isExpanded,
                                   }))
                                 }
-                                onKeyDown={(e) => {
-                                  if (e.key === "Enter" || e.key === " ") {
-                                    e.preventDefault();
-                                    setExpandedModules((prev) => ({
-                                      ...prev,
-                                      [module]: !isExpanded,
-                                    }));
-                                  }
-                                }}
-                                role="button"
-                                tabIndex={0}
                                 aria-expanded={isExpanded}
                               >
                                 <div className="flex items-center flex-1">
@@ -3813,7 +3779,7 @@ const CompanySettings = () => {
                                   </span>
                                 </div>
                                 {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                              </div>
+                              </button>
 
                               {/* Module Permissions */}
                               {isExpanded && (

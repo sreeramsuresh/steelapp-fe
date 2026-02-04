@@ -11,7 +11,7 @@
  * @param source - Source of the data for debugging
  * @returns Normalized Product with camelCase fields
  */
-export function normalizeProduct(rawProduct: any, source = "unknown"): any | null {
+export function normalizeProduct(rawProduct: unknown, source = "unknown"): unknown | null {
   if (!rawProduct || typeof rawProduct !== "object") {
     console.error(`❌ [Product Normalizer] Invalid product data from ${source}:`, rawProduct);
     return null;
@@ -19,7 +19,7 @@ export function normalizeProduct(rawProduct: any, source = "unknown"): any | nul
 
   try {
     // Helper to safely parse numbers
-    const parseNumber = (value: any, fallback: unknown = undefined): number | undefined => {
+    const parseNumber = (value: unknown, fallback: unknown = undefined): number | undefined => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
       return Number.isNaN(parsed) ? fallback : parsed;
@@ -126,5 +126,5 @@ export function normalizeProducts(rawProducts: unknown[], source = "list"): unkn
 
   return rawProducts
     .map((product, index) => normalizeProduct(product, `${source}[${index}]`))
-    .filter((product): product is any => product !== null);
+    .filter((product): product is unknown => product !== null);
 }

@@ -237,13 +237,12 @@ const BatchAllocationKPIs = ({ _refreshTrigger = 0 }) => {
           const colors = getColorClasses(color);
 
           return (
-            <div
+            <button
+              type="button"
               key={card.id}
               onClick={() => !loading && handleCardClick(card.tab)}
-              onKeyDown={(e) => e.key === "Enter" && !loading && handleCardClick(card.tab)}
-              role="button"
-              tabIndex={loading ? -1 : 0}
-              className={`rounded-lg border p-4 transition-all duration-200 ${
+              disabled={loading}
+              className={`rounded-lg border p-4 transition-all duration-200 text-left border-0 bg-transparent ${
                 loading ? "cursor-default" : "cursor-pointer hover:shadow-md hover:-translate-y-0.5"
               } ${
                 isDarkMode
@@ -275,7 +274,7 @@ const BatchAllocationKPIs = ({ _refreshTrigger = 0 }) => {
                   <Icon className={`w-5 h-5 ${colors.icon}`} />
                 </div>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

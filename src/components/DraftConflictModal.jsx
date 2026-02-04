@@ -28,12 +28,10 @@ const DraftConflictModal = ({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+      <button
+        type="button"
+        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity border-0"
         onClick={onClose}
-        onKeyDown={(e) => e.key === "Escape" && onClose()}
-        role="button"
-        tabIndex={0}
         aria-label="Close modal"
       />
 

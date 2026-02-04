@@ -419,18 +419,12 @@ const Sidebar = ({ isOpen, onToggle }) => {
             return (
               <div key={section.id || section.name || `section-${sectionIndex}`}>
                 {section.section !== "Dashboard" && (
-                  <div
-                    className={`px-4 py-2 pb-1 flex items-center justify-between group cursor-pointer hover:opacity-80 transition-opacity ${
+                  <button
+                    type="button"
+                    className={`w-full px-4 py-2 pb-1 flex items-center justify-between group cursor-pointer hover:opacity-80 transition-opacity border-0 bg-transparent text-left ${
                       isDarkMode ? "text-gray-400" : "text-gray-500"
                     }`}
                     onClick={() => canCollapse && toggleSection(section.section)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if ((e.key === "Enter" || e.key === " ") && canCollapse) {
-                        toggleSection(section.section);
-                      }
-                    }}
                   >
                     <span className="text-xs font-semibold uppercase tracking-wider">{section.section}</span>
                     {canCollapse && (
@@ -439,7 +433,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
                         className={`transition-transform duration-300 ${isExpanded ? "rotate-0" : "-rotate-90"}`}
                       />
                     )}
-                  </div>
+                  </button>
                 )}
                 {(isExpanded || !canCollapse) && (
                   <div className="space-y-1">

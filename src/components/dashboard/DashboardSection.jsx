@@ -48,21 +48,14 @@ export const DashboardSection = ({
 
   return (
     <div className={`mb-6 ${className}`}>
-      <div
-        className={`flex items-center justify-between p-4 rounded-t-xl cursor-pointer transition-colors ${
+      <button
+        type="button"
+        className={`w-full flex items-center justify-between p-4 rounded-t-xl cursor-pointer transition-colors border-0 bg-transparent text-left ${
           isDarkMode
             ? "bg-gray-800 hover:bg-gray-750 border-b border-gray-700"
             : "bg-gray-50 hover:bg-gray-100 border-b border-gray-200"
         }`}
         onClick={() => setIsExpanded(!isExpanded)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setIsExpanded(!isExpanded);
-          }
-        }}
       >
         <div className="flex items-center gap-3">
           {icon && <div className={`p-2 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-white"}`}>{icon}</div>}
@@ -86,13 +79,6 @@ export const DashboardSection = ({
           {headerAction && (
             <div
               onClick={(e) => e.stopPropagation()}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.stopPropagation();
-                }
-              }}
             >
               {headerAction}
             </div>
@@ -105,7 +91,7 @@ export const DashboardSection = ({
             {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </button>
         </div>
-      </div>
+      </button>
 
       {isExpanded && (
         <div

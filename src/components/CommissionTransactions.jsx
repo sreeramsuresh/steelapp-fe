@@ -776,12 +776,10 @@ const CommissionTransactions = () => {
 
       {/* Click outside to close action menu */}
       {actionMenuOpen && (
-        <div
+        <button
+          type="button"
           className="fixed inset-0 z-0"
           onClick={() => setActionMenuOpen(null)}
-          onKeyDown={(e) => e.key === "Escape" && setActionMenuOpen(null)}
-          role="button"
-          tabIndex={0}
           aria-label="Close action menu"
         />
       )}

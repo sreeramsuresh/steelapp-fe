@@ -672,12 +672,10 @@ const CommissionPlans = () => {
                 ) : (
                   <div id="user-selection-list" className="space-y-2 max-h-60 overflow-y-auto">
                     {availableUsers.map((user) => (
-                      <div
+                      <button
+                        type="button"
                         key={user.id}
                         onClick={() => toggleUserSelection(user.id)}
-                        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && toggleUserSelection(user.id)}
-                        role="button"
-                        tabIndex={0}
                         aria-pressed={selectedUsers.has(user.id)}
                         className={`p-3 rounded-lg border cursor-pointer transition-colors ${
                           selectedUsers.has(user.id)
@@ -709,7 +707,7 @@ const CommissionPlans = () => {
                           </div>
                           {selectedUsers.has(user.id) && <Check className="w-5 h-5 text-blue-500" />}
                         </div>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}

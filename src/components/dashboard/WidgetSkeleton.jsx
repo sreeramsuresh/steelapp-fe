@@ -21,7 +21,7 @@ const WidgetSkeleton = ({ variant = "card", size = "md" }) => {
   );
 
   const renderCardSkeleton = () => (
-    <div className={`${baseClasses} ${sizeClasses[size]}`} role="status" aria-label="Loading widget">
+    <output className={`${baseClasses} ${sizeClasses[size]}`} aria-label="Loading widget">
       <div className="flex justify-between items-start mb-4">
         {skeletonBar("w-24")}
         <div className={`w-10 h-10 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`} />
@@ -31,11 +31,11 @@ const WidgetSkeleton = ({ variant = "card", size = "md" }) => {
         {skeletonBar("w-16", "h-3")}
         {skeletonBar("w-20", "h-3")}
       </div>
-    </div>
+    </output>
   );
 
   const renderChartSkeleton = () => (
-    <div className={`${baseClasses} ${sizeClasses[size]}`} role="status" aria-label="Loading chart">
+    <output className={`${baseClasses} ${sizeClasses[size]}`} aria-label="Loading chart">
       <div className="flex justify-between items-center mb-4">
         {skeletonBar("w-32")}
         <div className="flex gap-2">
@@ -57,11 +57,11 @@ const WidgetSkeleton = ({ variant = "card", size = "md" }) => {
         {skeletonBar("w-12", "h-3")}
         {skeletonBar("w-12", "h-3")}
       </div>
-    </div>
+    </output>
   );
 
   const renderListSkeleton = () => (
-    <div className={`${baseClasses} ${sizeClasses[size]}`} role="status" aria-label="Loading list">
+    <output className={`${baseClasses} ${sizeClasses[size]}`} aria-label="Loading list">
       {skeletonBar("w-28", "h-5")}
       <div className="mt-4 space-y-3">
         {[1, 2, 3, 4].map((i) => (
@@ -75,11 +75,11 @@ const WidgetSkeleton = ({ variant = "card", size = "md" }) => {
           </div>
         ))}
       </div>
-    </div>
+    </output>
   );
 
   const renderTableSkeleton = () => (
-    <div className={`${baseClasses} ${sizeClasses[size]}`} role="status" aria-label="Loading table">
+    <output className={`${baseClasses} ${sizeClasses[size]}`} aria-label="Loading table">
       <div className="flex justify-between mb-4">
         {skeletonBar("w-32", "h-5")}
         {skeletonBar("w-20", "h-6")}
@@ -100,7 +100,7 @@ const WidgetSkeleton = ({ variant = "card", size = "md" }) => {
           </div>
         ))}
       </div>
-    </div>
+    </output>
   );
 
   switch (variant) {

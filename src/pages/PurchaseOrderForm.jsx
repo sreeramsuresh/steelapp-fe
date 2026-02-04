@@ -2626,14 +2626,10 @@ const PurchaseOrderForm = () => {
 
       {/* Charges & Discount Drawer */}
 
-      <div
-        className={`${DRAWER_OVERLAY} ${chargesDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      <button
+        type="button"
+        className={`${DRAWER_OVERLAY} ${chargesDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
         onClick={() => setChargesDrawerOpen(false)}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") setChargesDrawerOpen(false);
-        }}
-        role="button"
-        tabIndex={-1}
         aria-label="Close charges drawer"
       />
       <div className={`${DRAWER_PANEL(isDarkMode)} ${chargesDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
@@ -2761,21 +2757,17 @@ const PurchaseOrderForm = () => {
 
       {/* Delivery Terms Drawer */}
 
-      <div
-        className={`${DRAWER_OVERLAY} ${deliveryDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      <button
+        type="button"
+        className={`${DRAWER_OVERLAY} ${deliveryDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
         onClick={() => setDeliveryDrawerOpen(false)}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") setDeliveryDrawerOpen(false);
-        }}
-        role="button"
-        tabIndex={-1}
         aria-label="Close delivery drawer"
       />
       <div className={`${DRAWER_PANEL(isDarkMode)} ${deliveryDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="p-4">
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
-              <div className="text-sm font-extrabold">Delivery Terms</button>
+              <div className="text-sm font-extrabold">Delivery Terms</div>
               <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
                 Shipping, warehouse, and delivery settings
               </div>
@@ -2868,21 +2860,17 @@ const PurchaseOrderForm = () => {
 
       {/* Notes & Terms Drawer */}
 
-      <div
-        className={`${DRAWER_OVERLAY} ${notesDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      <button
+        type="button"
+        className={`${DRAWER_OVERLAY} ${notesDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
         onClick={() => setNotesDrawerOpen(false)}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") setNotesDrawerOpen(false);
-        }}
-        role="button"
-        tabIndex={-1}
         aria-label="Close notes drawer"
       />
       <div className={`${DRAWER_PANEL(isDarkMode)} ${notesDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="p-4">
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
-              <div className="text-sm font-extrabold">Notes & Terms</button>
+              <div className="text-sm font-extrabold">Notes & Terms</div>
               <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
                 Internal notes and payment terms
               </div>
@@ -2931,21 +2919,17 @@ const PurchaseOrderForm = () => {
 
       {/* Buyer Info Drawer (also used for Supplier details) */}
 
-      <div
-        className={`${DRAWER_OVERLAY} ${buyerDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      <button
+        type="button"
+        className={`${DRAWER_OVERLAY} ${buyerDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
         onClick={() => setBuyerDrawerOpen(false)}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") setBuyerDrawerOpen(false);
-        }}
-        role="button"
-        tabIndex={-1}
         aria-label="Close buyer drawer"
       />
       <div className={`${DRAWER_PANEL(isDarkMode)} ${buyerDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="p-4">
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
-              <div className="text-sm font-extrabold">Buyer & Supplier Info</button>
+              <div className="text-sm font-extrabold">Buyer & Supplier Info</div>
               <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
                 Contact details for this order
               </div>
@@ -3071,21 +3055,17 @@ const PurchaseOrderForm = () => {
 
       {/* Payment Drawer */}
 
-      <div
-        className={`${DRAWER_OVERLAY} ${paymentDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      <button
+        type="button"
+        className={`${DRAWER_OVERLAY} ${paymentDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
         onClick={() => setPaymentDrawerOpen(false)}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") setPaymentDrawerOpen(false);
-        }}
-        role="button"
-        tabIndex={-1}
         aria-label="Close payment drawer"
       />
       <div className={`${DRAWER_PANEL(isDarkMode)} ${paymentDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="p-4">
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
-              <div className="text-sm font-extrabold">Payment Details</button>
+              <div className="text-sm font-extrabold">Payment Details</div>
               <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
                 Payment terms, history, and status
               </div>
@@ -3225,21 +3205,17 @@ const PurchaseOrderForm = () => {
 
       {/* Approval Workflow Drawer */}
 
-      <div
-        className={`${DRAWER_OVERLAY} ${approvalDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      <button
+        type="button"
+        className={`${DRAWER_OVERLAY} ${approvalDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
         onClick={() => setApprovalDrawerOpen(false)}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") setApprovalDrawerOpen(false);
-        }}
-        role="button"
-        tabIndex={-1}
         aria-label="Close approval drawer"
       />
       <div className={`${DRAWER_PANEL(isDarkMode)} ${approvalDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="p-4">
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
-              <div className="text-sm font-extrabold">Approval Workflow</button>
+              <div className="text-sm font-extrabold">Approval Workflow</div>
               <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
                 Manage approval status and comments
               </div>
@@ -3260,7 +3236,7 @@ const PurchaseOrderForm = () => {
                   <SelectItem value="approved">Approved</SelectItem>
                   <SelectItem value="rejected">Rejected</SelectItem>
                 </FormSelect>
-              </button>
+              </div>
               <div>
                 <label htmlFor="approvedBy" className={LABEL_CLASSES(isDarkMode)}>
                   Approved By

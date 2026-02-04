@@ -256,22 +256,15 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
 
                 <div className="max-h-96 overflow-y-auto">
                   {notifications.map((n) => (
-                    <div
+                    <button
+                      type="button"
                       key={n.id}
-                      className={`relative p-4 border-b cursor-pointer transition-colors duration-200 ${
+                      className={`relative w-full p-4 border-b cursor-pointer transition-colors duration-200 text-left border-0 bg-transparent ${
                         isDarkMode ? "border-[#37474F] hover:bg-gray-700/50" : "border-gray-200 hover:bg-gray-50"
                       } ${n.unread ? (isDarkMode ? "bg-teal-900/10" : "bg-teal-50/50") : ""} last:border-b-0`}
                       onClick={() => {
                         markAsRead(n.id);
                         if (n.link) window.location.href = n.link;
-                      }}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          markAsRead(n.id);
-                          if (n.link) window.location.href = n.link;
-                        }
                       }}
                     >
                       <h4 className={`text-sm font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -282,7 +275,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                         {formatNotificationTime(n.time)}
                       </p>
                       {n.unread && <div className="absolute top-4 right-4 w-2 h-2 bg-teal-500 rounded-full"></div>}
-                    </div>
+                    </button>
                   ))}
                 </div>
 

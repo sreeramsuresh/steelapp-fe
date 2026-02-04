@@ -11,7 +11,7 @@
  * @param source - Source of the data for debugging
  * @returns Normalized Supplier with camelCase fields
  */
-export function normalizeSupplier(rawSupplier: any, source = "unknown"): any | null {
+export function normalizeSupplier(rawSupplier: unknown, source = "unknown"): unknown | null {
   if (!rawSupplier || typeof rawSupplier !== "object") {
     console.error(`❌ [Supplier Normalizer] Invalid supplier data from ${source}:`, rawSupplier);
     return null;
@@ -94,5 +94,5 @@ export function normalizeSuppliers(rawSuppliers: unknown[], source = "list"): un
 
   return rawSuppliers
     .map((supplier, index) => normalizeSupplier(supplier, `${source}[${index}]`))
-    .filter((supplier): supplier is any => supplier !== null);
+    .filter((supplier): supplier is unknown => supplier !== null);
 }
