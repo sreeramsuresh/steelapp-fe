@@ -497,7 +497,7 @@ const VATReturnReport = () => {
                 </div>
                 <TrendingUp className={`h-8 w-8 ${isDarkMode ? "text-blue-400" : "text-blue-500"}`} />
               </div>
-            </button>
+            </div>
 
             {/* Total Input VAT */}
             <div className={`${cardClass} border-l-4 border-l-green-500`}>

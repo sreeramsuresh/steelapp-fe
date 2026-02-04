@@ -268,7 +268,7 @@ const WarehouseManagement = () => {
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
               }`}
             />
-          </button>
+          </div>
           <button
             type="button"
             onClick={async () => {
