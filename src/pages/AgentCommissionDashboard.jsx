@@ -24,7 +24,7 @@ const AgentCommissionDashboard = () => {
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Intentionally run once on mount
+  }, [currentUser?.id, loadAgentData]); // Intentionally run once on mount
 
   const loadAgentData = async () => {
     // Double-check user ID exists before API calls

@@ -318,7 +318,7 @@ const TradeFinanceModal = ({
     setErrors({});
     setIsSaving(false);
     setShowAdvanced(false);
-  }, [editingRecord, isOpen, isAmendment]);
+  }, [editingRecord, isAmendment]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -514,7 +514,7 @@ const TradeFinanceModal = ({
               <select
                 id="tf-import-order"
                 value={formData.import_order_id || ""}
-                onChange={(e) => handleChange("import_order_id", e.target.value ? parseInt(e.target.value) : null)}
+                onChange={(e) => handleChange("import_order_id", e.target.value ? parseInt(e.target.value, 10) : null)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
@@ -1042,7 +1042,7 @@ const TradeFinanceList = () => {
     loadRecords();
     loadImportOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Intentionally run once on mount
+  }, [loadImportOrders, loadRecords]); // Intentionally run once on mount
 
   // Reload on filter change with debounce
   useEffect(() => {
@@ -1051,7 +1051,7 @@ const TradeFinanceList = () => {
     }, 300);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]); // loadRecords is intentionally not in deps - stable function
+  }, [loadRecords]); // loadRecords is intentionally not in deps - stable function
 
   // Filtered records (client-side filtering for expiry)
   const filteredRecords = useMemo(() => {

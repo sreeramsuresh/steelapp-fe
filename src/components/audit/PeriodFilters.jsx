@@ -48,7 +48,7 @@ export default function PeriodFilters({ filters, onFilterChange }) {
           <select
             id="filter-year"
             value={filters.year || ""}
-            onChange={(e) => handleYearChange(parseInt(e.target.value))}
+            onChange={(e) => handleYearChange(parseInt(e.target.value, 10))}
             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
           >
             {years.map((year) => (

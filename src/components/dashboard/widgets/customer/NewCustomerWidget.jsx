@@ -138,7 +138,7 @@ const NewCustomerWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     if (safeAmount >= 1000000) {
       return `AED ${(safeAmount / 1000000).toFixed(2)}M`;
     } else if (safeAmount >= 1000) {
@@ -281,13 +281,13 @@ const NewCustomerWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
           <div className={`mt-2 h-1.5 rounded-full overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}>
             <div
               className={`h-full rounded-full transition-all duration-500 ${
-                parseInt(targetPercent) >= 100
+                parseInt(targetPercent, 10) >= 100
                   ? "bg-green-500"
-                  : parseInt(targetPercent) >= 70
+                  : parseInt(targetPercent, 10) >= 70
                     ? "bg-teal-500"
                     : "bg-yellow-500"
               }`}
-              style={{ width: `${Math.min(parseInt(targetPercent), 100)}%` }}
+              style={{ width: `${Math.min(parseInt(targetPercent, 10), 100)}%` }}
             />
           </div>
           <p className={`text-xs mt-1 text-right ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
@@ -382,7 +382,7 @@ const NewCustomerWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
             return (
               <div
                 key={customer.id}
-                onClick={() => onViewCustomer && onViewCustomer(customer)}
+                onClick={() => onViewCustomer?.(customer)}
                 role={onViewCustomer ? "button" : undefined}
                 tabIndex={onViewCustomer ? 0 : undefined}
                 onKeyDown={

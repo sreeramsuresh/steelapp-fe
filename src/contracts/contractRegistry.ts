@@ -26,7 +26,7 @@ const ManualAllocationSchema = z.object({
   quantity: z.union([z.number(), z.string()]).refine(
     (val) => {
       const num = typeof val === "number" ? val : parseFloat(val);
-      return !isNaN(num) && num > 0;
+      return !Number.isNaN(num) && num > 0;
     },
     { message: "quantity must be a positive number or numeric string" }
   ),
@@ -196,7 +196,7 @@ const ReserveBatchesFIFORequestSchema = z
     requiredQuantity: z.union([z.number(), z.string()]).refine(
       (val) => {
         const num = typeof val === "number" ? val : parseFloat(val);
-        return !isNaN(num) && num > 0;
+        return !Number.isNaN(num) && num > 0;
       },
       { message: "requiredQuantity must be positive" }
     ),

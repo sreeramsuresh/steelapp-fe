@@ -21,7 +21,7 @@ vi.mock("../AddPaymentForm", () => ({
 
 vi.mock("../../../utils/invoiceUtils", () => ({
   formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
-  formatDate: (date) => "2024-01-15",
+  formatDate: (_date) => "2024-01-15",
 }));
 
 describe("PaymentDrawer", () => {

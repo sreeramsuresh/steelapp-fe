@@ -26,7 +26,7 @@ const formatPromisedDate = (dateString) => {
 
   const date = new Date(dateString);
   // Check if date is valid
-  if (isNaN(date.getTime())) return null;
+  if (Number.isNaN(date.getTime())) return null;
 
   return date.toLocaleDateString("en-US", {
     year: "numeric",
@@ -62,7 +62,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
       fetchReminders();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, invoice?.id]); // fetchReminders is stable within component lifecycle
+  }, [isOpen, invoice?.id, fetchReminders]); // fetchReminders is stable within component lifecycle
 
   // Auto-resize textarea as user types
   useEffect(() => {
@@ -70,7 +70,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
       notesTextareaRef.current.style.height = "auto";
       notesTextareaRef.current.style.height = `${notesTextareaRef.current.scrollHeight}px`;
     }
-  }, [formData.notes]);
+  }, []);
 
   const fetchReminders = async () => {
     try {

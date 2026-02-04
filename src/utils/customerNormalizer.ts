@@ -22,7 +22,7 @@ export function normalizeCustomer(rawCustomer: any, source = "unknown"): any | n
     const parseNumber = (value: any, fallback: any = undefined): number | undefined => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
-      return isNaN(parsed) ? fallback : parsed;
+      return Number.isNaN(parsed) ? fallback : parsed;
     };
 
     // Build the normalized Customer object

@@ -53,7 +53,7 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
       fetchMovements();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [purchaseOrderId]); // fetchMovements is stable
+  }, [purchaseOrderId, fetchMovements]); // fetchMovements is stable
 
   const fetchMovements = async () => {
     try {

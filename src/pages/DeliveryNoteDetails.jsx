@@ -36,7 +36,7 @@ const DeliveryNoteDetails = () => {
   useEffect(() => {
     loadDeliveryNote();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [loadDeliveryNote]);
 
   const { data: _company } = useApiData(companyService.getCompany, [], true);
 

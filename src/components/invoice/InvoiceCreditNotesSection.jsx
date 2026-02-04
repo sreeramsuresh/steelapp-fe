@@ -71,7 +71,7 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
       loadCreditNotes();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invoiceId]); // loadCreditNotes is stable
+  }, [invoiceId, loadCreditNotes]); // loadCreditNotes is stable
 
   const loadCreditNotes = async () => {
     try {

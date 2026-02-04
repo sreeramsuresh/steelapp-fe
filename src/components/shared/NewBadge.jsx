@@ -29,7 +29,7 @@ export const isNewRecord = (createdAt, hoursThreshold = 2) => {
   }
 
   // Validate the timestamp
-  if (isNaN(timeMs)) return false;
+  if (Number.isNaN(timeMs)) return false;
 
   const now = Date.now();
   const thresholdMs = hoursThreshold * 60 * 60 * 1000;

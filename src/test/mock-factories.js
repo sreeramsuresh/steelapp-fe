@@ -4,8 +4,6 @@
  * Phase 5.3 Infrastructure
  */
 
-import { vi } from "vitest";
-
 /**
  * Create mock user object
  * @param {Object} overrides - Property overrides

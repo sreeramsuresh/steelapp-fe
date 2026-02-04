@@ -136,7 +136,7 @@ const QuotationList = () => {
   useEffect(() => {
     fetchQuotations();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, searchTerm, statusFilter]);
+  }, [fetchQuotations]);
 
   // Bug #3 fix: Refresh list when page becomes visible (e.g., when returning from edit)
   useEffect(() => {
@@ -148,7 +148,7 @@ const QuotationList = () => {
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, []);
+  }, [fetchQuotations]);
 
   const { data: company } = useApiData(companyService.getCompany, [], true);
 
@@ -344,7 +344,7 @@ const QuotationList = () => {
             <select
               value={pageSize}
               onChange={(e) => {
-                setPageSize(parseInt(e.target.value));
+                setPageSize(parseInt(e.target.value, 10));
                 setPage(1); // Reset to first page when changing page size
               }}
               className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${

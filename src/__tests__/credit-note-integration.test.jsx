@@ -14,9 +14,6 @@ import { BrowserRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ThemeProvider } from "../contexts/ThemeContext";
 import CreditNoteForm from "../pages/CreditNoteForm";
-import * as companyService from "../services/companyService";
-import * as creditNoteService from "../services/creditNoteService";
-import * as invoiceService from "../services/invoiceService";
 
 // Mock implementations
 const mockInvoice = {

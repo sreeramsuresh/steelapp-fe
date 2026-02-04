@@ -283,7 +283,7 @@ export const formatPaymentDisplay = (payment) => {
   try {
     if (dateValue) {
       const dateObj = new Date(dateValue);
-      if (!isNaN(dateObj.getTime())) {
+      if (!Number.isNaN(dateObj.getTime())) {
         formattedDate = dateObj.toLocaleDateString("en-AE", {
           year: "numeric",
           month: "short",

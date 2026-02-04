@@ -35,7 +35,7 @@ const VATComplianceAlertsWidget = ({
   }, [data]);
 
   // Check if we have valid data
-  const hasData = alertsData && alertsData.summary && alertsData.alerts;
+  const hasData = alertsData?.summary && alertsData.alerts;
 
   // Show "No Data" state when no valid data is available
   if (!hasData) {
@@ -88,7 +88,6 @@ const VATComplianceAlertsWidget = ({
           borderColor: isDarkMode ? "border-yellow-700" : "border-yellow-200",
           badgeColor: "bg-yellow-500 text-white",
         };
-      case "info":
       default:
         return {
           icon: Info,
@@ -222,11 +221,11 @@ const VATComplianceAlertsWidget = ({
             return (
               <div
                 key={alert.id}
-                onClick={() => onAlertClick && onAlertClick(alert)}
+                onClick={() => onAlertClick?.(alert)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    onAlertClick && onAlertClick(alert);
+                    onAlertClick?.(alert);
                   }
                 }}
                 role="button"

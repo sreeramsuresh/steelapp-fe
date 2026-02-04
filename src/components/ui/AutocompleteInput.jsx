@@ -72,7 +72,7 @@ const AutocompleteInput = ({
       setSearchTerm(value);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [value, searchTerm]);
 
   // Filter items based on search term
   useEffect(() => {

@@ -73,7 +73,7 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
       container.removeEventListener("scroll", handleScroll);
       resizeObserver.disconnect();
     };
-  }, []);
+  }, [handleScroll]);
 
   // Analytics Hub navigation items (view/report only - no operational)
   const navigationItems = [

@@ -344,11 +344,11 @@ const TRNValidationWidget = ({
             return (
               <div
                 key={validation.id}
-                onClick={() => onViewEntity && onViewEntity(validation)}
+                onClick={() => onViewEntity?.(validation)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    onViewEntity && onViewEntity(validation);
+                    onViewEntity?.(validation);
                   }
                 }}
                 role="button"
@@ -391,11 +391,11 @@ const TRNValidationWidget = ({
             trnData.invalidTRNs.map((invalid) => (
               <div
                 key={invalid.id}
-                onClick={() => onViewEntity && onViewEntity(invalid)}
+                onClick={() => onViewEntity?.(invalid)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    onViewEntity && onViewEntity(invalid);
+                    onViewEntity?.(invalid);
                   }
                 }}
                 role="button"

@@ -23,7 +23,7 @@ const DeliveryVarianceDashboard = () => {
   useEffect(() => {
     loadDashboardData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [daysBack]); // loadDashboardData is stable
+  }, [loadDashboardData]); // loadDashboardData is stable
 
   const loadDashboardData = async () => {
     try {

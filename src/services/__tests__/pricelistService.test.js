@@ -138,7 +138,7 @@ describe("pricelistService", () => {
     test("should hard delete when specified", async () => {
       api.delete.mockResolvedValueOnce({ success: true });
 
-      const result = await pricelistService.delete(1, true);
+      const _result = await pricelistService.delete(1, true);
 
       expect(api.delete).toHaveBeenCalledWith("/pricelists/1", {
         params: { hard_delete: true },

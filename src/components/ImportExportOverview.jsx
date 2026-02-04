@@ -263,17 +263,15 @@ const ImportExportOverview = () => {
                 No recent activity
               </p>
             ) : (
-              <>
-                {recentActivity.map((activity, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <div className={`w-2 h-2 bg-${activity.color}-500 rounded-full`}></div>
-                    <div className="flex-1">
-                      <p className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{activity.text}</p>
-                      <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>{activity.time}</p>
-                    </div>
+              recentActivity.map((activity, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                  <div className={`w-2 h-2 bg-${activity.color}-500 rounded-full`}></div>
+                  <div className="flex-1">
+                    <p className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{activity.text}</p>
+                    <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>{activity.time}</p>
                   </div>
-                ))}
-              </>
+                </div>
+              ))
             )}
           </div>
         </div>

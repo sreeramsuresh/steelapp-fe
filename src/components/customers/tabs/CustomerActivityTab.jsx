@@ -131,7 +131,7 @@ export default function CustomerActivityTab({ customerId }) {
   const isCacheValid = useCallback(() => {
     if (!cachedData || !cacheTimestamp) return false;
     return Date.now() - cacheTimestamp < CACHE_DURATION;
-  }, [cachedData, cacheTimestamp, CACHE_DURATION]);
+  }, [cachedData, cacheTimestamp]);
 
   // Fetch activities
   const fetchActivities = useCallback(async () => {
@@ -182,7 +182,7 @@ export default function CustomerActivityTab({ customerId }) {
       // Otherwise fetch fresh data
       fetchActivities();
     }
-  }, [customerId, cachedData, cacheTimestamp, isCacheValid, fetchActivities]);
+  }, [customerId, cachedData, isCacheValid, fetchActivities]);
 
   // Apply filters
   useEffect(() => {
@@ -511,7 +511,7 @@ export default function CustomerActivityTab({ customerId }) {
         ) : (
           <div className="space-y-6">
             {filteredActivities.map((activity, index) => {
-              const config = activityTypeConfig[activity.type] || activityTypeConfig["note"];
+              const config = activityTypeConfig[activity.type] || activityTypeConfig.note;
               const Icon = config.icon;
 
               return (

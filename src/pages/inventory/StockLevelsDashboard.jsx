@@ -107,7 +107,7 @@ const StockLevelsDashboard = () => {
         page,
         limit: 20,
         search: searchTerm || undefined,
-        warehouseId: warehouseFilter !== "all" ? parseInt(warehouseFilter) : undefined,
+        warehouseId: warehouseFilter !== "all" ? parseInt(warehouseFilter, 10) : undefined,
         lowStockOnly: lowStockOnly || undefined,
         includeZero: includeZero || undefined,
       };

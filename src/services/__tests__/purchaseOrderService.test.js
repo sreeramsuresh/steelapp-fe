@@ -179,7 +179,7 @@ describe("purchaseOrderService", () => {
 
       apiClient.post.mockResolvedValueOnce({ error: "Missing supplierId" });
 
-      const result = await purchaseOrderService.create(incompletePO);
+      const _result = await purchaseOrderService.create(incompletePO);
 
       expect(apiClient.post).toHaveBeenCalledWith("/purchase-orders", incompletePO);
     });
@@ -296,7 +296,7 @@ describe("purchaseOrderService", () => {
       const mockResponse = { error: "Cannot delete approved PO" };
       apiClient.delete.mockResolvedValueOnce(mockResponse);
 
-      const result = await purchaseOrderService.delete(2);
+      const _result = await purchaseOrderService.delete(2);
 
       expect(apiClient.delete).toHaveBeenCalledWith("/purchase-orders/2");
     });

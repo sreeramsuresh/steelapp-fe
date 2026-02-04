@@ -36,7 +36,7 @@ export default function StockDeductionPreview({
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, warehouseId]); // fetchStockLevels is stable
+  }, [fetchStockLevels, inventoryItems.length]); // fetchStockLevels is stable
 
   const fetchStockLevels = async () => {
     try {

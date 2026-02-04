@@ -253,7 +253,7 @@ const ShippingDocumentList = () => {
 
   useEffect(() => {
     loadOrders();
-  }, []);
+  }, [loadOrders]);
 
   // Clear messages after timeout
   useEffect(() => {
@@ -383,7 +383,7 @@ const ShippingDocumentList = () => {
         ...formData,
         weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg) : null,
         volume_cbm: formData.volume_cbm ? parseFloat(formData.volume_cbm) : null,
-        number_of_packages: formData.number_of_packages ? parseInt(formData.number_of_packages) : null,
+        number_of_packages: formData.number_of_packages ? parseInt(formData.number_of_packages, 10) : null,
       };
 
       if (modalMode === "create") {

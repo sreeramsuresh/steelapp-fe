@@ -54,7 +54,7 @@ const CurrencyInput = ({
   }, [amount, currency, exchangeRate]);
 
   // Helper for number input
-  const numberInput = (v) => (v === "" || isNaN(Number(v)) ? "" : v);
+  const numberInput = (v) => (v === "" || Number.isNaN(Number(v)) ? "" : v);
 
   // Handle currency change - reset exchange rate for AED
   const handleCurrencyChange = (newCurrency) => {

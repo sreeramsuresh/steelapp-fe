@@ -97,12 +97,12 @@ const TransitList = () => {
 
   useEffect(() => {
     fetchTransitPurchaseOrders();
-  }, []);
+  }, [fetchTransitPurchaseOrders]);
 
   const filteredItems = transitItems.filter((item) => {
     const matchesSearch =
-      (item.poNumber && item.poNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (item.supplierName && item.supplierName.toLowerCase().includes(searchTerm.toLowerCase()));
+      item.poNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.supplierName?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || item.status === statusFilter;
     return matchesSearch && matchesStatus;
   });

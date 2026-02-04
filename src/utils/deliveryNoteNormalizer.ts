@@ -24,13 +24,13 @@ export function normalizeDeliveryNote(rawDN: any, source = "unknown"): any | nul
 
       // Handle Timestamp objects
       if (value?.seconds) {
-        return new Date(parseInt(value.seconds) * 1000).toISOString();
+        return new Date(parseInt(value.seconds, 10) * 1000).toISOString();
       }
 
       // Handle string dates
       if (typeof value === "string") {
         const parsed = new Date(value);
-        if (!isNaN(parsed.getTime())) {
+        if (!Number.isNaN(parsed.getTime())) {
           return parsed.toISOString();
         }
       }

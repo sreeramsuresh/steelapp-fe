@@ -6,7 +6,7 @@
 /* eslint-disable local-rules/no-dead-button */
 // Test fixtures intentionally render buttons without handlers to test utility functions
 
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import {
   assertButtonDisabled,

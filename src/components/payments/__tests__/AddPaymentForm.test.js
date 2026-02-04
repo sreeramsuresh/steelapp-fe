@@ -32,7 +32,7 @@ vi.mock("../../../utils/invoiceUtils", () => ({
 }));
 
 vi.mock("../../../utils/timezone", () => ({
-  toUAEDateForInput: (date) => "2024-01-15",
+  toUAEDateForInput: (_date) => "2024-01-15",
 }));
 
 describe("AddPaymentForm", () => {
@@ -503,7 +503,7 @@ describe("AddPaymentForm", () => {
     });
 
     it("should support keyboard navigation", async () => {
-      const user = setupUser();
+      const _user = setupUser();
       const { container } = renderWithProviders(<AddPaymentForm {...defaultProps} />);
 
       const inputs = container.querySelectorAll("input, select, button, textarea");

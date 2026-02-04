@@ -21,7 +21,7 @@
  * - Verify contract assertions pass
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient, productsAPI } from "../api.js";
 
 // Mock apiClient to simulate backend responses

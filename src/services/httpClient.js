@@ -158,7 +158,7 @@ function normalizeError(error, requestId) {
     const serverRequestId = headers?.["x-request-id"] || data?.requestId || requestId;
 
     // Server returned standard error format
-    if (data && data.errorCode) {
+    if (data?.errorCode) {
       return new ApiError(
         serverRequestId,
         data.errorCode,
@@ -169,7 +169,7 @@ function normalizeError(error, requestId) {
     }
 
     // Legacy format with 'code' instead of 'errorCode'
-    if (data && data.code) {
+    if (data?.code) {
       return new ApiError(serverRequestId, data.code, data.message || "An error occurred", data.details || {}, status);
     }
 

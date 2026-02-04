@@ -36,7 +36,7 @@ const CreditManagementPanel = ({
   // Load credit issues on mount
   useEffect(() => {
     loadCreditIssues();
-  }, []);
+  }, [loadCreditIssues]);
 
   const loadCreditIssues = async () => {
     try {

@@ -76,7 +76,7 @@ const ConversionFunnelWidget = ({ data: propData, onRefresh, onViewDetails, isLo
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     if (safeAmount >= 1000000) {
       return `AED ${(safeAmount / 1000000).toFixed(2)}M`;
     } else if (safeAmount >= 1000) {

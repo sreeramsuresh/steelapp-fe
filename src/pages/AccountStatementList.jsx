@@ -121,7 +121,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
     if (preSelectedCustomerId && preSelectedCustomerName && !hasProcessedPreSelection) {
       // Auto-select the customer and open generate modal
       setSelectedCustomer({
-        id: parseInt(preSelectedCustomerId),
+        id: parseInt(preSelectedCustomerId, 10),
         name: preSelectedCustomerName,
       });
       setShowGenerateModal(true);

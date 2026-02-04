@@ -217,7 +217,7 @@ const DashboardV2 = () => {
     fetchWidgetData();
     preloadByRole(role);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role]);
+  }, [role, fetchDashboardData, fetchWidgetData]);
 
   const fetchDashboardData = async () => {
     try {
@@ -228,9 +228,10 @@ const DashboardV2 = () => {
       // Also support legacy structure: { revenueMetrics, customerMetrics, productMetrics }
       const newStats = {
         totalRevenue: parseFloat(dashboard?.metrics?.totalRevenue || dashboard?.revenueMetrics?.totalRevenue) || 0,
-        totalCustomers: parseInt(dashboard?.metrics?.totalCustomers || dashboard?.customerMetrics?.totalCustomers) || 0,
-        totalProducts: parseInt(dashboard?.metrics?.totalProducts || dashboard?.productMetrics?.totalProducts) || 0,
-        totalInvoices: parseInt(dashboard?.metrics?.totalOrders || dashboard?.revenueMetrics?.totalInvoices) || 0,
+        totalCustomers:
+          parseInt(dashboard?.metrics?.totalCustomers || dashboard?.customerMetrics?.totalCustomers, 10) || 0,
+        totalProducts: parseInt(dashboard?.metrics?.totalProducts || dashboard?.productMetrics?.totalProducts, 10) || 0,
+        totalInvoices: parseInt(dashboard?.metrics?.totalOrders || dashboard?.revenueMetrics?.totalInvoices, 10) || 0,
         revenueChange: 0,
         customersChange: 0,
       };
@@ -300,7 +301,7 @@ const DashboardV2 = () => {
                     name: item.name || item.product_name || item.displayName,
                     category: item.category || "Steel",
                     turnoverRatio: parseFloat(item.turnover_ratio || item.turnoverRatio) || 5.0,
-                    daysToSell: parseInt(item.days_to_sell || item.daysToSell) || 15,
+                    daysToSell: parseInt(item.days_to_sell || item.daysToSell, 10) || 15,
                     currentStock: parseFloat(item.current_stock || item.currentStock || item.quantity) || 0,
                     reorderPoint: parseFloat(item.reorder_point || item.reorderPoint) || 10,
                     lastSaleDate: item.last_sale_date || item.lastSaleDate || new Date().toISOString(),
@@ -330,13 +331,13 @@ const DashboardV2 = () => {
                     name: item.name || item.product_name || item.displayName,
                     category: item.category || "Steel",
                     turnoverRatio: parseFloat(item.turnover_ratio || item.turnoverRatio) || 0.5,
-                    daysInStock: parseInt(item.days_in_stock || item.daysInStock) || 150,
+                    daysInStock: parseInt(item.days_in_stock || item.daysInStock, 10) || 150,
                     currentStock: parseFloat(item.current_stock || item.currentStock || item.quantity) || 0,
                     value: parseFloat(item.value || item.total_value) || 0,
                     lastSaleDate: item.last_sale_date || item.lastSaleDate || "2024-01-01",
                     recommendation:
                       item.recommendation ||
-                      (parseInt(item.days_in_stock || item.daysInStock) > 180 ? "discount" : "promote"),
+                      (parseInt(item.days_in_stock || item.daysInStock, 10) > 180 ? "discount" : "promote"),
                   })),
                   summary: {
                     totalSlowMoving: inventoryHealth.slowMoving.length,
@@ -346,7 +347,7 @@ const DashboardV2 = () => {
                     ),
                     avgDaysInStock:
                       inventoryHealth.slowMoving.reduce(
-                        (sum, i) => sum + (parseInt(i.days_in_stock || i.daysInStock) || 0),
+                        (sum, i) => sum + (parseInt(i.days_in_stock || i.daysInStock, 10) || 0),
                         0
                       ) / inventoryHealth.slowMoving.length || 150,
                   },
@@ -363,7 +364,7 @@ const DashboardV2 = () => {
                     currentStock: parseFloat(item.current_stock || item.currentStock || item.quantity) || 0,
                     reorderPoint: parseFloat(item.reorder_point || item.reorderPoint || item.minStock) || 10,
                     maxStock: parseFloat(item.max_stock || item.maxStock) || 100,
-                    daysOfCover: parseInt(item.days_of_cover || item.daysOfCover) || 5,
+                    daysOfCover: parseInt(item.days_of_cover || item.daysOfCover, 10) || 5,
                     avgDailySales: parseFloat(item.avg_daily_sales || item.avgDailySales) || 1.5,
                     lastOrderDate: item.last_order_date || item.lastOrderDate || "2024-01-01",
                     suggestedQty: parseFloat(item.suggested_qty || item.suggestedQty) || 30,

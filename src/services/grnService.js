@@ -56,7 +56,7 @@ const transformGRNForServer = (grnData) => {
       // Storage
       storageLocation: item.storageLocation || "",
       // PCS-Centric Tracking (Phase 5 - Industry Standard)
-      pcsReceived: parseInt(item.pcsReceived || 0),
+      pcsReceived: parseInt(item.pcsReceived || 0, 10),
       weightKgReceived: parseFloat(item.weightKgReceived || item.receivedWeightKg || 0),
       weightPerPieceKg: parseFloat(item.weightPerPieceKg || 0),
       weightSource: item.weightSource || "ACTUAL",
@@ -134,7 +134,7 @@ const transformGRNFromServer = (serverData) => {
       rejectionReason: item.rejectionReason || item.rejection_reason || "",
       storageLocation: item.storageLocation || item.storage_location || "",
       // PCS-Centric Tracking (Phase 5 - Industry Standard)
-      pcsReceived: parseInt(item.pcsReceived || item.pcs_received || 0),
+      pcsReceived: parseInt(item.pcsReceived || item.pcs_received || 0, 10),
       weightKgReceived: parseFloat(item.weightKgReceived || item.weight_kg_received || item.receivedWeightKg || 0),
       weightPerPieceKg: parseFloat(item.weightPerPieceKg || item.weight_per_piece_kg || 0),
       weightSource: item.weightSource || item.weight_source || "ACTUAL",

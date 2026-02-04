@@ -39,9 +39,7 @@ const GrossMarginWidget = ({ grossMargin, loading = false, onRefresh, showGauge 
           formatValue={(val) => `${val.toFixed(1)}%`}
         />
       ) : (
-        <>
-          <MetricValue value={`${displayMargin.toFixed(1)}%`} label="Weighted average across all sales" size="md" />
-        </>
+        <MetricValue value={`${displayMargin.toFixed(1)}%`} label="Weighted average across all sales" size="md" />
       )}
     </BaseWidget>
   );

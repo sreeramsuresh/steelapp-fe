@@ -113,7 +113,7 @@ const CommissionTrackerWidget = ({
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
       currency: "AED",
@@ -124,7 +124,7 @@ const CommissionTrackerWidget = ({
 
   const _formatCompact = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     if (safeAmount >= 1000000) {
       return `${(safeAmount / 1000000).toFixed(1)}M`;
     }
@@ -254,7 +254,7 @@ const CommissionTrackerWidget = ({
           {agents.length > 0 && (
             <select
               value={selectedAgentId || ""}
-              onChange={(e) => setSelectedAgentId(parseInt(e.target.value))}
+              onChange={(e) => setSelectedAgentId(parseInt(e.target.value, 10))}
               className={`text-xs px-2 py-1 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-500 ${
                 isDarkMode ? "bg-[#2E3B4E] border-[#37474F] text-white" : "bg-gray-50 border-gray-200 text-gray-700"
               }`}

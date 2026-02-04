@@ -28,22 +28,25 @@ const useHomeSectionOrder = () => {
   }, []);
 
   // Reorder sections - updates state and saves to both storage layers
-  const reorderSections = useCallback((newOrder) => {
-    const validated = validateSectionOrder(newOrder);
-    setSectionOrder(validated);
+  const reorderSections = useCallback(
+    (newOrder) => {
+      const validated = validateSectionOrder(newOrder);
+      setSectionOrder(validated);
 
-    // Save to localStorage immediately
-    userPreferencesService.setHomeSectionOrder(validated);
+      // Save to localStorage immediately
+      userPreferencesService.setHomeSectionOrder(validated);
 
-    // Debounced save to backend (300ms)
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
+      // Debounced save to backend (300ms)
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
 
-    debounceTimerRef.current = setTimeout(() => {
-      syncToBackend(validated);
-    }, 300);
-  }, []);
+      debounceTimerRef.current = setTimeout(() => {
+        syncToBackend(validated);
+      }, 300);
+    },
+    [syncToBackend]
+  );
 
   // Save to backend via user permissions
   const syncToBackend = useCallback(async (order) => {

@@ -44,7 +44,7 @@ const ScrapItemsList = ({ creditNoteId = null, showFilters = true }) => {
   useEffect(() => {
     fetchScrapItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [creditNoteId]); // fetchScrapItems is stable
+  }, [fetchScrapItems]); // fetchScrapItems is stable
 
   const filteredItems = scrapItems.filter((item) => {
     if (!searchTerm) return true;

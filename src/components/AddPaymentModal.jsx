@@ -44,7 +44,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
     }
     setErrors([]);
     setIsSaving(false); // Reset saving state when modal opens
-  }, [editingPayment, isOpen]);
+  }, [editingPayment]);
 
   const handleSave = () => {
     const validationErrors = validatePayment(payment, invoiceTotal, existingPayments);

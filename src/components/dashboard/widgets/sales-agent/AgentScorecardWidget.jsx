@@ -96,13 +96,11 @@ const AgentScorecardWidget = ({ data: propData, onRefresh, onViewDetails, isLoad
 
   const achievementPercent = selectedAgent ? ((selectedAgent.achieved / selectedAgent.target) * 100).toFixed(1) : 0;
 
-  const growthPercent =
-    selectedAgent && selectedAgent.lastPeriodAchieved
-      ? (
-          ((selectedAgent.achieved - selectedAgent.lastPeriodAchieved) / selectedAgent.lastPeriodAchieved) *
-          100
-        ).toFixed(1)
-      : 0;
+  const growthPercent = selectedAgent?.lastPeriodAchieved
+    ? (((selectedAgent.achieved - selectedAgent.lastPeriodAchieved) / selectedAgent.lastPeriodAchieved) * 100).toFixed(
+        1
+      )
+    : 0;
 
   const handleRefresh = async () => {
     setLoading(true);
@@ -118,7 +116,7 @@ const AgentScorecardWidget = ({ data: propData, onRefresh, onViewDetails, isLoad
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     if (safeAmount >= 1000000) {
       return `AED ${(safeAmount / 1000000).toFixed(2)}M`;
     } else if (safeAmount >= 1000) {
@@ -236,7 +234,7 @@ const AgentScorecardWidget = ({ data: propData, onRefresh, onViewDetails, isLoad
       <div className="flex gap-2 mb-4">
         <select
           value={selectedAgentId}
-          onChange={(e) => setSelectedAgentId(parseInt(e.target.value))}
+          onChange={(e) => setSelectedAgentId(parseInt(e.target.value, 10))}
           className={`flex-1 text-sm px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${
             isDarkMode ? "bg-[#2E3B4E] border-[#37474F] text-white" : "bg-gray-50 border-gray-200 text-gray-700"
           }`}

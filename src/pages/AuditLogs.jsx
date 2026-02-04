@@ -50,7 +50,7 @@ const AuditLogs = () => {
     fetchLogs();
     fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, filters]); // fetchLogs and fetchStats are stable
+  }, [fetchLogs, fetchStats]); // fetchLogs and fetchStats are stable
 
   const fetchLogs = async () => {
     try {
@@ -214,7 +214,7 @@ const AuditLogs = () => {
                 <div>
                   <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Failed Actions</p>
                   <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    {stats.categoryStats?.reduce((sum, cat) => sum + parseInt(cat.failedCount || 0), 0) || 0}
+                    {stats.categoryStats?.reduce((sum, cat) => sum + parseInt(cat.failedCount || 0, 10), 0) || 0}
                   </p>
                 </div>
                 <AlertCircle className="text-red-500" size={32} />

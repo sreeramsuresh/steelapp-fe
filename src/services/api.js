@@ -12,13 +12,13 @@ class ApiClient {
   }
 
   setAuthHeader(token) {
-    this.defaultHeaders["Authorization"] = `Bearer ${token}`;
+    this.defaultHeaders.Authorization = `Bearer ${token}`;
     // Also set on axios-based service so interceptors use it
     apiService.setAuthToken(token);
   }
 
   removeAuthHeader() {
-    delete this.defaultHeaders["Authorization"];
+    delete this.defaultHeaders.Authorization;
     apiService.removeAuthToken();
   }
 

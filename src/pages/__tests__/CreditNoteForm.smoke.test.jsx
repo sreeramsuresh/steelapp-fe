@@ -20,7 +20,7 @@
  * - Loading states
  */
 
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -342,7 +342,7 @@ describe("CreditNoteForm - Smoke Tests", () => {
     });
 
     it("Back button is clickable", async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <TestWrapper>

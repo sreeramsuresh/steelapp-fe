@@ -79,7 +79,7 @@ const CreditNoteStatusActions = ({
       loadAllowedTransitions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [creditNoteId, currentStatus]); // loadAllowedTransitions is stable
+  }, [creditNoteId, loadAllowedTransitions]); // loadAllowedTransitions is stable
 
   const loadAllowedTransitions = async () => {
     try {

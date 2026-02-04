@@ -29,7 +29,7 @@ export const NotificationCenterProvider = ({ children }) => {
   const unreadCount = useMemo(() => {
     // Ensure notifications is always an array before filtering
     const validNotifications = Array.isArray(notifications) ? notifications : [];
-    return validNotifications.filter((n) => n && n.unread).length;
+    return validNotifications.filter((n) => n?.unread).length;
   }, [notifications]);
 
   const persist = (next) => {
@@ -64,7 +64,7 @@ export const NotificationCenterProvider = ({ children }) => {
       // persist(normalize(list));
 
       // Validate current notifications and sync with storage
-      const currentNotifications = Array.isArray(notifications) ? notifications.filter((n) => n && n.id) : [];
+      const currentNotifications = Array.isArray(notifications) ? notifications.filter((n) => n?.id) : [];
 
       // Fallback: seed with a couple of sample items if empty
       if (currentNotifications.length === 0) {
@@ -89,7 +89,7 @@ export const NotificationCenterProvider = ({ children }) => {
     } catch (err) {
       console.warn("Notification fetch error (expected during development):", err);
       // Fallback: seed with a couple of sample items if empty
-      const currentNotifications = Array.isArray(notifications) ? notifications.filter((n) => n && n.id) : [];
+      const currentNotifications = Array.isArray(notifications) ? notifications.filter((n) => n?.id) : [];
       if (currentNotifications.length === 0) {
         const now = new Date();
         const oneMinAgo = new Date(now.getTime() - 60000);
@@ -112,7 +112,7 @@ export const NotificationCenterProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [notifications]);
+  }, [notifications, normalize, persist]);
 
   const markAsRead = useCallback(async (id) => {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, unread: false } : n)));
@@ -131,14 +131,14 @@ export const NotificationCenterProvider = ({ children }) => {
       const next = [{ ...normalize([notif])[0] }, ...notifications];
       persist(next);
     },
-    [notifications]
+    [notifications, normalize, persist]
   );
 
   const removeNotification = useCallback(
     (id) => {
       persist(notifications.filter((n) => n.id !== id));
     },
-    [notifications]
+    [notifications, persist]
   );
 
   // Sync notifications with storage to fix any corruption
@@ -156,13 +156,19 @@ export const NotificationCenterProvider = ({ children }) => {
       // If storage is corrupted, clear it and reset
       persist([]);
     }
-  }, []);
+  }, [
+    // If storage is corrupted, clear it and reset
+    persist,
+  ]);
 
   useEffect(() => {
     fetchNotifications();
     // Sync on mount to catch any storage corruption
     syncWithStorage();
-  }, []);
+  }, [
+    fetchNotifications, // Sync on mount to catch any storage corruption
+    syncWithStorage,
+  ]);
 
   const value = {
     notifications,

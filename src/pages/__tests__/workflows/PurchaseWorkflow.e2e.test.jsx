@@ -180,7 +180,7 @@ describe("E2E Workflow: Complete Purchase Cycle", () => {
 
   it("should enforce 3-way match (PO, GRN, Bill) before payment", async () => {
     const ThreeWayMatchWorkflow = () => {
-      const [amounts, setAmounts] = React.useState({
+      const [amounts, _setAmounts] = React.useState({
         po: 5000,
         grn: 5000,
         bill: 4900, // Discrepancy

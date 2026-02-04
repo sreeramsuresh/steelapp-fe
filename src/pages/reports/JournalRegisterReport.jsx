@@ -249,7 +249,7 @@ export default function JournalRegisterReport() {
       )}
 
       {/* Pagination */}
-      {data && data.pagination && (
+      {data?.pagination && (
         <div className="bg-white rounded-lg shadow p-4 flex items-center justify-between">
           <div className="text-sm text-gray-600">
             Showing {(currentPage - 1) * data.pagination.limit + 1} to{" "}

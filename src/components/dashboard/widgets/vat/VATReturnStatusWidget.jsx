@@ -33,7 +33,7 @@ const VATReturnStatusWidget = ({
   }, [data]);
 
   // Check if we have valid data
-  const hasData = returnData && returnData.quarters && returnData.quarters.length > 0;
+  const hasData = returnData?.quarters && returnData.quarters.length > 0;
 
   // Show "No Data" state when no valid data is available
   if (!hasData) {
@@ -70,7 +70,7 @@ const VATReturnStatusWidget = ({
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
       currency: "AED",
@@ -113,7 +113,6 @@ const VATReturnStatusWidget = ({
           textColor: isDarkMode ? "text-red-400" : "text-red-700",
           borderColor: isDarkMode ? "border-red-700" : "border-red-300",
         };
-      case "draft":
       default:
         return {
           label: "Draft",
@@ -243,11 +242,11 @@ const VATReturnStatusWidget = ({
               className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:scale-[1.02] ${
                 statusConfig.bgColor
               } ${statusConfig.borderColor}`}
-              onClick={() => onViewReturn && onViewReturn(quarter)}
+              onClick={() => onViewReturn?.(quarter)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  onViewReturn && onViewReturn(quarter);
+                  onViewReturn?.(quarter);
                 }
               }}
               role="button"

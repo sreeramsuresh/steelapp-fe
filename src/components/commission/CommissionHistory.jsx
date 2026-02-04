@@ -125,7 +125,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [statusFilter, dateFrom, dateTo, searchTerm]);
+  }, []);
 
   const totalPages = Math.ceil(totalCount / pageSize);
 

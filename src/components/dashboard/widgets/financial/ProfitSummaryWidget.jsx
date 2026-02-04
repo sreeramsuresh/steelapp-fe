@@ -29,7 +29,7 @@ const ProfitSummaryWidget = ({ data: propData, onRefresh, loading: externalLoadi
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
       currency: "AED",
@@ -103,7 +103,7 @@ const ProfitSummaryWidget = ({ data: propData, onRefresh, loading: externalLoadi
   const prevRevenue = parseFloat(prevPeriod?.revenue || 0);
   const prevNetProfit = parseFloat(prevPeriod?.netProfit || prevPeriod?.net_profit || 0);
 
-  const revenueChange = calculateChange(revenue, prevRevenue);
+  const _revenueChange = calculateChange(revenue, prevRevenue);
   const netProfitChange = calculateChange(netProfit, prevNetProfit);
 
   // Waterfall chart data

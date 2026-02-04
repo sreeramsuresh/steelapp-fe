@@ -414,7 +414,7 @@ const QuotationForm = () => {
 
       return isValid;
     },
-    [formData.status]
+    [formData.status, formData.currency, formData.quotationDate]
   );
 
   // Fetch initial data
@@ -468,7 +468,7 @@ const QuotationForm = () => {
 
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit]);
+  }, [isEdit, formData.warehouseId]);
 
   // Fetch quotation data for editing
   useEffect(() => {
@@ -521,7 +521,7 @@ const QuotationForm = () => {
           // Helper function to safely parse numbers
           const safeNumber = (value, defaultValue = 0) => {
             const num = Number(value);
-            return isNaN(num) ? defaultValue : num;
+            return Number.isNaN(num) ? defaultValue : num;
           };
 
           // Helper function to safely extract date (YYYY-MM-DD format)
@@ -703,7 +703,7 @@ const QuotationForm = () => {
       fetchQuotation();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, id]); // quotationService and setState functions are stable
+  }, [isEdit, id, customers]); // quotationService and setState functions are stable
 
   // Run field validation when key fields change
   useEffect(() => {
@@ -718,7 +718,6 @@ const QuotationForm = () => {
     formData.quotationDate,
     formData.warehouseId,
     formData.currency,
-    formData.status,
     validateField,
   ]);
 
@@ -734,7 +733,7 @@ const QuotationForm = () => {
         validUntil: validUntilString,
       }));
     }
-  }, [isEdit, formData.quotationDate]);
+  }, [isEdit, formData.quotationDate, formData.validUntil]);
 
   const handleCustomerChange = async (customerId, selectedOption = null) => {
     // If called from Autocomplete (selectedOption provided), use that info
@@ -1087,7 +1086,7 @@ const QuotationForm = () => {
 
     // If product is selected, populate item details
     if (field === "productId" && value) {
-      const product = products.find((p) => p.id === parseInt(value));
+      const product = products.find((p) => p.id === parseInt(value, 10));
       if (product) {
         // Bug #25 fix: Unescape product names with special characters
         const productDisplayName = unescapeProductName(
@@ -1262,7 +1261,7 @@ const QuotationForm = () => {
   }, []);
 
   // Bug #55 fix: Create a memoized serialization of items to detect deep changes
-  const itemsSerialized = useMemo(() => {
+  const _itemsSerialized = useMemo(() => {
     return JSON.stringify(
       formData.items.map((item) => ({
         amount: item.amount,
@@ -1279,7 +1278,7 @@ const QuotationForm = () => {
     if (isEdit && initialFormData === null && formData.quotationNumber !== "QT-DRAFT") {
       setInitialFormData(JSON.parse(JSON.stringify(formData)));
     }
-  }, [isEdit, initialFormData, formData.quotationNumber]);
+  }, [isEdit, initialFormData, formData.quotationNumber, formData]);
 
   // Persist form preferences to localStorage (Bug #54 fix)
   useEffect(() => {
@@ -1290,17 +1289,7 @@ const QuotationForm = () => {
   useEffect(() => {
     calculateTotals();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    formData.packingCharges,
-    formData.freightCharges,
-    formData.insuranceCharges,
-    formData.loadingCharges,
-    formData.otherCharges,
-    formData.discountType,
-    formData.discountPercentage,
-    formData.discountAmount,
-    itemsSerialized, // Track item amounts/rates/quantities deeply via serialization
-  ]);
+  }, [calculateTotals]);
 
   // Check if form has unsaved changes (Bug #53 fix)
   const hasUnsavedChanges = useCallback(() => {
@@ -1576,7 +1565,7 @@ const QuotationForm = () => {
 
     useEffect(() => {
       setHighlightedIndex(-1);
-    }, [filteredOptions]);
+    }, []);
 
     // Fuzzy match helpers
     const norm = (s) => (s || "").toString().toLowerCase().trim();
@@ -1602,17 +1591,20 @@ const QuotationForm = () => {
       return dpPrev[lb];
     };
 
-    const tokenMatch = useCallback((token, optLabel) => {
-      const t = norm(token);
-      const l = norm(optLabel);
-      if (!t) return true;
-      if (l.includes(t)) return true;
-      const words = l.split(/\s+/);
-      for (const w of words) {
-        if (Math.abs(w.length - t.length) <= 1 && ed1(w, t) <= 1) return true;
-      }
-      return false;
-    }, []);
+    const tokenMatch = useCallback(
+      (token, optLabel) => {
+        const t = norm(token);
+        const l = norm(optLabel);
+        if (!t) return true;
+        if (l.includes(t)) return true;
+        const words = l.split(/\s+/);
+        for (const w of words) {
+          if (Math.abs(w.length - t.length) <= 1 && ed1(w, t) <= 1) return true;
+        }
+        return false;
+      },
+      [ed1, norm]
+    );
 
     const fuzzyFilter = useCallback(
       (opts, query) => {
@@ -1638,7 +1630,7 @@ const QuotationForm = () => {
         scored.sort((a, b) => a.score - b.score);
         return scored.map((s) => s.o);
       },
-      [tokenMatch]
+      [tokenMatch, norm]
     );
 
     useEffect(() => {
@@ -2013,7 +2005,7 @@ const QuotationForm = () => {
                     const value = e.target.value;
                     const numValue = parseFloat(value);
                     // Validate: must be a positive number if provided
-                    if (value === "" || (numValue > 0 && !isNaN(numValue))) {
+                    if (value === "" || (numValue > 0 && !Number.isNaN(numValue))) {
                       setFormData((prev) => ({
                         ...prev,
                         exchangeRate: value === "" ? 1 : numValue,
@@ -2588,7 +2580,7 @@ const QuotationForm = () => {
                             onChange={(e) => {
                               const allowDecimal = item.quantityUom === "MT" || item.quantityUom === "KG";
                               const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
-                              updateItem(index, "quantity", isNaN(val) ? "" : val);
+                              updateItem(index, "quantity", Number.isNaN(val) ? "" : val);
                             }}
                             min="0"
                             step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}

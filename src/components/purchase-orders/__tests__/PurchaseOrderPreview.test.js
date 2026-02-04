@@ -1,6 +1,6 @@
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { renderWithProviders, setupUser } from "../../../test/component-setup";
+import { renderWithProviders } from "../../../test/component-setup";
 import PurchaseOrderPreview from "../PurchaseOrderPreview";
 
 const mockPurchaseOrderService = {

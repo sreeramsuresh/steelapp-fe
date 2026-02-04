@@ -4,13 +4,13 @@ import { notificationService } from "../notificationService.js";
 
 vi.mock("react-hot-toast", () => ({
   default: {
-    success: vi.fn((msg, opts) => ({ id: "1", type: "success", message: msg })),
-    error: vi.fn((msg, opts) => ({ id: "2", type: "error", message: msg })),
-    loading: vi.fn((msg, opts) => ({ id: "3", type: "loading", message: msg })),
-    promise: vi.fn((p, msgs, opts) => p),
-    custom: vi.fn((jsx, opts) => ({ id: "4", type: "custom" })),
-    dismiss: vi.fn((id) => undefined),
-    remove: vi.fn((id) => undefined),
+    success: vi.fn((msg, _opts) => ({ id: "1", type: "success", message: msg })),
+    error: vi.fn((msg, _opts) => ({ id: "2", type: "error", message: msg })),
+    loading: vi.fn((msg, _opts) => ({ id: "3", type: "loading", message: msg })),
+    promise: vi.fn((p, _msgs, _opts) => p),
+    custom: vi.fn((_jsx, _opts) => ({ id: "4", type: "custom" })),
+    dismiss: vi.fn((_id) => undefined),
+    remove: vi.fn((_id) => undefined),
   },
 }));
 

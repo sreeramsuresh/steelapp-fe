@@ -156,7 +156,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
       const startDate = new Date(formData.demurrageStartDate);
       const today = new Date();
       const daysDiff = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-      const daysIncurred = Math.max(0, daysDiff - (parseInt(formData.freeDaysAtPort) || 0));
+      const daysIncurred = Math.max(0, daysDiff - (parseInt(formData.freeDaysAtPort, 10) || 0));
       const calculatedDays = daysIncurred.toString();
       const currentDays = formData.demurrageDaysIncurred ? formData.demurrageDaysIncurred.toString() : "0";
 
@@ -303,7 +303,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
         companyId,
         containerNumber: formData.containerNumber.trim(),
         billOfLading: formData.billOfLading.trim(),
-        supplierId: formData.supplierId ? parseInt(formData.supplierId) : null,
+        supplierId: formData.supplierId ? parseInt(formData.supplierId, 10) : null,
         shippingLine: formData.shippingLine.trim(),
         vesselName: formData.vesselName.trim(),
         portOfLoading: formData.portOfLoading.trim(),
@@ -316,7 +316,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
         totalCustomsDuty: formData.totalCustomsDuty || "0",
         totalHandling: formData.totalHandling || "0",
         totalOtherCosts: formData.totalOtherCosts || "0",
-        purchaseOrderId: formData.purchaseOrderId ? parseInt(formData.purchaseOrderId) : null,
+        purchaseOrderId: formData.purchaseOrderId ? parseInt(formData.purchaseOrderId, 10) : null,
         notes: formData.notes.trim(),
         // Phase 2b fields
         containerType: formData.containerType,
@@ -343,12 +343,12 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
         psiDate: formData.preShipmentInspection ? formData.psiDate || null : null,
         certificateOfOriginNumber: formData.certificateOfOriginNumber.trim(),
         phytosanitaryCertificate: formData.phytosanitaryCertificate.trim(),
-        freeDaysAtPort: parseInt(formData.freeDaysAtPort) || 0,
+        freeDaysAtPort: parseInt(formData.freeDaysAtPort, 10) || 0,
         demurrageStartDate: formData.demurrageStartDate || null,
-        demurrageDaysIncurred: parseInt(formData.demurrageDaysIncurred) || 0,
+        demurrageDaysIncurred: parseInt(formData.demurrageDaysIncurred, 10) || 0,
         demurrageCost: formData.demurrageCost || "0",
         detentionStartDate: formData.detentionStartDate || null,
-        detentionDaysIncurred: parseInt(formData.detentionDaysIncurred) || 0,
+        detentionDaysIncurred: parseInt(formData.detentionDaysIncurred, 10) || 0,
         detentionCost: formData.detentionCost || "0",
         containerReleased: formData.containerReleased,
         releaseDate: formData.containerReleased ? formData.releaseDate || null : null,

@@ -102,7 +102,7 @@ const AllocationDrawer = ({
     }
 
     // Priority 2: Check form field (fallback)
-    if (product.form && product.form.toLowerCase().includes("coil")) {
+    if (product.form?.toLowerCase().includes("coil")) {
       return true;
     }
 
@@ -258,7 +258,7 @@ const AllocationDrawer = ({
     if (fromUnit === toUnit || qty == null) return qty;
 
     const numQty = parseFloat(qty);
-    if (isNaN(numQty)) return qty;
+    if (Number.isNaN(numQty)) return qty;
 
     // MT to KG: 10 MT = 10,000 KG
     if (fromUnit === "MT" && toUnit === "KG") {
@@ -300,7 +300,7 @@ const AllocationDrawer = ({
   // Format price with backend-aligned precision
   const formatPrice = (price) => {
     const numPrice = parseFloat(price);
-    if (isNaN(numPrice)) return "";
+    if (Number.isNaN(numPrice)) return "";
 
     // CRITICAL: Format with proper decimal places to avoid floating-point display artifacts
     // All prices display with 2 decimal places for consistency and audit trail
@@ -310,7 +310,7 @@ const AllocationDrawer = ({
   // Format quantity with unit-appropriate precision
   const formatQuantity = (qty, unit) => {
     const numQty = parseFloat(qty);
-    if (isNaN(numQty)) return "";
+    if (Number.isNaN(numQty)) return "";
 
     // PCS: whole numbers only
     if (unit === "PCS") {
@@ -378,6 +378,8 @@ const AllocationDrawer = ({
     drawerState.unitWeightKg,
     drawerState.pricingBasisCode,
     drawerState.product,
+    isCoil,
+    isConversionSupported,
   ]);
 
   // Compute available units with useMemo
@@ -503,7 +505,7 @@ const AllocationDrawer = ({
         }
       }
     },
-    [customerId, priceListId]
+    [customerId, priceListId, calculatePricePerPCS, deriveBaseUnit, deriveBasisCode, isCoil]
   );
 
   // Fetch price on product selection
@@ -679,7 +681,7 @@ const AllocationDrawer = ({
         };
       });
     },
-    [deriveDisplayRate]
+    [deriveDisplayRate, convertQuantity, formatPrice, formatQuantity, isConversionSupported]
   );
 
   // Handle unit price change
@@ -688,7 +690,7 @@ const AllocationDrawer = ({
     if (value === "" || /^\d*\.?\d*$/.test(value)) {
       // Format price to 2 decimal places if it's a valid number
       let formattedValue = value;
-      if (value && !isNaN(parseFloat(value))) {
+      if (value && !Number.isNaN(parseFloat(value))) {
         const numValue = parseFloat(value);
         formattedValue = (Math.round(numValue * 100) / 100).toString();
       }

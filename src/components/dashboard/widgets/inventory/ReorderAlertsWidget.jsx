@@ -23,7 +23,7 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
   }, [data]);
 
   // Check if we have valid data
-  const hasData = data && data.products && data.products.length > 0;
+  const hasData = data?.products && data.products.length > 0;
 
   // Show "No Data" state when no valid data is available
   if (!hasData) {

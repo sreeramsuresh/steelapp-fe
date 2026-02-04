@@ -113,10 +113,10 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
         const query = searchQuery.toLowerCase();
         filteredData = filteredData.filter(
           (t) =>
-            (t.transferNumber && t.transferNumber.toLowerCase().includes(query)) ||
-            (t.sourceWarehouseName && t.sourceWarehouseName.toLowerCase().includes(query)) ||
-            (t.destinationWarehouseName && t.destinationWarehouseName.toLowerCase().includes(query)) ||
-            (t.notes && t.notes.toLowerCase().includes(query))
+            t.transferNumber?.toLowerCase().includes(query) ||
+            t.sourceWarehouseName?.toLowerCase().includes(query) ||
+            t.destinationWarehouseName?.toLowerCase().includes(query) ||
+            t.notes?.toLowerCase().includes(query)
         );
       }
 

@@ -87,7 +87,7 @@ const AddPaymentForm = ({
   const modeConfig = PAYMENT_MODES[method] || PAYMENT_MODES.cash;
 
   // Helper for number input
-  const _numberInput = (v) => (v === "" || isNaN(Number(v)) ? "" : v);
+  const _numberInput = (v) => (v === "" || Number.isNaN(Number(v)) ? "" : v);
 
   // Check if using foreign currency (non-AED)
   const isForeignCurrency = currency !== "AED";

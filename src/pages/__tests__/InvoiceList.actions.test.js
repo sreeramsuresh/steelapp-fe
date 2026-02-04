@@ -35,8 +35,6 @@ vi.mock("../../services/notificationService", () => ({
   },
 }));
 
-// Import after mocks
-import { authService } from "../../services/axiosAuthService";
 import { getInvoiceReminderInfo } from "../../utils/reminderUtils";
 import { getInvoiceActionButtonConfig } from "../invoiceActionsConfig";
 

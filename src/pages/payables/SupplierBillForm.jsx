@@ -177,7 +177,7 @@ export function SupplierBillForm({ supplierBill: supplierBillProp, companyId: co
 
   // Populate form data when supplierBill is loaded (edit mode)
   useEffect(() => {
-    if (supplierBill && supplierBill.id) {
+    if (supplierBill?.id) {
       // Map supplier bill data to form fields
       setFormData({
         billNumber: supplierBill.billNumber || supplierBill.bill_number || "",
@@ -482,12 +482,12 @@ export function SupplierBillForm({ supplierBill: supplierBillProp, companyId: co
         companyId: effectiveCompanyId,
         supplierInvoiceNumber: formData.supplierInvoiceNumber.trim(),
         receivedDate: formData.receivedDate || null,
-        supplierId: formData.supplierId ? parseInt(formData.supplierId) : null,
+        supplierId: formData.supplierId ? parseInt(formData.supplierId, 10) : null,
         billDate: formData.billDate || null,
         dueDate: formData.dueDate || null,
         purchaseOrderNumber: formData.purchaseOrderNumber.trim(),
-        purchaseOrderId: formData.purchaseOrderId ? parseInt(formData.purchaseOrderId) : null,
-        importOrderId: formData.importOrderId ? parseInt(formData.importOrderId) : null,
+        purchaseOrderId: formData.purchaseOrderId ? parseInt(formData.purchaseOrderId, 10) : null,
+        importOrderId: formData.importOrderId ? parseInt(formData.importOrderId, 10) : null,
         placeOfSupply: formData.placeOfSupply,
         primaryVatCategory: formData.primaryVatCategory,
         isReverseCharge: formData.isReverseCharge,
@@ -499,7 +499,7 @@ export function SupplierBillForm({ supplierBill: supplierBillProp, companyId: co
         notes: formData.notes.trim(),
         internalNotes: formData.internalNotes.trim(),
         items: formData.items.map((item) => ({
-          productId: item.productId ? parseInt(item.productId) : null,
+          productId: item.productId ? parseInt(item.productId, 10) : null,
           productName: item.productName.trim(),
           description: item.description.trim(),
           quantity: parseFloat(item.quantity),

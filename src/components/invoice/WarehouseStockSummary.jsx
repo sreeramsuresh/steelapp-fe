@@ -16,7 +16,7 @@ const WarehouseStockSummary = ({ productId, warehouses, onWarehouseSelect }) => 
   const [stockByWarehouse, setStockByWarehouse] = useState({});
 
   const fetchAllWarehouseStock = useCallback(async () => {
-    const numericProductId = typeof productId === "number" ? productId : parseInt(productId);
+    const numericProductId = typeof productId === "number" ? productId : parseInt(productId, 10);
     if (!numericProductId || numericProductId <= 0 || !warehouses?.length) {
       setStockByWarehouse({});
       return;
@@ -91,7 +91,7 @@ const WarehouseStockSummary = ({ productId, warehouses, onWarehouseSelect }) => 
             <button
               key={wh.id}
               type="button"
-              onClick={() => onWarehouseSelect && onWarehouseSelect(wh.id, wh.name)}
+              onClick={() => onWarehouseSelect?.(wh.id, wh.name)}
               className={`text-xs px-2 py-0.5 rounded transition-colors ${
                 hasStock
                   ? isDarkMode

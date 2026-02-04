@@ -66,7 +66,7 @@ export default function COGSAnalysisReport() {
     loadFilterOptions();
     fetchReportData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount - fetchReportData doesn't depend on external values
+  }, [fetchReportData, loadFilterOptions]); // Only run once on mount - fetchReportData doesn't depend on external values
 
   const loadFilterOptions = async () => {
     try {
@@ -438,7 +438,7 @@ export default function COGSAnalysisReport() {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {costComponents.map((entry, index) => (
+                    {costComponents.map((_entry, index) => (
                       <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
                   </Pie>

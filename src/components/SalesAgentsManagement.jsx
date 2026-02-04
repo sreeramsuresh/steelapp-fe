@@ -22,7 +22,7 @@ const SalesAgentsManagement = () => {
 
   useEffect(() => {
     loadAgents();
-  }, []);
+  }, [loadAgents]);
 
   const loadAgents = async () => {
     try {

@@ -550,7 +550,7 @@ describe("companiesService", () => {
       // First call fails, second succeeds
       try {
         await companyService.uploadLogo(file);
-      } catch (e) {
+      } catch (_e) {
         // First attempt failed
       }
 

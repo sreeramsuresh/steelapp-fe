@@ -194,7 +194,7 @@ export function hasContractViolation(product) {
  * @returns {Array<string>} Array of violation messages
  */
 export function getContractErrors(product) {
-  return product && product._contractErrors ? product._contractErrors : [];
+  return product?._contractErrors ? product._contractErrors : [];
 }
 
 export default {

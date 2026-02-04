@@ -344,7 +344,7 @@ const CustomerForm = () => {
       fetchCustomer();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customerId]);
+  }, [customerId, fetchCustomer]);
 
   const fetchCustomer = async () => {
     try {

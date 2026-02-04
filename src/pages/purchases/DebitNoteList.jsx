@@ -127,7 +127,7 @@ const DebitNoteList = () => {
   useEffect(() => {
     loadDebitNotes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, pageSize, debouncedSearch, statusFilter, vendorFilter, startDate, endDate]); // loadDebitNotes is stable
+  }, [loadDebitNotes]); // loadDebitNotes is stable
 
   const loadDebitNotes = async () => {
     try {

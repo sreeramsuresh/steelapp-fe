@@ -22,7 +22,7 @@ export function normalizePayment(rawPayment: any, source = "unknown"): any | nul
     const parseNumber = (value: any, fallback: any = undefined): number | undefined => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
-      return isNaN(parsed) ? fallback : parsed;
+      return Number.isNaN(parsed) ? fallback : parsed;
     };
 
     // Helper to safely parse dates
@@ -31,13 +31,13 @@ export function normalizePayment(rawPayment: any, source = "unknown"): any | nul
 
       // Handle Timestamp objects from Firestore/backend
       if (value?.seconds) {
-        return new Date(parseInt(value.seconds) * 1000).toISOString();
+        return new Date(parseInt(value.seconds, 10) * 1000).toISOString();
       }
 
       // Handle string dates
       if (typeof value === "string") {
         const parsed = new Date(value);
-        if (!isNaN(parsed.getTime())) {
+        if (!Number.isNaN(parsed.getTime())) {
           return parsed.toISOString();
         }
       }

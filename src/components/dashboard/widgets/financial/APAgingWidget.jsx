@@ -24,7 +24,7 @@ const APAgingWidget = ({ data: propData, onRefresh, loading: externalLoading }) 
   const [loading, setLoading] = useState(false);
   // Use propData if available and has buckets, otherwise use fallback
   const [data, setData] = useState(() => {
-    if (propData && propData.buckets && propData.buckets.length > 0) {
+    if (propData?.buckets && propData.buckets.length > 0) {
       return propData;
     }
     return FALLBACK_AP_AGING;
@@ -32,7 +32,7 @@ const APAgingWidget = ({ data: propData, onRefresh, loading: externalLoading }) 
 
   useEffect(() => {
     // Update data when propData changes and has valid data
-    if (propData && propData.buckets && propData.buckets.length > 0) {
+    if (propData?.buckets && propData.buckets.length > 0) {
       setData(propData);
     }
   }, [propData]);
@@ -53,7 +53,7 @@ const APAgingWidget = ({ data: propData, onRefresh, loading: externalLoading }) 
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
       currency: "AED",

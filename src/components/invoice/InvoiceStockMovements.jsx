@@ -48,7 +48,7 @@ export default function InvoiceStockMovements({
       fetchMovements();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invoiceId]); // fetchMovements is stable
+  }, [invoiceId, fetchMovements]); // fetchMovements is stable
 
   const fetchMovements = async () => {
     try {

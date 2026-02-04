@@ -125,11 +125,11 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
         const query = searchQuery.toLowerCase();
         filteredData = filteredData.filter(
           (r) =>
-            (r.reservationNumber && r.reservationNumber.toLowerCase().includes(query)) ||
-            (r.productName && r.productName.toLowerCase().includes(query)) ||
-            (r.productSku && r.productSku.toLowerCase().includes(query)) ||
-            (r.warehouseName && r.warehouseName.toLowerCase().includes(query)) ||
-            (r.notes && r.notes.toLowerCase().includes(query))
+            r.reservationNumber?.toLowerCase().includes(query) ||
+            r.productName?.toLowerCase().includes(query) ||
+            r.productSku?.toLowerCase().includes(query) ||
+            r.warehouseName?.toLowerCase().includes(query) ||
+            r.notes?.toLowerCase().includes(query)
         );
       }
 

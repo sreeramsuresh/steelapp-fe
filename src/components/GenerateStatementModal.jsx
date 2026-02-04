@@ -62,7 +62,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
 
       // Always generate and save statement (best practice)
       await accountStatementService.generateOnTheFly(statementData);
-      onGenerated && onGenerated();
+      onGenerated?.();
 
       onClose();
     } catch (err) {

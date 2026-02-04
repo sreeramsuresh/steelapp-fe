@@ -192,7 +192,7 @@ export function ContainerList() {
   const formatCurrency = (amount) => {
     if (!amount) return "-";
     const num = parseFloat(amount);
-    if (isNaN(num)) return "-";
+    if (Number.isNaN(num)) return "-";
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
       currency: "AED",

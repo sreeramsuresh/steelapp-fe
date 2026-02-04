@@ -814,7 +814,7 @@ class StockMovementService {
         lastCountDate: item.lastCountDate || item.last_count_date || "",
       })),
       totalSystemValue: parseFloat(response.totalSystemValue || response.total_system_value) || 0,
-      discrepancyCount: parseInt(response.discrepancyCount || response.discrepancy_count) || 0,
+      discrepancyCount: parseInt(response.discrepancyCount || response.discrepancy_count, 10) || 0,
     };
   }
 

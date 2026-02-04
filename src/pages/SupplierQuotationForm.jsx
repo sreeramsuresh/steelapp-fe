@@ -67,7 +67,7 @@ export function SupplierQuotationForm() {
       loadQuotation();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, isEdit]);
+  }, [isEdit, loadQuotation]);
 
   const loadQuotation = async () => {
     try {

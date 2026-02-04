@@ -343,10 +343,10 @@ describe("stateAssertions", () => {
       // Click first, then assert state change
       await userEvent.click(button);
 
-      await assertStateChange(() => parseInt(screen.getByTestId("count").textContent), 1);
+      await assertStateChange(() => parseInt(screen.getByTestId("count").textContent, 10), 1);
 
       // State should have changed
-      expect(parseInt(screen.getByTestId("count").textContent)).toBe(1);
+      expect(parseInt(screen.getByTestId("count").textContent, 10)).toBe(1);
     });
   });
 });

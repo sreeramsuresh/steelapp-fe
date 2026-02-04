@@ -166,7 +166,7 @@ export const validateQuantityPrecision = (quantity, unit) => {
   const uom = (unit || "PCS").toUpperCase();
 
   // Check for valid number
-  if (isNaN(qty) || qty < 0) {
+  if (Number.isNaN(qty) || qty < 0) {
     return { valid: false, message: "Quantity must be a positive number" };
   }
 
@@ -229,7 +229,7 @@ export const convertQuantity = (quantity, fromUnit, toUnit, unitWeightKg = null)
   const unitWt = parseFloat(unitWeightKg) || 0;
 
   // Validate input
-  if (isNaN(qty) || qty < 0) {
+  if (Number.isNaN(qty) || qty < 0) {
     throw new Error("Invalid quantity: must be a non-negative number");
   }
 
@@ -583,7 +583,7 @@ export const generateDeliveryNoteNumber = () => {
 export const formatCurrency = (amount) => {
   // Handle NaN, null, undefined, or non-numeric values
   const numericAmount = parseFloat(amount);
-  const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+  const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
 
   // Bug #38 fix: Explicitly set decimal places to ensure consistent formatting
   return new Intl.NumberFormat("en-AE", {
@@ -648,13 +648,13 @@ export const titleCase = (value) => {
   if (value === null || value === undefined) return "";
   const s = String(value).trim().toLowerCase();
   // Capitalize first alpha after a word boundary
-  return s.replace(/\b([a-z])/g, (m, p1) => p1.toUpperCase());
+  return s.replace(/\b([a-z])/g, (_m, p1) => p1.toUpperCase());
 };
 
 // Numeric currency without symbol (e.g., 1,234.56)
 export const formatNumber = (value, fractionDigits = 2) => {
   const num = Number(value);
-  const safe = isNaN(num) ? 0 : num;
+  const safe = Number.isNaN(num) ? 0 : num;
   return new Intl.NumberFormat("en-AE", {
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,

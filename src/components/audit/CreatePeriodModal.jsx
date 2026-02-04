@@ -85,7 +85,7 @@ export default function CreatePeriodModal({ isOpen, onClose, onCreatePeriod, isL
             <select
               id="period-year"
               value={year}
-              onChange={(e) => setYear(parseInt(e.target.value))}
+              onChange={(e) => setYear(parseInt(e.target.value, 10))}
               disabled={isLoading}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
@@ -109,7 +109,7 @@ export default function CreatePeriodModal({ isOpen, onClose, onCreatePeriod, isL
               <select
                 id="period-month"
                 value={month}
-                onChange={(e) => setMonth(parseInt(e.target.value))}
+                onChange={(e) => setMonth(parseInt(e.target.value, 10))}
                 disabled={isLoading}
                 className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >

@@ -27,7 +27,7 @@ const parseToDate = (input) => {
 
   // Handle proto Timestamp objects { seconds: number, nanos?: number }
   if (typeof input === "object" && input.seconds !== undefined) {
-    const seconds = parseInt(input.seconds) || 0;
+    const seconds = parseInt(input.seconds, 10) || 0;
 
     // Detect milliseconds in seconds field (prevents "year 50115" bug)
     if (seconds > MAX_VALID_SECONDS) {
@@ -38,7 +38,7 @@ const parseToDate = (input) => {
 
   // Handle Date objects, ISO strings, numbers
   const date = new Date(input);
-  return isNaN(date.getTime()) ? null : date;
+  return Number.isNaN(date.getTime()) ? null : date;
 };
 
 /**
@@ -209,7 +209,7 @@ export const toUTC = (uaeDateString, type = "date") => {
 
   // For datetime inputs
   const date = new Date(uaeDateString);
-  if (isNaN(date.getTime())) return null;
+  if (Number.isNaN(date.getTime())) return null;
 
   // Subtract UAE offset to get UTC
   return new Date(date.getTime() - UAE_OFFSET_HOURS * 60 * 60 * 1000).toISOString();
@@ -223,7 +223,7 @@ export const toUTC = (uaeDateString, type = "date") => {
 export const toProtoTimestamp = (date) => {
   if (!date) return null;
   const d = new Date(date);
-  if (isNaN(d.getTime())) return null;
+  if (Number.isNaN(d.getTime())) return null;
   return { seconds: Math.floor(d.getTime() / 1000), nanos: 0 };
 };
 

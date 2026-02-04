@@ -126,7 +126,7 @@ const CustomerCLVWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     if (safeAmount >= 1000000) {
       return `AED ${(safeAmount / 1000000).toFixed(2)}M`;
     } else if (safeAmount >= 1000) {
@@ -283,7 +283,7 @@ const CustomerCLVWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
             return (
               <div
                 key={customer.id}
-                onClick={() => onViewCustomer && onViewCustomer(customer)}
+                onClick={() => onViewCustomer?.(customer)}
                 role={onViewCustomer ? "button" : undefined}
                 tabIndex={onViewCustomer ? 0 : undefined}
                 onKeyDown={

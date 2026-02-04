@@ -1472,7 +1472,7 @@ const ExportOrderForm = () => {
 
   const handleCustomerChange = useCallback(
     async (customerId) => {
-      const customer = customers.find((c) => c.id === customerId || c.id === parseInt(customerId));
+      const customer = customers.find((c) => c.id === customerId || c.id === parseInt(customerId, 10));
       if (customer) {
         setOrder((prev) => ({
           ...prev,
@@ -1551,7 +1551,7 @@ const ExportOrderForm = () => {
 
   const handleProductSelect = useCallback(
     async (index, productId) => {
-      const product = products.find((p) => p.id === productId || p.id === parseInt(productId));
+      const product = products.find((p) => p.id === productId || p.id === parseInt(productId, 10));
       if (product) {
         // Fetch price from pricelist if available
         let sellingPrice = product.sellingPrice || product.selling_price || product.price || 0;

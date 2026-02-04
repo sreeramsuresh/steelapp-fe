@@ -189,20 +189,23 @@ export const dashboardService = {
           dashboardData?.customerMetrics?.totalCustomers ||
           customerStats?.pagination?.total ||
           (Array.isArray(customerStats?.customers) ? customerStats.customers.length : 0) ||
-          0
+          0,
+        10
       );
       const totalProducts = parseInt(
         dashboardData?.metrics?.totalProducts ||
           dashboardData?.productMetrics?.totalProducts ||
           productStats?.pagination?.total ||
           (Array.isArray(productStats?.products) ? productStats.products.length : 0) ||
-          0
+          0,
+        10
       );
       const totalInvoices = parseInt(
         dashboardData?.metrics?.totalOrders ||
           dashboardData?.revenueMetrics?.totalInvoices ||
           invoiceStats?.pagination?.total ||
-          0
+          0,
+        10
       );
 
       // Calculate month-over-month changes from trends
@@ -544,7 +547,7 @@ export const dashboardService = {
         summary: {
           totalSalesTeam: enrichedAgents.length,
           activeAgents:
-            parseInt(dashboardMetrics.activeAgents || dashboardMetrics.active_agents) ||
+            parseInt(dashboardMetrics.activeAgents || dashboardMetrics.active_agents, 10) ||
             enrichedAgents.filter((a) => a.isActive).length,
           totalTeamRevenue: safeNum(dashboardMetrics.totalCommissions || dashboardMetrics.total_commissions),
           totalCommissionPaid: safeNum(dashboardMetrics.paidThisPeriod || dashboardMetrics.paid_this_period),
@@ -555,7 +558,7 @@ export const dashboardService = {
           id: ta.userId || ta.user_id,
           name: ta.userName || ta.user_name,
           totalEarned: safeNum(ta.totalEarned || ta.total_earned),
-          dealsClosed: parseInt(ta.dealsClosed || ta.deals_closed) || 0,
+          dealsClosed: parseInt(ta.dealsClosed || ta.deals_closed, 10) || 0,
         })),
         trendData: (dashboardMetrics.trendData || dashboardMetrics.trend_data || []).map((td) => ({
           period: td.period,
@@ -618,14 +621,14 @@ export const dashboardService = {
 
       const health = {
         summary: {
-          totalItems: parseInt(inventorySummary?.totalItems || inventoryInsights?.overview?.total_products) || 0,
+          totalItems: parseInt(inventorySummary?.totalItems || inventoryInsights?.overview?.total_products, 10) || 0,
           totalValue: safeNum(inventorySummary?.totalValue || inventoryInsights?.overview?.total_value),
           totalQuantity: safeNum(inventorySummary?.totalQuantity),
           lowStockCount: Array.isArray(lowStockItems)
             ? lowStockItems.length
-            : parseInt(inventoryInsights?.overview?.low_stock_count) || 0,
+            : parseInt(inventoryInsights?.overview?.low_stock_count, 10) || 0,
           outOfStockCount:
-            parseInt(inventorySummary?.outOfStockCount || inventoryInsights?.overview?.out_of_stock_count) || 0,
+            parseInt(inventorySummary?.outOfStockCount || inventoryInsights?.overview?.out_of_stock_count, 10) || 0,
         },
         lowStockItems: Array.isArray(lowStockItems)
           ? lowStockItems.slice(0, 10)
@@ -1124,14 +1127,14 @@ export const dashboardService = {
           label: bucket.label || bucket.range || `${bucket.min_days || 0}-${bucket.max_days || 30} Days`,
           amount: safeNum(bucket.amount || bucket.total),
           percentage: safeNum(bucket.percentage || bucket.percent),
-          count: parseInt(bucket.count || bucket.bill_count) || 0,
+          count: parseInt(bucket.count || bucket.bill_count, 10) || 0,
         })),
         totalAP: safeNum(response?.total_ap || response?.totalAP),
         overdueAP: safeNum(response?.overdue_ap || response?.overdueAP),
         criticalSuppliers: (response?.critical_suppliers || response?.criticalSuppliers || []).map((supplier) => ({
           name: supplier.name || supplier.supplier_name,
           amount: safeNum(supplier.amount || supplier.total_overdue),
-          daysOverdue: parseInt(supplier.days_overdue || supplier.daysOverdue) || 0,
+          daysOverdue: parseInt(supplier.days_overdue || supplier.daysOverdue, 10) || 0,
         })),
         isMockData: false,
         fetchedAt: new Date().toISOString(),
@@ -1257,7 +1260,7 @@ export const dashboardService = {
           safeNum(response?.overall_efficiency || response?.overallEfficiency) ||
           Math.min(100, Math.round(safeNum(response?.turnover_ratio || response?.turnoverRatio || 2) * 25)),
         avgTurnover: safeNum(response?.turnover_ratio || response?.turnoverRatio || response?.avg_turnover),
-        daysOfInventory: parseInt(response?.days_of_inventory || response?.daysOfInventory) || 0,
+        daysOfInventory: parseInt(response?.days_of_inventory || response?.daysOfInventory, 10) || 0,
         cogs: safeNum(response?.cogs),
         bestPerformer: response?.best_performer || response?.bestPerformer || "",
         worstPerformer: response?.worst_performer || response?.worstPerformer || "",
@@ -1320,7 +1323,7 @@ export const dashboardService = {
           used: safeNum(w.inventoryCount || 0),
           utilization: safeNum(w.utilizationPercent || 0),
           value: 0, // Would need inventory value data
-          items: parseInt(w.inventoryCount) || 0,
+          items: parseInt(w.inventoryCount, 10) || 0,
           status:
             w.utilizationPercent >= 90
               ? "critical"

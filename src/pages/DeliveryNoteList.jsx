@@ -229,7 +229,7 @@ const DeliveryNoteList = () => {
     }
   };
 
-  const handlePageChange = (event, newPage) => {
+  const handlePageChange = (_event, newPage) => {
     setPage(newPage);
   };
 

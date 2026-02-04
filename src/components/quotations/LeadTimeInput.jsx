@@ -23,7 +23,7 @@ export default function LeadTimeInput({ item, index, onUpdate }) {
             min="0"
             value={item.estimatedLeadTimeDays || ""}
             onChange={(e) => {
-              const value = parseInt(e.target.value) || null;
+              const value = parseInt(e.target.value, 10) || null;
               onUpdate(index, "estimatedLeadTimeDays", value);
             }}
             placeholder="0"

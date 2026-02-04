@@ -49,13 +49,13 @@ export default function ReconciliationReport() {
 
   useEffect(() => {
     loadFilterOptions();
-  }, []); // Load filter options once on mount
+  }, [loadFilterOptions]); // Load filter options once on mount
 
   // Fetch report data when filters change
   useEffect(() => {
     fetchReportData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedWarehouse, selectedProduct, dateRange.endDate]);
+  }, [fetchReportData]);
 
   useEffect(() => {
     // Update date range when period changes
@@ -116,14 +116,14 @@ export default function ReconciliationReport() {
       if (selectedWarehouse !== "all") {
         try {
           const apiResult = await stockMovementService.getReconciliationReport(
-            parseInt(selectedWarehouse),
+            parseInt(selectedWarehouse, 10),
             dateRange.endDate
           );
 
           // Transform backend data to component format
           reportData = transformBackendToReportFormat(
             apiResult,
-            selectedProduct !== "all" ? parseInt(selectedProduct) : null
+            selectedProduct !== "all" ? parseInt(selectedProduct, 10) : null
           );
 
           if (reportData.items.length === 0) {
@@ -367,10 +367,10 @@ export default function ReconciliationReport() {
 
   // Filter data based on selected filters
   const filteredData = reconciliationData.filter((item) => {
-    if (selectedWarehouse !== "all" && item.warehouseId !== parseInt(selectedWarehouse)) {
+    if (selectedWarehouse !== "all" && item.warehouseId !== parseInt(selectedWarehouse, 10)) {
       return false;
     }
-    if (selectedProduct !== "all" && item.productId !== parseInt(selectedProduct)) {
+    if (selectedProduct !== "all" && item.productId !== parseInt(selectedProduct, 10)) {
       return false;
     }
     if (showVariancesOnly && Math.abs(item.variancePercent) < 0.5) {

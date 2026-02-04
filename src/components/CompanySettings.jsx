@@ -644,7 +644,7 @@ const CompanySettings = () => {
     if (!value) return "Never";
     try {
       const d = new Date(value);
-      if (isNaN(d.getTime())) return String(value);
+      if (Number.isNaN(d.getTime())) return String(value);
       return d.toLocaleString("en-AE", {
         year: "numeric",
         month: "short",
@@ -660,7 +660,7 @@ const CompanySettings = () => {
     if (!value) return "";
     try {
       const d = new Date(value);
-      if (isNaN(d.getTime())) return String(value);
+      if (Number.isNaN(d.getTime())) return String(value);
       return d.toLocaleDateString("en-AE", {
         year: "numeric",
         month: "short",
@@ -822,7 +822,7 @@ const CompanySettings = () => {
   // Reset pagination when search term changes
   useEffect(() => {
     setUserCurrentPage(1);
-  }, [userSearchTerm]);
+  }, []);
 
   // Load printing settings once on mount
   useEffect(() => {
@@ -871,7 +871,7 @@ const CompanySettings = () => {
 
           // Check if current user is Director
           const currentUser = authService.getUser();
-          if (currentUser && currentUser.id) {
+          if (currentUser?.id) {
             const userPermissions = await roleService.getUserPermissions(currentUser.id);
             setIsDirector(userPermissions.isDirector || false);
           }
@@ -888,7 +888,7 @@ const CompanySettings = () => {
     if (showManageRolesModal) {
       loadRoles();
     }
-  }, [showManageRolesModal]);
+  }, [showManageRolesModal, loadRoles]);
 
   // Load product naming templates from company data
   useEffect(() => {
@@ -1108,7 +1108,7 @@ const CompanySettings = () => {
       // Extract filename from URL
       const filename = companyProfile.logoUrl.split("/").pop();
 
-      if (filename && filename.startsWith("company-logo-")) {
+      if (filename?.startsWith("company-logo-")) {
         await deleteLogo(filename);
       }
 
@@ -1239,7 +1239,7 @@ const CompanySettings = () => {
       // Extract filename from URL
       const filename = companyProfile.brandmarkUrl.split("/").pop();
 
-      if (filename && filename.startsWith("company-logo-")) {
+      if (filename?.startsWith("company-logo-")) {
         await deleteBrandmark(filename);
       }
 
@@ -1380,7 +1380,7 @@ const CompanySettings = () => {
       // Extract filename from URL
       const filename = companyProfile.pdfSealUrl.split("/").pop();
 
-      if (filename && filename.startsWith("company-logo-")) {
+      if (filename?.startsWith("company-logo-")) {
         await deleteSeal(filename);
       }
 
@@ -4583,7 +4583,7 @@ const CompanySettings = () => {
                 onChange={(e) =>
                   setPrintingSettings({
                     ...printingSettings,
-                    receipt_copies: parseInt(e.target.value) || 1,
+                    receipt_copies: parseInt(e.target.value, 10) || 1,
                   })
                 }
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${
@@ -4612,7 +4612,7 @@ const CompanySettings = () => {
                 onChange={(e) =>
                   setPrintingSettings({
                     ...printingSettings,
-                    invoice_copies: parseInt(e.target.value) || 1,
+                    invoice_copies: parseInt(e.target.value, 10) || 1,
                   })
                 }
                 className={`w-full px-4 py-2 border rounded-lg transition-colors ${

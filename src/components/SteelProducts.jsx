@@ -157,7 +157,7 @@ const Textarea = ({ label, error, className = "", ...props }) => {
   );
 };
 
-const StockProgressBar = ({ value, stockStatus }) => {
+const _StockProgressBar = ({ value, stockStatus }) => {
   const { isDarkMode } = useTheme();
 
   const getColor = () => {
@@ -424,7 +424,7 @@ const ValidationMessage = ({ type = "info", message, suggestion }) => {
 };
 
 // Accordion component for Zoho-style drawer
-const AccordionSection = ({ title, isOpen, onToggle, children, isEmpty = false }) => {
+const _AccordionSection = ({ title, isOpen, onToggle, children, isEmpty = false }) => {
   const { isDarkMode } = useTheme();
 
   // Don't render if section is empty
@@ -451,7 +451,7 @@ const AccordionSection = ({ title, isOpen, onToggle, children, isEmpty = false }
 };
 
 // Row component for label-value pairs
-const SpecRow = ({ label, value, badge, className = "" }) => {
+const _SpecRow = ({ label, value, badge, className = "" }) => {
   const { isDarkMode } = useTheme();
 
   if (!value && value !== 0) return null;
@@ -686,7 +686,7 @@ const SteelProducts = () => {
     try {
       const set = new Set(FINISHES || []);
       (products || []).forEach((p) => {
-        if (p && p.finish && String(p.finish).trim()) {
+        if (p?.finish && String(p.finish).trim()) {
           set.add(String(p.finish).trim().toUpperCase());
         }
       });
@@ -1149,7 +1149,7 @@ const SteelProducts = () => {
     }
 
     return [{ id: "all", label: "All", icon: "📦", count: products.length }, ...dynamicGroups];
-  }, [products, categoryGroupDefs]);
+  }, [products]);
 
   // Active category group for speed buttons
   const [activeCategoryGroup, setActiveCategoryGroup] = useState("all");
@@ -1241,7 +1241,7 @@ const SteelProducts = () => {
     }
 
     return [{ id: "all", label: "All Grades", count: products.length }, ...dynamicGroups];
-  }, [products, gradeGroupDefs]);
+  }, [products]);
 
   const [activeGradeGroup, setActiveGradeGroup] = useState("all");
 
@@ -1587,7 +1587,6 @@ const SteelProducts = () => {
     newProduct.od,
     newProduct.length,
     newProduct.thickness,
-    categories,
   ]);
 
   // Auto-regenerate displayName when editing product details
@@ -1717,7 +1716,8 @@ const SteelProducts = () => {
     selectedProduct?.mill_name,
     selectedProduct?.millName,
     selectedProduct?.regenerateName,
-    categories,
+    selectedProduct.displayName,
+    selectedProduct,
   ]);
 
   const handleEditProduct = async () => {
@@ -1740,10 +1740,7 @@ const SteelProducts = () => {
         sizeInch: selectedProduct.sizeInch || "", // API Gateway converts to size_inch
         od: selectedProduct.od || "",
         length: selectedProduct.length || "",
-        thickness:
-          selectedProduct.thickness ||
-          (selectedProduct.specifications && selectedProduct.specifications.thickness) ||
-          undefined,
+        thickness: selectedProduct.thickness || selectedProduct.specifications?.thickness || undefined,
         weight: selectedProduct.weight,
         unit: selectedProduct.unit,
         description: selectedProduct.description,
@@ -1765,10 +1762,7 @@ const SteelProducts = () => {
           selectedProduct.weightTolerancePercent !== undefined ? Number(selectedProduct.weightTolerancePercent) : 2.5, // API Gateway converts to weight_tolerance_percent
         specifications: JSON.stringify({
           ...(selectedProduct.specifications || {}),
-          thickness:
-            selectedProduct.thickness ||
-            (selectedProduct.specifications && selectedProduct.specifications.thickness) ||
-            "",
+          thickness: selectedProduct.thickness || selectedProduct.specifications?.thickness || "",
         }),
       };
 
@@ -4059,7 +4053,7 @@ const SteelProducts = () => {
               specs.carbonContent ||
               specs.coating ||
               specs.standard;
-            const hasDescription = selectedProduct.description && selectedProduct.description.trim();
+            const hasDescription = selectedProduct.description?.trim();
 
             // Calculate margin
             const margin =

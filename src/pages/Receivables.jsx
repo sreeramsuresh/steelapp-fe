@@ -108,7 +108,7 @@ const StatusPill = ({ status }) => {
   return <Pill color={cfg.color}>{cfg.label}</Pill>;
 };
 
-const numberInput = (v) => (v === "" || isNaN(Number(v)) ? "" : v);
+const numberInput = (v) => (v === "" || Number.isNaN(Number(v)) ? "" : v);
 
 const downloadBlob = (blob, filename) => {
   try {
@@ -144,7 +144,7 @@ const Receivables = () => {
   // Initialize state with cached data if available (stale-while-revalidate)
   const initializeFromCache = useCallback(() => {
     const cached = getCachedData(CACHE_KEYS.RECEIVABLES);
-    if (cached && cached.data) {
+    if (cached?.data) {
       const isStale = Date.now() - cached.timestamp > CACHE_TTL_MS;
       return {
         items: cached.data.items || [],
@@ -210,7 +210,7 @@ const Receivables = () => {
       // Check cache first (unless force refresh)
       if (!forceRefresh) {
         const cached = getCachedData(cacheKey);
-        if (cached && cached.data) {
+        if (cached?.data) {
           const isStale = Date.now() - cached.timestamp > CACHE_TTL_MS;
           setItems(cached.data.items || []);
           if (cached.data.pageInfo) {
@@ -318,7 +318,7 @@ const Receivables = () => {
       overdueAmount,
       avgDaysPastDue,
     };
-  }, [items]);
+  }, [items, getInvoiceAmount, getOutstanding, getReceived]);
 
   const allSelected = selected.size > 0 && selected.size === items.length;
   const toggleAll = () => {

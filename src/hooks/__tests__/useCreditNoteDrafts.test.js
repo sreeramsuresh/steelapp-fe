@@ -187,7 +187,7 @@ describe("useCreditNoteDrafts Hook", () => {
       expect(saved.data.items).toHaveLength(0);
 
       // Verify in localStorage
-      const stored = JSON.parse(localStorageMock["credit_note_drafts"] || "{}");
+      const stored = JSON.parse(localStorageMock.credit_note_drafts || "{}");
       expect(stored[337]).toBeDefined();
       expect(stored[337].data.manualCreditAmount).toBe(500);
     });
@@ -317,7 +317,7 @@ describe("useCreditNoteDrafts Hook", () => {
         },
       };
 
-      localStorageMock["credit_note_drafts"] = JSON.stringify(expiredDraft);
+      localStorageMock.credit_note_drafts = JSON.stringify(expiredDraft);
 
       // Refresh drafts
       act(() => {
@@ -346,7 +346,7 @@ describe("useCreditNoteDrafts Hook", () => {
         },
       };
 
-      localStorageMock["credit_note_drafts"] = JSON.stringify(drafts);
+      localStorageMock.credit_note_drafts = JSON.stringify(drafts);
 
       const cleaned = cleanupExpiredDrafts();
 
@@ -437,7 +437,7 @@ describe("useCreditNoteDrafts Hook", () => {
       expect(localStorage.setItem).toHaveBeenCalled();
 
       // Verify data structure
-      const stored = JSON.parse(localStorageMock["credit_note_drafts"]);
+      const stored = JSON.parse(localStorageMock.credit_note_drafts);
       expect(stored[337]).toBeDefined();
       expect(stored[337].data.manualCreditAmount).toBe(500);
       expect(stored[337].timestamp).toBeDefined();
@@ -457,7 +457,7 @@ describe("useCreditNoteDrafts Hook", () => {
         },
       };
 
-      localStorageMock["credit_note_drafts"] = JSON.stringify(existingDrafts);
+      localStorageMock.credit_note_drafts = JSON.stringify(existingDrafts);
 
       const { result } = renderHook(() => useCreditNoteDrafts({ currentInvoiceId: 337 }));
 
@@ -470,7 +470,7 @@ describe("useCreditNoteDrafts Hook", () => {
 
     it("should handle corrupted localStorage data gracefully", () => {
       // Set invalid JSON
-      localStorageMock["credit_note_drafts"] = "invalid json {{{";
+      localStorageMock.credit_note_drafts = "invalid json {{{";
 
       const { result } = renderHook(() => useCreditNoteDrafts());
 

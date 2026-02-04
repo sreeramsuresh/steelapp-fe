@@ -291,7 +291,7 @@ export function AdvancePaymentForm({ advance, companyId, onSave, onClose }) {
     try {
       const payload = {
         companyId,
-        customerId: parseInt(formData.customerId),
+        customerId: parseInt(formData.customerId, 10),
         paymentDate: formData.paymentDate,
         paymentMethod: formData.paymentMethod,
         paymentReference: formData.paymentReference.trim(),

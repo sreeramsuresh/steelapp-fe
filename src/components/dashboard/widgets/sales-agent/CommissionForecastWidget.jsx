@@ -51,7 +51,7 @@ const CommissionForecastWidget = ({ monthsBack = 6, onRefresh, onViewDetails }) 
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
       currency: "AED",
@@ -62,7 +62,7 @@ const CommissionForecastWidget = ({ monthsBack = 6, onRefresh, onViewDetails }) 
 
   const formatCompact = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     if (safeAmount >= 1000000) {
       return `${(safeAmount / 1000000).toFixed(1)}M`;
     }
@@ -74,7 +74,7 @@ const CommissionForecastWidget = ({ monthsBack = 6, onRefresh, onViewDetails }) 
 
   const formatMonth = (monthKey) => {
     const [year, month] = monthKey.split("-");
-    const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+    const date = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
     return date.toLocaleDateString("en-US", {
       month: "short",
       year: "2-digit",

@@ -209,7 +209,7 @@ const Button = ({
   );
 };
 
-const Input = ({
+const _Input = ({
   label,
   error,
   className = "",
@@ -560,7 +560,7 @@ const SupplierBillForm = () => {
       loadNextBillNumber();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]); // loadSupplierBill and loadNextBillNumber are stable
+  }, [isEditMode, loadBill, loadNextBillNumber, loadProducts, loadVendors]); // loadSupplierBill and loadNextBillNumber are stable
 
   // Calculate due date when bill date or payment terms change
   useEffect(() => {
@@ -806,7 +806,7 @@ const SupplierBillForm = () => {
 
   // Handle supplier selection
   const handleSupplierChange = (supplierId) => {
-    const supplier = vendors.find((v) => v.id === supplierId || v.id === parseInt(supplierId));
+    const supplier = vendors.find((v) => v.id === supplierId || v.id === parseInt(supplierId, 10));
     setBill((prev) => ({
       ...prev,
       supplierId: supplierId || null,
@@ -869,7 +869,7 @@ const SupplierBillForm = () => {
     const item = { ...updatedItems[index] };
 
     if (field === "productId" && value) {
-      const product = products.find((p) => p.id === value || p.id === parseInt(value));
+      const product = products.find((p) => p.id === value || p.id === parseInt(value, 10));
       if (product) {
         item.productId = product.id;
         item.description =
@@ -1016,7 +1016,7 @@ const SupplierBillForm = () => {
       }));
       recalculateTotals([...bill.items, newItem]);
     },
-    [bill.items]
+    [bill.items, recalculateTotals]
   );
 
   // Toggle pin product
@@ -1502,7 +1502,7 @@ const SupplierBillForm = () => {
                       label="Import Container"
                       value={bill.importContainerId ? String(bill.importContainerId) : "none"}
                       onValueChange={(value) => {
-                        const parsedValue = value === "none" ? null : parseInt(value);
+                        const parsedValue = value === "none" ? null : parseInt(value, 10);
                         const container = availableContainers.find((c) => c.id === parsedValue);
                         setBill((prev) => ({
                           ...prev,
@@ -2296,7 +2296,7 @@ const SupplierBillForm = () => {
                           onChange={(e) => {
                             const allowDecimal = item.quantityUom === "MT" || item.quantityUom === "KG";
                             const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
-                            handleItemChange(index, "quantity", isNaN(val) ? "" : val);
+                            handleItemChange(index, "quantity", Number.isNaN(val) ? "" : val);
                           }}
                           className={`w-full px-3 py-2 rounded border text-sm ${
                             isDarkMode

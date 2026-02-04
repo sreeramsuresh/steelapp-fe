@@ -3,17 +3,11 @@
  * Tests core invoice functionality: creation, editing, stock deduction, VAT calculation
  */
 
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  assertFormErrorAppears,
-  assertListItemAdded,
-  assertSuccessToast,
-  clickAndWait,
-  findButtonByRole,
-} from "../../test/utils";
+import { describe, expect, it } from "vitest";
+import { assertFormErrorAppears, assertListItemAdded, assertSuccessToast, findButtonByRole } from "../../test/utils";
 
 describe("Invoice Feature", () => {
   describe("Creating a New Invoice", () => {
@@ -110,7 +104,7 @@ describe("Invoice Feature", () => {
 
     it("should calculate VAT correctly for UAE sales (5%)", async () => {
       const MockInvoiceForm = () => {
-        const [subtotal, setSubtotal] = React.useState(1000);
+        const [subtotal, _setSubtotal] = React.useState(1000);
         const vat = subtotal * 0.05;
         const total = subtotal + vat;
 
@@ -243,7 +237,7 @@ describe("Invoice Feature", () => {
 
         return (
           <>
-            <input type="number" value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value))} />
+            <input type="number" value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value, 10))} />
             <div>Total Units: {quantity}</div>
             {/* eslint-disable-next-line local-rules/no-dead-button */}
             <button>Save Changes</button>

@@ -40,7 +40,7 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
 
   useEffect(() => {
     // Use API data if available and has products, otherwise use fallback
-    if (data && data.products && data.products.length > 0) {
+    if (data?.products && data.products.length > 0) {
       // Verify data has expected structure
       const hasValidData = data.products.some((p) => p.data && Array.isArray(p.data) && p.data.length > 0);
       if (hasValidData) {

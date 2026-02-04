@@ -858,7 +858,7 @@ const Textarea = ({ label, error, className = "", autoGrow = false, id, ...props
 
   useEffect(() => {
     adjustHeight();
-  }, [props.value, adjustHeight]);
+  }, [adjustHeight]);
 
   const handleChange = (e) => {
     if (props.onChange) {
@@ -1088,18 +1088,21 @@ const Autocomplete = ({
     return dpPrev[lb];
   };
 
-  const tokenMatch = useCallback((token, optLabel) => {
-    const t = norm(token);
-    const l = norm(optLabel);
-    if (!t) return true;
-    if (l.includes(t)) return true;
-    // fuzzy: split label into words and check any word within edit distance 1
-    const words = l.split(/\s+/);
-    for (const w of words) {
-      if (Math.abs(w.length - t.length) <= 1 && ed1(w, t) <= 1) return true;
-    }
-    return false;
-  }, []);
+  const tokenMatch = useCallback(
+    (token, optLabel) => {
+      const t = norm(token);
+      const l = norm(optLabel);
+      if (!t) return true;
+      if (l.includes(t)) return true;
+      // fuzzy: split label into words and check any word within edit distance 1
+      const words = l.split(/\s+/);
+      for (const w of words) {
+        if (Math.abs(w.length - t.length) <= 1 && ed1(w, t) <= 1) return true;
+      }
+      return false;
+    },
+    [ed1, norm]
+  );
 
   const fuzzyFilter = useCallback(
     (opts, query) => {
@@ -1126,7 +1129,7 @@ const Autocomplete = ({
       scored.sort((a, b) => a.score - b.score);
       return scored.map((s) => s.o);
     },
-    [tokenMatch]
+    [tokenMatch, norm]
   );
 
   // Compute filtered options based on input value
@@ -1692,7 +1695,7 @@ const InvoiceForm = ({ onSave }) => {
 
       switch (fieldName) {
         case "customer":
-          isValid = value && value.id && value.name;
+          isValid = value?.id && value.name;
           break;
         case "dueDate":
           isValid = value && value.trim() !== "";
@@ -2018,7 +2021,7 @@ const InvoiceForm = ({ onSave }) => {
   useEffect(() => {
     refetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run only once on mount
+  }, [refetchProducts]); // Run only once on mount
 
   // Also refetch when window regains focus (user returns from product management)
   useEffect(() => {
@@ -2028,7 +2031,7 @@ const InvoiceForm = ({ onSave }) => {
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // refetchProducts is stable enough for event handlers
+  }, [refetchProducts]); // refetchProducts is stable enough for event handlers
 
   // Refetch company data when window regains focus (user returns from company settings)
   useEffect(() => {
@@ -2038,7 +2041,7 @@ const InvoiceForm = ({ onSave }) => {
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // refetchCompany is stable enough for event handlers
+  }, [refetchCompany]); // refetchCompany is stable enough for event handlers
 
   // Get sorted products: pinned first, then top sold
   const sortedProducts = useMemo(() => {
@@ -2140,7 +2143,7 @@ const InvoiceForm = ({ onSave }) => {
    * @param {Array} batches - Available batches (will be sorted by received date)
    * @returns {Array} - Array of allocations sorted by FIFO order
    */
-  const autoAllocateFIFO = useCallback((itemIndex, requiredQty, batches) => {
+  const autoAllocateFIFO = useCallback((_itemIndex, requiredQty, batches) => {
     if (!batches || batches.length === 0 || requiredQty <= 0) {
       return [];
     }
@@ -2323,7 +2326,7 @@ const InvoiceForm = ({ onSave }) => {
     };
     fetchWarehouses();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]); // Mount-only: Load warehouses once when component mounts or id changes
+  }, [id, invoice.warehouseId]); // Mount-only: Load warehouses once when component mounts or id changes
 
   // Heavily optimized calculations with minimal dependencies
   const computedSubtotal = useMemo(() => calculateSubtotal(invoice.items), [invoice.items]);
@@ -2418,7 +2421,7 @@ const InvoiceForm = ({ onSave }) => {
 
       try {
         const response = await batchReservationService.getInvoiceBatchConsumptions(parseInt(id, 10));
-        if (response && response.items) {
+        if (response?.items) {
           // Map consumptions by invoice_item_id for easy lookup
           const byItemId = {};
           response.items.forEach((item) => {
@@ -2444,8 +2447,8 @@ const InvoiceForm = ({ onSave }) => {
 
   // Validate fields on load and when invoice changes
   // Extract complex expressions for dependency array
-  const placeOfSupply = invoice.placeOfSupply || "";
-  const supplyDate = invoice.supplyDate || "";
+  const _placeOfSupply = invoice.placeOfSupply || "";
+  const _supplyDate = invoice.supplyDate || "";
 
   useEffect(() => {
     if (invoice) {
@@ -2467,10 +2470,12 @@ const InvoiceForm = ({ onSave }) => {
     invoice.modeOfPayment,
     invoice.warehouseId,
     invoice.currency,
-    placeOfSupply,
-    supplyDate,
     invoice.items.length,
     validateField,
+    invoice.placeOfSupply,
+    invoice.supplyDate,
+    invoice.items,
+    invoice,
   ]);
   // Note: Using granular dependencies (invoice.customer.id, invoice.items.length, etc.) instead of entire invoice object to avoid unnecessary re-validations
 
@@ -2577,13 +2582,18 @@ const InvoiceForm = ({ onSave }) => {
         setTimeout(() => focusNextMandatoryField(), 100);
       }
     },
-    [customersData, validateField, focusNextMandatoryField]
+    [
+      customersData,
+      validateField,
+      focusNextMandatoryField, // Check trade license status
+      checkTradeLicenseStatus,
+    ]
   );
 
   const handleSalesAgentSelect = useCallback((agentId) => {
     setInvoice((prev) => ({
       ...prev,
-      sales_agent_id: agentId && agentId !== "none" ? parseInt(agentId) : null,
+      sales_agent_id: agentId && agentId !== "none" ? parseInt(agentId, 10) : null,
     }));
   }, []);
 
@@ -3652,7 +3662,7 @@ const InvoiceForm = ({ onSave }) => {
         // Navigate to the new invoice ID (backend creates new invoice using cancel-and-recreate)
         // The backend returns: { id: oldId, new_invoice_id: actualNewId }
         // We need to navigate to the NEW invoice to continue editing
-        if (updatedInvoice.newInvoiceId && updatedInvoice.newInvoiceId !== parseInt(id)) {
+        if (updatedInvoice.newInvoiceId && updatedInvoice.newInvoiceId !== parseInt(id, 10)) {
           notificationService.success(
             "Invoice updated successfully! Original invoice cancelled, inventory movements reversed, new invoice created with updated data."
           );
@@ -3944,7 +3954,7 @@ const InvoiceForm = ({ onSave }) => {
         document.removeEventListener("keydown", handleEscKey);
       };
     }
-  }, [showSuccessModal, createdInvoiceId, invoice.status, handleSuccessModalClose]);
+  }, [showSuccessModal, invoice.status, handleSuccessModalClose]);
 
   const handleDownloadPDF = useCallback(async () => {
     // Use either the route ID or the newly created invoice ID
@@ -4308,7 +4318,7 @@ const InvoiceForm = ({ onSave }) => {
                               }
                             : null
                         }
-                        onChange={(e, selected) => {
+                        onChange={(_e, selected) => {
                           if (selected?.id) {
                             handleCustomerSelect(selected.id);
                             // Show selected customer name in the input field
@@ -4316,7 +4326,7 @@ const InvoiceForm = ({ onSave }) => {
                           }
                         }}
                         inputValue={customerSearchInput}
-                        onInputChange={(e, value) => setCustomerSearchInput(value)}
+                        onInputChange={(_e, value) => setCustomerSearchInput(value)}
                         placeholder="Search customers by name or email..."
                         disabled={loadingCustomers}
                         noOptionsText={loadingCustomers ? "Loading customers..." : "No customers found"}

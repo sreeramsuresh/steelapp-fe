@@ -45,8 +45,7 @@ const VATReconciliationWidget = ({
   }, [data]);
 
   // Check if we have valid data
-  const hasData =
-    reconciliationData && reconciliationData.salesReconciliation && reconciliationData.purchaseReconciliation;
+  const hasData = reconciliationData?.salesReconciliation && reconciliationData.purchaseReconciliation;
 
   // Show "No Data" state when no valid data is available
   if (!hasData) {
@@ -83,7 +82,7 @@ const VATReconciliationWidget = ({
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
       currency: "AED",
@@ -338,11 +337,11 @@ const VATReconciliationWidget = ({
             pendingDiscrepancies.map((disc) => (
               <div
                 key={disc.id}
-                onClick={() => onViewDiscrepancy && onViewDiscrepancy(disc)}
+                onClick={() => onViewDiscrepancy?.(disc)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    onViewDiscrepancy && onViewDiscrepancy(disc);
+                    onViewDiscrepancy?.(disc);
                   }
                 }}
                 role="button"

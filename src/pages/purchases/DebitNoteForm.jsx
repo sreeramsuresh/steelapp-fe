@@ -162,7 +162,7 @@ const DebitNoteForm = () => {
     }
     loadWarehouses();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- This effect should only run on mount and when id changes. Adding all dependencies would cause unnecessary re-runs. searchParams is stable but loadSupplierBill, loadDebitNote, loadNextDebitNoteNumber, and loadWarehouses are stable functions.
-  }, [id]);
+  }, [isEditMode, loadDebitNote, loadNextDebitNoteNumber, loadSupplierBill, loadWarehouses, searchParams]);
 
   // Load warehouses
   const loadWarehouses = async () => {
@@ -191,7 +191,7 @@ const DebitNoteForm = () => {
       }
     }, 300);
     return () => clearTimeout(timer);
-  }, [supplierBillSearch]);
+  }, [supplierBillSearch, searchSupplierBills]);
 
   const loadDebitNote = async () => {
     try {
@@ -1091,7 +1091,7 @@ const DebitNoteForm = () => {
                           onValueChange={(value) =>
                             setDebitNote((prev) => ({
                               ...prev,
-                              warehouseId: value ? parseInt(value) : null,
+                              warehouseId: value ? parseInt(value, 10) : null,
                             }))
                           }
                           showValidation={false}

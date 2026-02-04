@@ -87,7 +87,7 @@ const BatchAllocationPanel = ({
   // Clear errors when user changes product or quantity (fixes stale error messages)
   useEffect(() => {
     setFetchError(null);
-  }, [productId, requiredQuantity]);
+  }, []);
 
   // Handle Auto-Fill FIFO
   const handleAutoFIFO = useCallback(async () => {
@@ -149,7 +149,7 @@ const BatchAllocationPanel = ({
       let pcs = 0;
       if (value !== "") {
         pcs = parseInt(value, 10);
-        if (isNaN(pcs) || pcs < 0) return;
+        if (Number.isNaN(pcs) || pcs < 0) return;
       }
 
       // Find the batch to check max allocatable PCS
@@ -175,11 +175,11 @@ const BatchAllocationPanel = ({
     const allocs = Object.entries(manualAllocations)
       .filter(([batchId, qty]) => {
         // Only include batches that are selected AND have a quantity
-        const batch = batches.find((b) => b.id === parseInt(batchId));
+        const batch = batches.find((b) => b.id === parseInt(batchId, 10));
         return batch && isSelected(batch) && qty && qty > 0;
       })
       .map(([batchId, qty]) => ({
-        batchId: parseInt(batchId),
+        batchId: parseInt(batchId, 10),
         quantity: qty,
       }));
 

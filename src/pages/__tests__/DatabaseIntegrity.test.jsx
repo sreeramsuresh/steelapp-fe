@@ -32,7 +32,10 @@ describe("Database Integrity & Data Consistency", () => {
             customerId: null,
             companyId: "COMPANY-A",
           });
-        }, []);
+        }, [
+          // Try to save orphaned invoice
+          checkReferentialIntegrity,
+        ]);
 
         return (
           <>

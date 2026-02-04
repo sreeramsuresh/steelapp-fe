@@ -192,17 +192,20 @@ const Autocomplete = ({
     return dpPrev[lb];
   };
 
-  const tokenMatch = useCallback((token, optLabel) => {
-    const t = norm(token);
-    const l = norm(optLabel);
-    if (!t) return true;
-    if (l.includes(t)) return true;
-    const words = l.split(/\s+/);
-    for (const w of words) {
-      if (Math.abs(w.length - t.length) <= 1 && ed1(w, t) <= 1) return true;
-    }
-    return false;
-  }, []);
+  const tokenMatch = useCallback(
+    (token, optLabel) => {
+      const t = norm(token);
+      const l = norm(optLabel);
+      if (!t) return true;
+      if (l.includes(t)) return true;
+      const words = l.split(/\s+/);
+      for (const w of words) {
+        if (Math.abs(w.length - t.length) <= 1 && ed1(w, t) <= 1) return true;
+      }
+      return false;
+    },
+    [ed1, norm]
+  );
 
   const fuzzyFilter = useCallback(
     (opts, query) => {
@@ -228,7 +231,7 @@ const Autocomplete = ({
       scored.sort((a, b) => a.score - b.score);
       return scored.map((s) => s.o);
     },
-    [tokenMatch]
+    [tokenMatch, norm]
   );
 
   // Compute filtered options based on input value
@@ -450,7 +453,7 @@ const AdvancePaymentList = () => {
   useEffect(() => {
     loadPayments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, pageSize, debouncedSearch, statusFilter, customerFilter, startDate, endDate]); // loadPayments is stable
+  }, [loadPayments]); // loadPayments is stable
 
   const loadPayments = async () => {
     try {
@@ -728,7 +731,7 @@ const AdvancePaymentList = () => {
                       label: c.name,
                       name: c.name,
                     }))}
-                    value={customerFilter ? customers.find((c) => c.id === parseInt(customerFilter)) : null}
+                    value={customerFilter ? customers.find((c) => c.id === parseInt(customerFilter, 10)) : null}
                     inputValue={customerInputValue}
                     onInputChange={(_e, newValue) => {
                       setCustomerInputValue(newValue || "");

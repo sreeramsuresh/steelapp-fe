@@ -159,13 +159,13 @@ const CustomerManagement = () => {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1);
-  }, [searchTerm, filterStatus]);
+  }, []);
 
   // Reset supplier page to 1 when search changes
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSupplierCurrentPage(1);
-  }, [supplierSearchTerm]);
+  }, []);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);

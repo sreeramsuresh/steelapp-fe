@@ -18,7 +18,7 @@ const CategoryPerformanceWidget = ({ data, onNavigate: _onNavigate, onCategoryCl
   }, [data]);
 
   // Check if we have valid data
-  const hasData = data && data.categories && data.categories.length > 0;
+  const hasData = data?.categories && data.categories.length > 0;
 
   // Show "No Data" state when no valid data is available
   if (!hasData) {

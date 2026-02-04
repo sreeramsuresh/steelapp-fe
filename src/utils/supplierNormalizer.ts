@@ -20,10 +20,10 @@ export function normalizeSupplier(rawSupplier: any, source = "unknown"): any | n
   // Helper to safely parse dates
   const parseDate = (value: any): string | undefined => {
     if (!value) return undefined;
-    if (value?.seconds) return new Date(parseInt(value.seconds) * 1000).toISOString();
+    if (value?.seconds) return new Date(parseInt(value.seconds, 10) * 1000).toISOString();
     if (typeof value === "string") {
       const parsed = new Date(value);
-      if (!isNaN(parsed.getTime())) return parsed.toISOString();
+      if (!Number.isNaN(parsed.getTime())) return parsed.toISOString();
     }
     return undefined;
   };

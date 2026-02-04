@@ -48,7 +48,7 @@ vi.mock("../../../services/batchReservationService", () => ({
 }));
 
 vi.mock("../../../utils/productSsotValidation", () => ({
-  validateSsotPattern: (name) => ({
+  validateSsotPattern: (_name) => ({
     isValid: true,
     pattern: "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
   }),
@@ -242,7 +242,7 @@ describe("ReservationForm", () => {
 
   describe("Validation", () => {
     it("should show error when warehouse not selected", async () => {
-      const user = setupUser();
+      const _user = setupUser();
       const { container } = renderWithProviders(<ReservationForm {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -299,7 +299,7 @@ describe("ReservationForm", () => {
     it("should submit reservation data", async () => {
       mockStockMovementService.createReservation.mockResolvedValue({ id: "RES-001" });
 
-      const user = setupUser();
+      const _user = setupUser();
       const { container } = renderWithProviders(<ReservationForm {...defaultProps} />);
 
       await new Promise((resolve) => setTimeout(resolve, 50));

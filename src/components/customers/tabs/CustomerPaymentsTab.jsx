@@ -65,7 +65,7 @@ export default function CustomerPaymentsTab({ customerId }) {
   const isCacheValid = useCallback(() => {
     if (!cachedData || !cacheTimestamp) return false;
     return Date.now() - cacheTimestamp < CACHE_DURATION;
-  }, [cachedData, cacheTimestamp, CACHE_DURATION]);
+  }, [cachedData, cacheTimestamp]);
 
   // Fetch payments
   const fetchPayments = useCallback(async () => {
@@ -108,7 +108,7 @@ export default function CustomerPaymentsTab({ customerId }) {
       // Otherwise fetch fresh data
       fetchPayments();
     }
-  }, [customerId, cachedData, cacheTimestamp, isCacheValid, fetchPayments]);
+  }, [customerId, cachedData, isCacheValid, fetchPayments]);
 
   // Apply filters
   useEffect(() => {
@@ -117,7 +117,7 @@ export default function CustomerPaymentsTab({ customerId }) {
     // Date range filter
     const now = new Date();
     if (dateRangeFilter !== "all") {
-      const daysBack = parseInt(dateRangeFilter);
+      const daysBack = parseInt(dateRangeFilter, 10);
       const cutoffDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
       filtered = filtered.filter((payment) => new Date(payment.paymentDate) >= cutoffDate);
     }

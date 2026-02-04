@@ -87,7 +87,7 @@ export default function TrialBalanceReport() {
             <select
               id="trial-balance-period"
               value={periodId || ""}
-              onChange={(e) => setPeriodId(e.target.value ? parseInt(e.target.value) : null)}
+              onChange={(e) => setPeriodId(e.target.value ? parseInt(e.target.value, 10) : null)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select Period...</option>

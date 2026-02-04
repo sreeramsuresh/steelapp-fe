@@ -59,7 +59,7 @@ export const ARAgingWidget = ({
     };
   };
 
-  const data = propData && propData.buckets && propData.buckets.length > 0 ? normalizeData(propData) : MOCK_AR_AGING;
+  const data = propData?.buckets && propData.buckets.length > 0 ? normalizeData(propData) : MOCK_AR_AGING;
 
   const bucketColors = [
     { bg: "bg-green-500", text: "text-green-600" },

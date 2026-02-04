@@ -55,7 +55,7 @@ const BatchPicker = ({
    */
   const fetchBatches = useCallback(async () => {
     // Ensure productId is a valid positive number before fetching
-    const numericProductId = typeof productId === "number" ? productId : parseInt(productId);
+    const numericProductId = typeof productId === "number" ? productId : parseInt(productId, 10);
     const validProductId = numericProductId && numericProductId > 0;
 
     // console.log('[BatchPicker] fetchBatches called:', {
@@ -127,10 +127,10 @@ const BatchPicker = ({
       const allocations = Object.entries(selections)
         .filter(([, qty]) => parseFloat(qty) > 0)
         .map(([batchId, quantity]) => {
-          const batch = batches.find((b) => b.id === parseInt(batchId));
+          const batch = batches.find((b) => b.id === parseInt(batchId, 10));
           return {
-            batch_id: parseInt(batchId),
-            batchId: parseInt(batchId),
+            batch_id: parseInt(batchId, 10),
+            batchId: parseInt(batchId, 10),
             quantity: parseFloat(quantity),
             batchNumber: batch?.batchNumber || "",
             unitCost: batch?.unitCost || 0,

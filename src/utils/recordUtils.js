@@ -23,7 +23,7 @@ export const isNewRecord = (createdAt, hoursThreshold = 2) => {
     timeMs = new Date(createdAt).getTime();
   }
 
-  if (isNaN(timeMs)) return false;
+  if (Number.isNaN(timeMs)) return false;
 
   const now = Date.now();
   const thresholdMs = hoursThreshold * 60 * 60 * 1000;
@@ -56,8 +56,7 @@ export const validateCreditNoteForDownload = (creditNote) => {
   }
 
   // Check for items with actual returned quantities
-  const hasValidItems =
-    creditNote.items && creditNote.items.some((item) => (item.quantityReturned || item.quantity_returned || 0) > 0);
+  const hasValidItems = creditNote.items?.some((item) => (item.quantityReturned || item.quantity_returned || 0) > 0);
   const hasManualAmount = (creditNote.manual_credit_amount || creditNote.manualCreditAmount || 0) > 0;
   const hasTotalCredit = (creditNote.totalCredit || creditNote.total_credit || 0) > 0;
 

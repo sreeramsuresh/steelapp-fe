@@ -106,7 +106,7 @@ const WarehouseStockView = ({ warehouseId, warehouseName: _warehouseName }) => {
       setStockItems(mockStockData);
       setLoading(false);
     }, 500);
-  }, [warehouseId]);
+  }, []);
 
   // Filter items
   const filteredItems = stockItems.filter((item) => {

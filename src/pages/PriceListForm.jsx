@@ -225,7 +225,7 @@ const CurrencyConversionModal = ({
   };
 
   const rateAge = conversionData.rateDate
-    ? Math.ceil(Math.abs(new Date() - new Date(conversionData.rateDate)) / (1000 * 60 * 60 * 24))
+    ? Math.ceil(Math.abs(Date.now() - new Date(conversionData.rateDate)) / (1000 * 60 * 60 * 24))
     : 0;
   const isOld = rateAge > 7;
 
@@ -751,7 +751,14 @@ export default function PriceListForm() {
       loadDefaultPrices();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, copyFromId]);
+  }, [
+    copyFromId,
+    copyPricelist,
+    fetchPricelist,
+    fetchProducts,
+    isEdit, // New pricelist - load default prices as starting point
+    loadDefaultPrices,
+  ]);
 
   const fetchProducts = async () => {
     try {
@@ -888,7 +895,7 @@ export default function PriceListForm() {
       const pricelists = response.pricelists || [];
 
       // Filter out current pricelist if editing
-      const otherPricelists = pricelists.filter((p) => p.id !== parseInt(id));
+      const otherPricelists = pricelists.filter((p) => p.id !== parseInt(id, 10));
 
       // Find overlaps
       const overlaps = otherPricelists.filter((p) => {
@@ -1344,7 +1351,7 @@ export default function PriceListForm() {
       }).length,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [formData.items, products]
+    [formData.items, products, getProductCurrentPrice]
   );
 
   if (loading) {
@@ -1973,7 +1980,7 @@ export default function PriceListForm() {
                   </>
                 ) : (
                   /* History Tab Content */
-                  <PriceHistoryTab pricelistId={parseInt(id)} products={products} />
+                  <PriceHistoryTab pricelistId={parseInt(id, 10)} products={products} />
                 )}
               </div>
             </div>

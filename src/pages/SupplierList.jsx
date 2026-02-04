@@ -24,7 +24,7 @@ export function SupplierList() {
 
   useEffect(() => {
     loadSuppliers();
-  }, [page]);
+  }, [loadSuppliers]);
 
   const loadSuppliers = async () => {
     try {

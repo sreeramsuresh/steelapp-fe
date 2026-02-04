@@ -25,7 +25,7 @@ export default function CommissionApprovalWorkflow() {
 
   useEffect(() => {
     loadPendingApprovals();
-  }, []);
+  }, [loadPendingApprovals]);
 
   const loadPendingApprovals = async () => {
     try {
@@ -78,7 +78,7 @@ export default function CommissionApprovalWorkflow() {
   const handleApproveCommission = async (commission) => {
     try {
       setUpdating(true);
-      const approvedByUserId = parseInt(localStorage.getItem("userId")) || 1;
+      const approvedByUserId = parseInt(localStorage.getItem("userId"), 10) || 1;
 
       await commissionService.approveCommission(commission.invoiceId, approvedByUserId);
 
@@ -333,7 +333,7 @@ export default function CommissionApprovalWorkflow() {
                   daysUntilDeadline && daysUntilDeadline > 0
                     ? daysUntilDeadline
                     : gracePeriodEndDate
-                      ? Math.ceil((gracePeriodEnd - new Date()) / (1000 * 60 * 60 * 24))
+                      ? Math.ceil((gracePeriodEnd - Date.now()) / (1000 * 60 * 60 * 24))
                       : 0;
                 const isSelected = selectedIds.has(invoiceId);
 

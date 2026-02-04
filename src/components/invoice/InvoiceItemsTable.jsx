@@ -82,7 +82,6 @@ const InvoiceItemsTable = ({ items, startingIndex = 0, isFirstPage, isContinued,
           }),
           bodyCell: { border: `1px solid ${borderColor}` },
         };
-      case "full-grid":
       default:
         return {
           table: {

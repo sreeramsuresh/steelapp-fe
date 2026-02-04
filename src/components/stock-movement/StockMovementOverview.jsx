@@ -35,7 +35,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
   useEffect(() => {
     loadDashboardData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Intentionally run once on mount
+  }, [loadDashboardData]); // Intentionally run once on mount
 
   const loadDashboardData = useCallback(async () => {
     setLoading(true);

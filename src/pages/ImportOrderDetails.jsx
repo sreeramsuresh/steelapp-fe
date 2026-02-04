@@ -202,7 +202,7 @@ const ImportOrderDetails = () => {
       loadOrder();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, loadOrder]);
 
   // Auto-dismiss success message
   useEffect(() => {
@@ -292,8 +292,6 @@ const ImportOrderDetails = () => {
       case "land":
       case "road":
         return Truck;
-      case "sea":
-      case "ocean":
       default:
         return Ship;
     }

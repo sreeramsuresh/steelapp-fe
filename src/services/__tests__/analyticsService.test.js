@@ -206,7 +206,7 @@ describe("analyticsService", () => {
       const mockProducts = [{ productId: 101, name: "Top Product", revenue: 50000 }];
       apiClient.get.mockResolvedValueOnce(mockProducts);
 
-      const result = await analyticsService.getTopProducts();
+      const _result = await analyticsService.getTopProducts();
 
       expect(apiClient.get).toHaveBeenCalledWith("/analytics/product-performance", {
         limit: 10,

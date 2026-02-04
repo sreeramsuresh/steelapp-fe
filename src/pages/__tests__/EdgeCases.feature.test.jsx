@@ -122,7 +122,7 @@ describe("Edge Cases & Error Handling", () => {
             <input
               type="number"
               value={requestedQty}
-              onChange={(e) => setRequestedQty(parseInt(e.target.value))}
+              onChange={(e) => setRequestedQty(parseInt(e.target.value, 10))}
               placeholder="Requested Quantity"
             />
             {error && <div className="alert-error">{error}</div>}
@@ -168,7 +168,7 @@ describe("Edge Cases & Error Handling", () => {
             <input
               type="number"
               value={invoiceAmount}
-              onChange={(e) => setInvoiceAmount(parseInt(e.target.value))}
+              onChange={(e) => setInvoiceAmount(parseInt(e.target.value, 10))}
               placeholder="Invoice Amount"
             />
             {error && <div className="alert-error">{error}</div>}

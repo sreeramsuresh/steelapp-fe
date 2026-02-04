@@ -136,7 +136,7 @@ const StockReceiptForm = ({
       fetchWarehouses();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, selectedWarehouseId]);
 
   // Initialize selected items and quantities when poItems change
   useEffect(() => {
@@ -172,7 +172,7 @@ const StockReceiptForm = ({
           initialSupplierBatchRefs[item.id] = "";
           initialMfgDates[item.id] = today;
           // PCS-Centric: Default PCS to pending quantity (assume 1 PCS per unit if not specified)
-          const itemPcs = parseInt(item.pcsOrdered || item.orderedPcs || pending) || 1;
+          const itemPcs = parseInt(item.pcsOrdered || item.orderedPcs || pending, 10) || 1;
           initialPcsReceived[item.id] = itemPcs;
           initialWeightSources[item.id] = "ACTUAL"; // Default to actual (weighed)
         }
@@ -189,17 +189,17 @@ const StockReceiptForm = ({
       setWeightSources(initialWeightSources);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [poItems]);
+  }, [poItems, purchaseOrderId]);
 
   // Generate GRN number on mount (Epic 3 - RECV-001)
   useEffect(() => {
     if (open && !grnNumber) {
-      const timestamp = new Date().getTime();
+      const timestamp = Date.now();
       const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
       setGrnNumber(`GRN-${timestamp}-${randomSuffix}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, grnNumber]);
 
   // Handle escape key
   useEffect(() => {
@@ -332,7 +332,7 @@ const StockReceiptForm = ({
 
   // Calculate weight per piece (derived from PCS and actual weight)
   const calculateWeightPerPiece = (itemId) => {
-    const pcs = parseInt(pcsReceived[itemId]) || 0;
+    const pcs = parseInt(pcsReceived[itemId], 10) || 0;
     const weight = parseFloat(actualWeights[itemId]) || 0;
     if (pcs > 0 && weight > 0) {
       return (weight / pcs).toFixed(3);
@@ -342,7 +342,7 @@ const StockReceiptForm = ({
 
   // Check if item is a single piece (coil)
   const isSinglePiece = (itemId) => {
-    return parseInt(pcsReceived[itemId]) === 1;
+    return parseInt(pcsReceived[itemId], 10) === 1;
   };
 
   // Calculate weight variance for an item (Epic 3 - RECV-002)
@@ -389,17 +389,17 @@ const StockReceiptForm = ({
         if (isSelected) {
           const qty = parseFloat(quantities[itemId]) || 0;
           if (qty > 0) {
-            const item = receivableItems.find((i) => i.id === parseInt(itemId));
+            const item = receivableItems.find((i) => i.id === parseInt(itemId, 10));
             if (item) {
-              const { variance, percentage } = calculateWeightVariance(parseInt(itemId));
+              const { variance, percentage } = calculateWeightVariance(parseInt(itemId, 10));
               // PCS-Centric Tracking (Phase 5)
-              const itemPcs = parseInt(pcsReceived[itemId]) || 1;
+              const itemPcs = parseInt(pcsReceived[itemId], 10) || 1;
               const itemWeightKg = parseFloat(actualWeights[itemId]) || qty;
               const weightPerPieceKg = itemPcs > 0 ? itemWeightKg / itemPcs : 0;
               const isSinglePieceItem = itemPcs === 1;
 
               itemsToReceive.push({
-                itemId: parseInt(itemId),
+                itemId: parseInt(itemId, 10),
                 productId: item.productId || item.product_id,
                 receivedQuantity: qty,
                 // Weight variance data (Epic 3 - RECV-002)

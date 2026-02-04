@@ -11,8 +11,7 @@
  * - Multi-tenancy (company scoping)
  */
 
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { notificationService } from "../../services/notificationService";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { roleService } from "../../services/roleService";
 
 // Mock the apiClient

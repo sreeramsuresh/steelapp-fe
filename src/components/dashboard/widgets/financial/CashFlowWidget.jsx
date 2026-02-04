@@ -30,7 +30,7 @@ const CashFlowWidget = ({ data: propData, onRefresh, loading: externalLoading })
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
       currency: "AED",
@@ -41,7 +41,7 @@ const CashFlowWidget = ({ data: propData, onRefresh, loading: externalLoading })
 
   const formatCompactCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     if (safeAmount >= 1000000) {
       return `${(safeAmount / 1000000).toFixed(1)}M`;
     } else if (safeAmount >= 1000) {

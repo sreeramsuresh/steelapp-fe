@@ -59,7 +59,7 @@ export function AuditHubProvider({ children }) {
     if (user?.companyId) {
       loadPeriods();
     }
-  }, [user?.companyId, filters, loadPeriods]);
+  }, [user?.companyId, loadPeriods]);
 
   // Select period and load its datasets
   const selectPeriod = useCallback(

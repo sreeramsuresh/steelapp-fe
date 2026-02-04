@@ -64,7 +64,10 @@ export default function DeliveryVarianceDashboard() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadDashboard();
-  }, []);
+  }, [
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadDashboard,
+  ]);
 
   if (loading)
     return (

@@ -177,7 +177,7 @@ const AdvancePaymentForm = () => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [isEditMode, loadCustomerById, loadCustomers, loadNextReceiptNumber, loadPayment, searchParams]);
 
   // Search customers when search term changes
   useEffect(() => {
@@ -189,7 +189,7 @@ const AdvancePaymentForm = () => {
       }
     }, 300);
     return () => clearTimeout(timer);
-  }, [customerSearch, selectedCustomer]);
+  }, [customerSearch, selectedCustomer, searchCustomers]);
 
   // Load customer invoices when customer is selected (removed showApplySection - no longer used)
   // Invoices are loaded when the accordion is opened via the details element

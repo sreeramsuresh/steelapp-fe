@@ -62,7 +62,7 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
   // Fetch metrics on mount and when refreshTrigger changes
   useEffect(() => {
     fetchMetrics();
-  }, [refreshTrigger]);
+  }, [fetchMetrics]);
 
   // Handle retry
   const handleRetry = () => {

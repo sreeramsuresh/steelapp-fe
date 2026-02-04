@@ -67,7 +67,7 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
   }, [data, sortBy]);
 
   // Check if we have valid data
-  const hasData = data && data.grades && data.grades.length > 0;
+  const hasData = data?.grades && data.grades.length > 0;
 
   // Show "No Data" state when no valid data is available
   if (!hasData) {

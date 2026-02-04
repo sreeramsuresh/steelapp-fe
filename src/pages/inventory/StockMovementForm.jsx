@@ -230,8 +230,8 @@ const StockMovementForm = () => {
     setSaving(true);
     try {
       const movementData = {
-        productId: parseInt(formData.productId),
-        warehouseId: parseInt(formData.warehouseId),
+        productId: parseInt(formData.productId, 10),
+        warehouseId: parseInt(formData.warehouseId, 10),
         movementType: formData.movementType,
         quantity: parseFloat(formData.quantity),
         unit: formData.unit,

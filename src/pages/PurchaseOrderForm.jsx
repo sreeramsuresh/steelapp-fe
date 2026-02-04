@@ -310,31 +310,34 @@ const Autocomplete = ({
     return false;
   };
 
-  const fuzzyFilter = useCallback((opts, query) => {
-    const q = norm(query);
-    if (!q) return opts;
-    const tokens = q.split(/\s+/).filter(Boolean);
-    const scored = [];
-    for (const o of opts) {
-      const optLabel = norm(o.label || o.name || "");
-      if (!optLabel) continue;
-      let ok = true;
-      let score = 0;
-      for (const t of tokens) {
-        if (!tokenMatch(t, optLabel)) {
-          ok = false;
-          break;
+  const fuzzyFilter = useCallback(
+    (opts, query) => {
+      const q = norm(query);
+      if (!q) return opts;
+      const tokens = q.split(/\s+/).filter(Boolean);
+      const scored = [];
+      for (const o of opts) {
+        const optLabel = norm(o.label || o.name || "");
+        if (!optLabel) continue;
+        let ok = true;
+        let score = 0;
+        for (const t of tokens) {
+          if (!tokenMatch(t, optLabel)) {
+            ok = false;
+            break;
+          }
+          // basic score: shorter distance preferred
+          const idx = optLabel.indexOf(norm(t));
+          score += idx >= 0 ? 0 : 1; // penalize fuzzy matches
         }
-        // basic score: shorter distance preferred
-        const idx = optLabel.indexOf(norm(t));
-        score += idx >= 0 ? 0 : 1; // penalize fuzzy matches
+        if (ok) scored.push({ o, score });
       }
-      if (ok) scored.push({ o, score });
-    }
-    scored.sort((a, b) => a.score - b.score);
-    return scored.map((s) => s.o);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      scored.sort((a, b) => a.score - b.score);
+      return scored.map((s) => s.o);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [norm, tokenMatch]
+  );
 
   useEffect(() => {
     if (inputValue) {
@@ -823,7 +826,7 @@ const PurchaseOrderForm = () => {
     const date = new Date(poDate);
     const match = terms.match(/(\d+)/);
     if (match) {
-      date.setDate(date.getDate() + parseInt(match[1]));
+      date.setDate(date.getDate() + parseInt(match[1], 10));
       return date.toISOString().slice(0, 10);
     }
     return "";
@@ -838,7 +841,7 @@ const PurchaseOrderForm = () => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [purchaseOrder.poDate, purchaseOrder.paymentTerms]);
+  }, [purchaseOrder.poDate, purchaseOrder.paymentTerms, calculateDueDate, handleInputChange, purchaseOrder.dueDate]);
 
   // Update payment status when total changes
   useEffect(() => {
@@ -846,7 +849,7 @@ const PurchaseOrderForm = () => {
       updatePaymentStatus(payments, purchaseOrder.total);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [purchaseOrder.total]);
+  }, [purchaseOrder.total, payments, updatePaymentStatus]);
 
   // Normalize date value for <input type="date">
   const toDateInput = (d) => {
@@ -854,7 +857,7 @@ const PurchaseOrderForm = () => {
     try {
       if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}/.test(d)) return d.slice(0, 10);
       const dt = new Date(d);
-      if (isNaN(dt.getTime())) return "";
+      if (Number.isNaN(dt.getTime())) return "";
       return dt.toISOString().slice(0, 10);
     } catch {
       return "";
@@ -993,14 +996,14 @@ const PurchaseOrderForm = () => {
       }
     };
     loadExisting();
-  }, [id]);
+  }, [id, toDateInput, updatePaymentStatus]);
 
   // Fetch available products, warehouses, and import containers
   useEffect(() => {
     fetchAvailableProducts();
     fetchWarehouses();
     fetchImportContainers();
-  }, []);
+  }, [fetchAvailableProducts, fetchImportContainers, fetchWarehouses]);
 
   const fetchAvailableProducts = async () => {
     try {
@@ -1083,7 +1086,7 @@ const PurchaseOrderForm = () => {
 
   // Update PO number when server data is available
   useEffect(() => {
-    if (nextPOData && nextPOData.nextPoNumber && !id) {
+    if (nextPOData?.nextPoNumber && !id) {
       setPurchaseOrder((prev) => ({
         ...prev,
         poNumber: nextPOData.nextPoNumber,
@@ -1624,7 +1627,7 @@ const PurchaseOrderForm = () => {
         discount_percentage: parseFloat(poData.discountPercentage) || 0,
         discount_amount: parseFloat(poData.discountAmount) || 0,
         // Only include warehouse_id if it's a real warehouse from API
-        ...(useApiWarehouse ? { warehouse_id: parseInt(selectedWarehouse) } : {}),
+        ...(useApiWarehouse ? { warehouse_id: parseInt(selectedWarehouse, 10) } : {}),
         warehouse_name: selectedWarehouseDetails
           ? `${selectedWarehouseDetails.name} (${selectedWarehouseDetails.city})`
           : "",
@@ -1735,7 +1738,7 @@ const PurchaseOrderForm = () => {
       }
 
       // Handle specific warehouse foreign key error
-      if (errorData?.message && errorData.message.includes("Warehouse with ID")) {
+      if (errorData?.message?.includes("Warehouse with ID")) {
         notificationService.error(
           "Database setup required: Warehouses not initialized. " +
             "Please start PostgreSQL service and refresh the page to auto-initialize warehouses."
@@ -2227,7 +2230,11 @@ const PurchaseOrderForm = () => {
                             onChange={(e) => {
                               const allowDecimal = item.quantityUom === "MT" || item.quantityUom === "KG";
                               const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
-                              handleItemChange(index, "quantity", e.target.value === "" ? "" : isNaN(val) ? "" : val);
+                              handleItemChange(
+                                index,
+                                "quantity",
+                                e.target.value === "" ? "" : Number.isNaN(val) ? "" : val
+                              );
                             }}
                             min="0"
                             step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
@@ -2621,699 +2628,693 @@ const PurchaseOrderForm = () => {
       {/* ==================== DRAWERS ==================== */}
 
       {/* Charges & Discount Drawer */}
-      <>
-        <div
-          className={`${DRAWER_OVERLAY} ${chargesDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-          onClick={() => setChargesDrawerOpen(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setChargesDrawerOpen(false);
-          }}
-          role="button"
-          tabIndex={-1}
-          aria-label="Close charges drawer"
-        />
-        <div className={`${DRAWER_PANEL(isDarkMode)} ${chargesDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
-          <div className="p-4">
-            <div className={DRAWER_HEADER(isDarkMode)}>
+
+      <div
+        className={`${DRAWER_OVERLAY} ${chargesDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={() => setChargesDrawerOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setChargesDrawerOpen(false);
+        }}
+        role="button"
+        tabIndex={-1}
+        aria-label="Close charges drawer"
+      />
+      <div className={`${DRAWER_PANEL(isDarkMode)} ${chargesDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="p-4">
+          <div className={DRAWER_HEADER(isDarkMode)}>
+            <div>
+              <div className="text-sm font-extrabold">Charges & Discount</div>
+              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                Add freight, shipping, handling, or discounts
+              </div>
+            </div>
+            <button onClick={() => setChargesDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
+              <X size={16} />
+            </button>
+          </div>
+          <div className="mt-4 space-y-4">
+            {/* Additional Charges */}
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <div className="text-sm font-extrabold">Charges & Discount</div>
-                <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
-                  Add freight, shipping, handling, or discounts
-                </div>
+                <label htmlFor="freight-charges" className={LABEL_CLASSES(isDarkMode)}>
+                  Freight Charges
+                </label>
+                <input
+                  id="freight-charges"
+                  type="number"
+                  step="0.01"
+                  value={purchaseOrder.freightCharges}
+                  onChange={(e) => handleInputChange("freightCharges", e.target.value)}
+                  placeholder="0.00"
+                  className={INPUT_CLASSES(isDarkMode)}
+                />
               </div>
-              <button onClick={() => setChargesDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
-                <X size={16} />
-              </button>
-            </div>
-            <div className="mt-4 space-y-4">
-              {/* Additional Charges */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="freight-charges" className={LABEL_CLASSES(isDarkMode)}>
-                    Freight Charges
-                  </label>
-                  <input
-                    id="freight-charges"
-                    type="number"
-                    step="0.01"
-                    value={purchaseOrder.freightCharges}
-                    onChange={(e) => handleInputChange("freightCharges", e.target.value)}
-                    placeholder="0.00"
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="shipping-charges" className={LABEL_CLASSES(isDarkMode)}>
-                    Shipping Charges
-                  </label>
-                  <input
-                    id="shipping-charges"
-                    type="number"
-                    step="0.01"
-                    value={purchaseOrder.shippingCharges}
-                    onChange={(e) => handleInputChange("shippingCharges", e.target.value)}
-                    placeholder="0.00"
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="handling-charges" className={LABEL_CLASSES(isDarkMode)}>
-                    Handling Charges
-                  </label>
-                  <input
-                    id="handling-charges"
-                    type="number"
-                    step="0.01"
-                    value={purchaseOrder.handlingCharges}
-                    onChange={(e) => handleInputChange("handlingCharges", e.target.value)}
-                    placeholder="0.00"
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="other-charges" className={LABEL_CLASSES(isDarkMode)}>
-                    Other Charges
-                  </label>
-                  <input
-                    id="other-charges"
-                    type="number"
-                    step="0.01"
-                    value={purchaseOrder.otherCharges}
-                    onChange={(e) => handleInputChange("otherCharges", e.target.value)}
-                    placeholder="0.00"
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
+              <div>
+                <label htmlFor="shipping-charges" className={LABEL_CLASSES(isDarkMode)}>
+                  Shipping Charges
+                </label>
+                <input
+                  id="shipping-charges"
+                  type="number"
+                  step="0.01"
+                  value={purchaseOrder.shippingCharges}
+                  onChange={(e) => handleInputChange("shippingCharges", e.target.value)}
+                  placeholder="0.00"
+                  className={INPUT_CLASSES(isDarkMode)}
+                />
               </div>
-              <div className={DIVIDER_CLASSES(isDarkMode)} />
-              {/* Discount */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <FormSelect
-                    label="Discount Type"
-                    value={purchaseOrder.discountType}
-                    onValueChange={(value) => handleInputChange("discountType", value)}
-                  >
-                    <SelectItem value="amount">Amount</SelectItem>
-                    <SelectItem value="percentage">Percentage</SelectItem>
-                  </FormSelect>
-                </div>
-                <div>
-                  <label className={LABEL_CLASSES(isDarkMode)}>
-                    {purchaseOrder.discountType === "percentage" ? "Discount %" : "Discount Amount"}
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max={purchaseOrder.discountType === "percentage" ? 100 : undefined}
-                    value={
-                      purchaseOrder.discountType === "percentage"
-                        ? purchaseOrder.discountPercentage
-                        : purchaseOrder.discountAmount
-                    }
-                    onChange={(e) =>
-                      handleInputChange(
-                        purchaseOrder.discountType === "percentage" ? "discountPercentage" : "discountAmount",
-                        e.target.value
-                      )
-                    }
-                    placeholder="0.00"
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
+              <div>
+                <label htmlFor="handling-charges" className={LABEL_CLASSES(isDarkMode)}>
+                  Handling Charges
+                </label>
+                <input
+                  id="handling-charges"
+                  type="number"
+                  step="0.01"
+                  value={purchaseOrder.handlingCharges}
+                  onChange={(e) => handleInputChange("handlingCharges", e.target.value)}
+                  placeholder="0.00"
+                  className={INPUT_CLASSES(isDarkMode)}
+                />
+              </div>
+              <div>
+                <label htmlFor="other-charges" className={LABEL_CLASSES(isDarkMode)}>
+                  Other Charges
+                </label>
+                <input
+                  id="other-charges"
+                  type="number"
+                  step="0.01"
+                  value={purchaseOrder.otherCharges}
+                  onChange={(e) => handleInputChange("otherCharges", e.target.value)}
+                  placeholder="0.00"
+                  className={INPUT_CLASSES(isDarkMode)}
+                />
               </div>
             </div>
-            <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
-              <div className="flex justify-end">
-                <button onClick={() => setChargesDrawerOpen(false)} className={BTN_PRIMARY}>
-                  Done
-                </button>
+            <div className={DIVIDER_CLASSES(isDarkMode)} />
+            {/* Discount */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <FormSelect
+                  label="Discount Type"
+                  value={purchaseOrder.discountType}
+                  onValueChange={(value) => handleInputChange("discountType", value)}
+                >
+                  <SelectItem value="amount">Amount</SelectItem>
+                  <SelectItem value="percentage">Percentage</SelectItem>
+                </FormSelect>
+              </div>
+              <div>
+                <label className={LABEL_CLASSES(isDarkMode)}>
+                  {purchaseOrder.discountType === "percentage" ? "Discount %" : "Discount Amount"}
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max={purchaseOrder.discountType === "percentage" ? 100 : undefined}
+                  value={
+                    purchaseOrder.discountType === "percentage"
+                      ? purchaseOrder.discountPercentage
+                      : purchaseOrder.discountAmount
+                  }
+                  onChange={(e) =>
+                    handleInputChange(
+                      purchaseOrder.discountType === "percentage" ? "discountPercentage" : "discountAmount",
+                      e.target.value
+                    )
+                  }
+                  placeholder="0.00"
+                  className={INPUT_CLASSES(isDarkMode)}
+                />
               </div>
             </div>
           </div>
+          <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
+            <div className="flex justify-end">
+              <button onClick={() => setChargesDrawerOpen(false)} className={BTN_PRIMARY}>
+                Done
+              </button>
+            </div>
+          </div>
         </div>
-      </>
+      </div>
 
       {/* Delivery Terms Drawer */}
-      <>
-        <div
-          className={`${DRAWER_OVERLAY} ${deliveryDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-          onClick={() => setDeliveryDrawerOpen(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setDeliveryDrawerOpen(false);
-          }}
-          role="button"
-          tabIndex={-1}
-          aria-label="Close delivery drawer"
-        />
-        <div className={`${DRAWER_PANEL(isDarkMode)} ${deliveryDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
-          <div className="p-4">
-            <div className={DRAWER_HEADER(isDarkMode)}>
-              <div>
-                <div className="text-sm font-extrabold">Delivery Terms</div>
-                <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
-                  Shipping, warehouse, and delivery settings
-                </div>
+
+      <div
+        className={`${DRAWER_OVERLAY} ${deliveryDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={() => setDeliveryDrawerOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setDeliveryDrawerOpen(false);
+        }}
+        role="button"
+        tabIndex={-1}
+        aria-label="Close delivery drawer"
+      />
+      <div className={`${DRAWER_PANEL(isDarkMode)} ${deliveryDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="p-4">
+          <div className={DRAWER_HEADER(isDarkMode)}>
+            <div>
+              <div className="text-sm font-extrabold">Delivery Terms</div>
+              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                Shipping, warehouse, and delivery settings
               </div>
-              <button onClick={() => setDeliveryDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
-                <X size={16} />
+            </div>
+            <button onClick={() => setDeliveryDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
+              <X size={16} />
+            </button>
+          </div>
+          <div className="mt-4 space-y-4">
+            <div>
+              <FormSelect
+                label="Incoterms"
+                value={purchaseOrder.incoterms || "none"}
+                onValueChange={(value) => handleInputChange("incoterms", value === "none" ? "" : value)}
+              >
+                <SelectItem value="none">Select Incoterm</SelectItem>
+                <SelectItem value="FOB">FOB - Free on Board</SelectItem>
+                <SelectItem value="CIF">CIF - Cost, Insurance & Freight</SelectItem>
+                <SelectItem value="EXW">EXW - Ex Works</SelectItem>
+                <SelectItem value="DDP">DDP - Delivered Duty Paid</SelectItem>
+                <SelectItem value="DAP">DAP - Delivered at Place</SelectItem>
+                <SelectItem value="FCA">FCA - Free Carrier</SelectItem>
+                <SelectItem value="CPT">CPT - Carriage Paid To</SelectItem>
+                <SelectItem value="CIP">CIP - Carriage and Insurance Paid To</SelectItem>
+              </FormSelect>
+            </div>
+            <div>
+              <FormSelect
+                label="Destination Warehouse"
+                value={selectedWarehouse || "none"}
+                onValueChange={(value) => setSelectedWarehouse(value === "none" ? "" : value)}
+              >
+                <SelectItem value="none">Select Warehouse</SelectItem>
+                {warehouses.map((warehouse) => (
+                  <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
+                    {warehouse.name} - {warehouse.city}
+                  </SelectItem>
+                ))}
+              </FormSelect>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="expectedDeliveryDate" className={LABEL_CLASSES(isDarkMode)}>
+                  Expected Delivery
+                </label>
+                <input
+                  id="expectedDeliveryDate"
+                  type="date"
+                  value={purchaseOrder.expectedDeliveryDate}
+                  onChange={(e) => handleInputChange("expectedDeliveryDate", e.target.value)}
+                  className={INPUT_CLASSES(isDarkMode)}
+                />
+              </div>
+              <div>
+                <label htmlFor="gracePeriodDays" className={LABEL_CLASSES(isDarkMode)}>
+                  Grace Period (Days)
+                </label>
+                <input
+                  id="gracePeriodDays"
+                  type="number"
+                  min="0"
+                  max="30"
+                  value={purchaseOrder.gracePeriodDays}
+                  onChange={(e) => handleInputChange("gracePeriodDays", parseInt(e.target.value, 10) || 5)}
+                  className={INPUT_CLASSES(isDarkMode)}
+                />
+              </div>
+            </div>
+            <div>
+              <FormSelect
+                label="Stock Status"
+                value={purchaseOrder.stockStatus}
+                onValueChange={(value) => handleInputChange("stockStatus", value)}
+              >
+                <SelectItem value="retain">Retain (To be received)</SelectItem>
+                <SelectItem value="transit">In Transit</SelectItem>
+                <SelectItem value="received">Received (Add to Inventory)</SelectItem>
+              </FormSelect>
+            </div>
+          </div>
+          <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
+            <div className="flex justify-end">
+              <button onClick={() => setDeliveryDrawerOpen(false)} className={BTN_PRIMARY}>
+                Done
               </button>
-            </div>
-            <div className="mt-4 space-y-4">
-              <div>
-                <FormSelect
-                  label="Incoterms"
-                  value={purchaseOrder.incoterms || "none"}
-                  onValueChange={(value) => handleInputChange("incoterms", value === "none" ? "" : value)}
-                >
-                  <SelectItem value="none">Select Incoterm</SelectItem>
-                  <SelectItem value="FOB">FOB - Free on Board</SelectItem>
-                  <SelectItem value="CIF">CIF - Cost, Insurance & Freight</SelectItem>
-                  <SelectItem value="EXW">EXW - Ex Works</SelectItem>
-                  <SelectItem value="DDP">DDP - Delivered Duty Paid</SelectItem>
-                  <SelectItem value="DAP">DAP - Delivered at Place</SelectItem>
-                  <SelectItem value="FCA">FCA - Free Carrier</SelectItem>
-                  <SelectItem value="CPT">CPT - Carriage Paid To</SelectItem>
-                  <SelectItem value="CIP">CIP - Carriage and Insurance Paid To</SelectItem>
-                </FormSelect>
-              </div>
-              <div>
-                <FormSelect
-                  label="Destination Warehouse"
-                  value={selectedWarehouse || "none"}
-                  onValueChange={(value) => setSelectedWarehouse(value === "none" ? "" : value)}
-                >
-                  <SelectItem value="none">Select Warehouse</SelectItem>
-                  {warehouses.map((warehouse) => (
-                    <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
-                      {warehouse.name} - {warehouse.city}
-                    </SelectItem>
-                  ))}
-                </FormSelect>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="expectedDeliveryDate" className={LABEL_CLASSES(isDarkMode)}>
-                    Expected Delivery
-                  </label>
-                  <input
-                    id="expectedDeliveryDate"
-                    type="date"
-                    value={purchaseOrder.expectedDeliveryDate}
-                    onChange={(e) => handleInputChange("expectedDeliveryDate", e.target.value)}
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="gracePeriodDays" className={LABEL_CLASSES(isDarkMode)}>
-                    Grace Period (Days)
-                  </label>
-                  <input
-                    id="gracePeriodDays"
-                    type="number"
-                    min="0"
-                    max="30"
-                    value={purchaseOrder.gracePeriodDays}
-                    onChange={(e) => handleInputChange("gracePeriodDays", parseInt(e.target.value) || 5)}
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
-              </div>
-              <div>
-                <FormSelect
-                  label="Stock Status"
-                  value={purchaseOrder.stockStatus}
-                  onValueChange={(value) => handleInputChange("stockStatus", value)}
-                >
-                  <SelectItem value="retain">Retain (To be received)</SelectItem>
-                  <SelectItem value="transit">In Transit</SelectItem>
-                  <SelectItem value="received">Received (Add to Inventory)</SelectItem>
-                </FormSelect>
-              </div>
-            </div>
-            <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
-              <div className="flex justify-end">
-                <button onClick={() => setDeliveryDrawerOpen(false)} className={BTN_PRIMARY}>
-                  Done
-                </button>
-              </div>
             </div>
           </div>
         </div>
-      </>
+      </div>
 
       {/* Notes & Terms Drawer */}
-      <>
-        <div
-          className={`${DRAWER_OVERLAY} ${notesDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-          onClick={() => setNotesDrawerOpen(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setNotesDrawerOpen(false);
-          }}
-          role="button"
-          tabIndex={-1}
-          aria-label="Close notes drawer"
-        />
-        <div className={`${DRAWER_PANEL(isDarkMode)} ${notesDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
-          <div className="p-4">
-            <div className={DRAWER_HEADER(isDarkMode)}>
-              <div>
-                <div className="text-sm font-extrabold">Notes & Terms</div>
-                <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
-                  Internal notes and payment terms
-                </div>
+
+      <div
+        className={`${DRAWER_OVERLAY} ${notesDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={() => setNotesDrawerOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setNotesDrawerOpen(false);
+        }}
+        role="button"
+        tabIndex={-1}
+        aria-label="Close notes drawer"
+      />
+      <div className={`${DRAWER_PANEL(isDarkMode)} ${notesDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="p-4">
+          <div className={DRAWER_HEADER(isDarkMode)}>
+            <div>
+              <div className="text-sm font-extrabold">Notes & Terms</div>
+              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                Internal notes and payment terms
               </div>
-              <button onClick={() => setNotesDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
-                <X size={16} />
+            </div>
+            <button onClick={() => setNotesDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
+              <X size={16} />
+            </button>
+          </div>
+          <div className="mt-4 space-y-4">
+            <div>
+              <label htmlFor="purchaseOrderNotes" className={LABEL_CLASSES(isDarkMode)}>
+                Notes
+              </label>
+              <textarea
+                id="purchaseOrderNotes"
+                rows={4}
+                value={purchaseOrder.notes}
+                onChange={(e) => handleInputChange("notes", e.target.value)}
+                placeholder="Additional notes..."
+                className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`}
+              />
+            </div>
+            <div>
+              <label htmlFor="purchaseOrderTerms" className={LABEL_CLASSES(isDarkMode)}>
+                Terms & Conditions
+              </label>
+              <textarea
+                id="purchaseOrderTerms"
+                rows={4}
+                value={purchaseOrder.terms}
+                onChange={(e) => handleInputChange("terms", e.target.value)}
+                placeholder="Terms and conditions..."
+                className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`}
+              />
+            </div>
+          </div>
+          <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
+            <div className="flex justify-end">
+              <button onClick={() => setNotesDrawerOpen(false)} className={BTN_PRIMARY}>
+                Done
               </button>
-            </div>
-            <div className="mt-4 space-y-4">
-              <div>
-                <label htmlFor="purchaseOrderNotes" className={LABEL_CLASSES(isDarkMode)}>
-                  Notes
-                </label>
-                <textarea
-                  id="purchaseOrderNotes"
-                  rows={4}
-                  value={purchaseOrder.notes}
-                  onChange={(e) => handleInputChange("notes", e.target.value)}
-                  placeholder="Additional notes..."
-                  className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`}
-                />
-              </div>
-              <div>
-                <label htmlFor="purchaseOrderTerms" className={LABEL_CLASSES(isDarkMode)}>
-                  Terms & Conditions
-                </label>
-                <textarea
-                  id="purchaseOrderTerms"
-                  rows={4}
-                  value={purchaseOrder.terms}
-                  onChange={(e) => handleInputChange("terms", e.target.value)}
-                  placeholder="Terms and conditions..."
-                  className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`}
-                />
-              </div>
-            </div>
-            <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
-              <div className="flex justify-end">
-                <button onClick={() => setNotesDrawerOpen(false)} className={BTN_PRIMARY}>
-                  Done
-                </button>
-              </div>
             </div>
           </div>
         </div>
-      </>
+      </div>
 
       {/* Buyer Info Drawer (also used for Supplier details) */}
-      <>
-        <div
-          className={`${DRAWER_OVERLAY} ${buyerDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-          onClick={() => setBuyerDrawerOpen(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setBuyerDrawerOpen(false);
-          }}
-          role="button"
-          tabIndex={-1}
-          aria-label="Close buyer drawer"
-        />
-        <div className={`${DRAWER_PANEL(isDarkMode)} ${buyerDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
-          <div className="p-4">
-            <div className={DRAWER_HEADER(isDarkMode)}>
-              <div>
-                <div className="text-sm font-extrabold">Buyer & Supplier Info</div>
-                <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
-                  Contact details for this order
-                </div>
+
+      <div
+        className={`${DRAWER_OVERLAY} ${buyerDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={() => setBuyerDrawerOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setBuyerDrawerOpen(false);
+        }}
+        role="button"
+        tabIndex={-1}
+        aria-label="Close buyer drawer"
+      />
+      <div className={`${DRAWER_PANEL(isDarkMode)} ${buyerDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="p-4">
+          <div className={DRAWER_HEADER(isDarkMode)}>
+            <div>
+              <div className="text-sm font-extrabold">Buyer & Supplier Info</div>
+              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                Contact details for this order
               </div>
-              <button onClick={() => setBuyerDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
-                <X size={16} />
-              </button>
             </div>
-            <div className="mt-4 space-y-4">
-              {/* Supplier Section */}
-              <div
-                className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
-              >
-                Supplier Details
-              </div>
+            <button onClick={() => setBuyerDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
+              <X size={16} />
+            </button>
+          </div>
+          <div className="mt-4 space-y-4">
+            {/* Supplier Section */}
+            <div
+              className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+            >
+              Supplier Details
+            </div>
+            <div>
+              <label htmlFor="supplierName" className={LABEL_CLASSES(isDarkMode)}>
+                Supplier Name
+              </label>
+              <input
+                id="supplierName"
+                type="text"
+                value={purchaseOrder.supplierName}
+                onChange={(e) => handleInputChange("supplierName", e.target.value)}
+                placeholder="Supplier company name"
+                className={INPUT_CLASSES(isDarkMode)}
+              />
+            </div>
+            <div>
+              <label htmlFor="supplierAddress" className={LABEL_CLASSES(isDarkMode)}>
+                Supplier Address
+              </label>
+              <textarea
+                id="supplierAddress"
+                rows={2}
+                value={purchaseOrder.supplierAddress}
+                onChange={(e) => handleInputChange("supplierAddress", e.target.value)}
+                placeholder="Full address"
+                className={INPUT_CLASSES(isDarkMode)}
+              />
+            </div>
+            <div>
+              <TRNInput
+                value={purchaseOrder.supplierTRN}
+                onChange={(value) => handleInputChange("supplierTRN", value)}
+                label="Supplier TRN"
+                required={true}
+              />
+            </div>
+            <div className={DIVIDER_CLASSES(isDarkMode)} />
+            {/* Buyer Section */}
+            <div
+              className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+            >
+              Buyer Details
+            </div>
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label htmlFor="supplierName" className={LABEL_CLASSES(isDarkMode)}>
-                  Supplier Name
+                <label htmlFor="buyerName" className={LABEL_CLASSES(isDarkMode)}>
+                  Buyer Name
                 </label>
                 <input
-                  id="supplierName"
+                  id="buyerName"
                   type="text"
-                  value={purchaseOrder.supplierName}
-                  onChange={(e) => handleInputChange("supplierName", e.target.value)}
-                  placeholder="Supplier company name"
+                  value={purchaseOrder.buyerName}
+                  onChange={(e) => handleInputChange("buyerName", e.target.value)}
+                  placeholder="Name of person placing order"
                   className={INPUT_CLASSES(isDarkMode)}
                 />
               </div>
               <div>
-                <label htmlFor="supplierAddress" className={LABEL_CLASSES(isDarkMode)}>
-                  Supplier Address
+                <label htmlFor="buyerDepartment" className={LABEL_CLASSES(isDarkMode)}>
+                  Department
                 </label>
-                <textarea
-                  id="supplierAddress"
-                  rows={2}
-                  value={purchaseOrder.supplierAddress}
-                  onChange={(e) => handleInputChange("supplierAddress", e.target.value)}
-                  placeholder="Full address"
+                <input
+                  id="buyerDepartment"
+                  type="text"
+                  value={purchaseOrder.buyerDepartment}
+                  onChange={(e) => handleInputChange("buyerDepartment", e.target.value)}
+                  placeholder="e.g., Procurement"
                   className={INPUT_CLASSES(isDarkMode)}
                 />
-              </div>
-              <div>
-                <TRNInput
-                  value={purchaseOrder.supplierTRN}
-                  onChange={(value) => handleInputChange("supplierTRN", value)}
-                  label="Supplier TRN"
-                  required={true}
-                />
-              </div>
-              <div className={DIVIDER_CLASSES(isDarkMode)} />
-              {/* Buyer Section */}
-              <div
-                className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
-              >
-                Buyer Details
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="buyerName" className={LABEL_CLASSES(isDarkMode)}>
-                    Buyer Name
-                  </label>
-                  <input
-                    id="buyerName"
-                    type="text"
-                    value={purchaseOrder.buyerName}
-                    onChange={(e) => handleInputChange("buyerName", e.target.value)}
-                    placeholder="Name of person placing order"
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="buyerDepartment" className={LABEL_CLASSES(isDarkMode)}>
-                    Department
-                  </label>
-                  <input
-                    id="buyerDepartment"
-                    type="text"
-                    value={purchaseOrder.buyerDepartment}
-                    onChange={(e) => handleInputChange("buyerDepartment", e.target.value)}
-                    placeholder="e.g., Procurement"
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="buyerEmail" className={LABEL_CLASSES(isDarkMode)}>
-                    Buyer Email
-                  </label>
-                  <input
-                    id="buyerEmail"
-                    type="email"
-                    value={purchaseOrder.buyerEmail}
-                    onChange={(e) => handleInputChange("buyerEmail", e.target.value)}
-                    placeholder="buyer@company.com"
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="buyerPhone" className={LABEL_CLASSES(isDarkMode)}>
-                    Buyer Phone
-                  </label>
-                  <input
-                    id="buyerPhone"
-                    type="tel"
-                    value={purchaseOrder.buyerPhone}
-                    onChange={(e) => handleInputChange("buyerPhone", e.target.value)}
-                    placeholder="+971 XX XXX XXXX"
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
               </div>
             </div>
-            <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
-              <div className="flex justify-end">
-                <button onClick={() => setBuyerDrawerOpen(false)} className={BTN_PRIMARY}>
-                  Done
-                </button>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="buyerEmail" className={LABEL_CLASSES(isDarkMode)}>
+                  Buyer Email
+                </label>
+                <input
+                  id="buyerEmail"
+                  type="email"
+                  value={purchaseOrder.buyerEmail}
+                  onChange={(e) => handleInputChange("buyerEmail", e.target.value)}
+                  placeholder="buyer@company.com"
+                  className={INPUT_CLASSES(isDarkMode)}
+                />
+              </div>
+              <div>
+                <label htmlFor="buyerPhone" className={LABEL_CLASSES(isDarkMode)}>
+                  Buyer Phone
+                </label>
+                <input
+                  id="buyerPhone"
+                  type="tel"
+                  value={purchaseOrder.buyerPhone}
+                  onChange={(e) => handleInputChange("buyerPhone", e.target.value)}
+                  placeholder="+971 XX XXX XXXX"
+                  className={INPUT_CLASSES(isDarkMode)}
+                />
               </div>
             </div>
           </div>
+          <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
+            <div className="flex justify-end">
+              <button onClick={() => setBuyerDrawerOpen(false)} className={BTN_PRIMARY}>
+                Done
+              </button>
+            </div>
+          </div>
         </div>
-      </>
+      </div>
 
       {/* Payment Drawer */}
-      <>
-        <div
-          className={`${DRAWER_OVERLAY} ${paymentDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-          onClick={() => setPaymentDrawerOpen(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setPaymentDrawerOpen(false);
-          }}
-          role="button"
-          tabIndex={-1}
-          aria-label="Close payment drawer"
-        />
-        <div className={`${DRAWER_PANEL(isDarkMode)} ${paymentDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
-          <div className="p-4">
-            <div className={DRAWER_HEADER(isDarkMode)}>
-              <div>
-                <div className="text-sm font-extrabold">Payment Details</div>
-                <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
-                  Payment terms, history, and status
-                </div>
-              </div>
-              <button onClick={() => setPaymentDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
-                <X size={16} />
-              </button>
-            </div>
-            <div className="mt-4 space-y-4">
-              {/* Payment Terms */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <FormSelect
-                    label="Payment Terms"
-                    value={purchaseOrder.paymentTerms}
-                    onValueChange={(value) => handleInputChange("paymentTerms", value)}
-                  >
-                    <SelectItem value="Net 7">Net 7 days</SelectItem>
-                    <SelectItem value="Net 15">Net 15 days</SelectItem>
-                    <SelectItem value="Net 30">Net 30 days</SelectItem>
-                    <SelectItem value="Net 60">Net 60 days</SelectItem>
-                    <SelectItem value="Net 90">Net 90 days</SelectItem>
-                    <SelectItem value="Due on Receipt">Due on Receipt</SelectItem>
-                    <SelectItem value="Advance Payment">Advance Payment</SelectItem>
-                    <SelectItem value="50% Advance, 50% on Delivery">50% Advance, 50% on Delivery</SelectItem>
-                    <SelectItem value="Custom">Custom Terms</SelectItem>
-                  </FormSelect>
-                </div>
-                <div>
-                  <label htmlFor="dueDate" className={LABEL_CLASSES(isDarkMode)}>
-                    Due Date
-                  </label>
-                  <input
-                    id="dueDate"
-                    type="date"
-                    value={purchaseOrder.dueDate}
-                    onChange={(e) => handleInputChange("dueDate", e.target.value)}
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
-              </div>
-              {/* Payment Summary */}
-              <div className="grid grid-cols-3 gap-2.5">
-                <div
-                  className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
-                >
-                  <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Total</div>
-                  <div className="text-sm font-extrabold mt-1 font-mono">{formatCurrency(purchaseOrder.total)}</div>
-                </div>
-                <div
-                  className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
-                >
-                  <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Paid</div>
-                  <div className="text-sm font-extrabold mt-1 font-mono text-green-500">
-                    {formatCurrency(
-                      payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
-                    )}
-                  </div>
-                </div>
-                <div
-                  className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
-                >
-                  <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Outstanding</div>
-                  <div className="text-sm font-extrabold mt-1 font-mono text-red-400">
-                    {formatCurrency(
-                      Math.max(
-                        0,
-                        purchaseOrder.total -
-                          payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
-                      )
-                    )}
-                  </div>
-                </div>
-              </div>
-              {/* Add Payment Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  setPaymentDrawerOpen(false);
-                  setShowPaymentForm(true);
-                }}
-                className={`w-full ${BTN_PRIMARY}`}
-              >
-                <Plus size={16} className="inline mr-1" />
-                Add Payment
-              </button>
-              {/* Payment History */}
-              {payments.length > 0 && (
-                <>
-                  <div
-                    className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
-                  >
-                    Payment History
-                  </div>
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {payments.map((payment) => (
-                      <div
-                        key={payment.id}
-                        className={`p-3 rounded-[14px] border flex justify-between items-center ${
-                          payment.voided
-                            ? `opacity-60 ${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-100 border-gray-300"}`
-                            : isDarkMode
-                              ? "bg-[#0f151b] border-[#2a3640]"
-                              : "bg-gray-50 border-gray-200"
-                        }`}
-                      >
-                        <div>
-                          <div className={`font-medium text-sm ${payment.voided ? "line-through" : ""}`}>
-                            {formatCurrency(payment.amount)}
-                            {payment.voided && <span className="text-red-500 ml-2 text-xs">(VOIDED)</span>}
-                          </div>
-                          <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}>
-                            {payment.paymentMethod} - {payment.paymentDate}
-                            {payment.referenceNumber && ` | Ref: ${payment.referenceNumber}`}
-                          </div>
-                        </div>
-                        {!payment.voided && (
-                          <button
-                            onClick={() => handleVoidPayment(payment.id)}
-                            className="text-red-400 hover:text-red-300 text-xs"
-                          >
-                            Void
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-            <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
-              <div className="flex justify-end">
-                <button onClick={() => setPaymentDrawerOpen(false)} className={BTN_PRIMARY}>
-                  Done
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </>
 
-      {/* Approval Workflow Drawer */}
-      <>
-        <div
-          className={`${DRAWER_OVERLAY} ${approvalDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-          onClick={() => setApprovalDrawerOpen(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setApprovalDrawerOpen(false);
-          }}
-          role="button"
-          tabIndex={-1}
-          aria-label="Close approval drawer"
-        />
-        <div className={`${DRAWER_PANEL(isDarkMode)} ${approvalDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
-          <div className="p-4">
-            <div className={DRAWER_HEADER(isDarkMode)}>
-              <div>
-                <div className="text-sm font-extrabold">Approval Workflow</div>
-                <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
-                  Manage approval status and comments
-                </div>
+      <div
+        className={`${DRAWER_OVERLAY} ${paymentDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={() => setPaymentDrawerOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setPaymentDrawerOpen(false);
+        }}
+        role="button"
+        tabIndex={-1}
+        aria-label="Close payment drawer"
+      />
+      <div className={`${DRAWER_PANEL(isDarkMode)} ${paymentDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="p-4">
+          <div className={DRAWER_HEADER(isDarkMode)}>
+            <div>
+              <div className="text-sm font-extrabold">Payment Details</div>
+              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                Payment terms, history, and status
               </div>
-              <button onClick={() => setApprovalDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
-                <X size={16} />
-              </button>
             </div>
-            <div className="mt-4 space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <FormSelect
-                    label="Approval Status"
-                    value={purchaseOrder.approvalStatus}
-                    onValueChange={(value) => handleInputChange("approvalStatus", value)}
-                  >
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                  </FormSelect>
-                </div>
-                <div>
-                  <label htmlFor="approvedBy" className={LABEL_CLASSES(isDarkMode)}>
-                    Approved By
-                  </label>
-                  <input
-                    id="approvedBy"
-                    type="text"
-                    value={purchaseOrder.approvedBy}
-                    onChange={(e) => handleInputChange("approvedBy", e.target.value)}
-                    placeholder="Name of approver"
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
+            <button onClick={() => setPaymentDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
+              <X size={16} />
+            </button>
+          </div>
+          <div className="mt-4 space-y-4">
+            {/* Payment Terms */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <FormSelect
+                  label="Payment Terms"
+                  value={purchaseOrder.paymentTerms}
+                  onValueChange={(value) => handleInputChange("paymentTerms", value)}
+                >
+                  <SelectItem value="Net 7">Net 7 days</SelectItem>
+                  <SelectItem value="Net 15">Net 15 days</SelectItem>
+                  <SelectItem value="Net 30">Net 30 days</SelectItem>
+                  <SelectItem value="Net 60">Net 60 days</SelectItem>
+                  <SelectItem value="Net 90">Net 90 days</SelectItem>
+                  <SelectItem value="Due on Receipt">Due on Receipt</SelectItem>
+                  <SelectItem value="Advance Payment">Advance Payment</SelectItem>
+                  <SelectItem value="50% Advance, 50% on Delivery">50% Advance, 50% on Delivery</SelectItem>
+                  <SelectItem value="Custom">Custom Terms</SelectItem>
+                </FormSelect>
               </div>
               <div>
-                <label htmlFor="approvalDate" className={LABEL_CLASSES(isDarkMode)}>
-                  Approval Date
+                <label htmlFor="dueDate" className={LABEL_CLASSES(isDarkMode)}>
+                  Due Date
                 </label>
                 <input
-                  id="approvalDate"
+                  id="dueDate"
                   type="date"
-                  value={purchaseOrder.approvalDate}
-                  onChange={(e) => handleInputChange("approvalDate", e.target.value)}
+                  value={purchaseOrder.dueDate}
+                  onChange={(e) => handleInputChange("dueDate", e.target.value)}
                   className={INPUT_CLASSES(isDarkMode)}
                 />
               </div>
-              <div>
-                <label htmlFor="approvalComments" className={LABEL_CLASSES(isDarkMode)}>
-                  Approval Comments
-                </label>
-                <textarea
-                  id="approvalComments"
-                  rows={4}
-                  value={purchaseOrder.approvalComments}
-                  onChange={(e) => handleInputChange("approvalComments", e.target.value)}
-                  placeholder="Comments from approver..."
-                  className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`}
-                />
+            </div>
+            {/* Payment Summary */}
+            <div className="grid grid-cols-3 gap-2.5">
+              <div
+                className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
+              >
+                <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Total</div>
+                <div className="text-sm font-extrabold mt-1 font-mono">{formatCurrency(purchaseOrder.total)}</div>
+              </div>
+              <div
+                className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
+              >
+                <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Paid</div>
+                <div className="text-sm font-extrabold mt-1 font-mono text-green-500">
+                  {formatCurrency(
+                    payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
+                  )}
+                </div>
+              </div>
+              <div
+                className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
+              >
+                <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Outstanding</div>
+                <div className="text-sm font-extrabold mt-1 font-mono text-red-400">
+                  {formatCurrency(
+                    Math.max(
+                      0,
+                      purchaseOrder.total -
+                        payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
+                    )
+                  )}
+                </div>
               </div>
             </div>
-            <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
-              <div className="flex justify-end">
-                <button onClick={() => setApprovalDrawerOpen(false)} className={BTN_PRIMARY}>
-                  Done
-                </button>
-              </div>
+            {/* Add Payment Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setPaymentDrawerOpen(false);
+                setShowPaymentForm(true);
+              }}
+              className={`w-full ${BTN_PRIMARY}`}
+            >
+              <Plus size={16} className="inline mr-1" />
+              Add Payment
+            </button>
+            {/* Payment History */}
+            {payments.length > 0 && (
+              <>
+                <div
+                  className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                >
+                  Payment History
+                </div>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {payments.map((payment) => (
+                    <div
+                      key={payment.id}
+                      className={`p-3 rounded-[14px] border flex justify-between items-center ${
+                        payment.voided
+                          ? `opacity-60 ${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-100 border-gray-300"}`
+                          : isDarkMode
+                            ? "bg-[#0f151b] border-[#2a3640]"
+                            : "bg-gray-50 border-gray-200"
+                      }`}
+                    >
+                      <div>
+                        <div className={`font-medium text-sm ${payment.voided ? "line-through" : ""}`}>
+                          {formatCurrency(payment.amount)}
+                          {payment.voided && <span className="text-red-500 ml-2 text-xs">(VOIDED)</span>}
+                        </div>
+                        <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}>
+                          {payment.paymentMethod} - {payment.paymentDate}
+                          {payment.referenceNumber && ` | Ref: ${payment.referenceNumber}`}
+                        </div>
+                      </div>
+                      {!payment.voided && (
+                        <button
+                          onClick={() => handleVoidPayment(payment.id)}
+                          className="text-red-400 hover:text-red-300 text-xs"
+                        >
+                          Void
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+          <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
+            <div className="flex justify-end">
+              <button onClick={() => setPaymentDrawerOpen(false)} className={BTN_PRIMARY}>
+                Done
+              </button>
             </div>
           </div>
         </div>
-      </>
+      </div>
+
+      {/* Approval Workflow Drawer */}
+
+      <div
+        className={`${DRAWER_OVERLAY} ${approvalDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={() => setApprovalDrawerOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setApprovalDrawerOpen(false);
+        }}
+        role="button"
+        tabIndex={-1}
+        aria-label="Close approval drawer"
+      />
+      <div className={`${DRAWER_PANEL(isDarkMode)} ${approvalDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="p-4">
+          <div className={DRAWER_HEADER(isDarkMode)}>
+            <div>
+              <div className="text-sm font-extrabold">Approval Workflow</div>
+              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                Manage approval status and comments
+              </div>
+            </div>
+            <button onClick={() => setApprovalDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
+              <X size={16} />
+            </button>
+          </div>
+          <div className="mt-4 space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <FormSelect
+                  label="Approval Status"
+                  value={purchaseOrder.approvalStatus}
+                  onValueChange={(value) => handleInputChange("approvalStatus", value)}
+                >
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </FormSelect>
+              </div>
+              <div>
+                <label htmlFor="approvedBy" className={LABEL_CLASSES(isDarkMode)}>
+                  Approved By
+                </label>
+                <input
+                  id="approvedBy"
+                  type="text"
+                  value={purchaseOrder.approvedBy}
+                  onChange={(e) => handleInputChange("approvedBy", e.target.value)}
+                  placeholder="Name of approver"
+                  className={INPUT_CLASSES(isDarkMode)}
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="approvalDate" className={LABEL_CLASSES(isDarkMode)}>
+                Approval Date
+              </label>
+              <input
+                id="approvalDate"
+                type="date"
+                value={purchaseOrder.approvalDate}
+                onChange={(e) => handleInputChange("approvalDate", e.target.value)}
+                className={INPUT_CLASSES(isDarkMode)}
+              />
+            </div>
+            <div>
+              <label htmlFor="approvalComments" className={LABEL_CLASSES(isDarkMode)}>
+                Approval Comments
+              </label>
+              <textarea
+                id="approvalComments"
+                rows={4}
+                value={purchaseOrder.approvalComments}
+                onChange={(e) => handleInputChange("approvalComments", e.target.value)}
+                placeholder="Comments from approver..."
+                className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`}
+              />
+            </div>
+          </div>
+          <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
+            <div className="flex justify-end">
+              <button onClick={() => setApprovalDrawerOpen(false)} className={BTN_PRIMARY}>
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* ==================== MODALS ==================== */}
 

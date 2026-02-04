@@ -121,7 +121,7 @@ export const safeGet = (obj, path, defaultValue = undefined) => {
       // Handle array indices (e.g., 'items.0.name')
       if (Array.isArray(result)) {
         const index = parseInt(key, 10);
-        if (isNaN(index) || index < 0 || index >= result.length) {
+        if (Number.isNaN(index) || index < 0 || index >= result.length) {
           return defaultValue;
         }
         result = result[index];
@@ -173,7 +173,7 @@ export const safeNumber = (val, defaultValue = 0) => {
 
   const num = Number(val);
 
-  if (isNaN(num) || !isFinite(num)) {
+  if (Number.isNaN(num) || !Number.isFinite(num)) {
     return defaultValue;
   }
 

@@ -96,7 +96,7 @@ describe("Stock Management Feature", () => {
             <input
               type="number"
               value={transferQty}
-              onChange={(e) => setTransferQty(parseInt(e.target.value))}
+              onChange={(e) => setTransferQty(parseInt(e.target.value, 10))}
               placeholder="Quantity to Transfer"
             />
             <button onClick={handleTransfer}>Transfer</button>
@@ -188,7 +188,7 @@ describe("Stock Management Feature", () => {
 
     it("should use FIFO for batch allocation on stock out", async () => {
       const MockBatchFIFO = () => {
-        const [batches, setBatches] = React.useState([
+        const [batches, _setBatches] = React.useState([
           { batchNo: "B-001", qty: 50, sequence: 1 },
           { batchNo: "B-002", qty: 40, sequence: 2 },
           { batchNo: "B-003", qty: 30, sequence: 3 },
@@ -233,7 +233,7 @@ describe("Stock Management Feature", () => {
   describe("Stock Variance & Adjustments", () => {
     it("should record and explain stock variances", async () => {
       const MockVariance = () => {
-        const [variance, setVariance] = React.useState({
+        const [variance, _setVariance] = React.useState({
           expected: 100,
           actual: 95,
           difference: 5,
@@ -274,7 +274,7 @@ describe("Stock Management Feature", () => {
             <input
               type="number"
               value={writeOffQty}
-              onChange={(e) => setWriteOffQty(parseInt(e.target.value))}
+              onChange={(e) => setWriteOffQty(parseInt(e.target.value, 10))}
               placeholder="Write-off Quantity"
             />
             <button onClick={handleWriteOff}>Write Off</button>

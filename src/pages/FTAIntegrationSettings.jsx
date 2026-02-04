@@ -266,7 +266,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
     if (showAuditLog) {
       loadAuditLog();
     }
-  }, [showAuditLog]);
+  }, [showAuditLog, loadAuditLog]);
 
   // Format date
   const formatDate = (dateString) => {

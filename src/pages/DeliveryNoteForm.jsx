@@ -189,12 +189,12 @@ const DeliveryNoteForm = () => {
       generateDeliveryNoteNumber();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, isEdit]);
+  }, [isEdit, generateDeliveryNoteNumber, loadDeliveryNote]);
 
   // Load invoices for selection
   useEffect(() => {
     loadInvoices();
-  }, []); // Intentionally run once on mount
+  }, [loadInvoices]); // Intentionally run once on mount
 
   // Auto-select invoice if pre-selected
   useEffect(() => {
@@ -750,7 +750,7 @@ const DeliveryNoteForm = () => {
               </div>
 
               {/* Delivery Variance Display (if applicable) */}
-              {selectedInvoice && selectedInvoice.expectedDeliveryDate && (
+              {selectedInvoice?.expectedDeliveryDate && (
                 <div
                   className={`mt-3 p-3 rounded-[14px] ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-blue-50 border border-blue-200"}`}
                 >
@@ -1184,283 +1184,280 @@ const DeliveryNoteForm = () => {
       </div>
 
       {/* ==================== DELIVERY ADDRESS DRAWER ==================== */}
-      <>
-        <div
-          className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${showDeliveryAddressDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-          onClick={() => setShowDeliveryAddressDrawer(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              setShowDeliveryAddressDrawer(false);
-            }
-          }}
-          role="button"
-          tabIndex={0}
-          aria-label="Close delivery address drawer"
-        />
-        <div
-          className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showDeliveryAddressDrawer ? "translate-x-0" : "translate-x-full"}`}
-          data-testid="delivery-address-drawer"
-        >
-          <div className="p-4">
-            {/* Drawer Header */}
-            <div
-              className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"} z-[1]`}
-            >
-              <div>
-                <div className="text-sm font-extrabold">Delivery Address</div>
-                <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
-                  Where should goods be delivered?
-                </div>
-              </div>
-              <button
-                onClick={() => setShowDeliveryAddressDrawer(false)}
-                className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
-              >
-                <X size={18} />
-              </button>
-            </div>
 
-            {/* Drawer Content */}
-            <div className="space-y-3">
-              <div>
-                <label htmlFor="delivery-street" className={LABEL_CLASSES(isDarkMode)}>
-                  Street Address
-                </label>
-                <input
-                  id="delivery-street"
-                  data-testid="delivery-street"
-                  type="text"
-                  value={formData.deliveryAddress.street}
-                  onChange={(e) => handleInputChange("deliveryAddress.street", e.target.value)}
-                  placeholder="Enter street address"
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="delivery-city" className={LABEL_CLASSES(isDarkMode)}>
-                    City
-                  </label>
-                  <input
-                    id="delivery-city"
-                    data-testid="delivery-city"
-                    type="text"
-                    value={formData.deliveryAddress.city}
-                    onChange={(e) => handleInputChange("deliveryAddress.city", e.target.value)}
-                    placeholder="Enter city"
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="delivery-pobox" className={LABEL_CLASSES(isDarkMode)}>
-                    PO Box
-                  </label>
-                  <input
-                    id="delivery-pobox"
-                    type="text"
-                    value={formData.deliveryAddress.poBox}
-                    onChange={(e) => handleInputChange("deliveryAddress.poBox", e.target.value)}
-                    placeholder="Enter PO Box"
-                    className={INPUT_CLASSES(isDarkMode)}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Drawer Footer */}
-            <div
-              className="sticky bottom-0 pt-4 mt-4"
-              style={{
-                background: isDarkMode
-                  ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
-                  : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
-              }}
-            >
-              <div className="flex justify-end gap-2">
-                <button onClick={() => setShowDeliveryAddressDrawer(false)} className={BTN_CLASSES(isDarkMode)}>
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </>
-
-      {/* ==================== TRANSPORT DETAILS DRAWER ==================== */}
-      <>
-        <div
-          className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${showTransportDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-          onClick={() => setShowTransportDrawer(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              setShowTransportDrawer(false);
-            }
-          }}
-          role="button"
-          tabIndex={0}
-          aria-label="Close transport details drawer"
-        />
-        <div
-          className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showTransportDrawer ? "translate-x-0" : "translate-x-full"}`}
-          data-testid="transport-drawer"
-        >
-          <div className="p-4">
-            {/* Drawer Header */}
-            <div
-              className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"} z-[1]`}
-            >
-              <div>
-                <div className="text-sm font-extrabold">Transport Details</div>
-                <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
-                  Vehicle and driver information
-                </div>
-              </div>
-              <button
-                onClick={() => setShowTransportDrawer(false)}
-                className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Drawer Content */}
-            <div className="space-y-3">
-              <div>
-                <label htmlFor="vehicle-number" className={LABEL_CLASSES(isDarkMode)}>
-                  Vehicle Number <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="vehicle-number"
-                  data-testid="vehicle-number"
-                  type="text"
-                  value={formData.vehicleNumber}
-                  onChange={(e) => handleInputChange("vehicleNumber", e.target.value)}
-                  placeholder="e.g., MH-01-AB-1234"
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
-              </div>
-              <div>
-                <label htmlFor="driver-name" className={LABEL_CLASSES(isDarkMode)}>
-                  Driver Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="driver-name"
-                  data-testid="driver-name"
-                  type="text"
-                  value={formData.driverName}
-                  onChange={(e) => handleInputChange("driverName", e.target.value)}
-                  placeholder="Enter driver name"
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
-              </div>
-              <div>
-                <label htmlFor="driver-phone" className={LABEL_CLASSES(isDarkMode)}>
-                  Driver Phone
-                </label>
-                <input
-                  id="driver-phone"
-                  type="tel"
-                  value={formData.driverPhone}
-                  onChange={(e) => handleInputChange("driverPhone", e.target.value)}
-                  placeholder="e.g., +971 50 123 4567"
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
-              </div>
-            </div>
-
-            {/* Drawer Footer */}
-            <div
-              className="sticky bottom-0 pt-4 mt-4"
-              style={{
-                background: isDarkMode
-                  ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
-                  : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
-              }}
-            >
-              <div className="flex justify-end gap-2">
-                <button onClick={() => setShowTransportDrawer(false)} className={BTN_CLASSES(isDarkMode)}>
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </>
-
-      {/* ==================== NOTES DRAWER ==================== */}
-      <>
-        <div
-          className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${showNotesDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-          onClick={() => setShowNotesDrawer(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              setShowNotesDrawer(false);
-            }
-          }}
-          role="button"
-          tabIndex={0}
-          aria-label="Close notes drawer"
-        />
-        <div
-          className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showNotesDrawer ? "translate-x-0" : "translate-x-full"}`}
-          data-testid="notes-drawer"
-        >
-          <div className="p-4">
-            {/* Drawer Header */}
-            <div
-              className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"} z-[1]`}
-            >
-              <div>
-                <div className="text-sm font-extrabold">Notes</div>
-                <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
-                  Special instructions and handling notes
-                </div>
-              </div>
-              <button
-                onClick={() => setShowNotesDrawer(false)}
-                className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Drawer Content */}
+      <div
+        className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${showDeliveryAddressDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={() => setShowDeliveryAddressDrawer(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setShowDeliveryAddressDrawer(false);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Close delivery address drawer"
+      />
+      <div
+        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showDeliveryAddressDrawer ? "translate-x-0" : "translate-x-full"}`}
+        data-testid="delivery-address-drawer"
+      >
+        <div className="p-4">
+          {/* Drawer Header */}
+          <div
+            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"} z-[1]`}
+          >
             <div>
-              <label htmlFor="delivery-notes" className={LABEL_CLASSES(isDarkMode)}>
-                Delivery Notes
+              <div className="text-sm font-extrabold">Delivery Address</div>
+              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                Where should goods be delivered?
+              </div>
+            </div>
+            <button
+              onClick={() => setShowDeliveryAddressDrawer(false)}
+              className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Drawer Content */}
+          <div className="space-y-3">
+            <div>
+              <label htmlFor="delivery-street" className={LABEL_CLASSES(isDarkMode)}>
+                Street Address
               </label>
-              <textarea
-                id="delivery-notes"
-                data-testid="delivery-notes"
-                rows={6}
-                value={formData.notes}
-                onChange={(e) => handleInputChange("notes", e.target.value)}
-                placeholder="Special instructions, handling notes, etc."
-                className={`${INPUT_CLASSES(isDarkMode)} min-h-[150px] resize-y`}
+              <input
+                id="delivery-street"
+                data-testid="delivery-street"
+                type="text"
+                value={formData.deliveryAddress.street}
+                onChange={(e) => handleInputChange("deliveryAddress.street", e.target.value)}
+                placeholder="Enter street address"
+                className={INPUT_CLASSES(isDarkMode)}
               />
             </div>
-
-            {/* Drawer Footer */}
-            <div
-              className="sticky bottom-0 pt-4 mt-4"
-              style={{
-                background: isDarkMode
-                  ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
-                  : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
-              }}
-            >
-              <div className="flex justify-end gap-2">
-                <button onClick={() => setShowNotesDrawer(false)} className={BTN_CLASSES(isDarkMode)}>
-                  Close
-                </button>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="delivery-city" className={LABEL_CLASSES(isDarkMode)}>
+                  City
+                </label>
+                <input
+                  id="delivery-city"
+                  data-testid="delivery-city"
+                  type="text"
+                  value={formData.deliveryAddress.city}
+                  onChange={(e) => handleInputChange("deliveryAddress.city", e.target.value)}
+                  placeholder="Enter city"
+                  className={INPUT_CLASSES(isDarkMode)}
+                />
+              </div>
+              <div>
+                <label htmlFor="delivery-pobox" className={LABEL_CLASSES(isDarkMode)}>
+                  PO Box
+                </label>
+                <input
+                  id="delivery-pobox"
+                  type="text"
+                  value={formData.deliveryAddress.poBox}
+                  onChange={(e) => handleInputChange("deliveryAddress.poBox", e.target.value)}
+                  placeholder="Enter PO Box"
+                  className={INPUT_CLASSES(isDarkMode)}
+                />
               </div>
             </div>
           </div>
+
+          {/* Drawer Footer */}
+          <div
+            className="sticky bottom-0 pt-4 mt-4"
+            style={{
+              background: isDarkMode
+                ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
+                : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
+            }}
+          >
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setShowDeliveryAddressDrawer(false)} className={BTN_CLASSES(isDarkMode)}>
+                Close
+              </button>
+            </div>
+          </div>
         </div>
-      </>
+      </div>
+
+      {/* ==================== TRANSPORT DETAILS DRAWER ==================== */}
+
+      <div
+        className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${showTransportDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={() => setShowTransportDrawer(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setShowTransportDrawer(false);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Close transport details drawer"
+      />
+      <div
+        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showTransportDrawer ? "translate-x-0" : "translate-x-full"}`}
+        data-testid="transport-drawer"
+      >
+        <div className="p-4">
+          {/* Drawer Header */}
+          <div
+            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"} z-[1]`}
+          >
+            <div>
+              <div className="text-sm font-extrabold">Transport Details</div>
+              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                Vehicle and driver information
+              </div>
+            </div>
+            <button
+              onClick={() => setShowTransportDrawer(false)}
+              className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Drawer Content */}
+          <div className="space-y-3">
+            <div>
+              <label htmlFor="vehicle-number" className={LABEL_CLASSES(isDarkMode)}>
+                Vehicle Number <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="vehicle-number"
+                data-testid="vehicle-number"
+                type="text"
+                value={formData.vehicleNumber}
+                onChange={(e) => handleInputChange("vehicleNumber", e.target.value)}
+                placeholder="e.g., MH-01-AB-1234"
+                className={INPUT_CLASSES(isDarkMode)}
+              />
+            </div>
+            <div>
+              <label htmlFor="driver-name" className={LABEL_CLASSES(isDarkMode)}>
+                Driver Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="driver-name"
+                data-testid="driver-name"
+                type="text"
+                value={formData.driverName}
+                onChange={(e) => handleInputChange("driverName", e.target.value)}
+                placeholder="Enter driver name"
+                className={INPUT_CLASSES(isDarkMode)}
+              />
+            </div>
+            <div>
+              <label htmlFor="driver-phone" className={LABEL_CLASSES(isDarkMode)}>
+                Driver Phone
+              </label>
+              <input
+                id="driver-phone"
+                type="tel"
+                value={formData.driverPhone}
+                onChange={(e) => handleInputChange("driverPhone", e.target.value)}
+                placeholder="e.g., +971 50 123 4567"
+                className={INPUT_CLASSES(isDarkMode)}
+              />
+            </div>
+          </div>
+
+          {/* Drawer Footer */}
+          <div
+            className="sticky bottom-0 pt-4 mt-4"
+            style={{
+              background: isDarkMode
+                ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
+                : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
+            }}
+          >
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setShowTransportDrawer(false)} className={BTN_CLASSES(isDarkMode)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ==================== NOTES DRAWER ==================== */}
+
+      <div
+        className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${showNotesDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={() => setShowNotesDrawer(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setShowNotesDrawer(false);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Close notes drawer"
+      />
+      <div
+        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showNotesDrawer ? "translate-x-0" : "translate-x-full"}`}
+        data-testid="notes-drawer"
+      >
+        <div className="p-4">
+          {/* Drawer Header */}
+          <div
+            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"} z-[1]`}
+          >
+            <div>
+              <div className="text-sm font-extrabold">Notes</div>
+              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                Special instructions and handling notes
+              </div>
+            </div>
+            <button
+              onClick={() => setShowNotesDrawer(false)}
+              className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Drawer Content */}
+          <div>
+            <label htmlFor="delivery-notes" className={LABEL_CLASSES(isDarkMode)}>
+              Delivery Notes
+            </label>
+            <textarea
+              id="delivery-notes"
+              data-testid="delivery-notes"
+              rows={6}
+              value={formData.notes}
+              onChange={(e) => handleInputChange("notes", e.target.value)}
+              placeholder="Special instructions, handling notes, etc."
+              className={`${INPUT_CLASSES(isDarkMode)} min-h-[150px] resize-y`}
+            />
+          </div>
+
+          {/* Drawer Footer */}
+          <div
+            className="sticky bottom-0 pt-4 mt-4"
+            style={{
+              background: isDarkMode
+                ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
+                : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
+            }}
+          >
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setShowNotesDrawer(false)} className={BTN_CLASSES(isDarkMode)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* ==================== INVOICE SELECTION MODAL ==================== */}
       {showInvoiceDialog && (

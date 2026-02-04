@@ -107,14 +107,14 @@ const VATReturnReport = () => {
   useEffect(() => {
     loadPeriods();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadPeriods]);
 
   // Load data when period changes
   useEffect(() => {
     if (periodId) {
       loadVATReturnData(periodId);
     }
-  }, [periodId]); // loadVATReturnData is stable within component lifecycle
+  }, [periodId, loadVATReturnData]); // loadVATReturnData is stable within component lifecycle
 
   const loadPeriods = async () => {
     try {

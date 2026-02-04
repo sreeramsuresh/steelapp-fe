@@ -68,7 +68,7 @@ export function useReservations({ draftInvoiceId, productId, warehouseId, lineIt
     setExpiresAt(null);
     setAllocations([]);
     setError(null);
-  }, [productId, warehouseId]);
+  }, []);
 
   /**
    * Process reservation response and update state
@@ -83,7 +83,7 @@ export function useReservations({ draftInvoiceId, productId, warehouseId, lineIt
       setError(null);
 
       // Check for partial allocation warning
-      if (response.message && response.message.includes("partial")) {
+      if (response.message?.includes("partial")) {
         setError(response.message);
       }
     } else {

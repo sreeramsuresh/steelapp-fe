@@ -305,7 +305,7 @@ export default function CustomerDetail() {
                 </div>
               }
             >
-              <CustomerARAgingDetail customerId={parseInt(customerId)} />
+              <CustomerARAgingDetail customerId={parseInt(customerId, 10)} />
             </Suspense>
           )}
           {activeTab === "invoices" && (
@@ -319,7 +319,7 @@ export default function CustomerDetail() {
                 </div>
               }
             >
-              <CustomerInvoicesTab customerId={parseInt(customerId)} />
+              <CustomerInvoicesTab customerId={parseInt(customerId, 10)} />
             </Suspense>
           )}
           {activeTab === "payments" && (
@@ -333,7 +333,7 @@ export default function CustomerDetail() {
                 </div>
               }
             >
-              <CustomerPaymentsTab customerId={parseInt(customerId)} />
+              <CustomerPaymentsTab customerId={parseInt(customerId, 10)} />
             </Suspense>
           )}
           {activeTab === "credit-notes" && (
@@ -347,7 +347,7 @@ export default function CustomerDetail() {
                 </div>
               }
             >
-              <CustomerCreditNotesTab customerId={parseInt(customerId)} />
+              <CustomerCreditNotesTab customerId={parseInt(customerId, 10)} />
             </Suspense>
           )}
           {activeTab === "activity" && (
@@ -361,7 +361,7 @@ export default function CustomerDetail() {
                 </div>
               }
             >
-              <CustomerActivityTab customerId={parseInt(customerId)} />
+              <CustomerActivityTab customerId={parseInt(customerId, 10)} />
             </Suspense>
           )}
         </Suspense>

@@ -38,7 +38,7 @@ const StockMovement = () => {
 
   useEffect(() => {
     fetchMovements();
-  }, []);
+  }, [fetchMovements]);
 
   const fetchMovements = async () => {
     try {

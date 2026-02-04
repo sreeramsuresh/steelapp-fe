@@ -438,7 +438,7 @@ const CreditNoteForm = () => {
   }, []);
 
   const { deleteDraft, checkConflict, clearPendingSave } = useCreditNoteDrafts({
-    currentInvoiceId: currentInvoiceId ? parseInt(currentInvoiceId) : null,
+    currentInvoiceId: currentInvoiceId ? parseInt(currentInvoiceId, 10) : null,
     onConflict: handleDraftConflict,
   });
 
@@ -466,7 +466,7 @@ const CreditNoteForm = () => {
       const invoiceIdParam = searchParams.get("invoiceId");
       if (invoiceIdParam) {
         // Check for existing draft conflict before loading invoice
-        const conflict = checkConflict(parseInt(invoiceIdParam));
+        const conflict = checkConflict(parseInt(invoiceIdParam, 10));
         if (conflict.type) {
           handleDraftConflict(conflict);
         } else {
@@ -475,7 +475,15 @@ const CreditNoteForm = () => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]); // loadCreditNote is stable
+  }, [
+    id,
+    checkConflict,
+    handleDraftConflict,
+    loadCreditNote,
+    loadInvoiceForCreditNote,
+    loadNextCreditNoteNumber,
+    searchParams,
+  ]); // loadCreditNote is stable
 
   // AUTO-SAVE REMOVED - User only wants explicit "Save Draft" button
 
@@ -548,7 +556,7 @@ const CreditNoteForm = () => {
 
       notificationService.info("Draft discarded");
     },
-    [deleteDraft, searchParams]
+    [deleteDraft, searchParams, loadInvoiceForCreditNote]
   );
 
   const handleStartFresh = useCallback(() => {
@@ -560,7 +568,7 @@ const CreditNoteForm = () => {
     if (invoiceIdParam) {
       loadInvoiceForCreditNote(invoiceIdParam);
     }
-  }, [searchParams]);
+  }, [searchParams, loadInvoiceForCreditNote]);
 
   const loadNextCreditNoteNumber = async () => {
     try {
@@ -626,13 +634,13 @@ const CreditNoteForm = () => {
     // Date filter
     if (dateFilter !== "all") {
       const daysAgo = new Date();
-      daysAgo.setDate(daysAgo.getDate() - parseInt(dateFilter));
+      daysAgo.setDate(daysAgo.getDate() - parseInt(dateFilter, 10));
       results = results.filter((inv) => new Date(inv.invoiceDate) >= daysAgo);
     }
 
     // Amount filter
     if (amountFilter !== "all") {
-      results = results.filter((inv) => inv.total >= parseInt(amountFilter));
+      results = results.filter((inv) => inv.total >= parseInt(amountFilter, 10));
     }
 
     return results;

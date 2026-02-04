@@ -291,7 +291,7 @@ describe("advancePaymentService", () => {
         vat_amount: 500,
       });
 
-      const result = await advancePaymentService.create(paymentData);
+      const _result = await advancePaymentService.create(paymentData);
 
       expect(apiClient.post).toHaveBeenCalled();
     });

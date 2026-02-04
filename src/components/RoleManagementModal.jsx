@@ -42,7 +42,7 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
     if (open) {
       loadRoles();
     }
-  }, [open]);
+  }, [open, loadRoles]);
 
   const loadRoles = async () => {
     try {

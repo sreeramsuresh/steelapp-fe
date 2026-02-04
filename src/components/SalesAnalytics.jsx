@@ -112,8 +112,8 @@ const SalesAnalytics = () => {
           .map((row) => ({
             month: format(new Date(row.period), "MMM yyyy"),
             revenue: safeNum(row.revenue),
-            orders: parseInt(row.invoiceCount || 0),
-            customers: parseInt(row.uniqueCustomers || 0),
+            orders: parseInt(row.invoiceCount || 0, 10),
+            customers: parseInt(row.uniqueCustomers || 0, 10),
           }))
       : [];
 
@@ -145,15 +145,15 @@ const SalesAnalytics = () => {
               return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
             })();
             const ordGrowth = (() => {
-              const c = parseInt(p.timesSold || 0);
-              const pr = parseInt(prevProduct.timesSold || 0);
+              const c = parseInt(p.timesSold || 0, 10);
+              const pr = parseInt(prevProduct.timesSold || 0, 10);
               return pr !== 0 ? ((c - pr) / pr) * 100 : 0;
             })();
             return {
               id: p.id,
               product: p.name,
               revenue: safeNum(p.totalRevenue),
-              orders: parseInt(p.timesSold || 0),
+              orders: parseInt(p.timesSold || 0, 10),
               quantity: safeNum(p.totalSold),
               category: p.category,
               revenueGrowth: revGrowth,
@@ -161,7 +161,7 @@ const SalesAnalytics = () => {
               ordersGrowth: ordGrowth,
               prevRevenue: safeNum(prev.totalRevenue),
               prevQuantity: safeNum(prev.totalSold),
-              prevOrders: parseInt(prev.timesSold || 0),
+              prevOrders: parseInt(prev.timesSold || 0, 10),
             };
           })
       : [];
@@ -175,7 +175,7 @@ const SalesAnalytics = () => {
           categoryPerf[key] = { revenue: 0, orders: 0, avgOrderValue: 0 };
         }
         categoryPerf[key].revenue += safeNum(p.totalRevenue);
-        categoryPerf[key].orders += parseInt(p.timesSold || 0);
+        categoryPerf[key].orders += parseInt(p.timesSold || 0, 10);
       }
       for (const k of Object.keys(categoryPerf)) {
         const c = categoryPerf[k];
@@ -191,21 +191,21 @@ const SalesAnalytics = () => {
           .map((c) => ({
             customer: c.name || c.company || "Unknown",
             revenue: safeNum(c.totalRevenue),
-            orders: parseInt(c.totalInvoices || 0),
+            orders: parseInt(c.totalInvoices || 0, 10),
           }))
       : [];
 
     const revMetrics = dashboardData.revenueMetrics || {};
-    const revPrev = (dashboardPrev && dashboardPrev.revenueMetrics) || {};
+    const revPrev = dashboardPrev?.revenueMetrics || {};
     const custMetrics = dashboardData.customerMetrics || {};
 
     return {
       currentRevenue: safeNum(revMetrics.totalRevenue),
       revenueGrowth: pct(safeNum(curr.revenue), safeNum(prev.revenue)),
-      currentOrders: parseInt(revMetrics.totalInvoices || 0),
-      ordersGrowth: pct(parseInt(curr.orders || 0), parseInt(prev.orders || 0)),
-      uniqueCustomers: parseInt(custMetrics.totalCustomers || curr.customers || 0),
-      customersGrowth: pct(parseInt(curr.customers || 0), parseInt(prev.customers || 0)),
+      currentOrders: parseInt(revMetrics.totalInvoices || 0, 10),
+      ordersGrowth: pct(parseInt(curr.orders || 0, 10), parseInt(prev.orders || 0, 10)),
+      uniqueCustomers: parseInt(custMetrics.totalCustomers || curr.customers || 0, 10),
+      customersGrowth: pct(parseInt(curr.customers || 0, 10), parseInt(prev.customers || 0, 10)),
       avgOrderValue: safeNum(revMetrics.averageInvoiceValue),
       avgOrderGrowth: (() => {
         const c = safeNum(revMetrics.averageInvoiceValue);
@@ -213,7 +213,7 @@ const SalesAnalytics = () => {
         return p !== 0 ? ((c - p) / p) * 100 : 0;
       })(),
       prevTotalRevenue: safeNum(revPrev.totalRevenue),
-      prevTotalInvoices: parseInt(revPrev.totalInvoices || 0),
+      prevTotalInvoices: parseInt(revPrev.totalInvoices || 0, 10),
       prevAvgOrderValue: safeNum(revPrev.averageInvoiceValue),
       topProducts: topProductsArr,
       topCustomers: topCustomersArr,
@@ -221,17 +221,7 @@ const SalesAnalytics = () => {
       monthlyTrend,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    dashboardData,
-    dashboardPrev,
-    productPerformance,
-    productPerformancePrev,
-    customerAnalysis,
-    salesTrends,
-    selectedPeriod,
-    dateRange,
-    isDarkMode,
-  ]);
+  }, [dashboardData, dashboardPrev, productPerformance, productPerformancePrev, customerAnalysis, salesTrends]);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-AE", {

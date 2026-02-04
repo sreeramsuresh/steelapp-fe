@@ -52,10 +52,10 @@ const PriceTrendWidget = ({ data, onNavigate, onProductClick }) => {
       setSelectedProduct(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]); // setProducts and setSelectedProduct are stable setState functions
+  }, [data, selectedProduct]); // setProducts and setSelectedProduct are stable setState functions
 
   // Check if we have valid data
-  const hasData = data && data.products && data.products.length > 0;
+  const hasData = data?.products && data.products.length > 0;
 
   // Show "No Data" state when no valid data is available
   if (!hasData) {

@@ -14,7 +14,7 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
       fetchBatches();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, productId, warehouseId]);
+  }, [isOpen, productId, fetchBatches]);
 
   const fetchBatches = async () => {
     setLoading(true);

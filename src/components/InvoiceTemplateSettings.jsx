@@ -156,7 +156,13 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       setOriginalDocumentTemplates(defaultDocTemplates);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [company?.id, company?.settings?.invoiceTemplate, company?.settings?.documentTemplates]); // Helper functions and constants are stable imports
+  }, [
+    company?.id,
+    company?.settings?.invoiceTemplate,
+    company?.settings?.documentTemplates,
+    company,
+    originalSettings,
+  ]); // Helper functions and constants are stable imports
 
   // Check for changes
   useEffect(() => {

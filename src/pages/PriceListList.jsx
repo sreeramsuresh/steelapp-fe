@@ -88,7 +88,7 @@ export default function PriceListList() {
 
   useEffect(() => {
     fetchPricelists();
-  }, []);
+  }, [fetchPricelists]);
 
   const fetchPricelists = async () => {
     try {

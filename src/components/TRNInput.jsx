@@ -44,7 +44,7 @@ const TRNInput = ({
       setIsValid(result.isValid);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [value, localValue]);
 
   // Handle input change
   const handleChange = useCallback(

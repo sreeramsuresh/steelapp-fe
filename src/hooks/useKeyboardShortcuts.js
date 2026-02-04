@@ -106,7 +106,7 @@ const useKeyboardShortcuts = (
       parsedShortcutsRef.current.set(shortcut, parseShortcut(shortcut));
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Object.keys(shortcuts).join(",")]); // parseShortcut is stable
+  }, []); // parseShortcut is stable
 
   const handleKeyDown = useCallback(
     (event) => {

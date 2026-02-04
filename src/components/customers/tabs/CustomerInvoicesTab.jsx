@@ -58,7 +58,7 @@ export default function CustomerInvoicesTab({ customerId }) {
   const isCacheValid = useCallback(() => {
     if (!cachedData || !cacheTimestamp) return false;
     return Date.now() - cacheTimestamp < CACHE_DURATION;
-  }, [cachedData, cacheTimestamp, CACHE_DURATION]);
+  }, [cachedData, cacheTimestamp]);
 
   // Fetch invoices
   const fetchInvoices = useCallback(async () => {
@@ -101,7 +101,7 @@ export default function CustomerInvoicesTab({ customerId }) {
       // Otherwise fetch fresh data
       fetchInvoices();
     }
-  }, [customerId, cachedData, cacheTimestamp, isCacheValid, fetchInvoices]);
+  }, [customerId, cachedData, isCacheValid, fetchInvoices]);
 
   // Apply filters and sorting
   useEffect(() => {
@@ -115,7 +115,7 @@ export default function CustomerInvoicesTab({ customerId }) {
     // Date range filter
     const now = new Date();
     if (dateRangeFilter !== "all") {
-      const daysBack = parseInt(dateRangeFilter);
+      const daysBack = parseInt(dateRangeFilter, 10);
       const cutoffDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
       filtered = filtered.filter((inv) => new Date(inv.date) >= cutoffDate);
     }
@@ -208,7 +208,7 @@ export default function CustomerInvoicesTab({ customerId }) {
       },
     };
 
-    const config = statusConfig[status] || statusConfig["open"];
+    const config = statusConfig[status] || statusConfig.open;
 
     return (
       <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>

@@ -81,7 +81,7 @@ const CustomerPerspective = () => {
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customerId, start, end]);
+  }, [fetchData]);
 
   const totals = useMemo(() => {
     const totalInvoiced = items.reduce((s, r) => s + Number(r.invoiceAmount || 0), 0);

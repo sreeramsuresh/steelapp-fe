@@ -25,7 +25,7 @@ function SupplierPerformanceDashboard() {
 
   useEffect(() => {
     loadDashboardData();
-  }, []);
+  }, [loadDashboardData]);
 
   const loadDashboardData = async () => {
     try {

@@ -10,7 +10,7 @@
  * - System role name immutability
  */
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 
 // Mock role data for testing
 const createMockRole = (overrides = {}) => ({
@@ -457,7 +457,7 @@ describe("Role Validation - Company Scoping", () => {
     // This test validates the concept that role names are scoped per company
     const company1Roles = [createMockRole({ id: 1, name: "Sales Manager", companyId: 1 })];
 
-    const company2Roles = [createMockRole({ id: 2, name: "Sales Manager", companyId: 2 })];
+    const _company2Roles = [createMockRole({ id: 2, name: "Sales Manager", companyId: 2 })];
 
     // Creating a new role in company 1 with same name as company 2
     const formData = {

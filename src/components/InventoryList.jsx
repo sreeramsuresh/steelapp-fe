@@ -1167,7 +1167,7 @@ const InventoryList = () => {
                       id="quantity"
                       value={formData.quantity || ""}
                       onChange={(e) =>
-                        handleInputChange("quantity", e.target.value === "" ? "" : parseInt(e.target.value) || "")
+                        handleInputChange("quantity", e.target.value === "" ? "" : parseInt(e.target.value, 10) || "")
                       }
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
@@ -1186,7 +1186,7 @@ const InventoryList = () => {
                       id="minStock"
                       value={formData.minStock || ""}
                       onChange={(e) =>
-                        handleInputChange("minStock", e.target.value === "" ? "" : parseInt(e.target.value) || "")
+                        handleInputChange("minStock", e.target.value === "" ? "" : parseInt(e.target.value, 10) || "")
                       }
                       className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"

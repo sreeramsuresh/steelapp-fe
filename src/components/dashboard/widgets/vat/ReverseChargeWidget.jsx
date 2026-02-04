@@ -126,7 +126,7 @@ const ReverseChargeWidget = ({
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
       currency: "AED",
@@ -309,11 +309,11 @@ const ReverseChargeWidget = ({
           {reverseChargeData.recentTransactions.map((tx) => (
             <div
               key={tx.id}
-              onClick={() => onViewTransaction && onViewTransaction(tx)}
+              onClick={() => onViewTransaction?.(tx)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  onViewTransaction && onViewTransaction(tx);
+                  onViewTransaction?.(tx);
                 }
               }}
               role="button"

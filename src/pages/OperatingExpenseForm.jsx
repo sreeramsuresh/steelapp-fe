@@ -71,14 +71,14 @@ export default function OperatingExpenseForm() {
   // Load expense accounts from COA
   useEffect(() => {
     loadExpenseAccounts();
-  }, []);
+  }, [loadExpenseAccounts]);
 
   // Load expenses when on list tab
   useEffect(() => {
     if (activeTab === "list") {
       loadExpenses();
     }
-  }, [activeTab]);
+  }, [activeTab, loadExpenses]);
 
   const loadExpenseAccounts = async () => {
     try {

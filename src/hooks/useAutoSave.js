@@ -125,7 +125,7 @@ const useAutoSave = (
       if (!stored) return null;
 
       const parsed = safeJsonParse(stored);
-      if (parsed && parsed.data) {
+      if (parsed?.data) {
         setHasLocalDraft(true);
         setLastSaved(parsed.timestamp);
         return parsed;
@@ -157,7 +157,7 @@ const useAutoSave = (
    */
   const checkForRecoverableDraft = useCallback(() => {
     const stored = loadFromLocal();
-    if (stored && stored.data) {
+    if (stored?.data) {
       setStatus("recovered");
       return stored;
     }

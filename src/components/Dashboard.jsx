@@ -294,7 +294,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [fetchDashboardData]);
 
   const fetchDashboardData = async () => {
     try {
@@ -324,9 +324,9 @@ const Dashboard = () => {
       };
 
       const totalRevenue = safeNum(dashboard?.revenueMetrics?.totalRevenue);
-      const totalCustomers = parseInt(dashboard?.customerMetrics?.totalCustomers || 0);
-      const totalProducts = parseInt(dashboard?.productMetrics?.totalProducts || 0);
-      const totalInvoices = parseInt(dashboard?.revenueMetrics?.totalInvoices || 0);
+      const totalCustomers = parseInt(dashboard?.customerMetrics?.totalCustomers || 0, 10);
+      const totalProducts = parseInt(dashboard?.productMetrics?.totalProducts || 0, 10);
+      const totalInvoices = parseInt(dashboard?.revenueMetrics?.totalInvoices || 0, 10);
 
       const revenueChange = percentChange(current?.revenue, previous?.revenue);
       const invoicesChange = percentChange(current?.invoiceCount, previous?.invoiceCount);
@@ -388,7 +388,7 @@ const Dashboard = () => {
   const formatCurrency = (amount) => {
     // Handle NaN, null, undefined, or non-numeric values
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
 
     return new Intl.NumberFormat("en-AE", {
       style: "currency",

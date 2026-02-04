@@ -44,7 +44,6 @@ const Modal = ({
         onClick={onClose}
         role="button"
         tabIndex={0}
-        aria-hidden="true"
         onKeyDown={(e) => {
           if (e.key === "Escape") {
             onClose();

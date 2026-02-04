@@ -47,12 +47,12 @@ const CommissionTransactions = () => {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedStatus, selectedAgent, dateRange]);
+  }, []);
 
   const loadData = async () => {
     try {
@@ -79,7 +79,7 @@ const CommissionTransactions = () => {
         transaction.invoiceNumber?.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStatus = selectedStatus === "all" || transaction.status === selectedStatus;
-      const matchesAgent = selectedAgent === "all" || transaction.agentId === parseInt(selectedAgent);
+      const matchesAgent = selectedAgent === "all" || transaction.agentId === parseInt(selectedAgent, 10);
 
       const matchesDateRange = (() => {
         if (!dateRange.start && !dateRange.end) return true;

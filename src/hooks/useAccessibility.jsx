@@ -133,7 +133,7 @@ export const useFocusTrap = (isActive = true) => {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       // Restore focus
-      if (previousFocusRef.current && previousFocusRef.current.focus) {
+      if (previousFocusRef.current?.focus) {
         previousFocusRef.current.focus();
       }
     };

@@ -8,7 +8,7 @@
  * 4. Save Draft button functionality
  */
 
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -19,7 +19,7 @@ import * as invoiceService from "../../services/invoiceService";
 import CreditNoteForm from "../CreditNoteForm";
 
 // Mock data
-const mockCreditNote = {
+const _mockCreditNote = {
   id: 107,
   creditNoteNumber: "CN-2025-0007",
   invoiceId: 337,
@@ -238,7 +238,7 @@ describe("Credit Note Form - Date Format & Auto-Save Tests", () => {
         },
       };
 
-      localStorageMock["credit_note_drafts"] = JSON.stringify(draftData);
+      localStorageMock.credit_note_drafts = JSON.stringify(draftData);
 
       // Mock search params to load invoice
       mockUseSearchParams.mockReturnValue([new URLSearchParams("?invoiceId=337"), vi.fn()]);
@@ -303,7 +303,7 @@ describe("Credit Note Form - Date Format & Auto-Save Tests", () => {
         },
       };
 
-      localStorageMock["credit_note_drafts"] = JSON.stringify(existingDraft);
+      localStorageMock.credit_note_drafts = JSON.stringify(existingDraft);
 
       mockUseSearchParams.mockReturnValue([new URLSearchParams("?invoiceId=337"), vi.fn()]);
 

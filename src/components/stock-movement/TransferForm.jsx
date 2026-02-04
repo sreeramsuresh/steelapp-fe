@@ -296,8 +296,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       setSaving(true);
 
       const transferData = {
-        sourceWarehouseId: parseInt(sourceWarehouseId),
-        destinationWarehouseId: parseInt(destinationWarehouseId),
+        sourceWarehouseId: parseInt(sourceWarehouseId, 10),
+        destinationWarehouseId: parseInt(destinationWarehouseId, 10),
         expectedDate: expectedDate || null,
         transferType, // Epic 7: Include transfer type
         transferStatus, // Epic 10: TRAN-003
@@ -313,7 +313,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           productId: item.productId,
           quantity: parseFloat(item.quantity),
           unit: item.unit,
-          batchId: item.batchId ? parseInt(item.batchId) : null, // Epic 4: Include batch ID
+          batchId: item.batchId ? parseInt(item.batchId, 10) : null, // Epic 4: Include batch ID
           notes: item.notes,
         })),
       };
@@ -330,11 +330,11 @@ const TransferForm = ({ onCancel, onSuccess }) => {
 
   // Performance: Memoize warehouse filtering to avoid recalculating on every render
   const sourceWarehouses = useMemo(() => {
-    return warehouses.filter((wh) => wh.id !== parseInt(destinationWarehouseId));
+    return warehouses.filter((wh) => wh.id !== parseInt(destinationWarehouseId, 10));
   }, [warehouses, destinationWarehouseId]);
 
   const destinationWarehouses = useMemo(() => {
-    return warehouses.filter((wh) => wh.id !== parseInt(sourceWarehouseId));
+    return warehouses.filter((wh) => wh.id !== parseInt(sourceWarehouseId, 10));
   }, [warehouses, sourceWarehouseId]);
 
   return (

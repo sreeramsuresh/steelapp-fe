@@ -5,7 +5,7 @@
  */
 
 import { configureStore } from "@reduxjs/toolkit";
-import { render, screen, within } from "@testing-library/react";
+import { render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { Provider } from "react-redux";
@@ -163,7 +163,7 @@ export function isDisabled(element) {
  * @param {any} returnValue - Return value
  * @returns {Function} Mocked function
  */
-export function mockService(serviceFunction, returnValue) {
+export function mockService(_serviceFunction, returnValue) {
   return vi.fn().mockResolvedValue(returnValue);
 }
 
@@ -173,7 +173,7 @@ export function mockService(serviceFunction, returnValue) {
  * @param {Error} error - Error to throw
  * @returns {Function} Mocked function
  */
-export function mockServiceError(serviceFunction, error) {
+export function mockServiceError(_serviceFunction, error) {
   return vi.fn().mockRejectedValue(error);
 }
 

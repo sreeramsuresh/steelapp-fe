@@ -151,7 +151,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
   useEffect(() => {
     loadCreditNotes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, pageSize, debouncedSearch, statusFilter]); // loadCreditNotes is stable
+  }, [loadCreditNotes]); // loadCreditNotes is stable
 
   const loadCreditNotes = async () => {
     try {

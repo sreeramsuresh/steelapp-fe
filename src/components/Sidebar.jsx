@@ -117,7 +117,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
       container.removeEventListener("scroll", handleScroll);
       resizeObserver.disconnect();
     };
-  }, []);
+  }, [handleScroll]);
 
   const navigationItems = [
     // 1. DASHBOARD (1 item)

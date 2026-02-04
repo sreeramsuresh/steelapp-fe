@@ -138,7 +138,7 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     if (safeAmount >= 1000000) {
       return `AED ${(safeAmount / 1000000).toFixed(2)}M`;
     } else if (safeAmount >= 1000) {
@@ -309,7 +309,7 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
           {activeSegments.slice(0, 4).map((segment, idx) => (
             <div
               key={idx}
-              onClick={() => onViewSegment && onViewSegment(segment, activeView)}
+              onClick={() => onViewSegment?.(segment, activeView)}
               role={onViewSegment ? "button" : undefined}
               tabIndex={onViewSegment ? 0 : undefined}
               onKeyDown={
@@ -348,7 +348,7 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
         {activeSegments.slice(0, 3).map((segment, idx) => (
           <div
             key={idx}
-            onClick={() => onViewSegment && onViewSegment(segment, activeView)}
+            onClick={() => onViewSegment?.(segment, activeView)}
             role={onViewSegment ? "button" : undefined}
             tabIndex={onViewSegment ? 0 : undefined}
             onKeyDown={

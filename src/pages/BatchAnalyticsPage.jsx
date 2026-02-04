@@ -103,7 +103,7 @@ const HealthTab = ({ isDarkMode }) => {
 
   useEffect(() => {
     loadHealthData();
-  }, []);
+  }, [loadHealthData]);
 
   if (loading) {
     return (
@@ -268,7 +268,7 @@ const CostVarianceTab = ({ isDarkMode }) => {
 
   useEffect(() => {
     loadVarianceData();
-  }, []);
+  }, [loadVarianceData]);
 
   if (loading) {
     return (
@@ -429,7 +429,7 @@ const ModificationLogTab = ({ isDarkMode }) => {
   useEffect(() => {
     loadLogData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadLogData]);
 
   const handleApplyFilters = () => {
     loadLogData();
@@ -707,7 +707,7 @@ const BatchAgingTab = ({ isDarkMode }) => {
 
   useEffect(() => {
     loadAgingData();
-  }, []);
+  }, [loadAgingData]);
 
   if (loading) {
     return (

@@ -245,7 +245,7 @@ const MaterialCertificateList = () => {
 
   useEffect(() => {
     loadImportOrders();
-  }, []);
+  }, [loadImportOrders]);
 
   // Clear messages after timeout
   useEffect(() => {

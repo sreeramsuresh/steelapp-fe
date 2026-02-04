@@ -34,8 +34,7 @@ const ZeroRatedExportsWidget = ({
   }, [data]);
 
   // Check if we have valid data
-  const hasData =
-    exportData && exportData.summary && (exportData.summary.totalExports > 0 || exportData.summary.totalValue > 0);
+  const hasData = exportData?.summary && (exportData.summary.totalExports > 0 || exportData.summary.totalValue > 0);
 
   // Show "No Data" state when no valid data is available
   if (!hasData) {
@@ -72,7 +71,7 @@ const ZeroRatedExportsWidget = ({
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
       currency: "AED",
@@ -221,11 +220,11 @@ const ZeroRatedExportsWidget = ({
             return (
               <div
                 key={exp.id}
-                onClick={() => onViewExport && onViewExport(exp)}
+                onClick={() => onViewExport?.(exp)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    onViewExport && onViewExport(exp);
+                    onViewExport?.(exp);
                   }
                 }}
                 role="button"

@@ -240,7 +240,7 @@ class AuthService {
     const permissions = user.permissions || {};
     const resourcePermissions = permissions[resource];
 
-    return resourcePermissions && resourcePermissions[action];
+    return resourcePermissions?.[action];
   }
 
   // Check if user has specific role

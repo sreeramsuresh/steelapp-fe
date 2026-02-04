@@ -22,7 +22,7 @@ export function normalizeProduct(rawProduct: any, source = "unknown"): any | nul
     const parseNumber = (value: any, fallback: any = undefined): number | undefined => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
-      return isNaN(parsed) ? fallback : parsed;
+      return Number.isNaN(parsed) ? fallback : parsed;
     };
 
     // Build the normalized Product object (EXPLICIT snake_case → camelCase conversion)

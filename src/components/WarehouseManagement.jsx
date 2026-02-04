@@ -82,7 +82,7 @@ const WarehouseManagement = () => {
 
   useEffect(() => {
     fetchWarehouses();
-  }, []);
+  }, [fetchWarehouses]);
 
   const handleOpenDialog = (warehouse = null) => {
     if (warehouse) {

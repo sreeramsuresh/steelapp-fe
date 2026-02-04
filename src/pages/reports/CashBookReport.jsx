@@ -142,7 +142,7 @@ export default function CashBookReport() {
       )}
 
       {/* Daily Summary */}
-      {summary && summary.summary && summary.summary.length > 0 && (
+      {summary?.summary && summary.summary.length > 0 && (
         <div className="bg-white rounded-lg shadow mb-6 overflow-x-auto">
           <table className="min-w-full">
             <thead>

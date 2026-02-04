@@ -138,7 +138,7 @@ const ReallocationModal = ({
 
     // Get new cost
     const newCost = Object.entries(newAllocations).reduce((sum, [batchId, qty]) => {
-      const batch = availableBatches.find((b) => b.id === parseInt(batchId));
+      const batch = availableBatches.find((b) => b.id === parseInt(batchId, 10));
       const unitCost = batch?.unitCost || 0;
       return sum + (parseFloat(qty) || 0) * unitCost;
     }, 0);
@@ -195,7 +195,7 @@ const ReallocationModal = ({
 
       // Find new allocations (batches not in old or increased quantity)
       Object.entries(newAllocations).forEach(([batchIdStr, newQty]) => {
-        const batchId = parseInt(batchIdStr);
+        const batchId = parseInt(batchIdStr, 10);
         const qty = parseFloat(newQty) || 0;
         if (qty <= 0) return;
 

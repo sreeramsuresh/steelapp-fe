@@ -72,8 +72,6 @@ export const useApi = (apiFunction, _dependencies = [], options = {}) => {
               }, 2000);
             }
             break;
-
-          case ErrorTypes.SYSTEM:
           default:
             // System errors are displayed via ErrorState or ErrorBanner
             setAppError(errorInfo);
@@ -94,7 +92,7 @@ export const useApi = (apiFunction, _dependencies = [], options = {}) => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [showToasts]
+    [showToasts, apiFunction]
   );
 
   const reset = useCallback(() => {
@@ -199,8 +197,6 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
               }, 2000);
             }
             break;
-
-          case ErrorTypes.SYSTEM:
           default:
             setAppError(errorInfo);
             // Report to ApiHealthContext for instant banner display
@@ -219,7 +215,7 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [apiFunction, skipInitialLoading, showToasts]
+    [apiFunction, skipInitialLoading, showToasts, data]
   );
 
   useEffect(() => {
@@ -231,7 +227,7 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [execute, immediate]);
 
   // Separate effect for dependency changes (after initial mount)
   const isFirstRenderRef = useRef(true);

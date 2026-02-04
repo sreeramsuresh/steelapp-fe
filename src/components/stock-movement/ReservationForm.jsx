@@ -296,9 +296,9 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
 
       const reservationData = {
         productId,
-        warehouseId: parseInt(warehouseId),
+        warehouseId: parseInt(warehouseId, 10),
         quantity: parseFloat(quantity),
-        batchId: parseInt(batchId), // Epic 4: Include batch ID
+        batchId: parseInt(batchId, 10), // Epic 4: Include batch ID
         expiryDate: expiryDate || null,
         autoExpire, // Epic 10: RESV-004
         reservationReason: reservationReason || null, // Epic 10: RESV-003

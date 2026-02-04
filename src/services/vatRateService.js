@@ -8,7 +8,7 @@ const vatRateService = {
       // Handle different response formats
 
       // If data is wrapped in a 'rates' or 'data' property
-      if (data && data.rates && Array.isArray(data.rates)) {
+      if (data?.rates && Array.isArray(data.rates)) {
         return data.rates;
       }
 
@@ -18,7 +18,7 @@ const vatRateService = {
       }
 
       // If data is wrapped in 'data' property
-      if (data && data.data && Array.isArray(data.data)) {
+      if (data?.data && Array.isArray(data.data)) {
         return data.data;
       }
 

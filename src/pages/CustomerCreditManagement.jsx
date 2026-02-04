@@ -18,7 +18,7 @@ export default function CustomerCreditManagement() {
 
   useEffect(() => {
     loadCreditData();
-  }, []);
+  }, [loadCreditData]);
 
   const loadCreditData = async () => {
     try {

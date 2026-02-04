@@ -138,7 +138,7 @@ const ExportOrderList = () => {
   useEffect(() => {
     loadOrders(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, sortConfig]);
+  }, [loadOrders]);
 
   // Handle search form submit
   const handleSearch = (e) => {

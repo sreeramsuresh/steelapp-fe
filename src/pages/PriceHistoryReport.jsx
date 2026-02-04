@@ -18,7 +18,7 @@ export default function PriceHistoryReport() {
   useEffect(() => {
     fetchProducts();
     fetchPricelists();
-  }, []);
+  }, [fetchPricelists, fetchProducts]);
 
   const fetchProducts = async () => {
     try {
@@ -53,7 +53,7 @@ export default function PriceHistoryReport() {
       // Get price from each pricelist
       for (const pricelist of pricelists) {
         const items = await pricelistService.getItems(pricelist.id);
-        const item = items.data?.find((i) => i.productId === parseInt(selectedProduct));
+        const item = items.data?.find((i) => i.productId === parseInt(selectedProduct, 10));
 
         if (item) {
           history.push({
@@ -96,7 +96,7 @@ export default function PriceHistoryReport() {
     return { diff, diffPercent };
   };
 
-  const selectedProductData = products.find((p) => p.id === parseInt(selectedProduct));
+  const selectedProductData = products.find((p) => p.id === parseInt(selectedProduct, 10));
 
   return (
     <div className="p-6">

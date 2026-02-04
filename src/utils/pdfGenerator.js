@@ -26,10 +26,6 @@
 
 import { mergeTemplateSettings } from "../constants/defaultTemplateSettings";
 import {
-  calculateTotalTRN as _calculateTotalTRN,
-  formatCurrency as _formatCurrency,
-  formatDate as _formatDate,
-  formatDateDMY as _formatDateDMY,
   calculateDiscountedTRN,
   calculateSubtotal,
   calculateTotal,

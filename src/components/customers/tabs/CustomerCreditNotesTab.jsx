@@ -54,7 +54,7 @@ export default function CustomerCreditNotesTab({ customerId }) {
   const isCacheValid = useCallback(() => {
     if (!cachedData || !cacheTimestamp) return false;
     return Date.now() - cacheTimestamp < CACHE_DURATION;
-  }, [cachedData, cacheTimestamp, CACHE_DURATION]);
+  }, [cachedData, cacheTimestamp]);
 
   // Fetch credit notes
   const fetchCreditNotes = useCallback(async () => {
@@ -97,7 +97,7 @@ export default function CustomerCreditNotesTab({ customerId }) {
       // Otherwise fetch fresh data
       fetchCreditNotes();
     }
-  }, [customerId, cachedData, cacheTimestamp, isCacheValid, fetchCreditNotes]);
+  }, [customerId, cachedData, isCacheValid, fetchCreditNotes]);
 
   // Determine credit note status
   const getCreditNoteStatus = (creditNote) => {
@@ -124,14 +124,14 @@ export default function CustomerCreditNotesTab({ customerId }) {
     // Date range filter
     const now = new Date();
     if (dateRangeFilter !== "all") {
-      const daysBack = parseInt(dateRangeFilter);
+      const daysBack = parseInt(dateRangeFilter, 10);
       const cutoffDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
       filtered = filtered.filter((cn) => new Date(cn.date) >= cutoffDate);
     }
 
     setFilteredCreditNotes(filtered);
     setCurrentPage(1); // Reset to first page when filters change
-  }, [creditNotes, statusFilter, dateRangeFilter]);
+  }, [creditNotes, statusFilter, dateRangeFilter, getCreditNoteStatus]);
 
   // Calculate summary stats
   const summaryStats = {
@@ -169,7 +169,7 @@ export default function CustomerCreditNotesTab({ customerId }) {
       },
     };
 
-    const config = statusConfig[status] || statusConfig["open"];
+    const config = statusConfig[status] || statusConfig.open;
 
     return (
       <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>

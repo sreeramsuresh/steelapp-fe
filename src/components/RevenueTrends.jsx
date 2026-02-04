@@ -70,9 +70,9 @@ const RevenueTrends = () => {
     const revenueData = sortedData.map((item) => ({
       month: format(new Date(item.period), "MMM yyyy"),
       revenue: parseFloat(item.revenue) || 0,
-      invoiceCount: parseInt(item.invoiceCount) || 0,
+      invoiceCount: parseInt(item.invoiceCount, 10) || 0,
       avgOrderValue: parseFloat(item.averageOrderValue) || 0,
-      uniqueCustomers: parseInt(item.uniqueCustomers) || 0,
+      uniqueCustomers: parseInt(item.uniqueCustomers, 10) || 0,
       period: new Date(item.period),
     }));
 
@@ -183,7 +183,7 @@ const RevenueTrends = () => {
   };
 
   const formatCurrency = (amount) => {
-    const safeAmount = isNaN(amount) || amount === null || amount === undefined ? 0 : amount;
+    const safeAmount = Number.isNaN(amount) || amount === null || amount === undefined ? 0 : amount;
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
       currency: "AED",
@@ -193,7 +193,7 @@ const RevenueTrends = () => {
   };
 
   const formatGrowth = (growth) => {
-    const safeGrowth = isNaN(growth) || growth === null || growth === undefined ? 0 : growth;
+    const safeGrowth = Number.isNaN(growth) || growth === null || growth === undefined ? 0 : growth;
     const absGrowth = Math.abs(safeGrowth);
     const sign = safeGrowth > 0 ? "+" : safeGrowth < 0 ? "" : "";
     return `${sign}${absGrowth.toFixed(1)}%`;

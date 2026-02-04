@@ -11,7 +11,7 @@ import { formatCurrency } from "../utils/invoiceUtils";
  */
 const safeToFixed = (value, decimals = 2) => {
   const num = parseFloat(value);
-  return isNaN(num) ? "0" : num.toFixed(decimals);
+  return Number.isNaN(num) ? "0" : num.toFixed(decimals);
 };
 
 /**
@@ -79,7 +79,7 @@ export default function ARAgingReport() {
     } finally {
       setLoading(false);
     }
-  }, [page, searchTerm, pageSize]);
+  }, [page, searchTerm]);
 
   useEffect(() => {
     fetchARAgingData();

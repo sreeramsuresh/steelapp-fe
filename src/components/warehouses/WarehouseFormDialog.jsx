@@ -70,7 +70,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
       });
     }
     setErrors({});
-  }, [warehouse, open]);
+  }, [warehouse]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -106,7 +106,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
       newErrors.email = "Invalid email format";
     }
 
-    if (formData.capacity && isNaN(parseFloat(formData.capacity))) {
+    if (formData.capacity && Number.isNaN(parseFloat(formData.capacity))) {
       newErrors.capacity = "Capacity must be a number";
     }
 

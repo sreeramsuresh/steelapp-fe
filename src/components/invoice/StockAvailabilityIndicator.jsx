@@ -27,7 +27,7 @@ const StockAvailabilityIndicator = ({ productId, warehouseId, requiredQty, compa
    * Fetch available stock from API
    */
   const fetchStock = useCallback(async () => {
-    const numericProductId = typeof productId === "number" ? productId : parseInt(productId);
+    const numericProductId = typeof productId === "number" ? productId : parseInt(productId, 10);
     const validProductId = numericProductId && numericProductId > 0;
 
     if (!validProductId) {

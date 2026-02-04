@@ -94,7 +94,7 @@ const CollectionPerformanceWidget = ({ data: propData, onRefresh, onViewDetails,
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
     if (safeAmount >= 1000000) {
       return `AED ${(safeAmount / 1000000).toFixed(2)}M`;
     } else if (safeAmount >= 1000) {
@@ -216,7 +216,7 @@ const CollectionPerformanceWidget = ({ data: propData, onRefresh, onViewDetails,
         <div className="flex items-center gap-2">
           <select
             value={selectedAgentId}
-            onChange={(e) => setSelectedAgentId(parseInt(e.target.value))}
+            onChange={(e) => setSelectedAgentId(parseInt(e.target.value, 10))}
             className={`text-xs px-2 py-1 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${
               isDarkMode ? "bg-[#2E3B4E] border-[#37474F] text-white" : "bg-gray-50 border-gray-200 text-gray-700"
             }`}

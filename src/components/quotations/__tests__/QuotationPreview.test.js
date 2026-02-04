@@ -20,7 +20,7 @@ vi.mock("../../../constants/defaultTemplateSettings", () => ({
 
 vi.mock("../../../utils/invoiceUtils", () => ({
   formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
-  toUAEDateProfessional: (date) => "15 January 2024",
+  toUAEDateProfessional: (_date) => "15 January 2024",
   TIMEZONE_DISCLAIMER: "Times shown in UAE timezone",
 }));
 

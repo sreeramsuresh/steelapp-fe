@@ -33,7 +33,7 @@ export default function ProfitAnalysisReport() {
   useEffect(() => {
     fetchReport();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchReport]);
 
   const fetchReport = async () => {
     try {

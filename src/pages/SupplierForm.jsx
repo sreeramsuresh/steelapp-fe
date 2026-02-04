@@ -504,7 +504,7 @@ export function SupplierForm() {
       loadSupplier();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [isEditMode, loadSupplier]);
 
   const loadSupplier = async () => {
     try {

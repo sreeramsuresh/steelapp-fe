@@ -31,7 +31,7 @@ export default function RolesPage() {
 
   useEffect(() => {
     loadRoles();
-  }, []);
+  }, [loadRoles]);
 
   const loadRoles = async () => {
     try {

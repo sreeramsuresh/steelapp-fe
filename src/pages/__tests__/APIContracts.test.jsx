@@ -9,7 +9,7 @@ import { describe, expect, it } from "vitest";
 describe("API Response Contracts", () => {
   describe("HTTP Status Codes", () => {
     it("should return 200 OK for successful GET request", async () => {
-      const MockAPIResponse = () => {
+      const _MockAPIResponse = () => {
         const [response] = React.useState({
           status: 200,
           statusText: "OK",
@@ -30,7 +30,7 @@ describe("API Response Contracts", () => {
     });
 
     it("should return 201 Created for successful POST request", async () => {
-      const MockCreateResponse = () => {
+      const _MockCreateResponse = () => {
         const [response] = React.useState({
           status: 201,
           statusText: "Created",
@@ -49,7 +49,7 @@ describe("API Response Contracts", () => {
     });
 
     it("should return 400 Bad Request for invalid input", async () => {
-      const MockBadRequest = () => {
+      const _MockBadRequest = () => {
         const [response] = React.useState({
           status: 400,
           statusText: "Bad Request",
@@ -68,7 +68,7 @@ describe("API Response Contracts", () => {
     });
 
     it("should return 401 Unauthorized for missing credentials", async () => {
-      const MockUnauthorized = () => {
+      const _MockUnauthorized = () => {
         const [response] = React.useState({
           status: 401,
           statusText: "Unauthorized",
@@ -87,7 +87,7 @@ describe("API Response Contracts", () => {
     });
 
     it("should return 403 Forbidden for insufficient permissions", async () => {
-      const MockForbidden = () => {
+      const _MockForbidden = () => {
         const [response] = React.useState({
           status: 403,
           statusText: "Forbidden",
@@ -106,7 +106,7 @@ describe("API Response Contracts", () => {
     });
 
     it("should return 404 Not Found for missing resource", async () => {
-      const MockNotFound = () => {
+      const _MockNotFound = () => {
         const [response] = React.useState({
           status: 404,
           statusText: "Not Found",
@@ -125,7 +125,7 @@ describe("API Response Contracts", () => {
     });
 
     it("should return 500 Internal Server Error for backend failures", async () => {
-      const MockServerError = () => {
+      const _MockServerError = () => {
         const [response] = React.useState({
           status: 500,
           statusText: "Internal Server Error",
@@ -146,7 +146,7 @@ describe("API Response Contracts", () => {
 
   describe("Response Data Structure Validation", () => {
     it("should return correctly structured invoice list response", async () => {
-      const MockListResponse = () => {
+      const _MockListResponse = () => {
         const response = {
           status: 200,
           data: {
@@ -207,7 +207,7 @@ describe("API Response Contracts", () => {
       };
 
       // Validate error structure
-      const hasErrorFields = !!(errorResponse.error && errorResponse.error.code && errorResponse.error.message);
+      const hasErrorFields = !!(errorResponse.error?.code && errorResponse.error.message);
 
       expect(hasErrorFields).toBe(true);
     });
@@ -215,7 +215,7 @@ describe("API Response Contracts", () => {
 
   describe("Pagination Correctness", () => {
     it("should return correct pagination metadata", async () => {
-      const MockPagination = () => {
+      const _MockPagination = () => {
         const response = {
           data: {
             invoices: [], // 10 items
@@ -373,7 +373,7 @@ describe("API Response Contracts", () => {
       };
 
       expect(headers["cache-control"]).toBeDefined();
-      expect(headers["etag"]).toBeDefined();
+      expect(headers.etag).toBeDefined();
     });
 
     it("should include security headers", async () => {

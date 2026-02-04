@@ -147,7 +147,7 @@ const SupplierBillList = () => {
   useEffect(() => {
     loadBills();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, pageSize, debouncedSearch, statusFilter, vatCategoryFilter, vendorFilter, startDate, endDate]); // loadBills is stable
+  }, [loadBills]); // loadBills is stable
 
   const loadBills = async () => {
     try {

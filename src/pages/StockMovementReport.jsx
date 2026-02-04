@@ -76,7 +76,7 @@ export default function StockMovementReport() {
   useEffect(() => {
     fetchWarehouses();
     fetchProducts();
-  }, []);
+  }, [fetchProducts, fetchWarehouses]);
 
   const fetchWarehouses = async () => {
     try {

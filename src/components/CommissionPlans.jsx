@@ -32,7 +32,7 @@ const CommissionPlans = () => {
 
   useEffect(() => {
     loadPlans();
-  }, []);
+  }, [loadPlans]);
 
   const loadPlans = async () => {
     try {

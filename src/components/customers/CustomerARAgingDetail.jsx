@@ -40,7 +40,7 @@ export default function CustomerARAgingDetail({ customerId }) {
       fetchCustomerARAging();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customerId]);
+  }, [customerId, fetchCustomerARAging]);
 
   if (loading) {
     return (

@@ -406,7 +406,7 @@ export async function assertTableContainsRow(textMatcher, columnName = null, tim
  * await assertLoadingStateChanges(true, false);  // Loading -> not loading
  */
 export async function assertLoadingStateChanges(
-  fromLoading,
+  _fromLoading,
   toLoading,
   loadingSelector = '[class*="loading"], [class*="spinner"]',
   timeout = 5000

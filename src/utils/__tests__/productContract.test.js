@@ -20,7 +20,7 @@
  * - Test normalizeProduct integration
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { normalizeProduct } from "../fieldAccessors.js";
 import { assertProductDomain, getContractErrors, hasContractViolation } from "../productContract.js";
 

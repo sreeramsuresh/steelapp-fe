@@ -69,7 +69,7 @@ export const analyticsService = {
     });
 
     // Transform the response to match the widget's expected format
-    if (response && response.totals) {
+    if (response?.totals) {
       const totals = response.totals;
       const totalAr = totals.totalAr || 0;
 

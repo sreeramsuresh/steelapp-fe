@@ -128,13 +128,13 @@ export function normalizeInvoice(
 
       // Handle Timestamp objects from Firestore/backend
       if (value?.seconds) {
-        return new Date(parseInt(value.seconds) * 1000).toISOString();
+        return new Date(parseInt(value.seconds, 10) * 1000).toISOString();
       }
 
       // Handle string dates
       if (typeof value === "string") {
         const parsed = new Date(value);
-        if (!isNaN(parsed.getTime())) {
+        if (!Number.isNaN(parsed.getTime())) {
           return parsed.toISOString();
         }
         errors.push(`${fieldName} is not a valid date: ${value}`);
@@ -150,7 +150,7 @@ export function normalizeInvoice(
     const parseNumber = (value: any, fallback = 0): number => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
-      return isNaN(parsed) ? fallback : parsed;
+      return Number.isNaN(parsed) ? fallback : parsed;
     };
 
     // Normalize customer details (handle both snake_case and camelCase)

@@ -77,7 +77,7 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
       container.removeEventListener("scroll", handleScroll);
       resizeObserver.disconnect();
     };
-  }, []);
+  }, [handleScroll]);
 
   // Core ERP navigation items (operational only - no analytics/dashboards)
   const navigationItems = [

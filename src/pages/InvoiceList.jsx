@@ -37,7 +37,6 @@ import { companyService } from "../services";
 import { authService } from "../services/axiosAuthService";
 import { commissionService } from "../services/commissionService";
 import { invoiceService } from "../services/dataService";
-import { deliveryNoteService as _deliveryNoteService } from "../services/deliveryNoteService";
 import { notificationService } from "../services/notificationService";
 import { guardInvoicesDev } from "../utils/devGuards";
 import { normalizeInvoices } from "../utils/invoiceNormalizer";
@@ -98,7 +97,7 @@ const assertIconInvariants = (iconKey, enabled, invoice) => {
       // Check if within 24-hour edit window for issued invoices
       const isIssuedStatus = ["issued", "sent"].includes(invoice.status);
       const issuedAt = invoice.issuedAt ? new Date(invoice.issuedAt) : null;
-      const hoursSinceIssued = issuedAt ? (new Date() - issuedAt) / (1000 * 60 * 60) : Infinity;
+      const hoursSinceIssued = issuedAt ? (Date.now() - issuedAt) / (1000 * 60 * 60) : Infinity;
       const withinEditWindow = hoursSinceIssued < 24;
 
       // Only warn if edit is enabled for issued/deleted invoice AND NOT within edit window
@@ -389,60 +388,66 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   // Fetch invoices with pagination and abort controller
   // LOADING PATTERN: setLoading(true) at start, setLoading(false) in finally block
-  const fetchInvoices = React.useCallback(async (page, limit, search, status, includeDeleted, signal) => {
-    try {
-      setLoading(true);
-      const queryParams = {
-        page,
-        limit,
-        search: search || undefined,
-        status: status === "all" ? undefined : status,
-        include_deleted: includeDeleted ? "true" : undefined,
-      };
+  const fetchInvoices = React.useCallback(
+    async (page, limit, search, status, includeDeleted, signal) => {
+      try {
+        setLoading(true);
+        const queryParams = {
+          page,
+          limit,
+          search: search || undefined,
+          status: status === "all" ? undefined : status,
+          include_deleted: includeDeleted ? "true" : undefined,
+        };
 
-      // Remove undefined values
-      Object.keys(queryParams).forEach((key) => queryParams[key] === undefined && delete queryParams[key]);
+        // Remove undefined values
+        Object.keys(queryParams).forEach((key) => queryParams[key] === undefined && delete queryParams[key]);
 
-      // Use invoiceService to get ALL invoices (including draft and proforma)
-      const response = await invoiceService.getInvoices(queryParams, signal);
+        // Use invoiceService to get ALL invoices (including draft and proforma)
+        const response = await invoiceService.getInvoices(queryParams, signal);
 
-      // Check if request was aborted before updating state
-      if (signal?.aborted) {
-        return;
-      }
+        // Check if request was aborted before updating state
+        if (signal?.aborted) {
+          return;
+        }
 
-      // invoiceService returns { invoices, pagination }
-      const invoicesData = response.invoices || response;
-      const normalizedInvoices = normalizeInvoices(Array.isArray(invoicesData) ? invoicesData : [], "fetchInvoices");
+        // invoiceService returns { invoices, pagination }
+        const invoicesData = response.invoices || response;
+        const normalizedInvoices = normalizeInvoices(Array.isArray(invoicesData) ? invoicesData : [], "fetchInvoices");
 
-      // ✅ NEW: Use shared devguard system
-      const guardedInvoices = guardInvoicesDev(normalizedInvoices);
+        // ✅ NEW: Use shared devguard system
+        const guardedInvoices = guardInvoicesDev(normalizedInvoices);
 
-      setInvoices(guardedInvoices);
+        setInvoices(guardedInvoices);
 
-      // Set pagination if available
-      if (response.pagination) {
-        setPagination(response.pagination);
-      } else {
+        // Set pagination if available
+        if (response.pagination) {
+          setPagination(response.pagination);
+        } else {
+          setPagination(null);
+        }
+
+        // Process delivery note status from invoice data
+        processDeliveryNoteStatus(invoicesData);
+      } catch (error) {
+        // Ignore abort errors
+        if (error.name === "AbortError" || error.message === "canceled") {
+          return;
+        }
+        setInvoices([]);
         setPagination(null);
+      } finally {
+        // END LOADING: Always turn off loading unless request was aborted
+        if (!signal?.aborted) {
+          setLoading(false);
+        }
       }
-
+    },
+    [
       // Process delivery note status from invoice data
-      processDeliveryNoteStatus(invoicesData);
-    } catch (error) {
-      // Ignore abort errors
-      if (error.name === "AbortError" || error.message === "canceled") {
-        return;
-      }
-      setInvoices([]);
-      setPagination(null);
-    } finally {
-      // END LOADING: Always turn off loading unless request was aborted
-      if (!signal?.aborted) {
-        setLoading(false);
-      }
-    }
-  }, []);
+      processDeliveryNoteStatus,
+    ]
+  );
 
   // Consolidated effect with debouncing and request cancellation
   // TRIGGERS: Runs when page, filters, or search changes
@@ -462,7 +467,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       abortController.abort();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, pageSize, searchTerm, statusFilter, showDeleted]);
+  }, [currentPage, pageSize, searchTerm, statusFilter, showDeleted, fetchInvoices]);
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -470,7 +475,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       setCurrentPage(1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm, statusFilter, showDeleted]); // currentPage intentionally omitted to avoid infinite loop
+  }, [currentPage]); // currentPage intentionally omitted to avoid infinite loop
 
   // Initialize search from URL param
   useEffect(() => {
@@ -480,7 +485,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       setCurrentPage(1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]); // searchTerm intentionally omitted - only sync from URL on mount/URL change
+  }, [searchParams, searchTerm]); // searchTerm intentionally omitted - only sync from URL on mount/URL change
 
   // Auto-open payment drawer when navigating with openPayment query param
   // (e.g., from Create Invoice success modal)
@@ -525,7 +530,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   // Clear selections when filters or search changes (Gmail behavior)
   useEffect(() => {
     setSelectedInvoiceIds(new Set());
-  }, [searchTerm, statusFilter, paymentStatusFilter, showDeleted, activeCardFilter]);
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -740,7 +745,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       dueSoonAmount,
       paidAmount,
     };
-  }, [invoices]);
+  }, [invoices, normalizePaymentStatus, normalizeStatus]);
 
   // Update summary data when computed
   React.useEffect(() => {

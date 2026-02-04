@@ -6,14 +6,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  assertFormErrorAppears,
-  assertListItemAdded,
-  assertSuccessToast,
-  clickAndWait,
-  findButtonByRole,
-} from "../../test/utils";
+import { describe, expect, it } from "vitest";
+import { assertListItemAdded, assertSuccessToast, findButtonByRole } from "../../test/utils";
 
 describe("Purchase Order Feature", () => {
   describe("Creating Purchase Orders", () => {
@@ -178,7 +172,7 @@ describe("Purchase Order Feature", () => {
   describe("Supplier Bill Matching", () => {
     it("should match supplier bill with PO and GRN (3-way match)", async () => {
       const MockThreeWayMatch = () => {
-        const [matches, setMatches] = React.useState({
+        const [matches, _setMatches] = React.useState({
           poAmount: 5000,
           grnAmount: 5000,
           billAmount: 5000,
@@ -273,7 +267,7 @@ describe("Purchase Order Feature", () => {
   describe("Batch Tracking in PO", () => {
     it("should assign batch information to received goods", async () => {
       const MockBatchPO = () => {
-        const [batch, setBatch] = React.useState({
+        const [batch, _setBatch] = React.useState({
           batchNo: "B-2025-001",
           supplier: "Steel Supplier",
           quantity: 100,

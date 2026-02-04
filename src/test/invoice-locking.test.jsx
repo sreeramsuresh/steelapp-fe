@@ -13,8 +13,6 @@
  * - Rule 8: UAE VAT compliance
  */
 
-import { render, screen } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 // Test the isLocked logic directly
