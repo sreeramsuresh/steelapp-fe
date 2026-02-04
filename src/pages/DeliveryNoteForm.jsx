@@ -908,7 +908,7 @@ const DeliveryNoteForm = () => {
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </button>
 
                       {/* Allocation Details - Expandable */}
                       {expandedItems.has(index) && (
@@ -1023,7 +1023,7 @@ const DeliveryNoteForm = () => {
                           )}
                         </div>
                       )}
-                    </button>
+                    </div>
                   ))}
                 </div>
               </div>
