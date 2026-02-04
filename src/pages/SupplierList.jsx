@@ -1,5 +1,5 @@
 import { Building2, Edit, Factory, Globe, Loader2, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,11 +22,7 @@ export function SupplierList() {
   const [filterMill, setFilterMill] = useState("ALL");
   const itemsPerPage = 20;
 
-  useEffect(() => {
-    loadSuppliers();
-  }, [loadSuppliers]);
-
-  const loadSuppliers = async () => {
+  const loadSuppliers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -38,7 +34,11 @@ export function SupplierList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadSuppliers();
+  }, [loadSuppliers]);
 
   const getRatingColor = (rating) => {
     switch (rating) {

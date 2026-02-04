@@ -121,7 +121,7 @@ export default function ReconciliationReport() {
     } finally {
       setLoading(false);
     }
-  }, [selectedWarehouse, selectedProduct, dateRange.endDate]);
+  }, [selectedWarehouse, selectedProduct, dateRange.endDate, generateMockData, transformBackendToReportFormat]);
 
   useEffect(() => {
     loadFilterOptions();
