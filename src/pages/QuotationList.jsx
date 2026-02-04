@@ -318,7 +318,7 @@ const QuotationList = () => {
                 }`}
               />
             </div>
-          </button>
+          </div>
 
           {/* Status Filter */}
           <div className="lg:w-48">

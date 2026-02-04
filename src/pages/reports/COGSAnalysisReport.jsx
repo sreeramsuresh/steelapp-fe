@@ -443,7 +443,10 @@ export default function COGSAnalysisReport() {
                     dataKey="value"
                   >
                     {costComponents.map((entry) => (
-                      <Cell key={`cogs-${entry.name}`} fill={CHART_COLORS[costComponents.indexOf(entry) % CHART_COLORS.length]} />
+                      <Cell
+                        key={`cogs-${entry.name}`}
+                        fill={CHART_COLORS[costComponents.indexOf(entry) % CHART_COLORS.length]}
+                      />
                     ))}
                   </Pie>
                   <Tooltip

@@ -118,7 +118,7 @@ const SectionHeader = ({ title, icon: Icon, description, isExpanded, onToggle, w
           </div>
           {description && <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{description}</p>}
         </div>
-      </button>
+      </div>
       <button type="button" onClick={onToggle}
         className={`p-1 rounded ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}
         aria-label={isExpanded ? "Collapse section" : "Expand section"}
@@ -647,7 +647,7 @@ const DashboardV2 = () => {
         <div className="flex items-center justify-center min-h-96 gap-3">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" />
           <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Loading dashboard...</span>
-        </button>
+        </div>
       </div>
     );
   }
