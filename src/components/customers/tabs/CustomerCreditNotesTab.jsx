@@ -100,14 +100,14 @@ export default function CustomerCreditNotesTab({ customerId }) {
   }, [customerId, cachedData, isCacheValid, fetchCreditNotes]);
 
   // Determine credit note status
-  const getCreditNoteStatus = (creditNote) => {
+  const getCreditNoteStatus = useCallback((creditNote) => {
     const amount = parseFloat(creditNote.amount) || 0;
     const remainingBalance = parseFloat(creditNote.remainingBalance) || 0;
 
     if (remainingBalance === 0) return "fully-applied";
     if (remainingBalance < amount) return "partially-applied";
     return "open";
-  };
+  }, []);
 
   // Apply filters
   useEffect(() => {

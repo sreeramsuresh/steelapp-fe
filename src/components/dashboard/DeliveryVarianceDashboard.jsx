@@ -5,7 +5,7 @@
  */
 
 import { AlertCircle, AlertTriangle, Clock, Target, Truck } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { deliveryVarianceService } from "../../services/deliveryVarianceService";
 import LoadingOverlay from "../LoadingOverlay";
@@ -20,7 +20,7 @@ const DeliveryVarianceDashboard = () => {
   const [error, setError] = useState("");
   const [daysBack, setDaysBack] = useState(30);
 
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -43,7 +43,7 @@ const DeliveryVarianceDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [daysBack]);
 
   useEffect(() => {
     loadDashboardData();
