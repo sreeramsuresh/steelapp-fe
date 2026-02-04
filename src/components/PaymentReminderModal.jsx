@@ -1,5 +1,5 @@
 import { Calendar, Edit2, Loader2, Phone, Plus, Trash2, X } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { apiService, tokenUtils } from "../services/axiosApi";
 import { notificationService } from "../services/notificationService";
 import { formatCurrency, formatDateTime } from "../utils/invoiceUtils";
@@ -57,22 +57,8 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
   }, []);
 
   // Fetch existing reminders when drawer opens
-  useEffect(() => {
-    if (isOpen && invoice?.id) {
-      fetchReminders();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, invoice?.id, fetchReminders]); // fetchReminders is stable within component lifecycle
-
-  // Auto-resize textarea as user types
-  useEffect(() => {
-    if (notesTextareaRef.current) {
-      notesTextareaRef.current.style.height = "auto";
-      notesTextareaRef.current.style.height = `${notesTextareaRef.current.scrollHeight}px`;
-    }
-  }, []);
-
-  const fetchReminders = async () => {
+  const fetchReminders = useCallback(async () => {
+    if (!invoice?.id) return;
     try {
       setLoading(true);
       const data = await apiService.get(`/invoices/${invoice.id}/payment-reminders`);
@@ -83,7 +69,21 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
     } finally {
       setLoading(false);
     }
-  };
+  }, [invoice?.id]);
+
+  useEffect(() => {
+    if (isOpen && invoice?.id) {
+      fetchReminders();
+    }
+  }, [isOpen, invoice?.id, fetchReminders]);
+
+  // Auto-resize textarea as user types
+  useEffect(() => {
+    if (notesTextareaRef.current) {
+      notesTextareaRef.current.style.height = "auto";
+      notesTextareaRef.current.style.height = `${notesTextareaRef.current.scrollHeight}px`;
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -251,7 +251,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                 <div className="font-bold text-lg text-orange-900 dark:text-orange-100">
                   {formatCurrency(invoice?.invoiceAmount || invoice?.total || 0)}
                 </div>
-              </button>
+              </div>
               <div>
                 <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">Paid Amount</div>
                 <div className="font-bold text-lg text-green-600 dark:text-green-400">
