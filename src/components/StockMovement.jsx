@@ -946,7 +946,7 @@ const StockMovement = () => {
                 </button>
               </div>
             </div>
-          </div>
+          </button>
         </div>
       )}
 

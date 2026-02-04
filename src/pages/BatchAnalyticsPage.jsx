@@ -62,7 +62,9 @@ const ErrorState = ({ message, onRetry, isDarkMode }) => (
       {message || "An error occurred while loading analytics data. Please try again."}
     </p>
     {onRetry && (
-      <button type="button" onClick={onRetry}
+      <button
+        type="button"
+        onClick={onRetry}
         className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
       >
         <RefreshCw className="h-4 w-4" />
@@ -503,7 +505,9 @@ const ModificationLogTab = ({ isDarkMode }) => {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Filters</h3>
-            <button type="button" onClick={() => setShowFilters(!showFilters)}
+            <button
+              type="button"
+              onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
                 isDarkMode
                   ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
@@ -578,12 +582,16 @@ const ModificationLogTab = ({ isDarkMode }) => {
 
           {showFilters && (
             <div className="flex gap-2">
-              <button type="button" onClick={handleApplyFilters}
+              <button
+                type="button"
+                onClick={handleApplyFilters}
                 className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
               >
                 Apply Filters
               </button>
-              <button type="button" onClick={handleClearFilters}
+              <button
+                type="button"
+                onClick={handleClearFilters}
                 className={`px-4 py-2 rounded-lg transition-colors ${
                   isDarkMode
                     ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
@@ -611,7 +619,9 @@ const ModificationLogTab = ({ isDarkMode }) => {
             <CardTitle className={isDarkMode ? "text-white" : "text-gray-900"}>
               Modification History ({logData.length})
             </CardTitle>
-            <button type="button" onClick={exportToExcel}
+            <button
+              type="button"
+              onClick={exportToExcel}
               disabled={logData.length === 0}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
                 logData.length === 0
@@ -883,7 +893,9 @@ const BatchAnalyticsPage = () => {
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
-              <button type="button" key={tab.id}
+              <button
+                type="button"
+                key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2 font-medium transition-colors border-b-2 whitespace-nowrap ${
                   activeTab === tab.id

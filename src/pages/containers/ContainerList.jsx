@@ -219,7 +219,9 @@ export function ContainerList() {
             </p>
           </div>
           <div className="flex gap-2">
-            <button type="button" onClick={() => setShowFilters(!showFilters)}
+            <button
+              type="button"
+              onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
                 hasActiveFilters
                   ? "border-teal-500 bg-teal-500/10 text-teal-600 dark:text-teal-400"
@@ -234,7 +236,9 @@ export function ContainerList() {
                 <span className="ml-1 bg-teal-500 text-white rounded-full px-2 py-0.5 text-xs">Active</span>
               )}
             </button>
-            <button type="button" onClick={handleAddContainer}
+            <button
+              type="button"
+              onClick={handleAddContainer}
               className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
               data-testid="add-container-button"
             >

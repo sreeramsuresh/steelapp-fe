@@ -135,7 +135,9 @@ const ReallocationHistoryPanel = ({ invoiceId, invoiceItemId, collapsed: initial
       className={`rounded-lg border ${isDarkMode ? "border-gray-700 bg-gray-800/30" : "border-gray-200 bg-gray-50/50"}`}
     >
       {/* Header - Always visible */}
-      <button type="button" onClick={() => setCollapsed(!collapsed)}
+      <button
+        type="button"
+        onClick={() => setCollapsed(!collapsed)}
         className={`w-full flex items-center justify-between p-3 text-left transition-colors ${
           isDarkMode ? "hover:bg-gray-700/50" : "hover:bg-gray-100"
         }`}

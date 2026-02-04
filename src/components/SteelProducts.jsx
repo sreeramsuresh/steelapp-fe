@@ -1891,7 +1891,7 @@ const SteelProducts = () => {
             `}
           />
         </button>
-      </div>
+      </button>
 
       {/* Speed Buttons Container - Collapsible & Compact */}
       {showSpeedButtons && (

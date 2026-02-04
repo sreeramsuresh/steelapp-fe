@@ -97,7 +97,9 @@ export const DashboardSection = ({
               {headerAction}
             </div>
           )}
-          <button type="button" className={`p-1 rounded transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-200 text-gray-600"}`}
+          <button
+            type="button"
+            className={`p-1 rounded transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-200 text-gray-600"}`}
             onClick={() => setIsExpanded(!isExpanded)}
           >
             {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}

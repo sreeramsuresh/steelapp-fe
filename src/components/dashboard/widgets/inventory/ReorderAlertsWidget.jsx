@@ -117,7 +117,9 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
       {/* Priority Filter Tabs */}
       {summary && (
         <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-          <button type="button" onClick={() => setFilter("all")}
+          <button
+            type="button"
+            onClick={() => setFilter("all")}
             className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
               filter === "all"
                 ? "bg-teal-500 text-white"
@@ -128,7 +130,9 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
           >
             All ({summary.critical + summary.warning + summary.approaching})
           </button>
-          <button type="button" onClick={() => setFilter("critical")}
+          <button
+            type="button"
+            onClick={() => setFilter("critical")}
             className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
               filter === "critical"
                 ? "bg-red-500 text-white"
@@ -140,7 +144,9 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
             <AlertOctagon size={12} />
             Critical ({summary.critical})
           </button>
-          <button type="button" onClick={() => setFilter("warning")}
+          <button
+            type="button"
+            onClick={() => setFilter("warning")}
             className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
               filter === "warning"
                 ? "bg-amber-500 text-white"
@@ -152,7 +158,9 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
             <AlertTriangle size={12} />
             Warning ({summary.warning})
           </button>
-          <button type="button" onClick={() => setFilter("approaching")}
+          <button
+            type="button"
+            onClick={() => setFilter("approaching")}
             className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
               filter === "approaching"
                 ? "bg-blue-500 text-white"
@@ -202,7 +210,9 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
                   </div>
                 </div>
 
-                <button type="button" onClick={(e) => {
+                <button
+                  type="button"
+                  onClick={(e) => {
                     e.stopPropagation();
                     onCreatePO?.(product);
                   }}
@@ -268,7 +278,9 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
             AED {((summary?.totalValue || 0) / 1000).toFixed(0)}K
           </p>
         </div>
-        <button type="button" onClick={() => onNavigate?.("/purchase-orders/create")}
+        <button
+          type="button"
+          onClick={() => onNavigate?.("/purchase-orders/create")}
           className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
             isDarkMode ? "bg-teal-500 text-white hover:bg-teal-400" : "bg-teal-600 text-white hover:bg-teal-500"
           }`}

@@ -80,7 +80,9 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
               </span>
             </h3>
           </div>
-          <button type="button" onClick={handleRefresh}
+          <button
+            type="button"
+            onClick={handleRefresh}
             disabled={loading}
             className={`p-1.5 rounded-lg transition-colors ${
               isDarkMode
@@ -245,7 +247,9 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
             </span>
           </h3>
         </div>
-        <button type="button" onClick={handleRefresh}
+        <button
+          type="button"
+          onClick={handleRefresh}
           disabled={loading}
           className={`p-1.5 rounded-lg transition-colors ${
             isDarkMode
@@ -266,7 +270,9 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
             { key: "segment", label: "Segment" },
             { key: "period", label: "Period" },
           ].map((option) => (
-            <button type="button" key={option.key}
+            <button
+              type="button"
+              key={option.key}
               onClick={() => setViewType(option.key)}
               className={`px-3 py-1.5 text-xs font-medium transition-colors ${
                 viewType === option.key
@@ -286,7 +292,9 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
           <div
             className={`flex rounded-lg overflow-hidden border ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
           >
-            <button type="button" onClick={() => setChartType("bar")}
+            <button
+              type="button"
+              onClick={() => setChartType("bar")}
               className={`p-1.5 transition-colors ${
                 chartType === "bar"
                   ? "bg-indigo-600 text-white"
@@ -298,7 +306,9 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
             >
               <BarChart3 size={16} />
             </button>
-            <button type="button" onClick={() => setChartType("pie")}
+            <button
+              type="button"
+              onClick={() => setChartType("pie")}
               className={`p-1.5 transition-colors ${
                 chartType === "pie"
                   ? "bg-indigo-600 text-white"

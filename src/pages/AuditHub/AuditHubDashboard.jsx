@@ -102,7 +102,9 @@ export default function AuditHubDashboard() {
                 {user.companyName} • Accounting Period Management
               </p>
             </div>
-            <button type="button" onClick={() => setCreatingPeriod(true)}
+            <button
+              type="button"
+              onClick={() => setCreatingPeriod(true)}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Plus className="w-4 h-4" />
@@ -209,7 +211,9 @@ export default function AuditHubDashboard() {
             <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-12 text-center">
               <Calendar className="w-12 h-12 text-slate-400 dark:text-slate-600 mx-auto mb-4" />
               <p className="text-slate-600 dark:text-slate-400">No periods found</p>
-              <button type="button" onClick={() => setCreatingPeriod(true)}
+              <button
+                type="button"
+                onClick={() => setCreatingPeriod(true)}
                 className="mt-4 text-blue-600 dark:text-blue-400 hover:underline"
               >
                 Create your first period

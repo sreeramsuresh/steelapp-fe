@@ -191,14 +191,18 @@ const ZeroRatedExportsWidget = ({
 
       {/* Tab Selector */}
       <div className={`flex rounded-lg p-0.5 mb-4 ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-100"}`}>
-        <button type="button" onClick={() => setSelectedTab("exports")}
+        <button
+          type="button"
+          onClick={() => setSelectedTab("exports")}
           className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
             selectedTab === "exports" ? "bg-teal-500 text-white" : isDarkMode ? "text-gray-400" : "text-gray-600"
           }`}
         >
           Recent Exports
         </button>
-        <button type="button" onClick={() => setSelectedTab("documents")}
+        <button
+          type="button"
+          onClick={() => setSelectedTab("documents")}
           className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
             selectedTab === "documents" ? "bg-teal-500 text-white" : isDarkMode ? "text-gray-400" : "text-gray-600"
           }`}
@@ -333,7 +337,9 @@ const ZeroRatedExportsWidget = ({
       {/* Action Buttons */}
       <div className="mt-4 flex gap-2">
         {onUploadDocument && (
-          <button type="button" onClick={onUploadDocument}
+          <button
+            type="button"
+            onClick={onUploadDocument}
             className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1 ${
               isDarkMode
                 ? "bg-emerald-600 hover:bg-emerald-500 text-white"
@@ -345,7 +351,9 @@ const ZeroRatedExportsWidget = ({
           </button>
         )}
         {onViewAll && (
-          <button type="button" onClick={onViewAll}
+          <button
+            type="button"
+            onClick={onViewAll}
             className={`py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1 ${
               isDarkMode ? "bg-[#2E3B4E] hover:bg-[#3E4B5E] text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
             }`}

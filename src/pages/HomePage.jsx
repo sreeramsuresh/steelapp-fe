@@ -36,7 +36,9 @@ const QuickAccessSection = ({ quickAccessItems, handleNavigate, isDarkMode }) =>
     {quickAccessItems.map((item) => {
       const IconComponent = item.icon;
       return (
-        <button type="button" key={item.name}
+        <button
+          type="button"
+          key={item.name}
           onClick={() => handleNavigate(item.path)}
           className={`p-6 rounded-xl border-2 transition-all duration-300 group ${
             isDarkMode
@@ -68,7 +70,9 @@ const CreateNewSection = ({ createNewItems, handleNavigate, isDarkMode }) => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     {createNewItems.map((item) => {
       return (
-        <button type="button" key={item.name}
+        <button
+          type="button"
+          key={item.name}
           onClick={() => handleNavigate(item.path)}
           className={`flex items-center justify-center gap-2 p-4 rounded-lg border-2 font-semibold transition-all duration-300 group ${
             isDarkMode
@@ -97,7 +101,9 @@ const RecentItemsSection = ({ recentItems, handleNavigate, isDarkMode }) => (
       recentItems.map((item, index) => {
         const IconComponent = item.icon;
         return (
-          <button type="button" key={item.id}
+          <button
+            type="button"
+            key={item.id}
             onClick={() => handleNavigate(item.link)}
             className={`w-full flex items-center justify-between p-4 transition-all hover:bg-teal-500/10 ${
               index !== recentItems.length - 1
@@ -288,7 +294,9 @@ const HomePage = () => {
             <h1 className={`text-4xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>Home</h1>
             <p className={`text-lg ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Welcome back, {userName}! 👋</p>
           </div>
-          <button type="button" onClick={() => window.location.reload()}
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode
                 ? "hover:bg-gray-800 text-gray-400 hover:text-white"

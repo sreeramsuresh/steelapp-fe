@@ -141,7 +141,9 @@ const InvoiceAllocationConfirmation = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <p className="text-red-600 text-lg">{error || "Invoice not found"}</p>
-          <button type="button" onClick={() => navigate("/invoices")}
+          <button
+            type="button"
+            onClick={() => navigate("/invoices")}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Back to Invoices
@@ -157,7 +159,9 @@ const InvoiceAllocationConfirmation = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <p className="text-gray-600 text-lg">This invoice does not require confirmation.</p>
-          <button type="button" onClick={() => navigate("/invoices")}
+          <button
+            type="button"
+            onClick={() => navigate("/invoices")}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Back to Invoices
@@ -312,14 +316,18 @@ const InvoiceAllocationConfirmation = () => {
 
       {/* Action Buttons */}
       <div className="mt-6 flex items-center justify-end gap-4">
-        <button type="button" onClick={handleEditInvoice}
+        <button
+          type="button"
+          onClick={handleEditInvoice}
           disabled={isReleasing || isExpired}
           className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isReleasing ? "Releasing..." : "Edit Invoice"}
         </button>
 
-        <button type="button" onClick={handleConfirm}
+        <button
+          type="button"
+          onClick={handleConfirm}
           disabled={isConfirming || isExpired}
           className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >

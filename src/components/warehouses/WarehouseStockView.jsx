@@ -173,7 +173,9 @@ const WarehouseStockView = ({ warehouseId, warehouseName: _warehouseName }) => {
           </select>
 
           {/* Low Stock Filter */}
-          <button type="button" onClick={() => setFilterLowStock(!filterLowStock)}
+          <button
+            type="button"
+            onClick={() => setFilterLowStock(!filterLowStock)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
               filterLowStock
                 ? "bg-red-600 text-white border-red-600"

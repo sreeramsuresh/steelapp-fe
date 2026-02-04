@@ -213,7 +213,7 @@ const Home = () => {
                 onClick={() => setCurrentSlide(index)}
               />
             ))}
-          </div>
+          </button>
 
           {/* Scroll Indicator */}
           <div className="absolute bottom-8 right-8 text-white animate-bounce">

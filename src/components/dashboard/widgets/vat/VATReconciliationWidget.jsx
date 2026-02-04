@@ -201,7 +201,9 @@ const VATReconciliationWidget = ({
         </div>
 
         {onRunReconciliation && (
-          <button type="button" onClick={onRunReconciliation}
+          <button
+            type="button"
+            onClick={onRunReconciliation}
             disabled={isLoading}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode
@@ -217,14 +219,18 @@ const VATReconciliationWidget = ({
 
       {/* Tab Selector */}
       <div className={`flex rounded-lg p-0.5 mb-4 ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-100"}`}>
-        <button type="button" onClick={() => setSelectedTab("overview")}
+        <button
+          type="button"
+          onClick={() => setSelectedTab("overview")}
           className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
             selectedTab === "overview" ? "bg-teal-500 text-white" : isDarkMode ? "text-gray-400" : "text-gray-600"
           }`}
         >
           Overview
         </button>
-        <button type="button" onClick={() => setSelectedTab("discrepancies")}
+        <button
+          type="button"
+          onClick={() => setSelectedTab("discrepancies")}
           className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors flex items-center justify-center gap-1 ${
             selectedTab === "discrepancies" ? "bg-teal-500 text-white" : isDarkMode ? "text-gray-400" : "text-gray-600"
           }`}
@@ -400,7 +406,9 @@ const VATReconciliationWidget = ({
             </span>
           </div>
           {onViewDetails && (
-            <button type="button" onClick={onViewDetails}
+            <button
+              type="button"
+              onClick={onViewDetails}
               className={`text-xs font-medium flex items-center gap-1 ${
                 isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"
               }`}

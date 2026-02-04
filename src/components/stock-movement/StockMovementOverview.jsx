@@ -176,7 +176,9 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
   };
 
   const StatCard = ({ title, value, icon: Icon, color, onClick, sublabel }) => (
-    <button type="button" onClick={onClick}
+    <button
+      type="button"
+      onClick={onClick}
       className={`w-full text-left ${
         isDarkMode ? "bg-gray-800 hover:bg-gray-750" : "bg-white hover:bg-gray-50"
       } p-4 rounded-lg shadow-sm transition-colors border ${
@@ -199,7 +201,9 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
   );
 
   const QuickActionCard = ({ title, description, icon: Icon, onClick, color, testId }) => (
-    <button type="button" onClick={onClick}
+    <button
+      type="button"
+      onClick={onClick}
       className={`w-full text-left ${
         isDarkMode ? "bg-gray-800 hover:bg-gray-750" : "bg-white hover:bg-gray-50"
       } p-4 rounded-lg shadow-sm transition-colors border ${
@@ -244,7 +248,9 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <button type="button" onClick={() => loadDashboardData(false)}
+          <button
+            type="button"
+            onClick={() => loadDashboardData(false)}
             disabled={loading}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode
@@ -255,7 +261,9 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           >
             <RefreshCw size={18} />
           </button>
-          <button type="button" onClick={() => onNavigateToTab?.("transfers")}
+          <button
+            type="button"
+            onClick={() => onNavigateToTab?.("transfers")}
             className="text-teal-600 hover:text-teal-700 text-sm font-medium flex items-center"
           >
             View All <ArrowRight size={16} className="ml-1" />

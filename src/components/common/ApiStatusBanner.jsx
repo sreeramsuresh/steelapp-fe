@@ -53,7 +53,9 @@ const ApiStatusBanner = () => {
         {/* Actions */}
         <div className="flex items-center gap-2 flex-shrink-0">
           {/* Retry Button */}
-          <button type="button" onClick={checkNow}
+          <button
+            type="button"
+            onClick={checkNow}
             disabled={isChecking}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               isDarkMode
@@ -66,7 +68,9 @@ const ApiStatusBanner = () => {
           </button>
 
           {/* Dismiss Button */}
-          <button type="button" onClick={dismiss}
+          <button
+            type="button"
+            onClick={dismiss}
             className={`p-1.5 rounded-lg transition-colors ${
               isDarkMode ? "hover:bg-amber-800 text-amber-300" : "hover:bg-amber-100 text-amber-600"
             }`}

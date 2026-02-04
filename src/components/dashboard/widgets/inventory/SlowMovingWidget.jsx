@@ -216,7 +216,9 @@ const SlowMovingWidget = ({ data, onNavigate, onProductClick, onAction }) => {
                   </span>
                 </div>
 
-                <button type="button" onClick={(e) => {
+                <button
+                  type="button"
+                  onClick={(e) => {
                     e.stopPropagation();
                     onAction?.(product, product.recommendation);
                   }}
@@ -244,7 +246,9 @@ const SlowMovingWidget = ({ data, onNavigate, onProductClick, onAction }) => {
               {summary.avgDaysInStock} days
             </p>
           </div>
-          <button type="button" onClick={() => onNavigate?.("/inventory?filter=slow-moving")}
+          <button
+            type="button"
+            onClick={() => onNavigate?.("/inventory?filter=slow-moving")}
             className={`text-xs font-medium ${
               isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"
             }`}

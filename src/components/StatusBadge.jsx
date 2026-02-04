@@ -19,7 +19,9 @@ const StatusBadge = ({ label, icon, config, isDarkMode, onClick, title, size = "
   // If clickable, render as button for accessibility
   if (onClick) {
     return (
-      <button type="button" className={`${sharedClasses} cursor-pointer hover:opacity-80 transition-opacity`}
+      <button
+        type="button"
+        className={`${sharedClasses} cursor-pointer hover:opacity-80 transition-opacity`}
         onClick={onClick}
         title={title}
       >

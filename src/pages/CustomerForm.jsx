@@ -581,7 +581,9 @@ const CustomerForm = () => {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <button type="button" onClick={() => navigate("/payables")}
+                <button
+                  type="button"
+                  onClick={() => navigate("/payables")}
                   className={`p-2 rounded-xl transition-colors ${
                     isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
                   }`}
@@ -599,7 +601,9 @@ const CustomerForm = () => {
               </div>
               <div className="flex items-center gap-2">
                 {customerId && (
-                  <button type="button" onClick={() => setIsEditMode(!isEditMode)}
+                  <button
+                    type="button"
+                    onClick={() => setIsEditMode(!isEditMode)}
                     className={`px-3 py-2 rounded-xl text-sm border transition-colors ${
                       isEditMode
                         ? isDarkMode
@@ -614,7 +618,9 @@ const CustomerForm = () => {
                   </button>
                 )}
                 {isEditMode && (
-                  <button type="button" onClick={handleSave}
+                  <button
+                    type="button"
+                    onClick={handleSave}
                     disabled={saving}
                     className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
                       isDarkMode

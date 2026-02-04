@@ -183,14 +183,18 @@ const ReverseChargeWidget = ({
 
         {/* View Toggle */}
         <div className={`flex rounded-lg p-0.5 ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-100"}`}>
-          <button type="button" onClick={() => setSelectedView("summary")}
+          <button
+            type="button"
+            onClick={() => setSelectedView("summary")}
             className={`px-2 py-1 text-xs rounded-md transition-colors ${
               selectedView === "summary" ? "bg-teal-500 text-white" : isDarkMode ? "text-gray-400" : "text-gray-600"
             }`}
           >
             Summary
           </button>
-          <button type="button" onClick={() => setSelectedView("transactions")}
+          <button
+            type="button"
+            onClick={() => setSelectedView("transactions")}
             className={`px-2 py-1 text-xs rounded-md transition-colors ${
               selectedView === "transactions"
                 ? "bg-teal-500 text-white"
@@ -376,7 +380,9 @@ const ReverseChargeWidget = ({
       {/* Action Buttons */}
       <div className="mt-4 flex gap-2">
         {onAddReverseCharge && (
-          <button type="button" onClick={onAddReverseCharge}
+          <button
+            type="button"
+            onClick={onAddReverseCharge}
             className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1 ${
               isDarkMode
                 ? "bg-orange-600 hover:bg-orange-500 text-white"
@@ -388,7 +394,9 @@ const ReverseChargeWidget = ({
           </button>
         )}
         {onViewAll && (
-          <button type="button" onClick={onViewAll}
+          <button
+            type="button"
+            onClick={onViewAll}
             className={`py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1 ${
               isDarkMode ? "bg-[#2E3B4E] hover:bg-[#3E4B5E] text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
             }`}

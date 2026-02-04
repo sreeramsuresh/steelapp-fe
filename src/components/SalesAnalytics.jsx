@@ -290,7 +290,9 @@ const SalesAnalytics = () => {
           </div>
         </div>
         {/* eslint-disable-next-line local-rules/no-dead-button */}
-        <button type="button" onClick={() => {
+        <button
+          type="button"
+          onClick={() => {
             // TODO: Implement export report functionality
           }}
           className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
@@ -1016,7 +1018,9 @@ const SalesAnalytics = () => {
         </h3>
         <div className="flex gap-3">
           {/* eslint-disable-next-line local-rules/no-dead-button */}
-          <button type="button" onClick={() => {
+          <button
+            type="button"
+            onClick={() => {
               // TODO: Implement refresh data functionality
             }}
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
@@ -1029,7 +1033,9 @@ const SalesAnalytics = () => {
             Refresh Data
           </button>
           {/* eslint-disable-next-line local-rules/no-dead-button */}
-          <button type="button" onClick={() => {
+          <button
+            type="button"
+            onClick={() => {
               // TODO: Implement generate report functionality
             }}
             className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
@@ -1323,7 +1329,9 @@ const SalesAnalytics = () => {
           {/* Tabs - Pill style */}
           <div className="mb-6">
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => setActiveTab("overview")}
+              <button
+                type="button"
+                onClick={() => setActiveTab("overview")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "overview"
                     ? isDarkMode
@@ -1337,7 +1345,9 @@ const SalesAnalytics = () => {
                 <BarChart3 size={18} />
                 Revenue Overview
               </button>
-              <button type="button" onClick={() => setActiveTab("customers")}
+              <button
+                type="button"
+                onClick={() => setActiveTab("customers")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "customers"
                     ? isDarkMode
@@ -1351,7 +1361,9 @@ const SalesAnalytics = () => {
                 <Users size={18} />
                 Customer Analysis
               </button>
-              <button type="button" onClick={() => setActiveTab("products")}
+              <button
+                type="button"
+                onClick={() => setActiveTab("products")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "products"
                     ? isDarkMode
@@ -1365,7 +1377,9 @@ const SalesAnalytics = () => {
                 <Package size={18} />
                 Product Performance
               </button>
-              <button type="button" onClick={() => setActiveTab("reports")}
+              <button
+                type="button"
+                onClick={() => setActiveTab("reports")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "reports"
                     ? isDarkMode

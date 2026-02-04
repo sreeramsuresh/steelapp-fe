@@ -45,7 +45,9 @@ const Button = ({
   };
 
   return (
-    <button type="button" className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? "cursor-not-allowed opacity-50" : ""} ${className}`}
+    <button
+      type="button"
+      className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? "cursor-not-allowed opacity-50" : ""} ${className}`}
       disabled={disabled}
       onClick={onClick}
       {...props}
@@ -201,7 +203,9 @@ export default function PriceListList() {
 
         {/* Quick Filters Toggle */}
         <div className="flex items-center gap-2 mb-3">
-          <button type="button" onClick={() => setShowFilters(!showFilters)}
+          <button
+            type="button"
+            onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               showFilters
                 ? "bg-teal-500 text-white"
@@ -246,7 +250,9 @@ export default function PriceListList() {
                 const isActive = statusFilter === filter.id;
                 const count = statusCounts[filter.id];
                 return (
-                  <button type="button" key={filter.id}
+                  <button
+                    type="button"
+                    key={filter.id}
                     onClick={() => setStatusFilter(filter.id)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                       isActive
@@ -276,7 +282,9 @@ export default function PriceListList() {
                 const count =
                   filter.id === "all" ? pricelists.length : pricelists.filter((pl) => pl.currency === filter.id).length;
                 return (
-                  <button type="button" key={filter.id}
+                  <button
+                    type="button"
+                    key={filter.id}
                     onClick={() => setCurrencyFilter(filter.id)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                       isActive
@@ -414,7 +422,9 @@ export default function PriceListList() {
                       </p>
                     </div>
                     <div className="flex flex-col gap-1 min-h-[6.5rem]">
-                      <button type="button" onClick={(e) => {
+                      <button
+                        type="button"
+                        onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/pricelists/${pricelist.id}/edit`);
                         }}
@@ -427,7 +437,9 @@ export default function PriceListList() {
                       >
                         <Edit size={16} />
                       </button>
-                      <button type="button" onClick={(e) => handleCopy(pricelist.id, e)}
+                      <button
+                        type="button"
+                        onClick={(e) => handleCopy(pricelist.id, e)}
                         className={`p-1.5 rounded transition-colors ${
                           isDarkMode
                             ? "text-blue-400 hover:text-blue-300 hover:bg-gray-700"
@@ -438,7 +450,9 @@ export default function PriceListList() {
                         <Copy size={16} />
                       </button>
                       {!pricelist.isDefault ? (
-                        <button type="button" onClick={(e) => handleDelete(pricelist.id, pricelist.name, e)}
+                        <button
+                          type="button"
+                          onClick={(e) => handleDelete(pricelist.id, pricelist.name, e)}
                           className={`p-1.5 rounded transition-colors ${
                             isDarkMode
                               ? "text-red-400 hover:text-red-300 hover:bg-gray-700"

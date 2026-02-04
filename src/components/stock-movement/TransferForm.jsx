@@ -348,7 +348,9 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           <ArrowRight className="w-8 h-8 text-blue-500" />
           <h1 className="text-2xl font-bold">Create Stock Transfer</h1>
         </div>
-        <button type="button" onClick={onCancel}
+        <button
+          type="button"
+          onClick={onCancel}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
             isDarkMode ? "bg-gray-700 text-gray-300 hover:bg-gray-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
           }`}
@@ -374,7 +376,9 @@ const TransferForm = ({ onCancel, onSuccess }) => {
               ))}
             </ul>
           </div>
-          <button type="button" onClick={() => {
+          <button
+            type="button"
+            onClick={() => {
               setValidationErrors([]);
               setInvalidFields(new Set());
               setError(null);
@@ -568,7 +572,9 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Items to Transfer</h2>
-          <button type="button" onClick={handleAddItem}
+          <button
+            type="button"
+            onClick={handleAddItem}
             disabled={!sourceWarehouseId}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
               !sourceWarehouseId ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 text-white"
@@ -726,7 +732,9 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                         />
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <button type="button" onClick={() => handleRemoveItem(item.id)}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveItem(item.id)}
                           className="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 dark:hover:bg-opacity-20 rounded"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -743,7 +751,9 @@ const TransferForm = ({ onCancel, onSuccess }) => {
 
       {/* Actions */}
       <div className="flex justify-end gap-3">
-        <button type="button" onClick={onCancel}
+        <button
+          type="button"
+          onClick={onCancel}
           disabled={saving}
           className={`px-4 py-2 rounded-lg font-medium ${
             isDarkMode ? "bg-gray-700 text-gray-300 hover:bg-gray-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -751,7 +761,9 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         >
           Cancel
         </button>
-        <button type="button" onClick={handleSubmit}
+        <button
+          type="button"
+          onClick={handleSubmit}
           disabled={saving || items.length === 0}
           className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
             saving || items.length === 0 ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 text-white"

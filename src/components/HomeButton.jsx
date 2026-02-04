@@ -21,7 +21,9 @@ const HomeButton = () => {
   };
 
   return (
-    <button type="button" onClick={handleHomeClick}
+    <button
+      type="button"
+      onClick={handleHomeClick}
       disabled={isOnHome}
       title={isOnHome ? "Already on home page" : "Return to home page"}
       className={`p-2 rounded-lg transition-all duration-200 ${

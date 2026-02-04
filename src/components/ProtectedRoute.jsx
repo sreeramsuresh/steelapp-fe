@@ -62,7 +62,9 @@ const ProtectedRoute = ({
             <strong>Required role:</strong> {requiredRoles ? requiredRoles.join(" or ") : requiredRole}
           </p>
         </div>
-        <button type="button" className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+        <button
+          type="button"
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
             isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-800"
           }`}
           onClick={() => window.history.back()}
@@ -96,7 +98,9 @@ const ProtectedRoute = ({
             </p>
             <p>Contact your administrator to request access.</p>
           </div>
-          <button type="button" className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+          <button
+            type="button"
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-800"
             }`}
             onClick={() => window.history.back()}

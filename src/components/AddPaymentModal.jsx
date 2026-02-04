@@ -87,7 +87,9 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">{editingPayment ? "Edit Payment" : "Add Payment"}</h2>
-          <button type="button" onClick={onClose}
+          <button
+            type="button"
+            onClick={onClose}
             className={`p-1 rounded-lg transition-colors ${
               isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-600"
             }`}
@@ -101,7 +103,9 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Balance Due:</span>
-              <button type="button" onClick={() =>
+              <button
+                type="button"
+                onClick={() =>
                   setPayment((prev) => ({
                     ...prev,
                     amount: balanceDue.toString(),
@@ -278,7 +282,9 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
 
         {/* Actions */}
         <div className="flex justify-end gap-3 mt-6">
-          <button type="button" onClick={onClose}
+          <button
+            type="button"
+            onClick={onClose}
             disabled={isSaving}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-900"
@@ -286,7 +292,9 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
           >
             Cancel
           </button>
-          <button type="button" onClick={handleSave}
+          <button
+            type="button"
+            onClick={handleSave}
             disabled={isSaving}
             className={`px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors inline-flex items-center justify-center ${
               isSaving ? "opacity-60 cursor-not-allowed pointer-events-none" : ""

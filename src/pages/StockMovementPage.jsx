@@ -153,7 +153,9 @@ const StockMovementPage = () => {
                   </p>
                 )}
               </div>
-              <button type="button" onClick={handleTransferCancel}
+              <button
+                type="button"
+                onClick={handleTransferCancel}
                 className="mt-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors"
               >
                 Back to List
@@ -310,7 +312,9 @@ const StockMovementPage = () => {
                 </div>
               )}
 
-              <button type="button" onClick={handleReservationCancel}
+              <button
+                type="button"
+                onClick={handleReservationCancel}
                 className="mt-6 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors"
               >
                 Back to List
@@ -360,7 +364,9 @@ const StockMovementPage = () => {
               const isActive = activeTab === tab.id;
 
               return (
-                <button type="button" key={tab.id}
+                <button
+                  type="button"
+                  key={tab.id}
                   onClick={() => {
                     setActiveTab(tab.id);
                     // Reset sub-views when changing tabs

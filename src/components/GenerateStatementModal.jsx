@@ -117,7 +117,9 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
               </div>
             </div>
           </div>
-          <button type="button" onClick={onClose}
+          <button
+            type="button"
+            onClick={onClose}
             className={`p-2 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
           >
             <X className={`h-5 w-5 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`} />
@@ -246,7 +248,9 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
             isDarkMode ? "border-[#37474F]" : "border-gray-200"
           }`}
         >
-          <button type="button" onClick={onClose}
+          <button
+            type="button"
+            onClick={onClose}
             disabled={loading}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-900"
@@ -254,7 +258,9 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
           >
             Cancel
           </button>
-          <button type="button" onClick={handleGenerate}
+          <button
+            type="button"
+            onClick={handleGenerate}
             disabled={loading}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
               loading ? "bg-teal-600/50 cursor-not-allowed" : "bg-teal-600 hover:bg-teal-700"

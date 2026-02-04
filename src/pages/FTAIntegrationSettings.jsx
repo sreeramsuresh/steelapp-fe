@@ -466,7 +466,9 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                       </p>
                     </div>
                   </div>
-                  <button type="button" onClick={handleUnlock}
+                  <button
+                    type="button"
+                    onClick={handleUnlock}
                     disabled={unlocking}
                     className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
                       isDarkMode
@@ -571,7 +573,9 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                               : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
                           } focus:ring-2 focus:ring-teal-500 focus:border-teal-500`}
                         />
-                        <button type="button" onClick={() => setShowApiKey(!showApiKey)}
+                        <button
+                          type="button"
+                          onClick={() => setShowApiKey(!showApiKey)}
                           className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded ${
                             isDarkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-700"
                           }`}
@@ -648,7 +652,9 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                     <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                       <div className="flex items-center gap-3">
                         {isConfigured && !integration?.is_locked && (
-                          <button type="button" onClick={handleDelete}
+                          <button
+                            type="button"
+                            onClick={handleDelete}
                             className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 ${
                               isDarkMode ? "text-red-400 hover:bg-red-900/30" : "text-red-600 hover:bg-red-50"
                             }`}
@@ -661,7 +667,9 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
 
                       <div className="flex items-center gap-2">
                         {/* Test Connection */}
-                        <button type="button" onClick={handleTest}
+                        <button
+                          type="button"
+                          onClick={handleTest}
                           disabled={testing || !isConfigured || integration?.is_locked || hasChanges}
                           className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 ${
                             isDarkMode
@@ -675,7 +683,9 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                         </button>
 
                         {/* Save */}
-                        <button type="button" onClick={handleSave}
+                        <button
+                          type="button"
+                          onClick={handleSave}
                           disabled={saving || integration?.is_locked || !hasChanges}
                           className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 bg-teal-600 hover:bg-teal-500 text-white disabled:bg-teal-600/50 disabled:cursor-not-allowed`}
                         >
@@ -753,7 +763,9 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                       <History className={`h-4 w-4 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
                       <h2 className="text-base font-semibold">Usage & Audit</h2>
                     </div>
-                    <button type="button" onClick={() => setShowAuditLog(!showAuditLog)}
+                    <button
+                      type="button"
+                      onClick={() => setShowAuditLog(!showAuditLog)}
                       className={`text-xs ${isDarkMode ? "text-teal-400" : "text-teal-600"} hover:underline`}
                     >
                       {showAuditLog ? "Hide Log" : "View Audit Log"}

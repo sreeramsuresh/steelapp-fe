@@ -493,7 +493,7 @@ const ToggleSwitchPO = ({ enabled, onChange, label, description, isDarkMode }) =
         }`}
       />
     </button>
-  </div>
+  </button>
 );
 
 // Form Settings Panel Component

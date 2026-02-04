@@ -124,7 +124,9 @@ const CommissionDashboard = () => {
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <button type="button" onClick={handleBatchCalculate}
+              <button
+                type="button"
+                onClick={handleBatchCalculate}
                 disabled={calculatingBatch}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center space-x-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -140,7 +142,9 @@ const CommissionDashboard = () => {
                   </>
                 )}
               </button>
-              <button type="button" onClick={loadDashboardData}
+              <button
+                type="button"
+                onClick={loadDashboardData}
                 className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
                   isDarkMode
                     ? "bg-gray-700 hover:bg-gray-600 text-white"
@@ -167,7 +171,9 @@ const CommissionDashboard = () => {
               const isActive = activeTab === tab.id;
 
               return (
-                <button type="button" key={tab.id}
+                <button
+                  type="button"
+                  key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center space-x-2 px-4 py-3 rounded-t-lg border-b-2 transition-colors ${
                     isActive

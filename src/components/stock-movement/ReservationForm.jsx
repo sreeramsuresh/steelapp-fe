@@ -332,7 +332,9 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             <Bookmark className="w-6 h-6 text-blue-500" />
             <h2 className="text-xl font-bold">Create Stock Reservation</h2>
           </div>
-          <button type="button" onClick={onClose}
+          <button
+            type="button"
+            onClick={onClose}
             disabled={saving}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
               saving ? "opacity-50 cursor-not-allowed" : ""
@@ -731,7 +733,9 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
 
         {/* Actions */}
         <div className="flex justify-end gap-3">
-          <button type="button" onClick={onClose}
+          <button
+            type="button"
+            onClick={onClose}
             disabled={saving}
             className={`px-4 py-2 rounded-lg font-medium ${
               isDarkMode ? "bg-gray-700 text-gray-300 hover:bg-gray-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -739,7 +743,9 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
           >
             Cancel
           </button>
-          <button type="button" onClick={handleSubmit}
+          <button
+            type="button"
+            onClick={handleSubmit}
             disabled={saving || !productId || !quantity}
             className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
               saving || !productId || !quantity

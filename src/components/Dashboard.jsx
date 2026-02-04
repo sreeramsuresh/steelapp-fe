@@ -49,7 +49,9 @@ const Button = ({
   };
 
   return (
-    <button type="button" className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? "cursor-not-allowed" : ""} ${className}`}
+    <button
+      type="button"
+      className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? "cursor-not-allowed" : ""} ${className}`}
       disabled={disabled}
       onClick={onClick}
       {...props}

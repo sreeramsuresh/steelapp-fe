@@ -159,7 +159,9 @@ const SalesAgentsManagement = () => {
                     <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{agent.email}</p>
                   </div>
                 </div>
-                <button type="button" onClick={() => handleEditClick(agent)}
+                <button
+                  type="button"
+                  onClick={() => handleEditClick(agent)}
                   className={`p-2 rounded-lg ${
                     isDarkMode
                       ? "hover:bg-gray-700 text-gray-400 hover:text-white"
@@ -348,7 +350,9 @@ const SalesAgentsManagement = () => {
             <div
               className={`p-6 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} flex justify-end space-x-3`}
             >
-              <button type="button" onClick={() => setShowEditModal(false)}
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
                 disabled={saving}
                 className={`px-4 py-2 rounded-lg ${
                   isDarkMode
@@ -358,7 +362,9 @@ const SalesAgentsManagement = () => {
               >
                 Cancel
               </button>
-              <button type="button" onClick={handleSave}
+              <button
+                type="button"
+                onClick={handleSave}
                 disabled={saving}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
               >

@@ -296,7 +296,7 @@ const ToggleSwitch = ({ enabled, onChange, label, description, isDarkMode }) => 
         }`}
       />
     </button>
-  </div>
+  </button>
 );
 
 // Form Settings Panel Component
@@ -2773,7 +2773,7 @@ const SupplierBillForm = () => {
                       <span className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? "bg-teal-400" : "bg-teal-500"}`} />
                     )}
                   </button>
-                </div>
+                </button>
               </div>
 
               {/* Stock-In Information */}

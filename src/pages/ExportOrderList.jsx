@@ -322,7 +322,9 @@ const ExportOrderList = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <button type="button" onClick={handleExportToExcel}
+          <button
+            type="button"
+            onClick={handleExportToExcel}
             className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
               isDarkMode
                 ? "bg-gray-700 hover:bg-gray-600 text-white"
@@ -403,7 +405,9 @@ const ExportOrderList = () => {
 
           {/* Advanced Filters Toggle */}
           <div className="mt-3 flex items-center justify-between">
-            <button type="button" onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            <button
+              type="button"
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
               className={`text-sm flex items-center gap-1 ${
                 isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"
               }`}
@@ -414,7 +418,9 @@ const ExportOrderList = () => {
             </button>
 
             {Object.values(filters).some((v) => v !== "") && (
-              <button type="button" onClick={clearFilters}
+              <button
+                type="button"
+                onClick={clearFilters}
                 className={`text-sm flex items-center gap-1 ${
                   isDarkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-700"
                 }`}
@@ -496,12 +502,16 @@ const ExportOrderList = () => {
             {selectedOrders.length} order(s) selected
           </span>
           <div className="flex gap-2">
-            <button type="button" onClick={handleExportToExcel}
+            <button
+              type="button"
+              onClick={handleExportToExcel}
               className="px-3 py-1 text-sm bg-teal-600 hover:bg-teal-700 text-white rounded"
             >
               Export Selected
             </button>
-            <button type="button" onClick={() => setSelectedOrders([])}
+            <button
+              type="button"
+              onClick={() => setSelectedOrders([])}
               className={`px-3 py-1 text-sm rounded ${
                 isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"
               }`}
@@ -710,7 +720,9 @@ const ExportOrderList = () => {
                         >
                           <Edit size={16} />
                         </Link>
-                        <button type="button" onClick={() => handleDelete(order.id)}
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(order.id)}
                           className="text-red-600 hover:text-red-900 p-1"
                           title="Delete"
                         >
@@ -755,7 +767,9 @@ const ExportOrderList = () => {
               {Math.min(pagination.current_page * pagination.per_page, pagination.total)} of {pagination.total} results
             </div>
             <div className="flex items-center gap-2">
-              <button type="button" onClick={() => loadOrders(pagination.current_page - 1)}
+              <button
+                type="button"
+                onClick={() => loadOrders(pagination.current_page - 1)}
                 disabled={pagination.current_page <= 1}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed ${
                   isDarkMode ? "border-gray-600 hover:bg-gray-700" : "border-gray-300 hover:bg-gray-100"
@@ -779,7 +793,9 @@ const ExportOrderList = () => {
                   }
 
                   return (
-                    <button type="button" key={pageNum}
+                    <button
+                      type="button"
+                      key={pageNum}
                       onClick={() => loadOrders(pageNum)}
                       className={`w-8 h-8 text-sm rounded ${
                         pageNum === pagination.current_page
@@ -795,7 +811,9 @@ const ExportOrderList = () => {
                 })}
               </div>
 
-              <button type="button" onClick={() => loadOrders(pagination.current_page + 1)}
+              <button
+                type="button"
+                onClick={() => loadOrders(pagination.current_page + 1)}
                 disabled={pagination.current_page >= pagination.total_pages}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed ${
                   isDarkMode ? "border-gray-600 hover:bg-gray-700" : "border-gray-300 hover:bg-gray-100"

@@ -256,7 +256,9 @@ const ImportOrderList = () => {
                       <Link to={`/import-orders/${order.id}/edit`} className="text-blue-600 hover:text-blue-900">
                         <Edit size={16} className="inline" />
                       </Link>
-                      <button type="button" onClick={() => handleDelete(order.id)}
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(order.id)}
                         className="text-red-600 hover:text-red-900"
                       >
                         <Trash2 size={16} />
@@ -277,13 +279,17 @@ const ImportOrderList = () => {
               {Math.min(pagination.currentPage * pagination.perPage, pagination.total)} of {pagination.total} results
             </div>
             <div className="flex space-x-2">
-              <button type="button" onClick={() => loadOrders(pagination.currentPage - 1)}
+              <button
+                type="button"
+                onClick={() => loadOrders(pagination.currentPage - 1)}
                 disabled={pagination.currentPage <= 1}
                 className="px-3 py-1 text-sm border rounded disabled:opacity-50"
               >
                 Previous
               </button>
-              <button type="button" onClick={() => loadOrders(pagination.currentPage + 1)}
+              <button
+                type="button"
+                onClick={() => loadOrders(pagination.currentPage + 1)}
                 disabled={pagination.currentPage >= pagination.totalPages}
                 className="px-3 py-1 text-sm border rounded disabled:opacity-50"
               >

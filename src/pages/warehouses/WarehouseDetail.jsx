@@ -177,7 +177,9 @@ const WarehouseDetail = () => {
         <div className="px-6 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
-              <button type="button" onClick={() => navigate("/warehouses")}
+              <button
+                type="button"
+                onClick={() => navigate("/warehouses")}
                 className={`p-2 rounded-lg ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
               >
                 <ArrowLeft className={`w-5 h-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`} />
@@ -214,7 +216,9 @@ const WarehouseDetail = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <button type="button" onClick={fetchWarehouse}
+              <button
+                type="button"
+                onClick={fetchWarehouse}
                 className={`p-2 rounded-lg border ${
                   isDarkMode
                     ? "border-gray-600 text-gray-400 hover:bg-gray-700"
@@ -223,7 +227,9 @@ const WarehouseDetail = () => {
               >
                 <RefreshCw className="w-5 h-5" />
               </button>
-              <button type="button" onClick={handleEdit}
+              <button
+                type="button"
+                onClick={handleEdit}
                 className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
               >
                 <Edit className="w-4 h-4" />
@@ -240,7 +246,9 @@ const WarehouseDetail = () => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
               return (
-                <button type="button" key={tab.id}
+                <button
+                  type="button"
+                  key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                     isActive

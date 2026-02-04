@@ -67,7 +67,7 @@ const ToggleSwitchQuotation = ({ enabled, onChange, label, description, isDarkMo
         }`}
       />
     </button>
-  </div>
+  </button>
 );
 
 const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange }) => {
@@ -2895,7 +2895,7 @@ const QuotationForm = () => {
                       <span className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? "bg-teal-400" : "bg-teal-500"}`} />
                     )}
                   </button>
-                </div>
+                </button>
               </div>
 
               {/* Action Buttons */}

@@ -89,7 +89,9 @@ export default function CashBookReport() {
             />
           </div>
           <div className="flex items-end">
-            <button type="button" onClick={fetchData}
+            <button
+              type="button"
+              onClick={fetchData}
               disabled={loading}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded px-4 py-2 text-sm"
             >
@@ -97,7 +99,9 @@ export default function CashBookReport() {
             </button>
           </div>
           <div className="flex items-end">
-            <button type="button" className="w-full bg-green-600 hover:bg-green-700 text-white rounded px-4 py-2 text-sm"
+            <button
+              type="button"
+              className="w-full bg-green-600 hover:bg-green-700 text-white rounded px-4 py-2 text-sm"
             >
               Export
             </button>
@@ -236,7 +240,9 @@ export default function CashBookReport() {
                 Page {data.pagination.page} of {data.pagination.pages} ({data.pagination.total} total)
               </div>
               <div className="space-x-2">
-                <button type="button" onClick={() =>
+                <button
+                  type="button"
+                  onClick={() =>
                     setFilters({
                       ...filters,
                       page: Math.max(1, filters.page - 1),
@@ -247,7 +253,9 @@ export default function CashBookReport() {
                 >
                   Previous
                 </button>
-                <button type="button" onClick={() => setFilters({ ...filters, page: filters.page + 1 })}
+                <button
+                  type="button"
+                  onClick={() => setFilters({ ...filters, page: filters.page + 1 })}
                   disabled={filters.page >= data.pagination.pages}
                   className="px-3 py-1 border rounded disabled:opacity-50"
                 >

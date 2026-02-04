@@ -71,7 +71,9 @@ class WidgetErrorBoundary extends Component {
             Something went wrong while displaying this widget. The rest of your dashboard is still working.
           </p>
 
-          <button type="button" onClick={this.handleRetry}
+          <button
+            type="button"
+            onClick={this.handleRetry}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
             }`}

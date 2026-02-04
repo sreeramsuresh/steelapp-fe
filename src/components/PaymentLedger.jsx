@@ -112,7 +112,9 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
           <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>📝 Payment History</h3>
           <div className="flex items-center gap-2">
             {selectedForDelete.size > 0 && (
-              <button type="button" onClick={handleDeleteSelected}
+              <button
+                type="button"
+                onClick={handleDeleteSelected}
                 className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
               >
                 <Trash2 size={18} />
@@ -125,7 +127,9 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                 Fully Paid
               </div>
             ) : (
-              <button type="button" onClick={onAddPayment}
+              <button
+                type="button"
+                onClick={onAddPayment}
                 className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
               >
                 <Plus size={18} />
@@ -305,7 +309,9 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                     {/* Actions */}
                     <td className="px-4 py-3">
                       <div className="flex justify-center gap-2">
-                        <button type="button" onClick={() => handlePrintReceipt(payment, index)}
+                        <button
+                          type="button"
+                          onClick={() => handlePrintReceipt(payment, index)}
                           disabled={printingReceiptId === payment.id}
                           className={`p-1.5 rounded transition-colors ${
                             printingReceiptId === payment.id
@@ -318,7 +324,9 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                         >
                           <Printer size={16} />
                         </button>
-                        <button type="button" onClick={() => handleDownloadReceipt(payment, index)}
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadReceipt(payment, index)}
                           disabled={downloadingReceiptId === payment.id}
                           className={`p-1.5 rounded transition-colors ${
                             downloadingReceiptId === payment.id
@@ -331,7 +339,9 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                         >
                           <Download size={16} />
                         </button>
-                        <button type="button" onClick={() => onEditPayment(payment)}
+                        <button
+                          type="button"
+                          onClick={() => onEditPayment(payment)}
                           disabled={isFullyPaid}
                           className={`p-1.5 rounded transition-colors ${
                             isFullyPaid

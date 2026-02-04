@@ -143,7 +143,9 @@ const TopProductsWidget = ({ data, onNavigate, onProductClick }) => {
         {/* Toggle Buttons */}
         <div className={`flex rounded-lg p-0.5 ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}>
           {["revenue", "margin", "volume"].map((mode) => (
-            <button type="button" key={mode}
+            <button
+              type="button"
+              key={mode}
               onClick={() => setViewMode(mode)}
               className={`px-2 py-1 text-xs font-medium rounded-md transition-all ${
                 viewMode === mode
@@ -236,7 +238,9 @@ const TopProductsWidget = ({ data, onNavigate, onProductClick }) => {
             </div>
           ))}
         </div>
-        <button type="button" onClick={() => onNavigate?.("/products")}
+        <button
+          type="button"
+          onClick={() => onNavigate?.("/products")}
           className={`text-xs font-medium flex items-center gap-1 transition-colors ${
             isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"
           }`}

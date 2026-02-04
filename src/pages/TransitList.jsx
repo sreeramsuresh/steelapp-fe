@@ -348,7 +348,9 @@ const TransitList = () => {
                   <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(item.status)}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{getStockStatusBadge(item.stockStatus)}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <button type="button" className={`p-2 rounded-lg transition-colors ${
+                    <button
+                      type="button"
+                      className={`p-2 rounded-lg transition-colors ${
                         isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
                       }`}
                       title="Edit Purchase Order"

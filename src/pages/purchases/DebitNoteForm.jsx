@@ -411,7 +411,9 @@ const DebitNoteForm = () => {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <button type="button" onClick={() => navigate("/app/debit-notes")}
+                <button
+                  type="button"
+                  onClick={() => navigate("/app/debit-notes")}
                   className={`p-2 rounded-xl transition-colors ${
                     isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
                   }`}
@@ -437,7 +439,9 @@ const DebitNoteForm = () => {
                 >
                   {debitNote.status === "approved" ? "Approved" : "Draft"}
                 </span>
-                <button type="button" data-testid="save-draft"
+                <button
+                  type="button"
+                  data-testid="save-draft"
                   onClick={() => handleSave("draft")}
                   disabled={saving}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm border transition-colors ${
@@ -449,7 +453,9 @@ const DebitNoteForm = () => {
                   <Save className="h-4 w-4" />
                   Save Draft
                 </button>
-                <button type="button" data-testid="submit-debit-note"
+                <button
+                  type="button"
+                  data-testid="submit-debit-note"
                   onClick={() => handleSave("approved")}
                   disabled={saving}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
@@ -561,7 +567,9 @@ const DebitNoteForm = () => {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <button type="button" onClick={handleCopyItemsFromBill}
+                        <button
+                          type="button"
+                          onClick={handleCopyItemsFromBill}
                           className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-xl border transition-colors ${
                             isDarkMode
                               ? "border-[#4aa3ff]/50 bg-[#4aa3ff]/20 text-[#4aa3ff] hover:bg-[#4aa3ff]/30"
@@ -572,7 +580,9 @@ const DebitNoteForm = () => {
                           Copy Items
                         </button>
                         {!isEditMode && (
-                          <button type="button" onClick={() => {
+                          <button
+                            type="button"
+                            onClick={() => {
                               setSelectedSupplierBill(null);
                               setDebitNote((prev) => ({
                                 ...prev,
@@ -731,7 +741,9 @@ const DebitNoteForm = () => {
                     </div>
                     <div className={`text-xs ${textMuted}`}>Add items to adjust</div>
                   </div>
-                  <button type="button" data-testid="add-item"
+                  <button
+                    type="button"
+                    data-testid="add-item"
                     onClick={handleAddItem}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-xl font-bold transition-colors ${
                       isDarkMode
@@ -819,7 +831,9 @@ const DebitNoteForm = () => {
 
                         {/* Delete Button */}
                         <div className="col-span-1 flex items-end justify-end">
-                          <button type="button" onClick={() => handleRemoveItem(index)}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveItem(index)}
                             className={`p-2 rounded-xl transition-colors ${
                               isDarkMode ? "hover:bg-red-900/30 text-red-400" : "hover:bg-red-100 text-red-600"
                             }`}

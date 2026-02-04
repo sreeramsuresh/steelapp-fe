@@ -154,7 +154,9 @@ export default function RolesPage() {
   return (
     <div className="p-6">
       <div className="flex items-center gap-3 mb-6">
-        <button type="button" onClick={() => navigate("/settings")}
+        <button
+          type="button"
+          onClick={() => navigate("/settings")}
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           aria-label="Back to settings"
           title="Back to settings"
@@ -236,14 +238,18 @@ export default function RolesPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <button type="button" onClick={() => handleOpenDialog(role)}
+                    <button
+                      type="button"
+                      onClick={() => handleOpenDialog(role)}
                       className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
                       title="Edit role"
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
                     {!role.is_system && (
-                      <button type="button" onClick={() => handleDelete(role.id)}
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(role.id)}
                         className="p-1 text-red-600 hover:text-red-900 hover:bg-red-50 rounded transition-colors"
                         title="Delete role"
                       >

@@ -29,7 +29,9 @@ const HelpSection = ({ title, icon: Icon, children, isOpen, onToggle }) => {
 
   return (
     <div className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"} last:border-b-0`}>
-      <button type="button" onClick={onToggle}
+      <button
+        type="button"
+        onClick={onToggle}
         className={`w-full flex items-center justify-between py-4 px-1 text-left hover:bg-opacity-50 transition-colors ${
           isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
         }`}
@@ -89,7 +91,9 @@ const RolesHelpPanel = () => {
             </h2>
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => {
+            <button
+              type="button"
+              onClick={() => {
                 setOpenSections([
                   "overview",
                   "system-roles",
@@ -110,7 +114,9 @@ const RolesHelpPanel = () => {
             >
               <ChevronsDown className="h-5 w-5" />
             </button>
-            <button type="button" onClick={() => {
+            <button
+              type="button"
+              onClick={() => {
                 setOpenSections([]);
                 setExpandAll(false);
               }}

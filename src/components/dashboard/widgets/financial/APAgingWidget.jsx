@@ -116,7 +116,9 @@ const APAgingWidget = ({ data: propData, onRefresh, loading: externalLoading }) 
             </span>
           </h3>
         </div>
-        <button type="button" onClick={handleRefresh}
+        <button
+          type="button"
+          onClick={handleRefresh}
           disabled={isLoading}
           className={`p-1.5 rounded-lg transition-colors ${
             isDarkMode

@@ -127,7 +127,9 @@ const ReservationTimer = ({
       </div>
 
       {onExtend && timerState !== "expired" && (
-        <button type="button" className="timer-extend-btn"
+        <button
+          type="button"
+          className="timer-extend-btn"
           onClick={handleExtend}
           disabled={isExtending}
           title="Extend reservation by 30 minutes"

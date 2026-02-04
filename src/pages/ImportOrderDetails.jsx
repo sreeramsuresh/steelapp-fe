@@ -323,7 +323,9 @@ const ImportOrderDetails = () => {
             Error Loading Order
           </h2>
           <p className={`mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{error}</p>
-          <button type="button" onClick={loadOrder}
+          <button
+            type="button"
+            onClick={loadOrder}
             className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
           >
             <RefreshCw className="inline-block w-4 h-4 mr-2" />
@@ -401,7 +403,9 @@ const ImportOrderDetails = () => {
       {/* Header with Actions */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <div className="flex items-center gap-4">
-          <button type="button" onClick={() => navigate("/import-orders")}
+          <button
+            type="button"
+            onClick={() => navigate("/import-orders")}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode
                 ? "text-gray-400 hover:text-gray-300 hover:bg-gray-800"
@@ -450,7 +454,9 @@ const ImportOrderDetails = () => {
             </Link>
           )}
 
-          <button type="button" onClick={handlePrint}
+          <button
+            type="button"
+            onClick={handlePrint}
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
                 ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
@@ -464,7 +470,9 @@ const ImportOrderDetails = () => {
           {/* Status Update Dropdown */}
           {availableTransitions.length > 0 && (
             <div className="relative">
-              <button type="button" onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
+              <button
+                type="button"
+                onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
                 className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
               >
                 <RefreshCw size={18} />
@@ -492,7 +500,9 @@ const ImportOrderDetails = () => {
                       const nextConfig = getStatusConfig(nextStatus);
                       const NextIcon = nextConfig.icon;
                       return (
-                        <button type="button" key={nextStatus}
+                        <button
+                          type="button"
+                          key={nextStatus}
                           onClick={() => handleStatusUpdate(nextStatus)}
                           className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
                             isDarkMode ? "hover:bg-gray-700 text-gray-200" : "hover:bg-gray-50 text-gray-700"
@@ -509,7 +519,9 @@ const ImportOrderDetails = () => {
             </div>
           )}
 
-          <button type="button" onClick={handleDelete}
+          <button
+            type="button"
+            onClick={handleDelete}
             className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           >
             <Trash2 size={18} />
@@ -1019,7 +1031,9 @@ const ImportOrderDetails = () => {
                 const TabIcon = tab.icon;
                 const isActive = activeDocTab === tab.id;
                 return (
-                  <button type="button" key={tab.id}
+                  <button
+                    type="button"
+                    key={tab.id}
                     onClick={() => setActiveDocTab(tab.id)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       isActive
@@ -1066,7 +1080,9 @@ const ImportOrderDetails = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button type="button" className={`p-2 rounded-lg transition-colors ${
+                        <button
+                          type="button"
+                          className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-200 text-gray-600"
                           }`}
                           title="View"
@@ -1077,7 +1093,9 @@ const ImportOrderDetails = () => {
                           <Eye size={16} />
                         </button>
 
-                        <button type="button" className={`p-2 rounded-lg transition-colors ${
+                        <button
+                          type="button"
+                          className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-200 text-gray-600"
                           }`}
                           title="Download"
@@ -1393,7 +1411,9 @@ const ImportOrderDetails = () => {
                 <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Update Status
                 </h2>
-                <button type="button" onClick={() => {
+                <button
+                  type="button"
+                  onClick={() => {
                     setShowStatusNotesModal(false);
                     setPendingStatus(null);
                     setStatusUpdateNotes("");
@@ -1432,7 +1452,9 @@ const ImportOrderDetails = () => {
             <div
               className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
             >
-              <button type="button" onClick={() => {
+              <button
+                type="button"
+                onClick={() => {
                   setShowStatusNotesModal(false);
                   setPendingStatus(null);
                   setStatusUpdateNotes("");
@@ -1443,7 +1465,9 @@ const ImportOrderDetails = () => {
               >
                 Cancel
               </button>
-              <button type="button" onClick={confirmStatusUpdate}
+              <button
+                type="button"
+                onClick={confirmStatusUpdate}
                 className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
               >
                 Update Status

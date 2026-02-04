@@ -900,7 +900,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           <RotateCcw size={18} />
           Reset to Defaults
         </button>
-      </div>
+      </button>
 
       {/* Unsaved Changes Warning - Prominent Position */}
       {hasChanges && (
@@ -1525,7 +1525,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
-    </div>
+    </button>
   );
 };
 

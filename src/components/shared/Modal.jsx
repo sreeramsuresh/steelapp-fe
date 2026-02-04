@@ -74,7 +74,7 @@ const Modal = ({
         {/* Content */}
         {children}
       </div>
-    </div>
+    </button>
   );
 };
 

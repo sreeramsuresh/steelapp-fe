@@ -302,7 +302,9 @@ const StockMovementForm = () => {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <button type="button" onClick={() => navigate("/inventory/stock-movements")}
+                <button
+                  type="button"
+                  onClick={() => navigate("/inventory/stock-movements")}
                   className={`p-2 rounded-xl transition-colors ${
                     isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
                   }`}
@@ -340,7 +342,9 @@ const StockMovementForm = () => {
                   </span>
                 )}
                 {!isEditing && (
-                  <button type="button" onClick={handleSubmit}
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
                     disabled={saving}
                     className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
                       isDarkMode
@@ -413,7 +417,9 @@ const StockMovementForm = () => {
                               </div>
                             )}
                           </div>
-                          <button type="button" onClick={clearLinkedProduct}
+                          <button
+                            type="button"
+                            onClick={clearLinkedProduct}
                             className={`px-2.5 py-1 text-xs rounded-xl border ${
                               isDarkMode
                                 ? "border-[#2a3640] bg-[#0f151b] hover:border-[#4aa3ff]"

@@ -297,7 +297,9 @@ const VATReturnStatusWidget = ({
       {/* Action Buttons */}
       <div className="mt-4 flex gap-2">
         {onGenerateReturn && (
-          <button type="button" onClick={onGenerateReturn}
+          <button
+            type="button"
+            onClick={onGenerateReturn}
             className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1 ${
               isDarkMode ? "bg-teal-600 hover:bg-teal-500 text-white" : "bg-teal-500 hover:bg-teal-600 text-white"
             }`}
@@ -306,7 +308,9 @@ const VATReturnStatusWidget = ({
             Generate Return
           </button>
         )}
-        <button type="button" onClick={() => window.open("https://tax.gov.ae", "_blank")}
+        <button
+          type="button"
+          onClick={() => window.open("https://tax.gov.ae", "_blank")}
           className={`py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1 ${
             isDarkMode ? "bg-[#2E3B4E] hover:bg-[#3E4B5E] text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
           }`}

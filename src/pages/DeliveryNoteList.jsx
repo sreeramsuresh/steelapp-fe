@@ -250,7 +250,9 @@ const DeliveryNoteList = () => {
           🚚 Delivery Notes
         </h1>
         {authService.hasPermission("delivery_notes", "create") && (
-          <button type="button" className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+          <button
+            type="button"
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
             onClick={() => navigate("/delivery-notes/new")}
           >
             <AddIcon size={20} />
@@ -269,7 +271,9 @@ const DeliveryNoteList = () => {
           <div className="flex items-center gap-2">
             <AlertCircle size={20} />
             Showing delivery notes for Invoice ID: {invoiceIdFromUrl}
-            <button type="button" className={`ml-4 px-3 py-1 text-sm rounded transition-colors ${
+            <button
+              type="button"
+              className={`ml-4 px-3 py-1 text-sm rounded transition-colors ${
                 isDarkMode
                   ? "bg-blue-800 hover:bg-blue-700 text-blue-200"
                   : "bg-blue-200 hover:bg-blue-300 text-blue-800"
@@ -338,7 +342,9 @@ const DeliveryNoteList = () => {
             />
           </div>
 
-          <button type="button" className={`px-4 py-3 border rounded-lg transition-colors duration-200 ${
+          <button
+            type="button"
+            className={`px-4 py-3 border rounded-lg transition-colors duration-200 ${
               isDarkMode
                 ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
                 : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
@@ -473,7 +479,9 @@ const DeliveryNoteList = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex gap-2">
                         {authService.hasPermission("delivery_notes", "read") && (
-                          <button type="button" className={`p-2 rounded transition-colors bg-transparent ${
+                          <button
+                            type="button"
+                            className={`p-2 rounded transition-colors bg-transparent ${
                               isDarkMode ? "text-purple-400 hover:text-purple-300" : "hover:bg-gray-100 text-purple-600"
                             }`}
                             onClick={() => navigate(`/delivery-notes/${deliveryNote.id}`)}
@@ -483,7 +491,9 @@ const DeliveryNoteList = () => {
                           </button>
                         )}
                         {authService.hasPermission("delivery_notes", "read") && (
-                          <button type="button" className={`p-2 rounded transition-colors bg-transparent ${
+                          <button
+                            type="button"
+                            className={`p-2 rounded transition-colors bg-transparent ${
                               isDarkMode ? "text-blue-400 hover:text-blue-300" : "hover:bg-gray-100 text-blue-600"
                             }`}
                             onClick={() => setPreviewDeliveryNote(deliveryNote)}
@@ -493,7 +503,9 @@ const DeliveryNoteList = () => {
                           </button>
                         )}
                         {authService.hasPermission("delivery_notes", "update") && (
-                          <button type="button" className={`p-2 rounded transition-colors bg-transparent ${
+                          <button
+                            type="button"
+                            className={`p-2 rounded transition-colors bg-transparent ${
                               isDarkMode ? "text-teal-400 hover:text-teal-300" : "hover:bg-gray-100 text-teal-600"
                             }`}
                             onClick={() => navigate(`/delivery-notes/${deliveryNote.id}/edit`)}
@@ -503,7 +515,9 @@ const DeliveryNoteList = () => {
                           </button>
                         )}
                         {authService.hasPermission("delivery_notes", "read") && (
-                          <button type="button" className={`p-2 rounded transition-colors bg-transparent ${
+                          <button
+                            type="button"
+                            className={`p-2 rounded transition-colors bg-transparent ${
                               isDarkMode ? "text-green-400 hover:text-green-300" : "hover:bg-gray-100 text-green-600"
                             }`}
                             onClick={() => handleDownloadPDF(deliveryNote)}
@@ -513,7 +527,9 @@ const DeliveryNoteList = () => {
                           </button>
                         )}
                         {authService.hasPermission("delivery_notes", "delete") && (
-                          <button type="button" className={`p-2 rounded transition-colors bg-transparent ${
+                          <button
+                            type="button"
+                            className={`p-2 rounded transition-colors bg-transparent ${
                               isDarkMode ? "text-red-400 hover:text-red-300" : "hover:bg-gray-100 text-red-600"
                             }`}
                             onClick={() =>
@@ -563,7 +579,9 @@ const DeliveryNoteList = () => {
               </select>
             </div>
             <div className="flex items-center gap-1">
-              <button type="button" onClick={(e) => handlePageChange(e, page - 1)}
+              <button
+                type="button"
+                onClick={(e) => handlePageChange(e, page - 1)}
                 disabled={page === 0}
                 className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
                   page === 0
@@ -580,7 +598,9 @@ const DeliveryNoteList = () => {
               <span className={`px-3 py-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                 Page {page + 1} of {Math.ceil(totalCount / rowsPerPage)}
               </span>
-              <button type="button" onClick={(e) => handlePageChange(e, page + 1)}
+              <button
+                type="button"
+                onClick={(e) => handlePageChange(e, page + 1)}
                 disabled={page >= Math.ceil(totalCount / rowsPerPage) - 1}
                 className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
                   page >= Math.ceil(totalCount / rowsPerPage) - 1
@@ -617,14 +637,18 @@ const DeliveryNoteList = () => {
             <div
               className={`p-6 border-t flex justify-end gap-3 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
             >
-              <button type="button" onClick={() => setDeleteDialog({ open: false, id: null, number: "" })}
+              <button
+                type="button"
+                onClick={() => setDeleteDialog({ open: false, id: null, number: "" })}
                 className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
                   isDarkMode ? "text-white hover:text-gray-300" : "hover:bg-gray-100 text-gray-800"
                 }`}
               >
                 Cancel
               </button>
-              <button type="button" onClick={handleDelete}
+              <button
+                type="button"
+                onClick={handleDelete}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
               >
                 Delete
@@ -671,7 +695,9 @@ const DeliveryNoteList = () => {
             <div
               className={`p-6 border-t flex justify-end gap-3 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
             >
-              <button type="button" onClick={() =>
+              <button
+                type="button"
+                onClick={() =>
                   setDownloadWarning({
                     open: false,
                     deliveryNote: null,
@@ -684,7 +710,9 @@ const DeliveryNoteList = () => {
               >
                 Cancel
               </button>
-              <button type="button" onClick={handleForceDownload}
+              <button
+                type="button"
+                onClick={handleForceDownload}
                 className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
               >
                 Download Anyway
@@ -705,7 +733,9 @@ const DeliveryNoteList = () => {
             <div className="flex items-center gap-2">
               <AlertCircle size={20} />
               <span>{error}</span>
-              <button type="button" onClick={() => setError("")}
+              <button
+                type="button"
+                onClick={() => setError("")}
                 className={`ml-2 ${isDarkMode ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-700"}`}
               >
                 <X size={16} />
@@ -727,7 +757,9 @@ const DeliveryNoteList = () => {
             <div className="flex items-center gap-2">
               <CheckCircle size={20} />
               <span>{success}</span>
-              <button type="button" onClick={() => setSuccess("")}
+              <button
+                type="button"
+                onClick={() => setSuccess("")}
                 className={`ml-2 ${isDarkMode ? "text-green-400 hover:text-green-300" : "text-green-600 hover:text-green-700"}`}
               >
                 <X size={16} />

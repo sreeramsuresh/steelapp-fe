@@ -109,7 +109,8 @@ const WarehouseAvailability = ({
           const isSelected = warehouse.warehouseId === selectedWarehouseId;
 
           return (
-            <div
+            <button
+              type="button"
               key={warehouse.warehouseId}
               className={`warehouse-item ${isSelected ? "selected" : ""} ${hasStock ? "has-stock" : "no-stock"}`}
               data-testid={`warehouse-item-${index}`}
@@ -123,8 +124,6 @@ const WarehouseAvailability = ({
                   handleWarehouseClick(warehouse);
                 }
               }}
-              role="button"
-              tabIndex={0}
               style={{ cursor: onWarehouseSelect ? "pointer" : "default" }}
             >
               <div className="warehouse-info">
@@ -137,7 +136,7 @@ const WarehouseAvailability = ({
                 </span>
                 <span className="stock-unit">{warehouse.unit}</span>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

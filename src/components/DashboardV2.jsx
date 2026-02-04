@@ -125,7 +125,7 @@ const SectionHeader = ({ title, icon: Icon, description, isExpanded, onToggle, w
       >
         {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
       </button>
-    </div>
+    </button>
   );
 };
 

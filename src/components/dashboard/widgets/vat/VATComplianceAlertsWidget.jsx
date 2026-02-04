@@ -153,7 +153,9 @@ const VATComplianceAlertsWidget = ({
         </div>
 
         {onRefresh && (
-          <button type="button" onClick={onRefresh}
+          <button
+            type="button"
+            onClick={onRefresh}
             disabled={isLoading}
             className={`p-1.5 rounded-lg transition-colors ${
               isDarkMode
@@ -168,7 +170,9 @@ const VATComplianceAlertsWidget = ({
 
       {/* Summary Badges */}
       <div className="flex gap-2 mb-4">
-        <button type="button" onClick={() => setSelectedFilter("all")}
+        <button
+          type="button"
+          onClick={() => setSelectedFilter("all")}
           className={`px-2 py-1 rounded-full text-xs font-medium transition-colors ${
             selectedFilter === "all"
               ? "bg-teal-500 text-white"
@@ -180,7 +184,9 @@ const VATComplianceAlertsWidget = ({
           All ({alertsData.summary.total})
         </button>
         {alertsData.summary.critical > 0 && (
-          <button type="button" onClick={() => setSelectedFilter("critical")}
+          <button
+            type="button"
+            onClick={() => setSelectedFilter("critical")}
             className={`px-2 py-1 rounded-full text-xs font-medium transition-colors ${
               selectedFilter === "critical"
                 ? "bg-red-500 text-white"
@@ -193,7 +199,9 @@ const VATComplianceAlertsWidget = ({
           </button>
         )}
         {alertsData.summary.warning > 0 && (
-          <button type="button" onClick={() => setSelectedFilter("warning")}
+          <button
+            type="button"
+            onClick={() => setSelectedFilter("warning")}
             className={`px-2 py-1 rounded-full text-xs font-medium transition-colors ${
               selectedFilter === "warning"
                 ? "bg-yellow-500 text-white"
@@ -247,7 +255,9 @@ const VATComplianceAlertsWidget = ({
                       {alert.description}
                     </p>
                     {/* eslint-disable-next-line local-rules/no-dead-button */}
-                    <button type="button" className={`text-xs mt-1 font-medium flex items-center gap-0.5 ${severityConfig.textColor}`}
+                    <button
+                      type="button"
+                      className={`text-xs mt-1 font-medium flex items-center gap-0.5 ${severityConfig.textColor}`}
                     >
                       {alert.actionText}
                       <ChevronRight size={12} />
@@ -276,7 +286,9 @@ const VATComplianceAlertsWidget = ({
           Last checked: {formatLastChecked(alertsData.lastChecked)}
         </span>
         {onViewAll && alertsData.alerts.length > maxAlerts && (
-          <button type="button" onClick={onViewAll}
+          <button
+            type="button"
+            onClick={onViewAll}
             className={`text-xs font-medium flex items-center gap-1 ${
               isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"
             }`}

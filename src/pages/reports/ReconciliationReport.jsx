@@ -404,7 +404,9 @@ export default function ReconciliationReport() {
             </div>
 
             <div className="flex items-center space-x-2">
-              <button type="button" onClick={() => setShowFilters(!showFilters)}
+              <button
+                type="button"
+                onClick={() => setShowFilters(!showFilters)}
                 className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
                   isDarkMode
                     ? "bg-gray-700 hover:bg-gray-600 text-white"
@@ -414,7 +416,9 @@ export default function ReconciliationReport() {
                 <Filter size={18} />
                 <span>Filters</span>
               </button>
-              <button type="button" onClick={handleRefresh}
+              <button
+                type="button"
+                onClick={handleRefresh}
                 disabled={refreshing}
                 className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
                   isDarkMode
@@ -425,7 +429,9 @@ export default function ReconciliationReport() {
                 <RefreshCw size={18} className={refreshing ? "animate-spin" : ""} />
                 <span>Refresh</span>
               </button>
-              <button type="button" onClick={handleExport}
+              <button
+                type="button"
+                onClick={handleExport}
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center space-x-2"
               >
                 <Download size={18} />

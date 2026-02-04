@@ -366,7 +366,9 @@ export function AdvancePaymentForm({ advance, companyId, onSave, onClose }) {
           }`}
         >
           <h2 className="text-xl font-semibold">{isEditing ? "Edit Advance Payment" : "Create Advance Payment"}</h2>
-          <button type="button" onClick={onClose}
+          <button
+            type="button"
+            onClick={onClose}
             className={`p-2 rounded-lg hover:bg-gray-100 ${isDarkMode ? "hover:bg-gray-700" : ""}`}
           >
             <X className="h-5 w-5" />

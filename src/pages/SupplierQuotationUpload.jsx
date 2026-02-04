@@ -159,7 +159,9 @@ export function SupplierQuotationUpload() {
           </div>
 
           {/* Drop Zone */}
-          <button type="button" className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+          <button
+            type="button"
+            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
               dragActive
                 ? "border-blue-500 bg-blue-50"
                 : file

@@ -136,7 +136,7 @@ const ConfirmDialog = ({
           </div>
         </div>
       </div>
-    </div>
+    </button>
   );
 };
 

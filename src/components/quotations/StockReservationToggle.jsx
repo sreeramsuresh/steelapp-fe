@@ -50,7 +50,9 @@ export default function StockReservationToggle({ item, index, onToggleReservatio
 
   return (
     <div className="flex items-center gap-2">
-      <button type="button" onClick={handleToggle}
+      <button
+        type="button"
+        onClick={handleToggle}
         className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-sm transition-colors ${
           item.stockReserved
             ? isDarkMode

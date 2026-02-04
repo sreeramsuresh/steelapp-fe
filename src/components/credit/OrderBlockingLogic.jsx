@@ -102,7 +102,9 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
   return (
     <>
       {/* Modal Backdrop */}
-      <button type="button" className={`fixed inset-0 z-50 ${isDarkMode ? "bg-black/60" : "bg-black/40"}`}
+      <button
+        type="button"
+        className={`fixed inset-0 z-50 ${isDarkMode ? "bg-black/60" : "bg-black/40"}`}
         onClick={onClose}
         onKeyDown={(e) => {
           if (e.key === "Escape") {
@@ -121,7 +123,9 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
           aria-modal="true"
         >
           {/* Close Button */}
-          <button type="button" onClick={onClose}
+          <button
+            type="button"
+            onClick={onClose}
             className={`absolute top-3 right-3 p-1 rounded-md transition-colors ${
               isDarkMode
                 ? "hover:bg-gray-800 text-gray-400 hover:text-gray-300"
@@ -247,7 +251,9 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
                 </li>
               </ul>
               <div className="flex gap-2">
-                <button type="button" onClick={() => setShowConfirmation(false)}
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmation(false)}
                   className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isDarkMode
                       ? "bg-gray-700 hover:bg-gray-600 text-white"
@@ -256,7 +262,9 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
                 >
                   Back
                 </button>
-                <button type="button" onClick={handleConfirmApproval}
+                <button
+                  type="button"
+                  onClick={handleConfirmApproval}
                   className="flex-1 px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 transition-colors"
                 >
                   Confirm & Create Order
@@ -266,7 +274,9 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
           ) : (
             /* Action Buttons */
             <div className={`px-5 py-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} space-y-2`}>
-              <button type="button" onClick={handleApproveClick}
+              <button
+                type="button"
+                onClick={handleApproveClick}
                 className={`w-full px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   isDarkMode
                     ? "bg-teal-600/20 hover:bg-teal-600/30 text-teal-300 border border-teal-500/50"
@@ -275,7 +285,9 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
               >
                 Manager Approval - Create Order
               </button>
-              <button type="button" onClick={handleContactFinance}
+              <button
+                type="button"
+                onClick={handleContactFinance}
                 className={`w-full px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
                   isDarkMode
                     ? "bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/50"
@@ -285,7 +297,9 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
                 <Phone className="w-4 h-4" />
                 Contact Finance Team
               </button>
-              <button type="button" onClick={onClose}
+              <button
+                type="button"
+                onClick={onClose}
                 className={`w-full px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   isDarkMode
                     ? "bg-gray-700 hover:bg-gray-600 text-gray-200"

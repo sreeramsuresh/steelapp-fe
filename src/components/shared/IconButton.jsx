@@ -42,7 +42,9 @@ const IconButton = ({
 
   return (
     <div className="relative inline-block">
-      <button type="button" title={title}
+      <button
+        type="button"
+        title={title}
         aria-label={ariaLabel || title}
         onClick={onClick}
         onMouseEnter={() => setShowTooltip(true)}

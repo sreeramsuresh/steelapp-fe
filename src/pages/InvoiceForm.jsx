@@ -1003,7 +1003,7 @@ const VatHelpIcon = ({ content, heading }) => {
               )}
             </div>
           </div>
-        </div>
+        </button>
       )}
     </>
   );
@@ -1361,7 +1361,7 @@ const ToggleSwitchInvoice = ({ enabled, onChange, label, description, isDarkMode
         }`}
       />
     </button>
-  </div>
+  </button>
 );
 
 // Form Settings Panel Component
@@ -6330,7 +6330,7 @@ const InvoiceForm = ({ onSave }) => {
                   </div>
                 )}
               </div>
-            </div>
+            </button>
           );
         })()}
 

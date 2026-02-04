@@ -130,7 +130,9 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
           </div>
           {/* Refresh Button */}
           {onRefresh && (
-            <button type="button" onClick={handleRefresh}
+            <button
+              type="button"
+              onClick={handleRefresh}
               disabled={isLoading}
               className={`p-1.5 rounded-lg transition-colors ${
                 isDarkMode
@@ -275,7 +277,9 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
 
       {/* Footer */}
       <div className="mt-3 text-center">
-        <button type="button" onClick={() => onNavigate?.("/analytics/inventory")}
+        <button
+          type="button"
+          onClick={() => onNavigate?.("/analytics/inventory")}
           className={`text-xs font-medium ${
             isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"
           }`}
