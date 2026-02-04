@@ -27,7 +27,7 @@ export function FormSelect({
   ...props
 }) {
   const { isDarkMode } = useTheme();
-  const selectId = id || `select-${label?.toLowerCase().replace(/\s+/g, "-")}`;
+  const selectId = id || `select-${String(label || "").toLowerCase().replace(/\s+/g, "-")}`;
 
   // Determine border and background color based on validation state
   // EXACTLY matching Input component logic from InvoiceForm.jsx lines 830-857

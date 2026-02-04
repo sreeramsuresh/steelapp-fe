@@ -1,5 +1,5 @@
 import { Calendar, DollarSign, Download, Filter, Package, RefreshCw, TrendingUp } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {
   Bar,
@@ -62,13 +62,7 @@ export default function COGSAnalysisReport() {
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
 
-  useEffect(() => {
-    loadFilterOptions();
-    fetchReportData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchReportData, loadFilterOptions]); // Only run once on mount - fetchReportData doesn't depend on external values
-
-  const loadFilterOptions = async () => {
+  const loadFilterOptions = useCallback(async () => {
     try {
       // Load customers
       const customersRes = await api.get("/api/customers");
@@ -82,9 +76,9 @@ export default function COGSAnalysisReport() {
 
       console.error("Error loading filter options:", error);
     }
-  };
+  }, []);
 
-  const fetchReportData = async () => {
+  const fetchReportData = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -105,7 +99,12 @@ export default function COGSAnalysisReport() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadFilterOptions();
+    fetchReportData();
+  }, [loadFilterOptions, fetchReportData]);
 
   const handleRefresh = async () => {
     setRefreshing(true);

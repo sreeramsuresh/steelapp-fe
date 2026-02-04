@@ -1,5 +1,5 @@
 import { AlertTriangle, Calendar, CheckCircle, Download, Filter, Package, RefreshCw, TrendingUp } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FormSelect } from "../../components/ui/form-select";
 import { SelectItem } from "../../components/ui/select";
@@ -47,37 +47,7 @@ export default function ReconciliationReport() {
     totalVariance: 0,
   });
 
-  useEffect(() => {
-    loadFilterOptions();
-  }, [loadFilterOptions]); // Load filter options once on mount
-
-  // Fetch report data when filters change
-  useEffect(() => {
-    fetchReportData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchReportData]);
-
-  useEffect(() => {
-    // Update date range when period changes
-    const now = new Date();
-    if (period === "this_month") {
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      setDateRange({
-        startDate: toUAEDateForInput(startOfMonth),
-        endDate: toUAEDateForInput(now),
-      });
-    } else if (period === "last_month") {
-      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-      setDateRange({
-        startDate: toUAEDateForInput(startOfLastMonth),
-        endDate: toUAEDateForInput(endOfLastMonth),
-      });
-    }
-    // For custom, user sets the dates manually
-  }, [period]);
-
-  const loadFilterOptions = async () => {
+  const loadFilterOptions = useCallback(async () => {
     try {
       // Load warehouses from backend
       const warehouseResult = await warehouseService.getAll({ isActive: true });
@@ -104,9 +74,9 @@ export default function ReconciliationReport() {
 
       console.error("Error loading filter options:", error);
     }
-  };
+  }, []);
 
-  const fetchReportData = async () => {
+  const fetchReportData = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -151,7 +121,34 @@ export default function ReconciliationReport() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedWarehouse, selectedProduct, dateRange.endDate]);
+
+  useEffect(() => {
+    loadFilterOptions();
+  }, [loadFilterOptions]);
+
+  useEffect(() => {
+    fetchReportData();
+  }, [fetchReportData]);
+
+  useEffect(() => {
+    // Update date range when period changes
+    const now = new Date();
+    if (period === "this_month") {
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      setDateRange({
+        startDate: toUAEDateForInput(startOfMonth),
+        endDate: toUAEDateForInput(now),
+      });
+    } else if (period === "last_month") {
+      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+      setDateRange({
+        startDate: toUAEDateForInput(startOfLastMonth),
+        endDate: toUAEDateForInput(endOfLastMonth),
+      });
+    }
+  }, [period]);
 
   /**
    * Transform backend reconciliation data to report format
