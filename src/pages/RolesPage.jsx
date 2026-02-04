@@ -29,11 +29,7 @@ export default function RolesPage() {
     roleName: null,
   });
 
-  useEffect(() => {
-    loadRoles();
-  }, [loadRoles]);
-
-  const loadRoles = async () => {
+  const loadRoles = useCallback(async () => {
     try {
       setLoading(true);
       const data = await roleService.getRoles();
@@ -44,7 +40,11 @@ export default function RolesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadRoles();
+  }, [loadRoles]);
 
   const handleOpenDialog = (role = null) => {
     if (role) {

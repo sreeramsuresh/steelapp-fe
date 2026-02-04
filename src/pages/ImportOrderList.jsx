@@ -28,24 +28,27 @@ const ImportOrderList = () => {
   });
 
   // Load orders
-  const loadOrders = useCallback(async (page = 1) => {
-    try {
-      setLoading(true);
-      const params = {
-        page,
-        limit: pagination.perPage,
-        ...filters,
-      };
+  const loadOrders = useCallback(
+    async (page = 1) => {
+      try {
+        setLoading(true);
+        const params = {
+          page,
+          limit: pagination.perPage,
+          ...filters,
+        };
 
-      const response = await importOrderService.getImportOrders(params);
-      setOrders(response.orders || []);
-      setPagination(response.pagination);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [pagination.perPage, filters]);
+        const response = await importOrderService.getImportOrders(params);
+        setOrders(response.orders || []);
+        setPagination(response.pagination);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [pagination.perPage, filters]
+  );
 
   useEffect(() => {
     loadOrders();

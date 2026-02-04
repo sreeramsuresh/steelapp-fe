@@ -78,7 +78,7 @@ const TransitList = () => {
   };
 
   // Fetch Purchase Orders with Transit status
-  const fetchTransitPurchaseOrders = async () => {
+  const fetchTransitPurchaseOrders = useCallback(async () => {
     try {
       setLoading(true);
       const { apiClient } = await import("../services/api");
@@ -93,7 +93,7 @@ const TransitList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchTransitPurchaseOrders();

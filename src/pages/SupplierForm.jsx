@@ -503,10 +503,9 @@ export function SupplierForm() {
     if (isEditMode) {
       loadSupplier();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditMode, loadSupplier]);
 
-  const loadSupplier = async () => {
+  const loadSupplier = useCallback(async () => {
     try {
       setLoading(true);
       const supplier = await supplierService.getSupplier(id);
@@ -647,7 +646,7 @@ export function SupplierForm() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({
