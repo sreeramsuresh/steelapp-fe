@@ -207,3 +207,39 @@ done
 **Last Updated**: 2026-02-04
 **Conversion Framework**: Fully established and automated
 **Next Review**: After component test phase
+
+## Updated Strategy: Dual Test Runner Approach
+
+### Decision: Keep Vitest for Component Tests
+
+After analysis, we've determined that Node's native test runner is **not suitable** for component tests due to:
+
+1. **No JSX Support**: node:test cannot parse JSX syntax without additional build tooling
+2. **DOM Environment**: Component tests require jsdom or similar, adding complexity
+3. **React Testing Library Integration**: Optimized for Jest/Vitest ecosystem
+4. **Effort vs. Benefit**: Converting 361 component tests would require:
+   - Adding Babel/SWC configuration for JSX
+   - Setting up jsdom environment
+   - Rewriting RTL assertions
+   - ~50+ hours of work with uncertain benefits
+
+### Recommended Approach
+
+**Phase 1: ✅ COMPLETE**
+- Service Tests (97 files): Node native test runner
+- Utility Tests (145+ files): Node native test runner
+- Total: ~242 files using node:test
+
+**Phase 2: Keep as-is**
+- Component Tests (361 files): Continue using Vitest
+- Reason: JSX support, React integration, established patterns
+- Benefits: No migration risk, full RTL support, faster feedback
+
+### Benefits of Dual Runner Strategy
+1. Service layer runs in lightweight Node environment
+2. Component layer maintains full React/JSX support
+3. Each test type uses optimal runner
+4. Reduces migration risk and complexity
+5. Faster test execution for service layer
+
+This is a pragmatic approach used in many large codebases.
