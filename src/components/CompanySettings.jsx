@@ -914,6 +914,20 @@ const CompanySettings = () => {
     }
   }, [activeTab]);
 
+  // Role Management Handlers
+  const loadRoles = useCallback(async () => {
+    try {
+      setRolesLoading(true);
+      const roles = await roleService.getRoles();
+      setAvailableRoles(roles);
+    } catch (error) {
+      console.error("Error loading roles:", error);
+      notificationService.error("Failed to load roles");
+    } finally {
+      setRolesLoading(false);
+    }
+  }, []);
+
   // Load roles when Manage Roles modal opens
   useEffect(() => {
     if (showManageRolesModal) {
@@ -1641,20 +1655,6 @@ const CompanySettings = () => {
       }));
     }
   };
-
-  // Role Management Handlers
-  const loadRoles = useCallback(async () => {
-    try {
-      setRolesLoading(true);
-      const roles = await roleService.getRoles();
-      setAvailableRoles(roles);
-    } catch (error) {
-      console.error("Error loading roles:", error);
-      notificationService.error("Failed to load roles");
-    } finally {
-      setRolesLoading(false);
-    }
-  }, []);
 
   const handleSaveRole = async () => {
     try {

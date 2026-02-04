@@ -32,11 +32,6 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadDashboardData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadDashboardData]); // Intentionally run once on mount
-
   const loadDashboardData = useCallback(async () => {
     setLoading(true);
     try {
@@ -156,6 +151,11 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    loadDashboardData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadDashboardData]); // Intentionally run once on mount
 
   const formatTimeAgo = (timestamp) => {
     if (!timestamp) return "";

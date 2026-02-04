@@ -66,13 +66,6 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
   // Only show for issued invoices
   const canCreateCreditNote = invoiceStatus === "issued" || invoiceStatus === "STATUS_ISSUED";
 
-  useEffect(() => {
-    if (invoiceId) {
-      loadCreditNotes();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invoiceId, loadCreditNotes]); // loadCreditNotes is stable
-
   const loadCreditNotes = async () => {
     try {
       setLoading(true);
@@ -87,6 +80,13 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (invoiceId) {
+      loadCreditNotes();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoiceId, loadCreditNotes]); // loadCreditNotes is stable
 
   const getStatusBadge = (status) => {
     const config = STATUS_COLORS[status] || STATUS_COLORS.draft;

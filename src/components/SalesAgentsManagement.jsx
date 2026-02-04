@@ -20,10 +20,6 @@ const SalesAgentsManagement = () => {
   });
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    loadAgents();
-  }, [loadAgents]);
-
   const loadAgents = async () => {
     try {
       setLoading(true);
@@ -36,6 +32,10 @@ const SalesAgentsManagement = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadAgents();
+  }, [loadAgents]);
 
   const handleEditClick = (agent) => {
     setSelectedAgent(agent);

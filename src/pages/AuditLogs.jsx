@@ -46,12 +46,6 @@ const AuditLogs = () => {
   const categories = ["AUTH", "INVOICE", "PAYMENT", "CUSTOMER", "STATEMENT", "SETTINGS", "EXPORT"];
   const statuses = ["success", "failed"];
 
-  useEffect(() => {
-    fetchLogs();
-    fetchStats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchLogs, fetchStats]); // fetchLogs and fetchStats are stable
-
   const fetchLogs = async () => {
     try {
       setLoading(true);
@@ -87,6 +81,12 @@ const AuditLogs = () => {
       console.error("Error fetching stats:", err);
     }
   };
+
+  useEffect(() => {
+    fetchLogs();
+    fetchStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchLogs, fetchStats]); // fetchLogs and fetchStats are stable
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));

@@ -9,13 +9,6 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (isOpen && productId) {
-      fetchBatches();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, productId, fetchBatches]);
-
   const fetchBatches = async () => {
     setLoading(true);
     setError("");
@@ -35,6 +28,13 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen && productId) {
+      fetchBatches();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, productId, fetchBatches]);
 
   if (!isOpen) return null;
 

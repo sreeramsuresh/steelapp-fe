@@ -51,10 +51,6 @@ const CommissionDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [calculatingBatch, setCalculatingBatch] = useState(false);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, [loadDashboardData]);
-
   const loadDashboardData = async () => {
     try {
       setLoading(true);
@@ -66,6 +62,10 @@ const CommissionDashboard = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   const handleBatchCalculate = async () => {
     if (calculatingBatch) return;

@@ -103,19 +103,6 @@ const VATReturnReport = () => {
     open: false,
   });
 
-  // Load available periods on mount
-  useEffect(() => {
-    loadPeriods();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadPeriods]);
-
-  // Load data when period changes
-  useEffect(() => {
-    if (periodId) {
-      loadVATReturnData(periodId);
-    }
-  }, [periodId, loadVATReturnData]); // loadVATReturnData is stable within component lifecycle
-
   const loadPeriods = async () => {
     try {
       const response = await api.get("/vat-return/periods");
@@ -205,6 +192,19 @@ const VATReturnReport = () => {
       setLoading(false);
     }
   };
+
+  // Load available periods on mount
+  useEffect(() => {
+    loadPeriods();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadPeriods]);
+
+  // Load data when period changes
+  useEffect(() => {
+    if (periodId) {
+      loadVATReturnData(periodId);
+    }
+  }, [periodId, loadVATReturnData]); // loadVATReturnData is stable within component lifecycle
 
   const formatDateForInput = (date) => {
     const d = new Date(date);

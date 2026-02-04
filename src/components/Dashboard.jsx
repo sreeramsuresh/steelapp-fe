@@ -293,10 +293,6 @@ const Dashboard = () => {
     creditUtilization: 0,
   });
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]);
-
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
@@ -385,6 +381,10 @@ const Dashboard = () => {
       setIsRefreshing(false);
     }
   };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const formatCurrency = (amount) => {
     // Handle NaN, null, undefined, or non-numeric values

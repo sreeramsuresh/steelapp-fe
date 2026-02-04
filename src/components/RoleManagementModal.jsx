@@ -37,13 +37,6 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
     roleName: null,
   });
 
-  // Load roles when modal opens
-  useEffect(() => {
-    if (open) {
-      loadRoles();
-    }
-  }, [open, loadRoles]);
-
   const loadRoles = async () => {
     try {
       setLoading(true);
@@ -56,6 +49,13 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
       setLoading(false);
     }
   };
+
+  // Load roles when modal opens
+  useEffect(() => {
+    if (open) {
+      loadRoles();
+    }
+  }, [open, loadRoles]);
 
   const validateForm = () => {
     const errors = {};

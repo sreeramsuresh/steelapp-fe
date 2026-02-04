@@ -29,15 +29,6 @@ export default function StockDeductionPreview({
   // Filter items that have product_id (inventory-tracked)
   const inventoryItems = items.filter((item) => item.productId || item.product_id);
 
-  useEffect(() => {
-    if (inventoryItems.length > 0) {
-      fetchStockLevels();
-    } else {
-      setLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchStockLevels, inventoryItems.length]); // fetchStockLevels is stable
-
   const fetchStockLevels = async () => {
     try {
       setLoading(true);
@@ -70,6 +61,15 @@ export default function StockDeductionPreview({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (inventoryItems.length > 0) {
+      fetchStockLevels();
+    } else {
+      setLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchStockLevels, inventoryItems.length]); // fetchStockLevels is stable
 
   const getStockStatus = (productId, quantity) => {
     const stock = stockLevels[productId];

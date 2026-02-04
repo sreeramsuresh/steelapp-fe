@@ -36,10 +36,6 @@ const StockMovement = () => {
   const [productOptions, setProductOptions] = useState([]);
   const [_productSearching, setProductSearching] = useState(false);
 
-  useEffect(() => {
-    fetchMovements();
-  }, [fetchMovements]);
-
   const fetchMovements = async () => {
     try {
       setLoading(true);
@@ -100,6 +96,10 @@ const StockMovement = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchMovements();
+  }, [fetchMovements]);
 
   const handleOpenDialog = (movement = null) => {
     if (movement) {

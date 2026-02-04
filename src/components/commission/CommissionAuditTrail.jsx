@@ -36,13 +36,6 @@ const CommissionAuditTrail = ({
   const [error, setError] = useState(null);
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
 
-  useEffect(() => {
-    if (invoiceId && (isExpanded || asModal)) {
-      loadAuditTrail();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invoiceId, isExpanded, asModal, loadAuditTrail]);
-
   const loadAuditTrail = async () => {
     try {
       setLoading(true);
@@ -58,6 +51,13 @@ const CommissionAuditTrail = ({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (invoiceId && (isExpanded || asModal)) {
+      loadAuditTrail();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoiceId, isExpanded, asModal, loadAuditTrail]);
 
   const getEventIcon = (eventType) => {
     const iconMap = {

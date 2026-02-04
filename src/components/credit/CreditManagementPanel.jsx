@@ -33,11 +33,6 @@ const CreditManagementPanel = ({
     open: false,
   });
 
-  // Load credit issues on mount
-  useEffect(() => {
-    loadCreditIssues();
-  }, [loadCreditIssues]);
-
   const loadCreditIssues = async () => {
     try {
       setLoading(true);
@@ -95,6 +90,11 @@ const CreditManagementPanel = ({
       setLoading(false);
     }
   };
+
+  // Load credit issues on mount
+  useEffect(() => {
+    loadCreditIssues();
+  }, [loadCreditIssues]);
 
   const getGradeColor = (grade) => {
     const colorMap = {

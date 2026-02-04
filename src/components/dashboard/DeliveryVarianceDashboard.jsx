@@ -20,11 +20,6 @@ const DeliveryVarianceDashboard = () => {
   const [error, setError] = useState("");
   const [daysBack, setDaysBack] = useState(30);
 
-  useEffect(() => {
-    loadDashboardData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadDashboardData]); // loadDashboardData is stable
-
   const loadDashboardData = async () => {
     try {
       setLoading(true);
@@ -49,6 +44,11 @@ const DeliveryVarianceDashboard = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadDashboardData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadDashboardData]); // loadDashboardData is stable
 
   const getHealthColor = (status) => {
     switch (status) {

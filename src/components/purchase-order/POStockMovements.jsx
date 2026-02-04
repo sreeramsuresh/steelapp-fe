@@ -48,13 +48,6 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
   const [error, setError] = useState(null);
   const [expanded, setExpanded] = useState(defaultExpanded);
 
-  useEffect(() => {
-    if (purchaseOrderId) {
-      fetchMovements();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [purchaseOrderId, fetchMovements]); // fetchMovements is stable
-
   const fetchMovements = async () => {
     try {
       setLoading(true);
@@ -68,6 +61,13 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (purchaseOrderId) {
+      fetchMovements();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [purchaseOrderId, fetchMovements]); // fetchMovements is stable
 
   // Calculate totals
   const totals = movements.reduce(

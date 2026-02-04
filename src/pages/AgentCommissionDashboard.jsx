@@ -16,16 +16,6 @@ const AgentCommissionDashboard = () => {
 
   const currentUser = authService.getUser();
 
-  useEffect(() => {
-    // Only load data if user is authenticated and has an ID
-    if (currentUser?.id) {
-      loadAgentData();
-    } else {
-      setLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.id, loadAgentData]); // Intentionally run once on mount
-
   const loadAgentData = async () => {
     // Double-check user ID exists before API calls
     if (!currentUser?.id) {
@@ -71,6 +61,16 @@ const AgentCommissionDashboard = () => {
 
     setLoading(false);
   };
+
+  useEffect(() => {
+    // Only load data if user is authenticated and has an ID
+    if (currentUser?.id) {
+      loadAgentData();
+    } else {
+      setLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.id, loadAgentData]); // Intentionally run once on mount
 
   const getStatusBadge = (status) => {
     const statusConfig = {

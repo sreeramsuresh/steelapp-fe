@@ -43,13 +43,6 @@ export default function InvoiceStockMovements({
   const [error, setError] = useState(null);
   const [deducting, setDeducting] = useState(false);
 
-  useEffect(() => {
-    if (invoiceId) {
-      fetchMovements();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invoiceId, fetchMovements]); // fetchMovements is stable
-
   const fetchMovements = async () => {
     try {
       setLoading(true);
@@ -63,6 +56,13 @@ export default function InvoiceStockMovements({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (invoiceId) {
+      fetchMovements();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoiceId, fetchMovements]); // fetchMovements is stable
 
   const handleManualDeduction = async () => {
     try {

@@ -148,11 +148,6 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  useEffect(() => {
-    loadCreditNotes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadCreditNotes]); // loadCreditNotes is stable
-
   const loadCreditNotes = async () => {
     try {
       setLoading(true);
@@ -173,6 +168,11 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
       setInitialLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadCreditNotes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadCreditNotes]); // loadCreditNotes is stable
 
   const handleDelete = async (creditNote) => {
     const confirmed = await confirm({

@@ -23,10 +23,6 @@ export default function CommissionApprovalWorkflow() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  useEffect(() => {
-    loadPendingApprovals();
-  }, [loadPendingApprovals]);
-
   const loadPendingApprovals = async () => {
     try {
       setLoading(true);
@@ -74,6 +70,10 @@ export default function CommissionApprovalWorkflow() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadPendingApprovals();
+  }, [loadPendingApprovals]);
 
   const handleApproveCommission = async (commission) => {
     try {

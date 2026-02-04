@@ -16,10 +16,6 @@ export default function CustomerCreditManagement() {
   const [newCreditLimit, setNewCreditLimit] = useState("");
   const [adjustmentReason, setAdjustmentReason] = useState("");
 
-  useEffect(() => {
-    loadCreditData();
-  }, [loadCreditData]);
-
   const loadCreditData = async () => {
     try {
       setLoading(true);
@@ -43,6 +39,10 @@ export default function CustomerCreditManagement() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadCreditData();
+  }, [loadCreditData]);
 
   const handleSelectCustomer = async (customer) => {
     try {

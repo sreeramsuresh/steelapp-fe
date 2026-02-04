@@ -74,13 +74,6 @@ const CreditNoteStatusActions = ({
     message: null,
   });
 
-  useEffect(() => {
-    if (creditNoteId) {
-      loadAllowedTransitions();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [creditNoteId, loadAllowedTransitions]); // loadAllowedTransitions is stable
-
   const loadAllowedTransitions = async () => {
     try {
       setLoading(true);
@@ -93,6 +86,13 @@ const CreditNoteStatusActions = ({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (creditNoteId) {
+      loadAllowedTransitions();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [creditNoteId, loadAllowedTransitions]); // loadAllowedTransitions is stable
 
   const handleAction = async (targetStatus) => {
     const config = ACTION_CONFIG[targetStatus];
