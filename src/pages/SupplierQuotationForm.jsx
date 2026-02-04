@@ -1,5 +1,5 @@
 import { ArrowLeft, FileText, Loader2, Plus, Save, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -61,15 +61,7 @@ export function SupplierQuotationForm() {
     loadSuppliers();
   }, []);
 
-  // Load quotation if editing
-  useEffect(() => {
-    if (isEdit) {
-      loadQuotation();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, loadQuotation]);
-
-  const loadQuotation = async () => {
+  const loadQuotation = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getSupplierQuotation(id);
@@ -99,7 +91,14 @@ export function SupplierQuotationForm() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  // Load quotation if editing
+  useEffect(() => {
+    if (isEdit) {
+      loadQuotation();
+    }
+  }, [isEdit, loadQuotation]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

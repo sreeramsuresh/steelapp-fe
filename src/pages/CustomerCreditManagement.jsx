@@ -1,5 +1,5 @@
 import { AlertCircle, TrendingUp } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { customerCreditService } from "../services/customerCreditService";
 
@@ -16,7 +16,7 @@ export default function CustomerCreditManagement() {
   const [newCreditLimit, setNewCreditLimit] = useState("");
   const [adjustmentReason, setAdjustmentReason] = useState("");
 
-  const loadCreditData = async () => {
+  const loadCreditData = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -38,7 +38,7 @@ export default function CustomerCreditManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadCreditData();

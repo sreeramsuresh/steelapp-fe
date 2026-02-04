@@ -1,5 +1,5 @@
 import { AlertCircle, TrendingUp } from "lucide-react";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -23,11 +23,7 @@ function SupplierPerformanceDashboard() {
     overallRating: "N/A",
   });
 
-  useEffect(() => {
-    loadDashboardData();
-  }, [loadDashboardData]);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       // Load suppliers from existing API or mock
@@ -93,7 +89,11 @@ function SupplierPerformanceDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   const getRatingColor = (rating) => {
     const colors = {

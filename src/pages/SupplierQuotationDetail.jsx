@@ -13,7 +13,7 @@ import {
   ShoppingCart,
   XCircle,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -55,12 +55,7 @@ export function SupplierQuotationDetail() {
     open: false,
   });
 
-  useEffect(() => {
-    loadQuotation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadQuotation]);
-
-  const loadQuotation = async () => {
+  const loadQuotation = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -72,7 +67,11 @@ export function SupplierQuotationDetail() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    loadQuotation();
+  }, [loadQuotation]);
 
   const handleApprove = async () => {
     setApproveConfirm({ open: true });

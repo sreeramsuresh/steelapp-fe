@@ -104,36 +104,39 @@ const ExportOrderList = () => {
   ];
 
   // Load orders
-  const loadOrders = useCallback(async (page = 1) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const loadOrders = useCallback(
+    async (page = 1) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const params = {
-        page,
-        limit: pagination.per_page,
-        sort_by: sortConfig.key,
-        sort_order: sortConfig.direction,
-        ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "")),
-      };
+        const params = {
+          page,
+          limit: pagination.per_page,
+          sort_by: sortConfig.key,
+          sort_order: sortConfig.direction,
+          ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "")),
+        };
 
-      const response = await exportOrderService.getExportOrders(params);
-      setOrders(response.orders || response.data || []);
-      setPagination(
-        response.pagination || {
-          current_page: page,
-          per_page: 50,
-          total: response.total || 0,
-          total_pages: response.total_pages || Math.ceil((response.total || 0) / 50),
-        }
-      );
-    } catch (err) {
-      setError(err.message || "Failed to load export orders");
-      setOrders([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [pagination.per_page, sortConfig.key, sortConfig.direction, filters]);
+        const response = await exportOrderService.getExportOrders(params);
+        setOrders(response.orders || response.data || []);
+        setPagination(
+          response.pagination || {
+            current_page: page,
+            per_page: 50,
+            total: response.total || 0,
+            total_pages: response.total_pages || Math.ceil((response.total || 0) / 50),
+          }
+        );
+      } catch (err) {
+        setError(err.message || "Failed to load export orders");
+        setOrders([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [pagination.per_page, sortConfig.key, sortConfig.direction, filters]
+  );
 
   useEffect(() => {
     loadOrders(1);
