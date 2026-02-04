@@ -288,6 +288,7 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
             return (
               <g key={product.id}>
                 <circle
+                  role="button"
                   tabIndex={0}
                   cx={x}
                   cy={y}

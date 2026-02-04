@@ -310,21 +310,11 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
         {/* Legend */}
         <div className="flex-1 space-y-1">
           {activeSegments.slice(0, 4).map((segment, _idx) => (
-            <div
+            <button
+              type="button"
               key={segment}
               onClick={() => onViewSegment?.(segment, activeView)}
-              tabIndex={0}
-              onKeyDown={
-                onViewSegment
-                  ? (e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        onViewSegment(segment, activeView);
-                      }
-                    }
-                  : undefined
-              }
-              className={`flex items-center gap-2 p-1 rounded transition-colors ${
+              className={`flex items-center gap-2 p-1 rounded transition-colors w-full text-left ${
                 onViewSegment ? "cursor-pointer hover:bg-opacity-50" : ""
               } ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
             >
@@ -335,7 +325,7 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
               <span className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                 {segment.percent}%
               </span>
-            </div>
+            </button>
           ))}
           {activeSegments.length > 4 && (
             <p className={`text-xs pl-5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
@@ -348,21 +338,11 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
       {/* Segment Details */}
       <div className="space-y-2">
         {activeSegments.slice(0, 3).map((segment, _idx) => (
-          <div
+          <button
+            type="button"
             key={segment}
             onClick={() => onViewSegment?.(segment, activeView)}
-            tabIndex={0}
-            onKeyDown={
-              onViewSegment
-                ? (e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      onViewSegment(segment, activeView);
-                    }
-                  }
-                : undefined
-            }
-            className={`p-3 rounded-lg transition-all duration-200 ${
+            className={`p-3 rounded-lg transition-all duration-200 w-full text-left ${
               onViewSegment ? "cursor-pointer" : ""
             } ${isDarkMode ? "bg-[#2E3B4E] hover:bg-[#374151]" : "bg-gray-50 hover:bg-gray-100"}`}
           >
@@ -390,7 +370,7 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
                 }}
               />
             </div>
-          </div>
+          </button>
         ))}
       </div>
 

@@ -381,21 +381,11 @@ const NewCustomerWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
             const sourceColor = getSourceColor(customer.source);
 
             return (
-              <div
+              <button
+                type="button"
                 key={customer.id}
                 onClick={() => onViewCustomer?.(customer)}
-                tabIndex={0}
-                onKeyDown={
-                  onViewCustomer
-                    ? (e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          onViewCustomer(customer);
-                        }
-                      }
-                    : undefined
-                }
-                className={`p-2 rounded-lg flex items-center gap-2 transition-all ${
+                className={`p-2 rounded-lg flex items-center gap-2 transition-all w-full text-left ${
                   onViewCustomer ? "cursor-pointer" : ""
                 } ${isDarkMode ? "bg-[#2E3B4E] hover:bg-[#374151]" : "bg-gray-50 hover:bg-gray-100"}`}
               >
@@ -429,7 +419,7 @@ const NewCustomerWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
                     {customer.status}
                   </span>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>

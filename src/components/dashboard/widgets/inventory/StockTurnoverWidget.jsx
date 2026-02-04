@@ -181,7 +181,7 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
                 {product.data.map((value, monthIndex) => (
                   <div
                     key={value}
-                    tabIndex={0}
+                    role="button"
                     className={`flex-1 h-6 rounded cursor-pointer transition-all ${getTurnoverColor(value)} hover:ring-2 hover:ring-white/50`}
                     style={{ opacity: getTurnoverOpacity(value) }}
                     onMouseEnter={() =>

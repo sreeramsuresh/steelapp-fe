@@ -251,10 +251,11 @@ const LeaderboardWidget = ({ data: propData, onRefresh, onViewAgent, isLoading =
           const rankChange = getRankChange(rank, agent.previousRank);
 
           return (
-            <div
+            <button
+              type="button"
               key={agent.id}
               onClick={() => onViewAgent?.(agent)}
-              className={`group p-3 rounded-lg transition-all duration-200 ${onViewAgent ? "cursor-pointer" : ""} ${
+              className={`group p-3 rounded-lg transition-all duration-200 w-full text-left ${onViewAgent ? "cursor-pointer" : ""} ${
                 rank === 1
                   ? isDarkMode
                     ? "bg-gradient-to-r from-yellow-900/20 to-transparent border border-yellow-700/30"
@@ -263,17 +264,6 @@ const LeaderboardWidget = ({ data: propData, onRefresh, onViewAgent, isLoading =
                     ? "bg-[#2E3B4E] hover:bg-[#374151]"
                     : "bg-gray-50 hover:bg-gray-100"
               }`}
-              tabIndex={0}
-              onKeyDown={
-                onViewAgent
-                  ? (e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        onViewAgent(agent);
-                      }
-                    }
-                  : undefined
-              }
             >
               <div className="flex items-center gap-3">
                 {/* Rank */}
@@ -414,7 +404,7 @@ const LeaderboardWidget = ({ data: propData, onRefresh, onViewAgent, isLoading =
                   </div>
                 </div>
               )}
-            </div>
+            </button>
           );
         })}
       </div>
