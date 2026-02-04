@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { afterEach, beforeEach, describe, test } from "node:test";
+import { beforeEach, describe, test } from "node:test";
 import sinon from "sinon";
 import { apiClient } from "../api.js";
 import vatReturnService, { FORM_201_BOXES, VAT_RETURN_STATUSES } from "../vatReturnService.js";

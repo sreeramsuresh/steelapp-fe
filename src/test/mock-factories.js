@@ -168,9 +168,12 @@ export function createMockWarehouse(overrides = {}) {
   return {
     id: "wh-001",
     name: "Main Warehouse",
+    code: "WH-001",
     location: "Dubai",
+    city: "Dubai",
     capacity: 100000,
     currentStock: 50000,
+    availableQuantity: 50000,
     zones: [
       {
         id: "zone-1",
@@ -183,6 +186,7 @@ export function createMockWarehouse(overrides = {}) {
         stock: 25000,
       },
     ],
+    isActive: true,
     ...overrides,
   };
 }
@@ -201,12 +205,42 @@ export function createMockBatch(overrides = {}) {
     supplier: "Test Supplier",
     quantity: 1000,
     availableQuantity: 800,
+    quantityAllocatable: 800,
+    pcsAvailable: 800,
     reservedQuantity: 200,
+    quantityReservedOthers: 200,
+    pcsReservedOthers: 200,
     costPrice: 2000,
+    unitCost: 2000,
     receivedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
     warehouseId: "wh-001",
     location: "zone-1-shelf-1",
+    procurementChannel: "LOCAL",
+    daysInStock: 30,
+    weightKgAvailable: 800,
+    weightPerPieceKg: 1.0,
+    ...overrides,
+  };
+}
+
+/**
+ * Create mock stock allocation
+ * @param {Object} overrides - Property overrides
+ * @returns {Object} Mock allocation
+ */
+export function createMockAllocation(overrides = {}) {
+  return {
+    id: "alloc-123",
+    batchId: "batch-123",
+    batchNumber: "BATCH-2024-001",
+    quantity: 50,
+    quantityAllocated: 50,
+    quantityAvailable: 100,
+    unitCost: 2000,
+    costPerUnit: 2000,
+    procurementChannel: "LOCAL",
+    warehouseId: "wh-001",
     ...overrides,
   };
 }
@@ -374,6 +408,64 @@ export function createMockNotification(overrides = {}) {
   };
 }
 
+/**
+ * Create mock inventory item
+ * @param {Object} overrides - Property overrides
+ * @returns {Object} Mock inventory item
+ */
+export function createMockInventoryItem(overrides = {}) {
+  return {
+    id: "inv-123",
+    productId: "prod-123",
+    productName: "SS-304-Sheet",
+    description: "Stainless Steel 304 Sheet",
+    quantity: 1000,
+    unit: "KG",
+    quantityOnHand: 1000,
+    quantityReserved: 200,
+    quantityAvailable: 800,
+    pricePurchased: 2000,
+    sellingPrice: 2500,
+    landedCost: 2100,
+    warehouseId: "wh-001",
+    warehouseName: "Main Warehouse",
+    location: "Zone A, Shelf 1",
+    status: "AVAILABLE",
+    batchNumber: "BATCH-2024-001",
+    heatNumber: "HEAT-2024-001",
+    coilNumber: "COIL-2024-001",
+    bundleNumber: "BUNDLE-2024-001",
+    unitCost: 2000,
+    minStock: 100,
+    isLowStock: false,
+    ...overrides,
+  };
+}
+
+/**
+ * Create mock stock movement
+ * @param {Object} overrides - Property overrides
+ * @returns {Object} Mock stock movement
+ */
+export function createMockStockMovement(overrides = {}) {
+  return {
+    id: "mov-123",
+    productId: "prod-123",
+    productName: "SS-304-Sheet",
+    warehouseId: "wh-001",
+    warehouseName: "Main Warehouse",
+    quantity: 100,
+    unit: "KG",
+    movement: "OUT", // 'IN' or 'OUT'
+    movementType: "INVOICE", // 'INVOICE', 'ADJUSTMENT', 'DAMAGE', 'LOSS'
+    referenceNumber: "INV-2024-001",
+    date: new Date().toISOString(),
+    notes: "Stock movement for invoice",
+    status: "completed",
+    ...overrides,
+  };
+}
+
 export default {
   createMockUser,
   createMockCompany,
@@ -384,6 +476,7 @@ export default {
   createMockPurchaseOrder,
   createMockWarehouse,
   createMockBatch,
+  createMockAllocation,
   createMockQuotation,
   createMockCustomer,
   createMockSupplier,
@@ -393,4 +486,6 @@ export default {
   createMockModalState,
   createMockArray,
   createMockNotification,
+  createMockInventoryItem,
+  createMockStockMovement,
 };

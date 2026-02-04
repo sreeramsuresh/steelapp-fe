@@ -418,7 +418,9 @@ const TradeFinanceModal = ({
           className={`flex justify-between items-center px-6 py-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
         >
           <h2 className="text-xl font-bold">{modalTitle}</h2>
-          <button type="button" onClick={onClose}
+          <button
+            type="button"
+            onClick={onClose}
             className={`p-1 rounded-lg transition-colors ${
               isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-600"
             }`}
@@ -742,7 +744,9 @@ const TradeFinanceModal = ({
 
           {/* Document Requirements Section */}
           <div className="mt-6">
-            <button type="button" onClick={() => setShowAdvanced(!showAdvanced)}
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(!showAdvanced)}
               className={`flex items-center gap-2 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
             >
               {showAdvanced ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -912,7 +916,9 @@ const TradeFinanceModal = ({
         <div
           className={`flex justify-end gap-3 px-6 py-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
         >
-          <button type="button" onClick={onClose}
+          <button
+            type="button"
+            onClick={onClose}
             disabled={isSaving}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-900"
@@ -920,7 +926,9 @@ const TradeFinanceModal = ({
           >
             Cancel
           </button>
-          <button type="button" onClick={handleSubmit}
+          <button
+            type="button"
+            onClick={handleSubmit}
             disabled={isSaving}
             className={`px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors inline-flex items-center justify-center ${
               isSaving ? "opacity-60 cursor-not-allowed" : ""
@@ -1231,7 +1239,9 @@ const TradeFinanceList = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button type="button" onClick={handleExport}
+          <button
+            type="button"
+            onClick={handleExport}
             className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
               isDarkMode
                 ? "bg-gray-700 hover:bg-gray-600 text-white"
@@ -1241,7 +1251,9 @@ const TradeFinanceList = () => {
             <Download size={18} />
             Export
           </button>
-          <button type="button" onClick={handleCreate}
+          <button
+            type="button"
+            onClick={handleCreate}
             className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
           >
             <Plus size={20} />
@@ -1370,7 +1382,9 @@ const TradeFinanceList = () => {
           </select>
 
           {/* Toggle More Filters */}
-          <button type="button" onClick={() => setShowFilters(!showFilters)}
+          <button
+            type="button"
+            onClick={() => setShowFilters(!showFilters)}
             className={`px-3 py-2 rounded-lg flex items-center gap-2 ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
             }`}
@@ -1386,7 +1400,9 @@ const TradeFinanceList = () => {
             filters.expiry_filter ||
             filters.start_date ||
             filters.end_date) && (
-            <button type="button" onClick={handleClearFilters}
+            <button
+              type="button"
+              onClick={handleClearFilters}
               className="text-teal-600 hover:text-teal-700 text-sm font-medium"
             >
               Clear All
@@ -1541,25 +1557,33 @@ const TradeFinanceList = () => {
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <button type="button" onClick={() => handleView(record)}
+                        <button
+                          type="button"
+                          onClick={() => handleView(record)}
                           title="View"
                           className="text-gray-500 hover:text-teal-600 transition-colors"
                         >
                           <Eye size={16} />
                         </button>
-                        <button type="button" onClick={() => handleEdit(record)}
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(record)}
                           title="Edit"
                           className="text-gray-500 hover:text-blue-600 transition-colors"
                         >
                           <Edit size={16} />
                         </button>
-                        <button type="button" onClick={() => handleAmend(record)}
+                        <button
+                          type="button"
+                          onClick={() => handleAmend(record)}
                           title="Amend"
                           className="text-gray-500 hover:text-yellow-600 transition-colors"
                         >
                           <RefreshCw size={16} />
                         </button>
-                        <button type="button" onClick={() => handleDelete(record)}
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(record)}
                           title="Delete"
                           className="text-gray-500 hover:text-red-600 transition-colors"
                         >
@@ -1584,7 +1608,9 @@ const TradeFinanceList = () => {
               {Math.min(pagination.current_page * pagination.per_page, pagination.total)} of {pagination.total} results
             </div>
             <div className="flex space-x-2">
-              <button type="button" onClick={() => loadRecords(pagination.current_page - 1)}
+              <button
+                type="button"
+                onClick={() => loadRecords(pagination.current_page - 1)}
                 disabled={pagination.current_page <= 1}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
                   isDarkMode ? "border-gray-600 hover:bg-gray-700" : "border-gray-300 hover:bg-gray-100"
@@ -1592,7 +1618,9 @@ const TradeFinanceList = () => {
               >
                 Previous
               </button>
-              <button type="button" onClick={() => loadRecords(pagination.current_page + 1)}
+              <button
+                type="button"
+                onClick={() => loadRecords(pagination.current_page + 1)}
                 disabled={pagination.current_page >= pagination.total_pages}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
                   isDarkMode ? "border-gray-600 hover:bg-gray-700" : "border-gray-300 hover:bg-gray-100"

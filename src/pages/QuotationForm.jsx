@@ -56,7 +56,9 @@ const ToggleSwitchQuotation = ({ enabled, onChange, label, description, isDarkMo
       <p className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>{label}</p>
       <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{description}</p>
     </div>
-    <button type="button" onClick={onChange}
+    <button
+      type="button"
+      onClick={onChange}
       className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
         enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
       }`}
@@ -99,7 +101,9 @@ const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange })
       <div className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}>
         <div className="flex items-center justify-between">
           <h3 className={`text-sm font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>Form Settings</h3>
-          <button type="button" onClick={onClose}
+          <button
+            type="button"
+            onClick={onClose}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
               isDarkMode ? "text-gray-400" : "text-gray-500"
             }`}
@@ -166,7 +170,9 @@ const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width 
 
   return (
     <>
-      <button type="button" className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
+      <button
+        type="button"
+        className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
@@ -189,7 +195,9 @@ const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width 
                 <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>{subtitle}</div>
               )}
             </div>
-            <button type="button" onClick={onClose}
+            <button
+              type="button"
+              onClick={onClose}
               className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-[#2a3640]" : "hover:bg-gray-100"}`}
             >
               <X className="h-4 w-4" />
@@ -1809,7 +1817,9 @@ const QuotationForm = () => {
         {/* Header - Compact on mobile */}
         <div className="mb-4 md:mb-6">
           <div className="flex items-center gap-2 md:gap-4 mb-2 md:mb-4">
-            <button type="button" onClick={handleBackClick}
+            <button
+              type="button"
+              onClick={handleBackClick}
               className={`p-1.5 md:p-2 rounded-lg border transition-colors ${
                 isDarkMode
                   ? "border-gray-600 text-gray-300 hover:bg-gray-700"
@@ -1828,7 +1838,9 @@ const QuotationForm = () => {
               </p>
             </div>
             <div className="relative">
-              <button type="button" onClick={() => setShowFormSettings(!showFormSettings)}
+              <button
+                type="button"
+                onClick={() => setShowFormSettings(!showFormSettings)}
                 className={`p-1.5 md:p-2 rounded-lg border transition-colors ${
                   isDarkMode
                     ? "border-gray-600 text-gray-300 hover:bg-gray-700"
@@ -1859,7 +1871,9 @@ const QuotationForm = () => {
             <div className="flex-1 whitespace-pre-line">{error}</div>
             <div className="flex gap-2">
               {isEdit && (error.includes("not found") || error.includes("permission")) && (
-                <button type="button" onClick={() => {
+                <button
+                  type="button"
+                  onClick={() => {
                     window.location.reload();
                   }}
                   className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-medium"
@@ -2288,7 +2302,9 @@ const QuotationForm = () => {
                     Items ({formData.items.length})
                   </h2>
                 </div>
-                <button type="button" onClick={addItem}
+                <button
+                  type="button"
+                  onClick={addItem}
                   className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm"
                   data-testid="add-item"
                 >
@@ -2310,7 +2326,9 @@ const QuotationForm = () => {
                       const isPinned = pinnedProductIds.includes(product.id);
                       return (
                         <div key={product.id} className="relative group flex-shrink-0">
-                          <button type="button" onClick={() => quickAddItem(product)}
+                          <button
+                            type="button"
+                            onClick={() => quickAddItem(product)}
                             className={`px-2 md:px-3 py-1.5 md:py-2 pr-6 md:pr-8 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-105 whitespace-nowrap ${
                               isPinned
                                 ? isDarkMode
@@ -2329,7 +2347,9 @@ const QuotationForm = () => {
                                 "N/A"
                             )}
                           </button>
-                          <button type="button" onClick={(e) => handleTogglePin(e, product.id)}
+                          <button
+                            type="button"
+                            onClick={(e) => handleTogglePin(e, product.id)}
                             className={`absolute right-0.5 md:right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
                               isPinned
                                 ? isDarkMode
@@ -2434,7 +2454,9 @@ const QuotationForm = () => {
 
                         {/* View Batches */}
                         {item.productId && (
-                          <button type="button" onClick={() => handleViewBatches(index)}
+                          <button
+                            type="button"
+                            onClick={() => handleViewBatches(index)}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                               isDarkMode
                                 ? "bg-teal-900/30 text-teal-300 hover:bg-teal-900/50"
@@ -2447,7 +2469,9 @@ const QuotationForm = () => {
                         )}
 
                         {/* Delivery Schedule */}
-                        <button type="button" onClick={() => handleOpenDeliverySchedule(index)}
+                        <button
+                          type="button"
+                          onClick={() => handleOpenDeliverySchedule(index)}
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                             isDarkMode
                               ? "bg-teal-900/30 text-teal-300 hover:bg-teal-900/50"
@@ -2459,7 +2483,9 @@ const QuotationForm = () => {
                         </button>
 
                         {/* Alternative Products */}
-                        <button type="button" onClick={() => handleOpenAlternativeProducts(index)}
+                        <button
+                          type="button"
+                          onClick={() => handleOpenAlternativeProducts(index)}
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border ${
                             isDarkMode
                               ? "bg-gray-800 text-gray-300 border-gray-600 hover:border-teal-500 hover:text-teal-400"
@@ -2690,7 +2716,9 @@ const QuotationForm = () => {
                               {formatCurrency(item.netAmount)}
                             </div>
                           </div>
-                          <button type="button" onClick={() => removeItem(index)}
+                          <button
+                            type="button"
+                            onClick={() => removeItem(index)}
                             className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
                           >
                             <Trash2 size={14} className="md:hidden" />
@@ -2840,7 +2868,9 @@ const QuotationForm = () => {
                 </div>
                 <div className="space-y-1.5">
                   {/* Volume Discount Tiers Button (STEEL-FORMS-PHASE1 Priority 2) */}
-                  <button type="button" onClick={() => setVolumeDiscountModalOpen(true)}
+                  <button
+                    type="button"
+                    onClick={() => setVolumeDiscountModalOpen(true)}
                     className={`w-full px-3 py-2 rounded-lg text-left text-sm transition-all flex items-center gap-2 border ${
                       isDarkMode
                         ? "bg-gray-800 hover:bg-gray-700 text-gray-300 border-gray-600 hover:border-teal-500 hover:text-teal-400"
@@ -2854,7 +2884,9 @@ const QuotationForm = () => {
                     </span>
                   </button>
 
-                  <button type="button" onClick={() => setChargesDrawerOpen(true)}
+                  <button
+                    type="button"
+                    onClick={() => setChargesDrawerOpen(true)}
                     className={`w-full flex items-center gap-2 py-2 px-2.5 text-sm rounded-lg border transition-colors ${
                       isDarkMode
                         ? "bg-gray-800 border-gray-600 text-gray-300 hover:border-teal-500 hover:text-teal-400"
@@ -2882,7 +2914,9 @@ const QuotationForm = () => {
                       </span>
                     )}
                   </button>
-                  <button type="button" onClick={() => setNotesDrawerOpen(true)}
+                  <button
+                    type="button"
+                    onClick={() => setNotesDrawerOpen(true)}
                     className={`w-full flex items-center gap-2 py-2 px-2.5 text-sm rounded-lg border transition-colors ${
                       isDarkMode
                         ? "bg-gray-800 border-gray-600 text-gray-300 hover:border-teal-500 hover:text-teal-400"
@@ -2900,7 +2934,9 @@ const QuotationForm = () => {
 
               {/* Action Buttons */}
               <div className="space-y-2">
-                <button type="button" onClick={() => setShowPreview(true)}
+                <button
+                  type="button"
+                  onClick={() => setShowPreview(true)}
                   className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 text-sm rounded-lg border transition-colors ${
                     isDarkMode
                       ? "bg-gray-800 border-gray-600 text-gray-300 hover:border-teal-500 hover:text-teal-400"
@@ -2930,7 +2966,9 @@ const QuotationForm = () => {
                     </>
                   )}
                 </button>
-                <button type="button" onClick={handleBackClick}
+                <button
+                  type="button"
+                  onClick={handleBackClick}
                   className={`w-full py-2 text-[13px] text-center ${
                     isDarkMode ? "text-[#93a4b4] hover:text-white" : "text-gray-500 hover:text-gray-700"
                   }`}
@@ -3221,7 +3259,9 @@ const QuotationForm = () => {
                 : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
             }}
           >
-            <button type="button" onClick={() => setChargesDrawerOpen(false)}
+            <button
+              type="button"
+              onClick={() => setChargesDrawerOpen(false)}
               className="w-full bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-sm hover:shadow-md"
             >
               Done
@@ -3293,7 +3333,9 @@ const QuotationForm = () => {
                 : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
             }}
           >
-            <button type="button" onClick={() => setNotesDrawerOpen(false)}
+            <button
+              type="button"
+              onClick={() => setNotesDrawerOpen(false)}
               className="w-full bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-sm hover:shadow-md"
             >
               Done

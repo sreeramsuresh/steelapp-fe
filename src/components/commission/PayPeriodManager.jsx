@@ -167,7 +167,9 @@ const PayPeriodManager = () => {
             Manage commission pay periods and process payments
           </p>
         </div>
-        <button type="button" onClick={loadPayPeriods}
+        <button
+          type="button"
+          onClick={loadPayPeriods}
           disabled={loading}
           className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
             isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
@@ -227,10 +229,12 @@ const PayPeriodManager = () => {
                 } overflow-hidden`}
               >
                 {/* Period Header */}
-                <button type="button" className={`p-4 flex items-center justify-between cursor-pointer ${
-          isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
-         }`}
-         onClick={() => setSelectedPeriod(selectedPeriod === period.id ? null : period.id)}
+                <button
+                  type="button"
+                  className={`p-4 flex items-center justify-between cursor-pointer ${
+                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
+                  }`}
+                  onClick={() => setSelectedPeriod(selectedPeriod === period.id ? null : period.id)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
@@ -318,7 +322,9 @@ const PayPeriodManager = () => {
                     {/* Actions */}
                     <div className="flex items-center space-x-3">
                       {isOpen && (
-                        <button type="button" onClick={() => openConfirmModal("close", period)}
+                        <button
+                          type="button"
+                          onClick={() => openConfirmModal("close", period)}
                           className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg flex items-center space-x-2 transition-colors"
                         >
                           <Lock className="w-4 h-4" />
@@ -327,7 +333,9 @@ const PayPeriodManager = () => {
                       )}
 
                       {isClosed && (
-                        <button type="button" onClick={() => openConfirmModal("process", period)}
+                        <button
+                          type="button"
+                          onClick={() => openConfirmModal("process", period)}
                           className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center space-x-2 transition-colors"
                         >
                           <Play className="w-4 h-4" />
@@ -392,7 +400,9 @@ const PayPeriodManager = () => {
             <div
               className={`p-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} flex justify-end space-x-3`}
             >
-              <button type="button" onClick={() => setShowConfirmModal(false)}
+              <button
+                type="button"
+                onClick={() => setShowConfirmModal(false)}
                 disabled={processing}
                 className={`px-4 py-2 rounded-lg ${
                   isDarkMode
@@ -402,7 +412,9 @@ const PayPeriodManager = () => {
               >
                 Cancel
               </button>
-              <button type="button" onClick={executeConfirmAction}
+              <button
+                type="button"
+                onClick={executeConfirmAction}
                 disabled={processing}
                 className={`px-4 py-2 rounded-lg flex items-center space-x-2 text-white ${
                   confirmAction.type === "close"

@@ -232,7 +232,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
       {warehouseError && (
         <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-700">
           <span>{warehouseError}</span>
-          <button type="button" onClick={() => setWarehouseError(null)}
+          <button
+            type="button"
+            onClick={() => setWarehouseError(null)}
             className="text-yellow-600 hover:text-yellow-800"
           >
             <X size={18} />
@@ -306,7 +308,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
           <div className="flex-grow" />
 
           {/* Action Buttons */}
-          <button type="button" onClick={loadReservations}
+          <button
+            type="button"
+            onClick={loadReservations}
             disabled={loading}
             title="Refresh"
             className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
@@ -314,7 +318,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             <RotateCcw size={18} />
           </button>
 
-          <button type="button" onClick={onCreateNew}
+          <button
+            type="button"
+            onClick={onCreateNew}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium"
           >
             <Plus size={18} />
@@ -419,14 +425,18 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                       <td className="px-4 py-3 text-sm text-gray-600">{formatDate(reservation.createdAt)}</td>
                       <td className="px-4 py-3 text-sm text-right">
                         <div className="flex justify-end gap-1">
-                          <button type="button" onClick={() => onViewReservation?.(reservation)}
+                          <button
+                            type="button"
+                            onClick={() => onViewReservation?.(reservation)}
                             title="View"
                             className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
                           >
                             <Eye size={18} />
                           </button>
                           {canFulfill && (
-                            <button type="button" onClick={() => handleOpenFulfillDialog(reservation)}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenFulfillDialog(reservation)}
                               title="Fulfill"
                               className="p-1.5 rounded hover:bg-green-50 text-green-600 hover:text-green-700"
                             >
@@ -434,7 +444,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                             </button>
                           )}
                           {canCancel && (
-                            <button type="button" onClick={() => handleOpenCancelDialog(reservation)}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenCancelDialog(reservation)}
                               title="Cancel"
                               className="p-1.5 rounded hover:bg-red-50 text-red-600 hover:text-red-700"
                             >
@@ -472,13 +484,17 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                 : `${page * rowsPerPage + 1}-${Math.min((page + 1) * rowsPerPage, totalCount)} of ${totalCount}`}
             </span>
             <div className="flex gap-1">
-              <button type="button" onClick={(e) => handleChangePage(e, page - 1)}
+              <button
+                type="button"
+                onClick={(e) => handleChangePage(e, page - 1)}
                 disabled={page === 0}
                 className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"
               >
                 Previous
               </button>
-              <button type="button" onClick={(e) => handleChangePage(e, page + 1)}
+              <button
+                type="button"
+                onClick={(e) => handleChangePage(e, page + 1)}
                 disabled={page >= Math.ceil(totalCount / rowsPerPage) - 1}
                 className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"
               >
@@ -539,13 +555,17 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               </div>
             </div>
             <div className="flex justify-end gap-3">
-              <button type="button" onClick={() => setFulfillDialog({ open: false, reservation: null })}
+              <button
+                type="button"
+                onClick={() => setFulfillDialog({ open: false, reservation: null })}
                 disabled={actionLoading}
                 className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
               >
                 Cancel
               </button>
-              <button type="button" onClick={handleFulfill}
+              <button
+                type="button"
+                onClick={handleFulfill}
                 disabled={actionLoading || !fulfillQuantity || parseFloat(fulfillQuantity) <= 0}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed text-white"
               >
@@ -599,13 +619,17 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               </div>
             </div>
             <div className="flex justify-end gap-3">
-              <button type="button" onClick={() => setCancelDialog({ open: false, reservation: null })}
+              <button
+                type="button"
+                onClick={() => setCancelDialog({ open: false, reservation: null })}
                 disabled={actionLoading}
                 className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
               >
                 No, Go Back
               </button>
-              <button type="button" onClick={handleCancel}
+              <button
+                type="button"
+                onClick={handleCancel}
                 disabled={actionLoading}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed text-white"
               >

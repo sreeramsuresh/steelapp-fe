@@ -287,7 +287,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
               Generate customer statements and track account balances
             </p>
           </button>
-          <button type="button" onClick={handleGenerateClick}
+          <button
+            type="button"
+            onClick={handleGenerateClick}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
           >
             <Plus size={18} />
@@ -456,7 +458,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                     <td className="px-6 py-4 whitespace-nowrap">{getBalanceBadge(statement.closingBalance)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex gap-2 justify-end">
-                        <button type="button" className={`p-2 rounded-lg transition-colors ${
+                        <button
+                          type="button"
+                          className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
                           }`}
                           onClick={() => handlePreview(statement)}
@@ -465,7 +469,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                         >
                           <Eye size={18} />
                         </button>
-                        <button type="button" className={`p-2 rounded-lg transition-colors ${
+                        <button
+                          type="button"
+                          className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? "hover:bg-gray-700 text-green-400" : "hover:bg-gray-100 text-green-600"
                           }`}
                           onClick={() => handleDownloadPDF(statement)}
@@ -473,7 +479,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                         >
                           <Download size={18} />
                         </button>
-                        <button type="button" className={`p-2 rounded-lg transition-colors ${
+                        <button
+                          type="button"
+                          className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? "hover:bg-gray-700 text-orange-400" : "hover:bg-gray-100 text-orange-600"
                           }`}
                           onClick={() =>
@@ -500,7 +508,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
         {totalPages > 1 && (
           <div className="flex justify-center mt-6">
             <div className="flex items-center gap-2">
-              <button type="button" onClick={() => setPage(Math.max(1, page - 1))}
+              <button
+                type="button"
+                onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
                 className={`p-2 rounded transition-colors ${
                   page === 1
@@ -517,7 +527,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
               <span className={`px-3 py-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                 Page {page} of {totalPages}
               </span>
-              <button type="button" onClick={() => setPage(Math.min(totalPages, page + 1))}
+              <button
+                type="button"
+                onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
                 className={`p-2 rounded transition-colors ${
                   page === totalPages
@@ -557,7 +569,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
             <div
               className={`p-6 border-t flex justify-end gap-3 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
             >
-              <button type="button" onClick={() => setDeleteDialog({ open: false, id: null, number: "" })}
+              <button
+                type="button"
+                onClick={() => setDeleteDialog({ open: false, id: null, number: "" })}
                 className={`px-4 py-2 border rounded-lg transition-colors ${
                   isDarkMode
                     ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
@@ -566,7 +580,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
               >
                 Cancel
               </button>
-              <button type="button" onClick={handleDelete}
+              <button
+                type="button"
+                onClick={handleDelete}
                 className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
               >
                 Archive
@@ -587,7 +603,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
             <div className="flex items-center gap-2">
               <AlertCircle size={20} />
               <span>{error}</span>
-              <button type="button" onClick={() => setError("")}
+              <button
+                type="button"
+                onClick={() => setError("")}
                 className={`ml-2 ${isDarkMode ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-700"}`}
               >
                 <X size={16} />
@@ -624,7 +642,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                   </p>
                 </div>
               </div>
-              <button type="button" onClick={() => setShowCustomerModal(false)}
+              <button
+                type="button"
+                onClick={() => setShowCustomerModal(false)}
                 className={`p-2 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
               >
                 <X className={`h-5 w-5 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`} />
@@ -660,7 +680,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                   </div>
                 ) : (
                   customers.map((customer) => (
-                    <button type="button" key={customer.id}
+                    <button
+                      type="button"
+                      key={customer.id}
                       onClick={() => handleCustomerSelect(customer)}
                       className={`w-full text-left p-4 rounded-lg border transition-all ${
                         isDarkMode
@@ -740,7 +762,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
             <div
               className={`p-6 border-t flex justify-end gap-3 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
             >
-              <button type="button" onClick={() =>
+              <button
+                type="button"
+                onClick={() =>
                   setDownloadWarning({
                     open: false,
                     statement: null,
@@ -753,7 +777,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
               >
                 Cancel
               </button>
-              <button type="button" onClick={handleForceDownload}
+              <button
+                type="button"
+                onClick={handleForceDownload}
                 className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
               >
                 Download Anyway

@@ -174,13 +174,7 @@ const Toggle = ({ checked, onChange, label, isDarkMode }) => {
 
   return (
     <label className="flex items-center gap-3 cursor-pointer">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="sr-only"
-        aria-hidden="true"
-      />
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="sr-only" />
       <div
         className={`w-11 h-6 rounded-full relative transition-colors ${
           checked ? "bg-teal-500" : isDarkMode ? "bg-gray-600" : "bg-gray-300"

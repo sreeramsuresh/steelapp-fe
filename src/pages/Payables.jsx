@@ -528,7 +528,9 @@ const POTab = ({ canManage }) => {
             />
           </div>
           <div className="flex flex-wrap gap-2 items-center justify-end sm:justify-end">
-            <button type="button" onClick={() => fetchData(true)}
+            <button
+              type="button"
+              onClick={() => fetchData(true)}
               className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2"
             >
               <RefreshCw size={16} />
@@ -677,7 +679,9 @@ const POTab = ({ canManage }) => {
                       <StatusPill status={row.status} />
                     </td>
                     <td className="px-4 py-2 text-right">
-                      <button type="button" className={`px-2 py-1 ${canManage ? "text-teal-600" : "text-gray-400 cursor-not-allowed"}`}
+                      <button
+                        type="button"
+                        className={`px-2 py-1 ${canManage ? "text-teal-600" : "text-gray-400 cursor-not-allowed"}`}
                         disabled={!canManage}
                         onClick={() => canManage && openDrawer(row)}
                       >
@@ -780,14 +784,18 @@ const POTab = ({ canManage }) => {
                             </div>
                             {!p.voided && (
                               <div className="flex gap-1">
-                                <button type="button" onClick={() => handlePrintReceipt(p, paymentIndex)}
+                                <button
+                                  type="button"
+                                  onClick={() => handlePrintReceipt(p, paymentIndex)}
                                   disabled={isPrinting}
                                   className={`p-1.5 rounded transition-colors ${isPrinting ? "opacity-50 cursor-not-allowed" : "hover:bg-purple-50 text-purple-600 hover:text-purple-700"}`}
                                   title="Print payment receipt"
                                 >
                                   <Printer size={14} />
                                 </button>
-                                <button type="button" onClick={() => handleDownloadReceipt(p, paymentIndex)}
+                                <button
+                                  type="button"
+                                  onClick={() => handleDownloadReceipt(p, paymentIndex)}
                                   disabled={isDownloading}
                                   className={`p-1.5 rounded transition-colors ${isDownloading ? "opacity-50 cursor-not-allowed" : "hover:bg-teal-50 text-teal-600 hover:text-teal-700"}`}
                                   title="Download payment receipt"
@@ -834,7 +842,9 @@ const POTab = ({ canManage }) => {
                     const last = payments[payments.length - 1];
                     return (
                       <>
-                        <button type="button" className="px-3 py-2 rounded border"
+                        <button
+                          type="button"
+                          className="px-3 py-2 rounded border"
                           onClick={async () => {
                             try {
                               const blob = await payablesService.downloadPOVoucher(drawer.item.id, last.id);
@@ -846,7 +856,9 @@ const POTab = ({ canManage }) => {
                         >
                           Download voucher
                         </button>
-                        <button type="button" className="px-3 py-2 rounded border"
+                        <button
+                          type="button"
+                          className="px-3 py-2 rounded border"
                           onClick={async () => {
                             try {
                               await payablesService.emailPOVoucher(drawer.item.id, last.id);

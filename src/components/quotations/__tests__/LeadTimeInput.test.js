@@ -93,7 +93,7 @@ describe("LeadTimeInput", () => {
   });
 
   it("should handle zero as valid lead time", async () => {
-    const user = userEvent.setup();
+    const _user = userEvent.setup();
     const item = {
       sourceType: "TO_BE_PROCURED",
       productId: null,
@@ -147,7 +147,7 @@ describe("LeadTimeInput", () => {
   });
 
   it("should respect minimum value of 0", async () => {
-    const user = userEvent.setup();
+    const _user = userEvent.setup();
     const item = {
       sourceType: "TO_BE_PROCURED",
       productId: null,

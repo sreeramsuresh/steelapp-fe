@@ -6,7 +6,7 @@
  * ✅ 100% coverage target for productService.js
  */
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, test, vi } from "vitest";
 
 // Mock API client and file operations
 vi.mock("../axiosApi", () => ({

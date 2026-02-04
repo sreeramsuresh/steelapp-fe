@@ -38,7 +38,7 @@ describe("TextInput", () => {
   });
 
   it("should not display required indicator when required is false", () => {
-    const { container } = render(<TextInput label="Phone" value="" onChange={mockOnChange} required={false} />);
+    const { container: _container } = render(<TextInput label="Phone" value="" onChange={mockOnChange} required={false} />);
 
     const label = screen.getByLabelText("Phone");
     expect(label.textContent).not.toContain("*");
@@ -61,7 +61,7 @@ describe("TextInput", () => {
   });
 
   it("should not display error message when error is not provided", () => {
-    const { container } = render(<TextInput label="Email" value="" onChange={mockOnChange} />);
+    const { container: _container } = render(<TextInput label="Email" value="" onChange={mockOnChange} />);
 
     expect(container.textContent).not.toContain("Invalid");
   });
@@ -73,7 +73,7 @@ describe("TextInput", () => {
   });
 
   it("should not display help text when error is displayed", () => {
-    const { container } = render(
+    const { container: _container } = render(
       <TextInput
         label="Email"
         value="invalid"
@@ -121,7 +121,7 @@ describe("TextInput", () => {
   });
 
   it("should apply custom className", () => {
-    const { container } = render(<TextInput label="Email" value="" onChange={mockOnChange} className="custom-input" />);
+    const { container: _container } = render(<TextInput label="Email" value="" onChange={mockOnChange} className="custom-input" />);
 
     const input = screen.getByRole("textbox");
     expect(input).toHaveClass("custom-input");
@@ -140,7 +140,7 @@ describe("TextInput", () => {
   });
 
   it("should apply error styling when error is present", () => {
-    const { container } = render(
+    const { container: _container } = render(
       <TextInput label="Email" value="invalid" onChange={mockOnChange} error="Invalid email" />
     );
 
@@ -149,14 +149,14 @@ describe("TextInput", () => {
   });
 
   it("should apply correct styling when disabled", () => {
-    const { container } = render(<TextInput label="Email" value="" onChange={mockOnChange} disabled={true} />);
+    const { container: _container } = render(<TextInput label="Email" value="" onChange={mockOnChange} disabled={true} />);
 
     const input = screen.getByRole("textbox");
     expect(input).toHaveClass("cursor-not-allowed");
   });
 
   it("should handle all input props through spread", async () => {
-    const user = userEvent.setup();
+    const _user = userEvent.setup();
     render(<TextInput label="Email" value="" onChange={mockOnChange} maxLength="50" autoComplete="email" />);
 
     const input = screen.getByRole("textbox");

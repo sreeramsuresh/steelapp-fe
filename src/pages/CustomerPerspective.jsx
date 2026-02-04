@@ -216,7 +216,9 @@ const CustomerPerspective = () => {
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => navigate("/payables")}
+            <button
+              type="button"
+              onClick={() => navigate("/payables")}
               className={`p-2 rounded ${isDarkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-600"}`}
             >
               <ArrowLeft size={18} />
@@ -235,7 +237,9 @@ const CustomerPerspective = () => {
               <FileSpreadsheet size={16} />
               Export Excel
             </button>
-            <button type="button" onClick={downloadPDF}
+            <button
+              type="button"
+              onClick={downloadPDF}
               className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2"
             >
               <Download size={16} />

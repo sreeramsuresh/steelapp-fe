@@ -293,7 +293,7 @@ describe("DeliveryScheduleModal", () => {
   });
 
   it("should allow notes for each schedule entry", async () => {
-    const user = userEvent.setup();
+    const _user = userEvent.setup();
     const schedule = [
       { date: "2024-02-15", quantity: 500, notes: "Ship to Dubai warehouse" },
       { date: "2024-03-15", quantity: 500, notes: "Ship to Abu Dhabi warehouse" },

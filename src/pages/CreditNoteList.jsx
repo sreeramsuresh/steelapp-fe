@@ -278,7 +278,9 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
             </p>
           </div>
           {authService.hasPermission("invoices", "create") && (
-            <button type="button" onClick={() => navigate("/credit-notes/new")}
+            <button
+              type="button"
+              onClick={() => navigate("/credit-notes/new")}
               className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
             >
               <Plus className="h-4 w-4" />
@@ -373,7 +375,9 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                         {formatCurrency(draft.data.totalCredit)}
                       </span>
                     )}
-                    <button type="button" onClick={() => handleDeleteDraft(draft)}
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteDraft(draft)}
                       className={`p-2 rounded-lg transition-colors ${
                         isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
                       }`}
@@ -381,7 +385,9 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
-                    <button type="button" onClick={() => handleResumeDraft(draft)}
+                    <button
+                      type="button"
+                      onClick={() => handleResumeDraft(draft)}
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium"
                     >
                       <PlayCircle className="h-4 w-4" />
@@ -463,7 +469,9 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                     >
                       <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                         <div className="font-medium flex items-center">
-                          <button type="button" onClick={() => navigate(`/credit-notes/${creditNote.id}`)}
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/credit-notes/${creditNote.id}`)}
                             className="hover:text-teal-600 hover:underline cursor-pointer text-left"
                           >
                             {creditNote.creditNoteNumber}
@@ -540,14 +548,18 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                           tabIndex={0}
                         >
                           {/* Preview Button */}
-                          <button type="button" onClick={() => handlePreview(creditNote)}
+                          <button
+                            type="button"
+                            onClick={() => handlePreview(creditNote)}
                             className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                             title="Preview"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
                           {/* Download PDF Button */}
-                          <button type="button" onClick={() => handleDownloadPDF(creditNote)}
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadPDF(creditNote)}
                             disabled={downloadingIds.has(creditNote.id)}
                             className={`p-2 rounded transition-colors ${
                               downloadingIds.has(creditNote.id)
@@ -566,7 +578,9 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                           </button>
                           {/* Edit Button - Only show for drafts */}
                           {creditNote.status === "draft" && (
-                            <button type="button" onClick={() => navigate(`/credit-notes/${creditNote.id}`)}
+                            <button
+                              type="button"
+                              onClick={() => navigate(`/credit-notes/${creditNote.id}`)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600" : "hover:bg-gray-200"}`}
                               title="Edit"
                             >
@@ -575,7 +589,9 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                           )}
                           {/* Delete Button - Only show for drafts */}
                           {creditNote.status === "draft" && (
-                            <button type="button" onClick={() => handleDelete(creditNote)}
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(creditNote)}
                               className="p-2 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-colors"
                               title="Delete"
                             >
@@ -600,7 +616,9 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                   {Math.min(currentPage * pageSize, pagination.total)} of {pagination.total} credit notes
                 </div>
                 <div className="flex gap-2">
-                  <button type="button" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                     className={`px-3 py-1 rounded border ${
                       currentPage === 1
@@ -612,7 +630,9 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                   >
                     Previous
                   </button>
-                  <button type="button" onClick={() => setCurrentPage((p) => p + 1)}
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((p) => p + 1)}
                     disabled={currentPage * pageSize >= pagination.total}
                     className={`px-3 py-1 rounded border ${
                       currentPage * pageSize >= pagination.total

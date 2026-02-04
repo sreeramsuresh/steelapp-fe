@@ -516,7 +516,9 @@ const StockReceiptForm = ({
                 <p className={`text-xs ${textMuted}`}>PO: {poNumber}</p>
               </div>
             </div>
-            <button type="button" onClick={onClose}
+            <button
+              type="button"
+              onClick={onClose}
               disabled={loading}
               className={`p-2 rounded-xl ${cardBg} ${textMuted} hover:${textPrimary} transition-colors disabled:opacity-50`}
             >
@@ -615,7 +617,9 @@ const StockReceiptForm = ({
 
               {grnStatus !== "approved" && (
                 <div className="flex items-center gap-2">
-                  <button type="button" onClick={handleApproveGRN}
+                  <button
+                    type="button"
+                    onClick={handleApproveGRN}
                     className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-colors"
                   >
                     <CheckCircle className="w-4 h-4" />
@@ -840,7 +844,9 @@ const StockReceiptForm = ({
                                       step={0.01}
                                       className={`w-24 ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-sm text-right font-mono ${textPrimary} ${inputFocus} outline-none disabled:opacity-50`}
                                     />
-                                    <button type="button" onClick={() => handleSetMaxQuantity(item.id)}
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSetMaxQuantity(item.id)}
                                       disabled={!isSelected}
                                       title="Set max quantity"
                                       className={`p-1.5 rounded-lg ${cardBg} ${textMuted} hover:text-[#4aa3ff] transition-colors disabled:opacity-50`}
@@ -989,13 +995,17 @@ const StockReceiptForm = ({
               )}
             </div>
             <div className="flex items-center gap-2">
-              <button type="button" onClick={onClose}
+              <button
+                type="button"
+                onClick={onClose}
                 disabled={loading}
                 className={`px-4 py-2.5 rounded-xl border ${cardBorder} ${textPrimary} text-sm font-medium hover:${cardBg} transition-colors disabled:opacity-50`}
               >
                 Cancel
               </button>
-              <button type="button" onClick={handleSubmit}
+              <button
+                type="button"
+                onClick={handleSubmit}
                 disabled={loading || !hasSelectedItems || totals.totalToReceive <= 0}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#4aa3ff] text-white text-sm font-medium hover:bg-[#3d8ee6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >

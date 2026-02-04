@@ -316,7 +316,9 @@ export default function CustomerActivityTab({ customerId }) {
           <p className={`font-medium ${isDarkMode ? "text-red-400" : "text-red-700"}`}>Error Loading Activities</p>
         </div>
         <p className={`text-sm ${isDarkMode ? "text-red-300" : "text-red-600"}`}>{error}</p>
-        <button type="button" onClick={fetchActivities}
+        <button
+          type="button"
+          onClick={fetchActivities}
           className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition-colors"
         >
           Retry
@@ -330,7 +332,9 @@ export default function CustomerActivityTab({ customerId }) {
       {/* Header with Refresh Button */}
       <div className="flex justify-between items-center">
         <h3 className={`text-lg font-semibold ${primaryText}`}>Customer Activity Timeline</h3>
-        <button type="button" onClick={handleRefresh}
+        <button
+          type="button"
+          onClick={handleRefresh}
           disabled={loading}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             isDarkMode
@@ -406,7 +410,9 @@ export default function CustomerActivityTab({ customerId }) {
 
           {/* Add Activity Button */}
           <div>
-            <button type="button" onClick={() => setIsAddingActivity(true)}
+            <button
+              type="button"
+              onClick={() => setIsAddingActivity(true)}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
             >
               <Plus size={18} />
@@ -477,7 +483,9 @@ export default function CustomerActivityTab({ customerId }) {
             </div>
 
             <div className="flex justify-end gap-3">
-              <button type="button" onClick={() => setIsAddingActivity(false)}
+              <button
+                type="button"
+                onClick={() => setIsAddingActivity(false)}
                 className={`px-4 py-2 rounded-md border ${borderColor} ${primaryText} ${hoverBg} transition-colors`}
               >
                 Cancel

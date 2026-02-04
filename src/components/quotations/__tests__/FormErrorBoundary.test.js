@@ -89,7 +89,7 @@ describe("FormErrorBoundary (Class Component)", () => {
 
   it("should provide Try Again button to retry", async () => {
     const user = userEvent.setup();
-    const { rerender } = render(
+    const { rerender: _rerender } = render(
       <FormErrorBoundary isDarkMode={false} formName="Test Form">
         <BrokenComponent />
       </FormErrorBoundary>
