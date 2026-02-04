@@ -2032,7 +2032,7 @@ const InvoiceForm = ({ onSave }) => {
   // Refetch products when form loads to ensure fresh data (updated names, latest sales data)
   useEffect(() => {
     refetchProducts();
-  }, []); // Run only once on mount
+  }, []);
 
   // Also refetch when window regains focus (user returns from product management)
   useEffect(() => {
