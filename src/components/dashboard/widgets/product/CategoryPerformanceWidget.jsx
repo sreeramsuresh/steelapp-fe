@@ -140,7 +140,8 @@ const CategoryPerformanceWidget = ({ data, onNavigate: _onNavigate, onCategoryCl
           {categories.map((cat, _index) => {
             const width = (cat.revenue / totalRevenue) * 100;
             return (
-              <div
+              <button
+                type="button"
                 key={cat.name}
                 className={`h-full transition-all duration-300 cursor-pointer relative ${
                   hoveredCategory === cat.name ? "opacity-100" : hoveredCategory ? "opacity-50" : "opacity-100"
@@ -152,21 +153,13 @@ const CategoryPerformanceWidget = ({ data, onNavigate: _onNavigate, onCategoryCl
                 onMouseEnter={() => setHoveredCategory(cat.name)}
                 onMouseLeave={() => setHoveredCategory(null)}
                 onClick={() => onCategoryClick?.(cat)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onCategoryClick?.(cat);
-                  }
-                }}
               >
                 {width > 10 && (
                   <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-white">
                     {width.toFixed(0)}%
                   </span>
                 )}
-              </div>
+              </button>
             );
           })}
         </div>
@@ -175,9 +168,10 @@ const CategoryPerformanceWidget = ({ data, onNavigate: _onNavigate, onCategoryCl
       {/* Category Details */}
       <div className="space-y-2">
         {categories.map((category) => (
-          <div
+          <button
+            type="button"
             key={category.name}
-            className={`p-3 rounded-lg cursor-pointer transition-all ${
+            className={`p-3 rounded-lg cursor-pointer transition-all w-full text-left ${
               hoveredCategory === category.name
                 ? isDarkMode
                   ? "bg-[#2E3B4E]"
@@ -189,14 +183,6 @@ const CategoryPerformanceWidget = ({ data, onNavigate: _onNavigate, onCategoryCl
             onMouseEnter={() => setHoveredCategory(category.name)}
             onMouseLeave={() => setHoveredCategory(null)}
             onClick={() => onCategoryClick?.(category)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                onCategoryClick?.(category);
-              }
-            }}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -246,7 +232,7 @@ const CategoryPerformanceWidget = ({ data, onNavigate: _onNavigate, onCategoryCl
                 style={{ width: `${(category.revenue / maxRevenue) * 100}%` }}
               />
             </div>
-          </div>
+          </button>
         ))}
       </div>
 

@@ -288,7 +288,7 @@ const CustomerPerspective = () => {
           <div>
             <div className={`text-2xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               Statement Of Account
-            </button>
+            </div>
             <div className={`${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               {customerName || "Customer"} • {formatDate(start)} - {formatDate(end)}
             </div>

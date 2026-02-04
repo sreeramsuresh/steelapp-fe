@@ -687,7 +687,7 @@ const CustomsDocumentList = () => {
               </h4>
               <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>5%</p>
               <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Applied on CIF value</p>
-            </button>
+            </div>
             <div>
               <h4 className={`font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>VAT Rate</h4>
               <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>5%</p>

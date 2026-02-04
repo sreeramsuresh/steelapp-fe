@@ -598,7 +598,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                               <Trash2 className="h-4 w-4" />
                             </button>
                           )}
-                        </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
