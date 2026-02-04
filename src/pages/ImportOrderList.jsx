@@ -1,5 +1,5 @@
 import { Edit, Eye, Plus, Search, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";

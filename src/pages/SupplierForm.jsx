@@ -17,7 +17,7 @@ import {
   Upload,
   User,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import TRNInput from "../components/TRNInput";
 import { FormSelect } from "../components/ui/form-select";

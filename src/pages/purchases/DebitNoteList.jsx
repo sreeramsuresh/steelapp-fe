@@ -22,7 +22,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -123,13 +123,7 @@ const DebitNoteList = () => {
     loadVendors();
   }, []);
 
-  // Load debit notes when filters change
-  useEffect(() => {
-    loadDebitNotes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadDebitNotes]); // loadDebitNotes is stable
-
-  const loadDebitNotes = async () => {
+  const loadDebitNotes = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -163,7 +157,12 @@ const DebitNoteList = () => {
       setLoading(false);
       setInitialLoading(false);
     }
-  };
+  }, [currentPage, pageSize, debouncedSearch, statusFilter, vendorFilter, startDate, endDate]);
+
+  // Load debit notes when filters change
+  useEffect(() => {
+    loadDebitNotes();
+  }, [loadDebitNotes]);
 
   const handleDelete = async (debitNote) => {
     const confirmed = await confirm({

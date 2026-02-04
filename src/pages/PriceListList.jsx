@@ -1,5 +1,5 @@
 import { CheckCircle, Copy, DollarSign, Edit, Filter, Plus, Search, Star, Tag, Trash2, XCircle } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";

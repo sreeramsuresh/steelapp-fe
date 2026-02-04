@@ -22,7 +22,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -143,13 +143,7 @@ const SupplierBillList = () => {
     loadVendors();
   }, []);
 
-  // Load bills when filters change
-  useEffect(() => {
-    loadBills();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadBills]); // loadBills is stable
-
-  const loadBills = async () => {
+  const loadBills = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -185,7 +179,12 @@ const SupplierBillList = () => {
       setLoading(false);
       setInitialLoading(false);
     }
-  };
+  }, [currentPage, pageSize, debouncedSearch, statusFilter, vatCategoryFilter, vendorFilter, startDate, endDate]);
+
+  // Load bills when filters change
+  useEffect(() => {
+    loadBills();
+  }, [loadBills]);
 
   const handleDelete = async (bill) => {
     const confirmed = await confirm({

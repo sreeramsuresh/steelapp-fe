@@ -14,7 +14,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import PurchaseOrderPreview from "../components/purchase-orders/PurchaseOrderPreview";
