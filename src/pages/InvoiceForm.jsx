@@ -5811,7 +5811,7 @@ const InvoiceForm = ({ onSave }) => {
                                       {option.origin ? `${option.origin} • ` : ""}
                                       {option.subtitle}
                                     </div>
-                                  </button>
+                                  </div>
                                 )}
                                 noOptionsText="No products found"
                               />
