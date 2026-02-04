@@ -249,7 +249,9 @@ const supplierBillService = {
       };
 
       // Remove undefined params
-      Object.keys(queryParams).forEach((key) => queryParams[key] === undefined && delete queryParams[key]);
+      Object.keys(queryParams).forEach((key) => {
+        if (queryParams[key] === undefined) delete queryParams[key];
+      });
 
       const axiosConfig = { ...queryParams };
       if (signal) {
@@ -489,7 +491,9 @@ const supplierBillService = {
         vatCategory: params.vatCategory || undefined,
       };
 
-      Object.keys(queryParams).forEach((key) => queryParams[key] === undefined && delete queryParams[key]);
+      Object.keys(queryParams).forEach((key) => {
+        if (queryParams[key] === undefined) delete queryParams[key];
+      });
 
       const response = await apiClient.get("/supplier-bills/vat-summary", queryParams);
       return response;

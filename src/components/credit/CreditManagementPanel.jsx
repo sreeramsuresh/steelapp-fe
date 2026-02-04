@@ -211,9 +211,13 @@ const CreditManagementPanel = ({
                         onChange={(e) => {
                           const newSelected = new Set(selectedCustomers);
                           if (e.target.checked) {
-                            overLimitCustomers.forEach((c) => newSelected.add(c.id));
+                            overLimitCustomers.forEach((c) => {
+                              newSelected.add(c.id);
+                            });
                           } else {
-                            overLimitCustomers.forEach((c) => newSelected.delete(c.id));
+                            overLimitCustomers.forEach((c) => {
+                              newSelected.delete(c.id);
+                            });
                           }
                           setSelectedCustomers(newSelected);
                         }}

@@ -11,7 +11,7 @@
  * @param source - Source of the data for debugging
  * @returns Normalized Payment with camelCase fields
  */
-export function normalizePayment(rawPayment: any, source = "unknown"): any | null {
+export function normalizePayment(rawPayment: unknown, source = "unknown"): unknown | null {
   if (!rawPayment || typeof rawPayment !== "object") {
     console.error(`❌ [Payment Normalizer] Invalid payment data from ${source}:`, rawPayment);
     return null;
@@ -19,7 +19,7 @@ export function normalizePayment(rawPayment: any, source = "unknown"): any | nul
 
   try {
     // Helper to safely parse numbers
-    const parseNumber = (value: any, fallback: unknown = undefined): number | undefined => {
+    const parseNumber = (value: unknown, fallback: unknown = undefined): number | undefined => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
       return Number.isNaN(parsed) ? fallback : parsed;
@@ -103,5 +103,5 @@ export function normalizePayments(rawPayments: unknown[], source = "list"): unkn
 
   return rawPayments
     .map((payment, index) => normalizePayment(payment, `${source}[${index}]`))
-    .filter((payment): payment is any => payment !== null);
+    .filter((payment): payment is NonNullable<unknown> => payment !== null);
 }

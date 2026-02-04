@@ -110,7 +110,7 @@ function normalizePaymentStatus(rawStatus: unknown): string {
  * @returns Normalized Invoice with camelCase fields
  */
 export function normalizeInvoice(
-  rawInvoice: any, // eslint-disable-line @typescript-eslint/no-explicit-any -- raw API data
+  rawInvoice: unknown,
   source = "unknown"
 ): Invoice | null {
   if (!rawInvoice || typeof rawInvoice !== "object") {
@@ -122,8 +122,7 @@ export function normalizeInvoice(
 
   try {
     // Helper to safely parse dates
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const parseDate = (value: any, fieldName: string): string => {
+    const parseDate = (value: unknown, fieldName: string): string => {
       if (!value) return new Date().toISOString();
 
       // Handle Timestamp objects from Firestore/backend
@@ -146,8 +145,7 @@ export function normalizeInvoice(
     };
 
     // Helper to safely parse numbers
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const parseNumber = (value: any, fallback = 0): number => {
+    const parseNumber = (value: unknown, fallback = 0): number => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
       return Number.isNaN(parsed) ? fallback : parsed;
@@ -210,7 +208,7 @@ export function normalizeInvoice(
 
     // Normalize delivery status
     const normalizeDeliveryStatus = (
-      status: any // eslint-disable-line @typescript-eslint/no-explicit-any -- raw status data
+      status: unknown
     ): DeliveryStatus | undefined => {
       if (!status) return undefined;
 
@@ -399,7 +397,9 @@ export function normalizeInvoice(
     // Log validation errors if any
     if (errors.length > 0) {
       console.warn(`⚠️ [Invoice Normalizer] Validation warnings from ${source}:`);
-      errors.forEach((error) => console.warn(`   - ${error}`));
+      errors.forEach((error) => {
+        console.warn(`   - ${error}`);
+      });
     }
 
     return normalized;

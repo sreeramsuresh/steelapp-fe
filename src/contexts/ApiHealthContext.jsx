@@ -22,7 +22,9 @@ let unhealthyListeners = [];
  * This triggers the banner immediately without waiting for health poll
  */
 export const reportApiUnhealthy = (errorMessage) => {
-  unhealthyListeners.forEach((listener) => listener(errorMessage));
+  unhealthyListeners.forEach((listener) => {
+    listener(errorMessage);
+  });
 };
 
 export const useApiHealthContext = () => {

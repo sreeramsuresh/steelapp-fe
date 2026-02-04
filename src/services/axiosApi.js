@@ -67,14 +67,14 @@ const Cookies = {
     if (typeof document === "undefined") return;
     const { expires = 7, path = "/" } = options;
     const expiresDate = new Date(Date.now() + expires * 864e5).toUTCString();
-    // eslint-disable-next-line no-assign-to-cookie-api
+    // biome-ignore lint/suspicious/noDocumentCookie: Cookie utility - intentional cookie management
     document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expiresDate}; path=${path}`;
   },
 
   remove(name, options = {}) {
     if (typeof document === "undefined") return;
     const { path = "/" } = options;
-    // eslint-disable-next-line no-assign-to-cookie-api
+    // biome-ignore lint/suspicious/noDocumentCookie: Cookie utility - intentional cookie management
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}`;
   },
 };
@@ -350,9 +350,9 @@ export const tokenUtils = {
     // eslint-disable-next-line no-assign-to-cookie-api
     document.cookie.split(";").forEach((cookie) => {
       const name = cookie.substr(0, cookie.indexOf("=")).trim();
-      // eslint-disable-next-line no-assign-to-cookie-api
+      // biome-ignore lint/suspicious/noDocumentCookie: Cookie utility - intentional cookie clearing
       document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
-      // eslint-disable-next-line no-assign-to-cookie-api
+      // biome-ignore lint/suspicious/noDocumentCookie: Cookie utility - intentional cookie clearing
       document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
     });
   },

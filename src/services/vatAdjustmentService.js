@@ -175,7 +175,9 @@ const vatAdjustmentService = {
         search: params.search || undefined,
       };
 
-      Object.keys(queryParams).forEach((key) => queryParams[key] === undefined && delete queryParams[key]);
+      Object.keys(queryParams).forEach((key) => {
+        if (queryParams[key] === undefined) delete queryParams[key];
+      });
 
       const axiosConfig = { ...queryParams };
       if (signal) {

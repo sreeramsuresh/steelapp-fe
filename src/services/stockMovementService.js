@@ -160,7 +160,9 @@ class StockMovementService {
     };
 
     // Remove undefined params
-    Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+    Object.keys(params).forEach((key) => {
+      if (params[key] === undefined) delete params[key];
+    });
 
     const response = await apiClient.get(this.endpoint, params);
     return {
@@ -220,7 +222,9 @@ class StockMovementService {
       warehouse_id: filters.warehouseId,
     };
 
-    Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+    Object.keys(params).forEach((key) => {
+      if (params[key] === undefined) delete params[key];
+    });
 
     const response = await apiClient.get(`${this.endpoint}/by-product/${productId}`, params);
     return {
@@ -241,7 +245,9 @@ class StockMovementService {
       movement_type: filters.movementType,
     };
 
-    Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+    Object.keys(params).forEach((key) => {
+      if (params[key] === undefined) delete params[key];
+    });
 
     const response = await apiClient.get(`${this.endpoint}/by-warehouse/${warehouseId}`, params);
     return {
@@ -266,7 +272,9 @@ class StockMovementService {
       product_id: filters.productId,
     };
 
-    Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+    Object.keys(params).forEach((key) => {
+      if (params[key] === undefined) delete params[key];
+    });
 
     const response = await apiClient.get(`${this.endpoint}/by-date-range`, params);
     return {
@@ -322,7 +330,9 @@ class StockMovementService {
       finish: productFilters.finish,
     };
 
-    Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+    Object.keys(params).forEach((key) => {
+      if (params[key] === undefined) delete params[key];
+    });
 
     const response = await apiClient.get(`${this.endpoint}/current-stock`, params);
 
@@ -361,7 +371,9 @@ class StockMovementService {
       search: filters.search,
     };
 
-    Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+    Object.keys(params).forEach((key) => {
+      if (params[key] === undefined) delete params[key];
+    });
 
     const response = await apiClient.get(`${this.endpoint}/stock-levels`, params);
 
@@ -424,7 +436,9 @@ class StockMovementService {
    */
   async getMovementsByProduct(productType, grade, size, thickness) {
     const params = { productType, grade, size, thickness };
-    Object.keys(params).forEach((key) => !params[key] && delete params[key]);
+    Object.keys(params).forEach((key) => {
+      if (!params[key]) delete params[key];
+    });
     const response = await apiClient.get(`${this.endpoint}/by-product`, params);
     return { data: (response.data || []).map(fromServer) };
   }
@@ -560,7 +574,9 @@ class StockMovementService {
       status: filters.status,
     };
 
-    Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+    Object.keys(params).forEach((key) => {
+      if (params[key] === undefined) delete params[key];
+    });
 
     const response = await apiClient.get(`${this.endpoint}/transfers`, params);
     return {
@@ -701,7 +717,9 @@ class StockMovementService {
       include_expired: filters.includeExpired,
     };
 
-    Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+    Object.keys(params).forEach((key) => {
+      if (params[key] === undefined) delete params[key];
+    });
 
     const response = await apiClient.get(`${this.endpoint}/reservations`, params);
     return {
@@ -831,7 +849,9 @@ class StockMovementService {
       end_date: filters.endDate,
     };
 
-    Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+    Object.keys(params).forEach((key) => {
+      if (params[key] === undefined) delete params[key];
+    });
 
     const response = await apiClient.get(`${this.endpoint}/audit-trail`, params);
     return {

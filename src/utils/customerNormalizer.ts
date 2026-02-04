@@ -11,7 +11,7 @@
  * @param source - Source of the data for debugging
  * @returns Normalized Customer with camelCase fields
  */
-export function normalizeCustomer(rawCustomer: any, source = "unknown"): any | null {
+export function normalizeCustomer(rawCustomer: unknown, source = "unknown"): unknown | null {
   if (!rawCustomer || typeof rawCustomer !== "object") {
     console.error(`❌ [Customer Normalizer] Invalid customer data from ${source}:`, rawCustomer);
     return null;
@@ -19,7 +19,7 @@ export function normalizeCustomer(rawCustomer: any, source = "unknown"): any | n
 
   try {
     // Helper to safely parse numbers
-    const parseNumber = (value: any, fallback: unknown = undefined): number | undefined => {
+    const parseNumber = (value: unknown, fallback: unknown = undefined): number | undefined => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
       return Number.isNaN(parsed) ? fallback : parsed;
@@ -77,5 +77,5 @@ export function normalizeCustomers(rawCustomers: unknown[], source = "list"): un
 
   return rawCustomers
     .map((customer, index) => normalizeCustomer(customer, `${source}[${index}]`))
-    .filter((customer): customer is any => customer !== null);
+    .filter((customer): customer is NonNullable<unknown> => customer !== null);
 }

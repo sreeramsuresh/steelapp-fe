@@ -168,7 +168,9 @@ const grnService = {
       };
 
       // Remove undefined params
-      Object.keys(queryParams).forEach((key) => queryParams[key] === undefined && delete queryParams[key]);
+      Object.keys(queryParams).forEach((key) => {
+        if (queryParams[key] === undefined) delete queryParams[key];
+      });
 
       const response = await apiClient.get("/grns", queryParams);
 
@@ -238,7 +240,9 @@ const grnService = {
         pageSize: params.pageSize || 50,
       };
 
-      Object.keys(queryParams).forEach((key) => queryParams[key] === undefined && delete queryParams[key]);
+      Object.keys(queryParams).forEach((key) => {
+        if (queryParams[key] === undefined) delete queryParams[key];
+      });
 
       const response = await apiClient.get("/grns/unbilled", queryParams);
       const grns = response.data || response.items || response;

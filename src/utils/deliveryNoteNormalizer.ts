@@ -11,7 +11,7 @@
  * @param source - Source of the data for debugging
  * @returns Normalized DeliveryNote with camelCase fields
  */
-export function normalizeDeliveryNote(rawDN: any, source = "unknown"): any | null {
+export function normalizeDeliveryNote(rawDN: unknown, source = "unknown"): unknown | null {
   if (!rawDN || typeof rawDN !== "object") {
     console.error(`❌ [DeliveryNote Normalizer] Invalid delivery note data from ${source}:`, rawDN);
     return null;
@@ -107,5 +107,5 @@ export function normalizeDeliveryNotes(rawDNs: unknown[], source = "list"): unkn
 
   return rawDNs
     .map((dn, index) => normalizeDeliveryNote(dn, `${source}[${index}]`))
-    .filter((dn): dn is any => dn !== null);
+    .filter((dn): dn is NonNullable<unknown> => dn !== null);
 }

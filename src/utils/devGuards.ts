@@ -727,7 +727,7 @@ const FORBIDDEN_SNAKE_CASE_PRODUCT_FIELDS = new Set([
  * @param product - The normalized Product object
  * @returns Proxied product (dev) or original product (production)
  */
-export function guardProductDev(product: unknown): any {
+export function guardProductDev(product: unknown): unknown {
   if (import.meta.env.PROD) {
     return product;
   }
@@ -830,7 +830,7 @@ const FORBIDDEN_SNAKE_CASE_CUSTOMER_FIELDS = new Set([
 /**
  * Wrap a Customer object with a dev-time Proxy
  */
-export function guardCustomerDev(customer: unknown): any {
+export function guardCustomerDev(customer: unknown): unknown {
   if (import.meta.env.PROD) {
     return customer;
   }
@@ -925,7 +925,7 @@ const FORBIDDEN_SNAKE_CASE_SUPPLIER_FIELDS = new Set([
 /**
  * Wrap a Supplier object with a dev-time Proxy
  */
-export function guardSupplierDev(supplier: unknown): any {
+export function guardSupplierDev(supplier: unknown): unknown {
   if (import.meta.env.PROD) {
     return supplier;
   }
@@ -1023,7 +1023,7 @@ const FORBIDDEN_SNAKE_CASE_PAYMENT_FIELDS = new Set([
 /**
  * Wrap a Payment object with a dev-time Proxy
  */
-export function guardPaymentDev(payment: unknown): any {
+export function guardPaymentDev(payment: unknown): unknown {
   if (import.meta.env.PROD) {
     return payment;
   }
@@ -1142,7 +1142,7 @@ const FORBIDDEN_SNAKE_CASE_PURCHASE_ORDER_FIELDS = new Set([
 /**
  * Wrap a PurchaseOrder object with a dev-time Proxy
  */
-export function guardPurchaseOrderDev(purchaseOrder: unknown): any {
+export function guardPurchaseOrderDev(purchaseOrder: unknown): unknown {
   if (import.meta.env.PROD) {
     return purchaseOrder;
   }
@@ -1244,7 +1244,7 @@ const FORBIDDEN_SNAKE_CASE_DELIVERY_NOTE_FIELDS = new Set([
 /**
  * Wrap a DeliveryNote object with a dev-time Proxy
  */
-export function guardDeliveryNoteDev(deliveryNote: unknown): any {
+export function guardDeliveryNoteDev(deliveryNote: unknown): unknown {
   if (import.meta.env.PROD) {
     return deliveryNote;
   }

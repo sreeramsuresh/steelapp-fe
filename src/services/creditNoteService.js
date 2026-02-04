@@ -129,7 +129,9 @@ class CreditNoteService {
     };
 
     // Remove undefined params
-    Object.keys(queryParams).forEach((key) => queryParams[key] === undefined && delete queryParams[key]);
+    Object.keys(queryParams).forEach((key) => {
+      if (queryParams[key] === undefined) delete queryParams[key];
+    });
 
     const axiosConfig = signal ? { signal } : {};
 
@@ -312,7 +314,9 @@ class CreditNoteService {
       product_id: params.productId,
       reason_category: params.reasonCategory,
     };
-    Object.keys(queryParams).forEach((key) => queryParams[key] === undefined && delete queryParams[key]);
+    Object.keys(queryParams).forEach((key) => {
+      if (queryParams[key] === undefined) delete queryParams[key];
+    });
     return apiClient.get(`${this.endpoint}/scrap-items`, queryParams);
   }
 

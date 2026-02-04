@@ -75,7 +75,9 @@ class WarehouseService {
     };
 
     // Remove undefined params
-    Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+    Object.keys(params).forEach((key) => {
+      if (params[key] === undefined) delete params[key];
+    });
 
     const response = await apiClient.get(this.endpoint, params);
     const rows = response?.data || response?.warehouses || response || [];
@@ -232,7 +234,9 @@ class WarehouseService {
       };
 
       // Remove undefined params
-      Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+      Object.keys(params).forEach((key) => {
+      if (params[key] === undefined) delete params[key];
+    });
 
       const response = await apiClient.get(`${this.endpoint}/${warehouseId}/stock`, params);
       return {
