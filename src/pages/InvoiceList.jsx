@@ -362,7 +362,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   // Process delivery note status from invoice data
   // Enhanced to include firstId and isFullyDelivered for smart navigation
-  const processDeliveryNoteStatus = (invoiceList) => {
+  const processDeliveryNoteStatus = React.useCallback((invoiceList) => {
     const statusMap = {};
 
     invoiceList.forEach((invoice) => {
@@ -384,7 +384,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     });
 
     setDeliveryNoteStatus(statusMap);
-  };
+  }, []);
 
   // Fetch invoices with pagination and abort controller
   // LOADING PATTERN: setLoading(true) at start, setLoading(false) in finally block
@@ -682,8 +682,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   // Dashboard metric calculations
   // GOLD STANDARD: Use backend-provided payment data (no client-side calculation)
   // Helper to normalize status/paymentStatus from API format variations
-  const normalizeStatus = (status) => (status || "").toLowerCase().replace("status_", "");
-  const normalizePaymentStatus = (ps) => (ps || "unpaid").toLowerCase().replace("payment_status_", "");
+  const normalizeStatus = React.useCallback((status) => (status || "").toLowerCase().replace("status_", ""), []);
+  const normalizePaymentStatus = React.useCallback(
+    (ps) => (ps || "unpaid").toLowerCase().replace("payment_status_", ""),
+    []
+  );
 
   // ============================================================================
   // STALE-WHILE-REVALIDATE: Compute and cache summary data
