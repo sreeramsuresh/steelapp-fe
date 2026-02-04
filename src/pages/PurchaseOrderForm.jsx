@@ -220,7 +220,9 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
           </div>
 
           <div className="flex gap-2 justify-end">
-            <button type="button" onClick={onCancel}
+            <button
+              type="button"
+              onClick={onCancel}
               className={`px-4 py-2 border rounded-lg transition-colors ${
                 isDarkMode
                   ? "border-gray-600 text-gray-300 hover:bg-gray-700"
@@ -265,8 +267,8 @@ const Autocomplete = ({
   const inputId = id || `autocomplete-${Math.random().toString(36).substring(2, 11)}`;
 
   // Lightweight fuzzy match: token-based includes with typo tolerance (edit distance <= 1)
-  const norm = (s) => (s || "").toString().toLowerCase().trim();
-  const ed1 = (a, b) => {
+  const norm = useCallback((s) => (s || "").toString().toLowerCase().trim(), []);
+  const ed1 = useCallback((a, b) => {
     // Early exits
     if (a === b) return 0;
     const la = a.length,
@@ -293,20 +295,23 @@ const Autocomplete = ({
       dpCurr = tmp;
     }
     return dpPrev[lb];
-  };
+  }, []);
 
-  const tokenMatch = (token, optLabel) => {
-    const t = norm(token);
-    const l = norm(optLabel);
-    if (!t) return true;
-    if (l.includes(t)) return true;
-    // fuzzy: split label into words and check any word within edit distance 1
-    const words = l.split(/\s+/);
-    for (const w of words) {
-      if (Math.abs(w.length - t.length) <= 1 && ed1(w, t) <= 1) return true;
-    }
-    return false;
-  };
+  const tokenMatch = useCallback(
+    (token, optLabel) => {
+      const t = norm(token);
+      const l = norm(optLabel);
+      if (!t) return true;
+      if (l.includes(t)) return true;
+      // fuzzy: split label into words and check any word within edit distance 1
+      const words = l.split(/\s+/);
+      for (const w of words) {
+        if (Math.abs(w.length - t.length) <= 1 && ed1(w, t) <= 1) return true;
+      }
+      return false;
+    },
+    [norm, ed1]
+  );
 
   const fuzzyFilter = useCallback(
     (opts, query) => {
@@ -482,7 +487,9 @@ const ToggleSwitchPO = ({ enabled, onChange, label, description, isDarkMode }) =
       <p className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>{label}</p>
       <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{description}</p>
     </div>
-    <button type="button" onClick={onChange}
+    <button
+      type="button"
+      onClick={onChange}
       className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
         enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
       }`}
@@ -526,7 +533,9 @@ const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange })
       <div className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}>
         <div className="flex items-center justify-between">
           <h3 className={`text-sm font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>Form Settings</h3>
-          <button type="button" onClick={onClose}
+          <button
+            type="button"
+            onClick={onClose}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
               isDarkMode ? "text-gray-400" : "text-gray-500"
             }`}
@@ -783,7 +792,7 @@ const PurchaseOrderForm = () => {
   }, []);
 
   // Payment calculation functions
-  const updatePaymentStatus = (paymentList, total) => {
+  const updatePaymentStatus = useCallback((paymentList, total) => {
     const totalPaid = paymentList.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
     const outstanding = Math.max(0, total - totalPaid);
 
@@ -793,7 +802,7 @@ const PurchaseOrderForm = () => {
 
     setPaymentStatus(status);
     return { totalPaid, outstanding, status };
-  };
+  }, []);
 
   const handleAddPayment = (paymentData) => {
     const newPayment = {
@@ -817,7 +826,7 @@ const PurchaseOrderForm = () => {
     updatePaymentStatus(updatedPayments, purchaseOrder.total);
   };
 
-  const calculateDueDate = (poDate, terms) => {
+  const calculateDueDate = useCallback((poDate, terms) => {
     if (!poDate || !terms) return "";
     const date = new Date(poDate);
     const match = terms.match(/(\d+)/);
@@ -826,7 +835,14 @@ const PurchaseOrderForm = () => {
       return date.toISOString().slice(0, 10);
     }
     return "";
-  };
+  }, []);
+
+  const handleInputChange = useCallback((field, value) => {
+    setPurchaseOrder((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }, []);
 
   // Auto-calculate due date when PO date or payment terms change
   useEffect(() => {
@@ -848,7 +864,7 @@ const PurchaseOrderForm = () => {
   }, [purchaseOrder.total, payments, updatePaymentStatus]);
 
   // Normalize date value for <input type="date">
-  const toDateInput = (d) => {
+  const toDateInput = useCallback((d) => {
     if (!d) return "";
     try {
       if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}/.test(d)) return d.slice(0, 10);
@@ -858,7 +874,7 @@ const PurchaseOrderForm = () => {
     } catch {
       return "";
     }
-  };
+  }, []);
   // Suppliers
   const { data: suppliersData, loading: loadingSuppliers } = useApiData(
     () => supplierService.getSuppliers({ status: "active" }),
@@ -994,14 +1010,7 @@ const PurchaseOrderForm = () => {
     loadExisting();
   }, [id, toDateInput, updatePaymentStatus]);
 
-  // Fetch available products, warehouses, and import containers
-  useEffect(() => {
-    fetchAvailableProducts();
-    fetchWarehouses();
-    fetchImportContainers();
-  }, [fetchAvailableProducts, fetchImportContainers, fetchWarehouses]);
-
-  const fetchAvailableProducts = async () => {
+  const fetchAvailableProducts = useCallback(async () => {
     try {
       const response = await productService.getProducts();
       const products = response?.products || [];
@@ -1010,9 +1019,9 @@ const PurchaseOrderForm = () => {
       // Fallback to static product types if service fails
       setAvailableProducts(PRODUCT_TYPES.map((type) => ({ id: type, name: type, category: type })));
     }
-  };
+  }, []);
 
-  const fetchWarehouses = async () => {
+  const fetchWarehouses = useCallback(async () => {
     try {
       // Try to fetch real warehouses from API first
       const response = await purchaseOrderService.getWarehouses();
@@ -1056,10 +1065,10 @@ const PurchaseOrderForm = () => {
     ];
     setWarehouses(sampleWarehouses.filter((w) => w.isActive));
     notificationService.warning("Using offline warehouse data. Some features may not work properly.");
-  };
+  }, []);
 
   // Fetch import containers for procurement channel selection
-  const fetchImportContainers = async () => {
+  const fetchImportContainers = useCallback(async () => {
     try {
       const response = await importContainerService.getContainers({
         status: "PENDING", // Only show containers that can receive goods
@@ -1071,7 +1080,14 @@ const PurchaseOrderForm = () => {
       console.error("Failed to fetch import containers:", error);
       setImportContainers([]);
     }
-  };
+  }, []);
+
+  // Fetch available products, warehouses, and import containers
+  useEffect(() => {
+    fetchAvailableProducts();
+    fetchWarehouses();
+    fetchImportContainers();
+  }, [fetchAvailableProducts, fetchImportContainers, fetchWarehouses]);
 
   // Get next PO number from server (only for new purchase orders)
   const { data: nextPOData } = useApiData(
@@ -1098,13 +1114,6 @@ const PurchaseOrderForm = () => {
       if (match) setSelectedSupplierId(String(match.id));
     }
   }, [suppliersData, purchaseOrder.supplierName, selectedSupplierId]);
-
-  const handleInputChange = (field, value) => {
-    setPurchaseOrder((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
 
   const handleSupplierSelect = (supplierId) => {
     const suppliersList = suppliersData?.suppliers || [];
@@ -1757,7 +1766,9 @@ const PurchaseOrderForm = () => {
       >
         <div className="max-w-[1400px] mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => navigate("/purchase-orders")}
+            <button
+              type="button"
+              onClick={() => navigate("/purchase-orders")}
               className={`p-2 rounded-xl transition-colors ${
                 isDarkMode ? "hover:bg-[#1a2129] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
               }`}
@@ -1789,7 +1800,9 @@ const PurchaseOrderForm = () => {
               {purchaseOrder.status?.toUpperCase() || "DRAFT"}
             </span>
 
-            <button type="button" onClick={() => setShowFormSettings(!showFormSettings)}
+            <button
+              type="button"
+              onClick={() => setShowFormSettings(!showFormSettings)}
               className={BTN_SMALL(isDarkMode)}
               aria-label="Form settings"
               title="Form Settings"
@@ -1806,14 +1819,18 @@ const PurchaseOrderForm = () => {
               }}
             />
 
-            <button type="button" onClick={() => setShowPreview(true)}
+            <button
+              type="button"
+              onClick={() => setShowPreview(true)}
               className={BTN_CLASSES(isDarkMode)}
               title="Preview Purchase Order"
             >
               <Eye size={16} className="inline mr-1.5" />
               Preview
             </button>
-            <button type="button" onClick={() => handleSubmit("draft")}
+            <button
+              type="button"
+              onClick={() => handleSubmit("draft")}
               disabled={isSaving}
               className={`${BTN_CLASSES(isDarkMode)} ${isSaving ? "opacity-60 cursor-not-allowed" : ""}`}
               data-testid="save-draft"
@@ -1821,7 +1838,9 @@ const PurchaseOrderForm = () => {
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin inline mr-1" /> : null}
               Save Draft
             </button>
-            <button type="button" onClick={() => handleSubmit("pending")}
+            <button
+              type="button"
+              onClick={() => handleSubmit("pending")}
               disabled={isSaving}
               className={`${BTN_PRIMARY} ${isSaving ? "opacity-60 cursor-not-allowed" : ""}`}
               data-testid="submit-po"
@@ -1856,7 +1875,9 @@ const PurchaseOrderForm = () => {
                     <li key={error}>{error}</li>
                   ))}
                 </ul>
-                <button type="button" onClick={() => {
+                <button
+                  type="button"
+                  onClick={() => {
                     setValidationErrors([]);
                     setInvalidFields(new Set());
                   }}
@@ -1969,7 +1990,9 @@ const PurchaseOrderForm = () => {
                       </FormSelect>
                     </div>
                     {selectedSupplierId && (
-                      <button type="button" onClick={() => setBuyerDrawerOpen(true)}
+                      <button
+                        type="button"
+                        onClick={() => setBuyerDrawerOpen(true)}
                         className={BTN_SMALL(isDarkMode)}
                         title="Edit Supplier Details"
                       >
@@ -2035,7 +2058,9 @@ const PurchaseOrderForm = () => {
                       const isPinned = pinnedProductIds.includes(product.id);
                       return (
                         <div key={product.id} className="relative group">
-                          <button type="button" onClick={() => handleQuickAddItem(product)}
+                          <button
+                            type="button"
+                            onClick={() => handleQuickAddItem(product)}
                             className={`w-full px-2.5 py-2 pr-7 rounded-[10px] border text-xs font-medium transition-all truncate text-left ${
                               isPinned
                                 ? isDarkMode
@@ -2061,7 +2086,9 @@ const PurchaseOrderForm = () => {
                               product.sku ||
                               "Product"}
                           </button>
-                          <button type="button" onClick={(e) => handleTogglePin(e, product.id)}
+                          <button
+                            type="button"
+                            onClick={(e) => handleTogglePin(e, product.id)}
                             className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all ${
                               isPinned
                                 ? isDarkMode
@@ -2408,7 +2435,9 @@ const PurchaseOrderForm = () => {
                           )}
                         </td>
                         <td className="px-2 py-2 align-middle text-center">
-                          <button type="button" onClick={() => removeItem(index)}
+                          <button
+                            type="button"
+                            onClick={() => removeItem(index)}
                             disabled={purchaseOrder.items.length === 1}
                             className={`hover:text-red-300 ${isDarkMode ? "text-red-400 disabled:text-gray-600" : "text-red-500 disabled:text-gray-400"}`}
                           >
@@ -2579,37 +2608,49 @@ const PurchaseOrderForm = () => {
               <div className={CARD_CLASSES(isDarkMode)}>
                 <div className="text-xs font-bold text-[#93a4b4] uppercase tracking-wider mb-2">Quick Actions</div>
                 <div className="space-y-1.5">
-                  <button type="button" onClick={() => setChargesDrawerOpen(true)}
+                  <button
+                    type="button"
+                    onClick={() => setChargesDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <DollarSign size={16} className="opacity-60" />
                     Edit Charges & Discount
                   </button>
-                  <button type="button" onClick={() => setDeliveryDrawerOpen(true)}
+                  <button
+                    type="button"
+                    onClick={() => setDeliveryDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <Truck size={16} className="opacity-60" />
                     Edit Delivery Terms
                   </button>
-                  <button type="button" onClick={() => setNotesDrawerOpen(true)}
+                  <button
+                    type="button"
+                    onClick={() => setNotesDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <FileText size={16} className="opacity-60" />
                     Add Notes & Terms
                   </button>
-                  <button type="button" onClick={() => setBuyerDrawerOpen(true)}
+                  <button
+                    type="button"
+                    onClick={() => setBuyerDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <User size={16} className="opacity-60" />
                     Edit Buyer Info
                   </button>
-                  <button type="button" onClick={() => setPaymentDrawerOpen(true)}
+                  <button
+                    type="button"
+                    onClick={() => setPaymentDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <CreditCard size={16} className="opacity-60" />
                     View Payments
                   </button>
-                  <button type="button" onClick={() => setApprovalDrawerOpen(true)}
+                  <button
+                    type="button"
+                    onClick={() => setApprovalDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <ClipboardCheck size={16} className="opacity-60" />
@@ -3141,7 +3182,9 @@ const PurchaseOrderForm = () => {
               </div>
             </div>
             {/* Add Payment Button */}
-            <button type="button" onClick={() => {
+            <button
+              type="button"
+              onClick={() => {
                 setPaymentDrawerOpen(false);
                 setShowPaymentForm(true);
               }}
@@ -3181,7 +3224,9 @@ const PurchaseOrderForm = () => {
                         </div>
                       </div>
                       {!payment.voided && (
-                        <button type="button" onClick={() => handleVoidPayment(payment.id)}
+                        <button
+                          type="button"
+                          onClick={() => handleVoidPayment(payment.id)}
                           className="text-red-400 hover:text-red-300 text-xs"
                         >
                           Void
