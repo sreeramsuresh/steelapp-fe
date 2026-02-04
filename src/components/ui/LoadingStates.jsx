@@ -140,26 +140,25 @@ export const CardSkeleton = ({ showImage = false, lines = 3, isDarkMode = false,
  * Page loader overlay
  */
 export const PageLoader = ({ message = "Loading...", isDarkMode = false }) => (
-  <div
+  <output
     className={`fixed inset-0 z-50 flex items-center justify-center ${isDarkMode ? "bg-gray-900/80" : "bg-white/80"} backdrop-blur-sm`}
-    role="status"
     aria-live="polite"
   >
     <div className="text-center">
       <Spinner size="xl" color="teal" className="mx-auto mb-4" />
       <p className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>{message}</p>
     </div>
-  </div>
+  </output>
 );
 
 /**
  * Inline loader
  */
 export const InlineLoader = ({ message = "Loading...", size = "sm", isDarkMode = false, className = "" }) => (
-  <div className={`flex items-center gap-2 ${className}`} role="status" aria-live="polite">
+  <output className={`flex items-center gap-2 ${className}`} aria-live="polite">
     <Spinner size={size} color={isDarkMode ? "white" : "teal"} />
     <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{message}</span>
-  </div>
+  </output>
 );
 
 /**
