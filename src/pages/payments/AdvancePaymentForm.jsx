@@ -164,6 +164,75 @@ const AdvancePaymentForm = () => {
     refundReference: "",
   });
 
+  const loadCustomers = useCallback(async () => {
+    try {
+      const response = await customerService.getCustomers({
+        status: "active",
+        limit: 1000,
+      });
+      setCustomers(response.customers || response || []);
+    } catch (error) {
+      console.error("Failed to load customers:", error);
+    }
+  }, []);
+
+  const searchCustomers = useCallback(async (query) => {
+    try {
+      setCustomerSearching(true);
+      const response = await customerService.searchCustomers(query, {
+        status: "active",
+      });
+      const results = response.customers || response || [];
+      if (results.length > 0) {
+        setShowCustomerDropdown(true);
+      }
+    } catch (error) {
+      console.error("Error searching customers:", error);
+    } finally {
+      setCustomerSearching(false);
+    }
+  }, []);
+
+  const loadCustomerById = useCallback(async (customerId) => {
+    try {
+      const customer = await customerService.getCustomer(customerId);
+      setSelectedCustomer(customer);
+      setPayment((prev) => ({ ...prev, customerId: customer.id, customer }));
+    } catch (error) {
+      console.error("Error loading customer:", error);
+    }
+  }, []);
+
+  const loadPayment = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await advancePaymentService.getById(id);
+      setPayment(data);
+      if (data.customerId) {
+        const customer = await customerService.getCustomer(data.customerId);
+        setSelectedCustomer(customer);
+      }
+    } catch (error) {
+      console.error("Error loading advance payment:", error);
+      notificationService.error("Failed to load advance payment");
+      navigate("/payments/advance");
+    } finally {
+      setLoading(false);
+    }
+  }, [id, navigate]);
+
+  const loadNextReceiptNumber = useCallback(async () => {
+    try {
+      const response = await advancePaymentService.getNextNumber();
+      setPayment((prev) => ({
+        ...prev,
+        receiptNumber: response.receiptNumber || "APR-0001",
+      }));
+    } catch (error) {
+      console.error("Error loading next receipt number:", error);
+    }
+  }, []);
+
   // Load initial data
   useEffect(() => {
     loadCustomers();
@@ -212,45 +281,6 @@ const AdvancePaymentForm = () => {
     setPayment((prev) => ({ ...prev, ...calculations }));
   };
 
-  const loadCustomers = async () => {
-    try {
-      const response = await customerService.getCustomers({
-        status: "active",
-        limit: 1000,
-      });
-      setCustomers(response.customers || response || []);
-    } catch (error) {
-      console.error("Failed to load customers:", error);
-    }
-  };
-
-  const searchCustomers = async (query) => {
-    try {
-      setCustomerSearching(true);
-      const response = await customerService.searchCustomers(query, {
-        status: "active",
-      });
-      const results = response.customers || response || [];
-      if (results.length > 0) {
-        setShowCustomerDropdown(true);
-      }
-    } catch (error) {
-      console.error("Error searching customers:", error);
-    } finally {
-      setCustomerSearching(false);
-    }
-  };
-
-  const loadCustomerById = async (customerId) => {
-    try {
-      const customer = await customerService.getCustomer(customerId);
-      setSelectedCustomer(customer);
-      setPayment((prev) => ({ ...prev, customerId: customer.id, customer }));
-    } catch (error) {
-      console.error("Error loading customer:", error);
-    }
-  };
-
   const loadCustomerInvoices = async (customerId) => {
     try {
       setLoadingInvoices(true);
@@ -265,36 +295,6 @@ const AdvancePaymentForm = () => {
       setCustomerInvoices([]);
     } finally {
       setLoadingInvoices(false);
-    }
-  };
-
-  const loadPayment = async () => {
-    try {
-      setLoading(true);
-      const data = await advancePaymentService.getById(id);
-      setPayment(data);
-      if (data.customerId) {
-        const customer = await customerService.getCustomer(data.customerId);
-        setSelectedCustomer(customer);
-      }
-    } catch (error) {
-      console.error("Error loading advance payment:", error);
-      notificationService.error("Failed to load advance payment");
-      navigate("/payments/advance");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadNextReceiptNumber = async () => {
-    try {
-      const response = await advancePaymentService.getNextNumber();
-      setPayment((prev) => ({
-        ...prev,
-        receiptNumber: response.receiptNumber || "APR-0001",
-      }));
-    } catch (error) {
-      console.error("Error loading next receipt number:", error);
     }
   };
 
