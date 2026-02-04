@@ -271,6 +271,7 @@ const CurrencyConversionModal = ({
             </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"}`}
           >
@@ -492,6 +493,7 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
               </p>
             </div>
             <button
+              type="button"
               onClick={onClose}
               className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"}`}
             >
@@ -669,6 +671,7 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
             }}
           >
             <button
+              type="button"
               onClick={() => {
                 onClose();
                 navigate(`/products/${product.id}`);
@@ -1375,6 +1378,7 @@ export default function PriceListForm() {
         <div className="max-w-[1400px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => navigate("/pricelists")}
               className={`p-2 rounded-xl transition-colors ${
                 isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
@@ -2168,6 +2172,7 @@ export default function PriceListForm() {
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => setShowBulkDialog(false)}
                 className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"}`}
               >

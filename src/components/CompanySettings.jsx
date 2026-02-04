@@ -1887,6 +1887,7 @@ const CompanySettings = () => {
           <SettingsCard>
             <div className="p-4">
               <button
+                type="button"
                 onClick={() => setImagesExpanded(!imagesExpanded)}
                 className="flex items-center justify-between w-full text-left"
               >
@@ -1945,6 +1946,7 @@ const CompanySettings = () => {
                               style={{ maxWidth: "100%", maxHeight: "100%" }}
                             />
                             <button
+                              type="button"
                               className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
                               onClick={handleLogoDelete}
                               title="Delete logo"
@@ -2044,6 +2046,7 @@ const CompanySettings = () => {
                               style={{ maxWidth: "100%", maxHeight: "100%" }}
                             />
                             <button
+                              type="button"
                               className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
                               onClick={handleBrandmarkDelete}
                               title="Delete brandmark"
@@ -2125,6 +2128,7 @@ const CompanySettings = () => {
                               style={{ maxWidth: "100%", maxHeight: "100%" }}
                             />
                             <button
+                              type="button"
                               className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
                               onClick={handleSealDelete}
                               title="Delete seal"
@@ -2436,6 +2440,7 @@ const CompanySettings = () => {
                             {vatRate.active ? "Active" : "Inactive"}
                           </span>
                           <button
+                            type="button"
                             onClick={() => deleteVatRate(vatRate.id)}
                             className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
                           >
@@ -2459,6 +2464,7 @@ const CompanySettings = () => {
                         Add VAT Rate
                       </h3>
                       <button
+                        type="button"
                         onClick={() => setShowAddVatModal(false)}
                         className={`p-2 rounded-lg transition-colors duration-200 ${
                           isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
@@ -2675,6 +2681,7 @@ const CompanySettings = () => {
                           label={user.status === "active" ? "Active" : "Inactive"}
                         />
                         <button
+                          type="button"
                           onClick={async () => {
                             try {
                               setViewPermissionsModal({
@@ -2711,6 +2718,7 @@ const CompanySettings = () => {
                           <Eye size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={async () => {
                             try {
                               const userPermissions = await roleService.getUserPermissions(user.id);
@@ -2735,6 +2743,7 @@ const CompanySettings = () => {
                           <Edit size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() =>
                             setPasswordChangeModal({
                               open: true,
@@ -2756,6 +2765,7 @@ const CompanySettings = () => {
                         {isDirector && (
                           <>
                             <button
+                              type="button"
                               onClick={async () => {
                                 try {
                                   const logs = await roleService.getAuditLog(user.id, 50);
@@ -2777,6 +2787,7 @@ const CompanySettings = () => {
                               <History size={16} />
                             </button>
                             <button
+                              type="button"
                               onClick={() => {
                                 setCustomPermissionModal({
                                   open: true,
@@ -2800,6 +2811,7 @@ const CompanySettings = () => {
                           </>
                         )}
                         <button
+                          type="button"
                           onClick={() => deleteUser(user.id)}
                           className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
                         >
@@ -2840,6 +2852,7 @@ const CompanySettings = () => {
                 </div>
                 <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={() => setUserCurrentPage(Math.max(1, userCurrentPage - 1))}
                     disabled={userCurrentPage === 1}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -2855,6 +2868,7 @@ const CompanySettings = () => {
                     Previous
                   </button>
                   <button
+                    type="button"
                     onClick={() => setUserCurrentPage(Math.min(userTotalPages, userCurrentPage + 1))}
                     disabled={userCurrentPage === userTotalPages}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -2920,6 +2934,7 @@ const CompanySettings = () => {
                     Create Role
                   </Button>
                   <button
+                    type="button"
                     onClick={() => setShowManageRolesModal(false)}
                     className={`p-2 rounded-lg transition-colors duration-200 ${
                       isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
@@ -3001,6 +3016,7 @@ const CompanySettings = () => {
                           </div>
                           <div className="flex gap-2">
                             <button
+                              type="button"
                               onClick={() => {
                                 setEditingRole(role);
                                 setRoleFormData({
@@ -3020,6 +3036,7 @@ const CompanySettings = () => {
                             </button>
                             {!(role.isSystem || role.is_system) && (
                               <button
+                                type="button"
                                 onClick={() => handleDeleteRole(role.id)}
                                 className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
                                 title="Delete Role"
@@ -3049,6 +3066,7 @@ const CompanySettings = () => {
                   {editingRole ? "Edit Role" : "Create New Role"}
                 </h3>
                 <button
+                  type="button"
                   onClick={() => setShowRoleDialog(false)}
                   className={`p-2 rounded-lg transition-colors duration-200 ${
                     isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
@@ -3136,6 +3154,7 @@ const CompanySettings = () => {
               <div className="flex justify-between items-center">
                 <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Add New User</h3>
                 <button
+                  type="button"
                   onClick={() => setShowAddUserModal(false)}
                   className={`p-2 rounded-lg transition-colors duration-200 ${
                     isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
@@ -3384,6 +3403,7 @@ const CompanySettings = () => {
               <div className="flex justify-between items-center">
                 <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Edit User</h3>
                 <button
+                  type="button"
                   onClick={() => setEditUserModal({ open: false, user: null })}
                   className={`p-2 rounded-lg transition-colors duration-200 ${
                     isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
@@ -3594,6 +3614,7 @@ const CompanySettings = () => {
                   </p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setCustomPermissionModal({ open: false, userId: null })}
                   className={`p-2 rounded-lg transition-colors duration-200 ${
                     isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
@@ -3928,6 +3949,7 @@ const CompanySettings = () => {
                   Permission Audit Log
                 </h3>
                 <button
+                  type="button"
                   onClick={() => setAuditLogModal({ open: false, userId: null, logs: [] })}
                   className={`p-2 rounded-lg transition-colors duration-200 ${
                     isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
@@ -4013,6 +4035,7 @@ const CompanySettings = () => {
                   </p>
                 </div>
                 <button
+                  type="button"
                   onClick={() =>
                     setViewPermissionsModal({
                       open: false,
@@ -4233,6 +4256,7 @@ const CompanySettings = () => {
                   </h3>
                 </div>
                 <button
+                  type="button"
                   onClick={() =>
                     setPasswordChangeModal({
                       open: false,
@@ -4354,6 +4378,7 @@ const CompanySettings = () => {
               className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
             >
               <button
+                type="button"
                 onClick={() =>
                   setPasswordChangeModal({
                     open: false,
@@ -5008,6 +5033,7 @@ const CompanySettings = () => {
       {/* Back Button */}
       <div className="mb-4">
         <button
+          type="button"
           onClick={() => navigate("/dashboard")}
           className={`p-2 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-800 text-gray-300" : "hover:bg-gray-100 text-gray-600"}`}
           aria-label="Back to dashboard"

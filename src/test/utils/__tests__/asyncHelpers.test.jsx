@@ -89,7 +89,7 @@ describe("asyncHelpers", () => {
         };
 
         return (
-          <button onClick={handleClick} disabled={isLoading}>
+          <button type="button" onClick={handleClick} disabled={isLoading}>
             Async Action
           </button>
         );
@@ -107,7 +107,7 @@ describe("asyncHelpers", () => {
     it("times out if state never changes", async () => {
       const stateChecker = vi.fn().mockResolvedValue(false);
 
-      render(<button>Action</button>);
+      render(<button type="button">Action</button>);
       const button = screen.getByRole("button");
 
       await expect(performAsyncButtonClick(button, stateChecker, { timeout: 100 })).rejects.toThrow();
@@ -120,7 +120,9 @@ describe("asyncHelpers", () => {
         const [isLoading, setIsLoading] = React.useState(false);
         return (
           <>
-            <button onClick={() => setIsLoading(true)}>Start Loading</button>
+            <button type="button" onClick={() => setIsLoading(true)}>
+              Start Loading
+            </button>
             {isLoading && <div className="spinner">Loading...</div>}
           </>
         );
@@ -136,7 +138,7 @@ describe("asyncHelpers", () => {
     });
 
     it("times out if loading never starts", async () => {
-      render(<button>No Loading</button>);
+      render(<button type="button">No Loading</button>);
 
       await expect(waitForLoadingStart('[class*="spinner"]', 100)).rejects.toThrow();
     });
@@ -243,12 +245,20 @@ describe("asyncHelpers", () => {
 
   describe("waitForAttributeChange", () => {
     it("waits for element attribute to change", async () => {
-      const { rerender } = render(<button aria-busy="false">Save</button>);
+      const { rerender } = render(
+        <button type="button" aria-busy="false">
+          Save
+        </button>
+      );
 
       const button = screen.getByRole("button");
 
       setTimeout(() => {
-        rerender(<button aria-busy="true">Save</button>);
+        rerender(
+          <button type="button" aria-busy="true">
+            Save
+          </button>
+        );
       }, 100);
 
       await waitForAttributeChange(button, "aria-busy", "true");
@@ -256,7 +266,11 @@ describe("asyncHelpers", () => {
     });
 
     it("times out if attribute never changes", async () => {
-      render(<button aria-busy="false">Save</button>);
+      render(
+        <button type="button" aria-busy="false">
+          Save
+        </button>
+      );
       const button = screen.getByRole("button");
 
       await expect(waitForAttributeChange(button, "aria-busy", "true", 100)).rejects.toThrow();
@@ -313,7 +327,11 @@ describe("asyncHelpers", () => {
         const handleClick = async () => {
           await mockApi();
         };
-        return <button onClick={handleClick}>Save</button>;
+        return (
+          <button type="button" onClick={handleClick}>
+            Save
+          </button>
+        );
       };
 
       render(<AsyncComponent />);

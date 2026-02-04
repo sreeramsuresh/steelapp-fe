@@ -280,6 +280,7 @@ const DebitNoteList = () => {
             </p>
           </div>
           <button
+            type="button"
             onClick={() => navigate("/app/debit-notes/new")}
             className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
           >
@@ -371,6 +372,7 @@ const DebitNoteList = () => {
 
             {/* Toggle Advanced Filters */}
             <button
+              type="button"
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
                 showFilters
@@ -391,6 +393,7 @@ const DebitNoteList = () => {
 
             {/* Refresh */}
             <button
+              type="button"
               onClick={loadDebitNotes}
               disabled={loading}
               className={`p-2 rounded-lg border transition-colors ${
@@ -475,6 +478,7 @@ const DebitNoteList = () => {
               {hasActiveFilters && (
                 <div className="mt-4 flex justify-end">
                   <button
+                    type="button"
                     onClick={clearFilters}
                     className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
                       isDarkMode
@@ -599,6 +603,7 @@ const DebitNoteList = () => {
                         >
                           {/* View */}
                           <button
+                            type="button"
                             onClick={() => navigate(`/app/debit-notes/${debitNote.id}`)}
                             className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                             title="View"
@@ -608,6 +613,7 @@ const DebitNoteList = () => {
                           {/* Edit - only for drafts */}
                           {debitNote.status === "draft" && (
                             <button
+                              type="button"
                               onClick={() => navigate(`/app/debit-notes/${debitNote.id}/edit`)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                               title="Edit"
@@ -618,6 +624,7 @@ const DebitNoteList = () => {
                           {/* Approve - only for drafts */}
                           {debitNote.status === "draft" && (
                             <button
+                              type="button"
                               onClick={() => handleApprove(debitNote)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-green-900/30 text-green-400" : "hover:bg-green-100 text-green-600"}`}
                               title="Approve"
@@ -628,6 +635,7 @@ const DebitNoteList = () => {
                           {/* Apply - only for approved */}
                           {debitNote.status === "approved" && (
                             <button
+                              type="button"
                               onClick={() => handleApply(debitNote)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-blue-900/30 text-blue-400" : "hover:bg-blue-100 text-blue-600"}`}
                               title="Apply to Account"
@@ -638,6 +646,7 @@ const DebitNoteList = () => {
                           {/* Cancel - for non-cancelled/applied */}
                           {!["cancelled", "applied"].includes(debitNote.status) && (
                             <button
+                              type="button"
                               onClick={() => handleCancelNote(debitNote)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-amber-900/30 text-amber-400" : "hover:bg-amber-100 text-amber-600"}`}
                               title="Cancel"
@@ -648,6 +657,7 @@ const DebitNoteList = () => {
                           {/* Delete - only for drafts */}
                           {debitNote.status === "draft" && (
                             <button
+                              type="button"
                               onClick={() => handleDelete(debitNote)}
                               className="p-2 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-colors"
                               title="Delete"
@@ -674,6 +684,7 @@ const DebitNoteList = () => {
                 </div>
                 <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                     className={`flex items-center gap-1 px-3 py-1 rounded border ${
@@ -688,6 +699,7 @@ const DebitNoteList = () => {
                     Previous
                   </button>
                   <button
+                    type="button"
                     onClick={() => setCurrentPage((p) => p + 1)}
                     disabled={currentPage * pageSize >= pagination.total}
                     className={`flex items-center gap-1 px-3 py-1 rounded border ${

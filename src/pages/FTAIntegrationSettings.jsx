@@ -433,7 +433,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                   <XCircle className="h-5 w-5" />
                   {error}
                 </div>
-                <button onClick={() => setError(null)}>
+                <button type="button" onClick={() => setError(null)}>
                   <X className="h-4 w-4" />
                 </button>
               </div>
@@ -467,6 +467,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                     </div>
                   </div>
                   <button
+                    type="button"
                     onClick={handleUnlock}
                     disabled={unlocking}
                     className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
@@ -652,6 +653,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                       <div className="flex items-center gap-3">
                         {isConfigured && !integration?.is_locked && (
                           <button
+                            type="button"
                             onClick={handleDelete}
                             className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 ${
                               isDarkMode ? "text-red-400 hover:bg-red-900/30" : "text-red-600 hover:bg-red-50"
@@ -666,6 +668,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                       <div className="flex items-center gap-2">
                         {/* Test Connection */}
                         <button
+                          type="button"
                           onClick={handleTest}
                           disabled={testing || !isConfigured || integration?.is_locked || hasChanges}
                           className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 ${
@@ -681,6 +684,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
 
                         {/* Save */}
                         <button
+                          type="button"
                           onClick={handleSave}
                           disabled={saving || integration?.is_locked || !hasChanges}
                           className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 bg-teal-600 hover:bg-teal-500 text-white disabled:bg-teal-600/50 disabled:cursor-not-allowed`}
@@ -760,6 +764,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                       <h2 className="text-base font-semibold">Usage & Audit</h2>
                     </div>
                     <button
+                      type="button"
                       onClick={() => setShowAuditLog(!showAuditLog)}
                       className={`text-xs ${isDarkMode ? "text-teal-400" : "text-teal-600"} hover:underline`}
                     >

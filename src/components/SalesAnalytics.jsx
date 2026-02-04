@@ -291,6 +291,7 @@ const SalesAnalytics = () => {
         </div>
         {/* eslint-disable-next-line local-rules/no-dead-button */}
         <button
+          type="button"
           onClick={() => {
             // TODO: Implement export report functionality
           }}
@@ -1015,6 +1016,7 @@ const SalesAnalytics = () => {
         <div className="flex gap-3">
           {/* eslint-disable-next-line local-rules/no-dead-button */}
           <button
+            type="button"
             onClick={() => {
               // TODO: Implement refresh data functionality
             }}
@@ -1029,6 +1031,7 @@ const SalesAnalytics = () => {
           </button>
           {/* eslint-disable-next-line local-rules/no-dead-button */}
           <button
+            type="button"
             onClick={() => {
               // TODO: Implement generate report functionality
             }}
@@ -1324,6 +1327,7 @@ const SalesAnalytics = () => {
           <div className="mb-6">
             <div className="flex flex-wrap gap-2">
               <button
+                type="button"
                 onClick={() => setActiveTab("overview")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "overview"
@@ -1339,6 +1343,7 @@ const SalesAnalytics = () => {
                 Revenue Overview
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab("customers")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "customers"
@@ -1354,6 +1359,7 @@ const SalesAnalytics = () => {
                 Customer Analysis
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab("products")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "products"
@@ -1369,6 +1375,7 @@ const SalesAnalytics = () => {
                 Product Performance
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab("reports")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "reports"

@@ -235,7 +235,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       {error && (
         <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700">
           <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-600 hover:text-red-800">
+          <button type="button" onClick={() => setError(null)} className="text-red-600 hover:text-red-800">
             <X size={18} />
           </button>
         </div>
@@ -245,7 +245,11 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       {warehouseError && (
         <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-700">
           <span>{warehouseError}</span>
-          <button onClick={() => setWarehouseError(null)} className="text-yellow-600 hover:text-yellow-800">
+          <button
+            type="button"
+            onClick={() => setWarehouseError(null)}
+            className="text-yellow-600 hover:text-yellow-800"
+          >
             <X size={18} />
           </button>
         </div>
@@ -322,6 +326,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
 
           {/* Action Buttons */}
           <button
+            type="button"
             onClick={loadTransfers}
             disabled={loading}
             title="Refresh"
@@ -331,6 +336,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
           </button>
 
           <button
+            type="button"
             onClick={onCreateNew}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium"
           >
@@ -413,6 +419,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                             const IconComponent = action.icon;
                             return (
                               <button
+                                type="button"
                                 key={action.type}
                                 onClick={() => handleActionClick(action.type, transfer)}
                                 title={action.label}
@@ -454,6 +461,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             </span>
             <div className="flex gap-1">
               <button
+                type="button"
                 onClick={(e) => handleChangePage(e, page - 1)}
                 disabled={page === 0}
                 className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"
@@ -461,6 +469,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                 Previous
               </button>
               <button
+                type="button"
                 onClick={(e) => handleChangePage(e, page + 1)}
                 disabled={page >= Math.ceil(totalCount / rowsPerPage) - 1}
                 className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"
@@ -526,6 +535,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             {/* Actions */}
             <div className="flex justify-end gap-3">
               <button
+                type="button"
                 onClick={() => setActionDialog({ open: false, type: null, transfer: null })}
                 disabled={actionLoading}
                 className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
@@ -533,6 +543,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                 No, Go Back
               </button>
               <button
+                type="button"
                 onClick={() => {
                   if (actionDialog.type === "ship") handleShip();
                   else if (actionDialog.type === "receive") handleReceive();

@@ -230,15 +230,24 @@ const Contact = () => {
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               {/* eslint-disable-next-line local-rules/no-dead-button */}
-              <button className="px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+              <button
+                type="button"
+                className="px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
                 Request Quote
               </button>
               {/* eslint-disable-next-line local-rules/no-dead-button */}
-              <button className="px-10 py-4 border-2 border-white text-white font-bold text-lg rounded-lg hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:scale-105">
+              <button
+                type="button"
+                className="px-10 py-4 border-2 border-white text-white font-bold text-lg rounded-lg hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
+              >
                 Schedule Visit
               </button>
               {/* eslint-disable-next-line local-rules/no-dead-button */}
-              <button className="px-10 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-lg rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+              <button
+                type="button"
+                className="px-10 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-lg rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
                 Call Now
               </button>
             </div>

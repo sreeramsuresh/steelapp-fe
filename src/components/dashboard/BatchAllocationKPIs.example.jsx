@@ -36,7 +36,7 @@ function StockDashboardWithRefresh() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Stock Dashboard</h1>
-        <button onClick={handleRefreshAll} className="px-4 py-2 bg-blue-500 text-white rounded-md">
+        <button type="button" onClick={handleRefreshAll} className="px-4 py-2 bg-blue-500 text-white rounded-md">
           Refresh All
         </button>
       </div>

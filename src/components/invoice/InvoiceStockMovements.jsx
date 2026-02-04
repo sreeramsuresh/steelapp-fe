@@ -124,6 +124,7 @@ export default function InvoiceStockMovements({
           <h3 className="text-lg font-medium text-gray-900">Stock Movements</h3>
           {movements.length === 0 && (
             <button
+              type="button"
               onClick={handleManualDeduction}
               disabled={deducting}
               className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"

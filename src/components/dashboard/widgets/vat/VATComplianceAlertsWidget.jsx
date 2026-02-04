@@ -154,6 +154,7 @@ const VATComplianceAlertsWidget = ({
 
         {onRefresh && (
           <button
+            type="button"
             onClick={onRefresh}
             disabled={isLoading}
             className={`p-1.5 rounded-lg transition-colors ${
@@ -170,6 +171,7 @@ const VATComplianceAlertsWidget = ({
       {/* Summary Badges */}
       <div className="flex gap-2 mb-4">
         <button
+          type="button"
           onClick={() => setSelectedFilter("all")}
           className={`px-2 py-1 rounded-full text-xs font-medium transition-colors ${
             selectedFilter === "all"
@@ -183,6 +185,7 @@ const VATComplianceAlertsWidget = ({
         </button>
         {alertsData.summary.critical > 0 && (
           <button
+            type="button"
             onClick={() => setSelectedFilter("critical")}
             className={`px-2 py-1 rounded-full text-xs font-medium transition-colors ${
               selectedFilter === "critical"
@@ -197,6 +200,7 @@ const VATComplianceAlertsWidget = ({
         )}
         {alertsData.summary.warning > 0 && (
           <button
+            type="button"
             onClick={() => setSelectedFilter("warning")}
             className={`px-2 py-1 rounded-full text-xs font-medium transition-colors ${
               selectedFilter === "warning"
@@ -252,6 +256,7 @@ const VATComplianceAlertsWidget = ({
                     </p>
                     {/* eslint-disable-next-line local-rules/no-dead-button */}
                     <button
+                      type="button"
                       className={`text-xs mt-1 font-medium flex items-center gap-0.5 ${severityConfig.textColor}`}
                     >
                       {alert.actionText}
@@ -282,6 +287,7 @@ const VATComplianceAlertsWidget = ({
         </span>
         {onViewAll && alertsData.alerts.length > maxAlerts && (
           <button
+            type="button"
             onClick={onViewAll}
             className={`text-xs font-medium flex items-center gap-1 ${
               isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"

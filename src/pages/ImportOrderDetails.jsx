@@ -324,6 +324,7 @@ const ImportOrderDetails = () => {
           </h2>
           <p className={`mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{error}</p>
           <button
+            type="button"
             onClick={loadOrder}
             className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
           >
@@ -403,6 +404,7 @@ const ImportOrderDetails = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <div className="flex items-center gap-4">
           <button
+            type="button"
             onClick={() => navigate("/import-orders")}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode
@@ -453,6 +455,7 @@ const ImportOrderDetails = () => {
           )}
 
           <button
+            type="button"
             onClick={handlePrint}
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
@@ -468,6 +471,7 @@ const ImportOrderDetails = () => {
           {availableTransitions.length > 0 && (
             <div className="relative">
               <button
+                type="button"
                 onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
                 className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
               >
@@ -497,6 +501,7 @@ const ImportOrderDetails = () => {
                       const NextIcon = nextConfig.icon;
                       return (
                         <button
+                          type="button"
                           key={nextStatus}
                           onClick={() => handleStatusUpdate(nextStatus)}
                           className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
@@ -515,6 +520,7 @@ const ImportOrderDetails = () => {
           )}
 
           <button
+            type="button"
             onClick={handleDelete}
             className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           >
@@ -1026,6 +1032,7 @@ const ImportOrderDetails = () => {
                 const isActive = activeDocTab === tab.id;
                 return (
                   <button
+                    type="button"
                     key={tab.id}
                     onClick={() => setActiveDocTab(tab.id)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -1074,6 +1081,7 @@ const ImportOrderDetails = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <button
+                          type="button"
                           className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-200 text-gray-600"
                           }`}
@@ -1086,6 +1094,7 @@ const ImportOrderDetails = () => {
                         </button>
 
                         <button
+                          type="button"
                           className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-200 text-gray-600"
                           }`}
@@ -1403,6 +1412,7 @@ const ImportOrderDetails = () => {
                   Update Status
                 </h2>
                 <button
+                  type="button"
                   onClick={() => {
                     setShowStatusNotesModal(false);
                     setPendingStatus(null);
@@ -1443,6 +1453,7 @@ const ImportOrderDetails = () => {
               className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
             >
               <button
+                type="button"
                 onClick={() => {
                   setShowStatusNotesModal(false);
                   setPendingStatus(null);
@@ -1455,6 +1466,7 @@ const ImportOrderDetails = () => {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={confirmStatusUpdate}
                 className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
               >
@@ -1488,7 +1500,7 @@ const ImportOrderDetails = () => {
             <div className="flex items-center gap-2">
               <AlertCircle size={20} />
               <span className="flex-1">{error}</span>
-              <button onClick={() => setError(null)} className="ml-2">
+              <button type="button" onClick={() => setError(null)} className="ml-2">
                 <X size={16} />
               </button>
             </div>
@@ -1508,7 +1520,7 @@ const ImportOrderDetails = () => {
             <div className="flex items-center gap-2">
               <CheckCircle size={20} />
               <span className="flex-1">{success}</span>
-              <button onClick={() => setSuccess(null)} className="ml-2">
+              <button type="button" onClick={() => setSuccess(null)} className="ml-2">
                 <X size={16} />
               </button>
             </div>

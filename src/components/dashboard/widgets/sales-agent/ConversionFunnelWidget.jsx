@@ -156,6 +156,7 @@ const ConversionFunnelWidget = ({ data: propData, onRefresh, onViewDetails, isLo
         </div>
 
         <button
+          type="button"
           onClick={handleRefresh}
           disabled={loading || isLoading}
           className={`p-1.5 rounded-lg transition-colors ${
@@ -258,6 +259,7 @@ const ConversionFunnelWidget = ({ data: propData, onRefresh, onViewDetails, isLo
 
       {/* Loss Reasons (Collapsible) */}
       <button
+        type="button"
         onClick={() => setShowReasons(!showReasons)}
         className={`w-full p-2 rounded-lg text-sm font-medium transition-colors ${
           isDarkMode ? "bg-red-900/20 text-red-400 hover:bg-red-900/30" : "bg-red-50 text-red-600 hover:bg-red-100"
@@ -295,6 +297,7 @@ const ConversionFunnelWidget = ({ data: propData, onRefresh, onViewDetails, isLo
       {/* Action Button */}
       {onViewDetails && (
         <button
+          type="button"
           onClick={() => onViewDetails(funnelData)}
           className={`mt-4 w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
             isDarkMode ? "bg-purple-600 hover:bg-purple-500 text-white" : "bg-purple-500 hover:bg-purple-600 text-white"

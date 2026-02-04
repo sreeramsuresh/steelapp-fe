@@ -85,6 +85,7 @@ export default function BankLedgerReport() {
           </div>
           <div className="flex items-end">
             <button
+              type="button"
               onClick={fetchData}
               disabled={loading}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded px-4 py-2"

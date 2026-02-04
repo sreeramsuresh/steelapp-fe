@@ -581,6 +581,7 @@ const AdvancePaymentList = () => {
             </p>
           </div>
           <button
+            type="button"
             onClick={() => navigate("/app/advance-payments/new")}
             className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
           >
@@ -685,6 +686,7 @@ const AdvancePaymentList = () => {
 
             {/* Toggle Advanced Filters */}
             <button
+              type="button"
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
                 showFilters
@@ -705,6 +707,7 @@ const AdvancePaymentList = () => {
 
             {/* Refresh */}
             <button
+              type="button"
               onClick={loadPayments}
               disabled={loading}
               className={`p-2 rounded-lg border transition-colors ${
@@ -793,6 +796,7 @@ const AdvancePaymentList = () => {
               {hasActiveFilters && (
                 <div className="mt-4 flex justify-end">
                   <button
+                    type="button"
                     onClick={clearFilters}
                     className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
                       isDarkMode
@@ -934,6 +938,7 @@ const AdvancePaymentList = () => {
                         >
                           {/* View */}
                           <button
+                            type="button"
                             onClick={() => navigate(`/app/advance-payments/${payment.id}`)}
                             className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                             title="View"
@@ -942,6 +947,7 @@ const AdvancePaymentList = () => {
                           </button>
                           {/* Download Receipt */}
                           <button
+                            type="button"
                             onClick={() => handleDownloadReceipt(payment)}
                             className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                             title="Download Receipt"
@@ -953,6 +959,7 @@ const AdvancePaymentList = () => {
                             payment.status !== "refunded" &&
                             payment.status !== "cancelled" && (
                               <button
+                                type="button"
                                 onClick={() => handleApplyToInvoice(payment)}
                                 className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-blue-900/30 text-blue-400" : "hover:bg-blue-100 text-blue-600"}`}
                                 title="Apply to Invoice"
@@ -965,6 +972,7 @@ const AdvancePaymentList = () => {
                             payment.status !== "refunded" &&
                             payment.status !== "cancelled" && (
                               <button
+                                type="button"
                                 onClick={() => handleRefund(payment)}
                                 className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-amber-900/30 text-amber-400" : "hover:bg-amber-100 text-amber-600"}`}
                                 title="Refund"
@@ -991,6 +999,7 @@ const AdvancePaymentList = () => {
                 </div>
                 <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                     className={`flex items-center gap-1 px-3 py-1 rounded border ${
@@ -1005,6 +1014,7 @@ const AdvancePaymentList = () => {
                     Previous
                   </button>
                   <button
+                    type="button"
                     onClick={() => setCurrentPage((p) => p + 1)}
                     disabled={currentPage * pageSize >= pagination.total}
                     className={`flex items-center gap-1 px-3 py-1 rounded border ${

@@ -245,6 +245,7 @@ const TRNValidationWidget = ({
 
         {onBatchValidate && (
           <button
+            type="button"
             onClick={onBatchValidate}
             disabled={isLoading}
             className={`p-2 rounded-lg transition-colors ${
@@ -308,6 +309,7 @@ const TRNValidationWidget = ({
       {/* Tab Selector */}
       <div className={`flex rounded-lg p-0.5 mb-3 ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-100"}`}>
         <button
+          type="button"
           onClick={() => setSelectedTab("overview")}
           className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
             selectedTab === "overview" ? "bg-teal-500 text-white" : isDarkMode ? "text-gray-400" : "text-gray-600"
@@ -316,6 +318,7 @@ const TRNValidationWidget = ({
           Recent
         </button>
         <button
+          type="button"
           onClick={() => setSelectedTab("invalid")}
           className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors flex items-center justify-center gap-1 ${
             selectedTab === "invalid" ? "bg-teal-500 text-white" : isDarkMode ? "text-gray-400" : "text-gray-600"
@@ -436,6 +439,7 @@ const TRNValidationWidget = ({
       <div className={`mt-4 pt-3 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
         <div className="flex items-center justify-between">
           <button
+            type="button"
             onClick={() => window.open("https://tax.gov.ae/en/tax.registration.validation.aspx", "_blank")}
             className={`text-xs flex items-center gap-1 ${
               isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-700"
@@ -446,6 +450,7 @@ const TRNValidationWidget = ({
           </button>
           {onViewAll && (
             <button
+              type="button"
               onClick={onViewAll}
               className={`text-xs font-medium flex items-center gap-1 ${
                 isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"

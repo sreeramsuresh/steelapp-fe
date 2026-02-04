@@ -400,6 +400,7 @@ const AdvancePaymentForm = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
+                  type="button"
                   onClick={() => navigate("/payments/advance")}
                   className={`p-2 rounded-xl transition-colors ${
                     isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
@@ -537,6 +538,7 @@ const AdvancePaymentForm = () => {
                       </div>
                       {!isEditMode && (
                         <button
+                          type="button"
                           onClick={() => {
                             setSelectedCustomer(null);
                             setPayment((prev) => ({
@@ -1394,6 +1396,7 @@ const AdvancePaymentForm = () => {
                         ))}
                         {payment.applyToInvoiceId && (
                           <button
+                            type="button"
                             onClick={() =>
                               setPayment((prev) => ({
                                 ...prev,

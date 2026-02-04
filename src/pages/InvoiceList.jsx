@@ -1541,6 +1541,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               <div className="font-semibold">Delivery Note {dn.deliveryNote_number}</div>
             </div>
             <button
+              type="button"
               onClick={() => setShowDeliveryModal(false)}
               className={isDarkMode ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"}
             >
@@ -1593,12 +1594,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             className={`px-6 py-4 border-t flex justify-end gap-3 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
           >
             <button
+              type="button"
               onClick={() => navigate(`/delivery-notes/${dn.id}`)}
               className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-500"
             >
               View Full Details
             </button>
             <button
+              type="button"
               onClick={() => setShowDeliveryModal(false)}
               className={
                 isDarkMode
@@ -1683,6 +1686,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6">
           {/* Outstanding Amount Card */}
           <button
+            type="button"
             onClick={() => handleCardClick("outstanding")}
             className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
               activeCardFilter === "outstanding"
@@ -1703,6 +1707,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
           {/* Overdue Card */}
           <button
+            type="button"
             onClick={() => handleCardClick("overdue")}
             className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
               activeCardFilter === "overdue"
@@ -1729,6 +1734,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
           {/* Due Soon Card */}
           <button
+            type="button"
             onClick={() => handleCardClick("due_soon")}
             className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
               activeCardFilter === "due_soon"
@@ -1755,6 +1761,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
           {/* Paid Amount Card */}
           <button
+            type="button"
             onClick={() => handleCardClick("paid")}
             className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
               activeCardFilter === "paid"
@@ -1799,6 +1806,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               </span>
             </div>
             <button
+              type="button"
               onClick={() => {
                 setActiveCardFilter(null);
                 setPaymentStatusFilter("all");
@@ -1912,6 +1920,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           >
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => handleBulkDownload(selectedInvoiceIds)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isDarkMode ? "bg-teal-700 text-white hover:bg-teal-600" : "bg-teal-600 text-white hover:bg-teal-700"
@@ -1921,6 +1930,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 Download Selected
               </button>
               <button
+                type="button"
                 onClick={() => setSelectedInvoiceIds(new Set())}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isDarkMode
@@ -2023,6 +2033,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         </p>
                         {activeCardFilter && (
                           <button
+                            type="button"
                             onClick={() => {
                               setActiveCardFilter(null);
                               setPaymentStatusFilter("all");
@@ -2184,6 +2195,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
                                 {/* View button - Always enabled */}
                                 <button
+                                  type="button"
                                   className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
                                     isDarkMode
                                       ? "text-cyan-400 hover:text-cyan-300 bg-gray-800/30 hover:bg-gray-700/50"
@@ -2199,6 +2211,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                 {actions.download.enabled ? (
                                   <div className="relative">
                                     <button
+                                      type="button"
                                       className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
                                         downloadingIds.has(invoice.id)
                                           ? "bg-transparent"
@@ -2231,6 +2244,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                   </div>
                                 ) : (
                                   <button
+                                    type="button"
                                     disabled
                                     className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
                                       isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
@@ -2245,6 +2259,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                 {/* Icon colors: Green truck = no DN (create mode), Blue truck = has DN (view mode) */}
                                 {actions.deliveryNote.enabled ? (
                                   <button
+                                    type="button"
                                     onClick={() => handleDeliveryNoteClick(invoice, actions)}
                                     className={`relative p-2 rounded transition-all shadow-sm hover:shadow-md ${
                                       actions.deliveryNote.hasNotes
@@ -2295,6 +2310,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                 {/* Record Payment button - Always visible (green for unpaid, blue for paid/view-only) */}
                                 {actions.recordPayment.enabled ? (
                                   <button
+                                    type="button"
                                     className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
                                       actions.recordPayment.isPaid
                                         ? isDarkMode
@@ -2311,6 +2327,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                   </button>
                                 ) : (
                                   <button
+                                    type="button"
                                     disabled
                                     className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
                                       isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
@@ -2329,6 +2346,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                   actions.restore.enabled) && (
                                   <div className="relative actions-dropdown">
                                     <button
+                                      type="button"
                                       className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
                                         isDarkMode
                                           ? "text-gray-400 hover:text-gray-300 bg-gray-800/30 hover:bg-gray-700/50"
@@ -2351,6 +2369,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                         {/* Credit Note */}
                                         {actions.creditNote.enabled && (
                                           <button
+                                            type="button"
                                             onClick={() => {
                                               setOpenDropdownId(null);
                                               navigate(actions.creditNote.link);
@@ -2369,6 +2388,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                         {/* Payment Reminder */}
                                         {actions.reminder.enabled && (
                                           <button
+                                            type="button"
                                             onClick={() => {
                                               setOpenDropdownId(null);
                                               handleSendReminder(invoice);
@@ -2388,6 +2408,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                         {/* Phone Notes */}
                                         {actions.phone.enabled && (
                                           <button
+                                            type="button"
                                             onClick={() => {
                                               setOpenDropdownId(null);
                                               handleOpenPaymentReminder(invoice);
@@ -2418,6 +2439,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                         {/* Delete */}
                                         {actions.delete.enabled && (
                                           <button
+                                            type="button"
                                             onClick={() => {
                                               setOpenDropdownId(null);
                                               handleDeleteInvoice(invoice);
@@ -2436,6 +2458,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                         {/* Restore */}
                                         {actions.restore.enabled && (
                                           <button
+                                            type="button"
                                             onClick={() => {
                                               setOpenDropdownId(null);
                                               handleRestoreInvoice(invoice);
@@ -2481,6 +2504,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             </div>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={(e) => handlePageChange(e, pagination.currentPage - 1)}
                 disabled={pagination.currentPage === 1}
                 className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
@@ -2499,6 +2523,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 Page {pagination.currentPage} of {pagination.totalPages}
               </span>
               <button
+                type="button"
                 onClick={(e) => handlePageChange(e, pagination.currentPage + 1)}
                 disabled={pagination.currentPage === pagination.totalPages}
                 className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
@@ -2609,7 +2634,11 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                     </span>
                   );
                 })()}
-                <button onClick={handleCloseRecordPaymentDrawer} className="p-2 rounded hover:bg-gray-100">
+                <button
+                  type="button"
+                  onClick={handleCloseRecordPaymentDrawer}
+                  className="p-2 rounded hover:bg-gray-100"
+                >
                   <X size={18} />
                 </button>
               </div>
@@ -2787,6 +2816,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                   ) : (
                                     <>
                                       <button
+                                        type="button"
                                         onClick={() => {
                                           setVoidDropdownPaymentId(isDropdownOpen ? null : p.id);
                                           setVoidCustomReason("");
@@ -2825,6 +2855,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                           <div className="py-1">
                                             {VOID_REASONS.map((reason) => (
                                               <button
+                                                type="button"
                                                 key={reason.value}
                                                 onClick={() => handleSelectVoidReason(p.id, reason.value)}
                                                 disabled={isVoidingPayment}
@@ -2863,6 +2894,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                             />
                                             {voidCustomReason.trim() && (
                                               <button
+                                                type="button"
                                                 onClick={() => handleSubmitCustomVoidReason(p.id)}
                                                 disabled={isVoidingPayment}
                                                 className={`mt-2 w-full px-3 py-1.5 text-sm font-medium rounded transition-colors ${

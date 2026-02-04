@@ -87,6 +87,7 @@ const CashFlowWidget = ({ data: propData, onRefresh, loading: externalLoading })
             </h3>
           </div>
           <button
+            type="button"
             onClick={handleRefresh}
             disabled={isLoading}
             className={`p-1.5 rounded-lg transition-colors ${
@@ -144,6 +145,7 @@ const CashFlowWidget = ({ data: propData, onRefresh, loading: externalLoading })
           >
             {Object.keys(periodLabels).map((p) => (
               <button
+                type="button"
                 key={p}
                 onClick={() => setPeriod(p)}
                 className={`px-2 py-1 text-xs font-medium transition-colors ${
@@ -159,6 +161,7 @@ const CashFlowWidget = ({ data: propData, onRefresh, loading: externalLoading })
             ))}
           </div>
           <button
+            type="button"
             onClick={handleRefresh}
             disabled={isLoading}
             className={`p-1.5 rounded-lg transition-colors ${

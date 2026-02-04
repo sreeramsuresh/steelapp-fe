@@ -169,6 +169,7 @@ export default function UserProfile() {
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setEditMode(!editMode)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 isDarkMode ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-teal-500 text-white hover:bg-teal-600"
@@ -222,6 +223,7 @@ export default function UserProfile() {
               </div>
 
               <button
+                type="button"
                 onClick={handleSaveProfile}
                 disabled={loading}
                 className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -260,6 +262,7 @@ export default function UserProfile() {
             <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Security</h3>
             {!showPasswordChange && (
               <button
+                type="button"
                 onClick={() => setShowPasswordChange(true)}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   isDarkMode
@@ -357,6 +360,7 @@ export default function UserProfile() {
 
               <div className="flex gap-3">
                 <button
+                  type="button"
                   onClick={() => {
                     setShowPasswordChange(false);
                     setPasswordChange({
@@ -375,6 +379,7 @@ export default function UserProfile() {
                   Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={handleChangePassword}
                   disabled={loading}
                   className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -393,6 +398,7 @@ export default function UserProfile() {
         {/* Logout Card */}
         <div className={`rounded-2xl shadow-lg p-8 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
           <button
+            type="button"
             onClick={handleLogout}
             className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
               isDarkMode ? "bg-red-600 text-white hover:bg-red-700" : "bg-red-500 text-white hover:bg-red-600"

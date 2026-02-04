@@ -190,6 +190,7 @@ const CreditNoteStatusActions = ({
 
           return (
             <button
+              type="button"
               key={transition}
               onClick={() => handleAction(transition)}
               disabled={isLoading || actionLoading !== null}

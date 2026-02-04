@@ -174,6 +174,7 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
 
           return (
             <button
+              type="button"
               key={quadrant}
               onClick={() => setSelectedQuadrant(isSelected ? null : quadrant)}
               className={`p-2 rounded-lg border transition-all ${
@@ -377,6 +378,7 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
           <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Bubble size = Revenue</span>
         </div>
         <button
+          type="button"
           onClick={() => onNavigate?.("/analytics/products")}
           className={`text-xs font-medium ${
             isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"

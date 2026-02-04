@@ -529,13 +529,14 @@ const POTab = ({ canManage }) => {
           </div>
           <div className="flex flex-wrap gap-2 items-center justify-end sm:justify-end">
             <button
+              type="button"
               onClick={() => fetchData(true)}
               className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2"
             >
               <RefreshCw size={16} />
               Apply
             </button>
-            <button onClick={exportPOs} className="px-3 py-2 rounded border flex items-center gap-2">
+            <button type="button" onClick={exportPOs} className="px-3 py-2 rounded border flex items-center gap-2">
               <Download size={16} />
               Export
             </button>
@@ -679,6 +680,7 @@ const POTab = ({ canManage }) => {
                     </td>
                     <td className="px-4 py-2 text-right">
                       <button
+                        type="button"
                         className={`px-2 py-1 ${canManage ? "text-teal-600" : "text-gray-400 cursor-not-allowed"}`}
                         disabled={!canManage}
                         onClick={() => canManage && openDrawer(row)}
@@ -719,7 +721,7 @@ const POTab = ({ canManage }) => {
               </div>
               <div className="flex items-center gap-2">
                 <StatusPill status={drawer.item.status} />
-                <button onClick={closeDrawer} className="p-2 rounded hover:bg-gray-100">
+                <button type="button" onClick={closeDrawer} className="p-2 rounded hover:bg-gray-100">
                   <X size={18} />
                 </button>
               </div>
@@ -783,6 +785,7 @@ const POTab = ({ canManage }) => {
                             {!p.voided && (
                               <div className="flex gap-1">
                                 <button
+                                  type="button"
                                   onClick={() => handlePrintReceipt(p, paymentIndex)}
                                   disabled={isPrinting}
                                   className={`p-1.5 rounded transition-colors ${isPrinting ? "opacity-50 cursor-not-allowed" : "hover:bg-purple-50 text-purple-600 hover:text-purple-700"}`}
@@ -791,6 +794,7 @@ const POTab = ({ canManage }) => {
                                   <Printer size={14} />
                                 </button>
                                 <button
+                                  type="button"
                                   onClick={() => handleDownloadReceipt(p, paymentIndex)}
                                   disabled={isDownloading}
                                   className={`p-1.5 rounded transition-colors ${isDownloading ? "opacity-50 cursor-not-allowed" : "hover:bg-teal-50 text-teal-600 hover:text-teal-700"}`}
@@ -824,11 +828,11 @@ const POTab = ({ canManage }) => {
               {/* Quick Actions */}
               {canManage && drawer.item.balance > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  <button className="px-3 py-2 rounded border" onClick={handleMarkPaid}>
+                  <button type="button" className="px-3 py-2 rounded border" onClick={handleMarkPaid}>
                     <CheckCircle size={16} className="inline mr-1" />
                     Mark as Fully Paid
                   </button>
-                  <button className="px-3 py-2 rounded border" onClick={handleVoidLast}>
+                  <button type="button" className="px-3 py-2 rounded border" onClick={handleVoidLast}>
                     <Trash2 size={16} className="inline mr-1" />
                     Void last
                   </button>
@@ -839,6 +843,7 @@ const POTab = ({ canManage }) => {
                     return (
                       <>
                         <button
+                          type="button"
                           className="px-3 py-2 rounded border"
                           onClick={async () => {
                             try {
@@ -852,6 +857,7 @@ const POTab = ({ canManage }) => {
                           Download voucher
                         </button>
                         <button
+                          type="button"
                           className="px-3 py-2 rounded border"
                           onClick={async () => {
                             try {

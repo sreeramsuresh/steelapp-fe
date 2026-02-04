@@ -123,7 +123,7 @@ const PaymentDrawer = ({
             >
               {getPaymentStatusLabel()}
             </span>
-            <button onClick={onClose} className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+            <button type="button" onClick={onClose} className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
               <X size={18} />
             </button>
           </div>
@@ -342,6 +342,7 @@ const PaymentDrawer = ({
                                   {/* Print Receipt Button */}
                                   {onPrintReceipt && (
                                     <button
+                                      type="button"
                                       onClick={() => onPrintReceipt(p, idx + 1)}
                                       disabled={isPrinting}
                                       className={`p-1.5 rounded transition-colors ${
@@ -360,6 +361,7 @@ const PaymentDrawer = ({
                                   {/* Download Receipt Button */}
                                   {onDownloadReceipt && (
                                     <button
+                                      type="button"
                                       onClick={() => onDownloadReceipt(p, idx + 1)}
                                       disabled={isDownloading}
                                       className={`p-1.5 rounded transition-colors ${
@@ -378,6 +380,7 @@ const PaymentDrawer = ({
                                   {/* Void Button */}
                                   {onVoidPayment && (
                                     <button
+                                      type="button"
                                       onClick={() => onVoidDropdownToggle(isDropdownOpen ? null : p.id)}
                                       disabled={isVoidingPayment}
                                       className={`p-1.5 rounded transition-colors ${
@@ -414,6 +417,7 @@ const PaymentDrawer = ({
                                       <div className="py-1">
                                         {VOID_REASONS.map((reason) => (
                                           <button
+                                            type="button"
                                             key={reason.value}
                                             onClick={() => onVoidPayment(p.id, reason.value)}
                                             disabled={isVoidingPayment}
@@ -452,6 +456,7 @@ const PaymentDrawer = ({
                                         />
                                         {voidCustomReason.trim() && (
                                           <button
+                                            type="button"
                                             onClick={() => onSubmitCustomVoidReason(p.id)}
                                             disabled={isVoidingPayment}
                                             className={`mt-2 w-full px-3 py-1.5 text-sm font-medium rounded transition-colors ${

@@ -211,6 +211,7 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-600"
@@ -562,6 +563,7 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
             </code>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
           >

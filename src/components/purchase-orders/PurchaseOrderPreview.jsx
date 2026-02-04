@@ -81,6 +81,7 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
             Purchase Order Preview
           </h2>
           <button
+            type="button"
             onClick={onClose}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-600"

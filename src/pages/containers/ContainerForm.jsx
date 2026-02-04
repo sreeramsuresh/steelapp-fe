@@ -415,6 +415,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
         >
           <h2 className="text-xl font-semibold">{isEditing ? "Edit Container" : "Add New Container"}</h2>
           <button
+            type="button"
             onClick={onClose}
             className={`p-2 rounded-lg hover:bg-gray-100 ${isDarkMode ? "hover:bg-gray-700" : ""}`}
           >

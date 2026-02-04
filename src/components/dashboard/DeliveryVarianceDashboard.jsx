@@ -93,6 +93,7 @@ const DeliveryVarianceDashboard = () => {
         <div className="flex gap-2 mb-6">
           {[7, 30, 90].map((days) => (
             <button
+              type="button"
               key={days}
               onClick={() => setDaysBack(days)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${

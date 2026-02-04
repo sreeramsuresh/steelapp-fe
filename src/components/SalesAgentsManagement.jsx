@@ -160,6 +160,7 @@ const SalesAgentsManagement = () => {
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => handleEditClick(agent)}
                   className={`p-2 rounded-lg ${
                     isDarkMode
@@ -350,6 +351,7 @@ const SalesAgentsManagement = () => {
               className={`p-6 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} flex justify-end space-x-3`}
             >
               <button
+                type="button"
                 onClick={() => setShowEditModal(false)}
                 disabled={saving}
                 className={`px-4 py-2 rounded-lg ${
@@ -361,6 +363,7 @@ const SalesAgentsManagement = () => {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleSave}
                 disabled={saving}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"

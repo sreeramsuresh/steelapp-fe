@@ -154,6 +154,7 @@ const StockMovementPage = () => {
                 )}
               </div>
               <button
+                type="button"
                 onClick={handleTransferCancel}
                 className="mt-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors"
               >
@@ -312,6 +313,7 @@ const StockMovementPage = () => {
               )}
 
               <button
+                type="button"
                 onClick={handleReservationCancel}
                 className="mt-6 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors"
               >
@@ -363,6 +365,7 @@ const StockMovementPage = () => {
 
               return (
                 <button
+                  type="button"
                   key={tab.id}
                   onClick={() => {
                     setActiveTab(tab.id);

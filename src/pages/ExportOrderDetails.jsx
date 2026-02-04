@@ -679,6 +679,7 @@ const ExportOrderDetails = () => {
           <p className={`mb-6 max-w-md mx-auto ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{error}</p>
           <div className="flex gap-4 justify-center">
             <button
+              type="button"
               onClick={() => navigate("/export-orders")}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 isDarkMode
@@ -690,6 +691,7 @@ const ExportOrderDetails = () => {
               Back to Export Orders
             </button>
             <button
+              type="button"
               onClick={loadOrder}
               className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
             >
@@ -755,6 +757,7 @@ const ExportOrderDetails = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 print:hidden">
         <div className="flex items-center gap-4">
           <button
+            type="button"
             onClick={() => navigate("/export-orders")}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode
@@ -807,6 +810,7 @@ const ExportOrderDetails = () => {
 
           {/* Print Button */}
           <button
+            type="button"
             onClick={handlePrint}
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
@@ -820,6 +824,7 @@ const ExportOrderDetails = () => {
 
           {/* Export PDF Button */}
           <button
+            type="button"
             onClick={handleExportPDF}
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
@@ -835,6 +840,7 @@ const ExportOrderDetails = () => {
           {availableTransitions.length > 0 && (
             <div className="relative">
               <button
+                type="button"
                 onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
                 className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
               >
@@ -864,6 +870,7 @@ const ExportOrderDetails = () => {
                       const NextIcon = nextConfig.icon;
                       return (
                         <button
+                          type="button"
                           key={nextStatus}
                           onClick={() => handleStatusUpdate(nextStatus)}
                           className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors first:rounded-t-lg last:rounded-b-lg ${
@@ -888,6 +895,7 @@ const ExportOrderDetails = () => {
 
           {/* Delete Button */}
           <button
+            type="button"
             onClick={handleDelete}
             className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           >
@@ -1018,6 +1026,7 @@ const ExportOrderDetails = () => {
                     <Hash size={14} />
                     {orderData.customerTrn}
                     <button
+                      type="button"
                       onClick={() => copyToClipboard(orderData.customerTrn, "customerTrn")}
                       className={`p-1 rounded transition-colors ${
                         copiedField === "customerTrn"
@@ -1272,6 +1281,7 @@ const ExportOrderDetails = () => {
           >
             {/* Section Header */}
             <button
+              type="button"
               onClick={() => toggleSection("vatCompliance")}
               className={`w-full p-4 flex items-center justify-between transition-colors ${
                 isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
@@ -1391,6 +1401,7 @@ const ExportOrderDetails = () => {
                     }`}
                   >
                     <button
+                      type="button"
                       onClick={() => toggleSection("reExport")}
                       className="w-full flex items-center justify-between"
                     >
@@ -1452,7 +1463,11 @@ const ExportOrderDetails = () => {
                       isDarkMode ? "bg-purple-900/20 border border-purple-700" : "bg-purple-50 border border-purple-200"
                     }`}
                   >
-                    <button onClick={() => toggleSection("gcc")} className="w-full flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => toggleSection("gcc")}
+                      className="w-full flex items-center justify-between"
+                    >
                       <h4
                         className={`font-semibold flex items-center gap-2 ${
                           isDarkMode ? "text-purple-400" : "text-purple-700"
@@ -1492,6 +1507,7 @@ const ExportOrderDetails = () => {
                             >
                               {orderData.customerGccVatId}
                               <button
+                                type="button"
                                 onClick={() => copyToClipboard(orderData.customerGccVatId, "gccVatId")}
                                 className={`p-1 rounded transition-colors ${
                                   copiedField === "gccVatId"
@@ -1807,6 +1823,7 @@ const ExportOrderDetails = () => {
                     <Clipboard size={14} />
                     {orderData.exportDeclarationNumber}
                     <button
+                      type="button"
                       onClick={() => copyToClipboard(orderData.exportDeclarationNumber, "exportDecl")}
                       className={`p-1 rounded transition-colors ${
                         copiedField === "exportDecl"
@@ -1878,6 +1895,7 @@ const ExportOrderDetails = () => {
 
                   return (
                     <button
+                      type="button"
                       key={tab.id}
                       onClick={() => setActiveDocTab(tab.id)}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -1943,6 +1961,7 @@ const ExportOrderDetails = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <button
+                            type="button"
                             className={`p-2 rounded-lg transition-colors ${
                               isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-200 text-gray-600"
                             }`}
@@ -1955,6 +1974,7 @@ const ExportOrderDetails = () => {
                           </button>
 
                           <button
+                            type="button"
                             className={`p-2 rounded-lg transition-colors ${
                               isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-200 text-gray-600"
                             }`}
@@ -1982,6 +2002,7 @@ const ExportOrderDetails = () => {
             }`}
           >
             <button
+              type="button"
               onClick={() => toggleSection("timeline")}
               className={`w-full flex items-center justify-between mb-4`}
             >
@@ -2278,6 +2299,7 @@ const ExportOrderDetails = () => {
             </h3>
             <div className="space-y-2">
               <button
+                type="button"
                 onClick={handleGenerateInvoice}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
                   isDarkMode
@@ -2296,6 +2318,7 @@ const ExportOrderDetails = () => {
               </button>
 
               <button
+                type="button"
                 onClick={handlePrint}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
                   isDarkMode
@@ -2312,6 +2335,7 @@ const ExportOrderDetails = () => {
               </button>
 
               <button
+                type="button"
                 onClick={handleExportPDF}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
                   isDarkMode
@@ -2387,6 +2411,7 @@ const ExportOrderDetails = () => {
 
               {orderData.statusHistory.length > 3 && (
                 <button
+                  type="button"
                   onClick={() => toggleSection("timeline")}
                   className={`text-sm text-teal-600 hover:text-teal-700 flex items-center gap-1`}
                 >
@@ -2411,6 +2436,7 @@ const ExportOrderDetails = () => {
                   Update Status
                 </h2>
                 <button
+                  type="button"
                   onClick={() => {
                     setShowStatusNotesModal(false);
                     setPendingStatus(null);
@@ -2473,6 +2499,7 @@ const ExportOrderDetails = () => {
               className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
             >
               <button
+                type="button"
                 onClick={() => {
                   setShowStatusNotesModal(false);
                   setPendingStatus(null);
@@ -2485,6 +2512,7 @@ const ExportOrderDetails = () => {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={confirmStatusUpdate}
                 className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
               >
@@ -2522,7 +2550,7 @@ const ExportOrderDetails = () => {
             <div className="flex items-center gap-2">
               <AlertCircle size={20} />
               <span className="flex-1">{error}</span>
-              <button onClick={() => setError(null)} className="ml-2">
+              <button type="button" onClick={() => setError(null)} className="ml-2">
                 <X size={16} />
               </button>
             </div>
@@ -2542,7 +2570,7 @@ const ExportOrderDetails = () => {
             <div className="flex items-center gap-2">
               <CheckCircle size={20} />
               <span className="flex-1">{success}</span>
-              <button onClick={() => setSuccess(null)} className="ml-2">
+              <button type="button" onClick={() => setSuccess(null)} className="ml-2">
                 <X size={16} />
               </button>
             </div>

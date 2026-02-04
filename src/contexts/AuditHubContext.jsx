@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 import auditHubService from "../services/auditHubService";
 import { useAuth } from "./AuthContext";
 
-export const AuditHubContext = createContext();
+const AuditHubContext = createContext();
 
 /**
  * Audit Hub Context Provider

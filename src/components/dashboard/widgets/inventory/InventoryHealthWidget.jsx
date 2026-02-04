@@ -250,6 +250,7 @@ const InventoryHealthWidget = ({ data, onNavigate }) => {
           </span>
         </div>
         <button
+          type="button"
           onClick={() => onNavigate?.("/inventory")}
           className={`text-xs font-medium ${
             isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"

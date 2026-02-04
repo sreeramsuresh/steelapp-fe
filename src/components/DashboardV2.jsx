@@ -123,6 +123,7 @@ const SectionHeader = ({ title, icon: Icon, description, isExpanded, onToggle, w
         </div>
       </div>
       <button
+        type="button"
         onClick={onToggle}
         className={`p-1 rounded ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}
         aria-label={isExpanded ? "Collapse section" : "Expand section"}
@@ -670,6 +671,7 @@ const DashboardV2 = () => {
           <div className="flex items-center gap-2">
             {isRefreshing && <div className="animate-spin h-4 w-4 border-b border-teal-500 rounded-full" />}
             <button
+              type="button"
               onClick={fetchDashboardData}
               className={`p-2 rounded-lg ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
             >
@@ -683,6 +685,7 @@ const DashboardV2 = () => {
       <div className={`flex gap-2 mb-6 overflow-x-auto pb-2 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
         {TABS.map((tab) => (
           <button
+            type="button"
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${

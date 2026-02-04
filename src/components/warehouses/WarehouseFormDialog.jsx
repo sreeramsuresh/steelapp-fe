@@ -181,6 +181,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
             </h2>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className={`p-2 rounded-lg ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
           >

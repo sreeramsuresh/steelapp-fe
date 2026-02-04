@@ -637,6 +637,7 @@ const CustomsDocumentList = () => {
         </div>
         <div className="flex gap-3">
           <button
+            type="button"
             onClick={() => setShowInfoPanel(!showInfoPanel)}
             className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-300" : "bg-gray-200 hover:bg-gray-300 text-gray-700"
@@ -646,6 +647,7 @@ const CustomsDocumentList = () => {
             UAE Rules
           </button>
           <button
+            type="button"
             onClick={() => openCalculator()}
             className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
               isDarkMode ? "bg-blue-700 hover:bg-blue-600" : "bg-blue-600 hover:bg-blue-700"
@@ -655,6 +657,7 @@ const CustomsDocumentList = () => {
             Duty Calculator
           </button>
           <button
+            type="button"
             onClick={() => openModal("create")}
             className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
           >
@@ -673,7 +676,7 @@ const CustomsDocumentList = () => {
             <h3 className={`text-lg font-semibold ${isDarkMode ? "text-blue-300" : "text-blue-800"}`}>
               UAE Customs Rules Reference
             </h3>
-            <button onClick={() => setShowInfoPanel(false)} className="text-gray-500 hover:text-gray-700">
+            <button type="button" onClick={() => setShowInfoPanel(false)} className="text-gray-500 hover:text-gray-700">
               <X size={20} />
             </button>
           </div>
@@ -727,7 +730,7 @@ const CustomsDocumentList = () => {
         <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
           <AlertCircle size={20} />
           {error}
-          <button onClick={() => setError(null)} className="ml-auto">
+          <button type="button" onClick={() => setError(null)} className="ml-auto">
             <X size={16} />
           </button>
         </div>
@@ -756,6 +759,7 @@ const CustomsDocumentList = () => {
 
           {/* Toggle Filters */}
           <button
+            type="button"
             onClick={() => setShowFilters(!showFilters)}
             className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-300" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
@@ -768,6 +772,7 @@ const CustomsDocumentList = () => {
 
           {/* Refresh */}
           <button
+            type="button"
             onClick={() => loadDocuments(1)}
             className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-300" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
@@ -888,7 +893,11 @@ const CustomsDocumentList = () => {
           <div className="p-8 text-center">
             <FileText size={48} className={`mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />
             <p className={`${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>No customs documents found</p>
-            <button onClick={() => openModal("create")} className="text-teal-600 hover:text-teal-700 mt-2 inline-block">
+            <button
+              type="button"
+              onClick={() => openModal("create")}
+              className="text-teal-600 hover:text-teal-700 mt-2 inline-block"
+            >
               Create your first customs document
             </button>
           </div>
@@ -962,6 +971,7 @@ const CustomsDocumentList = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button
+                          type="button"
                           onClick={() => openModal("view", doc)}
                           className="text-teal-600 hover:text-teal-800 p-1"
                           title="View"
@@ -969,6 +979,7 @@ const CustomsDocumentList = () => {
                           <Eye size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => openModal("edit", doc)}
                           className="text-blue-600 hover:text-blue-800 p-1"
                           title="Edit"
@@ -976,6 +987,7 @@ const CustomsDocumentList = () => {
                           <Edit size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => openCalculator(doc)}
                           className="text-purple-600 hover:text-purple-800 p-1"
                           title="Calculate Duties"
@@ -983,6 +995,7 @@ const CustomsDocumentList = () => {
                           <Calculator size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleDelete(doc)}
                           className="text-red-600 hover:text-red-800 p-1"
                           title="Delete"
@@ -1009,6 +1022,7 @@ const CustomsDocumentList = () => {
             </div>
             <div className="flex space-x-2">
               <button
+                type="button"
                 onClick={() => loadDocuments(pagination.current_page - 1)}
                 disabled={pagination.current_page <= 1}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
@@ -1018,6 +1032,7 @@ const CustomsDocumentList = () => {
                 Previous
               </button>
               <button
+                type="button"
                 onClick={() => loadDocuments(pagination.current_page + 1)}
                 disabled={pagination.current_page >= pagination.total_pages}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
@@ -1065,6 +1080,7 @@ const CustomsDocumentList = () => {
                     : "View Customs Document"}
               </h2>
               <button
+                type="button"
                 onClick={() => setShowModal(false)}
                 className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
               >
@@ -1615,6 +1631,7 @@ const CustomsDocumentList = () => {
                 UAE Customs Duty Calculator
               </h2>
               <button
+                type="button"
                 onClick={() => setShowCalculator(false)}
                 className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
               >
@@ -1754,6 +1771,7 @@ const CustomsDocumentList = () => {
 
                 {/* Calculate Button */}
                 <button
+                  type="button"
                   onClick={performCalculation}
                   className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium"
                 >

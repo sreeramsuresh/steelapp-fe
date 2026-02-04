@@ -209,6 +209,7 @@ const WarehouseUtilizationWidget = ({
           {/* Refresh Button */}
           {onRefresh && (
             <button
+              type="button"
               onClick={handleRefresh}
               disabled={isLoading}
               className={`p-1.5 rounded-lg transition-colors ${
@@ -390,6 +391,7 @@ const WarehouseUtilizationWidget = ({
       {/* Footer */}
       <div className="mt-3 flex justify-between items-center">
         <button
+          type="button"
           onClick={() => onTransfer?.()}
           className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all ${
             isDarkMode
@@ -401,6 +403,7 @@ const WarehouseUtilizationWidget = ({
           New Transfer
         </button>
         <button
+          type="button"
           onClick={() => onNavigate?.("/warehouses")}
           className={`text-xs font-medium ${
             isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"

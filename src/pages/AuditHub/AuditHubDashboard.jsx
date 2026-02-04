@@ -103,6 +103,7 @@ export default function AuditHubDashboard() {
               </p>
             </div>
             <button
+              type="button"
               onClick={() => setCreatingPeriod(true)}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
@@ -211,6 +212,7 @@ export default function AuditHubDashboard() {
               <Calendar className="w-12 h-12 text-slate-400 dark:text-slate-600 mx-auto mb-4" />
               <p className="text-slate-600 dark:text-slate-400">No periods found</p>
               <button
+                type="button"
                 onClick={() => setCreatingPeriod(true)}
                 className="mt-4 text-blue-600 dark:text-blue-400 hover:underline"
               >

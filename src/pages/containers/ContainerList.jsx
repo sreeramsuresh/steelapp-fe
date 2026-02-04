@@ -220,6 +220,7 @@ export function ContainerList() {
           </div>
           <div className="flex gap-2">
             <button
+              type="button"
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
                 hasActiveFilters
@@ -236,6 +237,7 @@ export function ContainerList() {
               )}
             </button>
             <button
+              type="button"
               onClick={handleAddContainer}
               className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
               data-testid="add-container-button"

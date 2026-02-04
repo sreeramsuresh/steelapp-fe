@@ -237,6 +237,7 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
         </div>
 
         <button
+          type="button"
           onClick={handleRefresh}
           disabled={loading || isLoading}
           className={`p-1.5 rounded-lg transition-colors ${
@@ -260,6 +261,7 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
           const Icon = view.icon;
           return (
             <button
+              type="button"
               key={view.key}
               onClick={() => setActiveView(view.key)}
               className={`flex-1 flex items-center justify-center gap-1 py-2 px-2 rounded-md text-xs font-medium transition-all ${
@@ -408,6 +410,7 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
       {/* Action Button */}
       {onViewDetails && (
         <button
+          type="button"
           onClick={() => onViewDetails(segmentData)}
           className={`mt-4 w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
             isDarkMode ? "bg-indigo-600 hover:bg-indigo-500 text-white" : "bg-indigo-500 hover:bg-indigo-600 text-white"

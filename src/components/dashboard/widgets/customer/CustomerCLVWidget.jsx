@@ -212,6 +212,7 @@ const CustomerCLVWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
         </div>
 
         <button
+          type="button"
           onClick={handleRefresh}
           disabled={loading || isLoading}
           className={`p-1.5 rounded-lg transition-colors ${
@@ -248,6 +249,7 @@ const CustomerCLVWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
       {/* View Toggle */}
       <div className="flex gap-2 mb-4">
         <button
+          type="button"
           onClick={() => setViewMode("top")}
           className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
             viewMode === "top"
@@ -260,6 +262,7 @@ const CustomerCLVWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
           Top Customers
         </button>
         <button
+          type="button"
           onClick={() => setViewMode("segments")}
           className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
             viewMode === "segments"
@@ -391,6 +394,7 @@ const CustomerCLVWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
       {/* Action Button */}
       {onViewDetails && (
         <button
+          type="button"
           onClick={() => onViewDetails(clvData)}
           className={`mt-4 w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
             isDarkMode ? "bg-yellow-600 hover:bg-yellow-500 text-white" : "bg-yellow-500 hover:bg-yellow-600 text-white"

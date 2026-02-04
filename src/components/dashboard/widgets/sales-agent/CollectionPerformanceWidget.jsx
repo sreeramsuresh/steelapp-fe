@@ -228,6 +228,7 @@ const CollectionPerformanceWidget = ({ data: propData, onRefresh, onViewDetails,
             ))}
           </select>
           <button
+            type="button"
             onClick={handleRefresh}
             disabled={loading || isLoading}
             className={`p-1.5 rounded-lg transition-colors ${
@@ -371,6 +372,7 @@ const CollectionPerformanceWidget = ({ data: propData, onRefresh, onViewDetails,
       {/* Action Button */}
       {onViewDetails && (
         <button
+          type="button"
           onClick={() => onViewDetails(collectionData)}
           className={`mt-4 w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
             isDarkMode ? "bg-teal-600 hover:bg-teal-500 text-white" : "bg-teal-500 hover:bg-teal-600 text-white"

@@ -325,6 +325,7 @@ export const BulkActionsToolbar = ({
       <div className="flex items-center gap-2 ml-auto">
         {onDuplicate && (
           <button
+            type="button"
             onClick={onDuplicate}
             className={`
               px-3 py-1 text-xs font-medium rounded
@@ -342,6 +343,7 @@ export const BulkActionsToolbar = ({
 
         {additionalActions.map((action, idx) => (
           <button
+            type="button"
             key={idx}
             onClick={action.onClick}
             className={`
@@ -360,6 +362,7 @@ export const BulkActionsToolbar = ({
 
         {onDelete && (
           <button
+            type="button"
             onClick={onDelete}
             className={`
               px-3 py-1 text-xs font-medium rounded
@@ -377,6 +380,7 @@ export const BulkActionsToolbar = ({
 
         {onClear && (
           <button
+            type="button"
             onClick={onClear}
             className={`
               px-2 py-1 text-xs rounded

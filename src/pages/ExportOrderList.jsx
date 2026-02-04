@@ -323,6 +323,7 @@ const ExportOrderList = () => {
         </div>
         <div className="flex gap-2">
           <button
+            type="button"
             onClick={handleExportToExcel}
             className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
               isDarkMode
@@ -486,7 +487,7 @@ const ExportOrderList = () => {
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex items-center justify-between">
           <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-700 hover:text-red-900">
+          <button type="button" onClick={() => setError(null)} className="text-red-700 hover:text-red-900">
             &times;
           </button>
         </div>
@@ -502,12 +503,14 @@ const ExportOrderList = () => {
           </span>
           <div className="flex gap-2">
             <button
+              type="button"
               onClick={handleExportToExcel}
               className="px-3 py-1 text-sm bg-teal-600 hover:bg-teal-700 text-white rounded"
             >
               Export Selected
             </button>
             <button
+              type="button"
               onClick={() => setSelectedOrders([])}
               className={`px-3 py-1 text-sm rounded ${
                 isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"
@@ -718,6 +721,7 @@ const ExportOrderList = () => {
                           <Edit size={16} />
                         </Link>
                         <button
+                          type="button"
                           onClick={() => handleDelete(order.id)}
                           className="text-red-600 hover:text-red-900 p-1"
                           title="Delete"
@@ -764,6 +768,7 @@ const ExportOrderList = () => {
             </div>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => loadOrders(pagination.current_page - 1)}
                 disabled={pagination.current_page <= 1}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed ${
@@ -789,6 +794,7 @@ const ExportOrderList = () => {
 
                   return (
                     <button
+                      type="button"
                       key={pageNum}
                       onClick={() => loadOrders(pageNum)}
                       className={`w-8 h-8 text-sm rounded ${
@@ -806,6 +812,7 @@ const ExportOrderList = () => {
               </div>
 
               <button
+                type="button"
                 onClick={() => loadOrders(pagination.current_page + 1)}
                 disabled={pagination.current_page >= pagination.total_pages}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed ${

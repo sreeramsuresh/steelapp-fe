@@ -349,6 +349,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           <h1 className="text-2xl font-bold">Create Stock Transfer</h1>
         </div>
         <button
+          type="button"
           onClick={onCancel}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
             isDarkMode ? "bg-gray-700 text-gray-300 hover:bg-gray-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -376,6 +377,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
             </ul>
           </div>
           <button
+            type="button"
             onClick={() => {
               setValidationErrors([]);
               setInvalidFields(new Set());
@@ -399,7 +401,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           <div className="flex-1">
             <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
           </div>
-          <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700">
+          <button type="button" onClick={() => setError(null)} className="text-red-500 hover:text-red-700">
             <Package className="w-4 h-4" />
           </button>
         </div>
@@ -571,6 +573,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Items to Transfer</h2>
           <button
+            type="button"
             onClick={handleAddItem}
             disabled={!sourceWarehouseId}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
@@ -730,6 +733,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                       </td>
                       <td className="px-4 py-3 text-center">
                         <button
+                          type="button"
                           onClick={() => handleRemoveItem(item.id)}
                           className="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 dark:hover:bg-opacity-20 rounded"
                         >
@@ -748,6 +752,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       {/* Actions */}
       <div className="flex justify-end gap-3">
         <button
+          type="button"
           onClick={onCancel}
           disabled={saving}
           className={`px-4 py-2 rounded-lg font-medium ${
@@ -757,6 +762,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           Cancel
         </button>
         <button
+          type="button"
           onClick={handleSubmit}
           disabled={saving || items.length === 0}
           className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${

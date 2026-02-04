@@ -274,7 +274,7 @@ const QuotationList = () => {
         <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-2">
           <AlertCircle size={20} />
           {error}
-          <button onClick={() => setError("")} className="ml-auto text-red-500 hover:text-red-700">
+          <button type="button" onClick={() => setError("")} className="ml-auto text-red-500 hover:text-red-700">
             <X size={16} />
           </button>
         </div>
@@ -284,7 +284,7 @@ const QuotationList = () => {
         <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center gap-2">
           <CheckCircle size={20} />
           {success}
-          <button onClick={() => setSuccess("")} className="ml-auto text-green-500 hover:text-green-700">
+          <button type="button" onClick={() => setSuccess("")} className="ml-auto text-green-500 hover:text-green-700">
             <X size={16} />
           </button>
         </div>
@@ -359,6 +359,7 @@ const QuotationList = () => {
 
           {/* Refresh Button */}
           <button
+            type="button"
             onClick={fetchQuotations}
             className={`px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
@@ -515,6 +516,7 @@ const QuotationList = () => {
                       <div className="flex justify-end gap-2">
                         {authService.hasPermission("quotations", "read") && (
                           <button
+                            type="button"
                             onClick={() => handlePreview(quotation)}
                             className={`p-2 rounded-lg transition-colors ${
                               isDarkMode
@@ -541,6 +543,7 @@ const QuotationList = () => {
                         )}
                         {authService.hasPermission("quotations", "read") && (
                           <button
+                            type="button"
                             onClick={() => handleDownloadPDF(quotation)}
                             disabled={downloadingIds.has(quotation.id)}
                             className={`p-2 rounded-lg transition-colors ${
@@ -584,6 +587,7 @@ const QuotationList = () => {
                             >
                               {quotation.status === "draft" && (
                                 <button
+                                  type="button"
                                   onClick={() => handleStatusUpdate(quotation.id, "sent")}
                                   className={`w-full px-4 py-2 text-left text-sm hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} ${
                                     isDarkMode ? "text-white" : "text-gray-900"
@@ -595,6 +599,7 @@ const QuotationList = () => {
                               {quotation.status === "sent" && (
                                 <>
                                   <button
+                                    type="button"
                                     onClick={() => handleStatusUpdate(quotation.id, "accepted")}
                                     className={`w-full px-4 py-2 text-left text-sm hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} ${
                                       isDarkMode ? "text-white" : "text-gray-900"
@@ -603,6 +608,7 @@ const QuotationList = () => {
                                     Mark as Accepted
                                   </button>
                                   <button
+                                    type="button"
                                     onClick={() => handleStatusUpdate(quotation.id, "rejected")}
                                     className={`w-full px-4 py-2 text-left text-sm hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} ${
                                       isDarkMode ? "text-white" : "text-gray-900"
@@ -614,6 +620,7 @@ const QuotationList = () => {
                               )}
                               {quotation.status === "accepted" && (
                                 <button
+                                  type="button"
                                   onClick={() => handleConvertToInvoice(quotation.id)}
                                   className={`w-full px-4 py-2 text-left text-sm hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} ${
                                     isDarkMode ? "text-white" : "text-gray-900"
@@ -628,6 +635,7 @@ const QuotationList = () => {
 
                         {authService.hasPermission("quotations", "delete") && (
                           <button
+                            type="button"
                             onClick={() => setDeleteConfirm(quotation.id)}
                             className="p-2 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
                             title="Delete Quotation"
@@ -653,6 +661,7 @@ const QuotationList = () => {
               </div>
               <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={() => setPage(Math.max(1, page - 1))}
                   disabled={page === 1}
                   className={`p-2 rounded-lg border transition-colors ${
@@ -668,6 +677,7 @@ const QuotationList = () => {
                   <ChevronLeft size={16} />
                 </button>
                 <button
+                  type="button"
                   onClick={() => setPage(Math.min(totalPages, page + 1))}
                   disabled={page === totalPages}
                   className={`p-2 rounded-lg border transition-colors ${
@@ -703,6 +713,7 @@ const QuotationList = () => {
             </p>
             <div className="flex gap-3 justify-end">
               <button
+                type="button"
                 onClick={() => setDeleteConfirm(null)}
                 className={`px-4 py-2 border rounded-lg ${
                   isDarkMode
@@ -713,6 +724,7 @@ const QuotationList = () => {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={() => handleDelete(deleteConfirm)}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
               >

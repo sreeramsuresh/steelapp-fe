@@ -501,6 +501,7 @@ const ShippingDocumentList = () => {
           <p className="text-gray-500 mt-1">Manage Bills of Lading, Airway Bills, and track shipments</p>
         </div>
         <button
+          type="button"
           onClick={handleCreate}
           className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
         >
@@ -522,7 +523,7 @@ const ShippingDocumentList = () => {
         <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-2">
           <AlertCircle size={20} />
           {error}
-          <button onClick={() => setError(null)} className="ml-auto">
+          <button type="button" onClick={() => setError(null)} className="ml-auto">
             <X size={16} />
           </button>
         </div>
@@ -552,6 +553,7 @@ const ShippingDocumentList = () => {
 
           {/* Filter Toggle */}
           <button
+            type="button"
             onClick={() => setShowFilters(!showFilters)}
             className={`px-4 py-2 border rounded-lg flex items-center gap-2 ${
               isDarkMode ? "border-gray-600 hover:bg-gray-700" : "border-gray-300 hover:bg-gray-50"
@@ -566,6 +568,7 @@ const ShippingDocumentList = () => {
 
           {/* Refresh */}
           <button
+            type="button"
             onClick={() => loadDocuments(pagination.current_page)}
             className={`px-4 py-2 border rounded-lg flex items-center gap-2 ${
               isDarkMode ? "border-gray-600 hover:bg-gray-700" : "border-gray-300 hover:bg-gray-50"
@@ -657,12 +660,14 @@ const ShippingDocumentList = () => {
             {/* Filter Actions */}
             <div className="flex gap-2 mt-4">
               <button
+                type="button"
                 onClick={handleApplyFilters}
                 className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
               >
                 Apply Filters
               </button>
               <button
+                type="button"
                 onClick={handleClearFilters}
                 className={`px-4 py-2 border rounded-lg ${
                   isDarkMode ? "border-gray-600 hover:bg-gray-700" : "border-gray-300 hover:bg-gray-50"
@@ -686,7 +691,7 @@ const ShippingDocumentList = () => {
           <div className="p-8 text-center">
             <Ship className="mx-auto text-gray-400 mb-4" size={48} />
             <p className="text-gray-500 mb-2">No shipping documents found</p>
-            <button onClick={handleCreate} className="text-teal-600 hover:text-teal-700">
+            <button type="button" onClick={handleCreate} className="text-teal-600 hover:text-teal-700">
               Create your first shipping document
             </button>
           </div>
@@ -770,6 +775,7 @@ const ShippingDocumentList = () => {
                     <td className="px-4 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-1">
                         <button
+                          type="button"
                           onClick={() => handleView(doc)}
                           className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-teal-600"
                           title="View Details"
@@ -777,6 +783,7 @@ const ShippingDocumentList = () => {
                           <Eye size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleEdit(doc)}
                           className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-blue-600"
                           title="Edit"
@@ -784,6 +791,7 @@ const ShippingDocumentList = () => {
                           <Edit size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleTrack(doc)}
                           className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-purple-600"
                           title="Track Shipment"
@@ -791,6 +799,7 @@ const ShippingDocumentList = () => {
                           <MapPin size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleDelete(doc)}
                           className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-red-600"
                           title="Delete"
@@ -819,6 +828,7 @@ const ShippingDocumentList = () => {
             </div>
             <div className="flex space-x-2">
               <button
+                type="button"
                 onClick={() => loadDocuments(pagination.current_page - 1)}
                 disabled={pagination.current_page <= 1}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
@@ -828,6 +838,7 @@ const ShippingDocumentList = () => {
                 Previous
               </button>
               <button
+                type="button"
                 onClick={() => loadDocuments(pagination.current_page + 1)}
                 disabled={pagination.current_page >= pagination.total_pages}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
@@ -871,6 +882,7 @@ const ShippingDocumentList = () => {
                 </div>
               </div>
               <button
+                type="button"
                 onClick={handleCloseModal}
                 className={`p-1 rounded-lg transition-colors ${
                   isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
@@ -1474,6 +1486,7 @@ const ShippingDocumentList = () => {
               }`}
             >
               <button
+                type="button"
                 onClick={handleCloseModal}
                 disabled={saving}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -1485,6 +1498,7 @@ const ShippingDocumentList = () => {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleSubmit}
                 disabled={saving}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors bg-teal-600 text-white hover:bg-teal-700 ${
@@ -1522,6 +1536,7 @@ const ShippingDocumentList = () => {
               <div className="flex items-center gap-2">
                 <StatusBadge status={selectedDocument.status} />
                 <button
+                  type="button"
                   onClick={handleCloseModal}
                   className={`p-1 rounded-lg transition-colors ${
                     isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
@@ -1672,6 +1687,7 @@ const ShippingDocumentList = () => {
               }`}
             >
               <button
+                type="button"
                 onClick={handleCloseModal}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                   isDarkMode
@@ -1682,6 +1698,7 @@ const ShippingDocumentList = () => {
                 Close
               </button>
               <button
+                type="button"
                 onClick={() => {
                   handleCloseModal();
                   handleEdit(selectedDocument);
@@ -1691,6 +1708,7 @@ const ShippingDocumentList = () => {
                 Edit Document
               </button>
               <button
+                type="button"
                 onClick={() => {
                   handleCloseModal();
                   handleTrack(selectedDocument);
@@ -1728,6 +1746,7 @@ const ShippingDocumentList = () => {
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => {
                   setShowTrackingModal(false);
                   setTrackingData(null);
@@ -1845,6 +1864,7 @@ const ShippingDocumentList = () => {
             {/* Footer */}
             <div className={`flex gap-3 p-6 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
               <button
+                type="button"
                 onClick={() => {
                   setShowTrackingModal(false);
                   setTrackingData(null);
@@ -1858,6 +1878,7 @@ const ShippingDocumentList = () => {
                 Close
               </button>
               <button
+                type="button"
                 onClick={() => handleTrack(selectedDocument)}
                 className="flex-1 px-4 py-2 rounded-lg font-medium transition-colors bg-purple-600 text-white hover:bg-purple-700 flex items-center justify-center gap-2"
               >

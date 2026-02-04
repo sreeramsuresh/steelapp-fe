@@ -450,6 +450,7 @@ const VATReturnReport = () => {
 
         <div className="flex space-x-3 mt-4">
           <button
+            type="button"
             onClick={generateReport}
             disabled={loading}
             className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
@@ -460,6 +461,7 @@ const VATReturnReport = () => {
 
           {vatReturn && (
             <button
+              type="button"
               onClick={downloadPDF}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
@@ -1244,6 +1246,7 @@ const VATReturnReport = () => {
           {/* Action Buttons */}
           <div className="flex flex-wrap justify-end gap-3">
             <button
+              type="button"
               onClick={exportToExcel}
               className={`inline-flex items-center px-4 py-2 rounded-lg border ${
                 isDarkMode
@@ -1256,6 +1259,7 @@ const VATReturnReport = () => {
             </button>
 
             <button
+              type="button"
               onClick={downloadPDF}
               className={`inline-flex items-center px-4 py-2 rounded-lg border ${
                 isDarkMode
@@ -1268,6 +1272,7 @@ const VATReturnReport = () => {
             </button>
 
             <button
+              type="button"
               onClick={() => vatReturn?.id && navigate(`/reports/vat-return/${vatReturn.id}/preview`)}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
@@ -1277,6 +1282,7 @@ const VATReturnReport = () => {
 
             {vatReturn?.status === "draft" && (
               <button
+                type="button"
                 onClick={handleSubmit}
                 className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
               >

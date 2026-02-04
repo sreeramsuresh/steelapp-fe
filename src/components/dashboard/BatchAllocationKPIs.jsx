@@ -189,6 +189,7 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
             </h3>
           </div>
           <button
+            type="button"
             onClick={handleRetry}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
               isDarkMode ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-blue-500 hover:bg-blue-600 text-white"
@@ -211,6 +212,7 @@ const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
           Batch Allocation Metrics
         </h3>
         <button
+          type="button"
           onClick={handleRetry}
           disabled={loading}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${

@@ -37,6 +37,7 @@ const QuickAccessSection = ({ quickAccessItems, handleNavigate, isDarkMode }) =>
       const IconComponent = item.icon;
       return (
         <button
+          type="button"
           key={item.name}
           onClick={() => handleNavigate(item.path)}
           className={`p-6 rounded-xl border-2 transition-all duration-300 group ${
@@ -70,6 +71,7 @@ const CreateNewSection = ({ createNewItems, handleNavigate, isDarkMode }) => (
     {createNewItems.map((item) => {
       return (
         <button
+          type="button"
           key={item.name}
           onClick={() => handleNavigate(item.path)}
           className={`flex items-center justify-center gap-2 p-4 rounded-lg border-2 font-semibold transition-all duration-300 group ${
@@ -100,6 +102,7 @@ const RecentItemsSection = ({ recentItems, handleNavigate, isDarkMode }) => (
         const IconComponent = item.icon;
         return (
           <button
+            type="button"
             key={item.id}
             onClick={() => handleNavigate(item.link)}
             className={`w-full flex items-center justify-between p-4 transition-all hover:bg-teal-500/10 ${
@@ -292,6 +295,7 @@ const HomePage = () => {
             <p className={`text-lg ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Welcome back, {userName}! 👋</p>
           </div>
           <button
+            type="button"
             onClick={() => window.location.reload()}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode

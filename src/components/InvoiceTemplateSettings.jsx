@@ -57,6 +57,7 @@ class ErrorBoundary extends React.Component {
             Failed to load invoice template settings. Please refresh the page or contact support.
           </p>
           <button
+            type="button"
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
           >
@@ -515,6 +516,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
   // Section header component
   const SectionHeader = ({ title, icon: Icon, expanded, onToggle }) => (
     <button
+      type="button"
       onClick={onToggle}
       className={`w-full flex items-center justify-between p-4 rounded-lg transition-colors ${
         isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-100 hover:bg-gray-200"
@@ -572,6 +574,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           </div>
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={handleRestoreDocTemplateDefaults}
               className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
                 isDarkMode ? "bg-gray-600 text-white hover:bg-gray-500" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -581,6 +584,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               Restore Defaults
             </button>
             <button
+              type="button"
               onClick={handleSyncAllToInvoice}
               className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
                 isDarkMode ? "bg-teal-700 text-white hover:bg-teal-600" : "bg-teal-100 text-teal-800 hover:bg-teal-200"
@@ -855,6 +859,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3 mb-3">
         <button
+          type="button"
           onClick={handlePreview}
           disabled={isPreviewing}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
@@ -873,6 +878,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
         </button>
 
         <button
+          type="button"
           onClick={handleSave}
           disabled={!hasChanges || isSaving}
           className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -891,6 +897,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
         </button>
 
         <button
+          type="button"
           onClick={handleDiscardChanges}
           disabled={!hasChanges}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
@@ -902,6 +909,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
         </button>
 
         <button
+          type="button"
           onClick={handleResetToDefaults}
           className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
         >
@@ -933,6 +941,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
+                type="button"
                 onClick={handleSave}
                 disabled={isSaving}
                 className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
@@ -944,6 +953,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                 {isSaving ? "Saving..." : "Save Now"}
               </button>
               <button
+                type="button"
                 onClick={handleDiscardChanges}
                 title="Discard changes"
                 className={`p-1.5 rounded transition-colors ${
@@ -960,6 +970,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       {/* Tabs */}
       <div className="flex gap-2 mb-6 border-b border-gray-300 dark:border-gray-600">
         <button
+          type="button"
           onClick={() => setActiveSection("basic")}
           className={`px-4 py-2 font-medium transition-colors ${
             activeSection === "basic"
@@ -974,6 +985,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           Basic Settings
         </button>
         <button
+          type="button"
           onClick={() => setActiveSection("advanced")}
           className={`px-4 py-2 font-medium transition-colors ${
             activeSection === "advanced"

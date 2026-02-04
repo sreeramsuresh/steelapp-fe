@@ -141,6 +141,7 @@ const ChargesDrawer = ({
               </div>
             </div>
             <button
+              type="button"
               onClick={onClose}
               className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
             >
@@ -473,6 +474,7 @@ const ChargesDrawer = ({
           >
             <div className="flex justify-end gap-2">
               <button
+                type="button"
                 onClick={onClose}
                 className={`px-4 py-2.5 rounded-xl text-[13px] font-medium transition-colors ${
                   isDarkMode
@@ -540,6 +542,7 @@ const NotesDrawer = ({
               </div>
             </div>
             <button
+              type="button"
               onClick={onClose}
               className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
             >
@@ -622,6 +625,7 @@ const NotesDrawer = ({
           >
             <div className="flex justify-end gap-2">
               <button
+                type="button"
                 onClick={onClose}
                 className={`px-4 py-2.5 rounded-xl text-[13px] font-medium transition-colors ${
                   isDarkMode
@@ -691,6 +695,7 @@ const AddProductDrawer = ({
               </div>
             </div>
             <button
+              type="button"
               onClick={onClose}
               className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
             >
@@ -764,6 +769,7 @@ const Button = ({
 
   return (
     <button
+      type="button"
       className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${
         disabled ? "cursor-not-allowed" : ""
       } ${className}`}
@@ -939,6 +945,7 @@ const Alert = ({ variant = "info", children, onClose, className = "" }) => {
         <div className="ml-3 flex-1">{children}</div>
         {onClose && (
           <button
+            type="button"
             onClick={onClose}
             className={`ml-3 flex-shrink-0 ${
               isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-700"
@@ -1326,6 +1333,7 @@ const _Modal = ({ isOpen, onClose, title, children, size = "lg" }) => {
           <div className="flex items-center justify-between mb-4">
             <h3 className={`text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>{title}</h3>
             <button
+              type="button"
               onClick={onClose}
               className={isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-700"}
             >
@@ -1364,6 +1372,7 @@ const ToggleSwitchInvoice = ({ enabled, onChange, label, description, isDarkMode
       <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{description}</p>
     </div>
     <button
+      type="button"
       onClick={onChange}
       className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
         enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
@@ -1411,6 +1420,7 @@ const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange })
         <div className="flex items-center justify-between">
           <h3 className={`text-sm font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>Form Settings</h3>
           <button
+            type="button"
             onClick={onClose}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
               isDarkMode ? "text-gray-400" : "text-gray-500"
@@ -4079,6 +4089,7 @@ const InvoiceForm = ({ onSave }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
+                  type="button"
                   onClick={() => navigate(INVOICE_ROUTES.list())}
                   className={`p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${
                     isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
@@ -4100,6 +4111,7 @@ const InvoiceForm = ({ onSave }) => {
               <div className="hidden md:flex gap-2 items-start relative">
                 {/* Settings Icon */}
                 <button
+                  type="button"
                   onClick={() => setShowFormSettings(!showFormSettings)}
                   className={`p-2 rounded-lg transition-colors ${
                     isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
@@ -4254,6 +4266,7 @@ const InvoiceForm = ({ onSave }) => {
                           return (
                             <li key={index}>
                               <button
+                                type="button"
                                 onClick={() => fieldName && scrollToField(fieldName)}
                                 disabled={!fieldName}
                                 className={`flex items-center gap-2 w-full text-left ${fieldName ? "cursor-pointer hover:underline hover:text-red-400" : "opacity-60 cursor-default"}`}
@@ -4268,6 +4281,7 @@ const InvoiceForm = ({ onSave }) => {
                         })}
                       </ul>
                       <button
+                        type="button"
                         onClick={() => {
                           setValidationErrors([]);
                           setInvalidFields(new Set());
@@ -4997,6 +5011,7 @@ const InvoiceForm = ({ onSave }) => {
                                   {/* Delete */}
                                   <td className="py-2 px-2 text-center">
                                     <button
+                                      type="button"
                                       onClick={() => {
                                         setDeleteLineItemConfirm({
                                           open: true,
@@ -5033,6 +5048,7 @@ const InvoiceForm = ({ onSave }) => {
                             return (
                               <div key={product.id} className="relative group">
                                 <button
+                                  type="button"
                                   onClick={() => {
                                     // Check if product already exists - if so, increment quantity directly
                                     const existingIndex = findDuplicateProduct(product.id, -1);
@@ -5098,6 +5114,7 @@ const InvoiceForm = ({ onSave }) => {
                                   {product.uniqueName || product.unique_name || "N/A"}
                                 </button>
                                 <button
+                                  type="button"
                                   onClick={(e) => handleTogglePin(e, product.id)}
                                   className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
                                     isPinned
@@ -5366,6 +5383,7 @@ const InvoiceForm = ({ onSave }) => {
                                 {/* Column 9: Delete button */}
                                 <td className="py-2 pr-2 text-center">
                                   <button
+                                    type="button"
                                     onClick={() => removeItem(index)}
                                     className="text-gray-400 hover:text-red-500 p-1"
                                   >
@@ -5794,6 +5812,7 @@ const InvoiceForm = ({ onSave }) => {
                                 Item #{index + 1}
                               </h4>
                               <button
+                                type="button"
                                 onClick={() => removeItem(index)}
                                 className={`hover:text-red-300 ${isDarkMode ? "text-red-400" : "text-red-500"}`}
                               >
@@ -6227,6 +6246,7 @@ const InvoiceForm = ({ onSave }) => {
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button
+                type="button"
                 onClick={handleCancelSave}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   isDarkMode
@@ -6237,6 +6257,7 @@ const InvoiceForm = ({ onSave }) => {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleConfirmSave}
                 className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
               >
@@ -6296,6 +6317,7 @@ const InvoiceForm = ({ onSave }) => {
                 {/* Close button - only show for Draft/Proforma */}
                 {canContinueEditing && (
                   <button
+                    type="button"
                     onClick={handleSuccessModalClose}
                     className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
                     aria-label="Close"
@@ -6312,6 +6334,7 @@ const InvoiceForm = ({ onSave }) => {
 
                   {/* Download PDF Button */}
                   <button
+                    type="button"
                     onClick={handleSuccessDownloadPDF}
                     className="w-full flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white rounded-xl font-medium transition-all shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40"
                   >
@@ -6327,6 +6350,7 @@ const InvoiceForm = ({ onSave }) => {
                   {/* Record Payment Button - Only for Final Tax Invoice */}
                   {isFinalTaxInvoice && (
                     <button
+                      type="button"
                       onClick={handleSuccessRecordPayment}
                       className="w-full flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl font-medium transition-all shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40"
                     >
@@ -6342,6 +6366,7 @@ const InvoiceForm = ({ onSave }) => {
 
                   {/* Go to Invoice List Button */}
                   <button
+                    type="button"
                     onClick={handleSuccessGoToList}
                     className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all border ${
                       isDarkMode
@@ -6403,12 +6428,14 @@ const InvoiceForm = ({ onSave }) => {
 
             <div className="flex flex-col gap-2">
               <button
+                type="button"
                 onClick={handleDuplicateUpdateExisting}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
               >
                 Update Existing Quantity (+1)
               </button>
               <button
+                type="button"
                 onClick={handleDuplicateAddAnyway}
                 className={`w-full px-4 py-2.5 rounded-lg font-medium transition-colors ${
                   isDarkMode
@@ -6419,6 +6446,7 @@ const InvoiceForm = ({ onSave }) => {
                 Add as Separate Line
               </button>
               <button
+                type="button"
                 onClick={handleDuplicateCancel}
                 className={`w-full px-4 py-2 text-sm rounded-lg transition-colors ${
                   isDarkMode

@@ -826,6 +826,7 @@ const CustomerManagement = () => {
           {/* Column Picker */}
           <div className="relative">
             <button
+              type="button"
               onClick={() => setShowCustomerColumnPicker(!showCustomerColumnPicker)}
               className={`p-2 rounded-lg border transition-colors ${
                 isDarkMode
@@ -874,6 +875,7 @@ const CustomerManagement = () => {
           </div>
 
           <button
+            type="button"
             onClick={() => setShowAddModal(true)}
             className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
           >
@@ -882,6 +884,7 @@ const CustomerManagement = () => {
           </button>
 
           <button
+            type="button"
             onClick={() => setShowUploadModal(true)}
             className="px-6 py-2 bg-gradient-to-r from-[#4CAF50] to-[#388E3C] text-white rounded-lg hover:from-[#66BB6A] hover:to-[#4CAF50] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
           >
@@ -892,6 +895,7 @@ const CustomerManagement = () => {
           {/* Bulk Archive Button - shown when customers selected */}
           {selectedCustomerIds.size > 0 && (
             <button
+              type="button"
               onClick={handleBulkArchiveCustomers}
               className="px-4 py-2 bg-gradient-to-r from-[#FFA726] to-[#F57C00] text-white rounded-lg hover:from-[#FFB74D] hover:to-[#FFA726] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg whitespace-nowrap"
             >
@@ -1025,6 +1029,7 @@ const CustomerManagement = () => {
                       {col.key === "name" ? (
                         <div className="space-y-1">
                           <button
+                            type="button"
                             onClick={() => handleCustomerClick(customer.id)}
                             className={`font-medium text-left hover:underline block truncate max-w-[180px] ${isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"}`}
                             title={getCustomerCellValue(customer, col.key)}
@@ -1057,6 +1062,7 @@ const CustomerManagement = () => {
                   <td className="px-3 py-2 text-right w-[100px]">
                     <div className="flex items-center justify-end gap-1">
                       <button
+                        type="button"
                         onClick={() => {
                           setSelectedCustomer(customer);
                           setShowEditModal(true);
@@ -1071,6 +1077,7 @@ const CustomerManagement = () => {
                         <FaEdit size={14} />
                       </button>
                       <button
+                        type="button"
                         onClick={() => openContactHistory(customer)}
                         className={`p-1.5 rounded transition-colors ${
                           isDarkMode
@@ -1083,6 +1090,7 @@ const CustomerManagement = () => {
                       </button>
                       {canDeleteCustomers && (
                         <button
+                          type="button"
                           onClick={() => handleDeleteCustomer(customer.id)}
                           className={`p-1.5 rounded transition-colors ${
                             isDarkMode
@@ -1137,6 +1145,7 @@ const CustomerManagement = () => {
             {/* Navigation Buttons */}
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => setCurrentPage((prev) => prev - 1)}
                 disabled={!pageInfo.hasPrev}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -1152,6 +1161,7 @@ const CustomerManagement = () => {
                 Previous
               </button>
               <button
+                type="button"
                 onClick={() => setCurrentPage((prev) => prev + 1)}
                 disabled={!pageInfo.hasNext}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -1235,6 +1245,7 @@ const CustomerManagement = () => {
           {/* Column Picker */}
           <div className="relative">
             <button
+              type="button"
               onClick={() => setShowSupplierColumnPicker(!showSupplierColumnPicker)}
               className={`p-2 rounded-lg border transition-colors ${
                 isDarkMode
@@ -1285,6 +1296,7 @@ const CustomerManagement = () => {
           {/* Bulk Delete Button - shows when suppliers are selected */}
           {selectedSupplierIds.size > 0 && (
             <button
+              type="button"
               onClick={handleBulkDeleteSuppliers}
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-2 transition-colors"
             >
@@ -1294,6 +1306,7 @@ const CustomerManagement = () => {
           )}
 
           <button
+            type="button"
             onClick={() => setShowAddSupplierModal(true)}
             className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
           >
@@ -1437,6 +1450,7 @@ const CustomerManagement = () => {
                       {col.key === "name" ? (
                         <div>
                           <button
+                            type="button"
                             onClick={() => {
                               setSelectedSupplier(supplier);
                               setShowEditSupplierModal(true);
@@ -1464,6 +1478,7 @@ const CustomerManagement = () => {
                   <td className="px-3 py-2 text-right w-[100px]">
                     <div className="flex items-center justify-end gap-1">
                       <button
+                        type="button"
                         onClick={() => {
                           setSelectedSupplier(supplier);
                           setShowEditSupplierModal(true);
@@ -1478,6 +1493,7 @@ const CustomerManagement = () => {
                         <FaEdit size={14} />
                       </button>
                       <button
+                        type="button"
                         onClick={() => handleDeleteSupplier(supplier.id)}
                         className={`p-1.5 rounded transition-colors ${
                           isDarkMode
@@ -1532,6 +1548,7 @@ const CustomerManagement = () => {
             {/* Navigation Buttons */}
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => setSupplierCurrentPage((prev) => prev - 1)}
                 disabled={!supplierPageInfo.hasPrev}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -1547,6 +1564,7 @@ const CustomerManagement = () => {
                 Previous
               </button>
               <button
+                type="button"
                 onClick={() => setSupplierCurrentPage((prev) => prev + 1)}
                 disabled={!supplierPageInfo.hasNext}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -1687,6 +1705,7 @@ const CustomerManagement = () => {
         <div className={`mb-6 ${isDarkMode ? "bg-transparent" : "bg-transparent"}`}>
           <div className="flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => setActiveTab("profiles")}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 activeTab === "profiles"
@@ -1702,6 +1721,7 @@ const CustomerManagement = () => {
               Customer Profiles
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab("suppliers")}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 activeTab === "suppliers"
@@ -1717,6 +1737,7 @@ const CustomerManagement = () => {
               Suppliers
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab("analytics")}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 activeTab === "analytics"
@@ -1755,6 +1776,7 @@ const CustomerManagement = () => {
                 Error loading customers: {customersError}
               </span>
               <button
+                type="button"
                 onClick={refetchCustomers}
                 className={`ml-auto px-3 py-1 text-sm rounded transition-colors ${
                   isDarkMode ? "bg-red-800 text-red-200 hover:bg-red-700" : "bg-red-100 text-red-700 hover:bg-red-200"
@@ -1783,7 +1805,11 @@ const CustomerManagement = () => {
               className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
               <h2 className={`text-xl font-semibold ${textPrimary}`}>Add New Customer</h2>
-              <button onClick={() => setShowAddModal(false)} className={`${textMuted} hover:${textSecondary}`}>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                className={`${textMuted} hover:${textSecondary}`}
+              >
                 <FaTimes className="w-5 h-5" />
               </button>
             </div>
@@ -2109,6 +2135,7 @@ const CustomerManagement = () => {
               className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
               <button
+                type="button"
                 onClick={() => setShowAddModal(false)}
                 className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
                   isDarkMode ? "text-[#B0BEC5] hover:text-gray-300" : "text-[#757575] hover:bg-gray-100"
@@ -2117,6 +2144,7 @@ const CustomerManagement = () => {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleAddCustomer}
                 disabled={creatingCustomer || !!validateTRN(newCustomer.trn_number)}
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
@@ -2137,7 +2165,11 @@ const CustomerManagement = () => {
               className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
               <h2 className={`text-xl font-semibold ${textPrimary}`}>Add Supplier</h2>
-              <button onClick={() => setShowAddSupplierModal(false)} className={`${textMuted} hover:${textSecondary}`}>
+              <button
+                type="button"
+                onClick={() => setShowAddSupplierModal(false)}
+                className={`${textMuted} hover:${textSecondary}`}
+              >
                 <FaTimes className="w-5 h-5" />
               </button>
             </div>
@@ -2362,12 +2394,14 @@ const CustomerManagement = () => {
               className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
               <button
+                type="button"
                 onClick={() => setShowAddSupplierModal(false)}
                 className={`px-4 py-2 rounded-lg ${isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"}`}
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleAddSupplier}
                 disabled={creatingSupplier || !!validateTRN(newSupplier.trn_number)}
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"
@@ -2387,7 +2421,11 @@ const CustomerManagement = () => {
               className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
               <h2 className={`text-xl font-semibold ${textPrimary}`}>Edit Supplier</h2>
-              <button onClick={() => setShowEditSupplierModal(false)} className={`${textMuted} hover:${textSecondary}`}>
+              <button
+                type="button"
+                onClick={() => setShowEditSupplierModal(false)}
+                className={`${textMuted} hover:${textSecondary}`}
+              >
                 <FaTimes className="w-5 h-5" />
               </button>
             </div>
@@ -2646,12 +2684,14 @@ const CustomerManagement = () => {
               className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
               <button
+                type="button"
                 onClick={() => setShowEditSupplierModal(false)}
                 className={`px-4 py-2 rounded-lg ${isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"}`}
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleEditSupplier}
                 disabled={updatingSupplier || !!validateTRN(selectedSupplier.trn_number)}
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"
@@ -2672,7 +2712,11 @@ const CustomerManagement = () => {
               className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
               <h2 className={`text-xl font-semibold ${textPrimary}`}>Edit Customer</h2>
-              <button onClick={() => setShowEditModal(false)} className={`${textMuted} hover:${textSecondary}`}>
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                className={`${textMuted} hover:${textSecondary}`}
+              >
                 <FaTimes className="w-5 h-5" />
               </button>
             </div>
@@ -3115,6 +3159,7 @@ const CustomerManagement = () => {
               className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
               <button
+                type="button"
                 onClick={() => setShowEditModal(false)}
                 className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
                   isDarkMode ? "text-[#B0BEC5] hover:text-gray-300" : "text-[#757575] hover:bg-gray-100"
@@ -3123,6 +3168,7 @@ const CustomerManagement = () => {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleEditCustomer}
                 disabled={updatingCustomer || !!validateTRN(selectedCustomer.trn_number)}
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
@@ -3146,7 +3192,11 @@ const CustomerManagement = () => {
               <h2 className={`text-xl font-semibold ${textPrimary}`}>
                 Contact History - {contactHistoryCustomer.name}
               </h2>
-              <button onClick={() => setShowContactHistory(false)} className={`${textMuted} hover:${textSecondary}`}>
+              <button
+                type="button"
+                onClick={() => setShowContactHistory(false)}
+                className={`${textMuted} hover:${textSecondary}`}
+              >
                 <FaTimes className="w-5 h-5" />
               </button>
             </div>
@@ -3226,6 +3276,7 @@ const CustomerManagement = () => {
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={addContactEntry}
                   className="mt-4 px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
                 >

@@ -54,6 +54,7 @@ class WidgetErrorBoundary extends Component {
             </p>
             {canRetry && (
               <button
+                type="button"
                 onClick={this.handleRetry}
                 className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
               >

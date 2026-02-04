@@ -120,6 +120,7 @@ const AgentCommissionDashboard = () => {
               </div>
             </div>
             <button
+              type="button"
               onClick={loadAgentData}
               className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
                 isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
@@ -143,6 +144,7 @@ const AgentCommissionDashboard = () => {
 
               return (
                 <button
+                  type="button"
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center space-x-2 px-4 py-3 rounded-t-lg border-b-2 transition-colors ${

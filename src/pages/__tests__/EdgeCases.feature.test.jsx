@@ -36,7 +36,9 @@ describe("Edge Cases & Error Handling", () => {
                 Payment {idx + 1}: {payment}
               </div>
             ))}
-            <button onClick={() => handleAddPayment(1000)}>Add Payment (1000)</button>
+            <button type="button" onClick={() => handleAddPayment(1000)}>
+              Add Payment (1000)
+            </button>
           </>
         );
       };
@@ -79,8 +81,12 @@ describe("Edge Cases & Error Handling", () => {
                 {err}
               </div>
             ))}
-            <button onClick={() => handleDeduct(60)}>Deduct 60 Units</button>
-            <button onClick={() => handleDeduct(30)}>Deduct 30 Units</button>
+            <button type="button" onClick={() => handleDeduct(60)}>
+              Deduct 60 Units
+            </button>
+            <button type="button" onClick={() => handleDeduct(30)}>
+              Deduct 30 Units
+            </button>
           </>
         );
       };
@@ -126,7 +132,9 @@ describe("Edge Cases & Error Handling", () => {
               placeholder="Requested Quantity"
             />
             {error && <div className="alert-error">{error}</div>}
-            <button onClick={handleAllocate}>Allocate Stock</button>
+            <button type="button" onClick={handleAllocate}>
+              Allocate Stock
+            </button>
           </>
         );
       };
@@ -172,7 +180,9 @@ describe("Edge Cases & Error Handling", () => {
               placeholder="Invoice Amount"
             />
             {error && <div className="alert-error">{error}</div>}
-            <button onClick={handleCreateInvoice}>Create Invoice</button>
+            <button type="button" onClick={handleCreateInvoice}>
+              Create Invoice
+            </button>
           </>
         );
       };
@@ -207,7 +217,7 @@ describe("Edge Cases & Error Handling", () => {
         return (
           <>
             <div>Submissions: {submissions}</div>
-            <button onClick={handleSubmit} disabled={isProcessing}>
+            <button type="button" onClick={handleSubmit} disabled={isProcessing}>
               {isProcessing ? "Submitting..." : "Submit Invoice"}
             </button>
           </>
@@ -272,7 +282,9 @@ describe("Edge Cases & Error Handling", () => {
             />
             {errors.invoiceDate && <span className="error">{errors.invoiceDate}</span>}
 
-            <button onClick={handleSave}>Save</button>
+            <button type="button" onClick={handleSave}>
+              Save
+            </button>
           </>
         );
       };
@@ -314,9 +326,15 @@ describe("Edge Cases & Error Handling", () => {
           <>
             <div>Status: {status}</div>
             {error && <div className="alert-error">{error}</div>}
-            <button onClick={() => handleTransition("paid")}>Try Jump to Paid</button>
-            <button onClick={() => handleTransition("saved")}>Try Save</button>
-            <button onClick={() => handleTransition("delivered")}>Try Deliver</button>
+            <button type="button" onClick={() => handleTransition("paid")}>
+              Try Jump to Paid
+            </button>
+            <button type="button" onClick={() => handleTransition("saved")}>
+              Try Save
+            </button>
+            <button type="button" onClick={() => handleTransition("delivered")}>
+              Try Deliver
+            </button>
           </>
         );
       };
@@ -349,8 +367,12 @@ describe("Edge Cases & Error Handling", () => {
           <>
             <div>Current Version: {version}</div>
             {conflictError && <div className="alert-error">{conflictError}</div>}
-            <button onClick={() => handleUpdate(1)}>Update with v1</button>
-            <button onClick={() => handleUpdate(version)}>Update with Current</button>
+            <button type="button" onClick={() => handleUpdate(1)}>
+              Update with v1
+            </button>
+            <button type="button" onClick={() => handleUpdate(version)}>
+              Update with Current
+            </button>
           </>
         );
       };

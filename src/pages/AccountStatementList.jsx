@@ -262,7 +262,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
           <div className="mb-4 flex items-center gap-3 p-4 rounded-lg border bg-green-50 border-green-200 text-green-800">
             <CheckCircle className="h-5 w-5 flex-shrink-0" />
             <span className="text-sm">{success}</span>
-            <button onClick={() => setSuccess("")} className="ml-auto">
+            <button type="button" onClick={() => setSuccess("")} className="ml-auto">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -271,7 +271,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
           <div className="mb-4 flex items-center gap-3 p-4 rounded-lg border bg-red-50 border-red-200 text-red-800">
             <AlertCircle className="h-5 w-5 flex-shrink-0" />
             <span className="text-sm">{error}</span>
-            <button onClick={() => setError("")} className="ml-auto">
+            <button type="button" onClick={() => setError("")} className="ml-auto">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -288,6 +288,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
             </p>
           </div>
           <button
+            type="button"
             onClick={handleGenerateClick}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
           >
@@ -458,6 +459,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex gap-2 justify-end">
                         <button
+                          type="button"
                           className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
                           }`}
@@ -468,6 +470,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                           <Eye size={18} />
                         </button>
                         <button
+                          type="button"
                           className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? "hover:bg-gray-700 text-green-400" : "hover:bg-gray-100 text-green-600"
                           }`}
@@ -477,6 +480,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                           <Download size={18} />
                         </button>
                         <button
+                          type="button"
                           className={`p-2 rounded-lg transition-colors ${
                             isDarkMode ? "hover:bg-gray-700 text-orange-400" : "hover:bg-gray-100 text-orange-600"
                           }`}
@@ -505,6 +509,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
           <div className="flex justify-center mt-6">
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
                 className={`p-2 rounded transition-colors ${
@@ -523,6 +528,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                 Page {page} of {totalPages}
               </span>
               <button
+                type="button"
                 onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
                 className={`p-2 rounded transition-colors ${
@@ -564,6 +570,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
               className={`p-6 border-t flex justify-end gap-3 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
             >
               <button
+                type="button"
                 onClick={() => setDeleteDialog({ open: false, id: null, number: "" })}
                 className={`px-4 py-2 border rounded-lg transition-colors ${
                   isDarkMode
@@ -574,6 +581,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleDelete}
                 className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
               >
@@ -596,6 +604,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
               <AlertCircle size={20} />
               <span>{error}</span>
               <button
+                type="button"
                 onClick={() => setError("")}
                 className={`ml-2 ${isDarkMode ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-700"}`}
               >
@@ -634,6 +643,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setShowCustomerModal(false)}
                 className={`p-2 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
               >
@@ -671,6 +681,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                 ) : (
                   customers.map((customer) => (
                     <button
+                      type="button"
                       key={customer.id}
                       onClick={() => handleCustomerSelect(customer)}
                       className={`w-full text-left p-4 rounded-lg border transition-all ${
@@ -752,6 +763,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
               className={`p-6 border-t flex justify-end gap-3 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
             >
               <button
+                type="button"
                 onClick={() =>
                   setDownloadWarning({
                     open: false,
@@ -766,6 +778,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleForceDownload}
                 className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
               >

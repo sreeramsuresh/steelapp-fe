@@ -56,7 +56,9 @@ describe("Stock Management Feature", () => {
           <>
             <div>Stock: {stock}</div>
             {error && <div className="alert-error">{error}</div>}
-            <button onClick={() => handleDeduct(50)}>Deduct 50 Units</button>
+            <button type="button" onClick={() => handleDeduct(50)}>
+              Deduct 50 Units
+            </button>
           </>
         );
       };
@@ -99,7 +101,9 @@ describe("Stock Management Feature", () => {
               onChange={(e) => setTransferQty(parseInt(e.target.value, 10))}
               placeholder="Quantity to Transfer"
             />
-            <button onClick={handleTransfer}>Transfer</button>
+            <button type="button" onClick={handleTransfer}>
+              Transfer
+            </button>
             {status === "success" && <div className="alert-success">Transfer complete</div>}
             {status === "error" && <div className="alert-error">Insufficient stock</div>}
           </>
@@ -134,7 +138,9 @@ describe("Stock Management Feature", () => {
           <>
             <div>Warehouse A: {warehouseA}</div>
             {error && <div className="alert-error">{error}</div>}
-            <button onClick={handleTransfer}>Transfer 50</button>
+            <button type="button" onClick={handleTransfer}>
+              Transfer 50
+            </button>
           </>
         );
       };
@@ -277,7 +283,9 @@ describe("Stock Management Feature", () => {
               onChange={(e) => setWriteOffQty(parseInt(e.target.value, 10))}
               placeholder="Write-off Quantity"
             />
-            <button onClick={handleWriteOff}>Write Off</button>
+            <button type="button" onClick={handleWriteOff}>
+              Write Off
+            </button>
             {saved && <div className="alert-success">Stock write-off recorded</div>}
           </>
         );

@@ -73,6 +73,7 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
                 </div>
               </div>
               <button
+                type="button"
                 onClick={onClose}
                 className={`p-1 rounded-lg ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
               >
@@ -191,6 +192,7 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
             }`}
           >
             <button
+              type="button"
               onClick={onClose}
               className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-medium"
             >

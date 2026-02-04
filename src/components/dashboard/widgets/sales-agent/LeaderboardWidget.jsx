@@ -229,6 +229,7 @@ const LeaderboardWidget = ({ data: propData, onRefresh, onViewAgent, isLoading =
         </div>
 
         <button
+          type="button"
           onClick={handleRefresh}
           disabled={loading || isLoading}
           className={`p-1.5 rounded-lg transition-colors ${
@@ -422,6 +423,7 @@ const LeaderboardWidget = ({ data: propData, onRefresh, onViewAgent, isLoading =
       {/* View All Link */}
       {!compact && leaderboard.length > 5 && (
         <button
+          type="button"
           onClick={() => onViewAgent?.(null)}
           className={`mt-3 w-full py-2 text-sm font-medium rounded-lg transition-colors ${
             isDarkMode ? "text-teal-400 hover:bg-[#2E3B4E]" : "text-teal-600 hover:bg-gray-50"

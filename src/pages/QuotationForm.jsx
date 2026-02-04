@@ -57,6 +57,7 @@ const ToggleSwitchQuotation = ({ enabled, onChange, label, description, isDarkMo
       <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{description}</p>
     </div>
     <button
+      type="button"
       onClick={onChange}
       className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
         enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
@@ -101,6 +102,7 @@ const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange })
         <div className="flex items-center justify-between">
           <h3 className={`text-sm font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>Form Settings</h3>
           <button
+            type="button"
             onClick={onClose}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
               isDarkMode ? "text-gray-400" : "text-gray-500"
@@ -195,6 +197,7 @@ const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width 
               )}
             </div>
             <button
+              type="button"
               onClick={onClose}
               className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-[#2a3640]" : "hover:bg-gray-100"}`}
             >
@@ -1816,6 +1819,7 @@ const QuotationForm = () => {
         <div className="mb-4 md:mb-6">
           <div className="flex items-center gap-2 md:gap-4 mb-2 md:mb-4">
             <button
+              type="button"
               onClick={handleBackClick}
               className={`p-1.5 md:p-2 rounded-lg border transition-colors ${
                 isDarkMode
@@ -1836,6 +1840,7 @@ const QuotationForm = () => {
             </div>
             <div className="relative">
               <button
+                type="button"
                 onClick={() => setShowFormSettings(!showFormSettings)}
                 className={`p-1.5 md:p-2 rounded-lg border transition-colors ${
                   isDarkMode
@@ -1868,6 +1873,7 @@ const QuotationForm = () => {
             <div className="flex gap-2">
               {isEdit && (error.includes("not found") || error.includes("permission")) && (
                 <button
+                  type="button"
                   onClick={() => {
                     window.location.reload();
                   }}
@@ -1876,7 +1882,7 @@ const QuotationForm = () => {
                   Retry
                 </button>
               )}
-              <button onClick={() => setError("")} className="text-red-500 hover:text-red-700">
+              <button type="button" onClick={() => setError("")} className="text-red-500 hover:text-red-700">
                 <X size={16} />
               </button>
             </div>

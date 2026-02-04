@@ -118,6 +118,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className={`p-2 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
           >

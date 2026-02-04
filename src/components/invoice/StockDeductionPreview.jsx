@@ -126,7 +126,7 @@ export default function StockDeductionPreview({
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium text-gray-900">Stock Deduction Preview</h3>
           {onClose && (
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-500">
+            <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-500">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -282,6 +282,7 @@ export default function StockDeductionPreview({
         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end space-x-3">
           {onClose && (
             <button
+              type="button"
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
@@ -289,6 +290,7 @@ export default function StockDeductionPreview({
             </button>
           )}
           <button
+            type="button"
             onClick={onConfirm}
             className={`px-4 py-2 text-sm font-medium text-white rounded-md ${
               hasNegativeStock ? "bg-yellow-600 hover:bg-yellow-700" : "bg-blue-600 hover:bg-blue-700"

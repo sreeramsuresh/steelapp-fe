@@ -145,6 +145,7 @@ export default function JournalRegisterReport() {
           {/* Generate Button */}
           <div className="flex items-end">
             <button
+              type="button"
               onClick={handleGenerateReport}
               disabled={loading}
               className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
@@ -257,6 +258,7 @@ export default function JournalRegisterReport() {
           </div>
           <div className="flex space-x-2">
             <button
+              type="button"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1 || loading}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:bg-gray-50"
@@ -267,6 +269,7 @@ export default function JournalRegisterReport() {
               Page {currentPage} of {data.pagination.totalPages}
             </span>
             <button
+              type="button"
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage >= data.pagination.totalPages || loading}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:bg-gray-50"
@@ -281,6 +284,7 @@ export default function JournalRegisterReport() {
       {data && (
         <div className="flex justify-end">
           <button
+            type="button"
             onClick={handleExportToExcel}
             className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 font-medium"
           >

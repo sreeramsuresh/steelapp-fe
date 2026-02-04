@@ -236,6 +236,7 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
             <h2 className="text-lg font-semibold">QC Inspection</h2>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className={`p-1 rounded-lg transition-colors ${
               isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-600"
@@ -491,6 +492,7 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
         {/* Footer */}
         <div className={`flex justify-end gap-3 p-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
           <button
+            type="button"
             onClick={onClose}
             disabled={submitting}
             className={`px-4 py-2 text-sm rounded-md transition-colors ${
@@ -500,6 +502,7 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
             Cancel
           </button>
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={!canSubmit}
             className="px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"

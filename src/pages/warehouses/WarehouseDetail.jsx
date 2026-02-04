@@ -178,6 +178,7 @@ const WarehouseDetail = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
               <button
+                type="button"
                 onClick={() => navigate("/warehouses")}
                 className={`p-2 rounded-lg ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
               >
@@ -216,6 +217,7 @@ const WarehouseDetail = () => {
 
             <div className="flex items-center gap-3">
               <button
+                type="button"
                 onClick={fetchWarehouse}
                 className={`p-2 rounded-lg border ${
                   isDarkMode
@@ -226,6 +228,7 @@ const WarehouseDetail = () => {
                 <RefreshCw className="w-5 h-5" />
               </button>
               <button
+                type="button"
                 onClick={handleEdit}
                 className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
               >
@@ -244,6 +247,7 @@ const WarehouseDetail = () => {
               const isActive = activeTab === tab.id;
               return (
                 <button
+                  type="button"
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${

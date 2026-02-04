@@ -115,6 +115,7 @@ export default function TrialBalanceReport() {
           {/* Generate Button */}
           <div className="flex items-end">
             <button
+              type="button"
               onClick={handleGenerateReport}
               disabled={loading || !periodId}
               className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
@@ -194,6 +195,7 @@ export default function TrialBalanceReport() {
                   </td>
                   <td className="px-6 py-3 text-sm text-center">
                     <button
+                      type="button"
                       onClick={() => handleDrillDown(account.account_code)}
                       className="text-blue-600 hover:text-blue-800 font-medium"
                     >

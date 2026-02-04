@@ -168,6 +168,7 @@ const BatchAllocator = ({
             <h2 className="text-xl font-semibold">Batch Allocation</h2>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
           >
@@ -222,6 +223,7 @@ const BatchAllocator = ({
           {/* FIFO Auto-Allocate Button */}
           <div className="mb-4">
             <button
+              type="button"
               onClick={handleAutoAllocateFIFO}
               disabled={loading || batches.length === 0}
               className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
@@ -398,6 +400,7 @@ const BatchAllocator = ({
 
           <div className="flex gap-3">
             <button
+              type="button"
               onClick={onClose}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-800"
@@ -406,6 +409,7 @@ const BatchAllocator = ({
               Cancel
             </button>
             <button
+              type="button"
               onClick={handleSave}
               disabled={!isFullyAllocated}
               className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${

@@ -333,6 +333,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             <h2 className="text-xl font-bold">Create Stock Reservation</h2>
           </div>
           <button
+            type="button"
             onClick={onClose}
             disabled={saving}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
@@ -354,7 +355,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             <div className="flex-1">
               <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
             </div>
-            <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700">
+            <button type="button" onClick={() => setError(null)} className="text-red-500 hover:text-red-700">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -733,6 +734,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
         {/* Actions */}
         <div className="flex justify-end gap-3">
           <button
+            type="button"
             onClick={onClose}
             disabled={saving}
             className={`px-4 py-2 rounded-lg font-medium ${
@@ -742,6 +744,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             Cancel
           </button>
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={saving || !productId || !quantity}
             className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${

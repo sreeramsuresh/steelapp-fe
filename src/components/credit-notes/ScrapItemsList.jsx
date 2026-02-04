@@ -75,6 +75,7 @@ const ScrapItemsList = ({ creditNoteId = null, showFilters = true }) => {
           <AlertTriangle className="w-6 h-6 mr-2" />
           <span>{error}</span>
           <button
+            type="button"
             onClick={fetchScrapItems}
             className="ml-4 px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200"
           >
@@ -102,6 +103,7 @@ const ScrapItemsList = ({ creditNoteId = null, showFilters = true }) => {
           )}
         </h2>
         <button
+          type="button"
           onClick={fetchScrapItems}
           className={`p-2 rounded-lg hover:bg-opacity-80 ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
           title="Refresh"

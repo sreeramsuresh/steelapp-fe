@@ -63,6 +63,7 @@ const Modal = ({
             <h2 className="text-lg font-bold">{title}</h2>
             {closeButton && (
               <button
+                type="button"
                 onClick={onClose}
                 aria-label="Close modal"
                 className={`p-1 rounded-lg transition-colors ${

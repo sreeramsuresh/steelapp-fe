@@ -221,6 +221,7 @@ const CommissionPlans = () => {
           </p>
         </div>
         <button
+          type="button"
           onClick={handleCreate}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center space-x-2 transition-colors"
         >
@@ -244,6 +245,7 @@ const CommissionPlans = () => {
             Create your first commission plan to get started
           </p>
           <button
+            type="button"
             onClick={handleCreate}
             className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg inline-flex items-center space-x-2"
           >
@@ -279,6 +281,7 @@ const CommissionPlans = () => {
                 </div>
                 <div className="flex space-x-1">
                   <button
+                    type="button"
                     onClick={() => openAssignModal(plan)}
                     className={`p-2 rounded-lg ${
                       isDarkMode
@@ -290,6 +293,7 @@ const CommissionPlans = () => {
                     <UserPlus className="h-4 w-4" />
                   </button>
                   <button
+                    type="button"
                     onClick={() => handleEdit(plan)}
                     className={`p-2 rounded-lg ${
                       isDarkMode
@@ -300,6 +304,7 @@ const CommissionPlans = () => {
                     <Edit2 className="h-4 w-4" />
                   </button>
                   <button
+                    type="button"
                     onClick={() => handleDeleteClick(plan.id)}
                     className={`p-2 rounded-lg ${
                       isDarkMode
@@ -449,6 +454,7 @@ const CommissionPlans = () => {
                     Commission Tiers
                   </span>
                   <button
+                    type="button"
                     onClick={addTier}
                     className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg flex items-center space-x-1"
                   >
@@ -482,6 +488,7 @@ const CommissionPlans = () => {
                         </span>
                         {formData.tiers.length > 1 && (
                           <button
+                            type="button"
                             onClick={() => removeTier(index)}
                             className={`p-1 rounded ${
                               isDarkMode
@@ -575,6 +582,7 @@ const CommissionPlans = () => {
               }`}
             >
               <button
+                type="button"
                 onClick={() => setShowModal(false)}
                 disabled={saving}
                 className={`px-4 py-2 rounded-lg ${
@@ -586,6 +594,7 @@ const CommissionPlans = () => {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleSave}
                 disabled={saving}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
@@ -706,6 +715,7 @@ const CommissionPlans = () => {
               className={`p-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} flex justify-end space-x-3`}
             >
               <button
+                type="button"
                 onClick={() => {
                   setShowAssignModal(false);
                   setAssigningPlan(null);
@@ -720,6 +730,7 @@ const CommissionPlans = () => {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleAssignPlan}
                 disabled={assigning || selectedUsers.size === 0}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 flex items-center space-x-2"

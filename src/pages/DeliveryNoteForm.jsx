@@ -604,6 +604,7 @@ const DeliveryNoteForm = () => {
         <div className="max-w-[1400px] mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => navigate("/delivery-notes")}
               className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"}`}
             >
@@ -624,11 +625,12 @@ const DeliveryNoteForm = () => {
           </div>
           <div className="flex items-center gap-2">
             {getStockStatusBadge()}
-            <button onClick={() => setShowPreview(true)} className={BTN_CLASSES(isDarkMode)}>
+            <button type="button" onClick={() => setShowPreview(true)} className={BTN_CLASSES(isDarkMode)}>
               <Eye size={16} className="inline mr-1.5" />
               Preview
             </button>
             <button
+              type="button"
               onClick={handleSubmit}
               disabled={isSaving || !selectedInvoice}
               data-testid="create-dn"
@@ -738,6 +740,7 @@ const DeliveryNoteForm = () => {
                       className={`flex-1 ${INPUT_CLASSES(isDarkMode)} cursor-not-allowed`}
                     />
                     <button
+                      type="button"
                       onClick={() => setShowInvoiceDialog(true)}
                       disabled={isEdit}
                       data-testid="select-invoice-button"
@@ -1052,6 +1055,7 @@ const DeliveryNoteForm = () => {
                       ))}
                     </ul>
                     <button
+                      type="button"
                       onClick={() => {
                         setValidationErrors([]);
                         setInvalidFields(new Set());
@@ -1144,6 +1148,7 @@ const DeliveryNoteForm = () => {
                 <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"} mb-2`}>Quick Actions</div>
                 <div className="space-y-1.5">
                   <button
+                    type="button"
                     onClick={() => setShowDeliveryAddressDrawer(true)}
                     data-testid="delivery-address-drawer-button"
                     className={`${QUICK_LINK_CLASSES(isDarkMode)} w-full justify-between`}
@@ -1155,6 +1160,7 @@ const DeliveryNoteForm = () => {
                     <ChevronRight size={16} className="opacity-40" />
                   </button>
                   <button
+                    type="button"
                     onClick={() => setShowTransportDrawer(true)}
                     data-testid="transport-drawer-button"
                     className={`${QUICK_LINK_CLASSES(isDarkMode)} w-full justify-between`}
@@ -1166,6 +1172,7 @@ const DeliveryNoteForm = () => {
                     <ChevronRight size={16} className="opacity-40" />
                   </button>
                   <button
+                    type="button"
                     onClick={() => setShowNotesDrawer(true)}
                     data-testid="notes-drawer-button"
                     className={`${QUICK_LINK_CLASSES(isDarkMode)} w-full justify-between`}
@@ -1214,6 +1221,7 @@ const DeliveryNoteForm = () => {
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setShowDeliveryAddressDrawer(false)}
               className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
             >
@@ -1278,7 +1286,11 @@ const DeliveryNoteForm = () => {
             }}
           >
             <div className="flex justify-end gap-2">
-              <button onClick={() => setShowDeliveryAddressDrawer(false)} className={BTN_CLASSES(isDarkMode)}>
+              <button
+                type="button"
+                onClick={() => setShowDeliveryAddressDrawer(false)}
+                className={BTN_CLASSES(isDarkMode)}
+              >
                 Close
               </button>
             </div>
@@ -1317,6 +1329,7 @@ const DeliveryNoteForm = () => {
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setShowTransportDrawer(false)}
               className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
             >
@@ -1379,7 +1392,7 @@ const DeliveryNoteForm = () => {
             }}
           >
             <div className="flex justify-end gap-2">
-              <button onClick={() => setShowTransportDrawer(false)} className={BTN_CLASSES(isDarkMode)}>
+              <button type="button" onClick={() => setShowTransportDrawer(false)} className={BTN_CLASSES(isDarkMode)}>
                 Close
               </button>
             </div>
@@ -1418,6 +1431,7 @@ const DeliveryNoteForm = () => {
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setShowNotesDrawer(false)}
               className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
             >
@@ -1451,7 +1465,7 @@ const DeliveryNoteForm = () => {
             }}
           >
             <div className="flex justify-end gap-2">
-              <button onClick={() => setShowNotesDrawer(false)} className={BTN_CLASSES(isDarkMode)}>
+              <button type="button" onClick={() => setShowNotesDrawer(false)} className={BTN_CLASSES(isDarkMode)}>
                 Close
               </button>
             </div>
@@ -1563,7 +1577,7 @@ const DeliveryNoteForm = () => {
             <div className="flex items-center gap-2">
               <AlertCircle size={18} />
               <span className="text-[13px]">{error}</span>
-              <button onClick={() => setError("")} className="ml-2">
+              <button type="button" onClick={() => setError("")} className="ml-2">
                 <X size={14} />
               </button>
             </div>
@@ -1579,7 +1593,7 @@ const DeliveryNoteForm = () => {
             <div className="flex items-center gap-2">
               <CheckCircle size={18} />
               <span className="text-[13px]">{success}</span>
-              <button onClick={() => setSuccess("")} className="ml-2">
+              <button type="button" onClick={() => setSuccess("")} className="ml-2">
                 <X size={14} />
               </button>
             </div>

@@ -177,6 +177,7 @@ const ReconciliationDashboard = () => {
       <div className="rounded-xl border overflow-hidden bg-white border-gray-200 mb-4">
         <div className="flex border-b border-gray-200">
           <button
+            type="button"
             onClick={() => setActiveTab(0)}
             className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
               activeTab === 0
@@ -188,6 +189,7 @@ const ReconciliationDashboard = () => {
             Reconciliation Report
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab(1)}
             className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
               activeTab === 1
@@ -219,6 +221,7 @@ const ReconciliationDashboard = () => {
             ))}
           </select>
           <button
+            type="button"
             onClick={loadReconciliation}
             disabled={loadingReconciliation || !selectedWarehouseId}
             className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
@@ -232,7 +235,11 @@ const ReconciliationDashboard = () => {
         {reconciliationError && (
           <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700">
             <span>{reconciliationError}</span>
-            <button onClick={() => setReconciliationError(null)} className="text-red-600 hover:text-red-800">
+            <button
+              type="button"
+              onClick={() => setReconciliationError(null)}
+              className="text-red-600 hover:text-red-800"
+            >
               <X size={18} />
             </button>
           </div>
@@ -416,6 +423,7 @@ const ReconciliationDashboard = () => {
             </div>
 
             <button
+              type="button"
               onClick={loadAuditTrail}
               disabled={loadingAudit}
               className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
@@ -430,7 +438,7 @@ const ReconciliationDashboard = () => {
         {auditError && (
           <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700">
             <span>{auditError}</span>
-            <button onClick={() => setAuditError(null)} className="text-red-600 hover:text-red-800">
+            <button type="button" onClick={() => setAuditError(null)} className="text-red-600 hover:text-red-800">
               <X size={18} />
             </button>
           </div>
@@ -552,6 +560,7 @@ const ReconciliationDashboard = () => {
               </span>
               <div className="flex gap-1">
                 <button
+                  type="button"
                   onClick={(e) => handleAuditPageChange(e, auditPage - 1)}
                   disabled={auditPage === 0}
                   className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"
@@ -559,6 +568,7 @@ const ReconciliationDashboard = () => {
                   Previous
                 </button>
                 <button
+                  type="button"
                   onClick={(e) => handleAuditPageChange(e, auditPage + 1)}
                   disabled={auditPage >= Math.ceil(auditTotalCount / auditRowsPerPage) - 1}
                   className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"

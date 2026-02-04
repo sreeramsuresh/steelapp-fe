@@ -1185,6 +1185,7 @@ const ImportOrderForm = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
+                type="button"
                 onClick={() => navigate("/import-export")}
                 className={`p-2 rounded-xl transition-colors ${
                   isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
@@ -1915,15 +1916,27 @@ const ImportOrderForm = () => {
               <div className={CARD_CLASSES(isDarkMode)}>
                 <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"} mb-2`}>Quick Actions</div>
                 <div className="space-y-1.5">
-                  <button className={QUICK_LINK_CLASSES(isDarkMode)} onClick={() => setCostDrawerOpen(true)}>
+                  <button
+                    type="button"
+                    className={QUICK_LINK_CLASSES(isDarkMode)}
+                    onClick={() => setCostDrawerOpen(true)}
+                  >
                     <DollarSign className="h-4 w-4 opacity-60" />
                     <span>Edit Costs & Currency</span>
                   </button>
-                  <button className={QUICK_LINK_CLASSES(isDarkMode)} onClick={() => setShippingDrawerOpen(true)}>
+                  <button
+                    type="button"
+                    className={QUICK_LINK_CLASSES(isDarkMode)}
+                    onClick={() => setShippingDrawerOpen(true)}
+                  >
                     <Ship className="h-4 w-4 opacity-60" />
                     <span>Shipping & VAT Details</span>
                   </button>
-                  <button className={QUICK_LINK_CLASSES(isDarkMode)} onClick={() => setNotesDrawerOpen(true)}>
+                  <button
+                    type="button"
+                    className={QUICK_LINK_CLASSES(isDarkMode)}
+                    onClick={() => setNotesDrawerOpen(true)}
+                  >
                     <StickyNote className="h-4 w-4 opacity-60" />
                     <span>Notes & Documents</span>
                   </button>
@@ -2008,6 +2021,7 @@ const ImportOrderForm = () => {
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setShippingDrawerOpen(false)}
               className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#2a3640]" : "hover:bg-gray-100"}`}
             >
@@ -2229,7 +2243,7 @@ const ImportOrderForm = () => {
             }}
           >
             <div className="flex justify-end">
-              <button className={BTN_PRIMARY} onClick={() => setShippingDrawerOpen(false)}>
+              <button type="button" className={BTN_PRIMARY} onClick={() => setShippingDrawerOpen(false)}>
                 Done
               </button>
             </div>
@@ -2269,6 +2283,7 @@ const ImportOrderForm = () => {
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setCostDrawerOpen(false)}
               className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#2a3640]" : "hover:bg-gray-100"}`}
             >
@@ -2412,7 +2427,7 @@ const ImportOrderForm = () => {
             }}
           >
             <div className="flex justify-end">
-              <button className={BTN_PRIMARY} onClick={() => setCostDrawerOpen(false)}>
+              <button type="button" className={BTN_PRIMARY} onClick={() => setCostDrawerOpen(false)}>
                 Done
               </button>
             </div>
@@ -2452,6 +2467,7 @@ const ImportOrderForm = () => {
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setNotesDrawerOpen(false)}
               className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#2a3640]" : "hover:bg-gray-100"}`}
             >
@@ -2507,7 +2523,7 @@ const ImportOrderForm = () => {
             }}
           >
             <div className="flex justify-end">
-              <button className={BTN_PRIMARY} onClick={() => setNotesDrawerOpen(false)}>
+              <button type="button" className={BTN_PRIMARY} onClick={() => setNotesDrawerOpen(false)}>
                 Done
               </button>
             </div>

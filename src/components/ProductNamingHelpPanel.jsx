@@ -142,6 +142,7 @@ const ProductNamingHelpPanel = ({ hasMismatch = false }) => {
           </div>
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={expandAll}
               className={`p-1.5 rounded transition-colors ${
                 isDarkMode
@@ -153,6 +154,7 @@ const ProductNamingHelpPanel = ({ hasMismatch = false }) => {
               <ChevronsDown className="h-4 w-4" />
             </button>
             <button
+              type="button"
               onClick={collapseAll}
               className={`p-1.5 rounded transition-colors ${
                 isDarkMode

@@ -56,6 +56,7 @@ const DraftConflictModal = ({
                 </h3>
               </div>
               <button
+                type="button"
                 onClick={onClose}
                 className={`p-2 rounded-lg transition-colors ${
                   isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
@@ -129,6 +130,7 @@ const DraftConflictModal = ({
               {isSameInvoice ? (
                 <>
                   <button
+                    type="button"
                     onClick={() => onDiscard(existingDraft.invoiceId)}
                     disabled={isLoading}
                     className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -141,6 +143,7 @@ const DraftConflictModal = ({
                     Discard & Start Fresh
                   </button>
                   <button
+                    type="button"
                     onClick={() => onResume(existingDraft)}
                     disabled={isLoading}
                     className="flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors disabled:opacity-50"
@@ -152,6 +155,7 @@ const DraftConflictModal = ({
               ) : (
                 <>
                   <button
+                    type="button"
                     onClick={() => onDiscard(existingDraft.invoiceId)}
                     disabled={isLoading}
                     className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -162,6 +166,7 @@ const DraftConflictModal = ({
                     Discard Draft
                   </button>
                   <button
+                    type="button"
                     onClick={onStartFresh}
                     disabled={isLoading}
                     className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -173,6 +178,7 @@ const DraftConflictModal = ({
                     Continue to New
                   </button>
                   <button
+                    type="button"
                     onClick={() => onResume(existingDraft)}
                     disabled={isLoading}
                     className="flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors disabled:opacity-50"

@@ -73,7 +73,9 @@ describe("Multi-Tenancy Security - Data Isolation", () => {
           <>
             <div>Current Company: {currentCompanyId}</div>
             <div>Customer Company: {customer.companyId}</div>
-            <button disabled={!canEdit}>Edit Customer</button>
+            <button type="button" disabled={!canEdit}>
+              Edit Customer
+            </button>
             {!canEdit && <div className="alert-error">Access Denied: Customer belongs to different company</div>}
           </>
         );
@@ -100,7 +102,7 @@ describe("Multi-Tenancy Security - Data Isolation", () => {
           <>
             <div>Your Company: {currentCompanyId}</div>
             <div>PO Belongs To: {poData.companyId}</div>
-            <button onClick={() => {}} disabled={!canDelete}>
+            <button type="button" onClick={() => {}} disabled={!canDelete}>
               Delete PO
             </button>
             {!canDelete && <div className="alert-error">Cannot delete: PO belongs to Company B</div>}
@@ -211,9 +213,15 @@ describe("Multi-Tenancy Security - Data Isolation", () => {
         return (
           <>
             <div>Role: {user.role}</div>
-            <button disabled={!userPerms.write}>Edit Invoice</button>
-            <button disabled={!userPerms.delete}>Delete Invoice</button>
-            <button disabled={!userPerms.export}>Export Data</button>
+            <button type="button" disabled={!userPerms.write}>
+              Edit Invoice
+            </button>
+            <button type="button" disabled={!userPerms.delete}>
+              Delete Invoice
+            </button>
+            <button type="button" disabled={!userPerms.export}>
+              Export Data
+            </button>
           </>
         );
       };

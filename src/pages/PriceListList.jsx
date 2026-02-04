@@ -46,6 +46,7 @@ const Button = ({
 
   return (
     <button
+      type="button"
       className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? "cursor-not-allowed opacity-50" : ""} ${className}`}
       disabled={disabled}
       onClick={onClick}
@@ -203,6 +204,7 @@ export default function PriceListList() {
         {/* Quick Filters Toggle */}
         <div className="flex items-center gap-2 mb-3">
           <button
+            type="button"
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               showFilters
@@ -249,6 +251,7 @@ export default function PriceListList() {
                 const count = statusCounts[filter.id];
                 return (
                   <button
+                    type="button"
                     key={filter.id}
                     onClick={() => setStatusFilter(filter.id)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
@@ -280,6 +283,7 @@ export default function PriceListList() {
                   filter.id === "all" ? pricelists.length : pricelists.filter((pl) => pl.currency === filter.id).length;
                 return (
                   <button
+                    type="button"
                     key={filter.id}
                     onClick={() => setCurrencyFilter(filter.id)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
@@ -419,6 +423,7 @@ export default function PriceListList() {
                     </div>
                     <div className="flex flex-col gap-1 min-h-[6.5rem]">
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/pricelists/${pricelist.id}/edit`);
@@ -433,6 +438,7 @@ export default function PriceListList() {
                         <Edit size={16} />
                       </button>
                       <button
+                        type="button"
                         onClick={(e) => handleCopy(pricelist.id, e)}
                         className={`p-1.5 rounded transition-colors ${
                           isDarkMode
@@ -445,6 +451,7 @@ export default function PriceListList() {
                       </button>
                       {!pricelist.isDefault ? (
                         <button
+                          type="button"
                           onClick={(e) => handleDelete(pricelist.id, pricelist.name, e)}
                           className={`p-1.5 rounded transition-colors ${
                             isDarkMode

@@ -63,6 +63,7 @@ const ProtectedRoute = ({
           </p>
         </div>
         <button
+          type="button"
           className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
             isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-800"
           }`}
@@ -98,6 +99,7 @@ const ProtectedRoute = ({
             <p>Contact your administrator to request access.</p>
           </div>
           <button
+            type="button"
             className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-800"
             }`}

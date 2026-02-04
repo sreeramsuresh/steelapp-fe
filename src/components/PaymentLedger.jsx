@@ -113,6 +113,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
           <div className="flex items-center gap-2">
             {selectedForDelete.size > 0 && (
               <button
+                type="button"
                 onClick={handleDeleteSelected}
                 className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
               >
@@ -127,6 +128,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
               </div>
             ) : (
               <button
+                type="button"
                 onClick={onAddPayment}
                 className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
               >
@@ -308,6 +310,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                     <td className="px-4 py-3">
                       <div className="flex justify-center gap-2">
                         <button
+                          type="button"
                           onClick={() => handlePrintReceipt(payment, index)}
                           disabled={printingReceiptId === payment.id}
                           className={`p-1.5 rounded transition-colors ${
@@ -322,6 +325,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                           <Printer size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleDownloadReceipt(payment, index)}
                           disabled={downloadingReceiptId === payment.id}
                           className={`p-1.5 rounded transition-colors ${
@@ -336,6 +340,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                           <Download size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => onEditPayment(payment)}
                           disabled={isFullyPaid}
                           className={`p-1.5 rounded transition-colors ${

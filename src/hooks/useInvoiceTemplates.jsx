@@ -592,6 +592,7 @@ export const RecurringInvoiceSettings = ({ settings, onToggle, onUpdate, isDarkM
           </div>
         </div>
         <button
+          type="button"
           onClick={() => onToggle(!settings.enabled)}
           className={`
             relative w-11 h-6 rounded-full transition-colors duration-200
@@ -690,6 +691,7 @@ export const RecurringInvoiceSettings = ({ settings, onToggle, onUpdate, isDarkM
               Send automatically when created
             </span>
             <button
+              type="button"
               onClick={() => onUpdate({ sendAutomatically: !settings.sendAutomatically })}
               className={`
                 relative w-9 h-5 rounded-full transition-colors duration-200

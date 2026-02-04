@@ -317,6 +317,7 @@ export default function CustomerActivityTab({ customerId }) {
         </div>
         <p className={`text-sm ${isDarkMode ? "text-red-300" : "text-red-600"}`}>{error}</p>
         <button
+          type="button"
           onClick={fetchActivities}
           className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition-colors"
         >
@@ -332,6 +333,7 @@ export default function CustomerActivityTab({ customerId }) {
       <div className="flex justify-between items-center">
         <h3 className={`text-lg font-semibold ${primaryText}`}>Customer Activity Timeline</h3>
         <button
+          type="button"
           onClick={handleRefresh}
           disabled={loading}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
@@ -409,6 +411,7 @@ export default function CustomerActivityTab({ customerId }) {
           {/* Add Activity Button */}
           <div>
             <button
+              type="button"
               onClick={() => setIsAddingActivity(true)}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
             >
@@ -424,7 +427,7 @@ export default function CustomerActivityTab({ customerId }) {
         <div className={`${cardBg} border ${borderColor} rounded-lg p-6`}>
           <div className="flex items-center justify-between mb-4">
             <h3 className={`text-lg font-semibold ${primaryText}`}>Add New Activity</h3>
-            <button onClick={() => setIsAddingActivity(false)} className={`p-1 rounded ${hoverBg}`}>
+            <button type="button" onClick={() => setIsAddingActivity(false)} className={`p-1 rounded ${hoverBg}`}>
               <X size={20} className={secondaryText} />
             </button>
           </div>

@@ -22,6 +22,7 @@ const HomeButton = () => {
 
   return (
     <button
+      type="button"
       onClick={handleHomeClick}
       disabled={isOnHome}
       title={isOnHome ? "Already on home page" : "Return to home page"}

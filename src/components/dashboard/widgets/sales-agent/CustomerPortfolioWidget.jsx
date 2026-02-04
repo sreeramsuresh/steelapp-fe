@@ -213,6 +213,7 @@ const CustomerPortfolioWidget = ({ data: propData, onRefresh, onViewDetails, isL
             ))}
           </select>
           <button
+            type="button"
             onClick={handleRefresh}
             disabled={loading || isLoading}
             className={`p-1.5 rounded-lg transition-colors ${
@@ -385,6 +386,7 @@ const CustomerPortfolioWidget = ({ data: propData, onRefresh, onViewDetails, isL
       {/* Action Button */}
       {onViewDetails && (
         <button
+          type="button"
           onClick={() => onViewDetails(portfolioData)}
           className={`mt-4 w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
             isDarkMode ? "bg-blue-600 hover:bg-blue-500 text-white" : "bg-blue-500 hover:bg-blue-600 text-white"

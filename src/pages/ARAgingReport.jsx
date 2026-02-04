@@ -151,6 +151,7 @@ export default function ARAgingReport() {
 
           <div className="flex gap-2">
             <button
+              type="button"
               onClick={fetchARAgingData}
               disabled={loading}
               className={`px-4 py-2 rounded-md flex items-center gap-2 transition-colors ${
@@ -164,6 +165,7 @@ export default function ARAgingReport() {
             </button>
 
             <button
+              type="button"
               className={`px-4 py-2 rounded-md flex items-center gap-2 transition-colors ${
                 isDarkMode ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
@@ -273,6 +275,7 @@ export default function ARAgingReport() {
                   className={`px-4 py-3 text-left text-xs font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"} uppercase tracking-wider`}
                 >
                   <button
+                    type="button"
                     onClick={() => handleSort("customerCode")}
                     className="flex items-center gap-1 hover:text-blue-500"
                   >
@@ -283,6 +286,7 @@ export default function ARAgingReport() {
                   className={`px-4 py-3 text-left text-xs font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"} uppercase tracking-wider`}
                 >
                   <button
+                    type="button"
                     onClick={() => handleSort("customerName")}
                     className="flex items-center gap-1 hover:text-blue-500"
                   >
@@ -318,6 +322,7 @@ export default function ARAgingReport() {
                   className={`px-4 py-3 text-right text-xs font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"} uppercase tracking-wider`}
                 >
                   <button
+                    type="button"
                     onClick={() => handleSort("totalAr")}
                     className="flex items-center gap-1 hover:text-blue-500 ml-auto"
                   >
@@ -328,6 +333,7 @@ export default function ARAgingReport() {
                   className={`px-4 py-3 text-center text-xs font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"} uppercase tracking-wider`}
                 >
                   <button
+                    type="button"
                     onClick={() => handleSort("dsoDays")}
                     className="flex items-center gap-1 hover:text-blue-500 mx-auto"
                   >
@@ -456,6 +462,7 @@ export default function ARAgingReport() {
             </div>
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => setPage(page - 1)}
                 disabled={page === 1}
                 className={`px-3 py-1 rounded-md text-sm ${
@@ -472,6 +479,7 @@ export default function ARAgingReport() {
                 Page {page} of {pageInfo.totalPages}
               </span>
               <button
+                type="button"
                 onClick={() => setPage(page + 1)}
                 disabled={page === pageInfo.totalPages}
                 className={`px-3 py-1 rounded-md text-sm ${

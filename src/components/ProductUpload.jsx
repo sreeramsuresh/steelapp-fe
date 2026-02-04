@@ -182,7 +182,11 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
           className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
         >
           <h2 className={`text-xl font-semibold ${textPrimary}`}>Upload Products</h2>
-          <button onClick={closeModal} className={`${textMuted} hover:${textSecondary} transition-colors`}>
+          <button
+            type="button"
+            onClick={closeModal}
+            className={`${textMuted} hover:${textSecondary} transition-colors`}
+          >
             <FaTimes className="w-5 h-5" />
           </button>
         </div>
@@ -199,6 +203,7 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
                 </p>
               </div>
               <button
+                type="button"
                 onClick={downloadTemplate}
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               >
@@ -229,6 +234,7 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
                 <p className={`text-lg ${textPrimary} mb-2`}>
                   Drag and drop your file here, or{" "}
                   <button
+                    type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="text-[#008B8B] hover:text-[#4DB6AC] underline"
                   >
@@ -254,7 +260,11 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
                       <p className={`text-sm ${textSecondary}`}>{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
                     </div>
                   </div>
-                  <button onClick={resetUpload} className={`${textMuted} hover:${textSecondary} transition-colors`}>
+                  <button
+                    type="button"
+                    onClick={resetUpload}
+                    className={`${textMuted} hover:${textSecondary} transition-colors`}
+                  >
                     <FaTimes className="w-5 h-5" />
                   </button>
                 </div>
@@ -326,6 +336,7 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
         {/* Footer */}
         <div className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}>
           <button
+            type="button"
             onClick={closeModal}
             className={`px-6 py-2 border rounded-lg transition-colors ${
               isDarkMode
@@ -338,6 +349,7 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
 
           {selectedFile && !uploadResults && (
             <button
+              type="button"
               onClick={uploadFile}
               disabled={uploading}
               className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none"

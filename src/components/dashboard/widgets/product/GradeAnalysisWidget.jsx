@@ -280,6 +280,7 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
           </div>
         </div>
         <button
+          type="button"
           onClick={() => onNavigate?.("/products?view=grades")}
           className={`text-xs font-medium ${
             isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"

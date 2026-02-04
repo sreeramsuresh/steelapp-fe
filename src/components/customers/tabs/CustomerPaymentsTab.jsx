@@ -198,6 +198,7 @@ export default function CustomerPaymentsTab({ customerId }) {
         </div>
         <p className={`text-sm ${isDarkMode ? "text-red-300" : "text-red-600"}`}>{error}</p>
         <button
+          type="button"
           onClick={fetchPayments}
           className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition-colors"
         >
@@ -213,6 +214,7 @@ export default function CustomerPaymentsTab({ customerId }) {
       <div className="flex justify-between items-center">
         <h3 className={`text-lg font-semibold ${primaryText}`}>Customer Payments</h3>
         <button
+          type="button"
           onClick={handleRefresh}
           disabled={loading}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
@@ -355,7 +357,11 @@ export default function CustomerPaymentsTab({ customerId }) {
                       <tr className={hoverBg}>
                         <td className="px-4 py-3">
                           {hasAllocations && (
-                            <button onClick={() => toggleRowExpansion(payment.id)} className={`p-1 rounded ${hoverBg}`}>
+                            <button
+                              type="button"
+                              onClick={() => toggleRowExpansion(payment.id)}
+                              className={`p-1 rounded ${hoverBg}`}
+                            >
                               {isExpanded ? (
                                 <ChevronDown size={16} className={secondaryText} />
                               ) : (
@@ -432,6 +438,7 @@ export default function CustomerPaymentsTab({ customerId }) {
             </div>
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className={`px-3 py-1 rounded-md border ${borderColor} ${primaryText} disabled:opacity-50 disabled:cursor-not-allowed ${hoverBg}`}
@@ -453,6 +460,7 @@ export default function CustomerPaymentsTab({ customerId }) {
 
                   return (
                     <button
+                      type="button"
                       key={pageNum}
                       onClick={() => setCurrentPage(pageNum)}
                       className={`px-3 py-1 rounded-md border ${borderColor} ${
@@ -465,6 +473,7 @@ export default function CustomerPaymentsTab({ customerId }) {
                 })}
               </div>
               <button
+                type="button"
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
                 className={`px-3 py-1 rounded-md border ${borderColor} ${primaryText} disabled:opacity-50 disabled:cursor-not-allowed ${hoverBg}`}

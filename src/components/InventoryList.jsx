@@ -395,7 +395,7 @@ const InventoryList = () => {
             }`}
           >
             <span>{error}</span>
-            <button onClick={() => setError("")} className="ml-4">
+            <button type="button" onClick={() => setError("")} className="ml-4">
               <X size={16} />
             </button>
           </div>
@@ -444,6 +444,7 @@ const InventoryList = () => {
               </div>
             </div>
             <button
+              type="button"
               onClick={() => handleOpenDialog()}
               className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
             >
@@ -451,6 +452,7 @@ const InventoryList = () => {
               Add Item
             </button>
             <button
+              type="button"
               onClick={() => setShowUploadModal(true)}
               className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-green-600 to-green-700 text-white rounded-lg hover:from-green-500 hover:to-green-600 transition-all duration-300 shadow-sm hover:shadow-md"
             >
@@ -788,6 +790,7 @@ const InventoryList = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex gap-1 justify-end">
                       <button
+                        type="button"
                         onClick={() => handleOpenDialog(item)}
                         className={`p-2 rounded transition-colors ${
                           isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
@@ -797,6 +800,7 @@ const InventoryList = () => {
                         <Edit size={16} />
                       </button>
                       <button
+                        type="button"
                         onClick={() => handleDelete(item.id)}
                         className={`p-2 rounded transition-colors ${
                           isDarkMode ? "hover:bg-gray-700 text-red-400" : "hover:bg-gray-100 text-red-600"
@@ -828,6 +832,7 @@ const InventoryList = () => {
                       </p>
                       {!searchTerm && (
                         <button
+                          type="button"
                           onClick={() => handleOpenDialog()}
                           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
                         >
@@ -880,6 +885,7 @@ const InventoryList = () => {
                 {/* Navigation Buttons */}
                 <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={() => setPage(Math.max(1, page - 1))}
                     disabled={page === 1}
                     className={`p-2 rounded-lg border transition-colors ${
@@ -898,6 +904,7 @@ const InventoryList = () => {
                     Page {page} of {Math.ceil(totalCount / pageSize)}
                   </span>
                   <button
+                    type="button"
                     onClick={() => setPage(Math.min(Math.ceil(totalCount / pageSize), page + 1))}
                     disabled={page >= Math.ceil(totalCount / pageSize)}
                     className={`p-2 rounded-lg border transition-colors ${
@@ -952,6 +959,7 @@ const InventoryList = () => {
                           </div>
                         </div>
                         <button
+                          type="button"
                           onClick={clearLinkedProduct}
                           className={`px-3 py-1 rounded border ${isDarkMode ? "border-gray-600 hover:bg-gray-700" : "border-gray-300 hover:bg-gray-100"}`}
                         >
@@ -985,6 +993,7 @@ const InventoryList = () => {
                           >
                             {productOptions.map((p) => (
                               <button
+                                type="button"
                                 key={p.id}
                                 onClick={() => handleSelectProduct(p)}
                                 className={`w-full text-left px-4 py-2 hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
@@ -1518,6 +1527,7 @@ const InventoryList = () => {
                 className={`p-6 border-t flex justify-end gap-3 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
               >
                 <button
+                  type="button"
                   onClick={handleCloseDialog}
                   className={`px-6 py-3 border rounded-lg transition-colors ${
                     isDarkMode
@@ -1528,6 +1538,7 @@ const InventoryList = () => {
                   Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={handleSubmit}
                   className="px-6 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
                 >

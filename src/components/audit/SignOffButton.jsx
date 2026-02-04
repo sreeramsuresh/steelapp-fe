@@ -16,6 +16,7 @@ export default function SignOffButton({
   if (!canUserSignOff) {
     return (
       <button
+        type="button"
         disabled
         className="flex items-center gap-2 px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-lg font-medium cursor-not-allowed opacity-50"
         title={`You don't have permission to sign off as ${stage}`}
@@ -34,6 +35,7 @@ export default function SignOffButton({
 
   return (
     <button
+      type="button"
       onClick={onClick}
       disabled={disabled || loading}
       className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${

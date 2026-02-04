@@ -35,7 +35,9 @@ describe("Payment Processing Feature", () => {
               placeholder="Payment Amount"
             />
             <div>Status: {status}</div>
-            <button onClick={handleRecordPayment}>Record Payment</button>
+            <button type="button" onClick={handleRecordPayment}>
+              Record Payment
+            </button>
             {saved && <div className="alert-success">Payment recorded successfully</div>}
           </>
         );
@@ -81,7 +83,9 @@ describe("Payment Processing Feature", () => {
               onChange={(e) => setPaymentAmount(parseFloat(e.target.value))}
               placeholder="Payment Amount"
             />
-            <button onClick={handleRecordPayment}>Record Payment</button>
+            <button type="button" onClick={handleRecordPayment}>
+              Record Payment
+            </button>
             {saved && <div className="alert-success">Partial payment recorded</div>}
           </>
         );
@@ -125,7 +129,9 @@ describe("Payment Processing Feature", () => {
               placeholder="Payment Amount"
             />
             {error && <div className="alert-error">{error}</div>}
-            <button onClick={handleRecordPayment}>Record Payment</button>
+            <button type="button" onClick={handleRecordPayment}>
+              Record Payment
+            </button>
           </>
         );
       };
@@ -169,7 +175,9 @@ describe("Payment Processing Feature", () => {
 
         return (
           <>
-            <button onClick={handleAllocate}>Auto-Allocate Payment</button>
+            <button type="button" onClick={handleAllocate}>
+              Auto-Allocate Payment
+            </button>
             {allocation.length > 0 && (
               <div>
                 <div>Allocation (oldest first):</div>
@@ -207,7 +215,9 @@ describe("Payment Processing Feature", () => {
         return (
           <>
             <div>Customer Balance: {balance}</div>
-            <button onClick={handlePayment}>Process Payment of 2000</button>
+            <button type="button" onClick={handlePayment}>
+              Process Payment of 2000
+            </button>
           </>
         );
       };
@@ -237,7 +247,9 @@ describe("Payment Processing Feature", () => {
           <>
             <div>Credit Hold: {onCreditHold ? "Yes" : "No"}</div>
             {error && <div className="alert-error">{error}</div>}
-            <button onClick={handlePayment}>Process Payment</button>
+            <button type="button" onClick={handlePayment}>
+              Process Payment
+            </button>
           </>
         );
       };
@@ -316,7 +328,7 @@ describe("Payment Processing Feature", () => {
               onChange={(e) => setReference(e.target.value)}
             />
             {/* eslint-disable-next-line local-rules/no-dead-button */}
-            <button>Record Payment</button>
+            <button type="button">Record Payment</button>
           </>
         );
       };

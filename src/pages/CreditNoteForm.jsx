@@ -77,6 +77,7 @@ const Drawer = ({ isOpen, onClose, title, description, children, isDarkMode }) =
             )}
           </div>
           <button
+            type="button"
             onClick={onClose}
             className={`p-1.5 rounded-lg transition-colors ${
               isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
@@ -1074,6 +1075,7 @@ const CreditNoteForm = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <button
+              type="button"
               onClick={() => navigate("/credit-notes")}
               className={`p-2 rounded-lg transition-colors ${
                 isDarkMode ? "hover:bg-gray-800 text-gray-300" : "hover:bg-gray-200 text-gray-700"
@@ -1093,6 +1095,7 @@ const CreditNoteForm = () => {
           <div className="flex gap-3">
             {/* Preview Button */}
             <button
+              type="button"
               onClick={() => setShowPreview(true)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                 isDarkMode
@@ -1109,6 +1112,7 @@ const CreditNoteForm = () => {
               <>
                 {/* Save Draft Button */}
                 <button
+                  type="button"
                   data-testid="save-draft"
                   onClick={() => handleSave(false)}
                   disabled={saving}
@@ -1134,6 +1138,7 @@ const CreditNoteForm = () => {
 
                 {/* Issue Tax Document Button */}
                 <button
+                  type="button"
                   data-testid="submit-credit-note"
                   onClick={() => handleSave(true)}
                   disabled={saving}
@@ -1225,6 +1230,7 @@ const CreditNoteForm = () => {
                   ))}
                 </ul>
                 <button
+                  type="button"
                   onClick={() => {
                     setValidationErrors([]);
                     setInvalidFields(new Set());
@@ -1455,6 +1461,7 @@ const CreditNoteForm = () => {
                   </h2>
                   {!id && (
                     <button
+                      type="button"
                       onClick={() => {
                         setSelectedInvoice(null);
                         setShowInvoiceSelect(true);

@@ -207,6 +207,7 @@ const Home = () => {
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
             {heroSlides.map((_, index) => (
               <button
+                type="button"
                 key={index}
                 className={`w-4 h-4 rounded-full transition-all duration-300 ${
                   index === currentSlide ? "bg-white scale-125 shadow-lg" : "bg-white/50 hover:bg-white/75"
@@ -381,7 +382,10 @@ const Home = () => {
                     <p className="text-gray-600 leading-relaxed mb-6">{service.description}</p>
 
                     {/* Learn More Button */}
-                    <button className="w-full py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl font-semibold group-hover:from-blue-500 group-hover:to-indigo-600 group-hover:text-white transition-all duration-300 transform group-hover:scale-105">
+                    <button
+                      type="button"
+                      className="w-full py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl font-semibold group-hover:from-blue-500 group-hover:to-indigo-600 group-hover:text-white transition-all duration-300 transform group-hover:scale-105"
+                    >
                       Learn More
                     </button>
                   </div>
@@ -574,16 +578,25 @@ const Home = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
-              <button className="group px-12 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl font-bold text-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl">
+              <button
+                type="button"
+                className="group px-12 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl font-bold text-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl"
+              >
                 <span className="flex items-center justify-center space-x-3">
                   <span>Get Quote</span>
                   <span className="transform group-hover:translate-x-1 transition-transform">💼</span>
                 </span>
               </button>
-              <button className="px-12 py-5 border-2 border-white/80 rounded-2xl font-bold text-xl hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:scale-105 shadow-xl">
+              <button
+                type="button"
+                className="px-12 py-5 border-2 border-white/80 rounded-2xl font-bold text-xl hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:scale-105 shadow-xl"
+              >
                 View Products
               </button>
-              <button className="group px-12 py-5 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl font-bold text-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl">
+              <button
+                type="button"
+                className="group px-12 py-5 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl font-bold text-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl"
+              >
                 <span className="flex items-center justify-center space-x-3">
                   <span>Contact Us</span>
                   <span className="transform group-hover:rotate-12 transition-transform">📞</span>

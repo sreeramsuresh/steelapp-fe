@@ -55,6 +55,7 @@ export default function VolumeDiscountTiersModal({ isOpen, onClose, tiers, onSav
                 Volume Discount Tiers
               </h3>
               <button
+                type="button"
                 onClick={onClose}
                 className={`p-1 rounded-lg hover:bg-gray-100 ${isDarkMode ? "hover:bg-gray-700" : ""}`}
                 aria-label="Close volume discount tiers modal"
@@ -152,6 +153,7 @@ export default function VolumeDiscountTiersModal({ isOpen, onClose, tiers, onSav
                     </div>
                   </div>
                   <button
+                    type="button"
                     onClick={() => removeTier(index)}
                     className="mt-6 p-1.5 text-red-600 hover:bg-red-50 rounded"
                     aria-label={`Delete tier ${index + 1}`}
@@ -164,6 +166,7 @@ export default function VolumeDiscountTiersModal({ isOpen, onClose, tiers, onSav
             </div>
 
             <button
+              type="button"
               onClick={addTier}
               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-teal-600 hover:bg-teal-50 rounded-lg"
               aria-label="Add new volume discount tier"
@@ -180,12 +183,14 @@ export default function VolumeDiscountTiersModal({ isOpen, onClose, tiers, onSav
             }`}
           >
             <button
+              type="button"
               onClick={handleSave}
               className="w-full sm:w-auto px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-medium"
             >
               Save Tiers
             </button>
             <button
+              type="button"
               onClick={onClose}
               className={`mt-3 sm:mt-0 sm:mr-3 w-full sm:w-auto px-4 py-2 rounded-lg font-medium ${
                 isDarkMode

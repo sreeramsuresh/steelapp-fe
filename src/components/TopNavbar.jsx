@@ -112,6 +112,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
         <div className="flex items-center gap-2">
           <HomeButton />
           <button
+            type="button"
             onClick={onToggleSidebar}
             style={{
               color: isDarkMode ? "#d1d5db" : "#374151",
@@ -161,6 +162,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
               }}
             />
             <button
+              type="button"
               title="Search"
               onClick={() => {
                 const q = searchQuery.trim();
@@ -186,6 +188,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
         <div className="flex items-center gap-2">
           {/* Theme Toggle */}
           <button
+            type="button"
             onClick={toggleTheme}
             style={{
               color: isDarkMode ? "#d1d5db" : "#374151",
@@ -200,6 +203,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
           {/* Notifications */}
           <div className="relative" ref={notificationDropdownRef}>
             <button
+              type="button"
               onClick={handleNotificationClick}
               style={{
                 color: isDarkMode ? "#d1d5db" : "#374151",
@@ -241,6 +245,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                   </div>
                   {unreadCount > 0 && (
                     <button
+                      type="button"
                       onClick={markAllAsRead}
                       className={`mt-2 inline-flex items-center gap-1 text-xs ${isDarkMode ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
                     >
@@ -285,6 +290,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                   {/* Bug #30 fix: Add total notification count to button label */}
                   {/* eslint-disable-next-line local-rules/no-dead-button */}
                   <button
+                    type="button"
                     onClick={() => {
                       // TODO: Implement view all notifications functionality
                     }}
@@ -302,6 +308,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
           {/* Profile Section */}
           <div className="relative" ref={profileDropdownRef}>
             <button
+              type="button"
               onClick={handleProfileClick}
               style={{
                 backgroundColor: "transparent",
@@ -365,6 +372,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
 
                 <div className="py-2">
                   <button
+                    type="button"
                     onClick={() => setShowProfileDropdown(false)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
                       isDarkMode
@@ -377,6 +385,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => {
                       setShowProfileDropdown(false);
                       navigate("/my-commissions");
@@ -392,6 +401,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => setShowProfileDropdown(false)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
                       isDarkMode
@@ -404,6 +414,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => setShowProfileDropdown(false)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
                       isDarkMode
@@ -418,6 +429,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                   <div className={`my-2 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}></div>
 
                   <button
+                    type="button"
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-500 bg-white hover:bg-red-50 dark:bg-transparent dark:hover:bg-red-900/20 transition-colors duration-200"
                   >

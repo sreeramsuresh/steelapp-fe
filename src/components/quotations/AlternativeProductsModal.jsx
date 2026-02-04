@@ -111,6 +111,7 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
                 </p>
               </div>
               <button
+                type="button"
                 onClick={onClose}
                 className={`p-1 rounded-lg ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
               >
@@ -150,6 +151,7 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
                     />
                   </div>
                   <button
+                    type="button"
                     onClick={searchProducts}
                     disabled={searching || !searchQuery.trim()}
                     className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium disabled:opacity-50"
@@ -166,6 +168,7 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
                   >
                     {searchResults.map((product) => (
                       <button
+                        type="button"
                         key={product.id}
                         onClick={() => addAlternative(product)}
                         className={`w-full px-3 py-2 text-left hover:bg-gray-100 ${
@@ -270,6 +273,7 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
                       </div>
                     </div>
                     <button
+                      type="button"
                       onClick={() => removeAlternative(index)}
                       className="mt-5 p-1.5 text-red-600 hover:bg-red-50 rounded"
                     >
@@ -295,12 +299,14 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
             }`}
           >
             <button
+              type="button"
               onClick={handleSave}
               className="w-full sm:w-auto px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium"
             >
               Save Alternatives
             </button>
             <button
+              type="button"
               onClick={onClose}
               className={`mt-3 sm:mt-0 sm:mr-3 w-full sm:w-auto px-4 py-2 rounded-lg font-medium ${
                 isDarkMode

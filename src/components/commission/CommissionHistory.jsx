@@ -202,6 +202,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
           )}
         </div>
         <button
+          type="button"
           onClick={loadCommissions}
           disabled={loading}
           className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
@@ -349,6 +350,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
 
           {/* Clear Filters */}
           <button
+            type="button"
             onClick={() => {
               setSearchTerm("");
               setStatusFilter("ALL");
@@ -379,7 +381,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
           <div className={`p-6 text-center ${isDarkMode ? "text-red-400" : "text-red-600"}`}>
             <XCircle className="w-10 h-10 mx-auto mb-2" />
             <p>{error}</p>
-            <button onClick={loadCommissions} className="mt-2 text-blue-600 hover:text-blue-700">
+            <button type="button" onClick={loadCommissions} className="mt-2 text-blue-600 hover:text-blue-700">
               Retry
             </button>
           </div>
@@ -521,6 +523,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
 
                 <div className="flex items-center space-x-2">
                   <button
+                    type="button"
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                     className={`p-2 rounded ${
@@ -537,6 +540,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
                   </span>
 
                   <button
+                    type="button"
                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
                     className={`p-2 rounded ${

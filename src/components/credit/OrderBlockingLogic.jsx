@@ -125,6 +125,7 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
         >
           {/* Close Button */}
           <button
+            type="button"
             onClick={onClose}
             className={`absolute top-3 right-3 p-1 rounded-md transition-colors ${
               isDarkMode
@@ -252,6 +253,7 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
               </ul>
               <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={() => setShowConfirmation(false)}
                   className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isDarkMode
@@ -262,6 +264,7 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
                   Back
                 </button>
                 <button
+                  type="button"
                   onClick={handleConfirmApproval}
                   className="flex-1 px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 transition-colors"
                 >
@@ -273,6 +276,7 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
             /* Action Buttons */
             <div className={`px-5 py-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} space-y-2`}>
               <button
+                type="button"
                 onClick={handleApproveClick}
                 className={`w-full px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   isDarkMode
@@ -283,6 +287,7 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
                 Manager Approval - Create Order
               </button>
               <button
+                type="button"
                 onClick={handleContactFinance}
                 className={`w-full px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
                   isDarkMode
@@ -294,6 +299,7 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
                 Contact Finance Team
               </button>
               <button
+                type="button"
                 onClick={onClose}
                 className={`w-full px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   isDarkMode

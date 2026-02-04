@@ -378,6 +378,7 @@ const StockLevelsDashboard = () => {
 
             {/* Filter toggle */}
             <button
+              type="button"
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
                 showFilters
@@ -459,6 +460,7 @@ const StockLevelsDashboard = () => {
 
                 {/* Reset */}
                 <button
+                  type="button"
                   onClick={resetFilters}
                   className={`flex items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
                     isDarkMode
@@ -491,7 +493,7 @@ const StockLevelsDashboard = () => {
             <Package size={48} className="mx-auto mb-4 opacity-50" />
             <p>No stock levels found</p>
             {(searchTerm || warehouseFilter !== "all" || lowStockOnly) && (
-              <button onClick={resetFilters} className="mt-4 text-teal-600 hover:underline">
+              <button type="button" onClick={resetFilters} className="mt-4 text-teal-600 hover:underline">
                 Clear filters
               </button>
             )}
@@ -615,6 +617,7 @@ const StockLevelsDashboard = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <button
+                        type="button"
                         onClick={() => navigate(`/inventory/stock-movements?product_id=${item.productId}`)}
                         className={`p-2 rounded-lg transition-colors ${
                           isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
@@ -636,6 +639,7 @@ const StockLevelsDashboard = () => {
           <div className="flex justify-center mt-6 px-4 sm:px-0">
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
                 className={`p-2 rounded transition-colors ${
@@ -654,6 +658,7 @@ const StockLevelsDashboard = () => {
                 Page {page} of {totalPages}
               </span>
               <button
+                type="button"
                 onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
                 className={`p-2 rounded transition-colors ${

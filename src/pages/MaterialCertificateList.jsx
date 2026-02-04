@@ -550,6 +550,7 @@ const MaterialCertificateList = () => {
           </p>
         </div>
         <button
+          type="button"
           onClick={handleCreate}
           className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
         >
@@ -571,7 +572,7 @@ const MaterialCertificateList = () => {
         <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-2">
           <AlertCircle size={20} />
           {error}
-          <button onClick={() => setError(null)} className="ml-auto">
+          <button type="button" onClick={() => setError(null)} className="ml-auto">
             <X size={16} />
           </button>
         </div>
@@ -601,6 +602,7 @@ const MaterialCertificateList = () => {
 
           {/* Filter Toggle */}
           <button
+            type="button"
             onClick={() => setShowFilters(!showFilters)}
             className={`px-4 py-2 border rounded-lg flex items-center gap-2 ${
               isDarkMode ? "border-gray-600 hover:bg-gray-700" : "border-gray-300 hover:bg-gray-50"
@@ -618,6 +620,7 @@ const MaterialCertificateList = () => {
 
           {/* Refresh */}
           <button
+            type="button"
             onClick={() => loadCertificates(pagination.current_page)}
             className={`px-4 py-2 border rounded-lg flex items-center gap-2 ${
               isDarkMode ? "border-gray-600 hover:bg-gray-700" : "border-gray-300 hover:bg-gray-50"
@@ -731,12 +734,14 @@ const MaterialCertificateList = () => {
             {/* Filter Actions */}
             <div className="flex gap-2 mt-4">
               <button
+                type="button"
                 onClick={handleApplyFilters}
                 className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
               >
                 Apply Filters
               </button>
               <button
+                type="button"
                 onClick={handleClearFilters}
                 className={`px-4 py-2 border rounded-lg ${
                   isDarkMode ? "border-gray-600 hover:bg-gray-700" : "border-gray-300 hover:bg-gray-50"
@@ -760,7 +765,7 @@ const MaterialCertificateList = () => {
           <div className="p-8 text-center">
             <FileText className="mx-auto text-gray-400 mb-4" size={48} />
             <p className="text-gray-500 mb-2">No material certificates found</p>
-            <button onClick={handleCreate} className="text-teal-600 hover:text-teal-700">
+            <button type="button" onClick={handleCreate} className="text-teal-600 hover:text-teal-700">
               Create your first material certificate
             </button>
           </div>
@@ -838,6 +843,7 @@ const MaterialCertificateList = () => {
                     <td className="px-4 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-1">
                         <button
+                          type="button"
                           onClick={() => handleView(cert)}
                           className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-teal-600"
                           title="View Details"
@@ -845,6 +851,7 @@ const MaterialCertificateList = () => {
                           <Eye size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleEdit(cert)}
                           className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-blue-600"
                           title="Edit"
@@ -854,6 +861,7 @@ const MaterialCertificateList = () => {
                         {cert.verification_status === "pending" && (
                           <>
                             <button
+                              type="button"
                               onClick={() => openVerifyModal(cert, "verify")}
                               className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-green-600"
                               title="Verify"
@@ -861,6 +869,7 @@ const MaterialCertificateList = () => {
                               <CheckCircle size={16} />
                             </button>
                             <button
+                              type="button"
                               onClick={() => openVerifyModal(cert, "reject")}
                               className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-orange-600"
                               title="Reject"
@@ -870,6 +879,7 @@ const MaterialCertificateList = () => {
                           </>
                         )}
                         <button
+                          type="button"
                           onClick={() => handleDelete(cert)}
                           className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-red-600"
                           title="Delete"
@@ -898,6 +908,7 @@ const MaterialCertificateList = () => {
             </div>
             <div className="flex space-x-2">
               <button
+                type="button"
                 onClick={() => loadCertificates(pagination.current_page - 1)}
                 disabled={pagination.current_page <= 1}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
@@ -907,6 +918,7 @@ const MaterialCertificateList = () => {
                 Previous
               </button>
               <button
+                type="button"
                 onClick={() => loadCertificates(pagination.current_page + 1)}
                 disabled={pagination.current_page >= pagination.total_pages}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
@@ -950,6 +962,7 @@ const MaterialCertificateList = () => {
                 </div>
               </div>
               <button
+                type="button"
                 onClick={handleCloseModal}
                 className={`p-1 rounded-lg transition-colors ${
                   isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
@@ -1427,6 +1440,7 @@ const MaterialCertificateList = () => {
               }`}
             >
               <button
+                type="button"
                 onClick={handleCloseModal}
                 disabled={saving}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -1438,6 +1452,7 @@ const MaterialCertificateList = () => {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleSubmit}
                 disabled={saving}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors bg-teal-600 text-white hover:bg-teal-700 ${
@@ -1477,6 +1492,7 @@ const MaterialCertificateList = () => {
               <div className="flex items-center gap-2">
                 <StatusBadge status={selectedCertificate.verification_status} />
                 <button
+                  type="button"
                   onClick={handleCloseModal}
                   className={`p-1 rounded-lg transition-colors ${
                     isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
@@ -1677,6 +1693,7 @@ const MaterialCertificateList = () => {
               }`}
             >
               <button
+                type="button"
                 onClick={handleCloseModal}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                   isDarkMode
@@ -1687,6 +1704,7 @@ const MaterialCertificateList = () => {
                 Close
               </button>
               <button
+                type="button"
                 onClick={() => {
                   handleCloseModal();
                   handleEdit(selectedCertificate);
@@ -1698,6 +1716,7 @@ const MaterialCertificateList = () => {
               {selectedCertificate.verification_status === "pending" && (
                 <>
                   <button
+                    type="button"
                     onClick={() => {
                       handleCloseModal();
                       openVerifyModal(selectedCertificate, "verify");
@@ -1707,6 +1726,7 @@ const MaterialCertificateList = () => {
                     Verify
                   </button>
                   <button
+                    type="button"
                     onClick={() => {
                       handleCloseModal();
                       openVerifyModal(selectedCertificate, "reject");
@@ -1756,6 +1776,7 @@ const MaterialCertificateList = () => {
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setShowVerifyModal(false)}
                 className={`p-1 rounded-lg transition-colors ${
                   isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
@@ -1798,6 +1819,7 @@ const MaterialCertificateList = () => {
             {/* Footer */}
             <div className={`flex gap-3 p-6 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
               <button
+                type="button"
                 onClick={() => setShowVerifyModal(false)}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                   isDarkMode
@@ -1808,6 +1830,7 @@ const MaterialCertificateList = () => {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleVerifySubmit}
                 disabled={verifyAction === "reject" && !verifyNotes.trim()}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors text-white ${

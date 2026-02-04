@@ -19,7 +19,11 @@ vi.mock("../widgets/BaseWidget", () => ({
       {loading && <div data-testid="loading">Loading...</div>}
       {error && <div data-testid="error">{error}</div>}
       {!loading && !error && children}
-      {onRefresh && <button onClick={onRefresh}>Refresh</button>}
+      {onRefresh && (
+        <button type="button" onClick={onRefresh}>
+          Refresh
+        </button>
+      )}
     </div>
   ),
   WidgetEmptyState: ({ message }) => <div>{message}</div>,

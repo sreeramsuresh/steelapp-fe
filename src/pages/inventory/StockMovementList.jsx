@@ -266,6 +266,7 @@ const StockMovementList = () => {
             </div>
 
             <button
+              type="button"
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
                 showFilters
@@ -375,6 +376,7 @@ const StockMovementList = () => {
 
                 {/* Reset button */}
                 <button
+                  type="button"
                   onClick={resetFilters}
                   className={`flex items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
                     isDarkMode
@@ -511,6 +513,7 @@ const StockMovementList = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <button
+                      type="button"
                       onClick={() => navigate(`/inventory/stock-movements/${movement.id}`)}
                       className={`p-2 rounded-lg transition-colors ${
                         isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
@@ -531,6 +534,7 @@ const StockMovementList = () => {
           <div className="flex justify-center mt-6 px-4 sm:px-0">
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
                 className={`p-2 rounded transition-colors ${
@@ -549,6 +553,7 @@ const StockMovementList = () => {
                 Page {page} of {totalPages}
               </span>
               <button
+                type="button"
                 onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
                 className={`p-2 rounded transition-colors ${

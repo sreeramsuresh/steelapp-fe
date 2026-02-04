@@ -565,6 +565,7 @@ export function SupplierBillForm({ supplierBill: supplierBillProp, companyId: co
         >
           <h2 className="text-xl font-semibold">{isEditing ? "Edit Supplier Bill" : "Create Supplier Bill"}</h2>
           <button
+            type="button"
             onClick={handleClose}
             className={`p-2 rounded-lg hover:bg-gray-100 ${isDarkMode ? "hover:bg-gray-700" : ""}`}
           >

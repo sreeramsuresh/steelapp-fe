@@ -517,6 +517,7 @@ const StockReceiptForm = ({
               </div>
             </div>
             <button
+              type="button"
               onClick={onClose}
               disabled={loading}
               className={`p-2 rounded-xl ${cardBg} ${textMuted} hover:${textPrimary} transition-colors disabled:opacity-50`}
@@ -534,7 +535,7 @@ const StockReceiptForm = ({
                 <div className="flex-1">
                   <p className="text-sm text-red-400">{error}</p>
                 </div>
-                <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300">
+                <button type="button" onClick={() => setError(null)} className="text-red-400 hover:text-red-300">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -617,6 +618,7 @@ const StockReceiptForm = ({
               {grnStatus !== "approved" && (
                 <div className="flex items-center gap-2">
                   <button
+                    type="button"
                     onClick={handleApproveGRN}
                     className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-colors"
                   >
@@ -843,6 +845,7 @@ const StockReceiptForm = ({
                                       className={`w-24 ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-sm text-right font-mono ${textPrimary} ${inputFocus} outline-none disabled:opacity-50`}
                                     />
                                     <button
+                                      type="button"
                                       onClick={() => handleSetMaxQuantity(item.id)}
                                       disabled={!isSelected}
                                       title="Set max quantity"
@@ -993,6 +996,7 @@ const StockReceiptForm = ({
             </div>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={onClose}
                 disabled={loading}
                 className={`px-4 py-2.5 rounded-xl border ${cardBorder} ${textPrimary} text-sm font-medium hover:${cardBg} transition-colors disabled:opacity-50`}
@@ -1000,6 +1004,7 @@ const StockReceiptForm = ({
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleSubmit}
                 disabled={loading || !hasSelectedItems || totals.totalToReceive <= 0}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#4aa3ff] text-white text-sm font-medium hover:bg-[#3d8ee6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

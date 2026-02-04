@@ -145,6 +145,7 @@ const FTAHelpPanel = ({ onClose }) => {
           </div>
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={expandAll}
               className={`p-1.5 rounded transition-colors ${
                 isDarkMode
@@ -156,6 +157,7 @@ const FTAHelpPanel = ({ onClose }) => {
               <ChevronsDown className="h-4 w-4" />
             </button>
             <button
+              type="button"
               onClick={collapseAll}
               className={`p-1.5 rounded transition-colors ${
                 isDarkMode
@@ -167,7 +169,11 @@ const FTAHelpPanel = ({ onClose }) => {
               <ChevronsUp className="h-4 w-4" />
             </button>
             {onClose && (
-              <button onClick={onClose} className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700`}>
+              <button
+                type="button"
+                onClick={onClose}
+                className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700`}
+              >
                 ×
               </button>
             )}

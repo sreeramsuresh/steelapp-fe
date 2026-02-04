@@ -264,6 +264,7 @@ const RevenueTrends = () => {
         </div>
         <div className="flex gap-3">
           <button
+            type="button"
             onClick={refetchTrends}
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
@@ -276,6 +277,7 @@ const RevenueTrends = () => {
           </button>
           {/* eslint-disable-next-line local-rules/no-dead-button */}
           <button
+            type="button"
             onClick={() => {
               // TODO: Implement export functionality
             }}
@@ -673,6 +675,7 @@ const RevenueTrends = () => {
             No sales data found for the selected period. Create some invoices to see revenue trends.
           </p>
           <button
+            type="button"
             onClick={refetchTrends}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
           >
@@ -709,6 +712,7 @@ const RevenueTrends = () => {
           <div className="mb-6">
             <div className="flex flex-wrap gap-2">
               <button
+                type="button"
                 onClick={() => setActiveTab("trends")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "trends"
@@ -724,6 +728,7 @@ const RevenueTrends = () => {
                 Trend Analysis
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab("forecasting")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "forecasting"
@@ -739,6 +744,7 @@ const RevenueTrends = () => {
                 Forecasting
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab("seasonal")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "seasonal"
@@ -754,6 +760,7 @@ const RevenueTrends = () => {
                 Seasonal Analysis
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab("metrics")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "metrics"

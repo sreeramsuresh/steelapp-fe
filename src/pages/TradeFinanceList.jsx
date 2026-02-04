@@ -419,6 +419,7 @@ const TradeFinanceModal = ({
         >
           <h2 className="text-xl font-bold">{modalTitle}</h2>
           <button
+            type="button"
             onClick={onClose}
             className={`p-1 rounded-lg transition-colors ${
               isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-600"
@@ -916,6 +917,7 @@ const TradeFinanceModal = ({
           className={`flex justify-end gap-3 px-6 py-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
         >
           <button
+            type="button"
             onClick={onClose}
             disabled={isSaving}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -925,6 +927,7 @@ const TradeFinanceModal = ({
             Cancel
           </button>
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={isSaving}
             className={`px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors inline-flex items-center justify-center ${
@@ -1237,6 +1240,7 @@ const TradeFinanceList = () => {
         </div>
         <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={handleExport}
             className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
               isDarkMode
@@ -1248,6 +1252,7 @@ const TradeFinanceList = () => {
             Export
           </button>
           <button
+            type="button"
             onClick={handleCreate}
             className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
           >
@@ -1378,6 +1383,7 @@ const TradeFinanceList = () => {
 
           {/* Toggle More Filters */}
           <button
+            type="button"
             onClick={() => setShowFilters(!showFilters)}
             className={`px-3 py-2 rounded-lg flex items-center gap-2 ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
@@ -1394,7 +1400,11 @@ const TradeFinanceList = () => {
             filters.expiry_filter ||
             filters.start_date ||
             filters.end_date) && (
-            <button onClick={handleClearFilters} className="text-teal-600 hover:text-teal-700 text-sm font-medium">
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className="text-teal-600 hover:text-teal-700 text-sm font-medium"
+            >
               Clear All
             </button>
           )}
@@ -1446,7 +1456,7 @@ const TradeFinanceList = () => {
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex items-center gap-2">
           <AlertTriangle size={18} />
           {error}
-          <button onClick={() => setError(null)} className="ml-auto hover:text-red-900">
+          <button type="button" onClick={() => setError(null)} className="ml-auto hover:text-red-900">
             <X size={18} />
           </button>
         </div>
@@ -1463,7 +1473,7 @@ const TradeFinanceList = () => {
           <div className="p-8 text-center">
             <FileWarning size={48} className="mx-auto text-gray-400 mb-4" />
             <p className="text-gray-500 mb-2">No trade finance documents found</p>
-            <button onClick={handleCreate} className="text-teal-600 hover:text-teal-700 font-medium">
+            <button type="button" onClick={handleCreate} className="text-teal-600 hover:text-teal-700 font-medium">
               Create your first trade finance document
             </button>
           </div>
@@ -1548,6 +1558,7 @@ const TradeFinanceList = () => {
                     <td className="px-4 py-3 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button
+                          type="button"
                           onClick={() => handleView(record)}
                           title="View"
                           className="text-gray-500 hover:text-teal-600 transition-colors"
@@ -1555,6 +1566,7 @@ const TradeFinanceList = () => {
                           <Eye size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleEdit(record)}
                           title="Edit"
                           className="text-gray-500 hover:text-blue-600 transition-colors"
@@ -1562,6 +1574,7 @@ const TradeFinanceList = () => {
                           <Edit size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleAmend(record)}
                           title="Amend"
                           className="text-gray-500 hover:text-yellow-600 transition-colors"
@@ -1569,6 +1582,7 @@ const TradeFinanceList = () => {
                           <RefreshCw size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleDelete(record)}
                           title="Delete"
                           className="text-gray-500 hover:text-red-600 transition-colors"
@@ -1595,6 +1609,7 @@ const TradeFinanceList = () => {
             </div>
             <div className="flex space-x-2">
               <button
+                type="button"
                 onClick={() => loadRecords(pagination.current_page - 1)}
                 disabled={pagination.current_page <= 1}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${
@@ -1604,6 +1619,7 @@ const TradeFinanceList = () => {
                 Previous
               </button>
               <button
+                type="button"
                 onClick={() => loadRecords(pagination.current_page + 1)}
                 disabled={pagination.current_page >= pagination.total_pages}
                 className={`px-3 py-1 text-sm border rounded disabled:opacity-50 ${

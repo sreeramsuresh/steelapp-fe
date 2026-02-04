@@ -92,6 +92,7 @@ const RolesHelpPanel = () => {
           </div>
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => {
                 setOpenSections([
                   "overview",
@@ -114,6 +115,7 @@ const RolesHelpPanel = () => {
               <ChevronsDown className="h-5 w-5" />
             </button>
             <button
+              type="button"
               onClick={() => {
                 setOpenSections([]);
                 setExpandAll(false);

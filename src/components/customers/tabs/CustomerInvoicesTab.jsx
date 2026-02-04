@@ -253,6 +253,7 @@ export default function CustomerInvoicesTab({ customerId }) {
         </div>
         <p className={`text-sm ${isDarkMode ? "text-red-300" : "text-red-600"}`}>{error}</p>
         <button
+          type="button"
           onClick={fetchInvoices}
           className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition-colors"
         >
@@ -268,6 +269,7 @@ export default function CustomerInvoicesTab({ customerId }) {
       <div className="flex justify-between items-center">
         <h3 className={`text-lg font-semibold ${primaryText}`}>Customer Invoices</h3>
         <button
+          type="button"
           onClick={handleRefresh}
           disabled={loading}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
@@ -440,6 +442,7 @@ export default function CustomerInvoicesTab({ customerId }) {
             </div>
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className={`px-3 py-1 rounded-md border ${borderColor} ${primaryText} disabled:opacity-50 disabled:cursor-not-allowed ${hoverBg}`}
@@ -461,6 +464,7 @@ export default function CustomerInvoicesTab({ customerId }) {
 
                   return (
                     <button
+                      type="button"
                       key={pageNum}
                       onClick={() => setCurrentPage(pageNum)}
                       className={`px-3 py-1 rounded-md border ${borderColor} ${
@@ -473,6 +477,7 @@ export default function CustomerInvoicesTab({ customerId }) {
                 })}
               </div>
               <button
+                type="button"
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
                 className={`px-3 py-1 rounded-md border ${borderColor} ${primaryText} disabled:opacity-50 disabled:cursor-not-allowed ${hoverBg}`}

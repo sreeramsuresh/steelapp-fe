@@ -107,6 +107,7 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
                 </div>
               </div>
               <button
+                type="button"
                 onClick={onClose}
                 className={`p-1 rounded-lg ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
                 aria-label="Close delivery schedule modal"
@@ -237,6 +238,7 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
                       </div>
                     </div>
                     <button
+                      type="button"
                       onClick={() => removeScheduleEntry(index)}
                       className="mt-5 p-1.5 text-red-600 hover:bg-red-50 rounded"
                       aria-label={`Delete delivery date entry ${index + 1}`}
@@ -250,6 +252,7 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
             </div>
 
             <button
+              type="button"
               onClick={addScheduleEntry}
               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg"
               aria-label="Add new delivery date entry"
@@ -266,12 +269,14 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
             }`}
           >
             <button
+              type="button"
               onClick={handleSave}
               className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
             >
               Save Schedule
             </button>
             <button
+              type="button"
               onClick={onClose}
               className={`mt-3 sm:mt-0 sm:mr-3 w-full sm:w-auto px-4 py-2 rounded-lg font-medium ${
                 isDarkMode

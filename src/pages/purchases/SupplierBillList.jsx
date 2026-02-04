@@ -288,6 +288,7 @@ const SupplierBillList = () => {
           </div>
           <div className="flex gap-3">
             <button
+              type="button"
               onClick={handleExport}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                 isDarkMode
@@ -299,6 +300,7 @@ const SupplierBillList = () => {
               Export
             </button>
             <button
+              type="button"
               onClick={() => navigate("/app/supplier-bills/new")}
               className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
             >
@@ -404,6 +406,7 @@ const SupplierBillList = () => {
 
             {/* Toggle Advanced Filters */}
             <button
+              type="button"
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
                 showFilters
@@ -424,6 +427,7 @@ const SupplierBillList = () => {
 
             {/* Refresh */}
             <button
+              type="button"
               onClick={loadBills}
               disabled={loading}
               className={`p-2 rounded-lg border transition-colors ${
@@ -533,6 +537,7 @@ const SupplierBillList = () => {
               {hasActiveFilters && (
                 <div className="mt-4 flex justify-end">
                   <button
+                    type="button"
                     onClick={clearFilters}
                     className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
                       isDarkMode
@@ -666,6 +671,7 @@ const SupplierBillList = () => {
                         >
                           {/* View */}
                           <button
+                            type="button"
                             onClick={() => navigate(`/app/supplier-bills/${bill.id}`)}
                             className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                             title="View"
@@ -675,6 +681,7 @@ const SupplierBillList = () => {
                           {/* Edit - only for drafts */}
                           {bill.status === "draft" && (
                             <button
+                              type="button"
                               onClick={() => navigate(`/app/supplier-bills/${bill.id}/edit`)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                               title="Edit"
@@ -685,6 +692,7 @@ const SupplierBillList = () => {
                           {/* Approve - only for drafts */}
                           {bill.status === "draft" && (
                             <button
+                              type="button"
                               onClick={() => handleApprove(bill)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-green-900/30 text-green-400" : "hover:bg-green-100 text-green-600"}`}
                               title="Approve"
@@ -695,6 +703,7 @@ const SupplierBillList = () => {
                           {/* Cancel - for non-cancelled bills */}
                           {bill.status !== "cancelled" && bill.status !== "paid" && (
                             <button
+                              type="button"
                               onClick={() => handleCancel2(bill)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-amber-900/30 text-amber-400" : "hover:bg-amber-100 text-amber-600"}`}
                               title="Cancel"
@@ -705,6 +714,7 @@ const SupplierBillList = () => {
                           {/* Delete - only for drafts */}
                           {bill.status === "draft" && (
                             <button
+                              type="button"
                               onClick={() => handleDelete(bill)}
                               className="p-2 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-colors"
                               title="Delete"
@@ -731,6 +741,7 @@ const SupplierBillList = () => {
                 </div>
                 <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                     className={`flex items-center gap-1 px-3 py-1 rounded border ${
@@ -745,6 +756,7 @@ const SupplierBillList = () => {
                     Previous
                   </button>
                   <button
+                    type="button"
                     onClick={() => setCurrentPage((p) => p + 1)}
                     disabled={currentPage * pageSize >= pagination.total}
                     className={`flex items-center gap-1 px-3 py-1 rounded border ${

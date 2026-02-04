@@ -240,7 +240,7 @@ const WarehouseManagement = () => {
           }`}
         >
           <span>{error}</span>
-          <button onClick={() => setError("")} className="ml-4">
+          <button type="button" onClick={() => setError("")} className="ml-4">
             <X size={16} />
           </button>
         </div>
@@ -270,6 +270,7 @@ const WarehouseManagement = () => {
             />
           </div>
           <button
+            type="button"
             onClick={async () => {
               try {
                 setLoading(true);
@@ -288,6 +289,7 @@ const WarehouseManagement = () => {
             Seed Warehouses
           </button>
           <button
+            type="button"
             onClick={async () => {
               try {
                 const response = await apiClient.get("/warehouses/debug");
@@ -304,6 +306,7 @@ const WarehouseManagement = () => {
             Debug DB
           </button>
           <button
+            type="button"
             onClick={() => handleOpenDialog()}
             className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
           >
@@ -336,6 +339,7 @@ const WarehouseManagement = () => {
                 </div>
                 <div className="flex gap-1">
                   <button
+                    type="button"
                     onClick={() => handleOpenDialog(warehouse)}
                     className={`p-2 rounded transition-colors ${
                       isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
@@ -344,6 +348,7 @@ const WarehouseManagement = () => {
                     <Edit size={16} />
                   </button>
                   <button
+                    type="button"
                     onClick={() => handleDelete(warehouse.id)}
                     className={`p-2 rounded transition-colors ${
                       isDarkMode ? "hover:bg-gray-700 text-red-400" : "hover:bg-gray-100 text-red-600"
@@ -456,6 +461,7 @@ const WarehouseManagement = () => {
               </p>
               {!searchTerm && (
                 <button
+                  type="button"
                   onClick={() => handleOpenDialog()}
                   className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 mx-auto"
                 >
@@ -675,6 +681,7 @@ const WarehouseManagement = () => {
               className={`p-6 border-t flex justify-end gap-3 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
             >
               <button
+                type="button"
                 onClick={handleCloseDialog}
                 className={`px-6 py-3 border rounded-lg transition-colors ${
                   isDarkMode
@@ -685,6 +692,7 @@ const WarehouseManagement = () => {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleSubmit}
                 className="px-6 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
               >

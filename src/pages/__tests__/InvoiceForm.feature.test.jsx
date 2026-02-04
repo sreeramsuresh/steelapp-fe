@@ -42,7 +42,9 @@ describe("Invoice Feature", () => {
               value={invoice.customerName}
               onChange={(e) => setInvoice({ ...invoice, customerName: e.target.value })}
             />
-            <button onClick={handleAddItem}>Add Product</button>
+            <button type="button" onClick={handleAddItem}>
+              Add Product
+            </button>
             <div className="items-list">
               {invoice.items.map((item, idx) => (
                 <div key={idx}>
@@ -53,7 +55,9 @@ describe("Invoice Feature", () => {
             <div>Subtotal: {invoice.subtotal}</div>
             <div>VAT (5%): {invoice.vat}</div>
             <div>Total: {invoice.total}</div>
-            <button onClick={handleSave}>Save Invoice</button>
+            <button type="button" onClick={handleSave}>
+              Save Invoice
+            </button>
           </>
         );
       };
@@ -89,7 +93,9 @@ describe("Invoice Feature", () => {
           <>
             <input placeholder="Customer Name" />
             <div>{errors.customer && <span id="customer-error">{errors.customer}</span>}</div>
-            <button onClick={handleSave}>Save</button>
+            <button type="button" onClick={handleSave}>
+              Save
+            </button>
           </>
         );
       };
@@ -140,7 +146,9 @@ describe("Invoice Feature", () => {
         return (
           <>
             <div>Stock Level: {stockLevel}</div>
-            <button onClick={handleSaveInvoice}>Save Invoice (50 units)</button>
+            <button type="button" onClick={handleSaveInvoice}>
+              Save Invoice (50 units)
+            </button>
             {invoiceSaved && <div className="alert-success">Invoice saved, stock updated</div>}
           </>
         );
@@ -172,7 +180,9 @@ describe("Invoice Feature", () => {
         return (
           <>
             <div>Stock Available: {stockLevel}</div>
-            <button onClick={handleSaveInvoice}>Save Invoice (50 units)</button>
+            <button type="button" onClick={handleSaveInvoice}>
+              Save Invoice (50 units)
+            </button>
             {error && <div className="alert-error">{error}</div>}
           </>
         );
@@ -196,11 +206,13 @@ describe("Invoice Feature", () => {
         return (
           <>
             <div>Status: {status}</div>
-            <button onClick={() => setStatus("saved")}>Save</button>
-            <button onClick={() => setStatus("delivered")} disabled={status !== "saved"}>
+            <button type="button" onClick={() => setStatus("saved")}>
+              Save
+            </button>
+            <button type="button" onClick={() => setStatus("delivered")} disabled={status !== "saved"}>
               Mark Delivered
             </button>
-            <button onClick={() => setStatus("paid")} disabled={status !== "delivered"}>
+            <button type="button" onClick={() => setStatus("paid")} disabled={status !== "delivered"}>
               Mark Paid
             </button>
           </>
@@ -240,7 +252,7 @@ describe("Invoice Feature", () => {
             <input type="number" value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value, 10))} />
             <div>Total Units: {quantity}</div>
             {/* eslint-disable-next-line local-rules/no-dead-button */}
-            <button>Save Changes</button>
+            <button type="button">Save Changes</button>
           </>
         );
       };
@@ -268,7 +280,9 @@ describe("Invoice Feature", () => {
         return (
           <>
             <div>Status: {status}</div>
-            <button onClick={handleDelete}>Delete Invoice</button>
+            <button type="button" onClick={handleDelete}>
+              Delete Invoice
+            </button>
             {error && <div className="alert-error">{error}</div>}
           </>
         );

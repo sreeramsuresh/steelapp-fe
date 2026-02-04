@@ -217,6 +217,7 @@ const AgentScorecardWidget = ({ data: propData, onRefresh, onViewDetails, isLoad
 
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={handleRefresh}
             disabled={loading || isLoading}
             className={`p-1.5 rounded-lg transition-colors ${
@@ -356,6 +357,7 @@ const AgentScorecardWidget = ({ data: propData, onRefresh, onViewDetails, isLoad
       {/* Action Button */}
       {onViewDetails && (
         <button
+          type="button"
           onClick={() => onViewDetails(selectedAgent)}
           className={`mt-4 w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
             isDarkMode ? "bg-teal-600 hover:bg-teal-500 text-white" : "bg-teal-500 hover:bg-teal-600 text-white"

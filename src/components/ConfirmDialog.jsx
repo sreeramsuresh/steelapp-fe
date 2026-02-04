@@ -92,6 +92,7 @@ const ConfirmDialog = ({
       >
         {/* Close button */}
         <button
+          type="button"
           onClick={onCancel}
           className={`absolute top-4 right-4 p-1 rounded-lg transition-colors ${
             isDarkMode
@@ -119,6 +120,7 @@ const ConfirmDialog = ({
           {/* Actions */}
           <div className="flex gap-3 mt-6">
             <button
+              type="button"
               onClick={onCancel}
               className={`flex-1 px-4 py-2.5 rounded-lg font-medium transition-colors ${
                 isDarkMode
@@ -129,6 +131,7 @@ const ConfirmDialog = ({
               {cancelText}
             </button>
             <button
+              type="button"
               onClick={() => {
                 onConfirm();
                 onCancel();

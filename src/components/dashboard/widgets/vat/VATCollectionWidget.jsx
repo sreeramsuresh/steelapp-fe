@@ -127,6 +127,7 @@ const VATCollectionWidget = ({ data = null, onRefresh = null, onViewDetails = nu
 
           {onRefresh && (
             <button
+              type="button"
               onClick={onRefresh}
               disabled={isLoading}
               className={`p-1.5 rounded-lg transition-colors ${
@@ -286,6 +287,7 @@ const VATCollectionWidget = ({ data = null, onRefresh = null, onViewDetails = nu
       {/* Action Button */}
       {onViewDetails && (
         <button
+          type="button"
           onClick={onViewDetails}
           className={`mt-4 w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
             isDarkMode ? "bg-teal-600 hover:bg-teal-500 text-white" : "bg-teal-500 hover:bg-teal-600 text-white"

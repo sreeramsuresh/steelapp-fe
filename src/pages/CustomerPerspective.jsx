@@ -217,6 +217,7 @@ const CustomerPerspective = () => {
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => navigate("/payables")}
               className={`p-2 rounded ${isDarkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-600"}`}
             >
@@ -232,11 +233,15 @@ const CustomerPerspective = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={downloadExcel} className="px-3 py-2 rounded border flex items-center gap-2">
+            <button type="button" onClick={downloadExcel} className="px-3 py-2 rounded border flex items-center gap-2">
               <FileSpreadsheet size={16} />
               Export Excel
             </button>
-            <button onClick={downloadPDF} className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2">
+            <button
+              type="button"
+              onClick={downloadPDF}
+              className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2"
+            >
               <Download size={16} />
               Download PDF
             </button>
@@ -265,13 +270,13 @@ const CustomerPerspective = () => {
               onChange={(e) => setEnd(e.target.value)}
               className="px-2 py-2 rounded border"
             />
-            <button onClick={() => applyQuick(10)} className="px-3 py-2 rounded border">
+            <button type="button" onClick={() => applyQuick(10)} className="px-3 py-2 rounded border">
               Last 10 days
             </button>
-            <button onClick={clearDates} className="px-3 py-2 rounded border">
+            <button type="button" onClick={clearDates} className="px-3 py-2 rounded border">
               Clear
             </button>
-            <button onClick={applyFilters} className="px-3 py-2 rounded bg-teal-600 text-white">
+            <button type="button" onClick={applyFilters} className="px-3 py-2 rounded bg-teal-600 text-white">
               Apply
             </button>
           </div>

@@ -39,7 +39,9 @@ describe("Purchase Order Feature", () => {
               value={po.supplierName}
               onChange={(e) => setPO({ ...po, supplierName: e.target.value })}
             />
-            <button onClick={handleAddItem}>Add Line Item</button>
+            <button type="button" onClick={handleAddItem}>
+              Add Line Item
+            </button>
             <div className="items-list">
               {po.items.map((item, idx) => (
                 <div key={idx}>
@@ -49,7 +51,7 @@ describe("Purchase Order Feature", () => {
             </div>
             <div>Total: {po.total}</div>
             {/* eslint-disable-next-line local-rules/no-dead-button */}
-            <button>Save PO</button>
+            <button type="button">Save PO</button>
           </>
         );
       };
@@ -82,7 +84,9 @@ describe("Purchase Order Feature", () => {
           <>
             <input placeholder="Supplier" />
             {errors.supplier && <div className="alert-error">{errors.supplier}</div>}
-            <button onClick={handleSave}>Save PO</button>
+            <button type="button" onClick={handleSave}>
+              Save PO
+            </button>
           </>
         );
       };
@@ -110,7 +114,9 @@ describe("Purchase Order Feature", () => {
         return (
           <>
             <div>Current Stock: {stockLevel}</div>
-            <button onClick={handleReceiveGoods}>Receive 50 Units</button>
+            <button type="button" onClick={handleReceiveGoods}>
+              Receive 50 Units
+            </button>
             {received && <div className="alert-success">Goods received and added to inventory</div>}
           </>
         );
@@ -144,8 +150,12 @@ describe("Purchase Order Feature", () => {
               Received: {receivedQty} / {originalQty}
             </div>
             <div>Pending: {pendingQty}</div>
-            <button onClick={() => handleReceive(50)}>Receive 50</button>
-            <button onClick={() => handleReceive(50)}>Receive Remaining</button>
+            <button type="button" onClick={() => handleReceive(50)}>
+              Receive 50
+            </button>
+            <button type="button" onClick={() => handleReceive(50)}>
+              Receive Remaining
+            </button>
           </>
         );
       };
@@ -231,13 +241,13 @@ describe("Purchase Order Feature", () => {
         return (
           <>
             <div>Status: {status}</div>
-            <button onClick={() => setStatus("approved")} disabled={status !== "draft"}>
+            <button type="button" onClick={() => setStatus("approved")} disabled={status !== "draft"}>
               Approve
             </button>
-            <button onClick={() => setStatus("received")} disabled={status !== "approved"}>
+            <button type="button" onClick={() => setStatus("received")} disabled={status !== "approved"}>
               Mark Received
             </button>
-            <button onClick={() => setStatus("invoiced")} disabled={status !== "received"}>
+            <button type="button" onClick={() => setStatus("invoiced")} disabled={status !== "received"}>
               Mark Invoiced
             </button>
           </>
@@ -281,7 +291,7 @@ describe("Purchase Order Feature", () => {
             <div>Qty: {batch.quantity}</div>
             <div>Received: {batch.dateReceived}</div>
             {/* eslint-disable-next-line local-rules/no-dead-button */}
-            <button>Save Batch</button>
+            <button type="button">Save Batch</button>
           </>
         );
       };

@@ -98,6 +98,7 @@ export const DashboardSection = ({
             </div>
           )}
           <button
+            type="button"
             className={`p-1 rounded transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-200 text-gray-600"}`}
             onClick={() => setIsExpanded(!isExpanded)}
           >

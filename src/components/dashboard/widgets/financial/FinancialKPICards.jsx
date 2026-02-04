@@ -218,6 +218,7 @@ const FinancialKPICards = ({ data: propData, onRefresh }) => {
           <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Financial KPIs</h3>
         </div>
         <button
+          type="button"
           onClick={handleRefresh}
           disabled={loading}
           className={`p-1.5 rounded-lg transition-colors ${

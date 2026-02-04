@@ -72,6 +72,7 @@ class WidgetErrorBoundary extends Component {
           </p>
 
           <button
+            type="button"
             onClick={this.handleRetry}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"

@@ -662,6 +662,7 @@ export default function StockMovementReport() {
             <div className="flex justify-center items-center py-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex gap-1">
                 <button
+                  type="button"
                   onClick={() => handlePageChange(null, 1)}
                   disabled={page === 1}
                   className="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
@@ -672,6 +673,7 @@ export default function StockMovementReport() {
                   const pageNum = Math.max(1, page - 2) + i;
                   return pageNum <= totalPages ? (
                     <button
+                      type="button"
                       key={pageNum}
                       onClick={() => handlePageChange(null, pageNum)}
                       className={`px-3 py-1 rounded text-sm ${
@@ -685,6 +687,7 @@ export default function StockMovementReport() {
                   ) : null;
                 })}
                 <button
+                  type="button"
                   onClick={() => handlePageChange(null, totalPages)}
                   disabled={page === totalPages}
                   className="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"

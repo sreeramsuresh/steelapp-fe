@@ -79,6 +79,7 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
             </h3>
           </div>
           <button
+            type="button"
             onClick={handleRefresh}
             disabled={loading}
             className={`p-1.5 rounded-lg transition-colors ${
@@ -174,6 +175,7 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
           </h3>
         </div>
         <button
+          type="button"
           onClick={handleRefresh}
           disabled={loading}
           className={`p-1.5 rounded-lg transition-colors ${

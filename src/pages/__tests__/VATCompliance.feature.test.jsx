@@ -203,7 +203,9 @@ describe("VAT Compliance - UAE FTA Regulations", () => {
           <>
             <div>Customer: {customer.name}</div>
             <div>TRN Required: {trnRequired ? "Yes" : "No"}</div>
-            <button disabled={trnRequired && !canInvoice}>Create Invoice</button>
+            <button type="button" disabled={trnRequired && !canInvoice}>
+              Create Invoice
+            </button>
             {trnRequired && !canInvoice && <div className="alert-error">TRN is required for B2B invoices</div>}
           </>
         );

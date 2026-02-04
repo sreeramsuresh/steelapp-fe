@@ -36,6 +36,7 @@ const Button = ({
 
   return (
     <button
+      type="button"
       className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? "cursor-not-allowed opacity-80" : ""} ${className}`}
       disabled={disabled}
       onClick={onClick}

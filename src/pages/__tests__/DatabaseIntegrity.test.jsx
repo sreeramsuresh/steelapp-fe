@@ -69,7 +69,9 @@ describe("Database Integrity & Data Consistency", () => {
           <>
             <div>Customer: {customer.name}</div>
             <div>Related Invoices: {invoices.filter((inv) => inv.customerId === customer.id).length}</div>
-            <button disabled={!canDelete}>Delete Customer</button>
+            <button type="button" disabled={!canDelete}>
+              Delete Customer
+            </button>
             {!canDelete && (
               <div className="alert-error">Cannot delete: Customer has {invoices.length} associated invoices</div>
             )}

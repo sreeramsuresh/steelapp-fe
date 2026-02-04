@@ -222,6 +222,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
               </p>
             </div>
             <button
+              type="button"
               onClick={onClose}
               className="p-2 rounded hover:bg-orange-200 dark:hover:bg-orange-800/50 text-orange-700 dark:text-orange-300 hover:text-orange-900 dark:hover:text-orange-100 transition-colors"
             >
@@ -299,6 +300,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                       {!isViewOnly && (
                         <div className="flex gap-1">
                           <button
+                            type="button"
                             onClick={() => handleEdit(reminder)}
                             className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
                             title="Edit"
@@ -306,6 +308,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                             <Edit2 size={16} />
                           </button>
                           <button
+                            type="button"
                             onClick={() => handleDelete(reminder.id)}
                             className="p-1 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
                             title="Delete"

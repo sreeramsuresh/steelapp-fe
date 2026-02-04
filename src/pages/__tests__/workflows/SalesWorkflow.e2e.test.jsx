@@ -24,8 +24,14 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
       return (
         <>
           <div>Quotation Status: {quote.status}</div>
-          <button onClick={() => setQuote({ ...quote, status: "sent" })}>Send Quote</button>
-          <button onClick={() => setQuote({ ...quote, status: "accepted" })} disabled={quote.status !== "sent"}>
+          <button type="button" onClick={() => setQuote({ ...quote, status: "sent" })}>
+            Send Quote
+          </button>
+          <button
+            type="button"
+            onClick={() => setQuote({ ...quote, status: "accepted" })}
+            disabled={quote.status !== "sent"}
+          >
             Accept Quote
           </button>
         </>
@@ -44,7 +50,9 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
       return (
         <>
           <div>Purchase Order Status: {po.status}</div>
-          <button onClick={() => setPO({ ...po, status: "confirmed" })}>Confirm PO</button>
+          <button type="button" onClick={() => setPO({ ...po, status: "confirmed" })}>
+            Confirm PO
+          </button>
         </>
       );
     };
@@ -61,7 +69,9 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
       return (
         <>
           <div>Invoice Status: {invoice.status}</div>
-          <button onClick={() => setInvoice({ ...invoice, status: "saved" })}>Save Invoice</button>
+          <button type="button" onClick={() => setInvoice({ ...invoice, status: "saved" })}>
+            Save Invoice
+          </button>
         </>
       );
     };
@@ -81,6 +91,7 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
           <div>Delivery Status: {delivery.status}</div>
           <div>Stock Level: {delivery.stock}</div>
           <button
+            type="button"
             onClick={() =>
               setDelivery({
                 ...delivery,
@@ -116,7 +127,9 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
           <div>Invoice Amount: {payment.invoiceAmount}</div>
           <div>Paid Amount: {recordedPayment}</div>
           <div>Status: {payment.status}</div>
-          <button onClick={handleRecordPayment}>Record Payment</button>
+          <button type="button" onClick={handleRecordPayment}>
+            Record Payment
+          </button>
         </>
       );
     };
@@ -130,25 +143,33 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
           {step === "quotation" && (
             <>
               <QuotationStep />
-              <button onClick={() => setStep("po")}>Proceed to PO</button>
+              <button type="button" onClick={() => setStep("po")}>
+                Proceed to PO
+              </button>
             </>
           )}
           {step === "po" && (
             <>
               <PurchaseOrderStep />
-              <button onClick={() => setStep("invoice")}>Proceed to Invoice</button>
+              <button type="button" onClick={() => setStep("invoice")}>
+                Proceed to Invoice
+              </button>
             </>
           )}
           {step === "invoice" && (
             <>
               <InvoiceStep />
-              <button onClick={() => setStep("delivery")}>Proceed to Delivery</button>
+              <button type="button" onClick={() => setStep("delivery")}>
+                Proceed to Delivery
+              </button>
             </>
           )}
           {step === "delivery" && (
             <>
               <DeliveryStep />
-              <button onClick={() => setStep("payment")}>Proceed to Payment</button>
+              <button type="button" onClick={() => setStep("payment")}>
+                Proceed to Payment
+              </button>
             </>
           )}
           {step === "payment" && (

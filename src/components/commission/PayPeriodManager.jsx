@@ -168,6 +168,7 @@ const PayPeriodManager = () => {
           </p>
         </div>
         <button
+          type="button"
           onClick={loadPayPeriods}
           disabled={loading}
           className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
@@ -193,7 +194,7 @@ const PayPeriodManager = () => {
         >
           <XCircle className="w-12 h-12 mx-auto mb-3 text-red-500" />
           <p className={isDarkMode ? "text-red-400" : "text-red-600"}>{error}</p>
-          <button onClick={loadPayPeriods} className="mt-3 text-blue-600 hover:text-blue-700">
+          <button type="button" onClick={loadPayPeriods} className="mt-3 text-blue-600 hover:text-blue-700">
             Retry
           </button>
         </div>
@@ -323,6 +324,7 @@ const PayPeriodManager = () => {
                     <div className="flex items-center space-x-3">
                       {isOpen && (
                         <button
+                          type="button"
                           onClick={() => openConfirmModal("close", period)}
                           className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg flex items-center space-x-2 transition-colors"
                         >
@@ -333,6 +335,7 @@ const PayPeriodManager = () => {
 
                       {isClosed && (
                         <button
+                          type="button"
                           onClick={() => openConfirmModal("process", period)}
                           className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center space-x-2 transition-colors"
                         >
@@ -399,6 +402,7 @@ const PayPeriodManager = () => {
               className={`p-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} flex justify-end space-x-3`}
             >
               <button
+                type="button"
                 onClick={() => setShowConfirmModal(false)}
                 disabled={processing}
                 className={`px-4 py-2 rounded-lg ${
@@ -410,6 +414,7 @@ const PayPeriodManager = () => {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={executeConfirmAction}
                 disabled={processing}
                 className={`px-4 py-2 rounded-lg flex items-center space-x-2 text-white ${

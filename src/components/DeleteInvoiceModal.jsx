@@ -119,6 +119,7 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoice }) => {
             </div>
           </div>
           <button
+            type="button"
             onClick={handleClose}
             className={`p-1 rounded-lg transition-colors ${
               isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
@@ -214,6 +215,7 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoice }) => {
         {/* Footer */}
         <div className={`flex gap-3 p-6 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
           <button
+            type="button"
             onClick={handleClose}
             disabled={isDeleting}
             className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -223,6 +225,7 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoice }) => {
             Cancel
           </button>
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={isDeleting || !selectedReason || (selectedReason === "other" && !customReason.trim())}
             className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${

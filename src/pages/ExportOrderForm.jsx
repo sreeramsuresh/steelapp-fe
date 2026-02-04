@@ -1926,6 +1926,7 @@ const ExportOrderForm = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
+                type="button"
                 onClick={() => navigate("/import-export")}
                 className={`p-2 rounded-lg transition-colors ${
                   isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-600"

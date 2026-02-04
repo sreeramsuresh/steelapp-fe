@@ -63,6 +63,7 @@ const ErrorState = ({ message, onRetry, isDarkMode }) => (
     </p>
     {onRetry && (
       <button
+        type="button"
         onClick={onRetry}
         className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
       >
@@ -505,6 +506,7 @@ const ModificationLogTab = ({ isDarkMode }) => {
           <div className="flex items-center justify-between mb-4">
             <h3 className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Filters</h3>
             <button
+              type="button"
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
                 isDarkMode
@@ -581,12 +583,14 @@ const ModificationLogTab = ({ isDarkMode }) => {
           {showFilters && (
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={handleApplyFilters}
                 className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
               >
                 Apply Filters
               </button>
               <button
+                type="button"
                 onClick={handleClearFilters}
                 className={`px-4 py-2 rounded-lg transition-colors ${
                   isDarkMode
@@ -616,6 +620,7 @@ const ModificationLogTab = ({ isDarkMode }) => {
               Modification History ({logData.length})
             </CardTitle>
             <button
+              type="button"
               onClick={exportToExcel}
               disabled={logData.length === 0}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
@@ -889,6 +894,7 @@ const BatchAnalyticsPage = () => {
             const Icon = tab.icon;
             return (
               <button
+                type="button"
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2 font-medium transition-colors border-b-2 whitespace-nowrap ${

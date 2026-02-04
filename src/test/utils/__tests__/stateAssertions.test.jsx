@@ -33,7 +33,9 @@ describe("stateAssertions", () => {
         const [isOpen, setIsOpen] = React.useState(false);
         return (
           <>
-            <button onClick={() => setIsOpen(true)}>Open Modal</button>
+            <button type="button" onClick={() => setIsOpen(true)}>
+              Open Modal
+            </button>
             {isOpen && (
               <div role="dialog">
                 <h2>Create Invoice</h2>
@@ -52,7 +54,7 @@ describe("stateAssertions", () => {
     });
 
     it("times out if modal does not open", async () => {
-      render(<button>No Modal</button>);
+      render(<button type="button">No Modal</button>);
 
       await expect(assertModalOpens(/create invoice/i, 100)).rejects.toThrow();
     });
@@ -66,7 +68,9 @@ describe("stateAssertions", () => {
           <>
             {isOpen && (
               <div role="dialog">
-                <button onClick={() => setIsOpen(false)}>Close</button>
+                <button type="button" onClick={() => setIsOpen(false)}>
+                  Close
+                </button>
               </div>
             )}
           </>
@@ -90,7 +94,9 @@ describe("stateAssertions", () => {
         const [show, setShow] = React.useState(false);
         return (
           <>
-            <button onClick={() => setShow(true)}>Trigger Toast</button>
+            <button type="button" onClick={() => setShow(true)}>
+              Trigger Toast
+            </button>
             {show && (
               <div role="status" className="toast toast-success">
                 Success: Operation completed
@@ -109,7 +115,7 @@ describe("stateAssertions", () => {
     });
 
     it("times out if toast does not appear", async () => {
-      render(<button>No Toast</button>);
+      render(<button type="button">No Toast</button>);
 
       await expect(assertToastAppears(/success/i, "success", 100)).rejects.toThrow();
     });
@@ -121,7 +127,9 @@ describe("stateAssertions", () => {
         const [show, setShow] = React.useState(false);
         return (
           <>
-            <button onClick={() => setShow(true)}>Save</button>
+            <button type="button" onClick={() => setShow(true)}>
+              Save
+            </button>
             {show && <div className="alert-success">Saved successfully</div>}
           </>
         );
@@ -141,7 +149,9 @@ describe("stateAssertions", () => {
         const [show, setShow] = React.useState(false);
         return (
           <>
-            <button onClick={() => setShow(true)}>Fail</button>
+            <button type="button" onClick={() => setShow(true)}>
+              Fail
+            </button>
             {show && <div className="alert-error">Error: Network failed</div>}
           </>
         );
@@ -162,7 +172,9 @@ describe("stateAssertions", () => {
         return (
           <>
             <input placeholder="Email" />
-            <button onClick={() => setErrors({ email: "Invalid email format" })}>Validate</button>
+            <button type="button" onClick={() => setErrors({ email: "Invalid email format" })}>
+              Validate
+            </button>
             {errors.email && <span id="email-error">{errors.email}</span>}
           </>
         );
@@ -184,7 +196,9 @@ describe("stateAssertions", () => {
           <>
             <input placeholder="Email" />
             {errors.email && <span id="email-error">{errors.email}</span>}
-            <button onClick={() => setErrors({})}>Clear Error</button>
+            <button type="button" onClick={() => setErrors({})}>
+              Clear Error
+            </button>
           </>
         );
       };
@@ -210,7 +224,9 @@ describe("stateAssertions", () => {
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <button onClick={() => setItems([...items, "Item 2"])}>Add Item</button>
+            <button type="button" onClick={() => setItems([...items, "Item 2"])}>
+              Add Item
+            </button>
           </>
         );
       };
@@ -235,7 +251,9 @@ describe("stateAssertions", () => {
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <button onClick={() => setItems(items.filter((i) => i !== "Item 1"))}>Remove</button>
+            <button type="button" onClick={() => setItems(items.filter((i) => i !== "Item 1"))}>
+              Remove
+            </button>
           </>
         );
       };
@@ -266,7 +284,9 @@ describe("stateAssertions", () => {
                 ))}
               </tbody>
             </table>
-            <button onClick={() => setRows([...rows, { id: 2, name: "Row 2" }])}>Add Row</button>
+            <button type="button" onClick={() => setRows([...rows, { id: 2, name: "Row 2" }])}>
+              Add Row
+            </button>
           </>
         );
       };
@@ -332,7 +352,9 @@ describe("stateAssertions", () => {
         return (
           <>
             <div data-testid="count">{count}</div>
-            <button onClick={() => setCount(count + 1)}>Increment</button>
+            <button type="button" onClick={() => setCount(count + 1)}>
+              Increment
+            </button>
           </>
         );
       };

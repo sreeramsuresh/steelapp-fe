@@ -131,6 +131,7 @@ const StockBatchViewer = ({ productId, companyId, channelFilter, onClose, isModa
             <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Stock Batches</h2>
             {isModal && onClose && (
               <button
+                type="button"
                 onClick={onClose}
                 className={`p-1 rounded-lg hover:bg-opacity-10 ${
                   isDarkMode ? "hover:bg-white text-gray-400" : "hover:bg-black text-gray-500"
@@ -146,6 +147,7 @@ const StockBatchViewer = ({ productId, companyId, channelFilter, onClose, isModa
             <div className="flex gap-2 mt-4">
               {["ALL", "LOCAL", "IMPORTED"].map((channel) => (
                 <button
+                  type="button"
                   key={channel}
                   onClick={() => setActiveChannel(channel)}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
@@ -205,6 +207,7 @@ const StockBatchViewer = ({ productId, companyId, channelFilter, onClose, isModa
                 >
                   {/* Batch Header */}
                   <button
+                    type="button"
                     onClick={() => toggleBatch(batch.id)}
                     className={`w-full px-4 py-3 flex items-center justify-between text-left hover:bg-opacity-50 ${
                       isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"

@@ -54,7 +54,9 @@ describe("E2E Workflow: Complete Purchase Cycle", () => {
               <div>RFQ Status: Draft</div>
               <div>Supplier: {data.supplier}</div>
               <div>Quantity: {data.quantity}</div>
-              <button onClick={handleRFQtoPO}>Convert to PO</button>
+              <button type="button" onClick={handleRFQtoPO}>
+                Convert to PO
+              </button>
             </>
           )}
 
@@ -64,7 +66,9 @@ describe("E2E Workflow: Complete Purchase Cycle", () => {
               <div>From Supplier: {data.supplier}</div>
               <div>Order Quantity: {data.quantity}</div>
               <div>Expected Cost: {data.total}</div>
-              <button onClick={handlePOtoGRN}>Awaiting Goods Receipt</button>
+              <button type="button" onClick={handlePOtoGRN}>
+                Awaiting Goods Receipt
+              </button>
             </>
           )}
 
@@ -72,7 +76,9 @@ describe("E2E Workflow: Complete Purchase Cycle", () => {
             <>
               <div>GRN Status: Ready</div>
               <div>Current Stock: {data.stockLevel - data.quantity}</div>
-              <button onClick={handleGRNReceived}>Receive Goods (100 units)</button>
+              <button type="button" onClick={handleGRNReceived}>
+                Receive Goods (100 units)
+              </button>
             </>
           )}
 
@@ -81,7 +87,9 @@ describe("E2E Workflow: Complete Purchase Cycle", () => {
               <div>Stock After Receipt: {data.stockLevel}</div>
               <div>Bill Amount: {data.total}</div>
               <div>3-Way Match: PO ✓ GRN ✓ Bill ✓</div>
-              <button onClick={handleBilltoPayment}>Process for Payment</button>
+              <button type="button" onClick={handleBilltoPayment}>
+                Process for Payment
+              </button>
             </>
           )}
 
@@ -89,7 +97,9 @@ describe("E2E Workflow: Complete Purchase Cycle", () => {
             <>
               <div>Bill Amount Due: {data.total}</div>
               <div>Payment Status: Unpaid</div>
-              <button onClick={handlePayment}>Record Full Payment</button>
+              <button type="button" onClick={handlePayment}>
+                Record Full Payment
+              </button>
             </>
           )}
 
@@ -153,8 +163,10 @@ describe("E2E Workflow: Complete Purchase Cycle", () => {
           <div>Received: {received}</div>
           <div>Pending: {poQty - received}</div>
           <div>Status: {status}</div>
-          <button onClick={() => handleReceive(100)}>Receive First Shipment (100)</button>
-          <button onClick={() => handleReceive(100)} disabled={status === "complete"}>
+          <button type="button" onClick={() => handleReceive(100)}>
+            Receive First Shipment (100)
+          </button>
+          <button type="button" onClick={() => handleReceive(100)} disabled={status === "complete"}>
             Receive Final Shipment (100)
           </button>
         </>
@@ -198,7 +210,9 @@ describe("E2E Workflow: Complete Purchase Cycle", () => {
               Discrepancy: Bill ({amounts.bill}) does not match PO ({amounts.po})
             </div>
           )}
-          <button disabled={!isMatched}>Approve for Payment</button>
+          <button type="button" disabled={!isMatched}>
+            Approve for Payment
+          </button>
         </>
       );
     };

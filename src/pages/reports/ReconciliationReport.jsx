@@ -405,6 +405,7 @@ export default function ReconciliationReport() {
 
             <div className="flex items-center space-x-2">
               <button
+                type="button"
                 onClick={() => setShowFilters(!showFilters)}
                 className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
                   isDarkMode
@@ -416,6 +417,7 @@ export default function ReconciliationReport() {
                 <span>Filters</span>
               </button>
               <button
+                type="button"
                 onClick={handleRefresh}
                 disabled={refreshing}
                 className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
@@ -428,6 +430,7 @@ export default function ReconciliationReport() {
                 <span>Refresh</span>
               </button>
               <button
+                type="button"
                 onClick={handleExport}
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center space-x-2"
               >
