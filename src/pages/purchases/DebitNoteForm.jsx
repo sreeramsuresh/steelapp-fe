@@ -25,7 +25,7 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { FormSelect } from "../../components/ui/form-select";
 import { SelectItem } from "../../components/ui/select";
@@ -149,6 +149,93 @@ const DebitNoteForm = () => {
     version: 1,
   });
 
+  const loadWarehouses = useCallback(async () => {
+    try {
+      const result = await warehouseService.getAll({ isActive: true });
+      setWarehouses(result.data || []);
+    } catch (error) {
+      console.error("Error loading warehouses:", error);
+    }
+  }, []);
+
+  const loadDebitNote = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await debitNoteService.getById(id);
+      setDebitNote({
+        ...data,
+        items: data.items?.length > 0 ? data.items : [createEmptyItem()],
+      });
+      if (data.supplierBillId) {
+        const bill = await supplierBillService.getById(data.supplierBillId);
+        setSelectedSupplierBill(bill);
+      }
+    } catch (error) {
+      console.error("Error loading debit note:", error);
+      notificationService.error("Failed to load debit note");
+      navigate("/app/debit-notes");
+    } finally {
+      setLoading(false);
+    }
+  }, [id, navigate]);
+
+  const loadNextDebitNoteNumber = useCallback(async () => {
+    try {
+      const response = await debitNoteService.getNextNumber();
+      setDebitNote((prev) => ({
+        ...prev,
+        debitNoteNumber: response.debitNoteNumber || "DN-0001",
+      }));
+    } catch (error) {
+      console.error("Error loading next debit note number:", error);
+    }
+  }, []);
+
+  const searchSupplierBills = useCallback(async (query) => {
+    try {
+      setSupplierBillSearching(true);
+      const results = await supplierBillService.search(query);
+      setSupplierBillResults(results);
+      setShowSupplierBillDropdown(results.length > 0);
+    } catch (error) {
+      console.error("Error searching supplier bills:", error);
+      setSupplierBillResults([]);
+    } finally {
+      setSupplierBillSearching(false);
+    }
+  }, []);
+
+  const loadSupplierBill = useCallback(async (billId) => {
+    try {
+      const bill = await supplierBillService.getById(billId);
+      setSelectedSupplierBill(bill);
+      setDebitNote((prev) => ({
+        ...prev,
+        supplierBillId: bill.id,
+        supplierBillNumber: bill.billNumber,
+        supplierId: bill.supplierId,
+        supplier: bill.supplierDetails || {
+          name: bill.supplierName,
+          trn: bill.supplierTrn,
+        },
+        vatCategory: bill.vatCategory || "STANDARD",
+        isReverseCharge: bill.isReverseCharge || false,
+        items: (bill.items || []).map((item) => ({
+          ...createEmptyItem(),
+          description: item.description || "",
+          quantity: 1,
+          unitPrice: item.unitPrice || 0,
+          amount: item.unitPrice || 0,
+          vatRate: item.vatRate || 5,
+          vatAmount: ((item.unitPrice || 0) * (item.vatRate || 5)) / 100,
+        })),
+      }));
+    } catch (error) {
+      console.error("Error loading supplier bill:", error);
+      notificationService.error("Failed to load supplier bill");
+    }
+  }, []);
+
   // Load initial data
   useEffect(() => {
     if (isEditMode) {
@@ -163,16 +250,6 @@ const DebitNoteForm = () => {
     loadWarehouses();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- This effect should only run on mount and when id changes. Adding all dependencies would cause unnecessary re-runs. searchParams is stable but loadSupplierBill, loadDebitNote, loadNextDebitNoteNumber, and loadWarehouses are stable functions.
   }, [isEditMode, loadDebitNote, loadNextDebitNoteNumber, loadSupplierBill, loadWarehouses, searchParams]);
-
-  // Load warehouses
-  const loadWarehouses = async () => {
-    try {
-      const result = await warehouseService.getAll({ isActive: true });
-      setWarehouses(result.data || []);
-    } catch (error) {
-      console.error("Error loading warehouses:", error);
-    }
-  };
 
   // Auto-calculate amountInBaseCurrency when totalDebit or exchangeRate changes
   useEffect(() => {
@@ -192,77 +269,6 @@ const DebitNoteForm = () => {
     }, 300);
     return () => clearTimeout(timer);
   }, [supplierBillSearch, searchSupplierBills]);
-
-  const loadDebitNote = async () => {
-    try {
-      setLoading(true);
-      const data = await debitNoteService.getById(id);
-      setDebitNote({
-        ...data,
-        items: data.items?.length > 0 ? data.items : [createEmptyItem()],
-      });
-      if (data.supplierBillId) {
-        const bill = await supplierBillService.getById(data.supplierBillId);
-        setSelectedSupplierBill(bill);
-      }
-    } catch (error) {
-      console.error("Error loading debit note:", error);
-      notificationService.error("Failed to load debit note");
-      navigate("/app/debit-notes");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadNextDebitNoteNumber = async () => {
-    try {
-      const response = await debitNoteService.getNextNumber();
-      setDebitNote((prev) => ({
-        ...prev,
-        debitNoteNumber: response.debitNoteNumber || "DN-0001",
-      }));
-    } catch (error) {
-      console.error("Error loading next debit note number:", error);
-    }
-  };
-
-  const searchSupplierBills = async (query) => {
-    try {
-      setSupplierBillSearching(true);
-      const results = await supplierBillService.search(query);
-      setSupplierBillResults(results);
-      setShowSupplierBillDropdown(results.length > 0);
-    } catch (error) {
-      console.error("Error searching supplier bills:", error);
-      setSupplierBillResults([]);
-    } finally {
-      setSupplierBillSearching(false);
-    }
-  };
-
-  const loadSupplierBill = async (billId) => {
-    try {
-      const bill = await supplierBillService.getById(billId);
-      setSelectedSupplierBill(bill);
-      setDebitNote((prev) => ({
-        ...prev,
-        supplierBillId: bill.id,
-        supplierBillNumber: bill.billNumber,
-        supplierId: bill.supplierId,
-        supplier: bill.supplierDetails || {
-          name: bill.supplierName,
-          trn: bill.supplierTrn,
-        },
-        vatCategory: bill.vatCategory || "STANDARD",
-        isReverseCharge: bill.isReverseCharge || false,
-      }));
-      setSupplierBillSearch("");
-      setShowSupplierBillDropdown(false);
-    } catch (error) {
-      console.error("Error loading supplier bill:", error);
-      notificationService.error("Failed to load supplier bill");
-    }
-  };
 
   const handleSupplierBillSelect = (bill) => {
     loadSupplierBill(bill.id);
