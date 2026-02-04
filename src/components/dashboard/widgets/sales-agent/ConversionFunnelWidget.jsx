@@ -276,7 +276,7 @@ const ConversionFunnelWidget = ({ data: propData, onRefresh, onViewDetails, isLo
         >
           <div className="space-y-2">
             {topReasons.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-2">
+              <div key={item.id || item.name || `item-${idx}`} className="flex items-center gap-2">
                 <div className="flex-1">
                   <div className="flex justify-between text-xs mb-1">
                     <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>{item.reason}</span>

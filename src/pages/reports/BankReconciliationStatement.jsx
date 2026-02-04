@@ -99,7 +99,7 @@ export default function BankReconciliationStatement() {
             <table className="w-full">
               <tbody>
                 {data.reconciliation_steps.map((step, idx) => (
-                  <tr key={idx} className={`${idx % 2 === 0 ? "bg-gray-50" : ""}`}>
+                  <tr key={step.id || step.name || `step-${idx}`} className={`${idx % 2 === 0 ? "bg-gray-50" : ""}`}>
                     <td className="px-4 py-3 text-sm text-gray-900 font-medium">{step.step}</td>
                     <td className="px-4 py-3 text-sm text-right">
                       <span className={step.amount < 0 ? "text-red-600" : "text-gray-900"}>

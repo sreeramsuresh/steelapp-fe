@@ -92,7 +92,7 @@ const WarehouseSummaryCards = ({ summary, loading }) => {
 
         return (
           <div
-            key={index}
+            key={card.id || card.name || `card-${index}`}
             className={`rounded-lg border p-4 ${
               isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"
             } ${card.title === "Total Items" && card.value === 0 ? "opacity-60" : ""}`}

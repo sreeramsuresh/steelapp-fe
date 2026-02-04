@@ -34,7 +34,7 @@ const Breadcrumb = ({ items = [] }) => {
       </Link>
 
       {items.map((item, index) => (
-        <div key={index} className="flex items-center gap-2">
+        <div key={item.id || item.name || `item-${index}`} className="flex items-center gap-2">
           <ChevronRight size={16} className="opacity-50" />
           {item.current ? (
             <span className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`} aria-current="page">

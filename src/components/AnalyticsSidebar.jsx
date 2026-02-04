@@ -275,11 +275,8 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
       {/* Navigation */}
       <div className="flex-1 relative min-h-0">
         {/* Top fade indicator */}
-        <div
-          role="button"
-          tabIndex={0}
-          onClick={handleScrollUp}
-          onKeyDown={(e) => {
+        <button type="button" onClick={handleScrollUp}
+     onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") handleScrollUp(e);
           }}
           className={`absolute top-0 left-0 right-0 h-8 z-10 transition-opacity duration-300 ${
@@ -303,7 +300,7 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
         {/* Scrollable content */}
         <div ref={scrollContainerRef} className="absolute inset-0 overflow-y-auto py-2 no-scrollbar">
           {navigationItems.map((section, sectionIndex) => (
-            <div key={sectionIndex}>
+            <div key={section.id || section.name || `section-${sectionIndex}`}>
               {section.section && section.section !== "Overview" && (
                 <div
                   className={`px-4 py-2 pb-1 text-xs font-semibold uppercase tracking-wider ${
@@ -333,7 +330,7 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
                     const isActive = isActiveRoute(item.path);
 
                     return (
-                      <div key={itemIndex} className="px-2">
+                      <div key={item.id || item.name || `item-${itemIndex}`} className="px-2">
                         <Link
                           to={item.path}
                           onClick={() => window.innerWidth <= 768 && onToggle()}
@@ -365,11 +362,8 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
         </div>
 
         {/* Bottom fade indicator */}
-        <div
-          role="button"
-          tabIndex={0}
-          onClick={handleScrollDown}
-          onKeyDown={(e) => {
+        <button type="button" onClick={handleScrollDown}
+     onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") handleScrollDown(e);
           }}
           className={`absolute bottom-0 left-0 right-0 h-8 z-10 transition-opacity duration-300 ${

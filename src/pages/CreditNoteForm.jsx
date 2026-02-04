@@ -1225,8 +1225,8 @@ const CreditNoteForm = () => {
               <div className="flex-1">
                 <h4 className="font-bold text-lg mb-2">Please fix the following errors:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm">
-                  {validationErrors.map((error, index) => (
-                    <li key={index}>{error}</li>
+                  {validationErrors.map((error, _index) => (
+                    <li key={error}>{error}</li>
                   ))}
                 </ul>
                 <button
@@ -1534,7 +1534,7 @@ const CreditNoteForm = () => {
                 <div className="space-y-3">
                   {creditNote.items.map((item, index) => (
                     <div
-                      key={index}
+                      key={item.id || item.name || `item-${index}`}
                       className={`p-4 rounded-lg border ${
                         item.selected
                           ? isDarkMode

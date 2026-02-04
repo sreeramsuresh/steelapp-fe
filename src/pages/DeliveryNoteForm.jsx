@@ -822,7 +822,7 @@ const DeliveryNoteForm = () => {
                 <div className="space-y-2">
                   {formData.items.map((item, index) => (
                     <div
-                      key={index}
+                      key={item}
                       className={`rounded-[14px] border ${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"}`}
                     >
                       {/* Item Header - Clickable to expand */}
@@ -1050,8 +1050,8 @@ const DeliveryNoteForm = () => {
                   <div className="flex-1">
                     <div className="font-bold text-sm mb-2">Please fix the following errors:</div>
                     <ul className="list-disc list-inside space-y-1 text-xs">
-                      {validationErrors.map((validationError, index) => (
-                        <li key={index}>{validationError}</li>
+                      {validationErrors.map((validationError, _index) => (
+                        <li key={validationError}>{validationError}</li>
                       ))}
                     </ul>
                     <button

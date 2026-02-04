@@ -170,14 +170,13 @@ const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width 
 
   return (
     <>
-      <div
+      <button
+        type="button"
         className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
         onKeyDown={handleOverlayKeyDown}
-        role="button"
-        tabIndex={0}
       />
       <div
         className={`fixed top-0 right-0 h-full ${width} z-[31]
@@ -2403,7 +2402,7 @@ const QuotationForm = () => {
                 <div className="space-y-3 md:space-y-4">
                   {formData.items.map((item, index) => (
                     <div
-                      key={index}
+                      key={item.id || item.name || `item-${index}`}
                       className={`p-3 md:p-4 border rounded-lg ${
                         isDarkMode ? "border-gray-600 bg-gray-800/50" : "border-gray-200 bg-gray-50"
                       }`}

@@ -299,8 +299,8 @@ const AddPaymentForm = ({
             Please fix the following errors:
           </div>
           <ul className="list-disc list-inside text-xs text-red-800 space-y-0.5">
-            {validationErrors.map((error, idx) => (
-              <li key={idx}>{error}</li>
+            {validationErrors.map((error, _idx) => (
+              <li key={error}>{error}</li>
             ))}
           </ul>
         </div>

@@ -181,7 +181,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
             <tbody>
               {invoice.payments.map((payment, index) => (
                 <tr
-                  key={index}
+                  key={payment}
                   style={{
                     backgroundColor: index % 2 === 0 ? accentColor : "white",
                   }}

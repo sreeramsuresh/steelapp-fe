@@ -36,8 +36,8 @@ const HelpSection = ({ title, items, variant = "info", icon: Icon = Info, showIc
       </div>
       {Array.isArray(items) ? (
         <ul className="space-y-1 text-sm list-disc list-inside">
-          {items.map((item, idx) => (
-            <li key={idx}>{item}</li>
+          {items.map((item, _idx) => (
+            <li key={item}>{item}</li>
           ))}
         </ul>
       ) : (

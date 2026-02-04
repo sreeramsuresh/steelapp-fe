@@ -194,7 +194,10 @@ const QuotationPreview = ({ quotation, company, onClose }) => {
                     <tbody>
                       {items.length > 0 ? (
                         items.map((item, index) => (
-                          <tr key={index} className={`border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                          <tr
+                            key={item.id || item.name || `item-${index}`}
+                            className={`border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                          >
                             <td className="px-4 py-3">
                               <div className="font-medium">{item.name || "Unnamed Item"}</div>
                               {(item.specification || item.grade || item.size) && (
@@ -307,8 +310,8 @@ const QuotationPreview = ({ quotation, company, onClose }) => {
                 <ul
                   className={`text-sm mt-1 list-disc list-inside ${isDarkMode ? "text-yellow-200" : "text-yellow-700"}`}
                 >
-                  {validation.warnings.map((warning, index) => (
-                    <li key={index}>{warning}</li>
+                  {validation.warnings.map((warning, _index) => (
+                    <li key={warning}>{warning}</li>
                   ))}
                 </ul>
               </div>

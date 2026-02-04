@@ -847,8 +847,8 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
             <div>
               <h4 className="font-semibold text-red-800 mb-1">Validation Errors:</h4>
               <ul className="text-sm text-red-700 list-disc list-inside">
-                {validationErrors.map((error, i) => (
-                  <li key={i}>{error}</li>
+                {validationErrors.map((error, _i) => (
+                  <li key={error}>{error}</li>
                 ))}
               </ul>
             </div>

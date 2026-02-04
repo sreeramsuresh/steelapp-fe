@@ -136,8 +136,8 @@ export const DashboardSectionSkeleton = ({ count = 3 }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className={`p-4 rounded-xl animate-pulse ${isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}>
+      {Array.from({ length: count }).map((_, _i) => (
+        <div key={_} className={`p-4 rounded-xl animate-pulse ${isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}>
           <div className={`h-4 w-24 rounded mb-3 ${isDarkMode ? "bg-gray-600" : "bg-gray-200"}`} />
           <div className={`h-8 w-32 rounded mb-2 ${isDarkMode ? "bg-gray-600" : "bg-gray-200"}`} />
           <div className={`h-3 w-16 rounded ${isDarkMode ? "bg-gray-600" : "bg-gray-200"}`} />

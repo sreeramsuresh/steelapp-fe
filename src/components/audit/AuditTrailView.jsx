@@ -47,7 +47,7 @@ export default function AuditTrailView({ datasetId: _datasetId, signOffs = [] })
       ) : (
         <div className="space-y-4">
           {sortedSignOffs.map((event, idx) => (
-            <div key={idx} className="flex gap-4">
+            <div key={event.id || event.name || `event-${idx}`} className="flex gap-4">
               {/* Timeline Line */}
               <div className="flex flex-col items-center">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getEventColor(event.stage)}`}>

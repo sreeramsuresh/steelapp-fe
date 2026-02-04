@@ -44,7 +44,7 @@ describe("Purchase Order Feature", () => {
             </button>
             <div className="items-list">
               {po.items.map((item, idx) => (
-                <div key={idx}>
+                <div key={item.id || item.name || `item-${idx}`}>
                   {item.product} - {item.qty} units @ {item.unitCost}
                 </div>
               ))}

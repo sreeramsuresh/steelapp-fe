@@ -234,7 +234,7 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
                 const Icon = role.icon;
                 return (
                   <div
-                    key={index}
+                    key={role.id || role.name || `role-${index}`}
                     className={`p-4 rounded-lg border ${
                       isDarkMode ? "bg-gray-700/50 border-gray-600" : "bg-gray-50 border-gray-200"
                     }`}
@@ -267,8 +267,8 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
                     {role.specialPowers && (
                       <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}>
                         <div className="text-xs space-y-1">
-                          {role.specialPowers.map((power, i) => (
-                            <div key={i} className="flex items-start gap-1">
+                          {role.specialPowers.map((power, _i) => (
+                            <div key={power} className="flex items-start gap-1">
                               <span className="text-purple-500">★</span>
                               <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>{power}</span>
                             </div>
@@ -279,8 +279,8 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
                     {role.keyAccess && (
                       <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}>
                         <div className="text-xs space-y-1">
-                          {role.keyAccess.map((access, i) => (
-                            <div key={i} className="flex items-start gap-1">
+                          {role.keyAccess.map((access, _i) => (
+                            <div key={access} className="flex items-start gap-1">
                               <span className="text-teal-500">•</span>
                               <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>{access}</span>
                             </div>
@@ -310,7 +310,7 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
                 const Icon = combo.icon;
                 return (
                   <div
-                    key={index}
+                    key={combo.id || combo.name || `combo-${index}`}
                     className={`p-4 rounded-lg border-2 ${
                       isDarkMode ? "bg-green-900/20 border-green-700" : "bg-green-50 border-green-200"
                     }`}
@@ -318,9 +318,9 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
                     <div className="flex items-start gap-2 mb-2">
                       <Icon className={combo.color} size={20} />
                       <div className="flex-1">
-                        {combo.roles.map((role, i) => (
+                        {combo.roles.map((role, _i) => (
                           <div
-                            key={i}
+                            key={role}
                             className={`text-sm font-semibold ${isDarkMode ? "text-green-300" : "text-green-700"}`}
                           >
                             {role}
@@ -356,7 +356,7 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
                 const Icon = combo.icon;
                 return (
                   <div
-                    key={index}
+                    key={combo.id || combo.name || `combo-${index}`}
                     className={`p-4 rounded-lg border-2 ${
                       combo.risk === "HIGH"
                         ? isDarkMode
@@ -389,9 +389,9 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
                             >
                               Combination:
                             </div>
-                            {combo.roles.map((role, i) => (
+                            {combo.roles.map((role, _i) => (
                               <div
-                                key={i}
+                                key={role}
                                 className={`text-sm ${
                                   combo.risk === "HIGH"
                                     ? isDarkMode
@@ -442,7 +442,7 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
                 const Icon = practice.icon;
                 return (
                   <div
-                    key={index}
+                    key={practice.id || practice.name || `practice-${index}`}
                     className={`p-4 rounded-lg border ${
                       isDarkMode ? "bg-blue-900/20 border-blue-700" : "bg-blue-50 border-blue-200"
                     }`}

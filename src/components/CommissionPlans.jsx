@@ -1,5 +1,5 @@
 import { Calendar, Check, Edit2, Info, Percent, Plus, Save, Settings, Trash2, UserPlus, Users, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { commissionService } from "../services/commissionService";
 import { notificationService } from "../services/notificationService";
@@ -30,11 +30,7 @@ const CommissionPlans = () => {
   const [assigning, setAssigning] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
 
-  useEffect(() => {
-    loadPlans();
-  }, [loadPlans]);
-
-  const loadPlans = async () => {
+  const loadPlans = useCallback(async () => {
     try {
       setLoading(true);
       const response = await commissionService.getPlans();
@@ -45,7 +41,11 @@ const CommissionPlans = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadPlans();
+  }, [loadPlans]);
 
   const handleCreate = () => {
     setEditingPlan(null);
@@ -327,7 +327,10 @@ const CommissionPlans = () => {
                   Commission Tiers
                 </p>
                 {(plan.tiers || []).map((tier, index) => (
-                  <div key={index} className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+                  <div
+                    key={tier.id || tier.name || `tier-${index}`}
+                    className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
+                  >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <p className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
@@ -477,7 +480,7 @@ const CommissionPlans = () => {
                 <div className="space-y-3">
                   {formData.tiers.map((tier, index) => (
                     <div
-                      key={index}
+                      key={tier}
                       className={`p-4 rounded-lg border ${
                         isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50 border-gray-200"
                       }`}

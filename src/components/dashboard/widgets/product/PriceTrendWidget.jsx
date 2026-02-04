@@ -239,7 +239,10 @@ const PriceTrendWidget = ({ data, onNavigate, onProductClick }) => {
           {/* Month labels */}
           <div className="flex justify-between mt-1 px-1">
             {selectedProduct.trend.map((d, i) => (
-              <span key={i} className={`text-[9px] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+              <span
+                key={d.id || d.name || `d-${i}`}
+                className={`text-[9px] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+              >
                 {d.month}
               </span>
             ))}

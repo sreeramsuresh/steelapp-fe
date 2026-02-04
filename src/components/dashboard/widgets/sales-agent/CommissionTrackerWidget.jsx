@@ -305,7 +305,10 @@ const CommissionTrackerWidget = ({
       {/* Commission Tiers */}
       <div className="space-y-3 mb-4">
         {tiers.map((tier, index) => (
-          <div key={index} className={`p-3 rounded-lg ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}>
+          <div
+            key={tier.id || tier.name || `tier-${index}`}
+            className={`p-3 rounded-lg ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}
+          >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 {tier.achieved ? (
@@ -358,7 +361,7 @@ const CommissionTrackerWidget = ({
           </div>
           <div className="space-y-1">
             {specialBonuses.map((bonus, idx) => (
-              <div key={idx} className="flex justify-between text-xs">
+              <div key={bonus.id || bonus.name || `bonus-${idx}`} className="flex justify-between text-xs">
                 <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
                   {bonus.name} ({bonus.count} x {formatCurrency(bonus.rate)})
                 </span>

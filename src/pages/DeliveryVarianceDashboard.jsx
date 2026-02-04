@@ -261,7 +261,7 @@ export default function DeliveryVarianceDashboard() {
           <div className="space-y-3">
             {recommendations.recommendations?.map((rec, idx) => (
               <div
-                key={idx}
+                key={rec.id || rec.name || `rec-${idx}`}
                 className={`border-l-4 border-blue-500 pl-4 py-2 ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
               >
                 <div className={`font-semibold ${isDarkMode ? "text-blue-400" : "text-blue-900"}`}>{rec.title}</div>
@@ -295,7 +295,7 @@ export default function DeliveryVarianceDashboard() {
               <tbody>
                 {lateDeliveries.lateDeliveries?.map((delivery, idx) => (
                   <tr
-                    key={idx}
+                    key={delivery.id || delivery.name || `delivery-${idx}`}
                     className={`border-b ${isDarkMode ? "border-gray-700 hover:bg-gray-700" : "border-gray-200 hover:bg-gray-50"}`}
                   >
                     <td className="px-4 py-2">{delivery.grnId}</td>

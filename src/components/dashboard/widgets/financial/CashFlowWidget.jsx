@@ -247,7 +247,10 @@ const CashFlowWidget = ({ data: propData, onRefresh, loading: externalLoading })
                 const outflowHeight = maxValue > 0 ? ((item.outflow || 0) / maxValue) * 100 : 0;
 
                 return (
-                  <div key={index} className="flex-1 flex flex-col items-center group relative">
+                  <div
+                    key={item.id || item.name || `item-${index}`}
+                    className="flex-1 flex flex-col items-center group relative"
+                  >
                     {/* Tooltip */}
                     <div
                       className={`hidden group-hover:block absolute -top-20 left-1/2 -translate-x-1/2 px-3 py-2 rounded-lg text-xs z-10 shadow-lg ${

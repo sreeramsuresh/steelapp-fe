@@ -317,8 +317,8 @@ export function SupplierQuotationDetail() {
                   Extraction Warnings
                 </p>
                 <ul className="mt-1 text-sm text-yellow-700 list-disc list-inside">
-                  {quotation.extractionWarnings.map((w, i) => (
-                    <li key={i}>{w}</li>
+                  {quotation.extractionWarnings.map((w, _i) => (
+                    <li key={w}>{w}</li>
                   ))}
                 </ul>
               </div>

@@ -159,21 +159,18 @@ export function SupplierQuotationUpload() {
           </div>
 
           {/* Drop Zone */}
-          <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              dragActive
-                ? "border-blue-500 bg-blue-50"
-                : file
-                  ? "border-green-500 bg-green-50"
-                  : "border-gray-300 hover:border-gray-400"
-            }`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
+          <button type="button" className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+       dragActive
+        ? "border-blue-500 bg-blue-50"
+        : file
+         ? "border-green-500 bg-green-50"
+         : "border-gray-300 hover:border-gray-400"
+      }`}
+      onDragEnter={handleDrag}
+      onDragLeave={handleDrag}
+      onDragOver={handleDrag}
+      onDrop={handleDrop}
+      onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 fileInputRef.current?.click();
@@ -286,8 +283,8 @@ export function SupplierQuotationUpload() {
               <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="font-medium text-yellow-800 mb-2">Warnings</p>
                 <ul className="list-disc list-inside text-sm text-yellow-700">
-                  {extractionResult.extractionDetails.warnings.map((warning, idx) => (
-                    <li key={idx}>{warning}</li>
+                  {extractionResult.extractionDetails.warnings.map((warning, _idx) => (
+                    <li key={warning}>{warning}</li>
                   ))}
                 </ul>
               </div>
@@ -343,7 +340,7 @@ export function SupplierQuotationUpload() {
                         </thead>
                         <tbody>
                           {extractionResult.quotation.items.slice(0, 5).map((item, idx) => (
-                            <tr key={idx} className="border-t">
+                            <tr key={item.id || item.name || `item-${idx}`} className="border-t">
                               <td className="px-3 py-2">
                                 {item.description?.substring(0, 50) || "-"}
                                 {item.description?.length > 50 ? "..." : ""}

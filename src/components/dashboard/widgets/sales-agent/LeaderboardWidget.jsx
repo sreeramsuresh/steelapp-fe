@@ -324,7 +324,7 @@ const LeaderboardWidget = ({ data: propData, onRefresh, onViewAgent, isLoading =
                           const BadgeIcon = BADGE_CONFIG[badge]?.icon || Star;
                           return (
                             <span
-                              key={idx}
+                              key={badge.id || badge.name || `badge-${idx}`}
                               className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium text-white ${
                                 BADGE_CONFIG[badge]?.color || "bg-gray-500"
                               }`}

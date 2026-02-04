@@ -2098,7 +2098,7 @@ const ExportOrderDetails = () => {
                       const entryConfig = getStatusConfig(entry.status);
                       const EntryIcon = entryConfig.icon;
                       return (
-                        <div key={index} className="flex gap-3">
+                        <div key={entry.id || entry.name || `entry-${index}`} className="flex gap-3">
                           <div
                             className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                               isDarkMode ? entryConfig.bgDark : entryConfig.bgLight
@@ -2373,7 +2373,7 @@ const ExportOrderDetails = () => {
                 const entryConfig = getStatusConfig(entry.status);
                 const EntryIcon = entryConfig.icon;
                 return (
-                  <div key={index} className="flex gap-3 items-start">
+                  <div key={entry.id || entry.name || `entry-${index}`} className="flex gap-3 items-start">
                     <div
                       className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
                         isDarkMode ? entryConfig.bgDark : entryConfig.bgLight

@@ -659,7 +659,7 @@ const PriceCalculator = () => {
               </div>
 
               {calculatePrice.adjustments.map((adjustment, index) => (
-                <div key={index} className="flex justify-between">
+                <div key={adjustment.id || adjustment.name || `adjustment-${index}`} className="flex justify-between">
                   <span className="text-sm opacity-90">
                     {adjustment.name}
                     <span className="ml-1 opacity-70 text-xs">

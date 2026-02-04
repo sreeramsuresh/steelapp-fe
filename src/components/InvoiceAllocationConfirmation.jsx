@@ -228,7 +228,7 @@ const InvoiceAllocationConfirmation = () => {
             if (allocations.length === 0) return null;
 
             return (
-              <div key={itemIndex} className="border rounded-lg p-4">
+              <div key={item.id || item.name || `item-${itemIndex}`} className="border rounded-lg p-4">
                 {/* Item Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div>
@@ -279,7 +279,7 @@ const InvoiceAllocationConfirmation = () => {
                       {allocations.map((allocation, allocationIndex) => {
                         const warehouse = warehouses.find((w) => w.id === allocation.warehouseId);
                         return (
-                          <tr key={allocationIndex}>
+                          <tr key={allocation.id || allocation.name || `allocation-${allocationIndex}`}>
                             <td className="px-4 py-2 text-sm text-gray-900">{allocation.batchNumber || "N/A"}</td>
                             <td className="px-4 py-2 text-sm text-gray-600">
                               {warehouse?.name || warehouse?.code || "N/A"}

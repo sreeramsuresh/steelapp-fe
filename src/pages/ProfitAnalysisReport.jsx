@@ -235,7 +235,10 @@ export default function ProfitAnalysisReport() {
                 </TableHeader>
                 <TableBody>
                   {data.map((row, index) => (
-                    <TableRow key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <TableRow
+                      key={row.id || row.name || `row-${index}`}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                    >
                       <TableCell>
                         <div className="font-medium text-sm">{row.name}</div>
                         <div className="text-xs text-gray-600 dark:text-gray-400">{row.grade}</div>

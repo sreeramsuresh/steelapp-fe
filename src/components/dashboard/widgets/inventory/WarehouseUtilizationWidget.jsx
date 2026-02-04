@@ -330,7 +330,7 @@ const WarehouseUtilizationWidget = ({
           <div className="space-y-2">
             {warehouseData.transfers.map((transfer, index) => (
               <div
-                key={index}
+                key={transfer.id || transfer.name || `transfer-${index}`}
                 className={`flex items-center justify-between p-2 rounded ${isDarkMode ? "bg-[#1E2328]" : "bg-white"}`}
               >
                 <div className="flex items-center gap-2">

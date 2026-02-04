@@ -155,7 +155,7 @@ const Products = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {metalSupplies.map((product, index) => (
                 <div
-                  key={index}
+                  key={product.id || product.name || `product-${index}`}
                   className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
                 >
                   <div className="relative overflow-hidden rounded-t-2xl">
@@ -197,7 +197,7 @@ const Products = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {decorativeProducts.map((product, index) => (
                 <div
-                  key={index}
+                  key={product.id || product.name || `product-${index}`}
                   className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300"
                 >
                   <img
@@ -225,7 +225,7 @@ const Products = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {kitchenSolutions.map((item, index) => (
                 <div
-                  key={index}
+                  key={item.id || item.name || `item-${index}`}
                   className="aspect-square rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
                 >
                   <img
@@ -251,7 +251,7 @@ const Products = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {elevationSolutions.map((item, index) => (
                 <div
-                  key={index}
+                  key={item.id || item.name || `item-${index}`}
                   className="aspect-square rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
                 >
                   <img
@@ -273,7 +273,7 @@ const Products = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {industries.map((industry, index) => (
-                <div key={index} className="text-center group">
+                <div key={industry.id || industry.name || `industry-${index}`} className="text-center group">
                   <div className="relative mb-4">
                     <div className="w-32 h-32 mx-auto rounded-full overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow duration-300">
                       <img

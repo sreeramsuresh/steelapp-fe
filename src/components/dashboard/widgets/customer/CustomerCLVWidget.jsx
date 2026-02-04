@@ -352,7 +352,10 @@ const CustomerCLVWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
       {viewMode === "segments" && (
         <div className="space-y-3">
           {segments.map((segment, idx) => (
-            <div key={idx} className={`p-3 rounded-lg ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}>
+            <div
+              key={segment.id || segment.name || `segment-${idx}`}
+              className={`p-3 rounded-lg ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: segment.color }} />

@@ -244,12 +244,11 @@ const CurrencyConversionModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Overlay */}
-      <div
+      <button
+        type="button"
         className="absolute inset-0 bg-black/55"
         onClick={onClose}
         onKeyDown={handleOverlayKeyDown}
-        role="button"
-        tabIndex={0}
       />
       {/* Modal */}
       <div
@@ -458,14 +457,13 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
   return (
     <>
       {/* Overlay */}
-      <div
+      <button
+        type="button"
         className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
         onKeyDown={handleDrawerOverlayKeyDown}
-        role="button"
-        tabIndex={0}
       />
       {/* Drawer */}
       <div

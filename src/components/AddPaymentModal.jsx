@@ -144,8 +144,8 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               <AlertTriangle size={18} className="text-red-600 dark:text-red-400 mr-2 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <ul className="text-sm space-y-1">
-                  {errors.map((error, index) => (
-                    <li key={index}>{error}</li>
+                  {errors.map((error, _index) => (
+                    <li key={error}>{error}</li>
                   ))}
                 </ul>
               </div>

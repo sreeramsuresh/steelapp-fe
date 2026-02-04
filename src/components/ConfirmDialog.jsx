@@ -74,9 +74,8 @@ const ConfirmDialog = ({
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center">
       {/* Backdrop */}
-      <div
-        role="button"
-        tabIndex={0}
+      <button
+        type="button"
         className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onCancel}
         onKeyDown={(e) => {

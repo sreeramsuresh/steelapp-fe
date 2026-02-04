@@ -590,7 +590,7 @@ const ImportOrderDetails = () => {
                   {statusHistory.slice(0, 5).map((entry, index) => {
                     const entryConfig = getStatusConfig(entry.status);
                     return (
-                      <div key={index} className="flex items-start gap-3">
+                      <div key={entry.id || entry.name || `entry-${index}`} className="flex items-start gap-3">
                         <div
                           className={`w-2 h-2 mt-2 rounded-full ${
                             isDarkMode ? entryConfig.bgDark : entryConfig.bgLight
@@ -1347,7 +1347,7 @@ const ImportOrderDetails = () => {
                   const entryConfig = getStatusConfig(entry.status);
                   const EntryIcon = entryConfig.icon;
                   return (
-                    <div key={index} className="flex gap-3">
+                    <div key={entry.id || entry.name || `entry-${index}`} className="flex gap-3">
                       <div
                         className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                           isDarkMode ? entryConfig.bgDark : entryConfig.bgLight

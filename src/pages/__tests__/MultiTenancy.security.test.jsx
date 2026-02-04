@@ -337,8 +337,8 @@ describe("Multi-Tenancy Security - Data Isolation", () => {
 
         return (
           <div className="alert-error">
-            {auditLog.map((log, idx) => (
-              <div key={idx}>{log}</div>
+            {auditLog.map((log, _idx) => (
+              <div key={log}>{log}</div>
             ))}
           </div>
         );

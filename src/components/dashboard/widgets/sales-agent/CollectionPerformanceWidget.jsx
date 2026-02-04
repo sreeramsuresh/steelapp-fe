@@ -313,7 +313,7 @@ const CollectionPerformanceWidget = ({ data: propData, onRefresh, onViewDetails,
           {agingBuckets.map((bucket, idx) => {
             const statusColor = getStatusColor(bucket.status);
             return (
-              <div key={idx}>
+              <div key={bucket.id || bucket.name || `bucket-${idx}`}>
                 <div className="flex items-center justify-between text-xs mb-1">
                   <div className="flex items-center gap-2">
                     <span className={`w-2 h-2 rounded-full ${statusColor.bg}`} />
@@ -357,7 +357,7 @@ const CollectionPerformanceWidget = ({ data: propData, onRefresh, onViewDetails,
           </div>
           <div className="space-y-1">
             {topOverdue.slice(0, 3).map((item, idx) => (
-              <div key={idx} className="flex justify-between text-xs">
+              <div key={item.id || item.name || `item-${idx}`} className="flex justify-between text-xs">
                 <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>{item.customer}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-red-500 font-medium">{item.days}d</span>

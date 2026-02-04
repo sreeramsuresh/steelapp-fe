@@ -292,7 +292,10 @@ const ZeroRatedExportsWidget = ({
           {exportData.documentTypes
             .filter((d) => d.required)
             .map((doc, idx) => (
-              <div key={idx} className={`p-3 rounded-lg ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}>
+              <div
+                key={doc.id || doc.name || `doc-${idx}`}
+                className={`p-3 rounded-lg ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <FileText size={14} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />

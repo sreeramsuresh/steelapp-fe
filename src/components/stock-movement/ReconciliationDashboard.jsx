@@ -329,7 +329,10 @@ const ReconciliationDashboard = () => {
                         const hasDiscrepancy = Math.abs(discrepancy) > 0.01;
 
                         return (
-                          <tr key={idx} className={`hover:bg-gray-50 ${hasDiscrepancy ? "bg-yellow-50" : ""}`}>
+                          <tr
+                            key={item.id || item.name || `item-${idx}`}
+                            className={`hover:bg-gray-50 ${hasDiscrepancy ? "bg-yellow-50" : ""}`}
+                          >
                             <td className="px-4 py-3 text-sm text-gray-900">{item.productName}</td>
                             <td className="px-4 py-3 text-sm text-gray-600">{item.productSku || "-"}</td>
                             <td className="px-4 py-3 text-sm text-gray-600 text-right">

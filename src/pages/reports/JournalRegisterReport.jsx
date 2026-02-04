@@ -222,7 +222,7 @@ export default function JournalRegisterReport() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {data.entries.map((entry, idx) => (
-                <tr key={idx} className="hover:bg-gray-50">
+                <tr key={entry.id || entry.name || `entry-${idx}`} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm text-gray-900">
                     {financialReportsService.formatDate(entry.entry_date)}
                   </td>

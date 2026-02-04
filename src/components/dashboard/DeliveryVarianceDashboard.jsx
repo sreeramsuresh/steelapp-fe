@@ -259,7 +259,10 @@ const DeliveryVarianceDashboard = () => {
               </thead>
               <tbody>
                 {breakdown.map((item, idx) => (
-                  <tr key={idx} className={isDarkMode ? "border-b border-gray-700" : "border-b border-gray-200"}>
+                  <tr
+                    key={item.id || item.name || `item-${idx}`}
+                    className={isDarkMode ? "border-b border-gray-700" : "border-b border-gray-200"}
+                  >
                     <td className={`py-3 px-4 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                       {item.varianceCategory}
                     </td>

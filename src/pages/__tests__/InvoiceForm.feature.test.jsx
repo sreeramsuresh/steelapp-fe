@@ -47,7 +47,7 @@ describe("Invoice Feature", () => {
             </button>
             <div className="items-list">
               {invoice.items.map((item, idx) => (
-                <div key={idx}>
+                <div key={item.id || item.name || `item-${idx}`}>
                   {item.product} - Qty: {item.qty}
                 </div>
               ))}
@@ -311,7 +311,7 @@ describe("Invoice Feature", () => {
         return (
           <>
             {items.map((item, idx) => (
-              <div key={idx}>
+              <div key={item.id || item.name || `item-${idx}`}>
                 {item.product}: {item.qty} × {item.unitPrice} = {item.qty * item.unitPrice}
               </div>
             ))}

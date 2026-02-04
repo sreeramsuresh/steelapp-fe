@@ -407,7 +407,7 @@ const RevenueTrends = () => {
           <div className="space-y-3">
             {revenueData.slice(-6).map((item, index) => (
               <div
-                key={index}
+                key={item.id || item.name || `item-${index}`}
                 className={`flex items-center justify-between p-4 rounded-lg border ${
                   isDarkMode ? "border-gray-700 bg-gray-800/50" : "border-gray-200 bg-gray-50"
                 }`}
@@ -448,7 +448,7 @@ const RevenueTrends = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {forecastData.map((forecast, index) => (
             <div
-              key={index}
+              key={forecast.id || forecast.name || `forecast-${index}`}
               className={`border rounded-xl p-6 transition-all duration-300 hover:shadow-lg ${
                 isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"
               }`}
@@ -511,7 +511,7 @@ const RevenueTrends = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {seasons.map((season, index) => (
               <div
-                key={index}
+                key={season.id || season.name || `season-${index}`}
                 className={`border rounded-xl p-6 text-center transition-all duration-300 hover:shadow-lg ${
                   isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"
                 }`}
@@ -585,7 +585,7 @@ const RevenueTrends = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {growthMetrics.map((metric, index) => (
             <div
-              key={index}
+              key={metric.id || metric.name || `metric-${index}`}
               className={`border rounded-xl p-6 transition-all duration-300 hover:shadow-lg ${
                 isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"
               }`}
@@ -615,7 +615,7 @@ const RevenueTrends = () => {
             <div className="space-y-3">
               {revenueData.slice(-6).map((item, index) => (
                 <div
-                  key={index}
+                  key={item.id || item.name || `item-${index}`}
                   className={`flex items-center justify-between p-3 rounded-lg border ${
                     isDarkMode ? "border-gray-700" : "border-gray-200"
                   }`}

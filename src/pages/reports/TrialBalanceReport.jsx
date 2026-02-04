@@ -183,7 +183,7 @@ export default function TrialBalanceReport() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {data.accounts.map((account, idx) => (
-                <tr key={idx} className="hover:bg-gray-50 cursor-pointer">
+                <tr key={account.id || account.name || `account-${idx}`} className="hover:bg-gray-50 cursor-pointer">
                   <td className="px-6 py-3 text-sm font-medium text-gray-900">{account.account_code}</td>
                   <td className="px-6 py-3 text-sm text-gray-700">{account.account_name}</td>
                   <td className="px-6 py-3 text-sm text-gray-600">{account.account_category}</td>

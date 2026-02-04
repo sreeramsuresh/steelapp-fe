@@ -344,7 +344,7 @@ export const BulkActionsToolbar = ({
         {additionalActions.map((action, idx) => (
           <button
             type="button"
-            key={idx}
+            key={action.id || action.name || `action-${idx}`}
             onClick={action.onClick}
             className={`
               px-3 py-1 text-xs font-medium rounded

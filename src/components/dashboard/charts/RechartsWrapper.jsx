@@ -85,7 +85,11 @@ const CustomTooltip = ({ active, payload, label, isDarkMode, formatter }) => {
         {label}
       </p>
       {payload.map((entry, index) => (
-        <p key={index} className="text-sm" style={{ color: entry.color || colors.textSecondary }}>
+        <p
+          key={entry.id || entry.name || `entry-${index}`}
+          className="text-sm"
+          style={{ color: entry.color || colors.textSecondary }}
+        >
           {entry.name}: {formatter ? formatter(entry.value) : entry.value}
         </p>
       ))}

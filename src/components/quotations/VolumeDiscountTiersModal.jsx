@@ -84,7 +84,7 @@ export default function VolumeDiscountTiersModal({ isOpen, onClose, tiers, onSav
             <div className="space-y-3 mb-4">
               {localTiers.map((tier, index) => (
                 <div
-                  key={index}
+                  key={tier}
                   className={`flex gap-3 items-start p-3 rounded-lg border ${
                     isDarkMode ? "border-gray-600 bg-gray-700" : "border-gray-200 bg-gray-50"
                   }`}

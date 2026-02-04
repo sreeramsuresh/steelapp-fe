@@ -32,7 +32,7 @@ describe("Edge Cases & Error Handling", () => {
             <div>Total Paid: {totalPaid}</div>
             <div>Remaining: {remaining}</div>
             {payments.map((payment, idx) => (
-              <div key={idx}>
+              <div key={payment}>
                 Payment {idx + 1}: {payment}
               </div>
             ))}
@@ -76,8 +76,8 @@ describe("Edge Cases & Error Handling", () => {
         return (
           <>
             <div>Stock: {stock}</div>
-            {errors.map((err, idx) => (
-              <div key={idx} className="alert-error">
+            {errors.map((err, _idx) => (
+              <div key={err} className="alert-error">
                 {err}
               </div>
             ))}

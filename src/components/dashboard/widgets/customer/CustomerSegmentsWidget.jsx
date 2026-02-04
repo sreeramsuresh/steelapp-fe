@@ -286,7 +286,7 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
           <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-0">
             {pieSlices.map((slice, idx) => (
               <path
-                key={idx}
+                key={slice.id || slice.name || `slice-${idx}`}
                 d={slice.path}
                 fill={slice.color}
                 className="transition-all duration-300 hover:opacity-80"
@@ -308,9 +308,9 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
 
         {/* Legend */}
         <div className="flex-1 space-y-1">
-          {activeSegments.slice(0, 4).map((segment, idx) => (
+          {activeSegments.slice(0, 4).map((segment, _idx) => (
             <div
-              key={idx}
+              key={segment}
               onClick={() => onViewSegment?.(segment, activeView)}
               role={onViewSegment ? "button" : undefined}
               tabIndex={onViewSegment ? 0 : undefined}
@@ -347,9 +347,9 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
 
       {/* Segment Details */}
       <div className="space-y-2">
-        {activeSegments.slice(0, 3).map((segment, idx) => (
+        {activeSegments.slice(0, 3).map((segment, _idx) => (
           <div
-            key={idx}
+            key={segment}
             onClick={() => onViewSegment?.(segment, activeView)}
             role={onViewSegment ? "button" : undefined}
             tabIndex={onViewSegment ? 0 : undefined}

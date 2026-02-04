@@ -368,7 +368,7 @@ export function SupplierQuotationForm() {
           ) : (
             <div className="space-y-4">
               {formData.items.map((item, index) => (
-                <div key={index} className="border rounded-lg p-4 bg-gray-50 space-y-3">
+                <div key={item} className="border rounded-lg p-4 bg-gray-50 space-y-3">
                   <div className="flex justify-between items-start">
                     <span className="text-sm font-medium text-gray-500">Item #{index + 1}</span>
                     <Button

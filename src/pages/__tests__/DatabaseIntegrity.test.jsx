@@ -41,8 +41,8 @@ describe("Database Integrity & Data Consistency", () => {
           <>
             {validationErrors.length > 0 && (
               <div className="alert-error">
-                {validationErrors.map((err, idx) => (
-                  <div key={idx}>{err}</div>
+                {validationErrors.map((err, _idx) => (
+                  <div key={err}>{err}</div>
                 ))}
               </div>
             )}

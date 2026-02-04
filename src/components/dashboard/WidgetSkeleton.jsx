@@ -44,9 +44,9 @@ const WidgetSkeleton = ({ variant = "card", size = "md" }) => {
         </div>
       </div>
       <div className="flex items-end gap-2 h-32">
-        {[40, 65, 45, 80, 55, 70, 50, 85, 60, 75, 45, 90].map((h, i) => (
+        {[40, 65, 45, 80, 55, 70, 50, 85, 60, 75, 45, 90].map((h, _i) => (
           <div
-            key={i}
+            key={h}
             className={`flex-1 rounded-t ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}
             style={{ height: `${h}%` }}
           />

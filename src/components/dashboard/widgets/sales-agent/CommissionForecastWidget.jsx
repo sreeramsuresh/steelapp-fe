@@ -273,7 +273,7 @@ const CommissionForecastWidget = ({ monthsBack = 6, onRefresh, onViewDetails }) 
             const height = maxValue > 0 ? (d.earned / maxValue) * 100 : 0;
             const isForecast = d.type === "forecast";
             return (
-              <div key={idx} className="flex-1 flex flex-col items-center">
+              <div key={d.id || d.name || `d-${idx}`} className="flex-1 flex flex-col items-center">
                 <div
                   className={`w-full rounded-t-sm transition-all duration-300 ${
                     isForecast ? "bg-indigo-400/40 border border-dashed border-indigo-400" : "bg-indigo-500"
@@ -311,7 +311,7 @@ const CommissionForecastWidget = ({ monthsBack = 6, onRefresh, onViewDetails }) 
           {pipeline.items && pipeline.items.length > 0 ? (
             pipeline.items.slice(0, 3).map((item, idx) => (
               <div
-                key={idx}
+                key={item.id || item.name || `item-${idx}`}
                 className={`flex items-center justify-between text-xs py-1 ${
                   isDarkMode ? "border-b border-[#37474F]" : "border-b border-gray-200"
                 } last:border-0`}
@@ -346,7 +346,7 @@ const CommissionForecastWidget = ({ monthsBack = 6, onRefresh, onViewDetails }) 
           </div>
           <div className="flex items-center justify-between">
             {forecast.map((f, idx) => (
-              <div key={idx} className="text-center flex-1">
+              <div key={f.id || f.name || `f-${idx}`} className="text-center flex-1">
                 <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{formatMonth(f.month)}</p>
                 <p className={`text-sm font-semibold ${isDarkMode ? "text-indigo-400" : "text-indigo-600"}`}>
                   {formatCompact(f.projected)}

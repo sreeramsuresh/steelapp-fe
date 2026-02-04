@@ -349,7 +349,7 @@ const NewCustomerWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
             const iconColor = source.color || SOURCE_CONFIG_MAP[source.source]?.color || "#6B7280";
             return (
               <div
-                key={idx}
+                key={source.id || source.name || `source-${idx}`}
                 className={`p-2 rounded-lg flex items-center gap-2 ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}
               >
                 <div

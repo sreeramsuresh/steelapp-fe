@@ -172,7 +172,10 @@ const AccountStatementPreview = ({ statement, company, onClose }) => {
                       </thead>
                       <tbody>
                         {statement.transactions.slice(0, 10).map((txn, index) => (
-                          <tr key={index} className={`border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                          <tr
+                            key={txn.id || txn.name || `txn-${index}`}
+                            className={`border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                          >
                             <td className="px-4 py-3">{formatDate(txn.date)}</td>
                             <td className="px-4 py-3">{txn.reference || "-"}</td>
                             <td className="px-4 py-3">{txn.type || "-"}</td>
@@ -229,8 +232,8 @@ const AccountStatementPreview = ({ statement, company, onClose }) => {
                 <ul
                   className={`text-sm mt-1 list-disc list-inside ${isDarkMode ? "text-yellow-200" : "text-yellow-700"}`}
                 >
-                  {validation.warnings.map((warning, index) => (
-                    <li key={index}>{warning}</li>
+                  {validation.warnings.map((warning, _index) => (
+                    <li key={warning}>{warning}</li>
                   ))}
                 </ul>
               </div>

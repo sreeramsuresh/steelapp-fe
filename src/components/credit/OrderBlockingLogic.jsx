@@ -102,10 +102,9 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
   return (
     <>
       {/* Modal Backdrop */}
-      <div
+      <button
+        type="button"
         className={`fixed inset-0 z-50 ${isDarkMode ? "bg-black/60" : "bg-black/40"}`}
-        role="button"
-        tabIndex={0}
         onClick={onClose}
         onKeyDown={(e) => {
           if (e.key === "Escape") {

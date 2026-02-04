@@ -599,11 +599,10 @@ const StockMovement = () => {
       {openDialog && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex min-h-screen items-center justify-center p-4">
-            <div
+            <button
+              type="button"
               className="fixed inset-0 bg-black bg-opacity-50"
               onClick={handleCloseDialog}
-              role="button"
-              tabIndex={0}
               onKeyDown={(e) => e.key === "Enter" && handleCloseDialog()}
             />
             <div

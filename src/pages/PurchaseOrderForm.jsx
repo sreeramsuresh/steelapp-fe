@@ -1868,8 +1868,8 @@ const PurchaseOrderForm = () => {
               <div className="flex-1">
                 <h4 className="font-bold text-sm mb-2">Please fix the following errors:</h4>
                 <ul className="list-disc list-inside space-y-1 text-xs">
-                  {validationErrors.map((error, index) => (
-                    <li key={index}>{error}</li>
+                  {validationErrors.map((error, _index) => (
+                    <li key={error}>{error}</li>
                   ))}
                 </ul>
                 <button
@@ -2189,7 +2189,7 @@ const PurchaseOrderForm = () => {
                   <tbody className={`divide-y ${isDarkMode ? "divide-[#2a3640]" : "divide-gray-200"}`}>
                     {purchaseOrder.items.map((item, index) => (
                       <tr
-                        key={index}
+                        key={item}
                         data-item-index={index}
                         data-testid={`item-row-${index}`}
                         className={isDarkMode ? "bg-[#141a20]" : "bg-white"}

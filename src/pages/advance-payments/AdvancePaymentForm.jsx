@@ -771,7 +771,7 @@ export function AdvancePaymentForm({ advance, companyId, onSave, onClose }) {
                       <tbody>
                         {formData.applications.map((app, idx) => (
                           <tr
-                            key={idx}
+                            key={app.id || app.name || `app-${idx}`}
                             className={isDarkMode ? "border-t border-gray-700" : "border-t border-gray-200"}
                           >
                             <td className="p-2">{app.invoiceNumber}</td>

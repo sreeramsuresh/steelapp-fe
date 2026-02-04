@@ -910,7 +910,7 @@ const AdvancePaymentList = () => {
                         {payment.applications && payment.applications.length > 0 ? (
                           <div className="text-sm">
                             {payment.applications.slice(0, 2).map((app, idx) => (
-                              <div key={idx}>{app.invoiceNumber}</div>
+                              <div key={app.id || app.name || `app-${idx}`}>{app.invoiceNumber}</div>
                             ))}
                             {payment.applications.length > 2 && (
                               <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>

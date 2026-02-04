@@ -169,7 +169,7 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
             <div className="space-y-3 mb-4">
               {localSchedule.map((entry, index) => (
                 <div
-                  key={index}
+                  key={entry}
                   className={`p-3 rounded-lg border ${
                     isDarkMode ? "border-gray-600 bg-gray-700" : "border-gray-200 bg-gray-50"
                   }`}

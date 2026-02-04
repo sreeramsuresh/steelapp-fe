@@ -161,7 +161,7 @@ export default function CashBookReport() {
             </thead>
             <tbody>
               {summary.summary.map((day, idx) => (
-                <tr key={idx} className="border-b hover:bg-gray-50">
+                <tr key={day.id || day.name || `day-${idx}`} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm">{bankReconciliationService.formatDate(day.entry_date)}</td>
                   <td className="px-4 py-3 text-right text-sm text-green-600">
                     {bankReconciliationService.formatCurrency(day.total_receipts)}
@@ -207,7 +207,7 @@ export default function CashBookReport() {
             </thead>
             <tbody>
               {data.entries.map((entry, idx) => (
-                <tr key={idx} className="border-b hover:bg-gray-50 text-sm">
+                <tr key={entry.id || entry.name || `entry-${idx}`} className="border-b hover:bg-gray-50 text-sm">
                   <td className="px-4 py-3">{bankReconciliationService.formatDate(entry.entry_date)}</td>
                   <td className="px-4 py-3 font-medium">{entry.journal_number}</td>
                   <td className="px-4 py-3">

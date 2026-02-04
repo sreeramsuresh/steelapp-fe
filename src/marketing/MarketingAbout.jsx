@@ -183,7 +183,7 @@ const About = () => {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {products.map((product, index) => (
                   <div
-                    key={index}
+                    key={product}
                     className="group flex items-center space-x-4 p-4 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 cursor-pointer border border-transparent hover:border-blue-200"
                   >
                     <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg group-hover:scale-110 transition-transform duration-300">
@@ -218,7 +218,7 @@ const About = () => {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {whyChooseUs.map((item, index) => (
                 <div
-                  key={index}
+                  key={item.id || item.name || `item-${index}`}
                   className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
                 >
                   <div
@@ -245,7 +245,7 @@ const About = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {galleryImages.map((image, index) => (
                 <div
-                  key={index}
+                  key={image.id || image.name || `image-${index}`}
                   className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300"
                 >
                   <img
@@ -278,7 +278,7 @@ const About = () => {
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                 {emirates.map((emirate, index) => (
-                  <div key={index} className="text-center group">
+                  <div key={emirate.id || emirate.name || `emirate-${index}`} className="text-center group">
                     <div
                       className={`w-20 h-20 ${emirate.color} rounded-full mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}
                     >

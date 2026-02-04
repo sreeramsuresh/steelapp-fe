@@ -192,7 +192,7 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
             <div className="space-y-3 mb-4">
               {localAlternatives.map((alt, index) => (
                 <div
-                  key={index}
+                  key={alt}
                   className={`p-3 rounded-lg border ${
                     isDarkMode ? "border-gray-600 bg-gray-700" : "border-gray-200 bg-gray-50"
                   }`}

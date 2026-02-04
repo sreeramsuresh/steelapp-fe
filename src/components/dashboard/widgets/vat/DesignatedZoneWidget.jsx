@@ -339,7 +339,7 @@ const DesignatedZoneWidget = ({
             .filter((d) => d.required)
             .map((doc, idx) => (
               <span
-                key={idx}
+                key={doc.id || doc.name || `doc-${idx}`}
                 className={`text-xs px-2 py-0.5 rounded-full ${
                   isDarkMode ? "bg-[#2E3B4E] text-gray-300" : "bg-gray-100 text-gray-600"
                 }`}

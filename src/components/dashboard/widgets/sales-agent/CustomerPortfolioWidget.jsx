@@ -350,7 +350,7 @@ const CustomerPortfolioWidget = ({ data: propData, onRefresh, onViewDetails, isL
           </div>
           <div className="flex-1 grid grid-cols-2 gap-1">
             {segments.map((segment, idx) => (
-              <div key={idx} className="flex items-center gap-1">
+              <div key={segment.id || segment.name || `segment-${idx}`} className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: segment.color }} />
                 <span className={`text-xs ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                   {segment.name} ({segment.count})

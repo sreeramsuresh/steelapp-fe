@@ -313,7 +313,7 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
                   >
                     {uploadResults.failed.map((failed, index) => (
                       <div
-                        key={index}
+                        key={failed.id || failed.name || `failed-${index}`}
                         className={`p-3 border-b last:border-b-0 ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
                       >
                         <div className="flex justify-between items-start">

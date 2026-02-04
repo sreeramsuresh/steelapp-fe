@@ -1161,7 +1161,7 @@ const CustomerForm = () => {
                 color: "text-red-500",
               },
             ].map((bucket, idx) => (
-              <div key={idx} className="flex items-center justify-between">
+              <div key={bucket.id || bucket.name || `bucket-${idx}`} className="flex items-center justify-between">
                 <span className={textMuted}>{bucket.label}</span>
                 <span className={`font-mono font-bold ${bucket.color}`}>
                   AED{" "}
@@ -1209,7 +1209,7 @@ const CustomerForm = () => {
               <tbody className={`divide-y ${isDarkMode ? "divide-[#2a3640]" : "divide-gray-200"}`}>
                 {paymentHistory.length > 0 ? (
                   paymentHistory.map((payment, idx) => (
-                    <tr key={idx}>
+                    <tr key={payment.id || payment.name || `payment-${idx}`}>
                       <td className={`px-3 py-2 text-sm ${textMuted}`}>
                         {new Date(payment.paymentDate).toLocaleDateString()}
                       </td>

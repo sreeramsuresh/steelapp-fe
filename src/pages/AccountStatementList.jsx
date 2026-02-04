@@ -751,8 +751,8 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                 This statement is missing required information:
               </p>
               <ul className={`list-disc list-inside mb-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                {downloadWarning.warnings.map((warning, index) => (
-                  <li key={index}>{warning}</li>
+                {downloadWarning.warnings.map((warning, _index) => (
+                  <li key={warning}>{warning}</li>
                 ))}
               </ul>
               <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>

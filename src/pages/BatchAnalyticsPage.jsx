@@ -343,7 +343,7 @@ const CostVarianceTab = ({ isDarkMode }) => {
               </TableHeader>
               <TableBody>
                 {varianceData.tableData.map((row, index) => (
-                  <TableRow key={index}>
+                  <TableRow key={row.id || row.name || `row-${index}`}>
                     <TableCell className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
                       {row.date || "N/A"}
                     </TableCell>
@@ -651,7 +651,7 @@ const ModificationLogTab = ({ isDarkMode }) => {
               </TableHeader>
               <TableBody>
                 {logData.map((log, index) => (
-                  <TableRow key={index}>
+                  <TableRow key={log.id || log.name || `log-${index}`}>
                     <TableCell className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
                       {log.timestamp || "N/A"}
                     </TableCell>
@@ -784,7 +784,7 @@ const BatchAgingTab = ({ isDarkMode }) => {
               </TableHeader>
               <TableBody>
                 {agingData.batches.map((batch, index) => (
-                  <TableRow key={index}>
+                  <TableRow key={batch.id || batch.name || `batch-${index}`}>
                     <TableCell className={isDarkMode ? "text-white" : "text-gray-900"}>
                       {batch.batchNumber || "N/A"}
                     </TableCell>

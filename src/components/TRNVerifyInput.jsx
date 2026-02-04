@@ -323,8 +323,8 @@ const TRNVerifyInput = ({
                 <div className={`mt-2 p-2 rounded text-xs ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
                   <p className="font-medium mb-1">Manual Verification Steps:</p>
                   <ol className="list-decimal list-inside space-y-0.5">
-                    {verificationResult.instructions.map((step, index) => (
-                      <li key={index}>{step}</li>
+                    {verificationResult.instructions.map((step, _index) => (
+                      <li key={step}>{step}</li>
                     ))}
                   </ol>
                 </div>

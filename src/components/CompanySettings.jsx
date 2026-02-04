@@ -2645,7 +2645,7 @@ const CompanySettings = () => {
                             {user.roles && user.roles.length > 0 ? (
                               user.roles.map((role, idx) => (
                                 <span
-                                  key={idx}
+                                  key={role.id || role.name || `role-${idx}`}
                                   className={`inline-block px-2 py-1 text-xs font-medium rounded border ${
                                     role.isDirector
                                       ? isDarkMode
@@ -3970,7 +3970,7 @@ const CompanySettings = () => {
                 <div className="space-y-4">
                   {auditLogModal.logs.map((log, index) => (
                     <div
-                      key={index}
+                      key={log.id || log.name || `log-${index}`}
                       className={`p-4 rounded-lg border ${
                         isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
                       }`}
@@ -4075,7 +4075,7 @@ const CompanySettings = () => {
                       <div className="space-y-3">
                         {viewPermissionsModal.rolePermissions.map((role, idx) => (
                           <div
-                            key={idx}
+                            key={role.id || role.name || `role-${idx}`}
                             className={`rounded-lg border ${
                               isDarkMode ? "bg-gray-800 border-gray-700" : "bg-gray-50 border-gray-200"
                             } p-3`}
@@ -4115,7 +4115,7 @@ const CompanySettings = () => {
                                   const PermIcon = getPermissionIcon(perm.permissionKey || perm.description);
                                   return (
                                     <div
-                                      key={permIdx}
+                                      key={perm.id || perm.name || `perm-${permIdx}`}
                                       className={`flex items-center text-sm leading-tight ${
                                         isDarkMode ? "text-gray-300" : "text-gray-700"
                                       }`}
@@ -4151,7 +4151,7 @@ const CompanySettings = () => {
                       <div className="space-y-3">
                         {viewPermissionsModal.customGrants.map((grant, idx) => (
                           <div
-                            key={idx}
+                            key={grant.id || grant.name || `grant-${idx}`}
                             className={`rounded-lg border ${
                               isDarkMode ? "bg-yellow-900/10 border-yellow-700/30" : "bg-yellow-50 border-yellow-200"
                             } p-4`}

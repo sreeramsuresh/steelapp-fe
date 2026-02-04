@@ -404,7 +404,7 @@ const VATReturnReport = () => {
             >
               <option value="">-- Select Period --</option>
               {periods.map((period, idx) => (
-                <option key={idx} value={JSON.stringify(period)}>
+                <option key={period.id || period.name || `period-${idx}`} value={JSON.stringify(period)}>
                   {new Date(period.periodStart).toLocaleDateString("en-GB", {
                     month: "long",
                     year: "numeric",
@@ -449,9 +449,7 @@ const VATReturnReport = () => {
         </div>
 
         <div className="flex space-x-3 mt-4">
-          <button
-            type="button"
-            onClick={generateReport}
+          <button type="button" onClick={generateReport}
             disabled={loading}
             className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
           >
@@ -460,9 +458,7 @@ const VATReturnReport = () => {
           </button>
 
           {vatReturn && (
-            <button
-              type="button"
-              onClick={downloadPDF}
+            <button type="button" onClick={downloadPDF}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               <Download className="h-4 w-4 mr-2" />
@@ -571,11 +567,8 @@ const VATReturnReport = () => {
 
           {/* Output VAT by Emirate (Boxes 1-7) */}
           <div className={cardClass}>
-            <div
-              role="button"
-              tabIndex={0}
-              className={sectionHeaderClass}
-              onClick={() => toggleSection("outputVat")}
+            <button type="button" className={sectionHeaderClass}
+       onClick={() => toggleSection("outputVat")}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
@@ -687,11 +680,8 @@ const VATReturnReport = () => {
 
           {/* INPUT VAT SECTION (Form 201 Boxes 8-13) */}
           <div className={cardClass}>
-            <div
-              role="button"
-              tabIndex={0}
-              className={sectionHeaderClass}
-              onClick={() => toggleSection("inputVat")}
+            <button type="button" className={sectionHeaderClass}
+       onClick={() => toggleSection("inputVat")}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
@@ -814,11 +804,8 @@ const VATReturnReport = () => {
           {/* Supplier Bills Summary */}
           {supplierBillSummary.length > 0 && (
             <div className={cardClass}>
-              <div
-                role="button"
-                tabIndex={0}
-                className={sectionHeaderClass}
-                onClick={() => toggleSection("supplierBills")}
+              <button type="button" className={sectionHeaderClass}
+        onClick={() => toggleSection("supplierBills")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
@@ -856,7 +843,10 @@ const VATReturnReport = () => {
                     </thead>
                     <tbody>
                       {supplierBillSummary.map((row, idx) => (
-                        <tr key={idx} className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                        <tr
+                          key={row.id || row.name || `row-${idx}`}
+                          className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                        >
                           <td className={`py-2 px-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                             {vatCategoryLabels[row.category] || row.category}
                           </td>
@@ -881,11 +871,8 @@ const VATReturnReport = () => {
           {/* Advance Payments VAT */}
           {advancePayments.length > 0 && (
             <div className={cardClass}>
-              <div
-                role="button"
-                tabIndex={0}
-                className={sectionHeaderClass}
-                onClick={() => toggleSection("advancePayments")}
+              <button type="button" className={sectionHeaderClass}
+        onClick={() => toggleSection("advancePayments")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
@@ -972,11 +959,8 @@ const VATReturnReport = () => {
           {/* Blocked VAT (Non-Recoverable) */}
           {blockedVatLog.length > 0 && (
             <div className={cardClass}>
-              <div
-                role="button"
-                tabIndex={0}
-                className={sectionHeaderClass}
-                onClick={() => toggleSection("blockedVat")}
+              <button type="button" className={sectionHeaderClass}
+        onClick={() => toggleSection("blockedVat")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
@@ -1101,11 +1085,8 @@ const VATReturnReport = () => {
           {/* Amendments History */}
           {amendments.length > 0 && (
             <div className={cardClass}>
-              <div
-                role="button"
-                tabIndex={0}
-                className={sectionHeaderClass}
-                onClick={() => toggleSection("amendments")}
+              <button type="button" className={sectionHeaderClass}
+        onClick={() => toggleSection("amendments")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
@@ -1182,11 +1163,8 @@ const VATReturnReport = () => {
           {/* Invoice Details (collapsible) */}
           {vatReturn.invoices && vatReturn.invoices.length > 0 && (
             <div className={cardClass}>
-              <div
-                role="button"
-                tabIndex={0}
-                className={sectionHeaderClass}
-                onClick={() => toggleSection("invoices")}
+              <button type="button" className={sectionHeaderClass}
+        onClick={() => toggleSection("invoices")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
@@ -1216,7 +1194,10 @@ const VATReturnReport = () => {
                     </thead>
                     <tbody>
                       {vatReturn.invoices.slice(0, 50).map((inv, idx) => (
-                        <tr key={idx} className={`border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                        <tr
+                          key={inv.id || inv.name || `inv-${idx}`}
+                          className={`border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                        >
                           <td className={`py-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>{inv.invoiceNumber}</td>
                           <td className={isDarkMode ? "text-gray-300" : "text-gray-700"}>{inv.customerName}</td>
                           <td className={isDarkMode ? "text-gray-300" : "text-gray-700"}>
@@ -1245,9 +1226,7 @@ const VATReturnReport = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap justify-end gap-3">
-            <button
-              type="button"
-              onClick={exportToExcel}
+            <button type="button" onClick={exportToExcel}
               className={`inline-flex items-center px-4 py-2 rounded-lg border ${
                 isDarkMode
                   ? "border-gray-600 text-gray-300 hover:bg-gray-700"
@@ -1258,9 +1237,7 @@ const VATReturnReport = () => {
               Export Excel
             </button>
 
-            <button
-              type="button"
-              onClick={downloadPDF}
+            <button type="button" onClick={downloadPDF}
               className={`inline-flex items-center px-4 py-2 rounded-lg border ${
                 isDarkMode
                   ? "border-gray-600 text-gray-300 hover:bg-gray-700"
@@ -1271,9 +1248,7 @@ const VATReturnReport = () => {
               Download PDF
             </button>
 
-            <button
-              type="button"
-              onClick={() => vatReturn?.id && navigate(`/reports/vat-return/${vatReturn.id}/preview`)}
+            <button type="button" onClick={() => vatReturn?.id && navigate(`/reports/vat-return/${vatReturn.id}/preview`)}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               <Eye className="h-4 w-4 mr-2" />
@@ -1281,9 +1256,7 @@ const VATReturnReport = () => {
             </button>
 
             {vatReturn?.status === "draft" && (
-              <button
-                type="button"
-                onClick={handleSubmit}
+              <button type="button" onClick={handleSubmit}
                 className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
               >
                 <Send className="h-4 w-4 mr-2" />

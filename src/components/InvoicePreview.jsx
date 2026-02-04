@@ -149,7 +149,7 @@ const InvoicePreview = ({
             </div>
           ) : (
             pagesWithIndices.map((page, idx) => (
-              <div key={idx} className="mb-8">
+              <div key={page.id || page.name || `page-${idx}`} className="mb-8">
                 <InvoiceTemplate
                   invoice={invoice}
                   company={company}

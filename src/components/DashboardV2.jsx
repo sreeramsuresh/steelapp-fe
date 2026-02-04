@@ -95,15 +95,12 @@ const SectionHeader = ({ title, icon: Icon, description, isExpanded, onToggle, w
     }
   };
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onToggle}
-      onKeyDown={handleKeyDown}
-      className={`flex items-center justify-between p-4 rounded-t-xl cursor-pointer transition-colors ${
-        isDarkMode ? "bg-gray-800 hover:bg-gray-750" : "bg-gray-50 hover:bg-gray-100"
-      }`}
-    >
+    <button type="button" onClick={onToggle}
+   onKeyDown={handleKeyDown}
+   className={`flex items-center justify-between p-4 rounded-t-xl cursor-pointer transition-colors ${
+    isDarkMode ? "bg-gray-800 hover:bg-gray-750" : "bg-gray-50 hover:bg-gray-100"
+   }`}
+  >
       <div className="flex items-center gap-3">
         {Icon && (
           <div className={`p-2 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-white"}`}>
@@ -122,9 +119,7 @@ const SectionHeader = ({ title, icon: Icon, description, isExpanded, onToggle, w
           {description && <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{description}</p>}
         </div>
       </div>
-      <button
-        type="button"
-        onClick={onToggle}
+      <button type="button" onClick={onToggle}
         className={`p-1 rounded ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}
         aria-label={isExpanded ? "Collapse section" : "Expand section"}
       >
@@ -670,9 +665,7 @@ const DashboardV2 = () => {
           </div>
           <div className="flex items-center gap-2">
             {isRefreshing && <div className="animate-spin h-4 w-4 border-b border-teal-500 rounded-full" />}
-            <button
-              type="button"
-              onClick={fetchDashboardData}
+            <button type="button" onClick={fetchDashboardData}
               className={`p-2 rounded-lg ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
             >
               <RefreshCw size={18} className={isDarkMode ? "text-gray-400" : "text-gray-600"} />
@@ -684,9 +677,7 @@ const DashboardV2 = () => {
       {/* Tab Navigation */}
       <div className={`flex gap-2 mb-6 overflow-x-auto pb-2 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
         {TABS.map((tab) => (
-          <button
-            type="button"
-            key={tab.id}
+          <button type="button" key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${
               activeTab === tab.id

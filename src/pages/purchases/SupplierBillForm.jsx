@@ -1271,8 +1271,8 @@ const SupplierBillForm = () => {
               <div>
                 <h4 className="font-bold mb-2">Please fix the following errors:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm">
-                  {validationErrors.map((error, index) => (
-                    <li key={index}>{error}</li>
+                  {validationErrors.map((error, _index) => (
+                    <li key={error}>{error}</li>
                   ))}
                 </ul>
               </div>

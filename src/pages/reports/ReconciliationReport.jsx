@@ -650,7 +650,7 @@ export default function ReconciliationReport() {
 
                     return (
                       <tr
-                        key={index}
+                        key={item.id || item.name || `item-${index}`}
                         className={`${
                           Math.abs(item.variancePercent) > 1
                             ? isDarkMode

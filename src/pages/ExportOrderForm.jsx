@@ -3325,7 +3325,7 @@ const ExportOrderForm = () => {
                 { name: "Quality/Mill Test Certificate", required: false },
                 { name: "Letter of Credit (if applicable)", required: false },
               ].map((doc, idx) => (
-                <div key={idx} className="flex items-center gap-2">
+                <div key={doc.id || doc.name || `doc-${idx}`} className="flex items-center gap-2">
                   <div className={`h-2 w-2 rounded-full ${doc.required ? "bg-red-500" : "bg-gray-400"}`} />
                   <span className={`text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                     {doc.name}

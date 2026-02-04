@@ -371,8 +371,8 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           <div className="flex-1">
             <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">Please fix the following errors:</p>
             <ul className="list-disc list-inside text-sm text-red-700 dark:text-red-300 space-y-1">
-              {validationErrors.map((err, idx) => (
-                <li key={idx}>{err}</li>
+              {validationErrors.map((err, _idx) => (
+                <li key={err}>{err}</li>
               ))}
             </ul>
           </div>

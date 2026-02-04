@@ -133,7 +133,7 @@ const Home = () => {
           <div className="absolute inset-0">
             {heroSlides.map((slide, index) => (
               <div
-                key={index}
+                key={slide.id || slide.name || `slide-${index}`}
                 className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
                   index === currentSlide ? "opacity-100 scale-100" : "opacity-0 scale-105"
                 }`}
@@ -208,7 +208,7 @@ const Home = () => {
             {heroSlides.map((_, index) => (
               <button
                 type="button"
-                key={index}
+                key={_}
                 className={`w-4 h-4 rounded-full transition-all duration-300 ${
                   index === currentSlide ? "bg-white scale-125 shadow-lg" : "bg-white/50 hover:bg-white/75"
                 }`}
@@ -316,7 +316,7 @@ const Home = () => {
                 },
               ].map((stat, index) => (
                 <div
-                  key={index}
+                  key={stat.id || stat.name || `stat-${index}`}
                   className="group bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100"
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -352,7 +352,7 @@ const Home = () => {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {services.map((service, index) => (
                 <div
-                  key={index}
+                  key={service.id || service.name || `service-${index}`}
                   className="group bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 overflow-hidden border border-gray-100"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
@@ -449,7 +449,10 @@ const Home = () => {
                         color: "pink",
                       },
                     ].map((area, index) => (
-                      <div key={index} className="flex items-center space-x-3 p-3 bg-white/70 rounded-xl">
+                      <div
+                        key={area.id || area.name || `area-${index}`}
+                        className="flex items-center space-x-3 p-3 bg-white/70 rounded-xl"
+                      >
                         <span className={`w-4 h-4 bg-${area.color}-500 rounded-full flex-shrink-0`} />
                         <div>
                           <div className="font-semibold text-gray-900">{area.name}</div>
@@ -513,7 +516,11 @@ const Home = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
               {industries.map((industry, index) => (
-                <div key={index} className="group text-center" style={{ animationDelay: `${index * 150}ms` }}>
+                <div
+                  key={industry.id || industry.name || `industry-${index}`}
+                  className="group text-center"
+                  style={{ animationDelay: `${index * 150}ms` }}
+                >
                   {/* Main Image Container */}
                   <div className="relative mb-6 mx-auto">
                     <div className="w-40 h-40 mx-auto rounded-3xl overflow-hidden shadow-xl group-hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2">

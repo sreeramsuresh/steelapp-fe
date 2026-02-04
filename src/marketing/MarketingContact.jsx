@@ -195,7 +195,10 @@ const Contact = () => {
                       color: "bg-orange-600",
                     },
                   ].map((area, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-4 bg-white rounded-xl shadow-lg">
+                    <div
+                      key={area.id || area.name || `area-${index}`}
+                      className="flex items-center space-x-3 p-4 bg-white rounded-xl shadow-lg"
+                    >
                       <div className={`w-4 h-4 ${area.color} rounded-full`}></div>
                       <div>
                         <div className="font-semibold text-gray-900">{area.name}</div>

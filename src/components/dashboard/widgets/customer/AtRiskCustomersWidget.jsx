@@ -308,7 +308,7 @@ const AtRiskCustomersWidget = ({
           const Icon = factor.icon;
           return (
             <div
-              key={idx}
+              key={factor.id || factor.name || `factor-${idx}`}
               className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
                 isDarkMode ? "bg-[#2E3B4E] text-gray-300" : "bg-gray-100 text-gray-600"
               }`}
@@ -364,8 +364,8 @@ const AtRiskCustomersWidget = ({
                       {customer.name}
                     </p>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {customer.indicators.map((ind, idx) => (
-                        <span key={idx} className={`text-[10px] px-1.5 py-0.5 rounded ${riskStyle.badge} text-white`}>
+                      {customer.indicators.map((ind, _idx) => (
+                        <span key={ind} className={`text-[10px] px-1.5 py-0.5 rounded ${riskStyle.badge} text-white`}>
                           {ind}
                         </span>
                       ))}

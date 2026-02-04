@@ -214,7 +214,7 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                             const amount = qty * price;
                             return (
                               <tr
-                                key={index}
+                                key={item.id || item.name || `item-${index}`}
                                 className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-100"}`}
                               >
                                 <td className="py-3">
@@ -314,8 +314,8 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                   Incomplete fields:
                 </p>
                 <ul className={`text-sm mt-1 ml-4 list-disc ${isDarkMode ? "text-yellow-400" : "text-yellow-700"}`}>
-                  {validation.warnings.map((warning, index) => (
-                    <li key={index}>{warning}</li>
+                  {validation.warnings.map((warning, _index) => (
+                    <li key={warning}>{warning}</li>
                   ))}
                 </ul>
               </div>

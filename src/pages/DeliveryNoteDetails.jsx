@@ -460,7 +460,7 @@ const DeliveryNoteDetails = () => {
                 </thead>
                 <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
                   {deliveryNote.items?.map((item, index) => (
-                    <tr key={index}>
+                    <tr key={item.id || item.name || `item-${index}`}>
                       <td className="px-4 py-3">
                         <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                           {item.name}

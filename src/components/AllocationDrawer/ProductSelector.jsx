@@ -201,13 +201,10 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
           role="listbox"
         >
           {products.map((product, index) => (
-            <div
-              key={product.id || `product-${index}`}
-              role="button"
-              tabIndex={0}
-              data-testid={`drawer-product-option-${index}`}
-              className={`product-option ${index === highlightedIndex ? "highlighted" : ""}`}
-              onClick={() => handleSelect(product)}
+            <button type="button" key={product.id || `product-${index}`}
+       data-testid={`drawer-product-option-${index}`}
+       className={`product-option ${index === highlightedIndex ? "highlighted" : ""}`}
+       onClick={() => handleSelect(product)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();

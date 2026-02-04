@@ -150,7 +150,7 @@ export default function BankLedgerReport() {
             </thead>
             <tbody>
               {data.transactions.map((txn, idx) => (
-                <tr key={idx} className="border-b hover:bg-gray-50">
+                <tr key={txn.id || txn.name || `txn-${idx}`} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm">{bankReconciliationService.formatDate(txn.entry_date)}</td>
                   <td className="px-4 py-3 text-sm">{txn.journal_number}</td>
                   <td className="px-4 py-3 text-sm">{txn.batch_number}</td>

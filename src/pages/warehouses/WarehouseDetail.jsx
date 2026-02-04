@@ -298,7 +298,7 @@ const WarehouseDetail = () => {
                 },
               ].map((kpi, index) => (
                 <div
-                  key={index}
+                  key={kpi.id || kpi.name || `kpi-${index}`}
                   className={`rounded-lg border p-4 ${
                     isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"
                   }`}

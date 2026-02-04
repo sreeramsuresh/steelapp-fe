@@ -193,7 +193,7 @@ const APAgingWidget = ({ data: propData, onRefresh, loading: externalLoading }) 
             </div>
             <div className="space-y-1">
               {data.criticalSuppliers.slice(0, 2).map((supplier, idx) => (
-                <div key={idx} className="flex justify-between text-xs">
+                <div key={supplier.id || supplier.name || `supplier-${idx}`} className="flex justify-between text-xs">
                   <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>{supplier.name}</span>
                   <span className="text-red-500 font-medium">{supplier.daysOverdue}d overdue</span>
                 </div>

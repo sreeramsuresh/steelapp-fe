@@ -140,9 +140,7 @@ const ChargesDrawer = ({
                 Configure freight, loading, and discount settings
               </div>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
+            <button type="button" onClick={onClose}
               className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
             >
               <X className="w-5 h-5" />
@@ -261,9 +259,7 @@ const ChargesDrawer = ({
                   ]}
                 />
               </h4>
-              <button
-                type="button"
-                onClick={() => setShowFreightCharges(!showFreightCharges)}
+              <button type="button" onClick={() => setShowFreightCharges(!showFreightCharges)}
                 className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                   showFreightCharges
                     ? isDarkMode
@@ -473,9 +469,7 @@ const ChargesDrawer = ({
             }}
           >
             <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={onClose}
+              <button type="button" onClick={onClose}
                 className={`px-4 py-2.5 rounded-xl text-[13px] font-medium transition-colors ${
                   isDarkMode
                     ? "bg-[#0f151b] border border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]"
@@ -541,9 +535,7 @@ const NotesDrawer = ({
                 Add invoice notes, VAT notes, and payment terms
               </div>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
+            <button type="button" onClick={onClose}
               className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
             >
               <X className="w-5 h-5" />
@@ -624,9 +616,7 @@ const NotesDrawer = ({
             }}
           >
             <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={onClose}
+              <button type="button" onClick={onClose}
                 className={`px-4 py-2.5 rounded-xl text-[13px] font-medium transition-colors ${
                   isDarkMode
                     ? "bg-[#0f151b] border border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]"
@@ -694,9 +684,7 @@ const AddProductDrawer = ({
                 Search products, allocate batches, and add to invoice
               </div>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
+            <button type="button" onClick={onClose}
               className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
             >
               <X className="w-5 h-5" />
@@ -768,9 +756,7 @@ const Button = ({
   };
 
   return (
-    <button
-      type="button"
-      className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${
+    <button type="button" className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${
         disabled ? "cursor-not-allowed" : ""
       } ${className}`}
       disabled={disabled}
@@ -944,9 +930,7 @@ const Alert = ({ variant = "info", children, onClose, className = "" }) => {
         </div>
         <div className="ml-3 flex-1">{children}</div>
         {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
+          <button type="button" onClick={onClose}
             className={`ml-3 flex-shrink-0 ${
               isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-700"
             }`}
@@ -972,9 +956,7 @@ const VatHelpIcon = ({ content, heading }) => {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setShowModal(true)}
+      <button type="button" onClick={() => setShowModal(true)}
         className="inline-flex items-center justify-center ml-1 p-1 transition-colors"
         title="Click for help"
       >
@@ -982,12 +964,11 @@ const VatHelpIcon = ({ content, heading }) => {
       </button>
 
       {showModal && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto"
-          onClick={handleCloseModal}
-          role="button"
-          tabIndex={-1}
-          onKeyDown={(e) => e.key === "Escape" && handleCloseModal()}
+        <button type="button" className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto"
+     onClick={handleCloseModal}
+     
+     tabIndex={-1}
+     onKeyDown={(e) => e.key === "Escape" && handleCloseModal()}
         >
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
           <div
@@ -997,9 +978,7 @@ const VatHelpIcon = ({ content, heading }) => {
             role="dialog"
             aria-modal="true"
           >
-            <button
-              type="button"
-              onClick={handleCloseModal}
+            <button type="button" onClick={handleCloseModal}
               className={`absolute top-4 right-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             >
               <X className="w-4 h-4" />
@@ -1012,7 +991,10 @@ const VatHelpIcon = ({ content, heading }) => {
             <div className={`space-y-4 pr-4 normal-case ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
               {Array.isArray(content) ? (
                 content.map((paragraph, idx) => (
-                  <p key={idx} className={`text-xs leading-relaxed normal-case ${idx === 0 ? "font-semibold" : ""}`}>
+                  <p
+                    key={paragraph}
+                    className={`text-xs leading-relaxed normal-case ${idx === 0 ? "font-semibold" : ""}`}
+                  >
                     {paragraph}
                   </p>
                 ))
@@ -1315,12 +1297,11 @@ const _Modal = ({ isOpen, onClose, title, children, size = "lg" }) => {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div
-          className="fixed inset-0 transition-opacity"
-          onClick={onClose}
-          role="button"
-          tabIndex={-1}
-          onKeyDown={(e) => e.key === "Escape" && onClose()}
+        <button type="button" className="fixed inset-0 transition-opacity"
+     onClick={onClose}
+     
+     tabIndex={-1}
+     onKeyDown={(e) => e.key === "Escape" && onClose()}
         >
           <div className={`absolute inset-0 ${isDarkMode ? "bg-gray-900" : "bg-black"} opacity-75`}></div>
         </div>
@@ -1332,9 +1313,7 @@ const _Modal = ({ isOpen, onClose, title, children, size = "lg" }) => {
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className={`text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>{title}</h3>
-            <button
-              type="button"
-              onClick={onClose}
+            <button type="button" onClick={onClose}
               className={isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-700"}
             >
               <X className="h-5 w-5" />
@@ -1371,9 +1350,7 @@ const ToggleSwitchInvoice = ({ enabled, onChange, label, description, isDarkMode
       <p className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>{label}</p>
       <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{description}</p>
     </div>
-    <button
-      type="button"
-      onClick={onChange}
+    <button type="button" onClick={onChange}
       className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
         enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
       }`}
@@ -1419,9 +1396,7 @@ const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange })
       <div className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}>
         <div className="flex items-center justify-between">
           <h3 className={`text-sm font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>Form Settings</h3>
-          <button
-            type="button"
-            onClick={onClose}
+          <button type="button" onClick={onClose}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
               isDarkMode ? "text-gray-400" : "text-gray-500"
             }`}
@@ -4088,9 +4063,7 @@ const InvoiceForm = ({ onSave }) => {
           <div className="max-w-7xl mx-auto px-4 py-3 md:py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => navigate(INVOICE_ROUTES.list())}
+                <button type="button" onClick={() => navigate(INVOICE_ROUTES.list())}
                   className={`p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${
                     isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
                   }`}
@@ -4110,9 +4083,7 @@ const InvoiceForm = ({ onSave }) => {
 
               <div className="hidden md:flex gap-2 items-start relative">
                 {/* Settings Icon */}
-                <button
-                  type="button"
-                  onClick={() => setShowFormSettings(!showFormSettings)}
+                <button type="button" onClick={() => setShowFormSettings(!showFormSettings)}
                   className={`p-2 rounded-lg transition-colors ${
                     isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
                   }`}
@@ -4265,9 +4236,7 @@ const InvoiceForm = ({ onSave }) => {
 
                           return (
                             <li key={index}>
-                              <button
-                                type="button"
-                                onClick={() => fieldName && scrollToField(fieldName)}
+                              <button type="button" onClick={() => fieldName && scrollToField(fieldName)}
                                 disabled={!fieldName}
                                 className={`flex items-center gap-2 w-full text-left ${fieldName ? "cursor-pointer hover:underline hover:text-red-400" : "opacity-60 cursor-default"}`}
                                 title={fieldName ? "Click to scroll to field" : ""}
@@ -4280,9 +4249,7 @@ const InvoiceForm = ({ onSave }) => {
                           );
                         })}
                       </ul>
-                      <button
-                        type="button"
-                        onClick={() => {
+                      <button type="button" onClick={() => {
                           setValidationErrors([]);
                           setInvalidFields(new Set());
                         }}
@@ -4845,9 +4812,7 @@ const InvoiceForm = ({ onSave }) => {
                     )}
                   </h3>
                   {useDrawerMode && (
-                    <button
-                      type="button"
-                      onClick={() => setShowAddProductDrawer(true)}
+                    <button type="button" onClick={() => setShowAddProductDrawer(true)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                         isDarkMode
                           ? "bg-teal-600 hover:bg-teal-500 text-white"
@@ -4948,7 +4913,7 @@ const InvoiceForm = ({ onSave }) => {
                                           return (
                                             <div className="text-xs text-gray-500 mt-0.5">
                                               {displayAllocations.slice(0, 2).map((alloc, i) => (
-                                                <span key={i}>
+                                                <span key={alloc.id || alloc.name || `alloc-${i}`}>
                                                   {alloc.batchNumber || `Batch ${alloc.batchId}`}:{" "}
                                                   {parseFloat(alloc.quantity || alloc.quantityConsumed || 0).toFixed(0)}{" "}
                                                   kg
@@ -5010,9 +4975,7 @@ const InvoiceForm = ({ onSave }) => {
                                   </td>
                                   {/* Delete */}
                                   <td className="py-2 px-2 text-center">
-                                    <button
-                                      type="button"
-                                      onClick={() => {
+                                    <button type="button" onClick={() => {
                                         setDeleteLineItemConfirm({
                                           open: true,
                                           itemId: item.id,
@@ -5047,9 +5010,7 @@ const InvoiceForm = ({ onSave }) => {
                             const isPinned = pinnedProductIds.includes(product.id);
                             return (
                               <div key={product.id} className="relative group">
-                                <button
-                                  type="button"
-                                  onClick={() => {
+                                <button type="button" onClick={() => {
                                     // Check if product already exists - if so, increment quantity directly
                                     const existingIndex = findDuplicateProduct(product.id, -1);
                                     if (existingIndex !== -1 && existingIndex !== null) {
@@ -5113,9 +5074,7 @@ const InvoiceForm = ({ onSave }) => {
                                 >
                                   {product.uniqueName || product.unique_name || "N/A"}
                                 </button>
-                                <button
-                                  type="button"
-                                  onClick={(e) => handleTogglePin(e, product.id)}
+                                <button type="button" onClick={(e) => handleTogglePin(e, product.id)}
                                   className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
                                     isPinned
                                       ? isDarkMode
@@ -5217,9 +5176,7 @@ const InvoiceForm = ({ onSave }) => {
                                 {/* Column 1: Expand button */}
                                 <td className="py-2 px-2 text-center">
                                   {item.productId && (
-                                    <button
-                                      type="button"
-                                      onClick={() => toggleAllocationPanel(index)}
+                                    <button type="button" onClick={() => toggleAllocationPanel(index)}
                                       className={
                                         isExpanded ? "text-teal-600 p-0.5" : "text-gray-400 hover:text-teal-600 p-0.5"
                                       }
@@ -5382,9 +5339,7 @@ const InvoiceForm = ({ onSave }) => {
 
                                 {/* Column 9: Delete button */}
                                 <td className="py-2 pr-2 text-center">
-                                  <button
-                                    type="button"
-                                    onClick={() => removeItem(index)}
+                                  <button type="button" onClick={() => removeItem(index)}
                                     className="text-gray-400 hover:text-red-500 p-1"
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -5563,7 +5518,11 @@ const InvoiceForm = ({ onSave }) => {
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-100 bg-white">
                                                   {displayAllocations.map((allocation, allocIndex) => (
-                                                    <tr key={allocIndex}>
+                                                    <tr
+                                                      key={
+                                                        allocation.id || allocation.name || `allocation-${allocIndex}`
+                                                      }
+                                                    >
                                                       <td className="px-3 py-2 font-mono text-gray-700">
                                                         {allocation.batchNumber || "N/A"}
                                                       </td>
@@ -5640,9 +5599,7 @@ const InvoiceForm = ({ onSave }) => {
                                                       )}
                                                       {!isReadOnly && (
                                                         <td className="px-3 py-2 text-right">
-                                                          <button
-                                                            type="button"
-                                                            onClick={() => {
+                                                          <button type="button" onClick={() => {
                                                               const newAllocations = (item.allocations || []).filter(
                                                                 (_, i) => i !== allocIndex
                                                               );
@@ -5672,17 +5629,13 @@ const InvoiceForm = ({ onSave }) => {
                                               </table>
                                               {!isReadOnly && (
                                                 <div className="bg-gray-50 px-3 py-2 border-t flex justify-between items-center">
-                                                  <button
-                                                    type="button"
-                                                    disabled
+                                                  <button type="button" disabled
                                                     className="text-xs text-gray-400 cursor-not-allowed font-medium"
                                                     title="Feature coming soon"
                                                   >
                                                     + Add Batch
                                                   </button>
-                                                  <button
-                                                    type="button"
-                                                    onClick={async () => {
+                                                  <button type="button" onClick={async () => {
                                                       // Re-apply FIFO auto-allocation (useful after manual changes)
                                                       await applyAutoAllocation(
                                                         index,
@@ -5811,9 +5764,7 @@ const InvoiceForm = ({ onSave }) => {
                               <h4 className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                                 Item #{index + 1}
                               </h4>
-                              <button
-                                type="button"
-                                onClick={() => removeItem(index)}
+                              <button type="button" onClick={() => removeItem(index)}
                                 className={`hover:text-red-300 ${isDarkMode ? "text-red-400" : "text-red-500"}`}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -6137,9 +6088,7 @@ const InvoiceForm = ({ onSave }) => {
                   </h3>
 
                   <div className="space-y-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowChargesDrawer(true)}
+                    <button type="button" onClick={() => setShowChargesDrawer(true)}
                       className={QUICK_LINK_CLASSES(isDarkMode)}
                     >
                       <DollarSign className="w-4 h-4 opacity-60" />
@@ -6149,9 +6098,7 @@ const InvoiceForm = ({ onSave }) => {
                       )}
                     </button>
 
-                    <button
-                      type="button"
-                      onClick={() => setShowNotesDrawer(true)}
+                    <button type="button" onClick={() => setShowNotesDrawer(true)}
                       className={QUICK_LINK_CLASSES(isDarkMode)}
                     >
                       <FileText className="w-4 h-4 opacity-60" />
@@ -6245,9 +6192,7 @@ const InvoiceForm = ({ onSave }) => {
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
-              <button
-                type="button"
-                onClick={handleCancelSave}
+              <button type="button" onClick={handleCancelSave}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   isDarkMode
                     ? "bg-gray-700 hover:bg-gray-600 text-white"
@@ -6256,9 +6201,7 @@ const InvoiceForm = ({ onSave }) => {
               >
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={handleConfirmSave}
+              <button type="button" onClick={handleConfirmSave}
                 className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
               >
                 Yes, Create Final Tax Invoice
@@ -6276,12 +6219,11 @@ const InvoiceForm = ({ onSave }) => {
           const canContinueEditing = !isFinalTaxInvoice; // Draft and Proforma can be edited
 
           return (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-              onClick={canContinueEditing ? handleSuccessModalClose : undefined}
-              role="button"
-              tabIndex={canContinueEditing ? 0 : -1}
-              onKeyDown={(e) => canContinueEditing && e.key === "Escape" && handleSuccessModalClose()}
+            <button type="button" className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+       onClick={canContinueEditing ? handleSuccessModalClose : undefined}
+       
+       tabIndex={canContinueEditing ? 0 : -1}
+       onKeyDown={(e) => canContinueEditing && e.key === "Escape" && handleSuccessModalClose()}
             >
               {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
               <div
@@ -6316,9 +6258,7 @@ const InvoiceForm = ({ onSave }) => {
 
                 {/* Close button - only show for Draft/Proforma */}
                 {canContinueEditing && (
-                  <button
-                    type="button"
-                    onClick={handleSuccessModalClose}
+                  <button type="button" onClick={handleSuccessModalClose}
                     className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
                     aria-label="Close"
                   >
@@ -6333,9 +6273,7 @@ const InvoiceForm = ({ onSave }) => {
                   </p>
 
                   {/* Download PDF Button */}
-                  <button
-                    type="button"
-                    onClick={handleSuccessDownloadPDF}
+                  <button type="button" onClick={handleSuccessDownloadPDF}
                     className="w-full flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white rounded-xl font-medium transition-all shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40"
                   >
                     <div className="p-2 bg-white/20 rounded-lg">
@@ -6349,9 +6287,7 @@ const InvoiceForm = ({ onSave }) => {
 
                   {/* Record Payment Button - Only for Final Tax Invoice */}
                   {isFinalTaxInvoice && (
-                    <button
-                      type="button"
-                      onClick={handleSuccessRecordPayment}
+                    <button type="button" onClick={handleSuccessRecordPayment}
                       className="w-full flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl font-medium transition-all shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40"
                     >
                       <div className="p-2 bg-white/20 rounded-lg">
@@ -6365,9 +6301,7 @@ const InvoiceForm = ({ onSave }) => {
                   )}
 
                   {/* Go to Invoice List Button */}
-                  <button
-                    type="button"
-                    onClick={handleSuccessGoToList}
+                  <button type="button" onClick={handleSuccessGoToList}
                     className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all border ${
                       isDarkMode
                         ? "bg-gray-800 hover:bg-gray-700 text-gray-200 border-gray-700"
@@ -6427,16 +6361,12 @@ const InvoiceForm = ({ onSave }) => {
             </p>
 
             <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={handleDuplicateUpdateExisting}
+              <button type="button" onClick={handleDuplicateUpdateExisting}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
               >
                 Update Existing Quantity (+1)
               </button>
-              <button
-                type="button"
-                onClick={handleDuplicateAddAnyway}
+              <button type="button" onClick={handleDuplicateAddAnyway}
                 className={`w-full px-4 py-2.5 rounded-lg font-medium transition-colors ${
                   isDarkMode
                     ? "bg-gray-700 hover:bg-gray-600 text-white"
@@ -6445,9 +6375,7 @@ const InvoiceForm = ({ onSave }) => {
               >
                 Add as Separate Line
               </button>
-              <button
-                type="button"
-                onClick={handleDuplicateCancel}
+              <button type="button" onClick={handleDuplicateCancel}
                 className={`w-full px-4 py-2 text-sm rounded-lg transition-colors ${
                   isDarkMode
                     ? "text-gray-400 hover:text-white hover:bg-gray-700"

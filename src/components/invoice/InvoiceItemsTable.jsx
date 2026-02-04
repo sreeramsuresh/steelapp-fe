@@ -221,7 +221,7 @@ const InvoiceItemsTable = ({ items, startingIndex = 0, isFirstPage, isContinued,
             const globalIndex = startingIndex + index;
 
             return (
-              <tr key={index} style={styles.bodyRow(index)}>
+              <tr key={item.id || item.name || `item-${index}`} style={styles.bodyRow(index)}>
                 <td
                   style={{
                     ...styles.bodyCell,

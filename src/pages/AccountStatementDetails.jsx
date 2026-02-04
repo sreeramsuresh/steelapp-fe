@@ -326,7 +326,10 @@ const AccountStatementDetails = () => {
                   </td>
                 </tr>
                 {transactions.map((trans, index) => (
-                  <tr key={index} className={`hover:${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"} transition-colors`}>
+                  <tr
+                    key={trans.id || trans.name || `trans-${index}`}
+                    className={`hover:${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"} transition-colors`}
+                  >
                     <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                       {formatDate(trans.date)}
                     </td>

@@ -466,7 +466,10 @@ const SalesAnalytics = () => {
                   const height = analytics.monthlyTrend.length > 0 ? (month.revenue / maxRevenue) * 140 : 4;
 
                   return (
-                    <div key={index} className="flex flex-col items-center flex-1 min-h-48 relative">
+                    <div
+                      key={month.id || month.name || `month-${index}`}
+                      className="flex flex-col items-center flex-1 min-h-48 relative"
+                    >
                       <div className="flex items-end h-36 mb-2">
                         <div
                           className="w-5 bg-gradient-to-br from-teal-600 to-teal-700 rounded-t transition-all duration-300"

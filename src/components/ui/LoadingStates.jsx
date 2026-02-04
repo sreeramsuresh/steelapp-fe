@@ -112,7 +112,7 @@ export const Skeleton = ({
 export const TableRowSkeleton = ({ columns = 5, isDarkMode = false, className = "" }) => (
   <tr className={className}>
     {Array.from({ length: columns }).map((_, i) => (
-      <td key={i} className="px-2 py-3">
+      <td key={_} className="px-2 py-3">
         <Skeleton width={i === 0 ? "3/4" : "1/2"} height="4" isDarkMode={isDarkMode} />
       </td>
     ))}
@@ -130,7 +130,7 @@ export const CardSkeleton = ({ showImage = false, lines = 3, isDarkMode = false,
     <div className="space-y-3">
       <Skeleton width="3/4" height="5" isDarkMode={isDarkMode} />
       {Array.from({ length: lines - 1 }).map((_, i) => (
-        <Skeleton key={i} width={i === lines - 2 ? "1/2" : "full"} height="4" isDarkMode={isDarkMode} />
+        <Skeleton key={_} width={i === lines - 2 ? "1/2" : "full"} height="4" isDarkMode={isDarkMode} />
       ))}
     </div>
   </div>
