@@ -224,9 +224,7 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
             <Shield className="text-teal-500" size={24} />
             <h2 className="text-2xl font-semibold">Manage Roles</h2>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
+          <button type="button" onClick={onClose}
             aria-label="Close"
             data-testid="close-modal-x"
             className={`p-2 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
@@ -335,18 +333,14 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
 
               {/* Form Actions */}
               <div className="flex gap-2 mt-4">
-                <button
-                  type="button"
-                  onClick={editingRole ? handleUpdate : handleCreate}
+                <button type="button" onClick={editingRole ? handleUpdate : handleCreate}
                   disabled={submitting}
                   data-testid={editingRole ? "update-role-btn" : "create-role-btn"}
                   className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? "Saving..." : editingRole ? "Update Role" : "Create Role"}
                 </button>
-                <button
-                  type="button"
-                  onClick={resetForm}
+                <button type="button" onClick={resetForm}
                   disabled={submitting}
                   data-testid="cancel-form-btn"
                   className={`px-4 py-2 rounded-lg transition-colors ${
@@ -358,9 +352,7 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
               </div>
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={() => setShowCreateForm(true)}
+            <button type="button" onClick={() => setShowCreateForm(true)}
               data-testid="create-new-role-btn"
               className="mb-6 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-2"
             >
@@ -413,9 +405,7 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
                       </p>
                     </div>
                     <div className="flex gap-2 ml-4">
-                      <button
-                        type="button"
-                        onClick={() => handleEdit(role)}
+                      <button type="button" onClick={() => handleEdit(role)}
                         className={`p-2 rounded-lg transition-colors ${
                           isDarkMode ? "hover:bg-gray-600" : "hover:bg-gray-200"
                         }`}
@@ -424,9 +414,7 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
                         <Edit2 size={18} />
                       </button>
                       {!role.isSystemRole && !role.isSystem && (
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(role)}
+                        <button type="button" onClick={() => handleDelete(role)}
                           className="p-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                           title="Delete role"
                         >
@@ -443,9 +431,7 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
 
         {/* Footer */}
         <div className={`flex justify-end gap-2 p-6 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-          <button
-            type="button"
-            onClick={onClose}
+          <button type="button" onClick={onClose}
             data-testid="close-modal-btn"
             className={`px-4 py-2 rounded-lg transition-colors ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"

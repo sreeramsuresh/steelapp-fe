@@ -104,9 +104,7 @@ class FormErrorBoundary extends Component {
             )}
 
             <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={this.handleRetry}
+              <button type="button" onClick={this.handleRetry}
                 className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isDarkMode
                     ? "bg-gray-700 hover:bg-gray-600 text-white"
@@ -117,9 +115,7 @@ class FormErrorBoundary extends Component {
                 Try Again
               </button>
 
-              <button
-                type="button"
-                onClick={this.handleGoHome}
+              <button type="button" onClick={this.handleGoHome}
                 className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isDarkMode
                     ? "bg-teal-900/30 hover:bg-teal-900/50 text-teal-300"

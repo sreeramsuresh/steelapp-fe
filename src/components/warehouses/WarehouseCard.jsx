@@ -80,9 +80,7 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
 
             {/* Menu */}
             <div className="relative">
-              <button
-                type="button"
-                onClick={() => setMenuOpen(!menuOpen)}
+              <button type="button" onClick={() => setMenuOpen(!menuOpen)}
                 className={`p-1 rounded ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
                 title="More actions"
                 aria-label="More actions"
@@ -109,9 +107,7 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
                       isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"
                     }`}
                   >
-                    <button
-                      type="button"
-                      onClick={() => {
+                    <button type="button" onClick={() => {
                         setMenuOpen(false);
                         onView();
                       }}
@@ -122,9 +118,7 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
                       <Eye className="w-4 h-4" />
                       View Details
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
+                    <button type="button" onClick={() => {
                         setMenuOpen(false);
                         onEdit();
                       }}
@@ -135,9 +129,7 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
                       <Edit className="w-4 h-4" />
                       Edit
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
+                    <button type="button" onClick={() => {
                         setMenuOpen(false);
                         onDelete();
                       }}
@@ -231,9 +223,7 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
       <div
         className={`px-4 py-2 border-t ${isDarkMode ? "border-gray-700 bg-gray-800/50" : "border-gray-200 bg-gray-50"}`}
       >
-        <button
-          type="button"
-          onClick={onView}
+        <button type="button" onClick={onView}
           className={`w-full text-center text-sm font-medium ${
             isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"
           }`}

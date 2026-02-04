@@ -121,9 +121,7 @@ const BaseWidget = ({
         </div>
         <div className="flex items-center gap-2">
           {onRefresh && (
-            <button
-              type="button"
-              onClick={onRefresh}
+            <button type="button" onClick={onRefresh}
               disabled={loading}
               className={`p-1.5 rounded-lg transition-colors ${
                 isDarkMode
@@ -193,9 +191,7 @@ const WidgetErrorState = ({ message, onRetry, isDarkMode }) => {
       <AlertCircle size={32} className={`mb-3 ${isDarkMode ? "text-red-400" : "text-red-500"}`} />
       <p className={`text-sm mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{message}</p>
       {onRetry && (
-        <button
-          type="button"
-          onClick={onRetry}
+        <button type="button" onClick={onRetry}
           aria-label="Retry"
           className={`text-sm px-3 py-1.5 rounded-lg transition-colors ${
             isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
@@ -235,9 +231,7 @@ export const WidgetEmptyState = ({
       )}
       {description && <p className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{description}</p>}
       {handleAction && actionLabel && (
-        <button
-          type="button"
-          onClick={handleAction}
+        <button type="button" onClick={handleAction}
           className="text-sm px-4 py-2 rounded-lg bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 transition-all"
         >
           {actionLabel}

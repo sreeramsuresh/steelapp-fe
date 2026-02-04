@@ -243,9 +243,7 @@ const BatchAllocationPanel = ({
     <div className="batch-allocation-panel" data-testid="batch-allocation-panel">
       <div className="panel-header">
         <h4>Batch Allocation</h4>
-        <button
-          type="button"
-          className="btn-auto-fifo"
+        <button type="button" className="btn-auto-fifo"
           data-testid="auto-fill-fifo"
           onClick={handleAutoFIFO}
           disabled={loading || isAllocating}
@@ -380,9 +378,7 @@ const BatchAllocationPanel = ({
               {hasSelection && (
                 <span className="selection-info">
                   {selectedCount} batch{selectedCount !== 1 ? "es" : ""} selected
-                  <button
-                    type="button"
-                    className="btn-clear-selection"
+                  <button type="button" className="btn-clear-selection"
                     onClick={clearSelection}
                     title="Clear selection"
                   >
@@ -391,9 +387,7 @@ const BatchAllocationPanel = ({
                 </span>
               )}
               {hasPendingManual && (
-                <button
-                  type="button"
-                  className="btn-apply-manual"
+                <button type="button" className="btn-apply-manual"
                   onClick={handleApplyManual}
                   disabled={loading || isAllocating}
                 >

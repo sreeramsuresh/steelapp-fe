@@ -55,9 +55,7 @@ const DraftConflictModal = ({
                   {isSameInvoice ? "Resume Draft?" : "Existing Draft Found"}
                 </h3>
               </div>
-              <button
-                type="button"
-                onClick={onClose}
+              <button type="button" onClick={onClose}
                 className={`p-2 rounded-lg transition-colors ${
                   isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
                 }`}
@@ -129,9 +127,7 @@ const DraftConflictModal = ({
               {/* Different actions based on conflict type */}
               {isSameInvoice ? (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => onDiscard(existingDraft.invoiceId)}
+                  <button type="button" onClick={() => onDiscard(existingDraft.invoiceId)}
                     disabled={isLoading}
                     className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
                       isDarkMode
@@ -142,9 +138,7 @@ const DraftConflictModal = ({
                     <Trash2 className="h-4 w-4" />
                     Discard & Start Fresh
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => onResume(existingDraft)}
+                  <button type="button" onClick={() => onResume(existingDraft)}
                     disabled={isLoading}
                     className="flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors disabled:opacity-50"
                   >
@@ -154,9 +148,7 @@ const DraftConflictModal = ({
                 </>
               ) : (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => onDiscard(existingDraft.invoiceId)}
+                  <button type="button" onClick={() => onDiscard(existingDraft.invoiceId)}
                     disabled={isLoading}
                     className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
                       isDarkMode ? "text-red-400 hover:bg-red-900/20" : "text-red-600 hover:bg-red-50"
@@ -165,9 +157,7 @@ const DraftConflictModal = ({
                     <Trash2 className="h-4 w-4" />
                     Discard Draft
                   </button>
-                  <button
-                    type="button"
-                    onClick={onStartFresh}
+                  <button type="button" onClick={onStartFresh}
                     disabled={isLoading}
                     className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
                       isDarkMode
@@ -177,9 +167,7 @@ const DraftConflictModal = ({
                   >
                     Continue to New
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => onResume(existingDraft)}
+                  <button type="button" onClick={() => onResume(existingDraft)}
                     disabled={isLoading}
                     className="flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors disabled:opacity-50"
                   >

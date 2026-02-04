@@ -275,9 +275,7 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
       {/* Navigation */}
       <div className="flex-1 relative min-h-0">
         {/* Top fade indicator */}
-        <button
-          type="button"
-          onClick={handleScrollUp}
+        <button type="button" onClick={handleScrollUp}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") handleScrollUp(e);
           }}
@@ -364,9 +362,7 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
         </div>
 
         {/* Bottom fade indicator */}
-        <button
-          type="button"
-          onClick={handleScrollDown}
+        <button type="button" onClick={handleScrollDown}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") handleScrollDown(e);
           }}

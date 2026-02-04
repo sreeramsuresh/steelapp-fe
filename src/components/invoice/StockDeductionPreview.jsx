@@ -286,17 +286,13 @@ export default function StockDeductionPreview({
       {onConfirm && (
         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end space-x-3">
           {onClose && (
-            <button
-              type="button"
-              onClick={onClose}
+            <button type="button" onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               Cancel
             </button>
           )}
-          <button
-            type="button"
-            onClick={onConfirm}
+          <button type="button" onClick={onConfirm}
             className={`px-4 py-2 text-sm font-medium text-white rounded-md ${
               hasNegativeStock ? "bg-yellow-600 hover:bg-yellow-700" : "bg-blue-600 hover:bg-blue-700"
             }`}

@@ -219,9 +219,7 @@ const StockAvailabilityIndicator = ({ productId, warehouseId, requiredQty, compa
           <AlertTriangle size={16} />
           <span>{error}</span>
         </div>
-        <button
-          type="button"
-          onClick={fetchStock}
+        <button type="button" onClick={fetchStock}
           className={`p-1 rounded hover:bg-opacity-20 ${isDarkMode ? "hover:bg-gray-600" : "hover:bg-gray-300"}`}
           title="Retry"
         >

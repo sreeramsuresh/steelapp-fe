@@ -116,9 +116,7 @@ export default function ExportPanel({ datasetId, onExportGenerated, onVerifyRege
 
               {/* Action Buttons */}
               <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={() => handleGenerateExport(config.type)}
+                <button type="button" onClick={() => handleGenerateExport(config.type)}
                   disabled={isGenerating || verifying}
                   className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isGenerating || verifying
@@ -139,9 +137,7 @@ export default function ExportPanel({ datasetId, onExportGenerated, onVerifyRege
                   )}
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => handleVerifyDeterministic(config.type)}
+                <button type="button" onClick={() => handleVerifyDeterministic(config.type)}
                   disabled={verifying || !status}
                   className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >

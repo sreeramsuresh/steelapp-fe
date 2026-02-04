@@ -259,9 +259,7 @@ const DeliveryNoteDetails = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center">
-          <button
-            type="button"
-            onClick={() => navigate("/delivery-notes")}
+          <button type="button" onClick={() => navigate("/delivery-notes")}
             className={`p-2 rounded mr-4 transition-colors bg-transparent ${
               isDarkMode ? "text-gray-400 hover:text-gray-300" : "hover:bg-gray-100 text-gray-600"
             }`}
@@ -284,9 +282,7 @@ const DeliveryNoteDetails = () => {
         </div>
 
         <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={() => navigate(`/delivery-notes/${id}/edit`)}
+          <button type="button" onClick={() => navigate(`/delivery-notes/${id}/edit`)}
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
                 ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
@@ -296,9 +292,7 @@ const DeliveryNoteDetails = () => {
             <Edit size={18} />
             Edit
           </button>
-          <button
-            type="button"
-            onClick={handleDownloadPDF}
+          <button type="button" onClick={handleDownloadPDF}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
           >
             <Download size={18} />
@@ -534,9 +528,7 @@ const DeliveryNoteDetails = () => {
                         {!item.isFullyDelivered &&
                           deliveryNote.status !== "completed" &&
                           deliveryNote.status !== "cancelled" && (
-                            <button
-                              type="button"
-                              onClick={() =>
+                            <button type="button" onClick={() =>
                                 setPartialDialog({
                                   open: true,
                                   item,
@@ -588,9 +580,7 @@ const DeliveryNoteDetails = () => {
             <div className="flex flex-col gap-3">
               {deliveryNote.status === "pending" && (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => handleStatusUpdate("completed")}
+                  <button type="button" onClick={() => handleStatusUpdate("completed")}
                     className={`flex items-center justify-center gap-2 w-full px-4 py-3 border rounded-lg transition-colors ${
                       isDarkMode
                         ? "border-green-600 text-green-400 hover:bg-green-900/20"
@@ -600,9 +590,7 @@ const DeliveryNoteDetails = () => {
                     <CheckCircle size={18} />
                     Mark as Completed
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => handleStatusUpdate("cancelled")}
+                  <button type="button" onClick={() => handleStatusUpdate("cancelled")}
                     className={`flex items-center justify-center gap-2 w-full px-4 py-3 border rounded-lg transition-colors ${
                       isDarkMode
                         ? "border-red-600 text-red-400 hover:bg-red-900/20"
@@ -616,9 +604,7 @@ const DeliveryNoteDetails = () => {
               )}
 
               {deliveryNote.status === "partial" && (
-                <button
-                  type="button"
-                  onClick={() => handleStatusUpdate("completed")}
+                <button type="button" onClick={() => handleStatusUpdate("completed")}
                   className={`flex items-center justify-center gap-2 w-full px-4 py-3 border rounded-lg transition-colors ${
                     isDarkMode
                       ? "border-green-600 text-green-400 hover:bg-green-900/20"
@@ -804,18 +790,14 @@ const DeliveryNoteDetails = () => {
             <div
               className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
             >
-              <button
-                type="button"
-                onClick={() => setPartialDialog({ open: false, item: null, quantity: "" })}
+              <button type="button" onClick={() => setPartialDialog({ open: false, item: null, quantity: "" })}
                 className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
                   isDarkMode ? "text-white hover:text-gray-300" : "hover:bg-gray-100 text-gray-800"
                 }`}
               >
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={handlePartialDelivery}
+              <button type="button" onClick={handlePartialDelivery}
                 className="px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
               >
                 Update Delivery

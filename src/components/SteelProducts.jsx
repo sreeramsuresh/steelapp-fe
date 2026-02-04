@@ -72,9 +72,7 @@ const Button = ({
   };
 
   return (
-    <button
-      type="button"
-      className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? "cursor-not-allowed" : ""} ${className}`}
+    <button type="button" className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? "cursor-not-allowed" : ""} ${className}`}
       disabled={disabled}
       onClick={onClick}
       {...props}
@@ -433,9 +431,7 @@ const _AccordionSection = ({ title, isOpen, onToggle, children, isEmpty = false 
 
   return (
     <div className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-      <button
-        type="button"
-        onClick={onToggle}
+      <button type="button" onClick={onToggle}
         className={`w-full flex items-center justify-between p-4 hover:bg-opacity-50 transition-colors ${
           isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
         }`}
@@ -1881,9 +1877,7 @@ const SteelProducts = () => {
         >
           Quick Filters
         </span>
-        <button
-          type="button"
-          onClick={() => setShowSpeedButtons(!showSpeedButtons)}
+        <button type="button" onClick={() => setShowSpeedButtons(!showSpeedButtons)}
           className={`
             relative inline-flex h-4 w-7 items-center rounded-full transition-colors duration-200
             ${showSpeedButtons ? "bg-teal-500" : isDarkMode ? "bg-gray-600" : "bg-gray-300"}
@@ -1908,9 +1902,7 @@ const SteelProducts = () => {
             {categoryGroups.map((group) => {
               const isActive = activeCategoryGroup === group.id;
               return (
-                <button
-                  type="button"
-                  key={group.id}
+                <button type="button" key={group.id}
                   onClick={() => {
                     setActiveCategoryGroup(group.id);
                     setCategoryFilter("all");
@@ -1940,9 +1932,7 @@ const SteelProducts = () => {
             {gradeGroups.map((group) => {
               const isActive = activeGradeGroup === group.id;
               return (
-                <button
-                  type="button"
-                  key={group.id}
+                <button type="button" key={group.id}
                   onClick={() => setActiveGradeGroup(group.id)}
                   className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium transition-all border ${
                     isActive
@@ -2082,9 +2072,7 @@ const SteelProducts = () => {
         </div>
 
         {/* Action Buttons */}
-        <button
-          type="button"
-          onClick={async () => {
+        <button type="button" onClick={async () => {
             try {
               await productService.downloadProducts();
             } catch (error) {
@@ -2101,17 +2089,13 @@ const SteelProducts = () => {
           <Package size={16} />
           Download
         </button>
-        <button
-          type="button"
-          onClick={() => setShowUploadModal(true)}
+        <button type="button" onClick={() => setShowUploadModal(true)}
           className="h-9 px-3 text-sm font-medium rounded-lg inline-flex items-center gap-1.5 bg-teal-600 text-white hover:bg-teal-500 transition-colors"
         >
           <Upload size={16} />
           Upload
         </button>
-        <button
-          type="button"
-          onClick={() => setShowAddModal(true)}
+        <button type="button" onClick={() => setShowAddModal(true)}
           className="h-9 px-3 text-sm font-medium rounded-lg inline-flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-500 transition-colors"
         >
           <Plus size={16} />
@@ -2120,9 +2104,7 @@ const SteelProducts = () => {
 
         {/* Column Picker Button */}
         <div className="relative" ref={columnPickerRef}>
-          <button
-            type="button"
-            onClick={() => setShowColumnPicker(!showColumnPicker)}
+          <button type="button" onClick={() => setShowColumnPicker(!showColumnPicker)}
             className={`h-9 w-9 rounded-lg border inline-flex items-center justify-center transition-colors ${
               isDarkMode
                 ? "bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
@@ -2268,9 +2250,7 @@ const SteelProducts = () => {
                         </div>
                       ) : col.key === "productName" ? (
                         <div>
-                          <button
-                            type="button"
-                            onClick={() => {
+                          <button type="button" onClick={() => {
                               setSelectedProduct(product);
                               setShowSpecModal(true);
                             }}
@@ -2294,9 +2274,7 @@ const SteelProducts = () => {
                   {/* Actions Column */}
                   <td className="px-3 py-2 text-right w-[100px]">
                     <div className="flex items-center justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() => {
+                      <button type="button" onClick={() => {
                           const formattedProduct = {
                             ...product,
                             category: product.category || "",
@@ -2337,9 +2315,7 @@ const SteelProducts = () => {
                       >
                         <Edit size={16} />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => {
+                      <button type="button" onClick={() => {
                           notificationService.info("Copy feature coming soon");
                         }}
                         className={`p-1.5 rounded transition-colors ${
@@ -2351,9 +2327,7 @@ const SteelProducts = () => {
                       >
                         <Copy size={16} />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteProduct(product.id)}
+                      <button type="button" onClick={() => handleDeleteProduct(product.id)}
                         className={`p-1.5 rounded transition-colors ${
                           isDarkMode
                             ? "text-red-400 hover:text-red-300 hover:bg-gray-700"
@@ -2415,9 +2389,7 @@ const SteelProducts = () => {
 
               {/* Navigation Buttons */}
               <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
                   className={`p-1.5 rounded border transition-colors ${
                     page === 1
@@ -2435,9 +2407,7 @@ const SteelProducts = () => {
                 <span className={`px-2 py-1 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                   Page {page} of {pageInfo.totalPages || 1}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => setPage((p) => Math.min(pageInfo.totalPages || 1, p + 1))}
+                <button type="button" onClick={() => setPage((p) => Math.min(pageInfo.totalPages || 1, p + 1))}
                   disabled={page >= (pageInfo.totalPages || 1)}
                   className={`p-1.5 rounded border transition-colors ${
                     page >= (pageInfo.totalPages || 1)
@@ -2486,9 +2456,7 @@ const SteelProducts = () => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
-              <button
-                type="button"
-                key={tab.id}
+              <button type="button" key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-200 rounded-t-lg border-t border-l border-r relative ${
                   isActive
@@ -2532,9 +2500,7 @@ const SteelProducts = () => {
                 <h2 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Add New Product
                 </h2>
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
+                <button type="button" onClick={() => setShowAddModal(false)}
                   className={`p-2 rounded transition-colors bg-transparent ${
                     isDarkMode ? "text-gray-400 hover:text-gray-300" : "hover:bg-gray-100 text-gray-600"
                   }`}
@@ -2617,9 +2583,7 @@ const SteelProducts = () => {
 
                   {/* Phase 5: Copy from Existing Product Button */}
                   <div className="mt-3 flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowCopyModal(true)}
+                    <button type="button" onClick={() => setShowCopyModal(true)}
                       className={`px-4 py-2 rounded-lg border transition-all flex items-center gap-2 ${
                         isDarkMode
                           ? "border-gray-600 bg-gray-800 hover:bg-gray-700 text-gray-300"
@@ -3429,9 +3393,7 @@ const SteelProducts = () => {
                             </div>
                           </div>
                           <div className="flex gap-1">
-                            <button
-                              type="button"
-                              onClick={() => {
+                            <button type="button" onClick={() => {
                                 setSelectedProduct(product);
                                 setShowSpecModal(true);
                               }}
@@ -3442,9 +3404,7 @@ const SteelProducts = () => {
                             >
                               <Eye size={14} />
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => handleCopyFromProduct(product)}
+                            <button type="button" onClick={() => handleCopyFromProduct(product)}
                               className={`p-1.5 rounded transition-colors ${
                                 isDarkMode ? "hover:bg-gray-700 text-teal-400" : "hover:bg-gray-100 text-teal-600"
                               }`}
@@ -3491,9 +3451,7 @@ const SteelProducts = () => {
                 }`}
               >
                 <h2 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Edit Product</h2>
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
+                <button type="button" onClick={() => setShowEditModal(false)}
                   className={`p-2 rounded transition-colors bg-transparent ${
                     isDarkMode ? "text-gray-400 hover:text-gray-300" : "hover:bg-gray-100 text-gray-600"
                   }`}
@@ -3538,9 +3496,7 @@ const SteelProducts = () => {
                           placeholder="Custom label for UI display (defaults to identity)"
                         />
                       </div>
-                      <button
-                        type="button"
-                        onClick={() =>
+                      <button type="button" onClick={() =>
                           setSelectedProduct((prev) => ({
                             ...prev,
                             displayName: prev.uniqueName || prev.unique_name || "",
@@ -4006,9 +3962,7 @@ const SteelProducts = () => {
               <div
                 className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
               >
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
+                <button type="button" onClick={() => setShowEditModal(false)}
                   className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
                     isDarkMode ? "text-white hover:text-gray-300" : "hover:bg-gray-100 text-gray-800"
                   }`}
@@ -4134,9 +4088,7 @@ const SteelProducts = () => {
                         </span>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowSpecModal(false)}
+                    <button type="button" onClick={() => setShowSpecModal(false)}
                       className={`p-1.5 rounded-md transition ${
                         isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-200 text-gray-500"
                       }`}
@@ -4392,9 +4344,7 @@ const SteelProducts = () => {
                 <h2 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Copy from Existing Product
                 </h2>
-                <button
-                  type="button"
-                  onClick={() => {
+                <button type="button" onClick={() => {
                     setShowCopyModal(false);
                     setCopySearchTerm("");
                   }}
@@ -4455,9 +4405,7 @@ const SteelProducts = () => {
                             {product.grade} • {product.category} • {product.finish}
                           </p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => {
+                        <button type="button" onClick={() => {
                             setNewProduct({
                               ...newProduct,
                               category: product.category || "",
@@ -4538,9 +4486,7 @@ const SteelProducts = () => {
                     Select a product to copy its specifications (stock and pricing will not be copied)
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setShowCopyModal(false)}
+                <button type="button" onClick={() => setShowCopyModal(false)}
                   className={`p-2 rounded transition-colors bg-transparent ${
                     isDarkMode ? "text-gray-400 hover:text-gray-300" : "hover:bg-gray-100 text-gray-600"
                   }`}
@@ -4585,9 +4531,7 @@ const SteelProducts = () => {
                       );
                     })
                     .map((product, index) => (
-                      <button
-                        type="button"
-                        key={`select-${product.id}-${index}`}
+                      <button type="button" key={`select-${product.id}-${index}`}
                         onClick={() => handleCopyFromProduct(product)}
                         className={`p-4 rounded-lg border-2 text-left transition-all hover:shadow-lg ${
                           isDarkMode

@@ -263,9 +263,7 @@ const RevenueTrends = () => {
           </label>
         </div>
         <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={refetchTrends}
+          <button type="button" onClick={refetchTrends}
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
                 ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
@@ -276,9 +274,7 @@ const RevenueTrends = () => {
             Refresh
           </button>
           {/* eslint-disable-next-line local-rules/no-dead-button */}
-          <button
-            type="button"
-            onClick={() => {
+          <button type="button" onClick={() => {
               // TODO: Implement export functionality
             }}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
@@ -674,9 +670,7 @@ const RevenueTrends = () => {
           <p className={`mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
             No sales data found for the selected period. Create some invoices to see revenue trends.
           </p>
-          <button
-            type="button"
-            onClick={refetchTrends}
+          <button type="button" onClick={refetchTrends}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
           >
             <RefreshCw size={20} />
@@ -711,9 +705,7 @@ const RevenueTrends = () => {
           {/* Tabs - Pill style */}
           <div className="mb-6">
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setActiveTab("trends")}
+              <button type="button" onClick={() => setActiveTab("trends")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "trends"
                     ? isDarkMode
@@ -727,9 +719,7 @@ const RevenueTrends = () => {
                 <LineChart size={18} />
                 Trend Analysis
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("forecasting")}
+              <button type="button" onClick={() => setActiveTab("forecasting")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "forecasting"
                     ? isDarkMode
@@ -743,9 +733,7 @@ const RevenueTrends = () => {
                 <Target size={18} />
                 Forecasting
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("seasonal")}
+              <button type="button" onClick={() => setActiveTab("seasonal")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "seasonal"
                     ? isDarkMode
@@ -759,9 +747,7 @@ const RevenueTrends = () => {
                 <Calendar size={18} />
                 Seasonal Analysis
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("metrics")}
+              <button type="button" onClick={() => setActiveTab("metrics")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "metrics"
                     ? isDarkMode

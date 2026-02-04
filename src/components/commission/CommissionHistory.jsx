@@ -201,9 +201,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
             <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{salesPersonName}</p>
           )}
         </div>
-        <button
-          type="button"
-          onClick={loadCommissions}
+        <button type="button" onClick={loadCommissions}
           disabled={loading}
           className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
             isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
@@ -349,9 +347,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
           </div>
 
           {/* Clear Filters */}
-          <button
-            type="button"
-            onClick={() => {
+          <button type="button" onClick={() => {
               setSearchTerm("");
               setStatusFilter("ALL");
               setDateFrom("");
@@ -522,9 +518,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  <button type="button" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                     className={`p-2 rounded ${
                       isDarkMode
@@ -539,9 +533,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
                     Page {currentPage} of {totalPages}
                   </span>
 
-                  <button
-                    type="button"
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  <button type="button" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
                     className={`p-2 rounded ${
                       isDarkMode

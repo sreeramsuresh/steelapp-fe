@@ -86,9 +86,7 @@ const CashFlowWidget = ({ data: propData, onRefresh, loading: externalLoading })
               </span>
             </h3>
           </div>
-          <button
-            type="button"
-            onClick={handleRefresh}
+          <button type="button" onClick={handleRefresh}
             disabled={isLoading}
             className={`p-1.5 rounded-lg transition-colors ${
               isDarkMode
@@ -144,9 +142,7 @@ const CashFlowWidget = ({ data: propData, onRefresh, loading: externalLoading })
             className={`flex rounded-lg overflow-hidden border ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
           >
             {Object.keys(periodLabels).map((p) => (
-              <button
-                type="button"
-                key={p}
+              <button type="button" key={p}
                 onClick={() => setPeriod(p)}
                 className={`px-2 py-1 text-xs font-medium transition-colors ${
                   period === p
@@ -160,9 +156,7 @@ const CashFlowWidget = ({ data: propData, onRefresh, loading: externalLoading })
               </button>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={handleRefresh}
+          <button type="button" onClick={handleRefresh}
             disabled={isLoading}
             className={`p-1.5 rounded-lg transition-colors ${
               isDarkMode

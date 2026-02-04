@@ -33,9 +33,7 @@ const HelpSection = ({ title, icon: Icon, children, isOpen, onToggle }) => {
 
   return (
     <div className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"} last:border-b-0`}>
-      <button
-        type="button"
-        onClick={onToggle}
+      <button type="button" onClick={onToggle}
         className={`w-full flex items-center justify-between py-4 px-1 text-left hover:bg-opacity-50 transition-colors ${
           isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
         }`}
@@ -144,9 +142,7 @@ const FTAHelpPanel = ({ onClose }) => {
             </h2>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={expandAll}
+            <button type="button" onClick={expandAll}
               className={`p-1.5 rounded transition-colors ${
                 isDarkMode
                   ? "hover:bg-gray-700 text-gray-400 hover:text-teal-400"
@@ -156,9 +152,7 @@ const FTAHelpPanel = ({ onClose }) => {
             >
               <ChevronsDown className="h-4 w-4" />
             </button>
-            <button
-              type="button"
-              onClick={collapseAll}
+            <button type="button" onClick={collapseAll}
               className={`p-1.5 rounded transition-colors ${
                 isDarkMode
                   ? "hover:bg-gray-700 text-gray-400 hover:text-teal-400"
@@ -169,9 +163,7 @@ const FTAHelpPanel = ({ onClose }) => {
               <ChevronsUp className="h-4 w-4" />
             </button>
             {onClose && (
-              <button
-                type="button"
-                onClick={onClose}
+              <button type="button" onClick={onClose}
                 className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700`}
               >
                 ×

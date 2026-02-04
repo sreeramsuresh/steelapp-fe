@@ -405,9 +405,7 @@ export default function StockMovementReport() {
             <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-3 bg-white dark:bg-gray-700">
               <div className="flex flex-wrap gap-2">
                 {/* Select All button */}
-                <button
-                  type="button"
-                  onClick={selectAllMovementTypes}
+                <button type="button" onClick={selectAllMovementTypes}
                   className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
                     selectedMovementTypes.length === Object.keys(MOVEMENT_TYPES).length
                       ? "bg-blue-600 text-white border-blue-600"
@@ -661,9 +659,7 @@ export default function StockMovementReport() {
           {totalPages > 1 && (
             <div className="flex justify-center items-center py-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex gap-1">
-                <button
-                  type="button"
-                  onClick={() => handlePageChange(null, 1)}
+                <button type="button" onClick={() => handlePageChange(null, 1)}
                   disabled={page === 1}
                   className="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
                 >
@@ -672,9 +668,7 @@ export default function StockMovementReport() {
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   const pageNum = Math.max(1, page - 2) + i;
                   return pageNum <= totalPages ? (
-                    <button
-                      type="button"
-                      key={pageNum}
+                    <button type="button" key={pageNum}
                       onClick={() => handlePageChange(null, pageNum)}
                       className={`px-3 py-1 rounded text-sm ${
                         page === pageNum
@@ -686,9 +680,7 @@ export default function StockMovementReport() {
                     </button>
                   ) : null;
                 })}
-                <button
-                  type="button"
-                  onClick={() => handlePageChange(null, totalPages)}
+                <button type="button" onClick={() => handlePageChange(null, totalPages)}
                   disabled={page === totalPages}
                   className="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
                 >

@@ -35,9 +35,7 @@ const Button = ({
   };
 
   return (
-    <button
-      type="button"
-      className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? "cursor-not-allowed opacity-80" : ""} ${className}`}
+    <button type="button" className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? "cursor-not-allowed opacity-80" : ""} ${className}`}
       disabled={disabled}
       onClick={onClick}
       {...props}
@@ -213,9 +211,7 @@ const Login = ({ onLoginSuccess }) => {
                   transition: "background-color 5000s ease-in-out 0s",
                 }}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
+              <button type="button" onClick={() => setShowPassword(!showPassword)}
                 className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-md transition-all duration-300 hover:scale-110 ${
                   isDarkMode
                     ? "text-gray-500 hover:text-white hover:bg-teal-600/10"

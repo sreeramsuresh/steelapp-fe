@@ -90,9 +90,7 @@ const FinanceDashboard = () => {
               const isActive = activeTab === tab.id;
 
               return (
-                <button
-                  type="button"
-                  key={tab.id}
+                <button type="button" key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center space-x-2 px-4 py-3 rounded-t-lg border-b-2 transition-colors ${
                     isActive

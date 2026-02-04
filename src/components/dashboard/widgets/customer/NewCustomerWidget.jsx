@@ -242,9 +242,7 @@ const NewCustomerWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleRefresh}
+        <button type="button" onClick={handleRefresh}
           disabled={loading || isLoading}
           className={`p-1.5 rounded-lg transition-colors ${
             isDarkMode
@@ -438,9 +436,7 @@ const NewCustomerWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
 
       {/* Action Button */}
       {onViewDetails && (
-        <button
-          type="button"
-          onClick={() => onViewDetails(customerData)}
+        <button type="button" onClick={() => onViewDetails(customerData)}
           className={`mt-4 w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
             isDarkMode ? "bg-green-600 hover:bg-green-500 text-white" : "bg-green-500 hover:bg-green-600 text-white"
           }`}

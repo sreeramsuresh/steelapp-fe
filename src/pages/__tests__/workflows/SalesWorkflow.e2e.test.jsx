@@ -27,9 +27,7 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
           <button type="button" onClick={() => setQuote({ ...quote, status: "sent" })}>
             Send Quote
           </button>
-          <button
-            type="button"
-            onClick={() => setQuote({ ...quote, status: "accepted" })}
+          <button type="button" onClick={() => setQuote({ ...quote, status: "accepted" })}
             disabled={quote.status !== "sent"}
           >
             Accept Quote
@@ -90,9 +88,7 @@ describe("E2E Workflow: Complete Sales Cycle", () => {
         <>
           <div>Delivery Status: {delivery.status}</button>
           <div>Stock Level: {delivery.stock}</div>
-          <button
-            type="button"
-            onClick={() =>
+          <button type="button" onClick={() =>
               setDelivery({
                 ...delivery,
                 status: "delivered",

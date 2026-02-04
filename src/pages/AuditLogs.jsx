@@ -179,9 +179,7 @@ const AuditLogs = () => {
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={exportToCSV}
+            <button type="button" onClick={exportToCSV}
               disabled={logs.length === 0}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                 logs.length === 0
@@ -242,9 +240,7 @@ const AuditLogs = () => {
             <Filter size={20} className={isDarkMode ? "text-gray-400" : "text-gray-600"} />
             <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Filters</h2>
             {(filters.category || filters.status || filters.startDate || filters.endDate || filters.search) && (
-              <button
-                type="button"
-                onClick={clearFilters}
+              <button type="button" onClick={clearFilters}
                 className={`ml-auto text-sm flex items-center gap-1 px-3 py-1 rounded ${
                   isDarkMode
                     ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
@@ -498,9 +494,7 @@ const AuditLogs = () => {
                       Showing page {currentPage} of {totalPages} ({totalLogs} total logs)
                     </p>
                     <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      <button type="button" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
                         className={`flex items-center gap-1 px-3 py-2 rounded-lg ${
                           currentPage === 1
@@ -513,9 +507,7 @@ const AuditLogs = () => {
                         <ChevronLeft size={16} />
                         Previous
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      <button type="button" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                         disabled={currentPage === totalPages}
                         className={`flex items-center gap-1 px-3 py-2 rounded-lg ${
                           currentPage === totalPages

@@ -180,9 +180,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
               {isEditing ? "Edit Warehouse" : "Add New Warehouse"}
             </h2>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
+          <button type="button" onClick={onClose}
             className={`p-2 rounded-lg ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
           >
             <X className={`w-5 h-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`} />
@@ -467,9 +465,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
               isDarkMode ? "border-gray-700 bg-gray-800/50" : "border-gray-200 bg-gray-50"
             }`}
           >
-            <button
-              type="button"
-              onClick={onClose}
+            <button type="button" onClick={onClose}
               className={`px-4 py-2 rounded-lg border ${
                 isDarkMode
                   ? "border-gray-600 text-gray-300 hover:bg-gray-700"

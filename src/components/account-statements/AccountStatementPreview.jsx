@@ -48,9 +48,7 @@ const AccountStatementPreview = ({ statement, company, onClose }) => {
           <h2 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-800"}`}>
             Account Statement Preview
           </h2>
-          <button
-            type="button"
-            onClick={onClose}
+          <button type="button" onClick={onClose}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-600"
             }`}

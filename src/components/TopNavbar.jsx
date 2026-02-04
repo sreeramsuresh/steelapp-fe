@@ -111,9 +111,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
         {/* Left Section */}
         <div className="flex items-center gap-2">
           <HomeButton />
-          <button
-            type="button"
-            onClick={onToggleSidebar}
+          <button type="button" onClick={onToggleSidebar}
             style={{
               color: isDarkMode ? "#d1d5db" : "#374151",
               backgroundColor: "transparent",
@@ -161,9 +159,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                 }
               }}
             />
-            <button
-              type="button"
-              title="Search"
+            <button type="button" title="Search"
               onClick={() => {
                 const q = searchQuery.trim();
                 if (!q) return;
@@ -187,9 +183,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
         {/* Right Section */}
         <div className="flex items-center gap-2">
           {/* Theme Toggle */}
-          <button
-            type="button"
-            onClick={toggleTheme}
+          <button type="button" onClick={toggleTheme}
             style={{
               color: isDarkMode ? "#d1d5db" : "#374151",
               backgroundColor: "transparent",
@@ -202,9 +196,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
 
           {/* Notifications */}
           <div className="relative" ref={notificationDropdownRef}>
-            <button
-              type="button"
-              onClick={handleNotificationClick}
+            <button type="button" onClick={handleNotificationClick}
               style={{
                 color: isDarkMode ? "#d1d5db" : "#374151",
                 backgroundColor: "transparent",
@@ -244,9 +236,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                     </span>
                   </div>
                   {unreadCount > 0 && (
-                    <button
-                      type="button"
-                      onClick={markAllAsRead}
+                    <button type="button" onClick={markAllAsRead}
                       className={`mt-2 inline-flex items-center gap-1 text-xs ${isDarkMode ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
                     >
                       <Check size={14} /> Mark all as read
@@ -289,9 +279,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                 <div className={`p-4 border-t text-center ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
                   {/* Bug #30 fix: Add total notification count to button label */}
                   {/* eslint-disable-next-line local-rules/no-dead-button */}
-                  <button
-                    type="button"
-                    onClick={() => {
+                  <button type="button" onClick={() => {
                       // TODO: Implement view all notifications functionality
                     }}
                     className={`text-sm font-medium transition-colors duration-200 hover:underline ${
@@ -307,9 +295,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
 
           {/* Profile Section */}
           <div className="relative" ref={profileDropdownRef}>
-            <button
-              type="button"
-              onClick={handleProfileClick}
+            <button type="button" onClick={handleProfileClick}
               style={{
                 backgroundColor: "transparent",
               }}
@@ -371,9 +357,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                 </div>
 
                 <div className="py-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowProfileDropdown(false)}
+                  <button type="button" onClick={() => setShowProfileDropdown(false)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
                       isDarkMode
                         ? "text-gray-300 bg-transparent hover:bg-gray-700 hover:text-white"
@@ -384,9 +368,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                     <span className="text-sm font-medium">My Profile</span>
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => {
+                  <button type="button" onClick={() => {
                       setShowProfileDropdown(false);
                       navigate("/my-commissions");
                     }}
@@ -400,9 +382,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                     <span className="text-sm font-medium">My Commissions</span>
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setShowProfileDropdown(false)}
+                  <button type="button" onClick={() => setShowProfileDropdown(false)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
                       isDarkMode
                         ? "text-gray-300 bg-transparent hover:bg-gray-700 hover:text-white"
@@ -413,9 +393,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                     <span className="text-sm font-medium">Account Settings</span>
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setShowProfileDropdown(false)}
+                  <button type="button" onClick={() => setShowProfileDropdown(false)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
                       isDarkMode
                         ? "text-gray-300 bg-transparent hover:bg-gray-700 hover:text-white"
@@ -428,9 +406,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
 
                   <div className={`my-2 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}></div>
 
-                  <button
-                    type="button"
-                    onClick={handleLogout}
+                  <button type="button" onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-500 bg-white hover:bg-red-50 dark:bg-transparent dark:hover:bg-red-900/20 transition-colors duration-200"
                   >
                     <LogOut size={18} />

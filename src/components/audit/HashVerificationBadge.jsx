@@ -58,9 +58,7 @@ export default function HashVerificationBadge({ hash, verified = true }) {
               >
                 {hash}
               </code>
-              <button
-                type="button"
-                onClick={copyToClipboard}
+              <button type="button" onClick={copyToClipboard}
                 className={`p-2 rounded hover:bg-opacity-80 transition-colors ${
                   verified ? "hover:bg-green-200 dark:hover:bg-green-800" : "hover:bg-red-200 dark:hover:bg-red-800"
                 }`}

@@ -888,9 +888,7 @@ export function SupplierForm() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => navigate("/suppliers")}
+            <button type="button" onClick={() => navigate("/suppliers")}
               className={`p-2 rounded-lg transition-colors ${
                 isDarkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-600"
               }`}
@@ -1086,9 +1084,7 @@ export function SupplierForm() {
           <div
             className={`rounded-xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
           >
-            <button
-              type="button"
-              onClick={() => toggleSection("contact")}
+            <button type="button" onClick={() => toggleSection("contact")}
               className={`w-full p-6 flex items-center justify-between ${
                 isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
               } transition-colors rounded-xl`}
@@ -1157,9 +1153,7 @@ export function SupplierForm() {
           <div
             className={`rounded-xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
           >
-            <button
-              type="button"
-              onClick={() => toggleSection("taxCompliance")}
+            <button type="button" onClick={() => toggleSection("taxCompliance")}
               className={`w-full p-6 flex items-center justify-between ${
                 isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
               } transition-colors rounded-xl`}
@@ -1321,9 +1315,7 @@ export function SupplierForm() {
           <div
             className={`rounded-xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
           >
-            <button
-              type="button"
-              onClick={() => toggleSection("classification")}
+            <button type="button" onClick={() => toggleSection("classification")}
               className={`w-full p-6 flex items-center justify-between ${
                 isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
               } transition-colors rounded-xl`}
@@ -1493,9 +1485,7 @@ export function SupplierForm() {
           <div
             className={`rounded-xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
           >
-            <button
-              type="button"
-              onClick={() => toggleSection("steelSpecs")}
+            <button type="button" onClick={() => toggleSection("steelSpecs")}
               className={`w-full p-6 flex items-center justify-between ${
                 isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
               } transition-colors rounded-xl`}
@@ -1691,9 +1681,7 @@ export function SupplierForm() {
           <div
             className={`rounded-xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
           >
-            <button
-              type="button"
-              onClick={() => toggleSection("financial")}
+            <button type="button" onClick={() => toggleSection("financial")}
               className={`w-full p-6 flex items-center justify-between ${
                 isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
               } transition-colors rounded-xl`}
@@ -1889,9 +1877,7 @@ export function SupplierForm() {
 
           {/* Actions */}
           <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              onClick={() => navigate("/suppliers")}
+            <button type="button" onClick={() => navigate("/suppliers")}
               className={`px-6 py-3 rounded-lg border transition-colors ${
                 isDarkMode
                   ? "border-gray-600 text-gray-300 hover:bg-gray-700"

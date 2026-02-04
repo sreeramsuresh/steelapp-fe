@@ -110,9 +110,7 @@ const ErrorState = ({
       {/* Actions */}
       <div className="flex items-center gap-3">
         {canRetry && onRetry && (
-          <button
-            type="button"
-            onClick={onRetry}
+          <button type="button" onClick={onRetry}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-colors ${colors.buttonBg}`}
           >
             <RefreshCw size={16} />
@@ -121,9 +119,7 @@ const ErrorState = ({
         )}
 
         {action === "LOGIN" && (
-          <button
-            type="button"
-            onClick={() => (window.location.href = "/login")}
+          <button type="button" onClick={() => (window.location.href = "/login")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-colors ${colors.buttonBg}`}
           >
             <LogOut size={16} />
@@ -132,9 +128,7 @@ const ErrorState = ({
         )}
 
         {onGoHome && (
-          <button
-            type="button"
-            onClick={onGoHome}
+          <button type="button" onClick={onGoHome}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-200" : "bg-gray-200 hover:bg-gray-300 text-gray-700"
             }`}

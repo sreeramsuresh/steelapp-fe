@@ -193,9 +193,7 @@ const TRNVerifyInput = ({
           {/* Status icon */}
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
             {localValue && (
-              <button
-                type="button"
-                onClick={handleCopy}
+              <button type="button" onClick={handleCopy}
                 className={`p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 ${
                   isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}
@@ -210,9 +208,7 @@ const TRNVerifyInput = ({
 
         {/* Verify button */}
         {showVerifyButton && (
-          <button
-            type="button"
-            onClick={handleVerify}
+          <button type="button" onClick={handleVerify}
             disabled={disabled || verifying || !localValue || !formatValid}
             className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 flex items-center gap-1.5 ${
               disabled || verifying || !localValue || !formatValid

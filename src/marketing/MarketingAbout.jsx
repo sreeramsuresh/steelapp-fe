@@ -299,16 +299,12 @@ const About = () => {
               </div>
 
               <div className="mt-12 text-center">
-                <button
-                  type="button"
-                  onClick={() => (window.location.href = "/contact")}
+                <button type="button" onClick={() => (window.location.href = "/contact")}
                   className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg mr-4"
                 >
                   Get a Quote
                 </button>
-                <button
-                  type="button"
-                  onClick={() => (window.location.href = "/contact")}
+                <button type="button" onClick={() => (window.location.href = "/contact")}
                   className="px-8 py-4 border-2 border-white rounded-lg font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
                 >
                   Contact Us Today

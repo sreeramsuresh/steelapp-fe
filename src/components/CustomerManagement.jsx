@@ -825,9 +825,7 @@ const CustomerManagement = () => {
         <div className="flex gap-3 items-center">
           {/* Column Picker */}
           <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowCustomerColumnPicker(!showCustomerColumnPicker)}
+            <button type="button" onClick={() => setShowCustomerColumnPicker(!showCustomerColumnPicker)}
               className={`p-2 rounded-lg border transition-colors ${
                 isDarkMode
                   ? "border-gray-600 text-gray-400 hover:text-gray-200 hover:bg-gray-700"
@@ -874,18 +872,14 @@ const CustomerManagement = () => {
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setShowAddModal(true)}
+          <button type="button" onClick={() => setShowAddModal(true)}
             className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
           >
             <FaPlus />
             Add Customer
           </button>
 
-          <button
-            type="button"
-            onClick={() => setShowUploadModal(true)}
+          <button type="button" onClick={() => setShowUploadModal(true)}
             className="px-6 py-2 bg-gradient-to-r from-[#4CAF50] to-[#388E3C] text-white rounded-lg hover:from-[#66BB6A] hover:to-[#4CAF50] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
           >
             <FaUpload />
@@ -894,9 +888,7 @@ const CustomerManagement = () => {
 
           {/* Bulk Archive Button - shown when customers selected */}
           {selectedCustomerIds.size > 0 && (
-            <button
-              type="button"
-              onClick={handleBulkArchiveCustomers}
+            <button type="button" onClick={handleBulkArchiveCustomers}
               className="px-4 py-2 bg-gradient-to-r from-[#FFA726] to-[#F57C00] text-white rounded-lg hover:from-[#FFB74D] hover:to-[#FFA726] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg whitespace-nowrap"
             >
               <FaArchive />
@@ -1028,9 +1020,7 @@ const CustomerManagement = () => {
                     >
                       {col.key === "name" ? (
                         <div className="space-y-1">
-                          <button
-                            type="button"
-                            onClick={() => handleCustomerClick(customer.id)}
+                          <button type="button" onClick={() => handleCustomerClick(customer.id)}
                             className={`font-medium text-left hover:underline block truncate max-w-[180px] ${isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"}`}
                             title={getCustomerCellValue(customer, col.key)}
                           >
@@ -1061,9 +1051,7 @@ const CustomerManagement = () => {
                   {/* Actions Column */}
                   <td className="px-3 py-2 text-right w-[100px]">
                     <div className="flex items-center justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() => {
+                      <button type="button" onClick={() => {
                           setSelectedCustomer(customer);
                           setShowEditModal(true);
                         }}
@@ -1076,9 +1064,7 @@ const CustomerManagement = () => {
                       >
                         <FaEdit size={14} />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => openContactHistory(customer)}
+                      <button type="button" onClick={() => openContactHistory(customer)}
                         className={`p-1.5 rounded transition-colors ${
                           isDarkMode
                             ? "text-blue-400 hover:text-blue-300 hover:bg-gray-700"
@@ -1089,9 +1075,7 @@ const CustomerManagement = () => {
                         <FaHistory size={14} />
                       </button>
                       {canDeleteCustomers && (
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteCustomer(customer.id)}
+                        <button type="button" onClick={() => handleDeleteCustomer(customer.id)}
                           className={`p-1.5 rounded transition-colors ${
                             isDarkMode
                               ? "text-yellow-400 hover:text-yellow-300 hover:bg-gray-700"
@@ -1144,9 +1128,7 @@ const CustomerManagement = () => {
 
             {/* Navigation Buttons */}
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setCurrentPage((prev) => prev - 1)}
+              <button type="button" onClick={() => setCurrentPage((prev) => prev - 1)}
                 disabled={!pageInfo.hasPrev}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   pageInfo.hasPrev
@@ -1160,9 +1142,7 @@ const CustomerManagement = () => {
               >
                 Previous
               </button>
-              <button
-                type="button"
-                onClick={() => setCurrentPage((prev) => prev + 1)}
+              <button type="button" onClick={() => setCurrentPage((prev) => prev + 1)}
                 disabled={!pageInfo.hasNext}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   pageInfo.hasNext
@@ -1244,9 +1224,7 @@ const CustomerManagement = () => {
         <div className="flex gap-3 items-center">
           {/* Column Picker */}
           <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowSupplierColumnPicker(!showSupplierColumnPicker)}
+            <button type="button" onClick={() => setShowSupplierColumnPicker(!showSupplierColumnPicker)}
               className={`p-2 rounded-lg border transition-colors ${
                 isDarkMode
                   ? "border-gray-600 text-gray-400 hover:text-gray-200 hover:bg-gray-700"
@@ -1295,9 +1273,7 @@ const CustomerManagement = () => {
 
           {/* Bulk Delete Button - shows when suppliers are selected */}
           {selectedSupplierIds.size > 0 && (
-            <button
-              type="button"
-              onClick={handleBulkDeleteSuppliers}
+            <button type="button" onClick={handleBulkDeleteSuppliers}
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-2 transition-colors"
             >
               <Trash2 size={16} />
@@ -1305,9 +1281,7 @@ const CustomerManagement = () => {
             </button>
           )}
 
-          <button
-            type="button"
-            onClick={() => setShowAddSupplierModal(true)}
+          <button type="button" onClick={() => setShowAddSupplierModal(true)}
             className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
           >
             <FaPlus />
@@ -1449,9 +1423,7 @@ const CustomerManagement = () => {
                     >
                       {col.key === "name" ? (
                         <div>
-                          <button
-                            type="button"
-                            onClick={() => {
+                          <button type="button" onClick={() => {
                               setSelectedSupplier(supplier);
                               setShowEditSupplierModal(true);
                             }}
@@ -1477,9 +1449,7 @@ const CustomerManagement = () => {
                   {/* Actions Column */}
                   <td className="px-3 py-2 text-right w-[100px]">
                     <div className="flex items-center justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() => {
+                      <button type="button" onClick={() => {
                           setSelectedSupplier(supplier);
                           setShowEditSupplierModal(true);
                         }}
@@ -1492,9 +1462,7 @@ const CustomerManagement = () => {
                       >
                         <FaEdit size={14} />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteSupplier(supplier.id)}
+                      <button type="button" onClick={() => handleDeleteSupplier(supplier.id)}
                         className={`p-1.5 rounded transition-colors ${
                           isDarkMode
                             ? "text-red-400 hover:text-red-300 hover:bg-gray-700"
@@ -1547,9 +1515,7 @@ const CustomerManagement = () => {
 
             {/* Navigation Buttons */}
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setSupplierCurrentPage((prev) => prev - 1)}
+              <button type="button" onClick={() => setSupplierCurrentPage((prev) => prev - 1)}
                 disabled={!supplierPageInfo.hasPrev}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   supplierPageInfo.hasPrev
@@ -1563,9 +1529,7 @@ const CustomerManagement = () => {
               >
                 Previous
               </button>
-              <button
-                type="button"
-                onClick={() => setSupplierCurrentPage((prev) => prev + 1)}
+              <button type="button" onClick={() => setSupplierCurrentPage((prev) => prev + 1)}
                 disabled={!supplierPageInfo.hasNext}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   supplierPageInfo.hasNext
@@ -1704,9 +1668,7 @@ const CustomerManagement = () => {
         {/* Tabs - Pill style */}
         <div className={`mb-6 ${isDarkMode ? "bg-transparent" : "bg-transparent"}`}>
           <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveTab("profiles")}
+            <button type="button" onClick={() => setActiveTab("profiles")}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 activeTab === "profiles"
                   ? isDarkMode
@@ -1720,9 +1682,7 @@ const CustomerManagement = () => {
               <FaUsers size={18} />
               Customer Profiles
             </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("suppliers")}
+            <button type="button" onClick={() => setActiveTab("suppliers")}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 activeTab === "suppliers"
                   ? isDarkMode
@@ -1736,9 +1696,7 @@ const CustomerManagement = () => {
               <FaUsers size={18} />
               Suppliers
             </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("analytics")}
+            <button type="button" onClick={() => setActiveTab("analytics")}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                 activeTab === "analytics"
                   ? isDarkMode
@@ -1775,9 +1733,7 @@ const CustomerManagement = () => {
               <span className={isDarkMode ? "text-red-200" : "text-red-800"}>
                 Error loading customers: {customersError}
               </span>
-              <button
-                type="button"
-                onClick={refetchCustomers}
+              <button type="button" onClick={refetchCustomers}
                 className={`ml-auto px-3 py-1 text-sm rounded transition-colors ${
                   isDarkMode ? "bg-red-800 text-red-200 hover:bg-red-700" : "bg-red-100 text-red-700 hover:bg-red-200"
                 }`}
@@ -1805,9 +1761,7 @@ const CustomerManagement = () => {
               className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
               <h2 className={`text-xl font-semibold ${textPrimary}`}>Add New Customer</h2>
-              <button
-                type="button"
-                onClick={() => setShowAddModal(false)}
+              <button type="button" onClick={() => setShowAddModal(false)}
                 className={`${textMuted} hover:${textSecondary}`}
               >
                 <FaTimes className="w-5 h-5" />
@@ -2134,18 +2088,14 @@ const CustomerManagement = () => {
             <div
               className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
-              <button
-                type="button"
-                onClick={() => setShowAddModal(false)}
+              <button type="button" onClick={() => setShowAddModal(false)}
                 className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
                   isDarkMode ? "text-[#B0BEC5] hover:text-gray-300" : "text-[#757575] hover:bg-gray-100"
                 }`}
               >
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={handleAddCustomer}
+              <button type="button" onClick={handleAddCustomer}
                 disabled={creatingCustomer || !!validateTRN(newCustomer.trn_number)}
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
               >
@@ -2165,9 +2115,7 @@ const CustomerManagement = () => {
               className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
               <h2 className={`text-xl font-semibold ${textPrimary}`}>Add Supplier</h2>
-              <button
-                type="button"
-                onClick={() => setShowAddSupplierModal(false)}
+              <button type="button" onClick={() => setShowAddSupplierModal(false)}
                 className={`${textMuted} hover:${textSecondary}`}
               >
                 <FaTimes className="w-5 h-5" />
@@ -2393,16 +2341,12 @@ const CustomerManagement = () => {
             <div
               className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
-              <button
-                type="button"
-                onClick={() => setShowAddSupplierModal(false)}
+              <button type="button" onClick={() => setShowAddSupplierModal(false)}
                 className={`px-4 py-2 rounded-lg ${isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"}`}
               >
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={handleAddSupplier}
+              <button type="button" onClick={handleAddSupplier}
                 disabled={creatingSupplier || !!validateTRN(newSupplier.trn_number)}
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"
               >
@@ -2421,9 +2365,7 @@ const CustomerManagement = () => {
               className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
               <h2 className={`text-xl font-semibold ${textPrimary}`}>Edit Supplier</h2>
-              <button
-                type="button"
-                onClick={() => setShowEditSupplierModal(false)}
+              <button type="button" onClick={() => setShowEditSupplierModal(false)}
                 className={`${textMuted} hover:${textSecondary}`}
               >
                 <FaTimes className="w-5 h-5" />
@@ -2683,16 +2625,12 @@ const CustomerManagement = () => {
             <div
               className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
-              <button
-                type="button"
-                onClick={() => setShowEditSupplierModal(false)}
+              <button type="button" onClick={() => setShowEditSupplierModal(false)}
                 className={`px-4 py-2 rounded-lg ${isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"}`}
               >
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={handleEditSupplier}
+              <button type="button" onClick={handleEditSupplier}
                 disabled={updatingSupplier || !!validateTRN(selectedSupplier.trn_number)}
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"
               >
@@ -2712,9 +2650,7 @@ const CustomerManagement = () => {
               className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
               <h2 className={`text-xl font-semibold ${textPrimary}`}>Edit Customer</h2>
-              <button
-                type="button"
-                onClick={() => setShowEditModal(false)}
+              <button type="button" onClick={() => setShowEditModal(false)}
                 className={`${textMuted} hover:${textSecondary}`}
               >
                 <FaTimes className="w-5 h-5" />
@@ -3158,18 +3094,14 @@ const CustomerManagement = () => {
             <div
               className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
             >
-              <button
-                type="button"
-                onClick={() => setShowEditModal(false)}
+              <button type="button" onClick={() => setShowEditModal(false)}
                 className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
                   isDarkMode ? "text-[#B0BEC5] hover:text-gray-300" : "text-[#757575] hover:bg-gray-100"
                 }`}
               >
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={handleEditCustomer}
+              <button type="button" onClick={handleEditCustomer}
                 disabled={updatingCustomer || !!validateTRN(selectedCustomer.trn_number)}
                 className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
               >
@@ -3192,9 +3124,7 @@ const CustomerManagement = () => {
               <h2 className={`text-xl font-semibold ${textPrimary}`}>
                 Contact History - {contactHistoryCustomer.name}
               </h2>
-              <button
-                type="button"
-                onClick={() => setShowContactHistory(false)}
+              <button type="button" onClick={() => setShowContactHistory(false)}
                 className={`${textMuted} hover:${textSecondary}`}
               >
                 <FaTimes className="w-5 h-5" />
@@ -3275,9 +3205,7 @@ const CustomerManagement = () => {
                     />
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={addContactEntry}
+                <button type="button" onClick={addContactEntry}
                   className="mt-4 px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
                 >
                   <FaPlus />

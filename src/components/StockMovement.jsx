@@ -316,9 +316,7 @@ const StockMovement = () => {
               />
             </button>
             {/* eslint-disable-next-line local-rules/no-dead-button */}
-            <button
-              type="button"
-              onClick={() => {
+            <button type="button" onClick={() => {
                 // TODO: Implement filter functionality
               }}
               className={`flex items-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
@@ -330,9 +328,7 @@ const StockMovement = () => {
               <Filter size={16} />
               Filter
             </button>
-            <button
-              type="button"
-              onClick={() => handleOpenDialog()}
+            <button type="button" onClick={() => handleOpenDialog()}
               className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md font-semibold"
             >
               <Add size={16} />
@@ -536,18 +532,14 @@ const StockMovement = () => {
                       </span>
                     ) : (
                       <div className="flex gap-1">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenDialog(movement)}
+                        <button type="button" onClick={() => handleOpenDialog(movement)}
                           className={`p-2 rounded transition-colors ${
                             isDarkMode ? "hover:bg-teal-900/30 text-teal-400" : "hover:bg-teal-100 text-teal-600"
                           }`}
                         >
                           <Edit size={16} />
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(movement.id)}
+                        <button type="button" onClick={() => handleDelete(movement.id)}
                           className={`p-2 rounded transition-colors ${
                             isDarkMode ? "hover:bg-red-900/30 text-red-400" : "hover:bg-red-100 text-red-600"
                           }`}
@@ -577,9 +569,7 @@ const StockMovement = () => {
                         {searchTerm ? "Try adjusting your search term" : "Add your first stock movement to get started"}
                       </p>
                       {!searchTerm && (
-                        <button
-                          type="button"
-                          onClick={() => handleOpenDialog()}
+                        <button type="button" onClick={() => handleOpenDialog()}
                           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 mx-auto"
                         >
                           <Add size={16} />
@@ -599,9 +589,7 @@ const StockMovement = () => {
       {openDialog && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex min-h-screen items-center justify-center p-4">
-            <button
-              type="button"
-              className="fixed inset-0 bg-black bg-opacity-50"
+            <button type="button" className="fixed inset-0 bg-black bg-opacity-50"
               onClick={handleCloseDialog}
               onKeyDown={(e) => e.key === "Enter" && handleCloseDialog()}
             />
@@ -633,9 +621,7 @@ const StockMovement = () => {
                             Linked to catalog
                           </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={clearLinkedProduct}
+                        <button type="button" onClick={clearLinkedProduct}
                           className={`px-3 py-1 rounded border ${isDarkMode ? "border-gray-600 hover:bg-gray-700" : "border-gray-300 hover:bg-gray-100"}`}
                         >
                           Unlink
@@ -667,9 +653,7 @@ const StockMovement = () => {
                             className={`absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border shadow ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
                           >
                             {productOptions.map((p) => (
-                              <button
-                                type="button"
-                                key={p.id}
+                              <button type="button" key={p.id}
                                 onClick={() => handleSelectProduct(p)}
                                 className={`w-full text-left px-3 py-2 hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
                               >
@@ -946,9 +930,7 @@ const StockMovement = () => {
               <div
                 className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
               >
-                <button
-                  type="button"
-                  onClick={handleCloseDialog}
+                <button type="button" onClick={handleCloseDialog}
                   className={`px-4 py-2 border rounded-lg transition-colors font-medium ${
                     isDarkMode
                       ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
@@ -957,9 +939,7 @@ const StockMovement = () => {
                 >
                   Cancel
                 </button>
-                <button
-                  type="button"
-                  onClick={handleSubmit}
+                <button type="button" onClick={handleSubmit}
                   className="px-6 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 font-semibold"
                 >
                   {editingMovement ? "Update Movement" : "Add Movement"}

@@ -173,9 +173,7 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
           const isSelected = selectedQuadrant === quadrant;
 
           return (
-            <button
-              type="button"
-              key={quadrant}
+            <button type="button" key={quadrant}
               onClick={() => setSelectedQuadrant(isSelected ? null : quadrant)}
               className={`p-2 rounded-lg border transition-all ${
                 isSelected
@@ -378,9 +376,7 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
         <div className="flex items-center gap-1">
           <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Bubble size = Revenue</span>
         </div>
-        <button
-          type="button"
-          onClick={() => onNavigate?.("/analytics/products")}
+        <button type="button" onClick={() => onNavigate?.("/analytics/products")}
           className={`text-xs font-medium ${
             isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"
           }`}

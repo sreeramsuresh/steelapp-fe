@@ -92,9 +92,7 @@ export default function DeliveryVarianceDashboard() {
             This may be because the delivery variance backend service is not available. Please contact your
             administrator.
           </p>
-          <button
-            type="button"
-            onClick={loadDashboard}
+          <button type="button" onClick={loadDashboard}
             className={`px-4 py-2 rounded-lg ${isDarkMode ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}`}
           >
             Try Again

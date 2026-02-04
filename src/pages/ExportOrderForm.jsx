@@ -1925,9 +1925,7 @@ const ExportOrderForm = () => {
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={() => navigate("/import-export")}
+              <button type="button" onClick={() => navigate("/import-export")}
                 className={`p-2 rounded-lg transition-colors ${
                   isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-600"
                 }`}
@@ -2870,9 +2868,7 @@ const ExportOrderForm = () => {
                         </select>
                         {/* Show batch allocator button for WAREHOUSE items */}
                         {item.shipmentType === "WAREHOUSE" && (
-                          <button
-                            type="button"
-                            onClick={() => handleOpenBatchAllocator(index)}
+                          <button type="button" onClick={() => handleOpenBatchAllocator(index)}
                             className={`w-full flex items-center justify-center gap-1 px-2 py-1 text-xs rounded transition-colors ${
                               item.batchAllocations?.length > 0
                                 ? "bg-teal-600 text-white hover:bg-teal-500"
@@ -2998,9 +2994,7 @@ const ExportOrderForm = () => {
                       </span>
                     </td>
                     <td className="py-2">
-                      <button
-                        type="button"
-                        data-testid={`item-delete-${index}`}
+                      <button type="button" data-testid={`item-delete-${index}`}
                         onClick={() => removeLineItem(index)}
                         className={`p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-colors ${
                           order.items.length <= 1 ? "opacity-50 cursor-not-allowed" : ""

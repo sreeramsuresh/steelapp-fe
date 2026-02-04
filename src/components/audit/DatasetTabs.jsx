@@ -32,9 +32,7 @@ export default function DatasetTabs({ modules, activeModule, onModuleChange, rec
           const count = recordCounts[module] || 0;
 
           return (
-            <button
-              type="button"
-              key={module}
+            <button type="button" key={module}
               onClick={() => onModuleChange(module)}
               className={`flex items-center gap-2 px-6 py-4 font-medium text-sm whitespace-nowrap transition-all ${
                 isActive

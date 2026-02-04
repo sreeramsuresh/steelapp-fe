@@ -564,9 +564,7 @@ export function SupplierBillForm({ supplierBill: supplierBillProp, companyId: co
           }`}
         >
           <h2 className="text-xl font-semibold">{isEditing ? "Edit Supplier Bill" : "Create Supplier Bill"}</h2>
-          <button
-            type="button"
-            onClick={handleClose}
+          <button type="button" onClick={handleClose}
             className={`p-2 rounded-lg hover:bg-gray-100 ${isDarkMode ? "hover:bg-gray-700" : ""}`}
           >
             <X className="h-5 w-5" />
@@ -795,9 +793,7 @@ export function SupplierBillForm({ supplierBill: supplierBillProp, companyId: co
                 >
                   <div className="flex justify-between items-start mb-4">
                     <h4 className="font-medium">Item {index + 1}</h4>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveItem(index)}
+                    <button type="button" onClick={() => handleRemoveItem(index)}
                       className="p-1 text-red-500 hover:bg-red-100 rounded"
                       disabled={formData.items.length === 1}
                     >

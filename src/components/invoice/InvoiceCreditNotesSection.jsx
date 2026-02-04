@@ -128,9 +128,7 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
           )}
         </div>
         {canCreateCreditNote && (
-          <button
-            type="button"
-            onClick={() => navigate(`/credit-notes/new?invoiceId=${invoiceId}`)}
+          <button type="button" onClick={() => navigate(`/credit-notes/new?invoiceId=${invoiceId}`)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
           >
             <Plus className="h-4 w-4" />

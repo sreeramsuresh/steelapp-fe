@@ -725,9 +725,7 @@ const Receivables = () => {
             </div>
           </div>
           <div className="flex flex-wrap gap-2 items-center justify-end sm:justify-end">
-            <button
-              type="button"
-              onClick={() => fetchData(true)}
+            <button type="button" onClick={() => fetchData(true)}
               data-testid="apply-filters"
               className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2"
             >
@@ -828,9 +826,7 @@ const Receivables = () => {
                     </td>
                     <td className="px-4 py-2">
                       {getCustomerName(row) ? (
-                        <button
-                          type="button"
-                          className="text-teal-600 hover:underline"
+                        <button type="button" className="text-teal-600 hover:underline"
                           onClick={(e) => {
                             e.stopPropagation();
                             const cid = getCustomerId(row);
@@ -886,9 +882,7 @@ const Receivables = () => {
                       <StatusPill status={row.status} />
                     </td>
                     <td className="px-4 py-2 text-right">
-                      <button
-                        type="button"
-                        className={`px-2 py-1 ${canManage ? "text-teal-600" : "text-gray-400 cursor-not-allowed"}`}
+                      <button type="button" className={`px-2 py-1 ${canManage ? "text-teal-600" : "text-gray-400 cursor-not-allowed"}`}
                         onClick={() => canManage && openDrawer(row)}
                         disabled={!canManage}
                         data-testid="record-payment-button"
@@ -939,9 +933,7 @@ const Receivables = () => {
 
               {/* Navigation Buttons */}
               <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setFilters({ ...filters, page: String(Math.max(1, page - 1)) })}
+                <button type="button" onClick={() => setFilters({ ...filters, page: String(Math.max(1, page - 1)) })}
                   disabled={page === 1}
                   className={`p-1.5 rounded border transition-colors ${
                     page === 1
@@ -959,9 +951,7 @@ const Receivables = () => {
                 <span className={`px-2 py-1 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                   Page {page} of {pageInfo.totalPages || 1}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => setFilters({ ...filters, page: String(Math.min(pageInfo.totalPages || 1, page + 1)) })}
+                <button type="button" onClick={() => setFilters({ ...filters, page: String(Math.min(pageInfo.totalPages || 1, page + 1)) })}
                   disabled={page >= (pageInfo.totalPages || 1)}
                   className={`p-1.5 rounded border transition-colors ${
                     page >= (pageInfo.totalPages || 1)

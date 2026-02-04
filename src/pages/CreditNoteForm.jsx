@@ -76,9 +76,7 @@ const Drawer = ({ isOpen, onClose, title, description, children, isDarkMode }) =
               </div>
             )}
           </div>
-          <button
-            type="button"
-            onClick={onClose}
+          <button type="button" onClick={onClose}
             className={`p-1.5 rounded-lg transition-colors ${
               isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
             }`}
@@ -1074,9 +1072,7 @@ const CreditNoteForm = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => navigate("/credit-notes")}
+            <button type="button" onClick={() => navigate("/credit-notes")}
               className={`p-2 rounded-lg transition-colors ${
                 isDarkMode ? "hover:bg-gray-800 text-gray-300" : "hover:bg-gray-200 text-gray-700"
               }`}
@@ -1094,9 +1090,7 @@ const CreditNoteForm = () => {
           </div>
           <div className="flex gap-3">
             {/* Preview Button */}
-            <button
-              type="button"
-              onClick={() => setShowPreview(true)}
+            <button type="button" onClick={() => setShowPreview(true)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                 isDarkMode
                   ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
@@ -1111,9 +1105,7 @@ const CreditNoteForm = () => {
             {isEditable && (
               <>
                 {/* Save Draft Button */}
-                <button
-                  type="button"
-                  data-testid="save-draft"
+                <button type="button" data-testid="save-draft"
                   onClick={() => handleSave(false)}
                   disabled={saving}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
@@ -1137,9 +1129,7 @@ const CreditNoteForm = () => {
                 </button>
 
                 {/* Issue Tax Document Button */}
-                <button
-                  type="button"
-                  data-testid="submit-credit-note"
+                <button type="button" data-testid="submit-credit-note"
                   onClick={() => handleSave(true)}
                   disabled={saving}
                   className={`flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ${
@@ -1229,9 +1219,7 @@ const CreditNoteForm = () => {
                     <li key={error}>{error}</li>
                   ))}
                 </ul>
-                <button
-                  type="button"
-                  onClick={() => {
+                <button type="button" onClick={() => {
                     setValidationErrors([]);
                     setInvalidFields(new Set());
                   }}
@@ -1349,9 +1337,7 @@ const CreditNoteForm = () => {
 
                         {/* Clear Filters Button */}
                         {hasActiveFilters && (
-                          <button
-                            type="button"
-                            onClick={clearFilters}
+                          <button type="button" onClick={clearFilters}
                             className={`flex items-center gap-1 px-2 py-1.5 rounded-lg transition-colors ${
                               isDarkMode
                                 ? "text-gray-400 hover:text-white hover:bg-gray-700"
@@ -1435,9 +1421,7 @@ const CreditNoteForm = () => {
                         }`}
                       >
                         No invoices match the selected filters. Try adjusting or{" "}
-                        <button
-                          type="button"
-                          onClick={clearFilters}
+                        <button type="button" onClick={clearFilters}
                           className={`underline ${isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"}`}
                         >
                           clearing filters
@@ -1460,9 +1444,7 @@ const CreditNoteForm = () => {
                     Invoice: {selectedInvoice.invoiceNumber}
                   </h2>
                   {!id && (
-                    <button
-                      type="button"
-                      onClick={() => {
+                    <button type="button" onClick={() => {
                         setSelectedInvoice(null);
                         setShowInvoiceSelect(true);
                         setCreditNote((prev) => ({
@@ -2740,9 +2722,7 @@ const CreditNoteForm = () => {
                     Quick Actions
                   </h3>
                   <div className="space-y-2">
-                    <button
-                      type="button"
-                      onClick={() => setLogisticsDrawerOpen(true)}
+                    <button type="button" onClick={() => setLogisticsDrawerOpen(true)}
                       className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm transition-colors ${
                         isDarkMode
                           ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
@@ -3086,9 +3066,7 @@ const CreditNoteForm = () => {
           }}
         >
           <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => setLogisticsDrawerOpen(false)}
+            <button type="button" onClick={() => setLogisticsDrawerOpen(false)}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 isDarkMode
                   ? "bg-gray-700 text-gray-200 hover:bg-gray-600"

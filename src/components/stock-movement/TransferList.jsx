@@ -245,9 +245,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       {warehouseError && (
         <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-700">
           <span>{warehouseError}</span>
-          <button
-            type="button"
-            onClick={() => setWarehouseError(null)}
+          <button type="button" onClick={() => setWarehouseError(null)}
             className="text-yellow-600 hover:text-yellow-800"
           >
             <X size={18} />
@@ -325,9 +323,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
           <div className="flex-grow" />
 
           {/* Action Buttons */}
-          <button
-            type="button"
-            onClick={loadTransfers}
+          <button type="button" onClick={loadTransfers}
             disabled={loading}
             title="Refresh"
             className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
@@ -335,9 +331,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             {loading ? <Loader2 size={18} className="animate-spin" /> : <RotateCcw size={18} />}
           </button>
 
-          <button
-            type="button"
-            onClick={onCreateNew}
+          <button type="button" onClick={onCreateNew}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium"
           >
             <Plus size={18} />
@@ -418,9 +412,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                           {actions.map((action) => {
                             const IconComponent = action.icon;
                             return (
-                              <button
-                                type="button"
-                                key={action.type}
+                              <button type="button" key={action.type}
                                 onClick={() => handleActionClick(action.type, transfer)}
                                 title={action.label}
                                 className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
@@ -460,17 +452,13 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                 : `${page * rowsPerPage + 1}-${Math.min((page + 1) * rowsPerPage, totalCount)} of ${totalCount}`}
             </span>
             <div className="flex gap-1">
-              <button
-                type="button"
-                onClick={(e) => handleChangePage(e, page - 1)}
+              <button type="button" onClick={(e) => handleChangePage(e, page - 1)}
                 disabled={page === 0}
                 className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"
               >
                 Previous
               </button>
-              <button
-                type="button"
-                onClick={(e) => handleChangePage(e, page + 1)}
+              <button type="button" onClick={(e) => handleChangePage(e, page + 1)}
                 disabled={page >= Math.ceil(totalCount / rowsPerPage) - 1}
                 className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"
               >
@@ -534,17 +522,13 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
 
             {/* Actions */}
             <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setActionDialog({ open: false, type: null, transfer: null })}
+              <button type="button" onClick={() => setActionDialog({ open: false, type: null, transfer: null })}
                 disabled={actionLoading}
                 className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
               >
                 No, Go Back
               </button>
-              <button
-                type="button"
-                onClick={() => {
+              <button type="button" onClick={() => {
                   if (actionDialog.type === "ship") handleShip();
                   else if (actionDialog.type === "receive") handleReceive();
                   else if (actionDialog.type === "cancel") handleCancel();

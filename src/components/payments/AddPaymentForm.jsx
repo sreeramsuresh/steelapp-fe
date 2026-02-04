@@ -210,9 +210,7 @@ const AddPaymentForm = ({
         <>
           <div className="mb-3 px-3 py-2 bg-blue-100 text-blue-800 text-sm rounded-lg flex justify-between items-center border border-blue-200">
             <span className="font-semibold">{balanceLabel}:</span>
-            <button
-              type="button"
-              onClick={() => setAmount(outstanding.toString())}
+            <button type="button" onClick={() => setAmount(outstanding.toString())}
               className="font-bold text-blue-800 hover:text-blue-900 cursor-pointer hover:scale-105 transition-all group px-2 py-1 rounded hover:bg-blue-200"
               title="Click to apply this amount to payment"
             >
@@ -419,18 +417,14 @@ const AddPaymentForm = ({
 
       <div className="mt-4 flex justify-end gap-3">
         {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
+          <button type="button" onClick={onCancel}
             disabled={isSaving}
             className="px-4 py-2.5 rounded-lg font-semibold transition-all border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Close
           </button>
         )}
-        <button
-          type="button"
-          disabled={!canSave}
+        <button type="button" disabled={!canSave}
           onClick={handleSave}
           className={`px-4 py-2.5 rounded-lg font-semibold transition-all ${
             canSave

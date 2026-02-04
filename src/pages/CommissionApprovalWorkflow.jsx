@@ -186,9 +186,7 @@ export default function CommissionApprovalWorkflow() {
               Manage and approve pending commission payouts
             </p>
           </div>
-          <button
-            type="button"
-            onClick={loadPendingApprovals}
+          <button type="button" onClick={loadPendingApprovals}
             disabled={loading}
             className={`px-4 py-2 rounded-lg flex items-center space-x-2 disabled:opacity-50 ${isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-300" : "bg-gray-100 hover:bg-gray-200 text-gray-700"}`}
           >
@@ -257,9 +255,7 @@ export default function CommissionApprovalWorkflow() {
               {selectedIds.size} commission(s) selected
             </div>
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleBulkApprove}
+              <button type="button" onClick={handleBulkApprove}
                 disabled={updating}
                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
               >
@@ -270,9 +266,7 @@ export default function CommissionApprovalWorkflow() {
                 )}
                 Approve Selected
               </button>
-              <button
-                type="button"
-                onClick={handleBulkMarkPaid}
+              <button type="button" onClick={handleBulkMarkPaid}
                 disabled={updating}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
               >
@@ -283,9 +277,7 @@ export default function CommissionApprovalWorkflow() {
                 )}
                 Mark as Paid
               </button>
-              <button
-                type="button"
-                onClick={() => setSelectedIds(new Set())}
+              <button type="button" onClick={() => setSelectedIds(new Set())}
                 className={`px-4 py-2 rounded ${isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-300" : "bg-gray-200 hover:bg-gray-300 text-gray-700"}`}
               >
                 Clear Selection
@@ -394,9 +386,7 @@ export default function CommissionApprovalWorkflow() {
                       </div>
 
                       <div className="ml-4">
-                        <button
-                          type="button"
-                          onClick={(e) => {
+                        <button type="button" onClick={(e) => {
                             e.stopPropagation();
                             handleApproveCommission(commission);
                           }}
@@ -439,9 +429,7 @@ export default function CommissionApprovalWorkflow() {
                 </FormSelect>
               </div>
               <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                <button type="button" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                   className={`p-2 rounded ${isDarkMode ? "hover:bg-gray-600 text-gray-400 disabled:text-gray-500" : "hover:bg-gray-200 text-gray-600 disabled:text-gray-300"} disabled:cursor-not-allowed`}
                 >
@@ -450,9 +438,7 @@ export default function CommissionApprovalWorkflow() {
                 <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                   Page {currentPage} of {totalPages}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                <button type="button" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
                   className={`p-2 rounded ${isDarkMode ? "hover:bg-gray-600 text-gray-400 disabled:text-gray-500" : "hover:bg-gray-200 text-gray-600 disabled:text-gray-300"} disabled:cursor-not-allowed`}
                 >
@@ -481,9 +467,7 @@ export default function CommissionApprovalWorkflow() {
                     <h2 className={`text-2xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       Commission Details
                     </h2>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCommission(null)}
+                    <button type="button" onClick={() => setSelectedCommission(null)}
                       className={isDarkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-700"}
                     >
                       ✕
@@ -572,16 +556,12 @@ export default function CommissionApprovalWorkflow() {
                   <div
                     className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
                   >
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCommission(null)}
+                    <button type="button" onClick={() => setSelectedCommission(null)}
                       className={`px-4 py-2 border rounded ${isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-300 hover:bg-gray-50 text-gray-700"}`}
                     >
                       Close
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => handleApproveCommission(selectedCommission)}
+                    <button type="button" onClick={() => handleApproveCommission(selectedCommission)}
                       disabled={updating}
                       className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
                     >

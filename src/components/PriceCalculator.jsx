@@ -716,9 +716,7 @@ const PriceCalculator = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Custom Pricing Rules</h3>
-        <button
-          type="button"
-          onClick={() => setShowRulesModal(true)}
+        <button type="button" onClick={() => setShowRulesModal(true)}
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
         >
           <Plus size={20} />
@@ -748,9 +746,7 @@ const PriceCalculator = () => {
                 </span>
               </div>
               <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => toggleRuleActive(rule.id)}
+                <button type="button" onClick={() => toggleRuleActive(rule.id)}
                   className={`px-3 py-1 text-sm rounded-lg transition-colors ${
                     rule.active
                       ? isDarkMode
@@ -761,9 +757,7 @@ const PriceCalculator = () => {
                 >
                   {rule.active ? "Disable" : "Enable"}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => deleteRule(rule.id)}
+                <button type="button" onClick={() => deleteRule(rule.id)}
                   className={`p-1 rounded-lg transition-colors ${
                     isDarkMode ? "text-red-400 hover:bg-red-900/20" : "text-red-600 hover:bg-red-100"
                   }`}
@@ -809,9 +803,7 @@ const PriceCalculator = () => {
         <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
           Bulk Quantity Discounts
         </h3>
-        <button
-          type="button"
-          onClick={() => setShowDiscountModal(true)}
+        <button type="button" onClick={() => setShowDiscountModal(true)}
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
         >
           <Plus size={20} />
@@ -841,9 +833,7 @@ const PriceCalculator = () => {
                 </span>
               </div>
               <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => toggleDiscountActive(discount.id)}
+                <button type="button" onClick={() => toggleDiscountActive(discount.id)}
                   className={`px-3 py-1 text-sm rounded-lg transition-colors ${
                     discount.active
                       ? isDarkMode
@@ -854,9 +844,7 @@ const PriceCalculator = () => {
                 >
                   {discount.active ? "Disable" : "Enable"}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => deleteDiscount(discount.id)}
+                <button type="button" onClick={() => deleteDiscount(discount.id)}
                   className={`p-1 rounded-lg transition-colors ${
                     isDarkMode ? "text-red-400 hover:bg-red-900/20" : "text-red-600 hover:bg-red-100"
                   }`}
@@ -910,9 +898,7 @@ const PriceCalculator = () => {
           {/* Tabs - Pill style */}
           <div className="mb-6">
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setActiveTab("calculator")}
+              <button type="button" onClick={() => setActiveTab("calculator")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "calculator"
                     ? isDarkMode
@@ -926,9 +912,7 @@ const PriceCalculator = () => {
                 <Calculator size={18} />
                 Price Calculator
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("rules")}
+              <button type="button" onClick={() => setActiveTab("rules")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "rules"
                     ? isDarkMode
@@ -942,9 +926,7 @@ const PriceCalculator = () => {
                 <Settings size={18} />
                 Pricing Rules
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("discounts")}
+              <button type="button" onClick={() => setActiveTab("discounts")}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                   activeTab === "discounts"
                     ? isDarkMode
@@ -985,9 +967,7 @@ const PriceCalculator = () => {
                 <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Add Pricing Rule
                 </h2>
-                <button
-                  type="button"
-                  onClick={() => setShowRulesModal(false)}
+                <button type="button" onClick={() => setShowRulesModal(false)}
                   className={`p-2 rounded-lg transition-colors ${
                     isDarkMode ? "text-gray-400 hover:bg-gray-700" : "text-gray-600 hover:bg-gray-100"
                   }`}
@@ -1159,9 +1139,7 @@ const PriceCalculator = () => {
               <div
                 className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
               >
-                <button
-                  type="button"
-                  onClick={() => setShowRulesModal(false)}
+                <button type="button" onClick={() => setShowRulesModal(false)}
                   className={`px-4 py-2 border rounded-lg transition-colors ${
                     isDarkMode
                       ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
@@ -1170,9 +1148,7 @@ const PriceCalculator = () => {
                 >
                   Cancel
                 </button>
-                <button
-                  type="button"
-                  onClick={handleAddRule}
+                <button type="button" onClick={handleAddRule}
                   className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
                 >
                   <Save size={20} />
@@ -1199,9 +1175,7 @@ const PriceCalculator = () => {
                 <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Add Bulk Discount
                 </h2>
-                <button
-                  type="button"
-                  onClick={() => setShowDiscountModal(false)}
+                <button type="button" onClick={() => setShowDiscountModal(false)}
                   className={`p-2 rounded-lg transition-colors ${
                     isDarkMode ? "text-gray-400 hover:bg-gray-700" : "text-gray-600 hover:bg-gray-100"
                   }`}
@@ -1286,9 +1260,7 @@ const PriceCalculator = () => {
               <div
                 className={`p-6 border-t flex gap-3 justify-end ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
               >
-                <button
-                  type="button"
-                  onClick={() => setShowDiscountModal(false)}
+                <button type="button" onClick={() => setShowDiscountModal(false)}
                   className={`px-4 py-2 border rounded-lg transition-colors ${
                     isDarkMode
                       ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
@@ -1297,9 +1269,7 @@ const PriceCalculator = () => {
                 >
                   Cancel
                 </button>
-                <button
-                  type="button"
-                  onClick={handleAddDiscount}
+                <button type="button" onClick={handleAddDiscount}
                   className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
                 >
                   <Save size={20} />

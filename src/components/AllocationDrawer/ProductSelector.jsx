@@ -201,9 +201,7 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
           role="listbox"
         >
           {products.map((product, index) => (
-            <button
-              type="button"
-              key={product.id || `product-${index}`}
+            <button type="button" key={product.id || `product-${index}`}
               data-testid={`drawer-product-option-${index}`}
               className={`product-option ${index === highlightedIndex ? "highlighted" : ""}`}
               onClick={() => handleSelect(product)}

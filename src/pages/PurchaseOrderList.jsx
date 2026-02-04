@@ -427,9 +427,7 @@ const PurchaseOrderList = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex gap-2 justify-end">
                         {authService.hasPermission("purchase_orders", "read") && (
-                          <button
-                            type="button"
-                            className={`p-2 rounded-lg transition-colors ${
+                          <button type="button" className={`p-2 rounded-lg transition-colors ${
                               isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
                             }`}
                             onClick={() => handlePreview(po)}
@@ -439,9 +437,7 @@ const PurchaseOrderList = () => {
                           </button>
                         )}
                         {authService.hasPermission("purchase_orders", "update") && (
-                          <button
-                            type="button"
-                            className={`p-2 rounded-lg transition-colors ${
+                          <button type="button" className={`p-2 rounded-lg transition-colors ${
                               isDarkMode ? "hover:bg-gray-700 text-teal-400" : "hover:bg-gray-100 text-teal-600"
                             }`}
                             onClick={() => navigate(`/purchase-orders/${po.id}/edit`)}
@@ -451,9 +447,7 @@ const PurchaseOrderList = () => {
                           </button>
                         )}
                         {authService.hasPermission("purchase_orders", "read") && (
-                          <button
-                            type="button"
-                            className={`p-2 rounded-lg transition-colors ${
+                          <button type="button" className={`p-2 rounded-lg transition-colors ${
                               downloadingIds.has(po.id)
                                 ? "opacity-50 cursor-not-allowed"
                                 : isDarkMode
@@ -472,9 +466,7 @@ const PurchaseOrderList = () => {
                           </button>
                         )}
                         {authService.hasPermission("purchase_orders", "delete") && (
-                          <button
-                            type="button"
-                            className={`p-2 rounded-lg transition-colors ${
+                          <button type="button" className={`p-2 rounded-lg transition-colors ${
                               isDarkMode ? "hover:bg-gray-700 text-red-400" : "hover:bg-gray-100 text-red-600"
                             }`}
                             onClick={() => handleDelete(po.id)}
@@ -496,9 +488,7 @@ const PurchaseOrderList = () => {
         {totalPages > 1 && (
           <div className="flex justify-center mt-6">
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setPage(Math.max(1, page - 1))}
+              <button type="button" onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
                 className={`p-2 rounded transition-colors ${
                   page === 1
@@ -516,9 +506,7 @@ const PurchaseOrderList = () => {
               <span className={`px-3 py-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                 Page {page} of {totalPages}
               </span>
-              <button
-                type="button"
-                onClick={() => setPage(Math.min(totalPages, page + 1))}
+              <button type="button" onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
                 className={`p-2 rounded transition-colors ${
                   page === totalPages
@@ -549,9 +537,7 @@ const PurchaseOrderList = () => {
             <div className="flex items-center gap-2">
               <AlertCircle size={20} />
               <span>{error}</span>
-              <button
-                type="button"
-                onClick={() => setError("")}
+              <button type="button" onClick={() => setError("")}
                 className={`ml-2 ${isDarkMode ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-700"}`}
               >
                 <X size={16} />
@@ -573,9 +559,7 @@ const PurchaseOrderList = () => {
             <div className="flex items-center gap-2">
               <CheckCircle size={20} />
               <span>{success}</span>
-              <button
-                type="button"
-                onClick={() => setSuccess("")}
+              <button type="button" onClick={() => setSuccess("")}
                 className={`ml-2 ${isDarkMode ? "text-green-400 hover:text-green-300" : "text-green-600 hover:text-green-700"}`}
               >
                 <X size={16} />

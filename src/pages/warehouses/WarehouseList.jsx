@@ -174,9 +174,7 @@ const WarehouseList = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={fetchWarehouses}
+            <button type="button" onClick={fetchWarehouses}
               className={`p-2 rounded-lg border ${
                 isDarkMode
                   ? "border-gray-600 text-gray-400 hover:bg-gray-700"
@@ -186,9 +184,7 @@ const WarehouseList = () => {
             >
               <RefreshCw className={`w-5 h-5 ${loading ? "animate-spin" : ""}`} />
             </button>
-            <button
-              type="button"
-              onClick={handleAddWarehouse}
+            <button type="button" onClick={handleAddWarehouse}
               className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
             >
               <Plus className="w-5 h-5" />
@@ -229,9 +225,7 @@ const WarehouseList = () => {
           {/* Filter by Status */}
           <div className="flex gap-2">
             {["all", "active", "inactive"].map((status) => (
-              <button
-                type="button"
-                key={status}
+              <button type="button" key={status}
                 onClick={() => setFilterActive(status)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   filterActive === status
@@ -268,9 +262,7 @@ const WarehouseList = () => {
               {searchTerm ? "Try adjusting your search" : "Get started by adding your first warehouse"}
             </p>
             {!searchTerm && (
-              <button
-                type="button"
-                onClick={handleAddWarehouse}
+              <button type="button" onClick={handleAddWarehouse}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
               >
                 <Plus className="w-5 h-5" />

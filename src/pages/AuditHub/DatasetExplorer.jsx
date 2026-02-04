@@ -131,9 +131,7 @@ export default function DatasetExplorer() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <button
-            type="button"
-            onClick={() => navigate("/audit-hub")}
+          <button type="button" onClick={() => navigate("/audit-hub")}
             className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -158,9 +156,7 @@ export default function DatasetExplorer() {
       <div className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between mb-4">
-            <button
-              type="button"
-              onClick={() => navigate("/audit-hub")}
+            <button type="button" onClick={() => navigate("/audit-hub")}
               className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -298,9 +294,7 @@ export default function DatasetExplorer() {
                       {Math.min(currentPage * itemsPerPage, moduleData.length)} of {moduleData.length}
                     </div>
                     <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      <button type="button" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
                         className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-300 dark:hover:bg-slate-600"
                       >
@@ -308,9 +302,7 @@ export default function DatasetExplorer() {
                       </button>
                       <div className="flex items-center gap-2">
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                          <button
-                            type="button"
-                            key={page}
+                          <button type="button" key={page}
                             onClick={() => setCurrentPage(page)}
                             className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                               currentPage === page
@@ -322,9 +314,7 @@ export default function DatasetExplorer() {
                           </button>
                         ))}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      <button type="button" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                         disabled={currentPage === totalPages}
                         className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-300 dark:hover:bg-slate-600"
                       >

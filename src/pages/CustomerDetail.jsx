@@ -151,9 +151,7 @@ export default function CustomerDetail() {
             Error Loading Customer
           </h2>
           <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>{error}</p>
-          <button
-            type="button"
-            onClick={() => navigate("/customers")}
+          <button type="button" onClick={() => navigate("/customers")}
             className="mt-4 px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
           >
             <FaArrowLeft />
@@ -174,9 +172,7 @@ export default function CustomerDetail() {
           <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
             You do not have permission to view customer details.
           </p>
-          <button
-            type="button"
-            onClick={() => navigate("/")}
+          <button type="button" onClick={() => navigate("/")}
             className="mt-4 px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
           >
             <FaHome />
@@ -205,18 +201,14 @@ export default function CustomerDetail() {
         } border rounded-lg`}
       >
         <div className="flex items-center gap-2 text-sm">
-          <button
-            type="button"
-            onClick={() => navigate("/")}
+          <button type="button" onClick={() => navigate("/")}
             className={`flex items-center gap-1 hover:underline ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
           >
             <FaHome />
             Home
           </button>
           <span className={isDarkMode ? "text-gray-500" : "text-gray-400"}>/</span>
-          <button
-            type="button"
-            onClick={() => navigate("/customers")}
+          <button type="button" onClick={() => navigate("/customers")}
             className={`flex items-center gap-1 hover:underline ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
           >
             <FaUsers />
@@ -225,9 +217,7 @@ export default function CustomerDetail() {
           <span className={isDarkMode ? "text-gray-500" : "text-gray-400"}>/</span>
           <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>{customerData.name}</span>
         </div>
-        <button
-          type="button"
-          onClick={() => navigate("/customers")}
+        <button type="button" onClick={() => navigate("/customers")}
           className={`mt-3 flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             isDarkMode ? "bg-[#37474F] text-gray-300 hover:bg-[#455A64]" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
@@ -266,9 +256,7 @@ export default function CustomerDetail() {
       >
         <div className="flex overflow-x-auto">
           {tabs.map((tab) => (
-            <button
-              type="button"
-              key={tab.id}
+            <button type="button" key={tab.id}
               onClick={() => handleTabChange(tab.id)}
               className={`flex-1 min-w-[120px] px-6 py-4 text-sm font-medium transition-all ${
                 activeTab === tab.id

@@ -83,9 +83,7 @@ export default function PeriodCard({ period, onClose, onLock, onView, isClosing 
           {/* Actions */}
           <div className="flex flex-col gap-2 min-w-fit">
             {canClose && (
-              <button
-                type="button"
-                onClick={onClose}
+              <button type="button" onClick={onClose}
                 disabled={isClosing}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
               >
@@ -104,9 +102,7 @@ export default function PeriodCard({ period, onClose, onLock, onView, isClosing 
             )}
 
             {canLock && (
-              <button
-                type="button"
-                onClick={onLock}
+              <button type="button" onClick={onLock}
                 disabled={isLocking}
                 className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
               >
@@ -125,9 +121,7 @@ export default function PeriodCard({ period, onClose, onLock, onView, isClosing 
             )}
 
             {canView && (
-              <button
-                type="button"
-                onClick={onView}
+              <button type="button" onClick={onView}
                 className="flex items-center gap-2 px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium"
               >
                 <Eye className="w-4 h-4" />

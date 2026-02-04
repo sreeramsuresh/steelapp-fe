@@ -261,9 +261,7 @@ const AtRiskCustomersWidget = ({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleRefresh}
+        <button type="button" onClick={handleRefresh}
           disabled={loading || isLoading}
           className={`p-1.5 rounded-lg transition-colors ${
             isDarkMode
@@ -414,9 +412,7 @@ const AtRiskCustomersWidget = ({
                     <div className="flex gap-2">
                       {onContactCustomer && (
                         <>
-                          <button
-                            type="button"
-                            onClick={(e) => {
+                          <button type="button" onClick={(e) => {
                               e.stopPropagation();
                               onContactCustomer(customer, "call");
                             }}
@@ -429,9 +425,7 @@ const AtRiskCustomersWidget = ({
                             <Phone size={12} />
                             Call
                           </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
+                          <button type="button" onClick={(e) => {
                               e.stopPropagation();
                               onContactCustomer(customer, "email");
                             }}
@@ -447,9 +441,7 @@ const AtRiskCustomersWidget = ({
                         </>
                       )}
                       {onViewCustomer && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
+                        <button type="button" onClick={(e) => {
                             e.stopPropagation();
                             onViewCustomer(customer);
                           }}
@@ -473,9 +465,7 @@ const AtRiskCustomersWidget = ({
 
       {/* Action Button */}
       {onViewDetails && (
-        <button
-          type="button"
-          onClick={() => onViewDetails(riskData)}
+        <button type="button" onClick={() => onViewDetails(riskData)}
           className={`mt-4 w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
             isDarkMode ? "bg-red-600 hover:bg-red-500 text-white" : "bg-red-500 hover:bg-red-600 text-white"
           }`}

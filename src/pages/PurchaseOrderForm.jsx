@@ -220,9 +220,7 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
           </div>
 
           <div className="flex gap-2 justify-end">
-            <button
-              type="button"
-              onClick={onCancel}
+            <button type="button" onClick={onCancel}
               className={`px-4 py-2 border rounded-lg transition-colors ${
                 isDarkMode
                   ? "border-gray-600 text-gray-300 hover:bg-gray-700"
@@ -484,9 +482,7 @@ const ToggleSwitchPO = ({ enabled, onChange, label, description, isDarkMode }) =
       <p className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>{label}</p>
       <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{description}</p>
     </div>
-    <button
-      type="button"
-      onClick={onChange}
+    <button type="button" onClick={onChange}
       className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
         enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
       }`}
@@ -530,9 +526,7 @@ const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange })
       <div className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}>
         <div className="flex items-center justify-between">
           <h3 className={`text-sm font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>Form Settings</h3>
-          <button
-            type="button"
-            onClick={onClose}
+          <button type="button" onClick={onClose}
             className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
               isDarkMode ? "text-gray-400" : "text-gray-500"
             }`}
@@ -1763,9 +1757,7 @@ const PurchaseOrderForm = () => {
       >
         <div className="max-w-[1400px] mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => navigate("/purchase-orders")}
+            <button type="button" onClick={() => navigate("/purchase-orders")}
               className={`p-2 rounded-xl transition-colors ${
                 isDarkMode ? "hover:bg-[#1a2129] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
               }`}
@@ -1797,9 +1789,7 @@ const PurchaseOrderForm = () => {
               {purchaseOrder.status?.toUpperCase() || "DRAFT"}
             </span>
 
-            <button
-              type="button"
-              onClick={() => setShowFormSettings(!showFormSettings)}
+            <button type="button" onClick={() => setShowFormSettings(!showFormSettings)}
               className={BTN_SMALL(isDarkMode)}
               aria-label="Form settings"
               title="Form Settings"
@@ -1816,18 +1806,14 @@ const PurchaseOrderForm = () => {
               }}
             />
 
-            <button
-              type="button"
-              onClick={() => setShowPreview(true)}
+            <button type="button" onClick={() => setShowPreview(true)}
               className={BTN_CLASSES(isDarkMode)}
               title="Preview Purchase Order"
             >
               <Eye size={16} className="inline mr-1.5" />
               Preview
             </button>
-            <button
-              type="button"
-              onClick={() => handleSubmit("draft")}
+            <button type="button" onClick={() => handleSubmit("draft")}
               disabled={isSaving}
               className={`${BTN_CLASSES(isDarkMode)} ${isSaving ? "opacity-60 cursor-not-allowed" : ""}`}
               data-testid="save-draft"
@@ -1835,9 +1821,7 @@ const PurchaseOrderForm = () => {
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin inline mr-1" /> : null}
               Save Draft
             </button>
-            <button
-              type="button"
-              onClick={() => handleSubmit("pending")}
+            <button type="button" onClick={() => handleSubmit("pending")}
               disabled={isSaving}
               className={`${BTN_PRIMARY} ${isSaving ? "opacity-60 cursor-not-allowed" : ""}`}
               data-testid="submit-po"
@@ -1872,9 +1856,7 @@ const PurchaseOrderForm = () => {
                     <li key={error}>{error}</li>
                   ))}
                 </ul>
-                <button
-                  type="button"
-                  onClick={() => {
+                <button type="button" onClick={() => {
                     setValidationErrors([]);
                     setInvalidFields(new Set());
                   }}
@@ -1987,9 +1969,7 @@ const PurchaseOrderForm = () => {
                       </FormSelect>
                     </div>
                     {selectedSupplierId && (
-                      <button
-                        type="button"
-                        onClick={() => setBuyerDrawerOpen(true)}
+                      <button type="button" onClick={() => setBuyerDrawerOpen(true)}
                         className={BTN_SMALL(isDarkMode)}
                         title="Edit Supplier Details"
                       >
@@ -2055,9 +2035,7 @@ const PurchaseOrderForm = () => {
                       const isPinned = pinnedProductIds.includes(product.id);
                       return (
                         <div key={product.id} className="relative group">
-                          <button
-                            type="button"
-                            onClick={() => handleQuickAddItem(product)}
+                          <button type="button" onClick={() => handleQuickAddItem(product)}
                             className={`w-full px-2.5 py-2 pr-7 rounded-[10px] border text-xs font-medium transition-all truncate text-left ${
                               isPinned
                                 ? isDarkMode
@@ -2083,9 +2061,7 @@ const PurchaseOrderForm = () => {
                               product.sku ||
                               "Product"}
                           </button>
-                          <button
-                            type="button"
-                            onClick={(e) => handleTogglePin(e, product.id)}
+                          <button type="button" onClick={(e) => handleTogglePin(e, product.id)}
                             className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all ${
                               isPinned
                                 ? isDarkMode
@@ -2432,9 +2408,7 @@ const PurchaseOrderForm = () => {
                           )}
                         </td>
                         <td className="px-2 py-2 align-middle text-center">
-                          <button
-                            type="button"
-                            onClick={() => removeItem(index)}
+                          <button type="button" onClick={() => removeItem(index)}
                             disabled={purchaseOrder.items.length === 1}
                             className={`hover:text-red-300 ${isDarkMode ? "text-red-400 disabled:text-gray-600" : "text-red-500 disabled:text-gray-400"}`}
                           >
@@ -2605,49 +2579,37 @@ const PurchaseOrderForm = () => {
               <div className={CARD_CLASSES(isDarkMode)}>
                 <div className="text-xs font-bold text-[#93a4b4] uppercase tracking-wider mb-2">Quick Actions</div>
                 <div className="space-y-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setChargesDrawerOpen(true)}
+                  <button type="button" onClick={() => setChargesDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <DollarSign size={16} className="opacity-60" />
                     Edit Charges & Discount
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setDeliveryDrawerOpen(true)}
+                  <button type="button" onClick={() => setDeliveryDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <Truck size={16} className="opacity-60" />
                     Edit Delivery Terms
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setNotesDrawerOpen(true)}
+                  <button type="button" onClick={() => setNotesDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <FileText size={16} className="opacity-60" />
                     Add Notes & Terms
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setBuyerDrawerOpen(true)}
+                  <button type="button" onClick={() => setBuyerDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <User size={16} className="opacity-60" />
                     Edit Buyer Info
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentDrawerOpen(true)}
+                  <button type="button" onClick={() => setPaymentDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <CreditCard size={16} className="opacity-60" />
                     View Payments
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setApprovalDrawerOpen(true)}
+                  <button type="button" onClick={() => setApprovalDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <ClipboardCheck size={16} className="opacity-60" />
@@ -3198,9 +3160,7 @@ const PurchaseOrderForm = () => {
               </div>
             </div>
             {/* Add Payment Button */}
-            <button
-              type="button"
-              onClick={() => {
+            <button type="button" onClick={() => {
                 setPaymentDrawerOpen(false);
                 setShowPaymentForm(true);
               }}
@@ -3240,9 +3200,7 @@ const PurchaseOrderForm = () => {
                         </div>
                       </div>
                       {!payment.voided && (
-                        <button
-                          type="button"
-                          onClick={() => handleVoidPayment(payment.id)}
+                        <button type="button" onClick={() => handleVoidPayment(payment.id)}
                           className="text-red-400 hover:text-red-300 text-xs"
                         >
                           Void

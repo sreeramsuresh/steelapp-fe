@@ -123,9 +123,7 @@ const CommissionForecastWidget = ({ monthsBack = 6, onRefresh, onViewDetails }) 
         <div className="text-center py-8">
           <AlertCircle size={48} className="mx-auto mb-4 text-red-500 opacity-50" />
           <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{error}</p>
-          <button
-            type="button"
-            onClick={handleRefresh}
+          <button type="button" onClick={handleRefresh}
             className={`mt-4 px-4 py-2 rounded-lg text-sm ${
               isDarkMode
                 ? "bg-indigo-600 hover:bg-indigo-500 text-white"
@@ -178,9 +176,7 @@ const CommissionForecastWidget = ({ monthsBack = 6, onRefresh, onViewDetails }) 
             <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Trend analysis & projections</p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={handleRefresh}
+        <button type="button" onClick={handleRefresh}
           disabled={loading}
           className={`p-1.5 rounded-lg transition-colors ${
             isDarkMode
@@ -359,9 +355,7 @@ const CommissionForecastWidget = ({ monthsBack = 6, onRefresh, onViewDetails }) 
 
       {/* Action Button */}
       {onViewDetails && (
-        <button
-          type="button"
-          onClick={() => onViewDetails(data)}
+        <button type="button" onClick={() => onViewDetails(data)}
           className={`mt-4 w-full py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
             isDarkMode ? "bg-indigo-600 hover:bg-indigo-500 text-white" : "bg-indigo-500 hover:bg-indigo-600 text-white"
           }`}
