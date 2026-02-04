@@ -1925,33 +1925,17 @@ const InvoiceForm = ({ onSave }) => {
   const getExistingInvoiceFn = useCallback(() => (id ? invoiceService.getInvoice(id) : null), [id]);
   const getPinnedProductsFn = useCallback(() => pinnedProductsService.getPinnedProducts(), []);
 
-  const {
-    data: company,
-    loading: loadingCompany,
-    refetch: refetchCompany,
-  } = useApiData(getCompanyFn, [], true);
+  const { data: company, loading: loadingCompany, refetch: refetchCompany } = useApiData(getCompanyFn, [], true);
   const { execute: saveInvoice, loading: savingInvoice } = useApi(invoiceService.createInvoice);
   const { execute: updateInvoice, loading: updatingInvoice } = useApi(invoiceService.updateInvoice);
-  const { data: existingInvoice, loading: loadingInvoice } = useApiData(
-    getExistingInvoiceFn,
-    [id],
-    { immediate: !!id, skipInitialLoading: !id }
-  );
-  const { data: _nextInvoiceData, refetch: refetchNextInvoice } = useApiData(
-    getNextInvoiceNumberFn,
-    [],
-    !id
-  );
-  const { data: customersData, loading: loadingCustomers } = useApiData(
-    getCustomersFn,
-    []
-  );
+  const { data: existingInvoice, loading: loadingInvoice } = useApiData(getExistingInvoiceFn, [id], {
+    immediate: !!id,
+    skipInitialLoading: !id,
+  });
+  const { data: _nextInvoiceData, refetch: refetchNextInvoice } = useApiData(getNextInvoiceNumberFn, [], !id);
+  const { data: customersData, loading: loadingCustomers } = useApiData(getCustomersFn, []);
   const { data: salesAgentsData, loading: loadingAgents } = useApiData(getAgentsFn, []);
-  const {
-    data: productsData,
-    loading: loadingProducts,
-    refetch: refetchProducts,
-  } = useApiData(getProductsFn, []);
+  const { data: productsData, loading: loadingProducts, refetch: refetchProducts } = useApiData(getProductsFn, []);
   const { execute: _createProduct, loading: _creatingProduct } = useApi(productService.createProduct);
 
   // Pinned products state

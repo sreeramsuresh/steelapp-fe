@@ -42,7 +42,7 @@ describe("customerService", () => {
         });
 
         assert.strictEqual(result.customers.length, 2);
-        assert.ok(apiClient.get).calledWith("/customers", {
+        sinon.assert.calledWith(apiClient.get, "/customers", {
           page: 1,
           limit: 20,
         });
@@ -57,7 +57,7 @@ describe("customerService", () => {
           sortBy: "name",
         });
 
-        assert.ok(apiClient.get).calledWith("/customers", {
+        sinon.assert.calledWith(apiClient.get, "/customers", {
           search: "Acme",
           status: "ACTIVE",
           sortBy: "name",
@@ -89,7 +89,7 @@ describe("customerService", () => {
         const result = await customerService.getCustomer(1);
 
         assert.strictEqual(result.name, "Acme Corp");
-        assert.ok(apiClient.get).calledWith("/customers/1");
+        sinon.assert.calledWith(apiClient.get, "/customers/1");
       });
 
       test("should handle 404 for non-existent customer", async () => {
@@ -129,7 +129,7 @@ describe("customerService", () => {
         const result = await customerService.createCustomer(customerData);
 
         assert.strictEqual(result.id, 10);
-        assert.ok(apiClient.post).calledWith("/customers", customerData);
+        sinon.assert.calledWith(apiClient.post, "/customers", customerData);
       });
 
       test("should handle validation errors on creation", async () => {
@@ -171,7 +171,7 @@ describe("customerService", () => {
 
         assert.strictEqual(result.email, "newemail@acme.com");
         assert.strictEqual(result.creditLimit, 15000);
-        assert.ok(apiClient.put).calledWith("/customers/1", updates);
+        sinon.assert.calledWith(apiClient.put, "/customers/1", updates);
       });
 
       test("should handle update conflicts", async () => {
@@ -190,7 +190,7 @@ describe("customerService", () => {
         const result = await customerService.deleteCustomer(1, config);
 
         assert.strictEqual(result.success, true);
-        assert.ok(apiClient.delete).calledWith("/customers/1", config);
+        sinon.assert.calledWith(apiClient.delete, "/customers/1", config);
       });
 
       test("should handle deletion of customer with outstanding balance", async () => {
@@ -209,35 +209,34 @@ describe("customerService", () => {
         const result = await customerService.archiveCustomer(1);
 
         assert.strictEqual(result.status, "archived");
-        assert.ok(apiClient.patch).calledWith("/customers/1/status", {
+        sinon.assert.calledWith(apiClient.patch, "/customers/1/status", {
           status: "archived",
         });
       });
 
       test("should fallback to PATCH /customers/:id if status endpoint not found", async () => {
-        sinon.stub(apiClient, 'patch').rejects({
-          response: { status: 404 },
-        });
-        sinon.stub(apiClient, 'patch').resolves({ id: 1, status: "archived" });
+        sinon.stub(apiClient, 'patch')
+          .onFirstCall().rejects({ response: { status: 404 } })
+          .onSecondCall().resolves({ id: 1, status: "archived" });
 
         await customerService.archiveCustomer(1);
 
-        assert.ok(apiClient.patch).calledWith("/customers/1", {
+        sinon.assert.calledWith(apiClient.patch, "/customers/1", {
           status: "archived",
         });
       });
 
       test("should fallback to PUT if PATCH not available", async () => {
-        // First patch call fails with 404
-        apiClient.patch
-          .rejects({ response: { status: 404 } })
-          .rejects({ response: { status: 404 } });
+        // Both PATCH calls fail with 404
+        sinon.stub(apiClient, 'patch')
+          .onFirstCall().rejects({ response: { status: 404 } })
+          .onSecondCall().rejects({ response: { status: 404 } });
 
         sinon.stub(apiClient, 'put').resolves({ id: 1, status: "archived" });
 
         await customerService.archiveCustomer(1);
 
-        assert.ok(apiClient.put).calledWith("/customers/1", {
+        sinon.assert.calledWith(apiClient.put, "/customers/1", {
           status: "archived",
         });
       });
@@ -250,8 +249,8 @@ describe("customerService", () => {
 
   describe("Data Transformation (transformCustomerFromServer)", () => {
     test("should handle null/undefined input", () => {
-      assert.ok(transformCustomerFromServer(null)).toBeNull();
-      assert.ok(transformCustomerFromServer(undefined)).toBeNull();
+      assert.strictEqual(transformCustomerFromServer(null), null);
+      assert.strictEqual(transformCustomerFromServer(undefined), null);
     });
 
     test("should transform basic fields with defaults", () => {
@@ -432,7 +431,7 @@ describe("customerService", () => {
 
       await customerService.getCustomers({ companyId: 5 });
 
-      assert.ok(apiClient.get).calledWith("/customers", {
+      sinon.assert.calledWith(apiClient.get, "/customers", {
         companyId: 5,
       });
     });
@@ -447,7 +446,7 @@ describe("customerService", () => {
 
       const result = await customerService.getCustomers({ companyId: 5 });
 
-      assert.ok(result.customers.every((c) => c.companyId === 5)).toBe(true);
+      assert.ok(result.customers.every((c) => c.companyId === 5));
     });
 
     test("should not allow cross-tenant customer access", async () => {
