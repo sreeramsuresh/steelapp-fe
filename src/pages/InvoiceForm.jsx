@@ -5669,6 +5669,7 @@ const InvoiceForm = ({ onSave }) => {
                                               stroke="currentColor"
                                               viewBox="0 0 24 24"
                                             >
+                                              <title>Drop ship icon</title>
                                               <path
                                                 strokeLinecap="round"
                                                 strokeLinejoin="round"

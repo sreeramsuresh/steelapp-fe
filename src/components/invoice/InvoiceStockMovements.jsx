@@ -150,6 +150,7 @@ export default function InvoiceStockMovements({
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
+            <title>No stock movements</title>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"

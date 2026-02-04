@@ -194,9 +194,11 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
   return (
     <div className="fixed inset-0 z-[1100] flex">
       {/* Backdrop */}
-      <button type="button" className="flex-1 bg-black/30"
-    onClick={onClose}
-    onKeyDown={(e) => e.key === "Enter" && onClose()}
+      <button
+        type="button"
+        className="flex-1 bg-black/30"
+        onClick={onClose}
+        onKeyDown={(e) => e.key === "Enter" && onClose()}
       ></button>
 
       {/* Drawer */}
@@ -218,7 +220,9 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                 Invoice: {invoice?.invoiceNumber} | Customer: {invoice?.customer?.name || "N/A"}
               </p>
             </div>
-            <button type="button" onClick={onClose}
+            <button
+              type="button"
+              onClick={onClose}
               className="p-2 rounded hover:bg-orange-200 dark:hover:bg-orange-800/50 text-orange-700 dark:text-orange-300 hover:text-orange-900 dark:hover:text-orange-100 transition-colors"
             >
               <X size={24} />
@@ -294,13 +298,17 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                       </div>
                       {!isViewOnly && (
                         <div className="flex gap-1">
-                          <button type="button" onClick={() => handleEdit(reminder)}
+                          <button
+                            type="button"
+                            onClick={() => handleEdit(reminder)}
                             className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
                             title="Edit"
                           >
                             <Edit2 size={16} />
                           </button>
-                          <button type="button" onClick={() => handleDelete(reminder.id)}
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(reminder.id)}
                             className="p-1 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
                             title="Delete"
                           >
@@ -472,7 +480,9 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                   )}
                 </button>
                 {editingId && (
-                  <button type="button" onClick={handleCancel}
+                  <button
+                    type="button"
+                    onClick={handleCancel}
                     disabled={isSaving}
                     className={`flex-1 px-4 py-2.5 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors font-medium shadow ${
                       isSaving ? "opacity-50 cursor-not-allowed" : ""

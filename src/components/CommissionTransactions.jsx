@@ -13,7 +13,7 @@ import {
   User,
   XCircle,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { commissionService } from "../services/commissionService";
 import { notificationService } from "../services/notificationService";
@@ -45,16 +45,8 @@ const CommissionTransactions = () => {
   // Action menu state
   const [actionMenuOpen, setActionMenuOpen] = useState(null);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, []);
-
-  const loadData = async () => {
+  // Load commission transaction data
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [transactionsRes, agentsRes] = await Promise.all([
@@ -69,7 +61,16 @@ const CommissionTransactions = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, []);
 
   // Filter transactions
   const filteredTransactions = useMemo(() => {

@@ -271,6 +271,7 @@ export const DragHandleIcon = ({ size = 16, className = "" }) => (
     strokeLinejoin="round"
     className={className}
   >
+    <title>Drag handle</title>
     <circle cx="9" cy="5" r="1" fill="currentColor" />
     <circle cx="9" cy="12" r="1" fill="currentColor" />
     <circle cx="9" cy="19" r="1" fill="currentColor" />
