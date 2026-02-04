@@ -5,8 +5,8 @@
  * Tests form error message display with icon (Bug #12 fix)
  */
 
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 import FormError from "../FormError";
 
 describe("FormError", () => {
@@ -42,9 +42,7 @@ describe("FormError", () => {
   });
 
   it("should apply custom className", () => {
-    const { container } = render(
-      <FormError message="Error" className="custom-class" />
-    );
+    const { container } = render(<FormError message="Error" className="custom-class" />);
 
     const errorDiv = container.firstChild;
     expect(errorDiv).toHaveClass("custom-class");
@@ -72,7 +70,8 @@ describe("FormError", () => {
   });
 
   it("should handle very long error messages", () => {
-    const longMessage = "This field validation failed because the input provided does not match any of the required criteria and patterns.";
+    const longMessage =
+      "This field validation failed because the input provided does not match any of the required criteria and patterns.";
     render(<FormError message={longMessage} />);
 
     expect(screen.getByText(longMessage)).toBeInTheDocument();

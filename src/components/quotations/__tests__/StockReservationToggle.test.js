@@ -5,9 +5,9 @@
  * Tests stock reservation toggle with 2-hour expiration timer
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import StockReservationToggle from "../StockReservationToggle";
 
 vi.mock("../../../contexts/ThemeContext", () => ({
@@ -33,9 +33,7 @@ describe("StockReservationToggle", () => {
       reservationExpiry: null,
     };
 
-    render(
-      <StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />
-    );
+    render(<StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />);
 
     expect(screen.getByRole("button", { name: /Reserve/ })).toBeInTheDocument();
   });
@@ -46,9 +44,7 @@ describe("StockReservationToggle", () => {
       reservationExpiry: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
     };
 
-    render(
-      <StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />
-    );
+    render(<StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />);
 
     expect(screen.getByRole("button", { name: /Reserved/ })).toBeInTheDocument();
   });
@@ -63,18 +59,12 @@ describe("StockReservationToggle", () => {
     const now = new Date();
     vi.setSystemTime(now);
 
-    render(
-      <StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />
-    );
+    render(<StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />);
 
     const button = screen.getByRole("button", { name: /Reserve/ });
     await user.click(button);
 
-    expect(mockOnToggleReservation).toHaveBeenCalledWith(
-      0,
-      true,
-      expect.stringContaining("T")
-    );
+    expect(mockOnToggleReservation).toHaveBeenCalledWith(0, true, expect.stringContaining("T"));
 
     // Verify the expiry time is approximately 2 hours from now
     const callArgs = mockOnToggleReservation.mock.calls[0];
@@ -92,9 +82,7 @@ describe("StockReservationToggle", () => {
       reservationExpiry: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
     };
 
-    render(
-      <StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />
-    );
+    render(<StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />);
 
     const button = screen.getByRole("button", { name: /Reserved/ });
     await user.click(button);
@@ -109,9 +97,7 @@ describe("StockReservationToggle", () => {
       reservationExpiry: futureTime.toISOString(),
     };
 
-    render(
-      <StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />
-    );
+    render(<StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />);
 
     await waitFor(() => {
       // The timer should display approximately 1h 30m remaining
@@ -126,9 +112,7 @@ describe("StockReservationToggle", () => {
       reservationExpiry: futureTime.toISOString(),
     };
 
-    render(
-      <StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />
-    );
+    render(<StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />);
 
     await waitFor(() => {
       expect(screen.getByText(/0h 0m 5s/)).toBeInTheDocument();
@@ -148,9 +132,7 @@ describe("StockReservationToggle", () => {
       reservationExpiry: pastTime.toISOString(),
     };
 
-    render(
-      <StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />
-    );
+    render(<StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />);
 
     await waitFor(() => {
       expect(screen.getByText("Expired")).toBeInTheDocument();
@@ -163,9 +145,7 @@ describe("StockReservationToggle", () => {
       reservationExpiry: null,
     };
 
-    render(
-      <StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />
-    );
+    render(<StockReservationToggle item={item} index={0} onToggleReservation={mockOnToggleReservation} />);
 
     expect(screen.queryByText(/h [0-9]+m [0-9]+s/)).not.toBeInTheDocument();
   });
@@ -208,9 +188,7 @@ describe("StockReservationToggle", () => {
       reservationExpiry: null,
     };
 
-    rerender(
-      <StockReservationToggle item={item2} index={0} onToggleReservation={mockOnToggleReservation} />
-    );
+    rerender(<StockReservationToggle item={item2} index={0} onToggleReservation={mockOnToggleReservation} />);
 
     expect(screen.queryByText(/h [0-9]+m [0-9]+s/)).not.toBeInTheDocument();
   });
@@ -232,9 +210,7 @@ describe("StockReservationToggle", () => {
       reservationExpiry: new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString(),
     };
 
-    rerender(
-      <StockReservationToggle item={item2} index={0} onToggleReservation={mockOnToggleReservation} />
-    );
+    rerender(<StockReservationToggle item={item2} index={0} onToggleReservation={mockOnToggleReservation} />);
 
     expect(screen.getByTitle(/Release reservation/)).toBeInTheDocument();
   });
@@ -246,9 +222,7 @@ describe("StockReservationToggle", () => {
       reservationExpiry: null,
     };
 
-    render(
-      <StockReservationToggle item={item} index={5} onToggleReservation={mockOnToggleReservation} />
-    );
+    render(<StockReservationToggle item={item} index={5} onToggleReservation={mockOnToggleReservation} />);
 
     const button = screen.getByRole("button");
     await user.click(button);

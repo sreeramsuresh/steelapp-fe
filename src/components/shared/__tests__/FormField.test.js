@@ -6,9 +6,9 @@
  * Supports bugs #13 (clarity), #16 (placeholders), #21 (tooltips)
  */
 
-import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 import FormField from "../FormField";
 
 describe("FormField", () => {
@@ -111,12 +111,7 @@ describe("FormField", () => {
 
   it("should display both helper text and error when both provided", () => {
     render(
-      <FormField
-        label="Email"
-        htmlFor="email"
-        helperText="Your contact email"
-        error="Invalid format"
-      >
+      <FormField label="Email" htmlFor="email" helperText="Your contact email" error="Invalid format">
         <input id="email" type="email" />
       </FormField>
     );
@@ -158,7 +153,8 @@ describe("FormField", () => {
   });
 
   it("should handle long error messages", () => {
-    const longError = "This field is required and must contain at least 10 characters with at least one uppercase letter and one number.";
+    const longError =
+      "This field is required and must contain at least 10 characters with at least one uppercase letter and one number.";
 
     render(
       <FormField label="Password" htmlFor="pwd" error={longError}>

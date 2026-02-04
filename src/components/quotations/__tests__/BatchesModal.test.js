@@ -5,9 +5,9 @@
  * Tests batch selection modal for product stock allocation
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import BatchesModal from "../BatchesModal";
 
 vi.mock("../../../contexts/ThemeContext", () => ({
@@ -96,9 +96,7 @@ describe("BatchesModal", () => {
     );
 
     await waitFor(() => {
-      expect(mockApiClient().get).toHaveBeenCalledWith(
-        expect.stringContaining("/api/stock-batches")
-      );
+      expect(mockApiClient().get).toHaveBeenCalledWith(expect.stringContaining("/api/stock-batches"));
     });
   });
 

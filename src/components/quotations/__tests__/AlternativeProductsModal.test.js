@@ -5,9 +5,9 @@
  * Tests alternative products modal for quotations with product search
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import AlternativeProductsModal from "../AlternativeProductsModal";
 
 vi.mock("../../../contexts/ThemeContext", () => ({
@@ -304,9 +304,7 @@ describe("AlternativeProductsModal", () => {
 
   it("should save alternatives when save button is clicked", async () => {
     const user = userEvent.setup();
-    const alternatives = [
-      { productId: "prod-2", productName: "SS316 Coil", priceDifference: 0, notes: "" },
-    ];
+    const alternatives = [{ productId: "prod-2", productName: "SS316 Coil", priceDifference: 0, notes: "" }];
 
     render(
       <AlternativeProductsModal

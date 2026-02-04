@@ -5,9 +5,9 @@
  * Tests volume discount tier configuration modal
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import VolumeDiscountTiersModal from "../VolumeDiscountTiersModal";
 
 vi.mock("../../../contexts/ThemeContext", () => ({
@@ -26,26 +26,14 @@ describe("VolumeDiscountTiersModal", () => {
 
   it("should not render when isOpen is false", () => {
     const { container } = render(
-      <VolumeDiscountTiersModal
-        isOpen={false}
-        onClose={mockOnClose}
-        tiers={[]}
-        onSave={mockOnSave}
-      />
+      <VolumeDiscountTiersModal isOpen={false} onClose={mockOnClose} tiers={[]} onSave={mockOnSave} />
     );
 
     expect(container.firstChild).toBeNull();
   });
 
   it("should render modal when isOpen is true", () => {
-    render(
-      <VolumeDiscountTiersModal
-        isOpen={true}
-        onClose={mockOnClose}
-        tiers={[]}
-        onSave={mockOnSave}
-      />
-    );
+    render(<VolumeDiscountTiersModal isOpen={true} onClose={mockOnClose} tiers={[]} onSave={mockOnSave} />);
 
     expect(screen.getByText("Volume Discount Tiers")).toBeInTheDocument();
   });
@@ -56,14 +44,7 @@ describe("VolumeDiscountTiersModal", () => {
       { minQuantity: 500, discountPercentage: 10, description: "Large order" },
     ];
 
-    render(
-      <VolumeDiscountTiersModal
-        isOpen={true}
-        onClose={mockOnClose}
-        tiers={tiers}
-        onSave={mockOnSave}
-      />
-    );
+    render(<VolumeDiscountTiersModal isOpen={true} onClose={mockOnClose} tiers={tiers} onSave={mockOnSave} />);
 
     expect(screen.getByDisplayValue("100")).toBeInTheDocument();
     expect(screen.getByDisplayValue("5")).toBeInTheDocument();
@@ -73,14 +54,7 @@ describe("VolumeDiscountTiersModal", () => {
 
   it("should add a new tier when Add button is clicked", async () => {
     const user = userEvent.setup();
-    render(
-      <VolumeDiscountTiersModal
-        isOpen={true}
-        onClose={mockOnClose}
-        tiers={[]}
-        onSave={mockOnSave}
-      />
-    );
+    render(<VolumeDiscountTiersModal isOpen={true} onClose={mockOnClose} tiers={[]} onSave={mockOnSave} />);
 
     const addButton = screen.getByRole("button", { name: /Add/ });
     await user.click(addButton);
@@ -97,14 +71,7 @@ describe("VolumeDiscountTiersModal", () => {
       { minQuantity: 500, discountPercentage: 10, description: "Tier 2" },
     ];
 
-    render(
-      <VolumeDiscountTiersModal
-        isOpen={true}
-        onClose={mockOnClose}
-        tiers={tiers}
-        onSave={mockOnSave}
-      />
-    );
+    render(<VolumeDiscountTiersModal isOpen={true} onClose={mockOnClose} tiers={tiers} onSave={mockOnSave} />);
 
     const deleteButtons = screen.getAllByRole("button", { name: /Delete/ });
     await user.click(deleteButtons[0]);
@@ -116,18 +83,9 @@ describe("VolumeDiscountTiersModal", () => {
 
   it("should update tier values when inputs are changed", async () => {
     const user = userEvent.setup();
-    const tiers = [
-      { minQuantity: 100, discountPercentage: 5, description: "Tier 1" },
-    ];
+    const tiers = [{ minQuantity: 100, discountPercentage: 5, description: "Tier 1" }];
 
-    render(
-      <VolumeDiscountTiersModal
-        isOpen={true}
-        onClose={mockOnClose}
-        tiers={tiers}
-        onSave={mockOnSave}
-      />
-    );
+    render(<VolumeDiscountTiersModal isOpen={true} onClose={mockOnClose} tiers={tiers} onSave={mockOnSave} />);
 
     const quantityInput = screen.getByDisplayValue("100");
     await user.clear(quantityInput);
@@ -143,14 +101,7 @@ describe("VolumeDiscountTiersModal", () => {
       { minQuantity: 100, discountPercentage: 5, description: "Small" },
     ];
 
-    render(
-      <VolumeDiscountTiersModal
-        isOpen={true}
-        onClose={mockOnClose}
-        tiers={tiers}
-        onSave={mockOnSave}
-      />
-    );
+    render(<VolumeDiscountTiersModal isOpen={true} onClose={mockOnClose} tiers={tiers} onSave={mockOnSave} />);
 
     const saveButton = screen.getByRole("button", { name: /Save/ });
     await user.click(saveButton);
@@ -167,14 +118,7 @@ describe("VolumeDiscountTiersModal", () => {
       { minQuantity: 100, discountPercentage: 5, description: "Tier 1" },
     ];
 
-    render(
-      <VolumeDiscountTiersModal
-        isOpen={true}
-        onClose={mockOnClose}
-        tiers={tiers}
-        onSave={mockOnSave}
-      />
-    );
+    render(<VolumeDiscountTiersModal isOpen={true} onClose={mockOnClose} tiers={tiers} onSave={mockOnSave} />);
 
     const saveButton = screen.getByRole("button", { name: /Save/ });
     await user.click(saveButton);
@@ -186,18 +130,9 @@ describe("VolumeDiscountTiersModal", () => {
 
   it("should close modal after saving", async () => {
     const user = userEvent.setup();
-    const tiers = [
-      { minQuantity: 100, discountPercentage: 5, description: "Tier 1" },
-    ];
+    const tiers = [{ minQuantity: 100, discountPercentage: 5, description: "Tier 1" }];
 
-    render(
-      <VolumeDiscountTiersModal
-        isOpen={true}
-        onClose={mockOnClose}
-        tiers={tiers}
-        onSave={mockOnSave}
-      />
-    );
+    render(<VolumeDiscountTiersModal isOpen={true} onClose={mockOnClose} tiers={tiers} onSave={mockOnSave} />);
 
     const saveButton = screen.getByRole("button", { name: /Save/ });
     await user.click(saveButton);
@@ -208,14 +143,7 @@ describe("VolumeDiscountTiersModal", () => {
 
   it("should close modal when X button is clicked", async () => {
     const user = userEvent.setup();
-    render(
-      <VolumeDiscountTiersModal
-        isOpen={true}
-        onClose={mockOnClose}
-        tiers={[]}
-        onSave={mockOnSave}
-      />
-    );
+    render(<VolumeDiscountTiersModal isOpen={true} onClose={mockOnClose} tiers={[]} onSave={mockOnSave} />);
 
     const closeButton = screen.getByRole("button", { name: /Close/ });
     await user.click(closeButton);
@@ -224,14 +152,7 @@ describe("VolumeDiscountTiersModal", () => {
   });
 
   it("should display requirements section", () => {
-    render(
-      <VolumeDiscountTiersModal
-        isOpen={true}
-        onClose={mockOnClose}
-        tiers={[]}
-        onSave={mockOnSave}
-      />
-    );
+    render(<VolumeDiscountTiersModal isOpen={true} onClose={mockOnClose} tiers={[]} onSave={mockOnSave} />);
 
     expect(screen.getByText(/Requirements:/)).toBeInTheDocument();
     expect(screen.getByText(/Minimum quantity must be greater than 0/)).toBeInTheDocument();
@@ -241,14 +162,7 @@ describe("VolumeDiscountTiersModal", () => {
 
   it("should handle multiple tiers correctly", async () => {
     const user = userEvent.setup();
-    render(
-      <VolumeDiscountTiersModal
-        isOpen={true}
-        onClose={mockOnClose}
-        tiers={[]}
-        onSave={mockOnSave}
-      />
-    );
+    render(<VolumeDiscountTiersModal isOpen={true} onClose={mockOnClose} tiers={[]} onSave={mockOnSave} />);
 
     const addButton = screen.getByRole("button", { name: /Add/ });
 
@@ -264,18 +178,9 @@ describe("VolumeDiscountTiersModal", () => {
 
   it("should allow text input for tier description", async () => {
     const user = userEvent.setup();
-    const tiers = [
-      { minQuantity: 100, discountPercentage: 5, description: "" },
-    ];
+    const tiers = [{ minQuantity: 100, discountPercentage: 5, description: "" }];
 
-    render(
-      <VolumeDiscountTiersModal
-        isOpen={true}
-        onClose={mockOnClose}
-        tiers={tiers}
-        onSave={mockOnSave}
-      />
-    );
+    render(<VolumeDiscountTiersModal isOpen={true} onClose={mockOnClose} tiers={tiers} onSave={mockOnSave} />);
 
     const descriptionInput = screen.getByPlaceholderText(/Optional description/);
     await user.type(descriptionInput, "Bulk purchase discount");

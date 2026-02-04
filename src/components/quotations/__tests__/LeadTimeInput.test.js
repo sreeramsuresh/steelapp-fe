@@ -5,9 +5,9 @@
  * Tests lead time input field for quotation items with procurement
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import LeadTimeInput from "../LeadTimeInput";
 
 vi.mock("../../../contexts/ThemeContext", () => ({
@@ -29,9 +29,7 @@ describe("LeadTimeInput", () => {
       estimatedLeadTimeDays: 5,
     };
 
-    render(
-      <LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />
-    );
+    render(<LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />);
 
     expect(screen.getByLabelText(/Lead time in days/)).toBeInTheDocument();
     expect(screen.getByDisplayValue("5")).toBeInTheDocument();
@@ -44,9 +42,7 @@ describe("LeadTimeInput", () => {
       estimatedLeadTimeDays: 3,
     };
 
-    render(
-      <LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />
-    );
+    render(<LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />);
 
     expect(screen.getByLabelText(/Lead time in days/)).toBeInTheDocument();
   });
@@ -58,9 +54,7 @@ describe("LeadTimeInput", () => {
       estimatedLeadTimeDays: 2,
     };
 
-    const { container } = render(
-      <LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />
-    );
+    const { container } = render(<LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />);
 
     expect(container.firstChild).toBeNull();
   });
@@ -73,9 +67,7 @@ describe("LeadTimeInput", () => {
       estimatedLeadTimeDays: null,
     };
 
-    render(
-      <LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />
-    );
+    render(<LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />);
 
     const input = screen.getByLabelText(/Lead time in days/);
     await user.clear(input);
@@ -92,9 +84,7 @@ describe("LeadTimeInput", () => {
       estimatedLeadTimeDays: 5,
     };
 
-    render(
-      <LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />
-    );
+    render(<LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />);
 
     const input = screen.getByLabelText(/Lead time in days/);
     await user.clear(input);
@@ -110,9 +100,7 @@ describe("LeadTimeInput", () => {
       estimatedLeadTimeDays: 0,
     };
 
-    render(
-      <LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />
-    );
+    render(<LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />);
 
     const input = screen.getByLabelText(/Lead time in days/);
     expect(input).toHaveValue(0);
@@ -125,9 +113,7 @@ describe("LeadTimeInput", () => {
       estimatedLeadTimeDays: 2,
     };
 
-    render(
-      <LeadTimeInput item={item} index={3} onUpdate={mockOnUpdate} />
-    );
+    render(<LeadTimeInput item={item} index={3} onUpdate={mockOnUpdate} />);
 
     expect(screen.getByLabelText(/for item 4/)).toBeInTheDocument();
   });
@@ -140,9 +126,7 @@ describe("LeadTimeInput", () => {
       estimatedLeadTimeDays: null,
     };
 
-    render(
-      <LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />
-    );
+    render(<LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />);
 
     const input = screen.getByLabelText(/Lead time in days/);
     await user.type(input, "abc");
@@ -157,9 +141,7 @@ describe("LeadTimeInput", () => {
       estimatedLeadTimeDays: 5,
     };
 
-    render(
-      <LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />
-    );
+    render(<LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />);
 
     expect(screen.getByText(/Expected days for supplier to deliver/)).toBeInTheDocument();
   });
@@ -172,9 +154,7 @@ describe("LeadTimeInput", () => {
       estimatedLeadTimeDays: null,
     };
 
-    render(
-      <LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />
-    );
+    render(<LeadTimeInput item={item} index={0} onUpdate={mockOnUpdate} />);
 
     const input = screen.getByLabelAttribute(/Lead time in days/);
     expect(input).toHaveAttribute("min", "0");
@@ -187,9 +167,7 @@ describe("LeadTimeInput", () => {
       estimatedLeadTimeDays: 5,
     };
 
-    const { rerender } = render(
-      <LeadTimeInput item={item1} index={0} onUpdate={mockOnUpdate} />
-    );
+    const { rerender } = render(<LeadTimeInput item={item1} index={0} onUpdate={mockOnUpdate} />);
 
     expect(screen.getByDisplayValue("5")).toBeInTheDocument();
 
@@ -199,9 +177,7 @@ describe("LeadTimeInput", () => {
       estimatedLeadTimeDays: 10,
     };
 
-    rerender(
-      <LeadTimeInput item={item2} index={0} onUpdate={mockOnUpdate} />
-    );
+    rerender(<LeadTimeInput item={item2} index={0} onUpdate={mockOnUpdate} />);
 
     expect(screen.getByDisplayValue("10")).toBeInTheDocument();
   });

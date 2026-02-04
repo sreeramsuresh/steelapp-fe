@@ -5,8 +5,8 @@
  * Tests status badge with variants and sizes (Bug #21 fix)
  */
 
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 import StatusBadge from "../StatusBadge";
 
 describe("StatusBadge", () => {
@@ -101,9 +101,7 @@ describe("StatusBadge", () => {
   });
 
   it("should apply custom className", () => {
-    const { container } = render(
-      <StatusBadge status="ACTIVE" className="custom-class" />
-    );
+    const { container } = render(<StatusBadge status="ACTIVE" className="custom-class" />);
 
     const badge = container.firstChild;
     expect(badge).toHaveClass("custom-class");
@@ -141,9 +139,7 @@ describe("StatusBadge", () => {
   });
 
   it("should combine multiple variants and sizes", () => {
-    const { container } = render(
-      <StatusBadge status="PENDING" variant="warning" size="lg" />
-    );
+    const { container } = render(<StatusBadge status="PENDING" variant="warning" size="lg" />);
 
     const badge = container.firstChild;
     expect(badge).toHaveClass("bg-orange-100", "text-orange-800", "px-3", "py-1.5");

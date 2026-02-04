@@ -5,9 +5,9 @@
  * Tests price validity condition selector with custom option
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import PriceValiditySelector from "../PriceValiditySelector";
 
 vi.mock("../../../contexts/ThemeContext", () => ({
@@ -93,12 +93,7 @@ describe("PriceValiditySelector", () => {
   });
 
   it("should extract and display custom condition text from value", () => {
-    render(
-      <PriceValiditySelector
-        value="custom:Prices valid for 60 days from order"
-        onChange={mockOnChange}
-      />
-    );
+    render(<PriceValiditySelector value="custom:Prices valid for 60 days from order" onChange={mockOnChange} />);
 
     const customInput = screen.getByPlaceholderText("Enter custom condition");
     expect(customInput).toHaveValue("Prices valid for 60 days from order");
@@ -107,17 +102,13 @@ describe("PriceValiditySelector", () => {
   it("should display helper text when value is set", () => {
     render(<PriceValiditySelector value="valid_7_days" onChange={mockOnChange} />);
 
-    expect(
-      screen.getByText("This condition will appear on the quotation PDF.")
-    ).toBeInTheDocument();
+    expect(screen.getByText("This condition will appear on the quotation PDF.")).toBeInTheDocument();
   });
 
   it("should not display helper text when value is empty", () => {
     render(<PriceValiditySelector value="" onChange={mockOnChange} />);
 
-    expect(
-      screen.queryByText("This condition will appear on the quotation PDF.")
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("This condition will appear on the quotation PDF.")).not.toBeInTheDocument();
   });
 
   it("should handle null value gracefully", () => {
@@ -176,18 +167,10 @@ describe("PriceValiditySelector", () => {
   });
 
   it("should not render custom input for predefined conditions", () => {
-    const conditions = [
-      "stock_availability",
-      "lme_rates",
-      "valid_7_days",
-      "valid_14_days",
-      "valid_30_days",
-    ];
+    const conditions = ["stock_availability", "lme_rates", "valid_7_days", "valid_14_days", "valid_30_days"];
 
     conditions.forEach((condition) => {
-      const { unmount } = render(
-        <PriceValiditySelector value={condition} onChange={mockOnChange} />
-      );
+      const { unmount } = render(<PriceValiditySelector value={condition} onChange={mockOnChange} />);
 
       expect(screen.queryByPlaceholderText("Enter custom condition")).not.toBeInTheDocument();
       unmount();
