@@ -487,14 +487,11 @@ const StockReceiptForm = ({
   return (
     <>
       {/* Overlay */}
-      <div
+      <button
+        type="button"
         className={`fixed inset-0 ${overlayBg} z-40 transition-opacity`}
         onClick={() => !loading && onClose()}
-        onKeyDown={(e) => {
-          if (e.key === "Escape" && !loading) onClose();
-        }}
-        role="button"
-        tabIndex={0}
+        disabled={loading}
         aria-label="Close modal"
       />
 

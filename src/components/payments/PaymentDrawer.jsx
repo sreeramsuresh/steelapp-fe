@@ -94,16 +94,12 @@ const PaymentDrawer = ({
   return (
     <div className="fixed inset-0 z-[1100] flex" data-testid="payment-drawer">
       {/* Backdrop */}
-      <div
+      <button
+        type="button"
         className="absolute inset-0 bg-black/30 sm:relative sm:flex-1"
         onClick={onClose}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") onClose();
-        }}
-        role="button"
-        tabIndex={0}
         aria-label="Close drawer"
-      ></div>
+      ></button>
 
       {/* Drawer */}
       <div
