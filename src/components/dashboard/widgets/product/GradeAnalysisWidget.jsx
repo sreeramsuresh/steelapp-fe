@@ -181,20 +181,13 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
       {/* Grade List */}
       <div className="space-y-2">
         {grades.map((grade, index) => (
-          <div
+          <button
+            type="button"
             key={grade.grade}
-            className={`p-3 rounded-lg cursor-pointer transition-all ${
+            className={`p-3 rounded-lg transition-all w-full text-left ${
               isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"
             }`}
             onClick={() => onGradeClick?.(grade)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                onGradeClick?.(grade);
-              }
-            }}
           >
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-3">
@@ -260,7 +253,7 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
                 style={{ width: `${(grade.revenue / maxRevenue) * 100}%` }}
               />
             </div>
-          </div>
+          </button>
         ))}
       </div>
 

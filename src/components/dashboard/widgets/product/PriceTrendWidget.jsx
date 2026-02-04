@@ -130,9 +130,10 @@ const PriceTrendWidget = ({ data, onNavigate, onProductClick }) => {
       {/* Product List */}
       <div className="space-y-2">
         {products.map((product) => (
-          <div
+          <button
+            type="button"
             key={product.id}
-            className={`p-3 rounded-lg cursor-pointer transition-all ${
+            className={`p-3 rounded-lg transition-all w-full text-left ${
               selectedProduct?.id === product.id
                 ? isDarkMode
                   ? "bg-[#2E3B4E] ring-1 ring-teal-500/50"
@@ -144,15 +145,6 @@ const PriceTrendWidget = ({ data, onNavigate, onProductClick }) => {
             onClick={() => {
               setSelectedProduct(product);
               onProductClick?.(product);
-            }}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setSelectedProduct(product);
-                onProductClick?.(product);
-              }
             }}
           >
             <div className="flex items-center justify-between">
@@ -210,7 +202,7 @@ const PriceTrendWidget = ({ data, onNavigate, onProductClick }) => {
                 </div>
               </div>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 

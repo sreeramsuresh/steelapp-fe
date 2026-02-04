@@ -170,7 +170,7 @@ const WidgetLoadingState = ({ size, isDarkMode }) => {
   };
 
   return (
-    <div data-testid="loading" role="status" className={`flex items-center justify-center ${heightClasses[size]}`}>
+    <output data-testid="loading" className={`flex items-center justify-center ${heightClasses[size]}`}>
       <div className="flex items-center gap-3">
         <div
           className={`animate-spin rounded-full h-6 w-6 border-b-2 ${
@@ -179,7 +179,7 @@ const WidgetLoadingState = ({ size, isDarkMode }) => {
         />
         <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Loading...</span>
       </div>
-    </div>
+    </output>
   );
 };
 

@@ -407,23 +407,22 @@ async function checkAndExecuteCatchup(status) {
  */
 async function main() {
   try {
-    // TEMPORARY: Skip backup status check due to stuck backup
-    // TODO: Reset backup status in database to resolve the stuck "IN_PROGRESS" state
-    // Restart this check once backup is fixed
-
-    // Uncomment the lines below to re-enable backup status checks:
-    /*
     const status = await fetchBackupStatus();
+
+    // Display status immediately
     displayStatus(status);
 
+    // Check and execute catch-up if needed
+    // Give it a brief moment to spawn the background process
+    // but don't block if it takes longer (use timeout)
     const catchupTimeout = new Promise((resolve) => setTimeout(resolve, 100));
     const catchupPromise = checkAndExecuteCatchup(status);
+
     await Promise.race([catchupPromise, catchupTimeout]).catch(() => {
       // Silently ignore timeout or errors - don't block startup
     });
-    */
 
-    // Exit immediately - backup check disabled
+    // Exit after giving catch-up time to spawn
     process.exit(0);
   } catch (error) {
     // Non-blocking - always exit 0

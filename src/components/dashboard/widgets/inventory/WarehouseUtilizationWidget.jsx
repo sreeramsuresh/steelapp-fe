@@ -231,9 +231,10 @@ const WarehouseUtilizationWidget = ({
           const isSelected = selectedWarehouse?.id === warehouse.id;
 
           return (
-            <div
+            <button
+              type="button"
               key={warehouse.id}
-              className={`p-3 rounded-lg cursor-pointer transition-all ${
+              className={`p-3 rounded-lg transition-all w-full text-left ${
                 isSelected
                   ? isDarkMode
                     ? "bg-[#2E3B4E] ring-1 ring-teal-500/50"
@@ -245,15 +246,6 @@ const WarehouseUtilizationWidget = ({
               onClick={() => {
                 setSelectedWarehouse(isSelected ? null : warehouse);
                 onWarehouseClick?.(warehouse);
-              }}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setSelectedWarehouse(isSelected ? null : warehouse);
-                  onWarehouseClick?.(warehouse);
-                }
               }}
             >
               <div className="flex items-start justify-between mb-2">
@@ -313,7 +305,7 @@ const WarehouseUtilizationWidget = ({
                   </div>
                 </div>
               )}
-            </div>
+            </button>
           );
         })}
       </div>

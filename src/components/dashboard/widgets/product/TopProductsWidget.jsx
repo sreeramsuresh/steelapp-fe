@@ -164,20 +164,13 @@ const TopProductsWidget = ({ data, onNavigate, onProductClick }) => {
       {/* Horizontal Bar Chart */}
       <div className="space-y-3">
         {products.slice(0, 10).map((product, index) => (
-          <div
+          <button
+            type="button"
             key={product.id}
-            className={`group cursor-pointer rounded-lg p-2 transition-all ${
+            className={`group rounded-lg p-2 transition-all w-full text-left ${
               isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"
             }`}
             onClick={() => onProductClick?.(product)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                onProductClick?.(product);
-              }
-            }}
           >
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -220,7 +213,7 @@ const TopProductsWidget = ({ data, onNavigate, onProductClick }) => {
                 {product.percentOfTotal.toFixed(1)}%
               </span>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 

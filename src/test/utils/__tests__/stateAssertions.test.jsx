@@ -98,9 +98,9 @@ describe("stateAssertions", () => {
               Trigger Toast
             </button>
             {show && (
-              <div role="status" className="toast toast-success">
+              <output className="toast toast-success">
                 Success: Operation completed
-              </div>
+              </output>
             )}
           </>
         );
