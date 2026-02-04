@@ -153,20 +153,13 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
           const stockPercent = (product.currentStock / (product.reorderPoint * 3)) * 100;
 
           return (
-            <div
+            <button
+              type="button"
               key={product.id}
-              className={`p-3 rounded-lg cursor-pointer transition-all ${
+              className={`p-3 rounded-lg cursor-pointer transition-all w-full text-left ${
                 isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"
               }`}
               onClick={() => onProductClick?.(product)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  onProductClick?.(product);
-                }
-              }}
             >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0">
@@ -225,7 +218,7 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
