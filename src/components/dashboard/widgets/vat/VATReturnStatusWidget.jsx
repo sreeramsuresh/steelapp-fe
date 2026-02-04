@@ -237,20 +237,13 @@ const VATReturnStatusWidget = ({
           const StatusIcon = statusConfig.icon;
 
           return (
-            <div
+            <button
+              type="button"
               key={quarter.quarter}
-              className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:scale-[1.02] ${
+              className={`p-3 rounded-lg border transition-all duration-200 hover:scale-[1.02] w-full text-left ${
                 statusConfig.bgColor
               } ${statusConfig.borderColor}`}
               onClick={() => onViewReturn?.(quarter)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  onViewReturn?.(quarter);
-                }
-              }}
-              role="button"
-              tabIndex={0}
             >
               <div className="flex items-center justify-between mb-2">
                 <span className={`text-sm font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -269,7 +262,7 @@ const VATReturnStatusWidget = ({
                   </span>
                 )}
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

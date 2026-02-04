@@ -220,18 +220,11 @@ const ZeroRatedExportsWidget = ({
             const docCount = getDocumentCount(exp.documents);
 
             return (
-              <div
+              <button
+                type="button"
                 key={exp.id}
                 onClick={() => onViewExport?.(exp)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onViewExport?.(exp);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                className={`p-3 rounded-lg border cursor-pointer transition-all hover:scale-[1.01] ${
+                className={`p-3 rounded-lg border transition-all hover:scale-[1.01] w-full text-left ${
                   isDarkMode
                     ? "bg-[#2E3B4E] border-[#37474F] hover:border-teal-600"
                     : "bg-white border-gray-200 hover:border-teal-400"
@@ -280,7 +273,7 @@ const ZeroRatedExportsWidget = ({
                       : `${exp.daysRemaining} days remaining`}
                   </div>
                 )}
-              </div>
+              </button>
             );
           })}
         </div>

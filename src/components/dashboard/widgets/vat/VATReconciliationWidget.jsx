@@ -338,18 +338,11 @@ const VATReconciliationWidget = ({
         <div className="space-y-2 max-h-56 overflow-y-auto">
           {pendingDiscrepancies.length > 0 ? (
             pendingDiscrepancies.map((disc) => (
-              <div
+              <button
+                type="button"
                 key={disc.id}
                 onClick={() => onViewDiscrepancy?.(disc)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onViewDiscrepancy?.(disc);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                className={`p-3 rounded-lg border cursor-pointer transition-all hover:scale-[1.01] ${
+                className={`p-3 rounded-lg border transition-all hover:scale-[1.01] w-full text-left ${
                   isDarkMode
                     ? "bg-yellow-900/20 border-yellow-700 hover:border-yellow-500"
                     : "bg-yellow-50 border-yellow-200 hover:border-yellow-400"
@@ -384,7 +377,7 @@ const VATReconciliationWidget = ({
                     <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>variance</p>
                   </div>
                 </div>
-              </div>
+              </button>
             ))
           ) : (
             <div className={`p-6 text-center rounded-lg ${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}`}>

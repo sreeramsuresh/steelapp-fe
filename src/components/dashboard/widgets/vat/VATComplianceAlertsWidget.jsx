@@ -223,18 +223,11 @@ const VATComplianceAlertsWidget = ({
             const SeverityIcon = severityConfig.icon;
 
             return (
-              <div
+              <button
+                type="button"
                 key={alert.id}
                 onClick={() => onAlertClick?.(alert)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onAlertClick?.(alert);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:scale-[1.01] ${
+                className={`p-3 rounded-lg border transition-all duration-200 hover:scale-[1.01] w-full text-left ${
                   severityConfig.bgColor
                 } ${severityConfig.borderColor}`}
               >
@@ -264,7 +257,7 @@ const VATComplianceAlertsWidget = ({
                     </button>
                   </div>
                 </div>
-              </div>
+              </button>
             );
           })
         ) : (
