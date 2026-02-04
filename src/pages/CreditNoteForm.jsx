@@ -42,18 +42,12 @@ const Drawer = ({ isOpen, onClose, title, description, children, isDarkMode }) =
   return (
     <>
       {/* Overlay */}
-      <div
+      <button
+        type="button"
         className={`fixed inset-0 bg-black/55 z-40 transition-opacity ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            onClose();
-          }
-        }}
-        role="button"
-        tabIndex={0}
         aria-label="Close dialog"
       />
       {/* Drawer panel */}
@@ -456,6 +450,128 @@ const CreditNoteForm = () => {
     fetchCompany();
   }, []);
 
+  const loadCreditNote = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await creditNoteService.getCreditNote(id);
+
+      // Format date for HTML5 date input
+      const formattedData = {
+        ...data,
+        creditNoteDate: data.creditNoteDate
+          ? formatDateForInput(new Date(data.creditNoteDate))
+          : formatDateForInput(new Date()),
+      };
+
+      setCreditNote(formattedData);
+      if (data.invoiceId) {
+        const invoice = await invoiceService.getInvoice(data.invoiceId);
+        setSelectedInvoice(invoice);
+      }
+    } catch (error) {
+      console.error("Error loading credit note:", error);
+      notificationService.error("Failed to load credit note");
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  const loadNextCreditNoteNumber = useCallback(async () => {
+    try {
+      const response = await creditNoteService.getNextCreditNoteNumber();
+      const nextNumber = response.nextNumber || response.nextNumber || "CN-0001";
+      setCreditNote((prev) => ({ ...prev, creditNoteNumber: nextNumber }));
+    } catch (error) {
+      console.error("Error loading next credit note number:", error);
+    }
+  }, []);
+
+  const loadInvoiceForCreditNote = useCallback(async (invoiceId) => {
+    try {
+      setInvoiceLoading(true);
+      const invoice = await invoiceService.getInvoice(invoiceId);
+
+      // Only allow credit notes for issued invoices
+      // Handle both 'issued' and 'STATUS_ISSUED' formats from API
+      const normalizedStatus = invoice.status?.toLowerCase().replace("status_", "");
+      if (normalizedStatus !== "issued") {
+        notificationService.warning("Credit notes can only be created for Final Tax Invoices");
+        return;
+      }
+
+      setSelectedInvoice(invoice);
+
+      // Determine invoice discount type and value
+      const discountPerc = parseFloat(invoice.discountPercentage) || 0;
+      const discountFlat = parseFloat(invoice.discountAmount) || 0;
+      let invoiceDiscountType = "none";
+      let invoiceDiscountValue = 0;
+
+      if (invoice.discountType === "percentage" && discountPerc > 0) {
+        invoiceDiscountType = "percentage";
+        invoiceDiscountValue = discountPerc;
+      } else if (invoice.discountType === "amount" && discountFlat > 0) {
+        invoiceDiscountType = "amount";
+        invoiceDiscountValue = discountFlat;
+      } else if (discountPerc > 0) {
+        // Fallback: if no discountType but percentage exists
+        invoiceDiscountType = "percentage";
+        invoiceDiscountValue = discountPerc;
+      } else if (discountFlat > 0) {
+        // Fallback: if no discountType but amount exists
+        invoiceDiscountType = "amount";
+        invoiceDiscountValue = discountFlat;
+      }
+
+      // Calculate invoice subtotal (sum of item amounts before discount)
+      const invoiceSubtotal =
+        parseFloat(invoice.subtotal) || invoice.items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+
+      // Populate credit note with invoice data
+      setCreditNote((prev) => ({
+        ...prev,
+        invoiceId: invoice.id,
+        invoiceNumber: invoice.invoiceNumber,
+        customer: invoice.customer,
+        // Store invoice discount info for proportional allocation
+        invoiceDiscountType,
+        invoiceDiscountValue,
+        invoiceSubtotal,
+        discountAmount: 0,
+        items: invoice.items.map((item) => ({
+          invoiceItemId: item.id,
+          productId: item.productId,
+          productName: item.name || item.productName,
+          description: item.description || "",
+          originalQuantity: item.quantity,
+          quantityReturned: 0,
+          unit: normalizeUom(item), // Unit for quantity precision validation
+          rate: item.rate,
+          amount: 0,
+          vatRate: item.vatRate || 5,
+          vatAmount: 0,
+          discountAmount: 0, // Item-level discount for credit note
+          netAmount: 0, // Amount after discount
+          returnStatus: "not_returned",
+          selected: false,
+          // Weight-based pricing fields (needed for proper amount calculation)
+          pricingBasis: item.pricingBasis || "PER_MT",
+          unitWeightKg: item.unitWeightKg || null,
+          quantityUom: item.quantityUom || "PCS",
+          // Store original item amount for proportional discount calculation
+          originalItemAmount: parseFloat(item.amount) || 0,
+        })),
+      }));
+
+      setShowInvoiceSelect(false);
+    } catch (error) {
+      console.error("Error loading invoice:", error);
+      notificationService.error("Failed to load invoice");
+    } finally {
+      setInvoiceLoading(false);
+    }
+  }, []);
+
   // Load credit note if editing, or load invoice from query param
   useEffect(() => {
     if (id) {
@@ -485,34 +601,6 @@ const CreditNoteForm = () => {
     loadNextCreditNoteNumber,
     searchParams,
   ]); // loadCreditNote is stable
-
-  // AUTO-SAVE REMOVED - User only wants explicit "Save Draft" button
-
-  const loadCreditNote = async () => {
-    try {
-      setLoading(true);
-      const data = await creditNoteService.getCreditNote(id);
-
-      // Format date for HTML5 date input
-      const formattedData = {
-        ...data,
-        creditNoteDate: data.creditNoteDate
-          ? formatDateForInput(new Date(data.creditNoteDate))
-          : formatDateForInput(new Date()),
-      };
-
-      setCreditNote(formattedData);
-      if (data.invoiceId) {
-        const invoice = await invoiceService.getInvoice(data.invoiceId);
-        setSelectedInvoice(invoice);
-      }
-    } catch (error) {
-      console.error("Error loading credit note:", error);
-      notificationService.error("Failed to load credit note");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Handle draft conflict resolution
   const handleResumeDraft = useCallback(async (draft) => {
@@ -570,16 +658,6 @@ const CreditNoteForm = () => {
       loadInvoiceForCreditNote(invoiceIdParam);
     }
   }, [searchParams, loadInvoiceForCreditNote]);
-
-  const loadNextCreditNoteNumber = async () => {
-    try {
-      const response = await creditNoteService.getNextCreditNoteNumber();
-      const nextNumber = response.nextNumber || response.nextNumber || "CN-0001";
-      setCreditNote((prev) => ({ ...prev, creditNoteNumber: nextNumber }));
-    } catch (error) {
-      console.error("Error loading next credit note number:", error);
-    }
-  };
 
   // Search invoices with debouncing
   const searchInvoices = async (query) => {
@@ -664,92 +742,6 @@ const CreditNoteForm = () => {
       }
     };
   }, [searchDebounceTimer]);
-
-  const loadInvoiceForCreditNote = async (invoiceId) => {
-    try {
-      setInvoiceLoading(true);
-      const invoice = await invoiceService.getInvoice(invoiceId);
-
-      // Only allow credit notes for issued invoices
-      // Handle both 'issued' and 'STATUS_ISSUED' formats from API
-      const normalizedStatus = invoice.status?.toLowerCase().replace("status_", "");
-      if (normalizedStatus !== "issued") {
-        notificationService.warning("Credit notes can only be created for Final Tax Invoices");
-        return;
-      }
-
-      setSelectedInvoice(invoice);
-
-      // Determine invoice discount type and value
-      const discountPerc = parseFloat(invoice.discountPercentage) || 0;
-      const discountFlat = parseFloat(invoice.discountAmount) || 0;
-      let invoiceDiscountType = "none";
-      let invoiceDiscountValue = 0;
-
-      if (invoice.discountType === "percentage" && discountPerc > 0) {
-        invoiceDiscountType = "percentage";
-        invoiceDiscountValue = discountPerc;
-      } else if (invoice.discountType === "amount" && discountFlat > 0) {
-        invoiceDiscountType = "amount";
-        invoiceDiscountValue = discountFlat;
-      } else if (discountPerc > 0) {
-        // Fallback: if no discountType but percentage exists
-        invoiceDiscountType = "percentage";
-        invoiceDiscountValue = discountPerc;
-      } else if (discountFlat > 0) {
-        // Fallback: if no discountType but amount exists
-        invoiceDiscountType = "amount";
-        invoiceDiscountValue = discountFlat;
-      }
-
-      // Calculate invoice subtotal (sum of item amounts before discount)
-      const invoiceSubtotal =
-        parseFloat(invoice.subtotal) || invoice.items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
-
-      // Populate credit note with invoice data
-      setCreditNote((prev) => ({
-        ...prev,
-        invoiceId: invoice.id,
-        invoiceNumber: invoice.invoiceNumber,
-        customer: invoice.customer,
-        // Store invoice discount info for proportional allocation
-        invoiceDiscountType,
-        invoiceDiscountValue,
-        invoiceSubtotal,
-        discountAmount: 0,
-        items: invoice.items.map((item) => ({
-          invoiceItemId: item.id,
-          productId: item.productId,
-          productName: item.name || item.productName,
-          description: item.description || "",
-          originalQuantity: item.quantity,
-          quantityReturned: 0,
-          unit: normalizeUom(item), // Unit for quantity precision validation
-          rate: item.rate,
-          amount: 0,
-          vatRate: item.vatRate || 5,
-          vatAmount: 0,
-          discountAmount: 0, // Item-level discount for credit note
-          netAmount: 0, // Amount after discount
-          returnStatus: "not_returned",
-          selected: false,
-          // Weight-based pricing fields (needed for proper amount calculation)
-          pricingBasis: item.pricingBasis || "PER_MT",
-          unitWeightKg: item.unitWeightKg || null,
-          quantityUom: item.quantityUom || "PCS",
-          // Store original item amount for proportional discount calculation
-          originalItemAmount: parseFloat(item.amount) || 0,
-        })),
-      }));
-
-      setShowInvoiceSelect(false);
-    } catch (error) {
-      console.error("Error loading invoice:", error);
-      notificationService.error("Failed to load invoice");
-    } finally {
-      setInvoiceLoading(false);
-    }
-  };
 
   const handleItemSelect = (index, selected) => {
     const updatedItems = [...creditNote.items];
