@@ -156,11 +156,18 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
   // Track if initial fetch has been done to prevent double-fetch in React Strict Mode
   const hasFetchedRef = useRef(false);
 
+  const dataRef = useRef(data);
+
+  // Keep dataRef in sync without causing execute to change
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
+
   const execute = useCallback(
     async (...args) => {
       try {
         // Only show loading if we don't have data yet or skipInitialLoading is false
-        if (!data || !skipInitialLoading) {
+        if (!dataRef.current || !skipInitialLoading) {
           setLoading(true);
         }
         setError(null);
@@ -214,8 +221,7 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
         setLoading(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [apiFunction, skipInitialLoading, showToasts, data]
+    [apiFunction, skipInitialLoading, showToasts]
   );
 
   useEffect(() => {

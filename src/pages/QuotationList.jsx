@@ -20,7 +20,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import QuotationPreview from "../components/quotations/QuotationPreview";
 import { NewBadge, TableSkeleton, TruncatedText } from "../components/shared";
@@ -106,7 +106,7 @@ const QuotationList = () => {
     );
   };
 
-  const fetchQuotations = async () => {
+  const fetchQuotations = useCallback(async () => {
     setLoading(true);
     setError("");
 
@@ -131,11 +131,10 @@ const QuotationList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize, searchTerm, statusFilter]);
 
   useEffect(() => {
     fetchQuotations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchQuotations]);
 
   // Bug #3 fix: Refresh list when page becomes visible (e.g., when returning from edit)

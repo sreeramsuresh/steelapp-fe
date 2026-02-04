@@ -1,5 +1,5 @@
 import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -15,12 +15,7 @@ export default function PriceHistoryReport() {
   const [selectedProduct, setSelectedProduct] = useState("");
   const [priceHistory, setPriceHistory] = useState([]);
 
-  useEffect(() => {
-    fetchProducts();
-    fetchPricelists();
-  }, [fetchPricelists, fetchProducts]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const response = await productService.getProducts();
       setProducts((response && (response.data || response.items || response)) || []);
@@ -28,9 +23,9 @@ export default function PriceHistoryReport() {
       console.error("Error fetching products:", error);
       toast.error("Failed to load products");
     }
-  };
+  }, []);
 
-  const fetchPricelists = async () => {
+  const fetchPricelists = useCallback(async () => {
     try {
       const response = await pricelistService.getAll();
       setPricelists((response && (response.data || response.items || response)) || []);
@@ -38,7 +33,12 @@ export default function PriceHistoryReport() {
       console.error("Error fetching pricelists:", error);
       toast.error("Failed to load price lists");
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
+    fetchPricelists();
+  }, [fetchProducts, fetchPricelists]);
 
   const fetchPriceHistory = async () => {
     if (!selectedProduct) {

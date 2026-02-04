@@ -12,7 +12,7 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
 import { useTheme } from "../contexts/ThemeContext";
@@ -46,7 +46,7 @@ const AuditLogs = () => {
   const categories = ["AUTH", "INVOICE", "PAYMENT", "CUSTOMER", "STATEMENT", "SETTINGS", "EXPORT"];
   const statuses = ["success", "failed"];
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -71,22 +71,21 @@ const AuditLogs = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, filters]);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const response = await apiService.get("/audit-logs/stats");
       setStats(response);
     } catch (err) {
       console.error("Error fetching stats:", err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchLogs();
     fetchStats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchLogs, fetchStats]); // fetchLogs and fetchStats are stable
+  }, [fetchLogs, fetchStats]);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));

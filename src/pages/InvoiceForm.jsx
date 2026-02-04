@@ -2032,6 +2032,7 @@ const InvoiceForm = ({ onSave }) => {
   // Refetch products when form loads to ensure fresh data (updated names, latest sales data)
   useEffect(() => {
     refetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Also refetch when window regains focus (user returns from product management)
@@ -2041,7 +2042,8 @@ const InvoiceForm = ({ onSave }) => {
     };
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
-  }, []); // Event listener setup - no dependencies needed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Refetch company data when window regains focus (user returns from company settings)
   useEffect(() => {
@@ -2050,7 +2052,8 @@ const InvoiceForm = ({ onSave }) => {
     };
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
-  }, []); // Event listener setup - no dependencies needed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Get sorted products: pinned first, then top sold
   const sortedProducts = useMemo(() => {

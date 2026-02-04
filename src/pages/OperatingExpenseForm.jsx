@@ -23,7 +23,7 @@ import {
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { chartOfAccountsService } from "../services/chartOfAccountsService";
 import { operatingExpenseService } from "../services/operatingExpenseService";
@@ -68,6 +68,28 @@ export default function OperatingExpenseForm() {
     expenseId: null,
   });
 
+  const loadExpenseAccounts = useCallback(async () => {
+    try {
+      const accounts = await chartOfAccountsService.getByCategory("EXPENSE");
+      setExpenseAccounts(accounts.filter((acc) => acc.type !== "HEADER"));
+    } catch (err) {
+      console.error("Failed to load expense accounts:", err);
+    }
+  }, []);
+
+  const loadExpenses = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await operatingExpenseService.list({ limit: 100 });
+      setExpenses(result.data || []);
+    } catch (err) {
+      console.error("Failed to load expenses:", err);
+      setError("Failed to load expenses");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // Load expense accounts from COA
   useEffect(() => {
     loadExpenseAccounts();
@@ -79,28 +101,6 @@ export default function OperatingExpenseForm() {
       loadExpenses();
     }
   }, [activeTab, loadExpenses]);
-
-  const loadExpenseAccounts = async () => {
-    try {
-      const accounts = await chartOfAccountsService.getByCategory("EXPENSE");
-      setExpenseAccounts(accounts.filter((acc) => acc.type !== "HEADER"));
-    } catch (err) {
-      console.error("Failed to load expense accounts:", err);
-    }
-  };
-
-  const loadExpenses = async () => {
-    setLoading(true);
-    try {
-      const result = await operatingExpenseService.list({ limit: 100 });
-      setExpenses(result.data || []);
-    } catch (err) {
-      console.error("Failed to load expenses:", err);
-      setError("Failed to load expenses");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleChange = (field) => (event) => {
     setFormData({ ...formData, [field]: event.target.value });
