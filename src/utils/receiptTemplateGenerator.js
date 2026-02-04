@@ -16,15 +16,10 @@
 import { formatCurrency } from "./invoiceUtils.js";
 
 /**
- * Generate FTA-compliant receipt HTML
- * @param {Object} payment - Payment record with receipt details
- * @param {Object} invoice - Invoice being paid
- * @param {Object} company - Company details (with TRN)
- * @param {Object} customer - Customer details
- * @param {number} paymentIndex - Sequential index of this payment (1-based)
- * @returns {string} HTML content ready for printing/PDF
+ * Layer 1: Pure data transformation (testable, no DOM/browser dependencies)
+ * Extracts and structures all receipt data
  */
-export const generateReceiptHTML = (payment, invoice, company, customer, paymentIndex = 1) => {
+export function buildReceiptDocumentStructure(payment, invoice, company, customer, paymentIndex = 1) {
   // Normalize field names (handle both camelCase and snake_case)
   const companyName = company?.legalName || company?.legal_name || "Company Name";
   const companyTRN = company?.trn || company?.TRN || "";
@@ -38,24 +33,23 @@ export const generateReceiptHTML = (payment, invoice, company, customer, payment
 
   const invoiceNumber = invoice?.invoiceNumber || invoice?.invoice_number || "N/A";
   const invoiceDate = invoice?.invoiceDate || invoice?.invoice_date || "";
-  const invoiceTotal = invoice?.total || invoice?.total_amount || 0;
-  const invoiceExcludingVAT = invoice?.amountExcludingVat || invoice?.amount_excluding_vat || invoiceTotal / 1.05;
-  const invoiceVAT = invoice?.vat || invoice?.vat_amount || invoiceTotal - invoiceExcludingVAT;
+  const invoiceTotal = parseFloat(invoice?.total || invoice?.total_amount || 0);
+  const invoiceExcludingVAT = parseFloat(invoice?.amountExcludingVat || invoice?.amount_excluding_vat || invoiceTotal / 1.05);
+  const invoiceVAT = parseFloat(invoice?.vat || invoice?.vat_amount || invoiceTotal - invoiceExcludingVAT);
 
-  const paymentAmount = payment?.amount || 0;
+  const paymentAmount = parseFloat(payment?.amount || 0);
   const paymentDate = payment?.paymentDate || payment?.payment_date || new Date().toISOString();
   const paymentMethod = payment?.paymentMethod || payment?.payment_method || "N/A";
   const referenceNumber = payment?.referenceNumber || payment?.reference_number || payment?.reference_no || "";
   const receiptNumber = payment?.receiptNumber || payment?.receipt_number || "N/A";
   const compositeReference = payment?.compositeReference || payment?.composite_reference || "";
   const isAdvancePayment = payment?.isAdvancePayment || payment?.is_advance_payment || false;
-  const _remarks = payment?.remarks || "";
 
   const currencyCode = payment?.currencyCode || payment?.currency_code || "AED";
-  const exchangeRate = payment?.exchangeRate || payment?.exchange_rate || 1.0;
-  const amountInAED = payment?.amountInAed || payment?.amount_in_aed || paymentAmount;
+  const exchangeRate = parseFloat(payment?.exchangeRate || payment?.exchange_rate || 1.0);
+  const amountInAED = parseFloat(payment?.amountInAed || payment?.amount_in_aed || paymentAmount);
 
-  const outstandingBalance = invoice?.outstandingBalance || invoice?.outstanding || 0;
+  const outstandingBalance = parseFloat(invoice?.outstandingBalance || invoice?.outstanding || 0);
 
   // Format dates
   const formattedPaymentDate = new Date(paymentDate).toLocaleDateString("en-US", {
@@ -72,30 +66,118 @@ export const generateReceiptHTML = (payment, invoice, company, customer, payment
       })
     : "N/A";
 
-  // Determine payment method display
-  let paymentMethodDisplay = paymentMethod;
+  return {
+    receipt: {
+      number: receiptNumber,
+      date: formattedPaymentDate,
+      index: paymentIndex,
+      isAdvancePayment: isAdvancePayment,
+    },
+    invoice: {
+      number: invoiceNumber,
+      date: formattedInvoiceDate,
+      total: invoiceTotal,
+      excludingVAT: invoiceExcludingVAT,
+      vat: invoiceVAT,
+      outstandingBalance: outstandingBalance,
+    },
+    company: {
+      name: companyName,
+      address: companyAddress,
+      phone: companyPhone,
+      email: companyEmail,
+      trn: companyTRN,
+    },
+    customer: {
+      name: customerName,
+      address: customerAddress,
+      trn: customerTRN,
+    },
+    payment: {
+      amount: paymentAmount,
+      date: formattedPaymentDate,
+      method: paymentMethod,
+      reference: referenceNumber,
+      currencyCode: currencyCode,
+      exchangeRate: exchangeRate,
+      amountInAED: amountInAED,
+      compositeReference: compositeReference,
+    },
+    calculations: {
+      advancePaymentExcludingVAT: isAdvancePayment ? paymentAmount / 1.05 : 0,
+      advancePaymentVAT: isAdvancePayment ? (paymentAmount / 1.05) * 0.05 : 0,
+    },
+    metadata: {
+      isForeignCurrency: currencyCode !== "AED",
+      hasCustomerTRN: !!customerTRN,
+      hasReferenceNumber: !!referenceNumber,
+    },
+  };
+}
+
+/**
+ * Layer 2: Browser-dependent HTML generation
+ * Uses pre-built receipt structure for rendering
+ */
+export const generateReceiptHTML = (payment, invoice, company, customer, paymentIndex = 1) => {
+  // Extract structure first (testable logic)
+  const docStructure = buildReceiptDocumentStructure(payment, invoice, company, customer, paymentIndex);
+
+  // Unpack for convenience in HTML generation
+  const companyName = docStructure.company.name;
+  const companyTRN = docStructure.company.trn;
+  const companyAddress = docStructure.company.address;
+  const companyPhone = docStructure.company.phone;
+  const companyEmail = docStructure.company.email;
+
+  const customerName = docStructure.customer.name;
+  const customerTRN = docStructure.customer.trn;
+  const customerAddress = docStructure.customer.address;
+
+  const invoiceNumber = docStructure.invoice.number;
+  const formattedInvoiceDate = docStructure.invoice.date;
+  const invoiceExcludingVAT = docStructure.invoice.excludingVAT;
+  const invoiceVAT = docStructure.invoice.vat;
+  const invoiceTotal = docStructure.invoice.total;
+
+  const paymentAmount = docStructure.payment.amount;
+  const formattedPaymentDate = docStructure.payment.date;
+  const paymentMethodDisplay = docStructure.payment.method;
+  const referenceNumber = docStructure.payment.reference;
+  const receiptNumber = docStructure.receipt.number;
+  const compositeReference = docStructure.payment.compositeReference;
+  const isAdvancePayment = docStructure.receipt.isAdvancePayment;
+
+  const currencyCode = docStructure.payment.currencyCode;
+  const exchangeRate = docStructure.payment.exchangeRate;
+  const amountInAED = docStructure.payment.amountInAED;
+
+  const outstandingBalance = docStructure.invoice.outstandingBalance;
+
+  // Determine payment method display with additional details
+  let paymentMethodHTML = paymentMethodDisplay;
   let additionalPaymentDetails = "";
 
-  if (paymentMethod.toLowerCase() === "cheque") {
-    paymentMethodDisplay = "☐ Cheque";
+  if (paymentMethodDisplay.toLowerCase() === "cheque") {
+    paymentMethodHTML = "☐ Cheque";
     if (referenceNumber) {
       additionalPaymentDetails = `<tr>
         <td><strong>Cheque Number:</strong></td>
         <td>${referenceNumber}</td>
       </tr>`;
     }
-  } else if (paymentMethod.toLowerCase() === "bank_transfer" || paymentMethod.toLowerCase() === "bank transfer") {
-    paymentMethodDisplay = "🏦 Bank Transfer";
+  } else if (paymentMethodDisplay.toLowerCase() === "bank_transfer" || paymentMethodDisplay.toLowerCase() === "bank transfer") {
+    paymentMethodHTML = "🏦 Bank Transfer";
     if (referenceNumber) {
       additionalPaymentDetails = `<tr>
         <td><strong>Bank Reference/Transaction ID:</strong></td>
         <td>${referenceNumber}</td>
       </tr>`;
     }
-  } else if (paymentMethod.toLowerCase() === "cash") {
-    paymentMethodDisplay = "💵 Cash";
-  } else if (paymentMethod.toLowerCase() === "credit_card" || paymentMethod.toLowerCase() === "credit card") {
-    paymentMethodDisplay = "💳 Credit Card";
+  } else if (paymentMethodDisplay.toLowerCase() === "cash") {
+    paymentMethodHTML = "💵 Cash";
+  } else if (paymentMethodDisplay.toLowerCase() === "credit_card" || paymentMethodDisplay.toLowerCase() === "credit card") {
+    paymentMethodHTML = "💳 Credit Card";
     if (referenceNumber) {
       additionalPaymentDetails = `<tr>
         <td><strong>Authorization Number:</strong></td>
@@ -103,6 +185,7 @@ export const generateReceiptHTML = (payment, invoice, company, customer, payment
       </tr>`;
     }
   }
+
 
   // Build HTML
   const html = `
@@ -344,7 +427,7 @@ export const generateReceiptHTML = (payment, invoice, company, customer, payment
     <table>
       <tr>
         <td><strong>Payment Method:</strong></td>
-        <td>${paymentMethodDisplay}</td>
+        <td>${paymentMethodHTML}</td>
       </tr>
       ${additionalPaymentDetails}
     </table>

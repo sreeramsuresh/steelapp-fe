@@ -299,7 +299,7 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
   pdf.setTextColor(255, 255, 255);
   pdf.text(labels.invoiceNo, rightColX + 2, rightY + 5);
 
-  const invNum = invoice.invoiceNumber || "";
+  const invNum = docStructure.invoice.number;
   const invNumWidth = pdf.getTextWidth(invNum);
   pdf.text(invNum, rightColX + boxWidth - invNumWidth - 2, rightY + 5);
 
@@ -313,31 +313,31 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
     pdf.setFont(typography.fontFamily, "bold");
     pdf.text(labels.invoiceDate, rightColX + 2, rightY + 4);
     pdf.setFont(typography.fontFamily, "normal");
-    pdf.text(formatDateDMY(invoice.date || new Date()), rightColX + boxWidth - 20, rightY + 4);
+    pdf.text(formatDateDMY(docStructure.invoice.date || new Date()), rightColX + boxWidth - 20, rightY + 4);
     rightY += 6;
   }
 
-  if (visibility.showCustomerPO && invoice.customerPurchaseOrderNumber) {
+  if (visibility.showCustomerPO && docStructure.invoice.customerPO) {
     pdf.setFont(typography.fontFamily, "bold");
     pdf.text(labels.salesOrder, rightColX + 2, rightY + 4);
     pdf.setFont(typography.fontFamily, "normal");
-    pdf.text(invoice.customerPurchaseOrderNumber, rightColX + boxWidth - 20, rightY + 4);
+    pdf.text(docStructure.invoice.customerPO, rightColX + boxWidth - 20, rightY + 4);
     rightY += 6;
   }
 
-  if (visibility.showCustomerPODate && invoice.customerPurchaseOrderDate) {
+  if (visibility.showCustomerPODate && docStructure.invoice.customerPODate) {
     pdf.setFont(typography.fontFamily, "bold");
     pdf.text(labels.orderDate, rightColX + 2, rightY + 4);
     pdf.setFont(typography.fontFamily, "normal");
-    pdf.text(formatDateDMY(invoice.customerPurchaseOrderDate), rightColX + boxWidth - 20, rightY + 4);
+    pdf.text(formatDateDMY(docStructure.invoice.customerPODate), rightColX + boxWidth - 20, rightY + 4);
     rightY += 6;
   }
 
-  if (visibility.showDueDate && invoice.dueDate) {
+  if (visibility.showDueDate && docStructure.invoice.dueDate) {
     pdf.setFont(typography.fontFamily, "bold");
     pdf.text(labels.dueDate, rightColX + 2, rightY + 4);
     pdf.setFont(typography.fontFamily, "normal");
-    pdf.text(formatDateDMY(invoice.dueDate), rightColX + boxWidth - 20, rightY + 4);
+    pdf.text(formatDateDMY(docStructure.invoice.dueDate), rightColX + boxWidth - 20, rightY + 4);
     rightY += 6;
   }
 
@@ -404,7 +404,7 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
   currentY += 8;
 
   // Table rows
-  const items = invoice.items || [];
+  const items = docStructure.items;
   pdf.setFont(typography.fontFamily, "normal");
   setTextPrimary();
 
@@ -475,22 +475,7 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
   // ==================== TOTALS SECTION ====================
   const totalsX = pageWidth - layout.marginRight - 60;
 
-  const subtotalVal = calculateSubtotal(items);
-  const discountPerc = parseFloat(invoice.discountPercentage) || 0;
-  const discountFlat = parseFloat(invoice.discountAmount) || 0;
-  const discountVal = invoice.discountType === "percentage" ? (subtotalVal * discountPerc) / 100 : discountFlat;
-  const vatVal = calculateDiscountedTRN(
-    items,
-    invoice.discountType,
-    invoice.discountPercentage,
-    invoice.discountAmount
-  );
-  const additionalCharges =
-    (parseFloat(invoice.packingCharges) || 0) +
-    (parseFloat(invoice.freightCharges) || 0) +
-    (parseFloat(invoice.loadingCharges) || 0) +
-    (parseFloat(invoice.otherCharges) || 0);
-  const totalVal = calculateTotal(Math.max(0, subtotalVal - discountVal) + additionalCharges, vatVal);
+  const calc = docStructure.calculations;
 
   pdf.setFontSize(typography.fontSize.base);
   pdf.setFont(typography.fontFamily, "normal");
@@ -500,15 +485,15 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
 
   if (visibility.showSubtotal) {
     pdf.text(labels.subtotal, totalsX, currentY);
-    pdf.text(`${currencySymbol} ${formatNumber(subtotalVal)}`, pageWidth - layout.marginRight, currentY, {
+    pdf.text(`${currencySymbol} ${formatNumber(calc.subtotal)}`, pageWidth - layout.marginRight, currentY, {
       align: "right",
     });
     currentY += 5;
   }
 
-  if (visibility.showDiscount && discountVal > 0) {
+  if (visibility.showDiscount && calc.discountValue > 0) {
     pdf.text(labels.discount, totalsX, currentY);
-    pdf.text(`- ${currencySymbol} ${formatNumber(discountVal)}`, pageWidth - layout.marginRight, currentY, {
+    pdf.text(`- ${currencySymbol} ${formatNumber(calc.discountValue)}`, pageWidth - layout.marginRight, currentY, {
       align: "right",
     });
     currentY += 5;
@@ -516,7 +501,7 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
 
   if (visibility.showVATAmount) {
     pdf.text(labels.vatAmount, totalsX, currentY);
-    pdf.text(`${currencySymbol} ${formatNumber(vatVal)}`, pageWidth - layout.marginRight, currentY, { align: "right" });
+    pdf.text(`${currencySymbol} ${formatNumber(calc.vatAmount)}`, pageWidth - layout.marginRight, currentY, { align: "right" });
     currentY += 5;
   }
 
@@ -524,16 +509,14 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
     pdf.setFont(typography.fontFamily, "bold");
     pdf.setFontSize(typography.fontSize.large);
     pdf.text(labels.total, totalsX, currentY);
-    pdf.text(`${currencySymbol} ${formatNumber(totalVal)}`, pageWidth - layout.marginRight, currentY, {
+    pdf.text(`${currencySymbol} ${formatNumber(calc.total)}`, pageWidth - layout.marginRight, currentY, {
       align: "right",
     });
     currentY += 8;
   }
 
   // ==================== BALANCE DUE (from payments array) ====================
-  // Calculate total paid from payments array (industry standard - no separate advance field)
-  const totalPaidFromPayments = (invoice.payments || []).reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
-  if (totalPaidFromPayments > 0) {
+  if (calc.totalPaid > 0) {
     // Draw separator line
     pdf.setLineWidth(0.2);
     pdf.setDrawColor(200, 200, 200);
@@ -545,13 +528,12 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
     pdf.setFontSize(typography.fontSize.base);
     pdf.setTextColor(34, 139, 34); // Green color for payments
     pdf.text("Less: Payments Received", totalsX, currentY);
-    pdf.text(`- ${currencySymbol} ${formatNumber(totalPaidFromPayments)}`, pageWidth - layout.marginRight, currentY, {
+    pdf.text(`- ${currencySymbol} ${formatNumber(calc.totalPaid)}`, pageWidth - layout.marginRight, currentY, {
       align: "right",
     });
     currentY += 6;
 
-    // Calculate and show balance due
-    const balanceDue = Math.max(0, totalVal - totalPaidFromPayments);
+    // Show balance due
     pdf.setLineWidth(0.5);
     pdf.setDrawColor(...primaryRgb);
     pdf.line(totalsX, currentY, pageWidth - layout.marginRight, currentY);
@@ -561,14 +543,14 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
     pdf.setFontSize(typography.fontSize.xlarge);
     setTextPrimary();
     pdf.text("Balance Due", totalsX, currentY);
-    pdf.text(`${currencySymbol} ${formatNumber(balanceDue)}`, pageWidth - layout.marginRight, currentY, {
+    pdf.text(`${currencySymbol} ${formatNumber(calc.balanceDue)}`, pageWidth - layout.marginRight, currentY, {
       align: "right",
     });
     currentY += 10;
   }
 
   // ==================== PAYMENT HISTORY (Optional) ====================
-  if (visibility.showPaymentHistory && invoice.payments && invoice.payments.length > 0) {
+  if (visibility.showPaymentHistory && docStructure.payments && docStructure.payments.length > 0) {
     pdf.setFontSize(typography.fontSize.large);
     pdf.setFont(typography.fontFamily, "bold");
     setTextPrimary();
@@ -609,7 +591,7 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
     pdf.setFont(typography.fontFamily, "normal");
     setTextPrimary();
 
-    invoice.payments.forEach((payment, index) => {
+    docStructure.payments.forEach((payment, index) => {
       if (index % 2 === 0 && table.showAlternatingRows) {
         const evenBgRgb = hexToRgb(colors.tableBgEven);
         pdf.setFillColor(...evenBgRgb);
@@ -640,22 +622,22 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
   pdf.setFont(typography.fontFamily, "normal");
   setTextSecondary();
 
-  if (visibility.showTerms && invoice.terms) {
+  if (visibility.showTerms && docStructure.invoice.terms) {
     pdf.text(`\u2022 ${labels.paymentTerm} `, layout.marginLeft, currentY);
-    const termsText = pdf.splitTextToSize(invoice.terms, pageWidth - layout.marginLeft - layout.marginRight - 30);
+    const termsText = pdf.splitTextToSize(docStructure.invoice.terms, pageWidth - layout.marginLeft - layout.marginRight - 30);
     pdf.text(termsText[0] || "", layout.marginLeft + 26, currentY);
     currentY += 5;
   }
 
-  if (visibility.showNotes && invoice.notes) {
+  if (visibility.showNotes && docStructure.invoice.notes) {
     pdf.text(`\u2022 ${labels.comment} `, layout.marginLeft, currentY);
-    const notesText = pdf.splitTextToSize(invoice.notes, pageWidth - layout.marginLeft - layout.marginRight - 25);
+    const notesText = pdf.splitTextToSize(docStructure.invoice.notes, pageWidth - layout.marginLeft - layout.marginRight - 25);
     pdf.text(notesText[0] || "", layout.marginLeft + 20, currentY);
     currentY += 5;
   }
 
-  if (visibility.showWarehouse && (invoice.warehouseName || invoice.warehouseCode)) {
-    const warehouseInfo = [invoice.warehouseName, invoice.warehouseCode].filter(Boolean).join(" - ");
+  if (visibility.showWarehouse && (docStructure.invoice.warehouseName || docStructure.invoice.warehouseCode)) {
+    const warehouseInfo = [docStructure.invoice.warehouseName, docStructure.invoice.warehouseCode].filter(Boolean).join(" - ");
     pdf.text(`\u2022 ${labels.warehouse} `, layout.marginLeft, currentY);
     pdf.text(warehouseInfo, layout.marginLeft + 22, currentY);
     currentY += 5;
@@ -773,7 +755,7 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
   }
 
   // Save the PDF
-  pdf.save(`${invoice.invoiceNumber || "invoice"}.pdf`);
+  pdf.save(`${docStructure.invoice.number || "invoice"}.pdf`);
   return true;
 };
 

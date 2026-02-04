@@ -49,6 +49,84 @@ const hexToRgb = (hex) => {
 };
 
 /**
+ * Layer 1: Pure data transformation (testable, no DOM/browser dependencies)
+ * DEPRECATED: This generator is maintained for backwards compatibility only
+ * Use generateConfigurablePDF or backend API instead
+ */
+export function buildDeprecatedInvoiceDocumentStructure(invoice, company) {
+  const inv = invoice || {};
+  const comp = company || {};
+  const compAddr = comp.address || {};
+  const cust = inv.customer || {};
+  const custAddr = cust.address || {};
+
+  // Transform items
+  const items = Array.isArray(inv.items)
+    ? inv.items.map((item) => ({
+        name: item.name || "",
+        quantity: parseFloat(item.quantity) || 0,
+        rate: parseFloat(item.rate) || 0,
+        amount: parseFloat(item.amount) || 0,
+        vatRate: parseFloat(item.vatRate) || 0,
+      }))
+    : [];
+
+  // Calculate totals
+  const subtotal = calculateSubtotal(items);
+  const discountPerc = parseFloat(inv.discountPercentage) || 0;
+  const discountFlat = parseFloat(inv.discountAmount) || 0;
+  const discountValue = inv.discountType === "percentage" ? (subtotal * discountPerc) / 100 : discountFlat;
+  const vatAmount = calculateDiscountedTRN(items, inv.discountType, inv.discountPercentage, inv.discountAmount);
+  const total = calculateTotal(Math.max(0, subtotal - discountValue), vatAmount);
+
+  return {
+    invoice: {
+      number: inv.invoiceNumber || "",
+      date: inv.date || "",
+      status: inv.status || "draft",
+      dueDate: inv.dueDate || "",
+      notes: inv.notes || "",
+      terms: inv.terms || "",
+    },
+    company: {
+      name: comp.name || "",
+      address: {
+        street: compAddr.street || "",
+        city: compAddr.city || "",
+        country: compAddr.country || "",
+      },
+      phone: comp.phone || "",
+      email: comp.email || "",
+      trn: comp.vatNumber || "",
+    },
+    customer: {
+      name: cust.name || "",
+      address: {
+        street: custAddr.street || "",
+        city: custAddr.city || "",
+        country: custAddr.country || "",
+      },
+      email: cust.email || "",
+      phone: cust.phone || "",
+      trn: cust.vatNumber || "",
+    },
+    items: items,
+    calculations: {
+      subtotal: subtotal,
+      discountValue: discountValue,
+      vatAmount: vatAmount,
+      total: total,
+    },
+    metadata: {
+      isDeprecated: true,
+      isDraft: inv.status === "draft",
+      isProforma: inv.status === "proforma",
+    },
+  };
+}
+
+/**
+ * Layer 2: Browser-dependent PDF generation
  * @deprecated Use backend API endpoint instead: POST /api/invoices/:id/pdf
  */
 export const generateInvoicePDF = async (invoice, company) => {
