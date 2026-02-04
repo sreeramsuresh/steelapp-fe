@@ -216,7 +216,7 @@ describe("Container", () => {
   it("should maintain margin centering across all size variants", () => {
     const sizes = ["sm", "md", "lg", "xl", "full"];
 
-    sizes.forEach(size => {
+    sizes.forEach((size) => {
       const { container } = render(<Container size={size}>Content</Container>);
 
       const wrapper = container.firstChild;

@@ -6,9 +6,9 @@
  * Covers variants, sizes, focus management, and ARIA labels
  */
 
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { AlertCircle, Check, Edit, Trash2 } from "lucide-react";
 import { describe, expect, it, vi } from "vitest";
-import { Trash2, Edit, Check, AlertCircle } from "lucide-react";
 import IconButton from "../IconButton";
 
 describe("IconButton", () => {
@@ -19,9 +19,7 @@ describe("IconButton", () => {
   });
 
   it("should render provided icon", () => {
-    const { container } = render(
-      <IconButton icon={<Trash2 size={20} data-testid="icon" />} title="Delete" />
-    );
+    const { container } = render(<IconButton icon={<Trash2 size={20} data-testid="icon" />} title="Delete" />);
 
     expect(container.querySelector('[data-testid="icon"]')).toBeInTheDocument();
   });
@@ -41,89 +39,63 @@ describe("IconButton", () => {
   });
 
   it("should use custom ariaLabel when provided", () => {
-    render(
-      <IconButton
-        icon={<Trash2 />}
-        title="Delete"
-        ariaLabel="Remove this item"
-      />
-    );
+    render(<IconButton icon={<Trash2 />} title="Delete" ariaLabel="Remove this item" />);
 
     const button = screen.getByRole("button");
     expect(button).toHaveAttribute("aria-label", "Remove this item");
   });
 
   it("should apply default variant styling", () => {
-    const { container } = render(
-      <IconButton icon={<Edit />} title="Edit" variant="default" />
-    );
+    const { container } = render(<IconButton icon={<Edit />} title="Edit" variant="default" />);
 
     const button = container.querySelector("button");
-    expect(button).toHaveClass(
-      "text-gray-600",
-      "hover:text-gray-900",
-      "hover:bg-gray-100"
-    );
+    expect(button).toHaveClass("text-gray-600", "hover:text-gray-900", "hover:bg-gray-100");
   });
 
   it("should apply danger variant styling", () => {
-    const { container } = render(
-      <IconButton icon={<Trash2 />} title="Delete" variant="danger" />
-    );
+    const { container } = render(<IconButton icon={<Trash2 />} title="Delete" variant="danger" />);
 
     const button = container.querySelector("button");
     expect(button).toHaveClass("text-red-600", "hover:text-red-700");
   });
 
   it("should apply success variant styling", () => {
-    const { container } = render(
-      <IconButton icon={<Check />} title="Confirm" variant="success" />
-    );
+    const { container } = render(<IconButton icon={<Check />} title="Confirm" variant="success" />);
 
     const button = container.querySelector("button");
     expect(button).toHaveClass("text-green-600", "hover:text-green-700");
   });
 
   it("should apply info variant styling", () => {
-    const { container } = render(
-      <IconButton icon={<AlertCircle />} title="Info" variant="info" />
-    );
+    const { container } = render(<IconButton icon={<AlertCircle />} title="Info" variant="info" />);
 
     const button = container.querySelector("button");
     expect(button).toHaveClass("text-blue-600", "hover:text-blue-700");
   });
 
   it("should apply dark mode color variant", () => {
-    const { container } = render(
-      <IconButton icon={<Trash2 />} title="Delete" variant="danger" />
-    );
+    const { container } = render(<IconButton icon={<Trash2 />} title="Delete" variant="danger" />);
 
     const button = container.querySelector("button");
     expect(button).toHaveClass("dark:text-red-400", "dark:hover:text-red-300");
   });
 
   it("should apply small size", () => {
-    const { container } = render(
-      <IconButton icon={<Edit />} title="Edit" size="sm" />
-    );
+    const { container } = render(<IconButton icon={<Edit />} title="Edit" size="sm" />);
 
     const button = container.querySelector("button");
     expect(button).toHaveClass("p-1");
   });
 
   it("should apply medium size (default)", () => {
-    const { container } = render(
-      <IconButton icon={<Edit />} title="Edit" size="md" />
-    );
+    const { container } = render(<IconButton icon={<Edit />} title="Edit" size="md" />);
 
     const button = container.querySelector("button");
     expect(button).toHaveClass("p-2");
   });
 
   it("should apply large size", () => {
-    const { container } = render(
-      <IconButton icon={<Edit />} title="Edit" size="lg" />
-    );
+    const { container } = render(<IconButton icon={<Edit />} title="Edit" size="lg" />);
 
     const button = container.querySelector("button");
     expect(button).toHaveClass("p-3");
@@ -131,9 +103,7 @@ describe("IconButton", () => {
 
   it("should call onClick handler when clicked", () => {
     const handleClick = vi.fn();
-    render(
-      <IconButton icon={<Trash2 />} title="Delete" onClick={handleClick} />
-    );
+    render(<IconButton icon={<Trash2 />} title="Delete" onClick={handleClick} />);
 
     const button = screen.getByRole("button");
     fireEvent.click(button);
@@ -149,18 +119,14 @@ describe("IconButton", () => {
   });
 
   it("should apply focus ring styling", () => {
-    const { container } = render(
-      <IconButton icon={<Edit />} title="Edit" />
-    );
+    const { container } = render(<IconButton icon={<Edit />} title="Edit" />);
 
     const button = container.querySelector("button");
     expect(button).toHaveClass("focus:outline-none", "focus:ring-2");
   });
 
   it("should apply disabled state styling", () => {
-    const { container } = render(
-      <IconButton icon={<Trash2 />} title="Delete" disabled={true} />
-    );
+    const { container } = render(<IconButton icon={<Trash2 />} title="Delete" disabled={true} />);
 
     const button = container.querySelector("button");
     expect(button).toHaveClass("disabled:opacity-50", "disabled:cursor-not-allowed");
@@ -175,14 +141,7 @@ describe("IconButton", () => {
 
   it("should not call onClick when disabled", () => {
     const handleClick = vi.fn();
-    render(
-      <IconButton
-        icon={<Trash2 />}
-        title="Delete"
-        onClick={handleClick}
-        disabled={true}
-      />
-    );
+    render(<IconButton icon={<Trash2 />} title="Delete" onClick={handleClick} disabled={true} />);
 
     const button = screen.getByRole("button");
     fireEvent.click(button);
@@ -191,9 +150,7 @@ describe("IconButton", () => {
   });
 
   it("should show tooltip on mouse enter", () => {
-    const { container } = render(
-      <IconButton icon={<Trash2 />} title="Delete Item" />
-    );
+    const { container } = render(<IconButton icon={<Trash2 />} title="Delete Item" />);
 
     const button = container.querySelector("button");
     fireEvent.mouseEnter(button);
@@ -202,9 +159,7 @@ describe("IconButton", () => {
   });
 
   it("should hide tooltip on mouse leave", () => {
-    const { container } = render(
-      <IconButton icon={<Trash2 />} title="Delete Item" />
-    );
+    const { container } = render(<IconButton icon={<Trash2 />} title="Delete Item" />);
 
     const button = container.querySelector("button");
     fireEvent.mouseEnter(button);
@@ -215,9 +170,7 @@ describe("IconButton", () => {
   });
 
   it("should show tooltip on focus", () => {
-    const { container } = render(
-      <IconButton icon={<Trash2 />} title="Delete Item" />
-    );
+    const { container } = render(<IconButton icon={<Trash2 />} title="Delete Item" />);
 
     const button = container.querySelector("button");
     fireEvent.focus(button);
@@ -226,9 +179,7 @@ describe("IconButton", () => {
   });
 
   it("should hide tooltip on blur", () => {
-    const { container } = render(
-      <IconButton icon={<Trash2 />} title="Delete Item" />
-    );
+    const { container } = render(<IconButton icon={<Trash2 />} title="Delete Item" />);
 
     const button = container.querySelector("button");
     fireEvent.focus(button);
@@ -239,9 +190,7 @@ describe("IconButton", () => {
   });
 
   it("should apply tooltip styling", () => {
-    const { container } = render(
-      <IconButton icon={<Trash2 />} title="Delete" />
-    );
+    const { container } = render(<IconButton icon={<Trash2 />} title="Delete" />);
 
     const button = container.querySelector("button");
     fireEvent.mouseEnter(button);
@@ -266,9 +215,7 @@ describe("IconButton", () => {
   });
 
   it("should apply tooltip dark mode styling", () => {
-    const { container } = render(
-      <IconButton icon={<Trash2 />} title="Delete" />
-    );
+    const { container } = render(<IconButton icon={<Trash2 />} title="Delete" />);
 
     const button = container.querySelector("button");
     fireEvent.mouseEnter(button);
@@ -278,9 +225,7 @@ describe("IconButton", () => {
   });
 
   it("should render tooltip arrow", () => {
-    const { container } = render(
-      <IconButton icon={<Trash2 />} title="Delete" />
-    );
+    const { container } = render(<IconButton icon={<Trash2 />} title="Delete" />);
 
     const button = container.querySelector("button");
     fireEvent.mouseEnter(button);
@@ -292,27 +237,14 @@ describe("IconButton", () => {
   });
 
   it("should apply custom className", () => {
-    const { container } = render(
-      <IconButton
-        icon={<Trash2 />}
-        title="Delete"
-        className="custom-class"
-      />
-    );
+    const { container } = render(<IconButton icon={<Trash2 />} title="Delete" className="custom-class" />);
 
     const button = container.querySelector("button");
     expect(button).toHaveClass("custom-class");
   });
 
   it("should accept additional props", () => {
-    render(
-      <IconButton
-        icon={<Trash2 />}
-        title="Delete"
-        data-testid="delete-btn"
-        aria-controls="menu"
-      />
-    );
+    render(<IconButton icon={<Trash2 />} title="Delete" data-testid="delete-btn" aria-controls="menu" />);
 
     const button = screen.getByRole("button");
     expect(button).toHaveAttribute("data-testid", "delete-btn");
@@ -320,18 +252,14 @@ describe("IconButton", () => {
   });
 
   it("should render as inline-block", () => {
-    const { container } = render(
-      <IconButton icon={<Edit />} title="Edit" />
-    );
+    const { container } = render(<IconButton icon={<Edit />} title="Edit" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("relative", "inline-block");
   });
 
   it("should apply base button styling", () => {
-    const { container } = render(
-      <IconButton icon={<Edit />} title="Edit" />
-    );
+    const { container } = render(<IconButton icon={<Edit />} title="Edit" />);
 
     const button = container.querySelector("button");
     expect(button).toHaveClass(
@@ -346,13 +274,7 @@ describe("IconButton", () => {
 
   it("should combine variant, size, and custom className", () => {
     const { container } = render(
-      <IconButton
-        icon={<Trash2 />}
-        title="Delete"
-        variant="danger"
-        size="lg"
-        className="shadow-lg"
-      />
+      <IconButton icon={<Trash2 />} title="Delete" variant="danger" size="lg" className="shadow-lg" />
     );
 
     const button = container.querySelector("button");
@@ -360,9 +282,7 @@ describe("IconButton", () => {
   });
 
   it("should not show tooltip when title is not provided", () => {
-    const { container } = render(
-      <IconButton icon={<Trash2 />} />
-    );
+    const { container } = render(<IconButton icon={<Trash2 />} />);
 
     const button = container.querySelector("button");
     fireEvent.mouseEnter(button);
@@ -373,9 +293,7 @@ describe("IconButton", () => {
   });
 
   it("should handle rapid hover events", () => {
-    const { container } = render(
-      <IconButton icon={<Trash2 />} title="Delete" />
-    );
+    const { container } = render(<IconButton icon={<Trash2 />} title="Delete" />);
 
     const button = container.querySelector("button");
 
@@ -389,10 +307,8 @@ describe("IconButton", () => {
   it("should handle multiple size props correctly", () => {
     const sizes = ["sm", "md", "lg"];
 
-    sizes.forEach(size => {
-      const { container } = render(
-        <IconButton icon={<Edit />} title="Edit" size={size} />
-      );
+    sizes.forEach((size) => {
+      const { container } = render(<IconButton icon={<Edit />} title="Edit" size={size} />);
 
       const button = container.querySelector("button");
       expect(button).toBeInTheDocument();
@@ -402,10 +318,8 @@ describe("IconButton", () => {
   it("should apply all variant colors correctly", () => {
     const variants = ["default", "danger", "success", "info"];
 
-    variants.forEach(variant => {
-      const { container } = render(
-        <IconButton icon={<Edit />} title="Test" variant={variant} />
-      );
+    variants.forEach((variant) => {
+      const { container } = render(<IconButton icon={<Edit />} title="Test" variant={variant} />);
 
       const button = container.querySelector("button");
       expect(button).toBeInTheDocument();
@@ -414,13 +328,7 @@ describe("IconButton", () => {
 
   it("should prevent event propagation options via props", () => {
     const handleClick = vi.fn();
-    render(
-      <IconButton
-        icon={<Trash2 />}
-        title="Delete"
-        onClick={handleClick}
-      />
-    );
+    render(<IconButton icon={<Trash2 />} title="Delete" onClick={handleClick} />);
 
     const button = screen.getByRole("button");
     fireEvent.click(button);

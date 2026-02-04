@@ -10,7 +10,7 @@
  * - Focus management
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
 // Mock Popover component
@@ -38,11 +38,7 @@ const Popover = ({
 
       {isOpen && (
         <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={onClose}
-            data-testid="popover-backdrop"
-          />
+          <div className="fixed inset-0 z-40" onClick={onClose} data-testid="popover-backdrop" />
           <div
             className={`fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 ${contentClassName}`}
             onClick={(e) => e.stopPropagation()}
@@ -95,16 +91,12 @@ describe("Popover Component", () => {
     });
 
     it("should not render popover when isOpen is false", () => {
-      const { queryByTestId } = renderWithProviders(
-        <Popover {...defaultProps} isOpen={false} />
-      );
+      const { queryByTestId } = renderWithProviders(<Popover {...defaultProps} isOpen={false} />);
       expect(queryByTestId("popover-content")).not.toBeInTheDocument();
     });
 
     it("should display trigger text", () => {
-      const { getByText } = renderWithProviders(
-        <Popover {...defaultProps} isOpen={false} trigger="Click Me" />
-      );
+      const { getByText } = renderWithProviders(<Popover {...defaultProps} isOpen={false} trigger="Click Me" />);
       expect(getByText("Click Me")).toBeInTheDocument();
     });
 
@@ -121,30 +113,22 @@ describe("Popover Component", () => {
 
   describe("Positioning", () => {
     it("should render with bottom position by default", () => {
-      const { getByTestId } = renderWithProviders(
-        <Popover {...defaultProps} position="bottom" />
-      );
+      const { getByTestId } = renderWithProviders(<Popover {...defaultProps} position="bottom" />);
       expect(getByTestId("popover-content")).toHaveAttribute("data-position", "bottom");
     });
 
     it("should support top position", () => {
-      const { getByTestId } = renderWithProviders(
-        <Popover {...defaultProps} position="top" />
-      );
+      const { getByTestId } = renderWithProviders(<Popover {...defaultProps} position="top" />);
       expect(getByTestId("popover-content")).toHaveAttribute("data-position", "top");
     });
 
     it("should support left position", () => {
-      const { getByTestId } = renderWithProviders(
-        <Popover {...defaultProps} position="left" />
-      );
+      const { getByTestId } = renderWithProviders(<Popover {...defaultProps} position="left" />);
       expect(getByTestId("popover-content")).toHaveAttribute("data-position", "left");
     });
 
     it("should support right position", () => {
-      const { getByTestId } = renderWithProviders(
-        <Popover {...defaultProps} position="right" />
-      );
+      const { getByTestId } = renderWithProviders(<Popover {...defaultProps} position="right" />);
       expect(getByTestId("popover-content")).toHaveAttribute("data-position", "right");
     });
 
@@ -161,40 +145,30 @@ describe("Popover Component", () => {
     });
 
     it("should not display arrow when showArrow is false", () => {
-      const { queryByTestId } = renderWithProviders(
-        <Popover {...defaultProps} showArrow={false} />
-      );
+      const { queryByTestId } = renderWithProviders(<Popover {...defaultProps} showArrow={false} />);
       expect(queryByTestId("popover-arrow")).not.toBeInTheDocument();
     });
 
     it("should position arrow correctly for bottom", () => {
-      const { getByTestId } = renderWithProviders(
-        <Popover {...defaultProps} position="bottom" />
-      );
+      const { getByTestId } = renderWithProviders(<Popover {...defaultProps} position="bottom" />);
       const arrow = getByTestId("popover-arrow");
       expect(arrow.className).toContain("-top-1");
     });
 
     it("should position arrow correctly for top", () => {
-      const { getByTestId } = renderWithProviders(
-        <Popover {...defaultProps} position="top" />
-      );
+      const { getByTestId } = renderWithProviders(<Popover {...defaultProps} position="top" />);
       const arrow = getByTestId("popover-arrow");
       expect(arrow.className).toContain("-bottom-1");
     });
 
     it("should position arrow correctly for left", () => {
-      const { getByTestId } = renderWithProviders(
-        <Popover {...defaultProps} position="left" />
-      );
+      const { getByTestId } = renderWithProviders(<Popover {...defaultProps} position="left" />);
       const arrow = getByTestId("popover-arrow");
       expect(arrow.className).toContain("-right-1");
     });
 
     it("should position arrow correctly for right", () => {
-      const { getByTestId } = renderWithProviders(
-        <Popover {...defaultProps} position="right" />
-      );
+      const { getByTestId } = renderWithProviders(<Popover {...defaultProps} position="right" />);
       const arrow = getByTestId("popover-arrow");
       expect(arrow.className).toContain("-left-1");
     });
@@ -230,9 +204,7 @@ describe("Popover Component", () => {
 
   describe("Trigger Accessibility", () => {
     it("should have aria-haspopup attribute on trigger", () => {
-      const { getByTestId } = renderWithProviders(
-        <Popover {...defaultProps} isOpen={false} />
-      );
+      const { getByTestId } = renderWithProviders(<Popover {...defaultProps} isOpen={false} />);
       expect(getByTestId("popover-trigger")).toHaveAttribute("aria-haspopup", "dialog");
     });
 
@@ -242,9 +214,7 @@ describe("Popover Component", () => {
     });
 
     it("should have aria-expanded=false when closed", () => {
-      const { getByTestId } = renderWithProviders(
-        <Popover {...defaultProps} isOpen={false} />
-      );
+      const { getByTestId } = renderWithProviders(<Popover {...defaultProps} isOpen={false} />);
       expect(getByTestId("popover-trigger")).toHaveAttribute("aria-expanded", "false");
     });
   });
@@ -260,9 +230,7 @@ describe("Popover Component", () => {
     });
 
     it("should apply custom content classes", () => {
-      const { getByTestId } = renderWithProviders(
-        <Popover {...defaultProps} contentClassName="custom-class" />
-      );
+      const { getByTestId } = renderWithProviders(<Popover {...defaultProps} contentClassName="custom-class" />);
       const content = getByTestId("popover-content");
       expect(content.className).toContain("custom-class");
     });
@@ -354,9 +322,7 @@ describe("Popover Component", () => {
     });
 
     it("should handle empty trigger text", () => {
-      const { getByTestId } = renderWithProviders(
-        <Popover {...defaultProps} isOpen={false} trigger="" />
-      );
+      const { getByTestId } = renderWithProviders(<Popover {...defaultProps} isOpen={false} trigger="" />);
       expect(getByTestId("popover-trigger")).toBeInTheDocument();
     });
 
@@ -406,9 +372,7 @@ describe("Popover Component", () => {
     });
 
     it("should support repositioning props", () => {
-      const { getByTestId } = renderWithProviders(
-        <Popover {...defaultProps} position="left" />
-      );
+      const { getByTestId } = renderWithProviders(<Popover {...defaultProps} position="left" />);
       expect(getByTestId("popover-content")).toHaveAttribute("data-position", "left");
     });
   });

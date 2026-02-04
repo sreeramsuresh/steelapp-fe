@@ -9,7 +9,7 @@
  * - Alert-specific styling
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
 // Mock AlertDialog component
@@ -122,23 +122,17 @@ describe("AlertDialog Component", () => {
     });
 
     it("should not render when isOpen is false", () => {
-      const { queryByTestId } = renderWithProviders(
-        <AlertDialog {...defaultProps} isOpen={false} />
-      );
+      const { queryByTestId } = renderWithProviders(<AlertDialog {...defaultProps} isOpen={false} />);
       expect(queryByTestId("alert-dialog")).not.toBeInTheDocument();
     });
 
     it("should display title", () => {
-      const { getByText } = renderWithProviders(
-        <AlertDialog {...defaultProps} title="Alert Title" />
-      );
+      const { getByText } = renderWithProviders(<AlertDialog {...defaultProps} title="Alert Title" />);
       expect(getByText("Alert Title")).toBeInTheDocument();
     });
 
     it("should display message", () => {
-      const { getByText } = renderWithProviders(
-        <AlertDialog {...defaultProps} message="Alert message" />
-      );
+      const { getByText } = renderWithProviders(<AlertDialog {...defaultProps} message="Alert message" />);
       expect(getByText("Alert message")).toBeInTheDocument();
     });
 
@@ -150,41 +144,31 @@ describe("AlertDialog Component", () => {
 
   describe("Alert Types", () => {
     it("should render info alert with blue styling", () => {
-      const { getByTestId } = renderWithProviders(
-        <AlertDialog {...defaultProps} type="info" />
-      );
+      const { getByTestId } = renderWithProviders(<AlertDialog {...defaultProps} type="info" />);
       const alert = getByTestId("alert-dialog");
       expect(alert.className).toContain("bg-blue-50");
     });
 
     it("should render warning alert with yellow styling", () => {
-      const { getByTestId } = renderWithProviders(
-        <AlertDialog {...defaultProps} type="warning" />
-      );
+      const { getByTestId } = renderWithProviders(<AlertDialog {...defaultProps} type="warning" />);
       const alert = getByTestId("alert-dialog");
       expect(alert.className).toContain("bg-yellow-50");
     });
 
     it("should render error alert with red styling", () => {
-      const { getByTestId } = renderWithProviders(
-        <AlertDialog {...defaultProps} type="error" />
-      );
+      const { getByTestId } = renderWithProviders(<AlertDialog {...defaultProps} type="error" />);
       const alert = getByTestId("alert-dialog");
       expect(alert.className).toContain("bg-red-50");
     });
 
     it("should render success alert with green styling", () => {
-      const { getByTestId } = renderWithProviders(
-        <AlertDialog {...defaultProps} type="success" />
-      );
+      const { getByTestId } = renderWithProviders(<AlertDialog {...defaultProps} type="success" />);
       const alert = getByTestId("alert-dialog");
       expect(alert.className).toContain("bg-green-50");
     });
 
     it("should apply correct border color for type", () => {
-      const { getByTestId: getByTestId1 } = renderWithProviders(
-        <AlertDialog {...defaultProps} type="error" />
-      );
+      const { getByTestId: getByTestId1 } = renderWithProviders(<AlertDialog {...defaultProps} type="error" />);
       expect(getByTestId1("alert-dialog").className).toContain("border-red");
     });
   });
@@ -198,9 +182,7 @@ describe("AlertDialog Component", () => {
     });
 
     it("should not render icon when not provided", () => {
-      const { queryByTestId } = renderWithProviders(
-        <AlertDialog {...defaultProps} icon={null} />
-      );
+      const { queryByTestId } = renderWithProviders(<AlertDialog {...defaultProps} icon={null} />);
       expect(queryByTestId("alert-icon")).not.toBeInTheDocument();
     });
 
@@ -222,9 +204,7 @@ describe("AlertDialog Component", () => {
 
   describe("Action Button", () => {
     it("should display custom action label", () => {
-      const { getByTestId } = renderWithProviders(
-        <AlertDialog {...defaultProps} actionLabel="Got it" />
-      );
+      const { getByTestId } = renderWithProviders(<AlertDialog {...defaultProps} actionLabel="Got it" />);
       expect(getByTestId("alert-action")).toHaveTextContent("Got it");
     });
 
@@ -236,17 +216,13 @@ describe("AlertDialog Component", () => {
     });
 
     it("should apply type-specific color to action button", () => {
-      const { getByTestId } = renderWithProviders(
-        <AlertDialog {...defaultProps} type="success" />
-      );
+      const { getByTestId } = renderWithProviders(<AlertDialog {...defaultProps} type="success" />);
       const button = getByTestId("alert-action");
       expect(button.className).toContain("bg-green");
     });
 
     it("should display error styling for error alerts", () => {
-      const { getByTestId } = renderWithProviders(
-        <AlertDialog {...defaultProps} type="error" />
-      );
+      const { getByTestId } = renderWithProviders(<AlertDialog {...defaultProps} type="error" />);
       const button = getByTestId("alert-action");
       expect(button.className).toContain("bg-red");
     });
@@ -259,9 +235,7 @@ describe("AlertDialog Component", () => {
     });
 
     it("should not display close button when showCloseButton is false", () => {
-      const { queryByTestId } = renderWithProviders(
-        <AlertDialog {...defaultProps} showCloseButton={false} />
-      );
+      const { queryByTestId } = renderWithProviders(<AlertDialog {...defaultProps} showCloseButton={false} />);
       expect(queryByTestId("alert-close")).not.toBeInTheDocument();
     });
 
@@ -283,9 +257,7 @@ describe("AlertDialog Component", () => {
   describe("Auto-Close", () => {
     it("should auto-close after specified delay", () => {
       vi.useFakeTimers();
-      const { rerender } = renderWithProviders(
-        <AlertDialog {...defaultProps} autoCloseDelay={1000} />
-      );
+      const { rerender } = renderWithProviders(<AlertDialog {...defaultProps} autoCloseDelay={1000} />);
 
       vi.advanceTimersByTime(1000);
       expect(mockOnClose).toHaveBeenCalled();
@@ -305,9 +277,7 @@ describe("AlertDialog Component", () => {
 
     it("should clear timeout on unmount", () => {
       vi.useFakeTimers();
-      const { unmount } = renderWithProviders(
-        <AlertDialog {...defaultProps} autoCloseDelay={5000} />
-      );
+      const { unmount } = renderWithProviders(<AlertDialog {...defaultProps} autoCloseDelay={5000} />);
 
       unmount();
       vi.advanceTimersByTime(5000);
@@ -371,9 +341,7 @@ describe("AlertDialog Component", () => {
     });
 
     it("should display title above message", () => {
-      const { getByText } = renderWithProviders(
-        <AlertDialog {...defaultProps} title="Title" message="Message" />
-      );
+      const { getByText } = renderWithProviders(<AlertDialog {...defaultProps} title="Title" message="Message" />);
       const title = getByText("Title");
       const message = getByText("Message");
       expect(title.parentElement).toBeInTheDocument();
@@ -383,16 +351,12 @@ describe("AlertDialog Component", () => {
 
   describe("Custom Styling", () => {
     it("should support custom class names", () => {
-      const { getByTestId } = renderWithProviders(
-        <AlertDialog {...defaultProps} />
-      );
+      const { getByTestId } = renderWithProviders(<AlertDialog {...defaultProps} />);
       expect(getByTestId("alert-dialog")).toBeInTheDocument();
     });
 
     it("should maintain type-specific styling", () => {
-      const { getByTestId } = renderWithProviders(
-        <AlertDialog {...defaultProps} type="warning" />
-      );
+      const { getByTestId } = renderWithProviders(<AlertDialog {...defaultProps} type="warning" />);
       const alert = getByTestId("alert-dialog");
       expect(alert.className).toContain("bg-yellow");
     });
@@ -401,31 +365,23 @@ describe("AlertDialog Component", () => {
   describe("Edge Cases", () => {
     it("should handle very long message", () => {
       const longMessage = "This is a very long message. ".repeat(20);
-      const { getByText } = renderWithProviders(
-        <AlertDialog {...defaultProps} message={longMessage} />
-      );
+      const { getByText } = renderWithProviders(<AlertDialog {...defaultProps} message={longMessage} />);
       expect(getByText(longMessage)).toBeInTheDocument();
     });
 
     it("should handle empty message", () => {
-      const { getByTestId } = renderWithProviders(
-        <AlertDialog {...defaultProps} message="" />
-      );
+      const { getByTestId } = renderWithProviders(<AlertDialog {...defaultProps} message="" />);
       expect(getByTestId("alert-dialog")).toBeInTheDocument();
     });
 
     it("should handle special characters in title", () => {
       const specialTitle = "Alert: Error <500> & timeout!";
-      const { getByText } = renderWithProviders(
-        <AlertDialog {...defaultProps} title={specialTitle} />
-      );
+      const { getByText } = renderWithProviders(<AlertDialog {...defaultProps} title={specialTitle} />);
       expect(getByText(specialTitle)).toBeInTheDocument();
     });
 
     it("should handle rapid open/close", async () => {
-      const { rerender } = renderWithProviders(
-        <AlertDialog {...defaultProps} isOpen={true} />
-      );
+      const { rerender } = renderWithProviders(<AlertDialog {...defaultProps} isOpen={true} />);
       rerender(<AlertDialog {...defaultProps} isOpen={false} />);
       rerender(<AlertDialog {...defaultProps} isOpen={true} />);
       expect(mockOnClose).not.toHaveBeenCalled();

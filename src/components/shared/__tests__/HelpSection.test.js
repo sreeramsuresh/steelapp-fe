@@ -7,8 +7,8 @@
  */
 
 import { render, screen } from "@testing-library/react";
+import { AlertTriangle } from "lucide-react";
 import { describe, expect, it } from "vitest";
-import { Info, AlertTriangle, CheckCircle, Lightbulb } from "lucide-react";
 import HelpSection from "../HelpSection";
 
 describe("HelpSection", () => {
@@ -22,7 +22,7 @@ describe("HelpSection", () => {
     const items = ["Item 1", "Item 2", "Item 3"];
     render(<HelpSection title="List" items={items} />);
 
-    items.forEach(item => {
+    items.forEach((item) => {
       expect(screen.getByText(item)).toBeInTheDocument();
     });
   });
@@ -35,9 +35,7 @@ describe("HelpSection", () => {
   });
 
   it("should render ul element for array items", () => {
-    const { container } = render(
-      <HelpSection title="List" items={["Item 1", "Item 2"]} />
-    );
+    const { container } = render(<HelpSection title="List" items={["Item 1", "Item 2"]} />);
 
     expect(container.querySelector("ul")).toBeInTheDocument();
   });
@@ -51,9 +49,7 @@ describe("HelpSection", () => {
   });
 
   it("should render paragraph for string items", () => {
-    const { container } = render(
-      <HelpSection title="Info" items="Help text here" />
-    );
+    const { container } = render(<HelpSection title="Info" items="Help text here" />);
 
     const paragraph = container.querySelector("p");
     expect(paragraph).toBeInTheDocument();
@@ -61,139 +57,105 @@ describe("HelpSection", () => {
   });
 
   it("should apply info variant styling by default", () => {
-    const { container } = render(
-      <HelpSection title="Info" items="Content" variant="info" />
-    );
+    const { container } = render(<HelpSection title="Info" items="Content" variant="info" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("bg-blue-50", "dark:bg-blue-900");
   });
 
   it("should apply tip variant styling", () => {
-    const { container } = render(
-      <HelpSection title="Tip" items="Content" variant="tip" />
-    );
+    const { container } = render(<HelpSection title="Tip" items="Content" variant="tip" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("bg-amber-50", "dark:bg-amber-900");
   });
 
   it("should apply warning variant styling", () => {
-    const { container } = render(
-      <HelpSection title="Warning" items="Content" variant="warning" />
-    );
+    const { container } = render(<HelpSection title="Warning" items="Content" variant="warning" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("bg-orange-50", "dark:bg-orange-900");
   });
 
   it("should apply success variant styling", () => {
-    const { container } = render(
-      <HelpSection title="Success" items="Content" variant="success" />
-    );
+    const { container } = render(<HelpSection title="Success" items="Content" variant="success" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("bg-green-50", "dark:bg-green-900");
   });
 
   it("should apply info border color", () => {
-    const { container } = render(
-      <HelpSection title="Info" items="Content" variant="info" />
-    );
+    const { container } = render(<HelpSection title="Info" items="Content" variant="info" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("border-blue-200", "dark:border-blue-700");
   });
 
   it("should apply tip border color", () => {
-    const { container } = render(
-      <HelpSection title="Tip" items="Content" variant="tip" />
-    );
+    const { container } = render(<HelpSection title="Tip" items="Content" variant="tip" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("border-amber-200", "dark:border-amber-700");
   });
 
   it("should apply warning border color", () => {
-    const { container } = render(
-      <HelpSection title="Warning" items="Content" variant="warning" />
-    );
+    const { container } = render(<HelpSection title="Warning" items="Content" variant="warning" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("border-orange-200", "dark:border-orange-700");
   });
 
   it("should apply success border color", () => {
-    const { container } = render(
-      <HelpSection title="Success" items="Content" variant="success" />
-    );
+    const { container } = render(<HelpSection title="Success" items="Content" variant="success" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("border-green-200", "dark:border-green-700");
   });
 
   it("should apply info text color", () => {
-    const { container } = render(
-      <HelpSection title="Info" items="Content" variant="info" />
-    );
+    const { container } = render(<HelpSection title="Info" items="Content" variant="info" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("text-blue-900", "dark:text-blue-100");
   });
 
   it("should apply tip text color", () => {
-    const { container } = render(
-      <HelpSection title="Tip" items="Content" variant="tip" />
-    );
+    const { container } = render(<HelpSection title="Tip" items="Content" variant="tip" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("text-amber-900", "dark:text-amber-100");
   });
 
   it("should apply warning text color", () => {
-    const { container } = render(
-      <HelpSection title="Warning" items="Content" variant="warning" />
-    );
+    const { container } = render(<HelpSection title="Warning" items="Content" variant="warning" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("text-orange-900", "dark:text-orange-100");
   });
 
   it("should apply success text color", () => {
-    const { container } = render(
-      <HelpSection title="Success" items="Content" variant="success" />
-    );
+    const { container } = render(<HelpSection title="Success" items="Content" variant="success" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("text-green-900", "dark:text-green-100");
   });
 
   it("should render default Info icon", () => {
-    const { container } = render(
-      <HelpSection title="Info" items="Content" />
-    );
+    const { container } = render(<HelpSection title="Info" items="Content" />);
 
     const icon = container.querySelector("svg");
     expect(icon).toBeInTheDocument();
   });
 
   it("should render custom icon when provided", () => {
-    const { container } = render(
-      <HelpSection
-        title="Warning"
-        items="Content"
-        icon={AlertTriangle}
-      />
-    );
+    const { container } = render(<HelpSection title="Warning" items="Content" icon={AlertTriangle} />);
 
     const icon = container.querySelector("svg");
     expect(icon).toBeInTheDocument();
   });
 
   it("should not render icon when showIcon is false", () => {
-    const { container } = render(
-      <HelpSection title="Info" items="Content" showIcon={false} />
-    );
+    const { container } = render(<HelpSection title="Info" items="Content" showIcon={false} />);
 
     // Should have no icon element
     const svg = container.querySelector("svg");
@@ -201,9 +163,7 @@ describe("HelpSection", () => {
   });
 
   it("should apply icon sizing", () => {
-    const { container } = render(
-      <HelpSection title="Info" items="Content" />
-    );
+    const { container } = render(<HelpSection title="Info" items="Content" />);
 
     const icon = container.querySelector("svg");
     // Size 20 should be applied
@@ -211,36 +171,28 @@ describe("HelpSection", () => {
   });
 
   it("should apply info icon color", () => {
-    const { container } = render(
-      <HelpSection title="Info" items="Content" variant="info" />
-    );
+    const { container } = render(<HelpSection title="Info" items="Content" variant="info" />);
 
     const iconWrapper = container.querySelector('[class*="text-blue"]');
     expect(iconWrapper).toHaveClass("text-blue-600", "dark:text-blue-400");
   });
 
   it("should apply tip icon color", () => {
-    const { container } = render(
-      <HelpSection title="Tip" items="Content" variant="tip" />
-    );
+    const { container } = render(<HelpSection title="Tip" items="Content" variant="tip" />);
 
     const iconWrapper = container.querySelector('[class*="text-amber"]');
     expect(iconWrapper).toHaveClass("text-amber-600", "dark:text-amber-400");
   });
 
   it("should apply warning icon color", () => {
-    const { container } = render(
-      <HelpSection title="Warning" items="Content" variant="warning" />
-    );
+    const { container } = render(<HelpSection title="Warning" items="Content" variant="warning" />);
 
     const iconWrapper = container.querySelector('[class*="text-orange"]');
     expect(iconWrapper).toHaveClass("text-orange-600", "dark:text-orange-400");
   });
 
   it("should apply success icon color", () => {
-    const { container } = render(
-      <HelpSection title="Success" items="Content" variant="success" />
-    );
+    const { container } = render(<HelpSection title="Success" items="Content" variant="success" />);
 
     const iconWrapper = container.querySelector('[class*="text-green"]');
     expect(iconWrapper).toHaveClass("text-green-600", "dark:text-green-400");
@@ -261,18 +213,14 @@ describe("HelpSection", () => {
   });
 
   it("should apply wrapper padding and border", () => {
-    const { container } = render(
-      <HelpSection title="Info" items="Content" />
-    );
+    const { container } = render(<HelpSection title="Info" items="Content" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("p-4", "rounded-lg", "border");
   });
 
   it("should apply list styling", () => {
-    const { container } = render(
-      <HelpSection title="List" items={["Item 1", "Item 2"]} />
-    );
+    const { container } = render(<HelpSection title="List" items={["Item 1", "Item 2"]} />);
 
     const list = container.querySelector("ul");
     expect(list).toHaveClass("space-y-1", "text-sm", "list-disc", "list-inside");
@@ -315,9 +263,7 @@ describe("HelpSection", () => {
   });
 
   it("should render icon and title flex container", () => {
-    const { container } = render(
-      <HelpSection title="Title" items="Content" />
-    );
+    const { container } = render(<HelpSection title="Title" items="Content" />);
 
     const header = container.querySelector('[class*="flex"]');
     expect(header).toHaveClass("flex", "items-start", "gap-3", "mb-3");
@@ -337,7 +283,7 @@ describe("HelpSection", () => {
     const listItems = container.querySelectorAll("li");
     expect(listItems).toHaveLength(5);
 
-    items.forEach(item => {
+    items.forEach((item) => {
       expect(screen.getByText(item)).toBeInTheDocument();
     });
   });
@@ -357,7 +303,7 @@ describe("HelpSection", () => {
 
     render(<HelpSection title="Special" items={specialItems} />);
 
-    specialItems.forEach(item => {
+    specialItems.forEach((item) => {
       expect(screen.getByText(item)).toBeInTheDocument();
     });
   });
@@ -365,19 +311,15 @@ describe("HelpSection", () => {
   it("should render with all variant options", () => {
     const variants = ["info", "tip", "warning", "success"];
 
-    variants.forEach(variant => {
-      const { container } = render(
-        <HelpSection title="Test" items="Content" variant={variant} />
-      );
+    variants.forEach((variant) => {
+      const { container } = render(<HelpSection title="Test" items="Content" variant={variant} />);
 
       expect(container.firstChild).toBeInTheDocument();
     });
   });
 
   it("should maintain contrast in dark mode", () => {
-    const { container } = render(
-      <HelpSection title="Info" items="Content" variant="info" />
-    );
+    const { container } = render(<HelpSection title="Info" items="Content" variant="info" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass("dark:bg-blue-900", "dark:text-blue-100");

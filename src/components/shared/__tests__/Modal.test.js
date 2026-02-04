@@ -11,8 +11,8 @@
  * - Dark mode
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { renderWithProviders, setupUser, createMockProps } from "../../../test/component-setup";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
 // Mock Modal component for testing
 const Modal = ({ isOpen, onClose, children, className = "", overlayClassName = "" }) => {
@@ -115,7 +115,7 @@ describe("Modal Component", () => {
 
   describe("Escape Key Handling", () => {
     it("should close modal on Escape key press", async () => {
-      const user = setupUser();
+      const _user = setupUser();
       const { getByTestId } = renderWithProviders(
         <Modal {...defaultProps}>
           <input type="text" />
@@ -135,7 +135,7 @@ describe("Modal Component", () => {
     it("should render with correct z-index for stacking", () => {
       const { getByTestId } = renderWithProviders(<Modal {...defaultProps} />);
       const overlay = getByTestId("modal-overlay");
-      const styles = window.getComputedStyle(overlay);
+      const _styles = window.getComputedStyle(overlay);
       expect(overlay.className).toContain("z-50");
     });
 
@@ -197,9 +197,7 @@ describe("Modal Component", () => {
 
     it("should support custom animation classes", () => {
       const customClass = "data-[state=open]:animate-in";
-      const { getByTestId } = renderWithProviders(
-        <Modal {...defaultProps} overlayClassName={customClass} />
-      );
+      const { getByTestId } = renderWithProviders(<Modal {...defaultProps} overlayClassName={customClass} />);
       const overlay = getByTestId("modal-overlay");
       expect(overlay.className).toContain("bg-black/80");
     });
@@ -214,9 +212,7 @@ describe("Modal Component", () => {
 
     it("should support dark mode classes", () => {
       const darkClass = "dark:bg-slate-900 dark:text-white";
-      const { getByTestId } = renderWithProviders(
-        <Modal {...defaultProps} className={darkClass} />
-      );
+      const { getByTestId } = renderWithProviders(<Modal {...defaultProps} className={darkClass} />);
       const content = getByTestId("modal-content");
       expect(content.className).toContain("dark:bg-slate-900");
     });
@@ -242,16 +238,12 @@ describe("Modal Component", () => {
     });
 
     it("should support aria-label", () => {
-      const { getByTestId } = renderWithProviders(
-        <Modal {...defaultProps} aria-label="Confirmation Dialog" />
-      );
+      const { getByTestId } = renderWithProviders(<Modal {...defaultProps} aria-label="Confirmation Dialog" />);
       expect(getByTestId("modal-content")).toBeInTheDocument();
     });
 
     it("should support aria-labelledby", () => {
-      const { getByTestId } = renderWithProviders(
-        <Modal {...defaultProps} aria-labelledby="modal-title" />
-      );
+      const { getByTestId } = renderWithProviders(<Modal {...defaultProps} aria-labelledby="modal-title" />);
       expect(getByTestId("modal-content")).toBeInTheDocument();
     });
   });
@@ -259,25 +251,19 @@ describe("Modal Component", () => {
   describe("Custom Styling", () => {
     it("should accept custom className for overlay", () => {
       const customOverlay = "custom-overlay-class";
-      const { getByTestId } = renderWithProviders(
-        <Modal {...defaultProps} overlayClassName={customOverlay} />
-      );
+      const { getByTestId } = renderWithProviders(<Modal {...defaultProps} overlayClassName={customOverlay} />);
       expect(getByTestId("modal-overlay").className).toContain("bg-black/80");
     });
 
     it("should accept custom className for content", () => {
       const customContent = "custom-content-class";
-      const { getByTestId } = renderWithProviders(
-        <Modal {...defaultProps} className={customContent} />
-      );
+      const { getByTestId } = renderWithProviders(<Modal {...defaultProps} className={customContent} />);
       expect(getByTestId("modal-content").className).toContain("custom-content-class");
     });
 
     it("should allow size customization", () => {
       const sizeClass = "w-96 h-80";
-      const { getByTestId } = renderWithProviders(
-        <Modal {...defaultProps} className={sizeClass} />
-      );
+      const { getByTestId } = renderWithProviders(<Modal {...defaultProps} className={sizeClass} />);
       const content = getByTestId("modal-content");
       expect(content.className).toContain("w-96");
       expect(content.className).toContain("h-80");
@@ -303,9 +289,7 @@ describe("Modal Component", () => {
 
     it("should handle very long content", () => {
       const longContent = "Lorem ipsum ".repeat(100);
-      const { getByTestId } = renderWithProviders(
-        <Modal {...defaultProps}>{longContent}</Modal>
-      );
+      const { getByTestId } = renderWithProviders(<Modal {...defaultProps}>{longContent}</Modal>);
       expect(getByTestId("modal-content").textContent).toContain("Lorem ipsum");
     });
 

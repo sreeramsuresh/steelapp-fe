@@ -183,7 +183,7 @@ const PayPeriodManager = () => {
       {/* Content */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></button>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <span className={`ml-3 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Loading pay periods...</span>
         </div>
       ) : error ? (
@@ -347,7 +347,7 @@ const PayPeriodManager = () => {
                         <div className="flex items-center space-x-2 text-green-500">
                           <CheckCircle className="w-5 h-5" />
                           <span className="font-medium">All payments processed</span>
-                        </button>
+                        </div>
                       )}
                     </div>
                   </div>

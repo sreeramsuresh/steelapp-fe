@@ -11,7 +11,7 @@
  * - Progress bar for auto-dismiss
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
 // Mock Toast component
@@ -115,16 +115,12 @@ describe("Toast Component", () => {
     });
 
     it("should display message", () => {
-      const { getByText } = renderWithProviders(
-        <Toast {...defaultProps} message="Test message" />
-      );
+      const { getByText } = renderWithProviders(<Toast {...defaultProps} message="Test message" />);
       expect(getByText("Test message")).toBeInTheDocument();
     });
 
     it("should display title when provided", () => {
-      const { getByText } = renderWithProviders(
-        <Toast {...defaultProps} title="Success" />
-      );
+      const { getByText } = renderWithProviders(<Toast {...defaultProps} title="Success" />);
       expect(getByText("Success")).toBeInTheDocument();
     });
 
@@ -141,36 +137,28 @@ describe("Toast Component", () => {
 
   describe("Toast Types", () => {
     it("should render success toast with green styling", () => {
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} type="success" />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} type="success" />);
       const toast = getByTestId("toast-toast-1");
       expect(toast.className).toContain("bg-green");
       expect(toast).toHaveAttribute("data-type", "success");
     });
 
     it("should render error toast with red styling", () => {
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} type="error" />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} type="error" />);
       const toast = getByTestId("toast-toast-1");
       expect(toast.className).toContain("bg-red");
       expect(toast).toHaveAttribute("data-type", "error");
     });
 
     it("should render warning toast with yellow styling", () => {
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} type="warning" />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} type="warning" />);
       const toast = getByTestId("toast-toast-1");
       expect(toast.className).toContain("bg-yellow");
       expect(toast).toHaveAttribute("data-type", "warning");
     });
 
     it("should render info toast with blue styling", () => {
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} type="info" />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} type="info" />);
       const toast = getByTestId("toast-toast-1");
       expect(toast.className).toContain("bg-blue");
       expect(toast).toHaveAttribute("data-type", "info");
@@ -181,9 +169,7 @@ describe("Toast Component", () => {
       const icons = ["✓", "✕", "⚠", "ℹ"];
 
       types.forEach((type, index) => {
-        const { getByText } = renderWithProviders(
-          <Toast {...defaultProps} type={type} message="msg" />
-        );
+        const { getByText } = renderWithProviders(<Toast {...defaultProps} type={type} message="msg" />);
         expect(getByText(icons[index])).toBeInTheDocument();
       });
     });
@@ -216,9 +202,7 @@ describe("Toast Component", () => {
 
     it("should clear timeout on unmount", () => {
       vi.useFakeTimers();
-      const { unmount } = renderWithProviders(
-        <Toast {...defaultProps} duration={5000} />
-      );
+      const { unmount } = renderWithProviders(<Toast {...defaultProps} duration={5000} />);
       unmount();
       vi.advanceTimersByTime(5000);
       expect(mockOnClose).not.toHaveBeenCalled();
@@ -249,9 +233,7 @@ describe("Toast Component", () => {
     });
 
     it("should not display close button when showCloseButton is false", () => {
-      const { queryByTestId } = renderWithProviders(
-        <Toast {...defaultProps} showCloseButton={false} />
-      );
+      const { queryByTestId } = renderWithProviders(<Toast {...defaultProps} showCloseButton={false} />);
       expect(queryByTestId("toast-close-toast-1")).not.toBeInTheDocument();
     });
 
@@ -270,37 +252,27 @@ describe("Toast Component", () => {
 
   describe("Position Variants", () => {
     it("should support top-right position", () => {
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} position="top-right" />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} position="top-right" />);
       expect(getByTestId("toast-toast-1").className).toContain("toast-top-right");
     });
 
     it("should support top-left position", () => {
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} position="top-left" />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} position="top-left" />);
       expect(getByTestId("toast-toast-1").className).toContain("toast-top-left");
     });
 
     it("should support bottom-right position", () => {
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} position="bottom-right" />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} position="bottom-right" />);
       expect(getByTestId("toast-toast-1").className).toContain("toast-bottom-right");
     });
 
     it("should support bottom-left position", () => {
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} position="bottom-left" />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} position="bottom-left" />);
       expect(getByTestId("toast-toast-1").className).toContain("toast-bottom-left");
     });
 
     it("should default to top-right position", () => {
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} position="top-right" />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} position="top-right" />);
       expect(getByTestId("toast-toast-1").className).toContain("toast-top-right");
     });
   });
@@ -308,9 +280,7 @@ describe("Toast Component", () => {
   describe("Action Button", () => {
     it("should display action button when provided", () => {
       const action = { label: "Undo", onClick: vi.fn() };
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} action={action} />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} action={action} />);
       expect(getByTestId("toast-action")).toBeInTheDocument();
     });
 
@@ -318,48 +288,36 @@ describe("Toast Component", () => {
       const user = setupUser();
       const mockActionClick = vi.fn();
       const action = { label: "Retry", onClick: mockActionClick };
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} action={action} />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} action={action} />);
       await user.click(getByTestId("toast-action"));
       expect(mockActionClick).toHaveBeenCalled();
     });
 
     it("should display action label", () => {
       const action = { label: "View Details", onClick: vi.fn() };
-      const { getByText } = renderWithProviders(
-        <Toast {...defaultProps} action={action} />
-      );
+      const { getByText } = renderWithProviders(<Toast {...defaultProps} action={action} />);
       expect(getByText("View Details")).toBeInTheDocument();
     });
 
     it("should not display action when not provided", () => {
-      const { queryByTestId } = renderWithProviders(
-        <Toast {...defaultProps} action={null} />
-      );
+      const { queryByTestId } = renderWithProviders(<Toast {...defaultProps} action={null} />);
       expect(queryByTestId("toast-action")).not.toBeInTheDocument();
     });
   });
 
   describe("Progress Bar", () => {
     it("should display progress bar when duration > 0", () => {
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} duration={3000} />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} duration={3000} />);
       expect(getByTestId("toast-progress-toast-1")).toBeInTheDocument();
     });
 
     it("should not display progress bar when duration is 0", () => {
-      const { queryByTestId } = renderWithProviders(
-        <Toast {...defaultProps} duration={0} />
-      );
+      const { queryByTestId } = renderWithProviders(<Toast {...defaultProps} duration={0} />);
       expect(queryByTestId("toast-progress-toast-1")).not.toBeInTheDocument();
     });
 
     it("should animate progress bar", () => {
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} duration={3000} />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} duration={3000} />);
       const progress = getByTestId("toast-progress-toast-1");
       expect(progress.style.animation).toContain("3000ms");
     });
@@ -414,31 +372,23 @@ describe("Toast Component", () => {
   describe("Edge Cases", () => {
     it("should handle very long message", () => {
       const longMessage = "This is a very long message. ".repeat(50);
-      const { getByText } = renderWithProviders(
-        <Toast {...defaultProps} message={longMessage} />
-      );
+      const { getByText } = renderWithProviders(<Toast {...defaultProps} message={longMessage} />);
       expect(getByText(longMessage)).toBeInTheDocument();
     });
 
     it("should handle empty message", () => {
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} message="" />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} message="" />);
       expect(getByTestId("toast-toast-1")).toBeInTheDocument();
     });
 
     it("should handle special characters", () => {
       const specialMessage = "Error: <500> & timeout 'critical'";
-      const { getByText } = renderWithProviders(
-        <Toast {...defaultProps} message={specialMessage} />
-      );
+      const { getByText } = renderWithProviders(<Toast {...defaultProps} message={specialMessage} />);
       expect(getByText(specialMessage)).toBeInTheDocument();
     });
 
     it("should handle empty title", () => {
-      const { getByTestId } = renderWithProviders(
-        <Toast {...defaultProps} title="" />
-      );
+      const { getByTestId } = renderWithProviders(<Toast {...defaultProps} title="" />);
       expect(getByTestId("toast-toast-1")).toBeInTheDocument();
     });
   });
@@ -476,9 +426,7 @@ describe("Toast Component", () => {
     });
 
     it("should render title in bold", () => {
-      const { getByText } = renderWithProviders(
-        <Toast {...defaultProps} title="Bold Title" />
-      );
+      const { getByText } = renderWithProviders(<Toast {...defaultProps} title="Bold Title" />);
       expect(getByText("Bold Title").className).toContain("font-semibold");
     });
   });

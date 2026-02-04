@@ -48,15 +48,15 @@ describe("RequiredLabel", () => {
       </RequiredLabel>
     );
 
-    const asterisks = container.querySelectorAll('span:has(*)');
-    const hasAsterisk = Array.from(asterisks).some(span => span.textContent.includes("*"));
+    const asterisks = container.querySelectorAll("span:has(*)");
+    const hasAsterisk = Array.from(asterisks).some((span) => span.textContent.includes("*"));
     expect(hasAsterisk).toBe(false);
   });
 
   it("should not display asterisk when required is not provided (default false)", () => {
     const { container } = render(<RequiredLabel htmlFor="address">Address</RequiredLabel>);
 
-    const asterisks = Array.from(container.querySelectorAll("span")).filter(s => s.textContent === "*");
+    const asterisks = Array.from(container.querySelectorAll("span")).filter((s) => s.textContent === "*");
     expect(asterisks.length).toBe(0);
   });
 
@@ -150,7 +150,7 @@ describe("RequiredLabel", () => {
       </RequiredLabel>
     );
 
-    const asterisks = container.querySelectorAll('span:contains("*")');
+    const _asterisks = container.querySelectorAll('span:contains("*")');
     // Just verify structure is correct - one asterisk span
     const label = container.querySelector("label");
     expect(label).toHaveClass("block");

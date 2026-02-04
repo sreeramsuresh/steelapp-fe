@@ -60,7 +60,7 @@ function DashboardPage() {
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Monitor batch allocations, stock levels, and inventory metrics
           </p>
-        </button>
+        </div>
 
         {/* Batch Allocation KPIs Section */}
         <section className="mb-8">

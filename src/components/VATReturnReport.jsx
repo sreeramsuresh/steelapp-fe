@@ -103,10 +103,10 @@ const VATReturnReport = () => {
     open: false,
   });
 
-  const formatDateForInput = (date) => {
+  const formatDateForInput = useCallback((date) => {
     const d = new Date(date);
     return d.toISOString().split("T")[0];
-  };
+  }, []);
 
   const loadPeriods = useCallback(async () => {
     try {
@@ -129,7 +129,7 @@ const VATReturnReport = () => {
     } catch (err) {
       console.error("Error loading VAT periods:", err);
     }
-  }, []);
+  }, [formatDateForInput]);
 
   const loadVATReturnData = useCallback(async (returnId) => {
     setLoading(true);

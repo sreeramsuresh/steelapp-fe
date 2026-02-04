@@ -7,8 +7,8 @@
  */
 
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-import { Info, AlertCircle } from "lucide-react";
+import { AlertCircle, Info } from "lucide-react";
+import { describe, expect, it } from "vitest";
 import EmptyState from "../EmptyState";
 
 describe("EmptyState", () => {
@@ -34,20 +34,11 @@ describe("EmptyState", () => {
     const { container } = render(<EmptyState title="Test" />);
 
     const wrapper = container.firstChild;
-    expect(wrapper).toHaveClass(
-      "flex",
-      "flex-col",
-      "items-center",
-      "justify-center",
-      "py-12",
-      "px-4"
-    );
+    expect(wrapper).toHaveClass("flex", "flex-col", "items-center", "justify-center", "py-12", "px-4");
   });
 
   it("should render custom icon when provided", () => {
-    const { container } = render(
-      <EmptyState title="Alert" icon={AlertCircle} description="Something happened" />
-    );
+    const { container } = render(<EmptyState title="Alert" icon={AlertCircle} description="Something happened" />);
 
     const svg = container.querySelector("svg");
     expect(svg).toBeInTheDocument();
@@ -112,9 +103,7 @@ describe("EmptyState", () => {
 
   it("should render action with wrapper div", () => {
     const action = <button>Create</button>;
-    const { container } = render(
-      <EmptyState title="Empty" description="No items" action={action} />
-    );
+    const { container } = render(<EmptyState title="Empty" description="No items" action={action} />);
 
     const actionDiv = screen.getByRole("button").closest("div");
     expect(actionDiv).toHaveClass("mt-4");
@@ -142,9 +131,7 @@ describe("EmptyState", () => {
   });
 
   it("should space elements vertically", () => {
-    const { container } = render(
-      <EmptyState title="Title" description="Description" icon={Info} />
-    );
+    const { container } = render(<EmptyState title="Title" description="Description" icon={Info} />);
 
     const wrapper = container.firstChild;
     const children = wrapper.querySelectorAll(":scope > *");
@@ -201,18 +188,14 @@ describe("EmptyState", () => {
   });
 
   it("should support minimal variant layout", () => {
-    const { container } = render(
-      <EmptyState title="Minimal" description="Test" variant="minimal" />
-    );
+    const { container } = render(<EmptyState title="Minimal" description="Test" variant="minimal" />);
 
     const title = screen.getByText("Minimal");
     expect(title).toHaveClass("text-lg");
   });
 
   it("should support default variant layout", () => {
-    const { container } = render(
-      <EmptyState title="Default" description="Test" variant="default" />
-    );
+    const { container } = render(<EmptyState title="Default" description="Test" variant="default" />);
 
     const title = screen.getByText("Default");
     expect(title).toHaveClass("text-xl");
@@ -262,9 +245,7 @@ describe("EmptyState", () => {
   it("should allow custom icons", () => {
     const CustomIcon = () => <div data-testid="custom-icon">Custom</div>;
 
-    render(
-      <EmptyState title="Test" description="Test" icon={CustomIcon} />
-    );
+    render(<EmptyState title="Test" description="Test" icon={CustomIcon} />);
 
     expect(screen.getByTestId("custom-icon")).toBeInTheDocument();
   });
@@ -296,14 +277,7 @@ describe("EmptyState", () => {
 
   it("should render in proper semantic order: icon -> title -> description -> action", () => {
     const action = <button data-testid="action">Click</button>;
-    const { container } = render(
-      <EmptyState
-        title="Title"
-        description="Description"
-        action={action}
-        icon={Info}
-      />
-    );
+    const { container } = render(<EmptyState title="Title" description="Description" action={action} icon={Info} />);
 
     const children = container.firstChild.children;
     // Verify structure exists

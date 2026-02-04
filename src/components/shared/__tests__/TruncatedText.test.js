@@ -6,8 +6,8 @@
  * Covers responsive behavior, dark mode, and positioning
  */
 
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, expect, it, beforeEach, afterEach } from "vitest";
+import { fireEvent, render } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 import TruncatedText from "../TruncatedText";
 
 describe("TruncatedText", () => {
@@ -74,9 +74,7 @@ describe("TruncatedText", () => {
   });
 
   it("should apply custom className to text element", () => {
-    const { container } = render(
-      <TruncatedText text="Text" className="custom-class font-bold" />
-    );
+    const { container } = render(<TruncatedText text="Text" className="custom-class font-bold" />);
 
     const text = container.querySelector("span");
     expect(text).toHaveClass("custom-class", "font-bold");
@@ -105,9 +103,7 @@ describe("TruncatedText", () => {
   });
 
   it("should render tooltip with correct text content", () => {
-    const { container } = render(
-      <TruncatedText text="Analytics Test Customer - 33156-1768915870210-1ufjwz" />
-    );
+    const { container } = render(<TruncatedText text="Analytics Test Customer - 33156-1768915870210-1ufjwz" />);
 
     const text = container.querySelector("span");
     fireEvent.mouseEnter(text);
@@ -127,9 +123,7 @@ describe("TruncatedText", () => {
   });
 
   it("should apply bottom tooltip positioning", () => {
-    const { container } = render(
-      <TruncatedText text="Text" tooltipPosition="bottom" />
-    );
+    const { container } = render(<TruncatedText text="Text" tooltipPosition="bottom" />);
 
     const text = container.querySelector("span");
     fireEvent.mouseEnter(text);
@@ -139,9 +133,7 @@ describe("TruncatedText", () => {
   });
 
   it("should apply left tooltip positioning", () => {
-    const { container } = render(
-      <TruncatedText text="Text" tooltipPosition="left" />
-    );
+    const { container } = render(<TruncatedText text="Text" tooltipPosition="left" />);
 
     const text = container.querySelector("span");
     fireEvent.mouseEnter(text);
@@ -151,9 +143,7 @@ describe("TruncatedText", () => {
   });
 
   it("should apply right tooltip positioning", () => {
-    const { container } = render(
-      <TruncatedText text="Text" tooltipPosition="right" />
-    );
+    const { container } = render(<TruncatedText text="Text" tooltipPosition="right" />);
 
     const text = container.querySelector("span");
     fireEvent.mouseEnter(text);
@@ -244,9 +234,7 @@ describe("TruncatedText", () => {
   });
 
   it("should render custom tag correctly", () => {
-    const { container } = render(
-      <TruncatedText text="Paragraph text" tag="p" className="text-base" />
-    );
+    const { container } = render(<TruncatedText text="Paragraph text" tag="p" className="text-base" />);
 
     const p = container.querySelector("p");
     expect(p).toBeInTheDocument();
@@ -254,10 +242,7 @@ describe("TruncatedText", () => {
   });
 
   it("should combine all width and truncation classes", () => {
-    const { container } = render(
-      <TruncatedText text="Text" maxWidth="w-64" className="font-semibold"
-      />
-    );
+    const { container } = render(<TruncatedText text="Text" maxWidth="w-64" className="font-semibold" />);
 
     const text = container.querySelector("span");
     expect(text).toHaveClass("w-64", "truncate", "font-semibold");
@@ -280,7 +265,7 @@ describe("TruncatedText", () => {
   it("should handle tag as any valid HTML element", () => {
     const tags = ["span", "div", "p", "strong", "em"];
 
-    tags.forEach(tag => {
+    tags.forEach((tag) => {
       const { container } = render(<TruncatedText text="Text" tag={tag} />);
 
       const element = container.querySelector(tag);
@@ -309,9 +294,7 @@ describe("TruncatedText", () => {
   });
 
   it("should render with arrow pointing in correct direction", () => {
-    const { container } = render(
-      <TruncatedText text="Text" tooltipPosition="top" />
-    );
+    const { container } = render(<TruncatedText text="Text" tooltipPosition="top" />);
 
     const text = container.querySelector("span");
     fireEvent.mouseEnter(text);

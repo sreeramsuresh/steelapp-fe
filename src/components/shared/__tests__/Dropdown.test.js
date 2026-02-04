@@ -11,18 +11,11 @@
  * - Icon and badge support
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
 // Mock Dropdown component
-const Dropdown = ({
-  isOpen,
-  onClose,
-  trigger = "Menu",
-  items = [],
-  onItemSelect,
-  disabled = false,
-}) => {
+const Dropdown = ({ isOpen, onClose, trigger = "Menu", items = [], onItemSelect, disabled = false }) => {
   return (
     <div data-testid="dropdown-container">
       <button
@@ -37,11 +30,7 @@ const Dropdown = ({
 
       {isOpen && (
         <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={onClose}
-            data-testid="dropdown-backdrop"
-          />
+          <div className="fixed inset-0 z-40" onClick={onClose} data-testid="dropdown-backdrop" />
           <div
             className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden min-w-[200px]"
             role="menu"
@@ -63,9 +52,7 @@ const Dropdown = ({
                 {item.icon && <span className="text-lg">{item.icon}</span>}
                 <span>{item.label}</span>
                 {item.badge && (
-                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">
-                    {item.badge}
-                  </span>
+                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">{item.badge}</span>
                 )}
               </button>
             ))}
@@ -100,16 +87,12 @@ describe("Dropdown Component", () => {
 
   describe("Rendering", () => {
     it("should render trigger button", () => {
-      const { getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} isOpen={false} />
-      );
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} isOpen={false} />);
       expect(getByTestId("dropdown-trigger")).toBeInTheDocument();
     });
 
     it("should display trigger text", () => {
-      const { getByText } = renderWithProviders(
-        <Dropdown {...defaultProps} isOpen={false} trigger="Actions" />
-      );
+      const { getByText } = renderWithProviders(<Dropdown {...defaultProps} isOpen={false} trigger="Actions" />);
       expect(getByText("Actions")).toBeInTheDocument();
     });
 
@@ -119,9 +102,7 @@ describe("Dropdown Component", () => {
     });
 
     it("should not render menu when isOpen is false", () => {
-      const { queryByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} isOpen={false} />
-      );
+      const { queryByTestId } = renderWithProviders(<Dropdown {...defaultProps} isOpen={false} />);
       expect(queryByTestId("dropdown-menu")).not.toBeInTheDocument();
     });
 
@@ -157,9 +138,7 @@ describe("Dropdown Component", () => {
     });
 
     it("should handle empty items list", () => {
-      const { getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} items={[]} />
-      );
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} items={[]} />);
       expect(getByTestId("dropdown-menu")).toBeInTheDocument();
     });
 
@@ -175,9 +154,7 @@ describe("Dropdown Component", () => {
         label: `Item ${i + 1}`,
         value: `item${i + 1}`,
       }));
-      const { getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} items={manyItems} />
-      );
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} items={manyItems} />);
       expect(getByTestId("dropdown-item-0")).toBeInTheDocument();
       expect(getByTestId("dropdown-item-49")).toBeInTheDocument();
     });
@@ -207,9 +184,7 @@ describe("Dropdown Component", () => {
 
     it("should handle multiple selections sequentially", async () => {
       const user = setupUser();
-      const { rerender, getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} />
-      );
+      const { rerender, getByTestId } = renderWithProviders(<Dropdown {...defaultProps} />);
       await user.click(getByTestId("dropdown-item-0"));
       expect(mockOnItemSelect).toHaveBeenCalledWith(defaultItems[0]);
     });
@@ -222,9 +197,7 @@ describe("Dropdown Component", () => {
         { label: "Option 2", value: "opt2", disabled: true },
         { label: "Option 3", value: "opt3" },
       ];
-      const { getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} items={itemsWithDisabled} />
-      );
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} items={itemsWithDisabled} />);
       const disabledItem = getByTestId("dropdown-item-1");
       expect(disabledItem).toBeDisabled();
     });
@@ -235,9 +208,7 @@ describe("Dropdown Component", () => {
         { label: "Option 1", value: "opt1" },
         { label: "Option 2", value: "opt2", disabled: true },
       ];
-      const { getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} items={itemsWithDisabled} />
-      );
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} items={itemsWithDisabled} />);
       const disabledItem = getByTestId("dropdown-item-1");
       await user.click(disabledItem);
       expect(mockOnItemSelect).not.toHaveBeenCalled();
@@ -250,9 +221,7 @@ describe("Dropdown Component", () => {
         { label: "Edit", value: "edit", icon: "✏️" },
         { label: "Delete", value: "delete", icon: "🗑️" },
       ];
-      const { getByText } = renderWithProviders(
-        <Dropdown {...defaultProps} items={itemsWithIcons} />
-      );
+      const { getByText } = renderWithProviders(<Dropdown {...defaultProps} items={itemsWithIcons} />);
       expect(getByText("✏️")).toBeInTheDocument();
       expect(getByText("🗑️")).toBeInTheDocument();
     });
@@ -262,31 +231,21 @@ describe("Dropdown Component", () => {
         { label: "Notifications", value: "notif", badge: "5" },
         { label: "Messages", value: "msg", badge: "3" },
       ];
-      const { getByText } = renderWithProviders(
-        <Dropdown {...defaultProps} items={itemsWithBadges} />
-      );
+      const { getByText } = renderWithProviders(<Dropdown {...defaultProps} items={itemsWithBadges} />);
       expect(getByText("5")).toBeInTheDocument();
       expect(getByText("3")).toBeInTheDocument();
     });
 
     it("should position badges on the right", () => {
-      const itemsWithBadges = [
-        { label: "Item", value: "item", badge: "10" },
-      ];
-      const { getByText } = renderWithProviders(
-        <Dropdown {...defaultProps} items={itemsWithBadges} />
-      );
+      const itemsWithBadges = [{ label: "Item", value: "item", badge: "10" }];
+      const { getByText } = renderWithProviders(<Dropdown {...defaultProps} items={itemsWithBadges} />);
       const badge = getByText("10");
       expect(badge.parentElement.className).toContain("ml-auto");
     });
 
     it("should support both icons and badges", () => {
-      const itemsWithBoth = [
-        { label: "Important", value: "imp", icon: "⭐", badge: "2" },
-      ];
-      const { getByText } = renderWithProviders(
-        <Dropdown {...defaultProps} items={itemsWithBoth} />
-      );
+      const itemsWithBoth = [{ label: "Important", value: "imp", icon: "⭐", badge: "2" }];
+      const { getByText } = renderWithProviders(<Dropdown {...defaultProps} items={itemsWithBoth} />);
       expect(getByText("⭐")).toBeInTheDocument();
       expect(getByText("2")).toBeInTheDocument();
     });
@@ -310,16 +269,12 @@ describe("Dropdown Component", () => {
 
   describe("Disabled Dropdown", () => {
     it("should disable trigger button when disabled is true", () => {
-      const { getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} isOpen={false} disabled={true} />
-      );
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} isOpen={false} disabled={true} />);
       expect(getByTestId("dropdown-trigger")).toBeDisabled();
     });
 
     it("should show disabled styling", () => {
-      const { getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} isOpen={false} disabled={true} />
-      );
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} isOpen={false} disabled={true} />);
       const trigger = getByTestId("dropdown-trigger");
       expect(trigger.className).toContain("disabled");
     });
@@ -327,9 +282,7 @@ describe("Dropdown Component", () => {
 
   describe("Trigger Accessibility", () => {
     it("should have aria-haspopup attribute", () => {
-      const { getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} isOpen={false} />
-      );
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} isOpen={false} />);
       expect(getByTestId("dropdown-trigger")).toHaveAttribute("aria-haspopup", "menu");
     });
 
@@ -339,9 +292,7 @@ describe("Dropdown Component", () => {
     });
 
     it("should have aria-expanded=false when closed", () => {
-      const { getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} isOpen={false} />
-      );
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} isOpen={false} />);
       expect(getByTestId("dropdown-trigger")).toHaveAttribute("aria-expanded", "false");
     });
   });
@@ -404,33 +355,24 @@ describe("Dropdown Component", () => {
     });
 
     it("should handle empty trigger text", () => {
-      const { getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} isOpen={false} trigger="" />
-      );
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} isOpen={false} trigger="" />);
       expect(getByTestId("dropdown-trigger")).toBeInTheDocument();
     });
 
     it("should handle very long item labels", () => {
       const longItems = [
         {
-          label:
-            "This is a very long menu item label that should wrap properly across multiple lines",
+          label: "This is a very long menu item label that should wrap properly across multiple lines",
           value: "long",
         },
       ];
-      const { getByText } = renderWithProviders(
-        <Dropdown {...defaultProps} items={longItems} />
-      );
+      const { getByText } = renderWithProviders(<Dropdown {...defaultProps} items={longItems} />);
       expect(getByText(longItems[0].label)).toBeInTheDocument();
     });
 
     it("should handle special characters in labels", () => {
-      const specialItems = [
-        { label: "A & B <option> 'test'", value: "special" },
-      ];
-      const { getByText } = renderWithProviders(
-        <Dropdown {...defaultProps} items={specialItems} />
-      );
+      const specialItems = [{ label: "A & B <option> 'test'", value: "special" }];
+      const { getByText } = renderWithProviders(<Dropdown {...defaultProps} items={specialItems} />);
       expect(getByText(specialItems[0].label)).toBeInTheDocument();
     });
 
@@ -439,9 +381,7 @@ describe("Dropdown Component", () => {
         { label: "Option", value: "opt1" },
         { label: "Option", value: "opt2" },
       ];
-      const { getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} items={duplicateItems} />
-      );
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} items={duplicateItems} />);
       expect(getByTestId("dropdown-item-0")).toBeInTheDocument();
       expect(getByTestId("dropdown-item-1")).toBeInTheDocument();
     });
@@ -461,23 +401,17 @@ describe("Dropdown Component", () => {
 
   describe("Trigger Button Styling", () => {
     it("should have blue background", () => {
-      const { getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} isOpen={false} />
-      );
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} isOpen={false} />);
       expect(getByTestId("dropdown-trigger").className).toContain("bg-blue");
     });
 
     it("should have white text", () => {
-      const { getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} isOpen={false} />
-      );
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} isOpen={false} />);
       expect(getByTestId("dropdown-trigger").className).toContain("text-white");
     });
 
     it("should have hover effect", () => {
-      const { getByTestId } = renderWithProviders(
-        <Dropdown {...defaultProps} isOpen={false} />
-      );
+      const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} isOpen={false} />);
       expect(getByTestId("dropdown-trigger").className).toContain("hover:");
     });
   });

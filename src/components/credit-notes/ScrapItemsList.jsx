@@ -39,7 +39,7 @@ const ScrapItemsList = ({ creditNoteId = null, showFilters = true }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [creditNoteId]);
 
   useEffect(() => {
     fetchScrapItems();

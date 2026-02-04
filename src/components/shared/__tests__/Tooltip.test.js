@@ -11,18 +11,11 @@
  * - Max width and text wrapping
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
 // Mock Tooltip component
-const Tooltip = ({
-  content,
-  children,
-  position = "top",
-  delay = 200,
-  showArrow = true,
-  maxWidth = "max-w-xs",
-}) => {
+const Tooltip = ({ content, children, position = "top", delay = 200, showArrow = true, maxWidth = "max-w-xs" }) => {
   const [isVisible, setIsVisible] = React.useState(false);
   const timeoutRef = React.useRef(null);
 
@@ -87,31 +80,23 @@ describe("Tooltip Component", () => {
 
   describe("Rendering", () => {
     it("should render trigger element", () => {
-      const { getByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} />
-      );
+      const { getByTestId } = renderWithProviders(<Tooltip {...defaultProps} />);
       expect(getByTestId("tooltip-trigger")).toBeInTheDocument();
     });
 
     it("should display trigger text", () => {
-      const { getByText } = renderWithProviders(
-        <Tooltip {...defaultProps} children="Click here" />
-      );
+      const { getByText } = renderWithProviders(<Tooltip {...defaultProps} children="Click here" />);
       expect(getByText("Click here")).toBeInTheDocument();
     });
 
     it("should not render tooltip by default", () => {
-      const { queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} />
-      );
+      const { queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} />);
       expect(queryByTestId("tooltip-content")).not.toBeInTheDocument();
     });
 
     it("should have tooltip role", async () => {
       const user = setupUser();
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={0} />
-      );
+      const { getByTestId, queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={0} />);
 
       await user.hover(getByTestId("tooltip-trigger"));
       const tooltip = queryByTestId("tooltip-content");
@@ -125,9 +110,7 @@ describe("Tooltip Component", () => {
   describe("Show on Hover", () => {
     it("should show tooltip on mouse enter", async () => {
       const user = setupUser();
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={0} />
-      );
+      const { getByTestId, queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={0} />);
 
       const trigger = getByTestId("tooltip-trigger");
       await user.hover(trigger);
@@ -155,9 +138,7 @@ describe("Tooltip Component", () => {
 
     it("should support zero delay", async () => {
       const user = setupUser();
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={0} />
-      );
+      const { getByTestId, queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={0} />);
 
       await user.hover(getByTestId("tooltip-trigger"));
       const tooltip = queryByTestId("tooltip-content");
@@ -171,9 +152,7 @@ describe("Tooltip Component", () => {
   describe("Hide on Leave", () => {
     it("should hide tooltip on mouse leave", async () => {
       const user = setupUser();
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={0} />
-      );
+      const { getByTestId, queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={0} />);
 
       const trigger = getByTestId("tooltip-trigger");
       await user.hover(trigger);
@@ -185,9 +164,7 @@ describe("Tooltip Component", () => {
 
     it("should clear timeout on unmount", () => {
       const clearTimeoutSpy = vi.spyOn(global, "clearTimeout");
-      const { unmount } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={1000} />
-      );
+      const { unmount } = renderWithProviders(<Tooltip {...defaultProps} delay={1000} />);
 
       unmount();
       expect(clearTimeoutSpy).toHaveBeenCalled();
@@ -198,9 +175,7 @@ describe("Tooltip Component", () => {
   describe("Delay", () => {
     it("should respect delay before showing", async () => {
       vi.useFakeTimers();
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={200} />
-      );
+      const { getByTestId, queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={200} />);
 
       const trigger = getByTestId("tooltip-trigger");
       trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
@@ -216,23 +191,17 @@ describe("Tooltip Component", () => {
     });
 
     it("should support custom delay", async () => {
-      const { getByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={500} />
-      );
+      const { getByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={500} />);
       expect(getByTestId("tooltip-trigger")).toBeInTheDocument();
     });
 
     it("should support zero delay", async () => {
-      const { getByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={0} />
-      );
+      const { getByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={0} />);
       expect(getByTestId("tooltip-trigger")).toBeInTheDocument();
     });
 
     it("should have default 200ms delay", async () => {
-      const { getByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} />
-      );
+      const { getByTestId } = renderWithProviders(<Tooltip {...defaultProps} />);
       expect(getByTestId("tooltip-trigger")).toBeInTheDocument();
     });
   });
@@ -253,23 +222,17 @@ describe("Tooltip Component", () => {
     });
 
     it("should support bottom position", () => {
-      const { getByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} position="bottom" />
-      );
+      const { getByTestId } = renderWithProviders(<Tooltip {...defaultProps} position="bottom" />);
       expect(getByTestId("tooltip-trigger")).toBeInTheDocument();
     });
 
     it("should support left position", () => {
-      const { getByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} position="left" />
-      );
+      const { getByTestId } = renderWithProviders(<Tooltip {...defaultProps} position="left" />);
       expect(getByTestId("tooltip-trigger")).toBeInTheDocument();
     });
 
     it("should support right position", () => {
-      const { getByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} position="right" />
-      );
+      const { getByTestId } = renderWithProviders(<Tooltip {...defaultProps} position="right" />);
       expect(getByTestId("tooltip-trigger")).toBeInTheDocument();
     });
 
@@ -304,9 +267,7 @@ describe("Tooltip Component", () => {
 
   describe("Arrow", () => {
     it("should display arrow by default", async () => {
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={0} />
-      );
+      const { getByTestId, queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={0} />);
 
       const trigger = getByTestId("tooltip-trigger");
       trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
@@ -360,9 +321,7 @@ describe("Tooltip Component", () => {
 
   describe("Styling", () => {
     it("should have dark background", async () => {
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={0} />
-      );
+      const { getByTestId, queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={0} />);
 
       const trigger = getByTestId("tooltip-trigger");
       trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
@@ -374,9 +333,7 @@ describe("Tooltip Component", () => {
     });
 
     it("should have white text", async () => {
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={0} />
-      );
+      const { getByTestId, queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={0} />);
 
       const trigger = getByTestId("tooltip-trigger");
       trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
@@ -388,9 +345,7 @@ describe("Tooltip Component", () => {
     });
 
     it("should have rounded corners", async () => {
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={0} />
-      );
+      const { getByTestId, queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={0} />);
 
       const trigger = getByTestId("tooltip-trigger");
       trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
@@ -402,9 +357,7 @@ describe("Tooltip Component", () => {
     });
 
     it("should have padding", async () => {
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={0} />
-      );
+      const { getByTestId, queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={0} />);
 
       const trigger = getByTestId("tooltip-trigger");
       trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
@@ -416,9 +369,7 @@ describe("Tooltip Component", () => {
     });
 
     it("should be pointer-events-none", async () => {
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={0} />
-      );
+      const { getByTestId, queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={0} />);
 
       const trigger = getByTestId("tooltip-trigger");
       trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
@@ -432,9 +383,7 @@ describe("Tooltip Component", () => {
 
   describe("Max Width and Text Wrapping", () => {
     it("should have default max width", async () => {
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={0} />
-      );
+      const { getByTestId, queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={0} />);
 
       const trigger = getByTestId("tooltip-trigger");
       trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
@@ -477,9 +426,7 @@ describe("Tooltip Component", () => {
 
   describe("Accessibility", () => {
     it("should have tooltip role", async () => {
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={0} />
-      );
+      const { getByTestId, queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={0} />);
 
       const trigger = getByTestId("tooltip-trigger");
       trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
@@ -493,9 +440,7 @@ describe("Tooltip Component", () => {
 
   describe("Z-Index", () => {
     it("should have z-50 for stacking", async () => {
-      const { getByTestId, queryByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} delay={0} />
-      );
+      const { getByTestId, queryByTestId } = renderWithProviders(<Tooltip {...defaultProps} delay={0} />);
 
       const trigger = getByTestId("tooltip-trigger");
       trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
@@ -523,9 +468,7 @@ describe("Tooltip Component", () => {
     });
 
     it("should handle empty content", () => {
-      const { getByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} content="" />
-      );
+      const { getByTestId } = renderWithProviders(<Tooltip {...defaultProps} content="" />);
       expect(getByTestId("tooltip-trigger")).toBeInTheDocument();
     });
 
@@ -545,9 +488,7 @@ describe("Tooltip Component", () => {
 
     it("should handle rapid hover/unhover", async () => {
       const user = setupUser();
-      const { getByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} />
-      );
+      const { getByTestId } = renderWithProviders(<Tooltip {...defaultProps} />);
 
       const trigger = getByTestId("tooltip-trigger");
       await user.hover(trigger);
@@ -561,16 +502,12 @@ describe("Tooltip Component", () => {
 
   describe("Container", () => {
     it("should have relative positioning", () => {
-      const { getByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} />
-      );
+      const { getByTestId } = renderWithProviders(<Tooltip {...defaultProps} />);
       expect(getByTestId("tooltip-container").className).toContain("relative");
     });
 
     it("should be inline-block", () => {
-      const { getByTestId } = renderWithProviders(
-        <Tooltip {...defaultProps} />
-      );
+      const { getByTestId } = renderWithProviders(<Tooltip {...defaultProps} />);
       expect(getByTestId("tooltip-container").className).toContain("inline-block");
     });
   });

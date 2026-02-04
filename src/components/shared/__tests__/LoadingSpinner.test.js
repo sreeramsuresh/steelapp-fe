@@ -137,9 +137,7 @@ describe("LoadingSpinner", () => {
   it("should not render message span when no message prop", () => {
     render(<LoadingSpinner mode="block" />);
 
-    const messages = Array.from(document.querySelectorAll("p")).filter(
-      p => p.textContent === "Loading..."
-    );
+    const messages = Array.from(document.querySelectorAll("p")).filter((p) => p.textContent === "Loading...");
     expect(messages.length).toBe(0);
   });
 
@@ -163,7 +161,7 @@ describe("LoadingSpinner", () => {
   it("should handle all size variants in fullscreen mode", () => {
     const sizes = ["sm", "md", "lg"];
 
-    sizes.forEach(size => {
+    sizes.forEach((size) => {
       const { container } = render(<LoadingSpinner size={size} mode="fullscreen" />);
 
       const spinner = container.querySelector(".animate-spin");

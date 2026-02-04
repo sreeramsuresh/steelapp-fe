@@ -11,7 +11,7 @@
  * - Stacking order
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
 // Mock Drawer component
@@ -105,9 +105,7 @@ describe("Drawer Component", () => {
     });
 
     it("should display title when provided", () => {
-      const { getByText } = renderWithProviders(
-        <Drawer {...defaultProps} title="Drawer Title" />
-      );
+      const { getByText } = renderWithProviders(<Drawer {...defaultProps} title="Drawer Title" />);
       expect(getByText("Drawer Title")).toBeInTheDocument();
     });
 
@@ -153,25 +151,19 @@ describe("Drawer Component", () => {
     });
 
     it("should apply correct animation class for position", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} position="left" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} position="left" />);
       const drawer = getByTestId("drawer");
       expect(drawer.className).toContain("slide-in-from-left");
     });
 
     it("should have correct dimensions for horizontal positions", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} position="right" width="w-80" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} position="right" width="w-80" />);
       const drawer = getByTestId("drawer");
       expect(drawer.className).toContain("w-80");
     });
 
     it("should have correct dimensions for vertical positions", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} position="top" height="h-64" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} position="top" height="h-64" />);
       const drawer = getByTestId("drawer");
       expect(drawer.className).toContain("h-64");
     });
@@ -207,32 +199,24 @@ describe("Drawer Component", () => {
 
   describe("Close Button", () => {
     it("should display close button by default", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} title="Test" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} title="Test" />);
       expect(getByTestId("drawer-close-button")).toBeInTheDocument();
     });
 
     it("should not display close button when showCloseButton is false", () => {
-      const { queryByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} title="Test" showCloseButton={false} />
-      );
+      const { queryByTestId } = renderWithProviders(<Drawer {...defaultProps} title="Test" showCloseButton={false} />);
       expect(queryByTestId("drawer-close-button")).not.toBeInTheDocument();
     });
 
     it("should call onClose when close button is clicked", async () => {
       const user = setupUser();
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} title="Test" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} title="Test" />);
       await user.click(getByTestId("drawer-close-button"));
       expect(mockOnClose).toHaveBeenCalled();
     });
 
     it("should have aria-label on close button", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} title="Test" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} title="Test" />);
       expect(getByTestId("drawer-close-button")).toHaveAttribute("aria-label", "Close drawer");
     });
   });
@@ -264,32 +248,24 @@ describe("Drawer Component", () => {
 
   describe("Sizing", () => {
     it("should support custom width for horizontal drawers", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} position="right" width="w-[400px]" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} position="right" width="w-[400px]" />);
       const drawer = getByTestId("drawer");
       expect(drawer.className).toContain("w-[400px]");
     });
 
     it("should support custom height for vertical drawers", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} position="top" height="h-80" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} position="top" height="h-80" />);
       const drawer = getByTestId("drawer");
       expect(drawer.className).toContain("h-80");
     });
 
     it("should default to full screen height for horizontal drawers", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} position="right" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} position="right" />);
       expect(getByTestId("drawer").className).toContain("h-screen");
     });
 
     it("should default to full screen width for vertical drawers", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} position="top" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} position="top" />);
       expect(getByTestId("drawer").className).toContain("w-screen");
     });
   });
@@ -318,25 +294,19 @@ describe("Drawer Component", () => {
 
   describe("Header Styling", () => {
     it("should display header with border", () => {
-      const { getByText } = renderWithProviders(
-        <Drawer {...defaultProps} title="Header" />
-      );
+      const { getByText } = renderWithProviders(<Drawer {...defaultProps} title="Header" />);
       const header = getByText("Header").parentElement;
       expect(header.className).toContain("border-b");
     });
 
     it("should display title and close button in header", () => {
-      const { getByText, getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} title="Header" />
-      );
+      const { getByText, getByTestId } = renderWithProviders(<Drawer {...defaultProps} title="Header" />);
       expect(getByText("Header")).toBeInTheDocument();
       expect(getByTestId("drawer-close-button")).toBeInTheDocument();
     });
 
     it("should not render header when title is empty", () => {
-      const { container } = renderWithProviders(
-        <Drawer {...defaultProps} title="" />
-      );
+      const { container } = renderWithProviders(<Drawer {...defaultProps} title="" />);
       const headers = container.querySelectorAll(".border-b");
       expect(headers.length).toBe(0);
     });
@@ -344,30 +314,22 @@ describe("Drawer Component", () => {
 
   describe("Animations", () => {
     it("should have slide-in animation for right drawer", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} position="right" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} position="right" />);
       expect(getByTestId("drawer").className).toContain("slide-in-from-right");
     });
 
     it("should have slide-in animation for left drawer", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} position="left" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} position="left" />);
       expect(getByTestId("drawer").className).toContain("slide-in-from-left");
     });
 
     it("should have slide-in animation for top drawer", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} position="top" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} position="top" />);
       expect(getByTestId("drawer").className).toContain("slide-in-from-top");
     });
 
     it("should have slide-in animation for bottom drawer", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} position="bottom" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} position="bottom" />);
       expect(getByTestId("drawer").className).toContain("slide-in-from-bottom");
     });
   });
@@ -384,9 +346,7 @@ describe("Drawer Component", () => {
     });
 
     it("should have accessible close button", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} title="Test" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} title="Test" />);
       const closeBtn = getByTestId("drawer-close-button");
       expect(closeBtn).toHaveAttribute("aria-label");
     });
@@ -399,35 +359,27 @@ describe("Drawer Component", () => {
     });
 
     it("should support dark mode styling", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} />);
       expect(getByTestId("drawer")).toBeInTheDocument();
     });
   });
 
   describe("Edge Cases", () => {
     it("should handle rapid open/close", async () => {
-      const { rerender } = renderWithProviders(
-        <Drawer {...defaultProps} isOpen={true} />
-      );
+      const { rerender } = renderWithProviders(<Drawer {...defaultProps} isOpen={true} />);
       rerender(<Drawer {...defaultProps} isOpen={false} />);
       rerender(<Drawer {...defaultProps} isOpen={true} />);
       expect(mockOnClose).not.toHaveBeenCalled();
     });
 
     it("should handle empty title", () => {
-      const { getByTestId } = renderWithProviders(
-        <Drawer {...defaultProps} title="" />
-      );
+      const { getByTestId } = renderWithProviders(<Drawer {...defaultProps} title="" />);
       expect(getByTestId("drawer")).toBeInTheDocument();
     });
 
     it("should handle very long title", () => {
       const longTitle = "This is a very long drawer title that should wrap properly";
-      const { getByText } = renderWithProviders(
-        <Drawer {...defaultProps} title={longTitle} />
-      );
+      const { getByText } = renderWithProviders(<Drawer {...defaultProps} title={longTitle} />);
       expect(getByText(longTitle)).toBeInTheDocument();
     });
 
@@ -477,9 +429,7 @@ describe("Drawer Component", () => {
     });
 
     it("should have padding in header", () => {
-      const { getByText } = renderWithProviders(
-        <Drawer {...defaultProps} title="Test" />
-      );
+      const { getByText } = renderWithProviders(<Drawer {...defaultProps} title="Test" />);
       const header = getByText("Test").parentElement;
       expect(header.className).toContain("px-6");
       expect(header.className).toContain("py-4");

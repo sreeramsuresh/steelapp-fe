@@ -10,8 +10,8 @@
  * - Destructive actions
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { renderWithProviders, setupUser, createMockProps } from "../../../test/component-setup";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
 // Mock ConfirmDialog component
 const ConfirmDialog = ({
@@ -90,16 +90,12 @@ describe("ConfirmDialog Component", () => {
     });
 
     it("should not render when isOpen is false", () => {
-      const { queryByTestId } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} isOpen={false} />
-      );
+      const { queryByTestId } = renderWithProviders(<ConfirmDialog {...defaultProps} isOpen={false} />);
       expect(queryByTestId("confirm-dialog")).not.toBeInTheDocument();
     });
 
     it("should display custom title", () => {
-      const { getByText } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} title="Delete User?" />
-      );
+      const { getByText } = renderWithProviders(<ConfirmDialog {...defaultProps} title="Delete User?" />);
       expect(getByText("Delete User?")).toBeInTheDocument();
     });
 
@@ -124,26 +120,18 @@ describe("ConfirmDialog Component", () => {
     });
 
     it("should display custom confirm button label", () => {
-      const { getByTestId } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} confirmText="Delete" />
-      );
+      const { getByTestId } = renderWithProviders(<ConfirmDialog {...defaultProps} confirmText="Delete" />);
       expect(getByTestId("confirm-ok")).toHaveTextContent("Delete");
     });
 
     it("should display custom cancel button label", () => {
-      const { getByTestId } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} cancelText="Keep" />
-      );
+      const { getByTestId } = renderWithProviders(<ConfirmDialog {...defaultProps} cancelText="Keep" />);
       expect(getByTestId("confirm-cancel")).toHaveTextContent("Keep");
     });
 
     it("should support long button labels", () => {
       const { getByTestId } = renderWithProviders(
-        <ConfirmDialog
-          {...defaultProps}
-          confirmText="Delete Permanently"
-          cancelText="Cancel Operation"
-        />
+        <ConfirmDialog {...defaultProps} confirmText="Delete Permanently" cancelText="Cancel Operation" />
       );
       expect(getByTestId("confirm-ok")).toHaveTextContent("Delete Permanently");
       expect(getByTestId("confirm-cancel")).toHaveTextContent("Cancel Operation");
@@ -191,41 +179,31 @@ describe("ConfirmDialog Component", () => {
 
   describe("Loading State", () => {
     it("should show loading text when isLoading is true", () => {
-      const { getByTestId } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} isLoading={true} />
-      );
+      const { getByTestId } = renderWithProviders(<ConfirmDialog {...defaultProps} isLoading={true} />);
       expect(getByTestId("confirm-ok")).toHaveTextContent("Loading...");
     });
 
     it("should disable buttons when isLoading is true", () => {
-      const { getByTestId } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} isLoading={true} />
-      );
+      const { getByTestId } = renderWithProviders(<ConfirmDialog {...defaultProps} isLoading={true} />);
       expect(getByTestId("confirm-ok")).toBeDisabled();
       expect(getByTestId("confirm-cancel")).toBeDisabled();
     });
 
     it("should not call callback when disabled button is clicked", async () => {
       const user = setupUser();
-      const { getByTestId } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} isLoading={true} />
-      );
+      const { getByTestId } = renderWithProviders(<ConfirmDialog {...defaultProps} isLoading={true} />);
       await user.click(getByTestId("confirm-ok"));
       expect(mockOnConfirm).not.toHaveBeenCalled();
     });
 
     it("should restore button text when loading completes", () => {
-      const { rerender, getByTestId } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} isLoading={true} />
-      );
+      const { rerender, getByTestId } = renderWithProviders(<ConfirmDialog {...defaultProps} isLoading={true} />);
       rerender(<ConfirmDialog {...defaultProps} isLoading={false} />);
       expect(getByTestId("confirm-ok")).toHaveTextContent("OK");
     });
 
     it("should apply visual loading state to confirm button", () => {
-      const { getByTestId } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} isLoading={true} />
-      );
+      const { getByTestId } = renderWithProviders(<ConfirmDialog {...defaultProps} isLoading={true} />);
       const button = getByTestId("confirm-ok");
       expect(button.className).toContain("disabled");
     });
@@ -233,17 +211,13 @@ describe("ConfirmDialog Component", () => {
 
   describe("Dangerous Actions", () => {
     it("should use red color for dangerous actions", () => {
-      const { getByTestId } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} isDangerous={true} />
-      );
+      const { getByTestId } = renderWithProviders(<ConfirmDialog {...defaultProps} isDangerous={true} />);
       const button = getByTestId("confirm-ok");
       expect(button.className).toContain("bg-red-600");
     });
 
     it("should use blue color for safe actions", () => {
-      const { getByTestId } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} isDangerous={false} />
-      );
+      const { getByTestId } = renderWithProviders(<ConfirmDialog {...defaultProps} isDangerous={false} />);
       const button = getByTestId("confirm-ok");
       expect(button.className).toContain("bg-blue-600");
     });
@@ -277,9 +251,7 @@ describe("ConfirmDialog Component", () => {
     });
 
     it("should support aria-labelledby", () => {
-      const { getByTestId } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} aria-labelledby="confirm-title" />
-      );
+      const { getByTestId } = renderWithProviders(<ConfirmDialog {...defaultProps} aria-labelledby="confirm-title" />);
       expect(getByTestId("confirm-dialog")).toBeInTheDocument();
     });
 
@@ -310,25 +282,19 @@ describe("ConfirmDialog Component", () => {
     it("should display long confirmation messages", () => {
       const longMessage =
         "Are you absolutely certain you want to proceed? This action will affect all users and cannot be easily reversed.";
-      const { getByText } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} message={longMessage} />
-      );
+      const { getByText } = renderWithProviders(<ConfirmDialog {...defaultProps} message={longMessage} />);
       expect(getByText(longMessage)).toBeInTheDocument();
     });
 
     it("should handle special characters in message", () => {
       const specialMessage = "Delete 'Project ABC' (2024)? This can't be undone!";
-      const { getByText } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} message={specialMessage} />
-      );
+      const { getByText } = renderWithProviders(<ConfirmDialog {...defaultProps} message={specialMessage} />);
       expect(getByText(specialMessage)).toBeInTheDocument();
     });
 
     it("should handle multiline messages", () => {
       const multilineMessage = "Line 1\nLine 2\nLine 3";
-      const { getByText } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} message={multilineMessage} />
-      );
+      const { getByText } = renderWithProviders(<ConfirmDialog {...defaultProps} message={multilineMessage} />);
       expect(getByText(multilineMessage)).toBeInTheDocument();
     });
   });
@@ -344,11 +310,7 @@ describe("ConfirmDialog Component", () => {
 
     it("should allow tabbing between buttons", () => {
       const { getByTestId } = renderWithProviders(
-        <ConfirmDialog
-          {...defaultProps}
-          title="Tab Test"
-          message="Test message"
-        />
+        <ConfirmDialog {...defaultProps} title="Tab Test" message="Test message" />
       );
       const buttons = getByTestId("confirm-dialog").querySelectorAll("button");
       expect(buttons.length).toBeGreaterThanOrEqual(2);
@@ -365,26 +327,20 @@ describe("ConfirmDialog Component", () => {
     });
 
     it("should handle empty title", () => {
-      const { getByTestId } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} title="" />
-      );
+      const { getByTestId } = renderWithProviders(<ConfirmDialog {...defaultProps} title="" />);
       expect(getByTestId("confirm-dialog")).toBeInTheDocument();
     });
 
     it("should handle very long title", () => {
       const longTitle =
         "Are you absolutely certain you want to delete this important resource that has been used by multiple users?";
-      const { getByText } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} title={longTitle} />
-      );
+      const { getByText } = renderWithProviders(<ConfirmDialog {...defaultProps} title={longTitle} />);
       expect(getByText(longTitle)).toBeInTheDocument();
     });
 
     it("should handle HTML special characters", () => {
       const htmlMessage = "Delete <Project> & team 'Alpha'?";
-      const { getByText } = renderWithProviders(
-        <ConfirmDialog {...defaultProps} message={htmlMessage} />
-      );
+      const { getByText } = renderWithProviders(<ConfirmDialog {...defaultProps} message={htmlMessage} />);
       expect(getByText(htmlMessage)).toBeInTheDocument();
     });
   });
