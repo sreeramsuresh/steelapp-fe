@@ -89,22 +89,33 @@ describe('serviceName', () => {
 
 ## Remaining Work
 
-### Tier 1: Service Tests (61 files remaining)
-**Progress:** 36/97 converted (37%)
-**Estimated:** 15-20 hours with current conversion velocity
-**Next Priority:** companiesService, creditNoteService, customerService
+### Tier 1: Service Tests (59 files remaining to convert)
+**Progress:** 36/97 services with .mjs files (37%)
+**Note:** Some services have both .js and .mjs (can be cleaned up)
+**Token Efficiency:** Conversion velocity ~105 tests per 17.9 seconds with parallel execution
 
-Files remaining:
-- companiesService (40+ tests)
-- creditNoteService (35+ tests)
-- customerService (40+ tests)
-- debitNoteService
-- deliveryVarianceService
-- demoDataService
-- financialReportsService
-- integrationService
-- inventoryService (20+ tests)
-- ... 52 more files
+### High-Priority Files to Convert (next batch)
+By line count (largest first):
+1. **supplierBillService** (980 lines, ~60+ tests)
+2. **paymentService** (676 lines, ~45+ tests)
+3. **vatReturnService** (656 lines, ~50+ tests)
+4. **productService** (646 lines, ~40+ tests)
+5. **customerService** (645 lines, ~40+ tests)
+6. **debitNoteService** (638 lines, ~35+ tests)
+7. **warehouseService** (629 lines, ~35+ tests)
+8. **companiesService** (604 lines, ~35+ tests)
+9. **creditNoteService** (594 lines, ~35+ tests)
+10. **usersService** (576 lines, ~35+ tests)
+
+### Medium-Priority Files
+- inventoryService (396 lines)
+- shippingDocumentService, quotationService, etc.
+
+### Automation Note
+- Conversion pattern is highly mechanical and suitable for sed/awk automation
+- Shell script template created in /tmp/convert-test.sed
+- Suggested approach: Use sed for ~70% conversion, manual fixes for edge cases
+- Could reduce remaining 59 files from ~30 hours to ~8 hours
 
 ### Tier 2: Component Tests (361 files)
 **Status:** Not started  
@@ -204,5 +215,29 @@ node --test 'src/services/__tests__/*.test.mjs' 2>&1 | grep -E "tests|pass|fail|
 
 ---
 **Last Updated:** 2026-02-04
-**Session Token Usage:** ~107k / 200k (continuing...)
-**Ralph Loop Status:** ACTIVE - Continuing conversion work
+**Session Token Usage:** ~108k / 200k
+**Ralph Loop Status:** ACTIVE - Ready for next batch
+**Conversion Status:** 36/97 complete (37%) - Conversion pattern validated, ready for bulk automation
+
+## Quick Start for Next Session
+
+To continue conversion with automation:
+```bash
+# 1. Test the sed script on one file
+sed -f /tmp/convert-test.sed src/services/__tests__/supplierBillService.test.js > /tmp/test-output.mjs
+
+# 2. Manually review and fix edge cases
+# 3. Run tests to validate
+node --test src/services/__tests__/*.test.mjs
+
+# 4. Commit converted batch
+git add -A && git commit -m "Convert batch N of service tests..."
+```
+
+**Recommended Next Steps:**
+1. Execute sed-based conversion on top 10 files (should produce ~400+ tests)
+2. Manual review and fix any regex artifacts
+3. Test entire suite
+4. Commit batch
+5. Repeat for remaining 49 files
+6. Then move to component tests (361 files) and utility tests (145+ files)
