@@ -387,19 +387,12 @@ const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width 
   return (
     <>
       {/* Overlay */}
-      <div
+      <button
+        type="button"
         className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onClose();
-          }
-        }}
-        role="button"
-        tabIndex={0}
         aria-label="Close drawer"
       />
       {/* Drawer Panel */}
@@ -554,6 +547,53 @@ const SupplierBillForm = () => {
   const [showGRNMatchModal, setShowGRNMatchModal] = useState(false);
   const [loadingGRNs, setLoadingGRNs] = useState(false);
 
+  const loadVendors = useCallback(async () => {
+    try {
+      const response = await supplierService.getSuppliers();
+      setVendors(response.suppliers || []);
+    } catch (error) {
+      console.error("Failed to load vendors:", error);
+    }
+  }, []);
+
+  const loadProducts = useCallback(async () => {
+    try {
+      const response = await productService.getProducts();
+      setProducts(response.products || response || []);
+    } catch (error) {
+      console.error("Failed to load products:", error);
+    }
+  }, []);
+
+  const loadBill = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await supplierBillService.getById(id);
+      setBill({
+        ...data,
+        items: data.items?.length > 0 ? data.items : [createEmptyItem()],
+      });
+    } catch (error) {
+      console.error("Error loading supplier bill:", error);
+      notificationService.error("Failed to load supplier bill");
+      navigate("/app/supplier-bills");
+    } finally {
+      setLoading(false);
+    }
+  }, [id, navigate]);
+
+  const loadNextBillNumber = useCallback(async () => {
+    try {
+      const response = await supplierBillService.getNextNumber();
+      setBill((prev) => ({
+        ...prev,
+        billNumber: response.billNumber || "VB-0001",
+      }));
+    } catch (error) {
+      console.error("Error loading next bill number:", error);
+    }
+  }, []);
+
   // Load initial data
   useEffect(() => {
     loadVendors();
@@ -603,53 +643,6 @@ const SupplierBillForm = () => {
   useEffect(() => {
     localStorage.setItem("supplierBillFormPreferences", JSON.stringify(formPreferences));
   }, [formPreferences]);
-
-  const loadVendors = async () => {
-    try {
-      const response = await supplierService.getSuppliers();
-      setVendors(response.suppliers || []);
-    } catch (error) {
-      console.error("Failed to load vendors:", error);
-    }
-  };
-
-  const loadProducts = async () => {
-    try {
-      const response = await productService.getProducts();
-      setProducts(response.products || response || []);
-    } catch (error) {
-      console.error("Failed to load products:", error);
-    }
-  };
-
-  const loadBill = async () => {
-    try {
-      setLoading(true);
-      const data = await supplierBillService.getById(id);
-      setBill({
-        ...data,
-        items: data.items?.length > 0 ? data.items : [createEmptyItem()],
-      });
-    } catch (error) {
-      console.error("Error loading supplier bill:", error);
-      notificationService.error("Failed to load supplier bill");
-      navigate("/app/supplier-bills");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadNextBillNumber = async () => {
-    try {
-      const response = await supplierBillService.getNextNumber();
-      setBill((prev) => ({
-        ...prev,
-        billNumber: response.billNumber || "VB-0001",
-      }));
-    } catch (error) {
-      console.error("Error loading next bill number:", error);
-    }
-  };
 
   // Load unbilled GRNs for the selected supplier
   const loadUnbilledGRNs = async (supplierId) => {
@@ -965,7 +958,7 @@ const SupplierBillForm = () => {
   };
 
   // Recalculate totals
-  const recalculateTotals = (items) => {
+  const recalculateTotals = useCallback((items) => {
     const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
     const vatAmount = items.reduce((sum, item) => sum + (parseFloat(item.vatAmount) || 0), 0);
 
@@ -987,7 +980,7 @@ const SupplierBillForm = () => {
         reverseChargeAmount: prev.isReverseCharge ? vatAmount : 0,
       };
     });
-  };
+  }, []);
 
   // Quick add product handler
   const handleQuickAddProduct = useCallback(
