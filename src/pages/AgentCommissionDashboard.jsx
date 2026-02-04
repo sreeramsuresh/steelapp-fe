@@ -1,5 +1,5 @@
 import { Award, Calendar, CheckCircle, Clock, DollarSign, FileText, TrendingUp } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CommissionForecastWidget } from "../components/dashboard/widgets";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
@@ -16,7 +16,7 @@ const AgentCommissionDashboard = () => {
 
   const currentUser = authService.getUser();
 
-  const loadAgentData = async () => {
+  const loadAgentData = useCallback(async () => {
     // Double-check user ID exists before API calls
     if (!currentUser?.id) {
       console.error("User ID not available");
@@ -60,7 +60,7 @@ const AgentCommissionDashboard = () => {
     }
 
     setLoading(false);
-  };
+  }, [currentUser?.id]);
 
   useEffect(() => {
     // Only load data if user is authenticated and has an ID
@@ -69,8 +69,7 @@ const AgentCommissionDashboard = () => {
     } else {
       setLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.id, loadAgentData]); // Intentionally run once on mount
+  }, [currentUser?.id, loadAgentData]);
 
   const getStatusBadge = (status) => {
     const statusConfig = {

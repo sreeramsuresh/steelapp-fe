@@ -1,5 +1,5 @@
 import { AlertCircle, Package, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { apiClient } from "../../services/api";
 
@@ -9,7 +9,7 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const fetchBatches = async () => {
+  const fetchBatches = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -27,13 +27,12 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
     } finally {
       setLoading(false);
     }
-  };
+  }, [productId, warehouseId]);
 
   useEffect(() => {
     if (isOpen && productId) {
       fetchBatches();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, productId, fetchBatches]);
 
   if (!isOpen) return null;

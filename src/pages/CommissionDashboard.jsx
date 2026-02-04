@@ -12,7 +12,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -51,7 +51,7 @@ const CommissionDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [calculatingBatch, setCalculatingBatch] = useState(false);
 
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       const data = await commissionService.getDashboard();
@@ -61,7 +61,7 @@ const CommissionDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadDashboardData();

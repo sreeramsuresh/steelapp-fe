@@ -1,5 +1,5 @@
 import { CheckCircle, ChevronLeft, ChevronRight, Clock, DollarSign, RefreshCw } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
 import { useTheme } from "../contexts/ThemeContext";
@@ -23,7 +23,7 @@ export default function CommissionApprovalWorkflow() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const loadPendingApprovals = async () => {
+  const loadPendingApprovals = useCallback(async () => {
     try {
       setLoading(true);
       const [pendingData, dashboardData] = await Promise.all([
@@ -69,7 +69,7 @@ export default function CommissionApprovalWorkflow() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadPendingApprovals();

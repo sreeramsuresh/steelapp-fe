@@ -132,7 +132,7 @@ export const productService = {
   async getWarehouseStock(productId) {
     // companyId is automatically added by backend from authenticated user context
     return apiClient.get("/products/warehouse-stock", {
-      productId,
+      product_id: productId,
     });
   },
 

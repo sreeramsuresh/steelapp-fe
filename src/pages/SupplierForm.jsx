@@ -499,12 +499,6 @@ export function SupplierForm() {
   });
 
   // Load supplier data for edit mode
-  useEffect(() => {
-    if (isEditMode) {
-      loadSupplier();
-    }
-  }, [isEditMode, loadSupplier]);
-
   const loadSupplier = useCallback(async () => {
     try {
       setLoading(true);
@@ -647,6 +641,12 @@ export function SupplierForm() {
       setLoading(false);
     }
   }, [id]);
+
+  useEffect(() => {
+    if (isEditMode) {
+      loadSupplier();
+    }
+  }, [isEditMode, loadSupplier]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({

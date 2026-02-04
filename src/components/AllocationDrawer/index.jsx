@@ -451,7 +451,7 @@ const AllocationDrawer = ({
               } else {
                 // Missing weight data - block with clear error
                 autoCalcError =
-                  "Cannot compute AED/PCS: missing kg-per-piece (or pieces-per-MT). Change unit or contact admin.";
+                  "Cannot convert price to PCS: product is missing unit weight configuration. Try selecting a different unit (KG, MT) or contact your administrator to configure the unit weight in product settings.";
               }
             }
 
@@ -486,13 +486,16 @@ const AllocationDrawer = ({
             if (!prev.unitPrice) {
               if (status === 404) {
                 // Product not in pricelist - non-blocking, user can enter manually
-                errorMessage = "Price not available for this product. Please enter manually.";
+                errorMessage =
+                  "Price not found in pricelist for this product. You can enter the price manually, or contact your sales manager to add pricing for this product.";
               } else if (status === 422) {
-                // Configuration error - admin needs to fix
-                errorMessage = "Contact administrator: No default pricelist configured for your company.";
+                // Configuration error - but provide actionable guidance
+                errorMessage =
+                  "No pricelist is configured for your customer. Please select a different customer with a pricelist, or enter the price manually.";
               } else {
                 // Other errors (500, network, etc.)
-                errorMessage = "Could not fetch price from price list. Please enter manually.";
+                errorMessage =
+                  "Could not fetch price from pricelist. You can enter the price manually, or try again in a moment.";
               }
             }
 
