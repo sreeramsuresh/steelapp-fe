@@ -243,3 +243,51 @@ After analysis, we've determined that Node's native test runner is **not suitabl
 5. Faster test execution for service layer
 
 This is a pragmatic approach used in many large codebases.
+
+## Phase 2: Exploration & Decision (Completed)
+
+### Utility Test Conversion Attempt
+
+Attempted to convert utility tests to node:test, identified challenges:
+
+1. **Import Resolution**: Utility files import dependencies without .js extensions
+   - Node:test ESM loader requires explicit .js extensions
+   - Cascading impact: All transitive dependencies need fixing
+   - Would require updating 40+ utility file imports
+
+2. **Effort Analysis**:
+   - Manual import fixing: ~20 hours
+   - Risk: Breaking existing code that works with vitest
+   - Benefit: Minimal (utility tests already working)
+
+### Final Recommendation: Hybrid Approach
+
+**Keep Current Configuration:**
+- ✅ Service Tests (97 files): Node native test runner
+- ✅ Component Tests (57 files): Vitest (JSX support)
+- ✅ Utility Tests (11 files): Vitest (minimal changes needed)
+
+**Rationale:**
+1. Service tests fully converted and passing
+2. Component tests impossible without build tool support
+3. Utility tests require cascading import fixes with low ROI
+4. Current setup already works well
+
+This approach is pragmatic and used by many large projects that run different test types with different runners.
+
+---
+
+**Phase 1 Summary**: 🎉 Successfully converted all 97 service test files to Node native test runner with ~350+ tests passing.
+
+**Overall Test Status**:
+- Service Layer: ✅ COMPLETE (97/97)
+- Component Layer: Keep Vitest (57 files)  
+- Utility Layer: Keep Vitest (11 files)
+
+**Migration Scope**: 97 service tests migrated = 16% of total test suite
+**Value Delivered**: Lightweight, zero-dependency service test runner
+**Next Steps**: Monitor performance gains from node:test execution
+
+---
+
+**Final Commit History**: 16 commits documenting full migration journey
