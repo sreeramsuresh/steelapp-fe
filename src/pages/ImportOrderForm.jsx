@@ -1999,13 +1999,12 @@ const ImportOrderForm = () => {
 
       {/* Shipping & VAT Details Drawer */}
 
-      <div
+      <button
+        type="button"
         className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
           shippingDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setShippingDrawerOpen(false)}
-        onKeyDown={(e) => e.key === "Escape" && setShippingDrawerOpen(false)}
-        role="button"
         tabIndex={-1}
       />
       <div
@@ -2261,13 +2260,12 @@ const ImportOrderForm = () => {
 
       {/* Cost & Currency Drawer */}
 
-      <div
+      <button
+        type="button"
         className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
           costDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setCostDrawerOpen(false)}
-        onKeyDown={(e) => e.key === "Escape" && setCostDrawerOpen(false)}
-        role="button"
         tabIndex={-1}
       />
       <div
@@ -2445,13 +2443,12 @@ const ImportOrderForm = () => {
 
       {/* Notes & Documents Drawer */}
 
-      <div
+      <button
+        type="button"
         className={`fixed inset-0 bg-black/55 z-30 transition-opacity ${
           notesDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setNotesDrawerOpen(false)}
-        onKeyDown={(e) => e.key === "Escape" && setNotesDrawerOpen(false)}
-        role="button"
         tabIndex={-1}
       />
       <div

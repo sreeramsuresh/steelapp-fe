@@ -113,16 +113,10 @@ const ChargesDrawer = ({
   return (
     <>
       {/* Overlay */}
-      <div
+      <button
+        type="button"
         className={DRAWER_OVERLAY_CLASSES(isOpen)}
         onClick={onClose}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onClose();
-          }
-        }}
-        role="button"
         tabIndex={isOpen ? 0 : -1}
         aria-label="Close drawer"
       />
@@ -514,16 +508,10 @@ const NotesDrawer = ({
   return (
     <>
       {/* Overlay */}
-      <div
+      <button
+        type="button"
         className={DRAWER_OVERLAY_CLASSES(isOpen)}
         onClick={onClose}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onClose();
-          }
-        }}
-        role="button"
         tabIndex={isOpen ? 0 : -1}
         aria-label="Close drawer"
       />
@@ -667,16 +655,10 @@ const AddProductDrawer = ({
   return (
     <>
       {/* Overlay */}
-      <div
+      <button
+        type="button"
         className={DRAWER_OVERLAY_CLASSES(isOpen)}
         onClick={onClose}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onClose();
-          }
-        }}
-        role="button"
         tabIndex={isOpen ? 0 : -1}
         aria-label="Close drawer"
       />
