@@ -1,7 +1,7 @@
 import { normalizeProduct } from "../utils/fieldAccessors.js";
 import { apiService } from "./axiosApi.js";
 
-const API_BASE_URL = import.meta?.env?.VITE_API_BASE_URL ?? 'http://localhost:3001/api';
+const API_BASE_URL = import.meta?.env?.VITE_API_BASE_URL ?? "http://localhost:3001/api";
 
 class ApiClient {
   constructor() {

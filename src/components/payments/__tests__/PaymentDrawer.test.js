@@ -13,8 +13,8 @@ import PaymentDrawer from "../PaymentDrawer";
 vi.mock("../AddPaymentForm", () => ({
   default: ({ onSave, onCancel: _onCancel }) => (
     <div data-testid="add-payment-form">
-      <button onClick={() => onSave({ amount: 1000 })}>Save Payment</button>
-      <button onClick={_onCancel}>Cancel</button>
+      <button type="button" onClick={() => onSave({ amount: 1000 })}>Save Payment</button>
+      <button type="button" onClick={_onCancel}>Cancel</button>
     </div>
   ),
 }));

@@ -39,7 +39,9 @@ const Modal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <button type="button" className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+      <button
+        type="button"
+        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onClose}
         onKeyDown={(e) => {
           if (e.key === "Escape") {
@@ -59,7 +61,9 @@ const Modal = ({
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold">{title}</h2>
             {closeButton && (
-              <button type="button" onClick={onClose}
+              <button
+                type="button"
+                onClick={onClose}
                 aria-label="Close modal"
                 className={`p-1 rounded-lg transition-colors ${
                   isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-600"
