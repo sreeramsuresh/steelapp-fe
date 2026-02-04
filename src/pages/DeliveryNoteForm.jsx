@@ -181,31 +181,6 @@ const DeliveryNoteForm = () => {
     [isEdit]
   );
 
-  // Load delivery note for editing
-  useEffect(() => {
-    if (isEdit) {
-      loadDeliveryNote();
-    } else {
-      generateDeliveryNoteNumber();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, generateDeliveryNoteNumber, loadDeliveryNote]);
-
-  // Load invoices for selection
-  useEffect(() => {
-    loadInvoices();
-  }, [loadInvoices]); // Intentionally run once on mount
-
-  // Auto-select invoice if pre-selected
-  useEffect(() => {
-    if (preSelectedInvoiceId && !isEdit && invoices.length > 0) {
-      const invoice = invoices.find((inv) => inv.id === preSelectedInvoiceId);
-      if (invoice) {
-        handleInvoiceSelect(invoice);
-      }
-    }
-  }, [preSelectedInvoiceId, invoices, isEdit, handleInvoiceSelect]);
-
   // Escape key handler for drawers
   useEffect(() => {
     const handleEscape = (e) => {
@@ -302,7 +277,7 @@ const DeliveryNoteForm = () => {
     }
   }, [id]);
 
-  const loadInvoices = async () => {
+  const loadInvoices = React.useCallback(async () => {
     try {
       // Load invoices that can have delivery notes created (issued or paid)
       const response = await invoicesAPI.getAll({
@@ -316,9 +291,9 @@ const DeliveryNoteForm = () => {
     } catch (err) {
       console.error("Failed to load invoices:", err);
     }
-  };
+  }, []);
 
-  const generateDeliveryNoteNumber = async () => {
+  const generateDeliveryNoteNumber = React.useCallback(async () => {
     try {
       const response = await deliveryNoteService.getNextNumber();
       setFormData((prev) => ({
@@ -328,7 +303,7 @@ const DeliveryNoteForm = () => {
     } catch (err) {
       console.error("Failed to generate delivery note number:", err);
     }
-  };
+  }, []);
 
   // NOTE: handleInvoiceSelect is defined at the top of the component (before the useEffects that use it)
 
@@ -349,6 +324,30 @@ const DeliveryNoteForm = () => {
       }));
     }
   };
+
+  // Load delivery note for editing
+  useEffect(() => {
+    if (isEdit) {
+      loadDeliveryNote();
+    } else {
+      generateDeliveryNoteNumber();
+    }
+  }, [isEdit, generateDeliveryNoteNumber, loadDeliveryNote]);
+
+  // Load invoices for selection
+  useEffect(() => {
+    loadInvoices();
+  }, [loadInvoices]);
+
+  // Auto-select invoice if pre-selected
+  useEffect(() => {
+    if (preSelectedInvoiceId && !isEdit && invoices.length > 0) {
+      const invoice = invoices.find((inv) => inv.id === preSelectedInvoiceId);
+      if (invoice) {
+        handleInvoiceSelect(invoice);
+      }
+    }
+  }, [preSelectedInvoiceId, invoices, isEdit, handleInvoiceSelect]);
 
   const handleItemQuantityChange = (index, field, value) => {
     const updatedItems = [...formData.items];
