@@ -111,13 +111,14 @@ const Button = ({
   );
 };
 
-const Input = ({ label, error, className = "", type = "text", startIcon, endIcon, ...props }) => {
+const Input = ({ label, error, className = "", type = "text", startIcon, endIcon, id, ...props }) => {
   const { isDarkMode } = useTheme();
+  const inputId = id || `input-${label?.toLowerCase().replace(/\s+/g, "-")}`;
 
   return (
     <div className="space-y-1">
       {label && (
-        <label className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
+        <label htmlFor={inputId} className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
       )}
       <div className="relative">
         {startIcon && (
@@ -128,6 +129,7 @@ const Input = ({ label, error, className = "", type = "text", startIcon, endIcon
           </div>
         )}
         <input
+          id={inputId}
           type={type}
           className={`w-full ${startIcon ? "pl-10" : "pl-3"} ${endIcon ? "pr-10" : "pr-3"} py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
             isDarkMode
@@ -143,15 +145,17 @@ const Input = ({ label, error, className = "", type = "text", startIcon, endIcon
   );
 };
 
-const Select = ({ label, options, value, onChange, placeholder = "Select...", className = "" }) => {
+const Select = ({ label, options, value, onChange, placeholder = "Select...", className = "", id }) => {
   const { isDarkMode } = useTheme();
+  const selectId = id || `select-${label?.toLowerCase().replace(/\s+/g, "-")}`;
 
   return (
     <div className="space-y-1">
       {label && (
-        <label className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
+        <label htmlFor={selectId} className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
       )}
       <select
+        id={selectId}
         value={value}
         onChange={onChange}
         className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${

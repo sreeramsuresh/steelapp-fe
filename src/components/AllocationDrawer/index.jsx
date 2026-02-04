@@ -93,7 +93,7 @@ const AllocationDrawer = ({
   });
 
   // Helper: Determine if product is a coil (audit team requirement)
-  const isCoil = (product) => {
+  const isCoil = useCallback((product) => {
     if (!product) return false;
 
     // Priority 1: Check product_category field
@@ -107,10 +107,10 @@ const AllocationDrawer = ({
     }
 
     return false;
-  };
+  }, []);
 
   // Helper: Convert pricing basis enum to string code
-  const deriveBasisCode = (pricingBasis) => {
+  const deriveBasisCode = useCallback((pricingBasis) => {
     // pricingBasis is the enum value (0=UNSPECIFIED, 1=PER_KG, 2=PER_MT, 3=PER_PCS, 4=PER_METER, 5=PER_LOT)
     const basisMap = {
       0: "UNSPECIFIED",
@@ -121,10 +121,10 @@ const AllocationDrawer = ({
       5: "PER_LOT",
     };
     return basisMap[pricingBasis] || "PER_PCS"; // Default to PER_PCS if unknown
-  };
+  }, []);
 
   // Helper: Derive base unit from pricing basis code
-  const deriveBaseUnit = (basisCode) => {
+  const deriveBaseUnit = useCallback((basisCode) => {
     const unitMap = {
       PER_KG: "KG",
       PER_MT: "MT",
@@ -133,11 +133,11 @@ const AllocationDrawer = ({
       PER_LOT: "LOT",
     };
     return unitMap[basisCode] || "PCS"; // Default to PCS if unknown
-  };
+  }, []);
 
   // Helper: Calculate price per piece from price per MT (audit team requirement)
   // Formula: pricePerPCS = pricePerMT * (kgPerPiece / 1000)
-  const calculatePricePerPCS = (pricePerMT, product) => {
+  const calculatePricePerPCS = useCallback((pricePerMT, product) => {
     if (pricePerMT == null || !product) return null; // Allow zero price
 
     // Try to get kgPerPiece from product fields (priority order)
@@ -163,12 +163,12 @@ const AllocationDrawer = ({
 
     // Apply formula: pricePerPCS = pricePerMT * (kgPerPiece / 1000)
     return pricePerMT * (kgPerPiece / 1000);
-  };
+  }, []);
 
   // Phase 2: Conversion Logic
 
   // Check if conversion between units is supported
-  const isConversionSupported = (fromUnit, toUnit, unitWeightKg, pricingBasisCode) => {
+  const isConversionSupported = useCallback((fromUnit, toUnit, unitWeightKg, pricingBasisCode) => {
     if (fromUnit === toUnit) return true; // Same unit, no conversion needed
 
     // Block PER_METER and PER_LOT conversions (unsupported)
@@ -192,7 +192,7 @@ const AllocationDrawer = ({
 
     // All other conversions unsupported
     return false;
-  };
+  }, []);
 
   // CRITICAL FIX: Pure function to get conversion factor (basis → targetUnit)
   // Returns null if conversion impossible; throws if guardconditions violated
@@ -254,7 +254,7 @@ const AllocationDrawer = ({
   );
 
   // Convert quantity from one unit to another (preserves physical amount)
-  const convertQuantity = (qty, fromUnit, toUnit, unitWeightKg) => {
+  const convertQuantity = useCallback((qty, fromUnit, toUnit, unitWeightKg) => {
     if (fromUnit === toUnit || qty == null) return qty;
 
     const numQty = parseFloat(qty);
@@ -295,20 +295,20 @@ const AllocationDrawer = ({
     }
 
     return numQty; // Fallback: no conversion
-  };
+  }, []);
 
   // Format price with backend-aligned precision
-  const formatPrice = (price) => {
+  const formatPrice = useCallback((price) => {
     const numPrice = parseFloat(price);
     if (Number.isNaN(numPrice)) return "";
 
     // CRITICAL: Format with proper decimal places to avoid floating-point display artifacts
     // All prices display with 2 decimal places for consistency and audit trail
     return numPrice.toFixed(2);
-  };
+  }, []);
 
   // Format quantity with unit-appropriate precision
-  const formatQuantity = (qty, unit) => {
+  const formatQuantity = useCallback((qty, unit) => {
     const numQty = parseFloat(qty);
     if (Number.isNaN(numQty)) return "";
 
@@ -317,7 +317,7 @@ const AllocationDrawer = ({
       return Math.round(numQty);
     }
     return numQty; // Return numeric value
-  };
+  }, []);
 
   // Phase 4: Get available units based on product and pricing basis
   const getAvailableUnits = useCallback(() => {

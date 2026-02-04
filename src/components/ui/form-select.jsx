@@ -22,10 +22,12 @@ export function FormSelect({
   placeholder = "Select...",
   children,
   className = "",
+  id,
   "data-testid": dataTestId,
   ...props
 }) {
   const { isDarkMode } = useTheme();
+  const selectId = id || `select-${label?.toLowerCase().replace(/\s+/g, "-")}`;
 
   // Determine border and background color based on validation state
   // EXACTLY matching Input component logic from InvoiceForm.jsx lines 830-857
@@ -52,6 +54,7 @@ export function FormSelect({
     <div className={`space-y-0.5 ${className}`}>
       {label && (
         <label
+          htmlFor={selectId}
           className={`block text-xs font-medium ${
             isDarkMode ? "text-gray-400" : "text-gray-700"
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
