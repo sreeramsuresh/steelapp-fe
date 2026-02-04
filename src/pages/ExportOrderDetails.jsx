@@ -853,11 +853,7 @@ const ExportOrderDetails = () => {
               </button>
               {statusDropdownOpen && (
                 <>
-                  <button
-                    type="button"
-                    className="fixed inset-0 z-10"
-                    onClick={() => setStatusDropdownOpen(false)}
-                  />
+                  <button type="button" className="fixed inset-0 z-10" onClick={() => setStatusDropdownOpen(false)} />
                   <div
                     className={`absolute right-0 mt-2 w-56 rounded-lg shadow-lg z-20 border ${
                       isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"

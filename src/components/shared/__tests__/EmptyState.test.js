@@ -102,7 +102,7 @@ describe("EmptyState", () => {
   });
 
   it("should render action with wrapper div", () => {
-    const action = <button>Create</button>;
+    const action = <button type="button">Create</button>;
     const { container } = render(<EmptyState title="Empty" description="No items" action={action} />);
 
     const actionDiv = screen.getByRole("button").closest("div");
@@ -251,7 +251,7 @@ describe("EmptyState", () => {
   });
 
   it("should render with all props provided", () => {
-    const action = <button>Try Again</button>;
+    const action = <button type="button">Try Again</button>;
     render(
       <EmptyState
         title="No Data"

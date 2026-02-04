@@ -142,8 +142,8 @@ describe("Modal Component", () => {
     it("should maintain focus within modal", () => {
       const { getByTestId } = renderWithProviders(
         <Modal {...defaultProps}>
-          <button>Button 1</button>
-          <button>Button 2</button>
+          <button type="button">Button 1</button>
+          <button type="button">Button 2</button>
         </Modal>
       );
       const buttons = getByTestId("modal-content").querySelectorAll("button");

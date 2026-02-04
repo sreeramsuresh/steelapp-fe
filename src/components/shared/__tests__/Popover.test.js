@@ -295,7 +295,7 @@ describe("Popover Component", () => {
     it("should contain focusable elements", () => {
       const { getByTestId } = renderWithProviders(
         <Popover {...defaultProps}>
-          <button>Action</button>
+          <button type="button">Action</button>
         </Popover>
       );
       expect(getByTestId("popover-content").querySelector("button")).toBeInTheDocument();
@@ -333,7 +333,7 @@ describe("Popover Component", () => {
           <div>
             <h3>Title</h3>
             <p>Description</p>
-            <button>Action</button>
+            <button type="button">Action</button>
           </div>
         </Popover>
       );
