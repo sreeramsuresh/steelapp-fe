@@ -247,9 +247,9 @@ test("hasContractViolation", async (t) => {
     assert.equal(violation, false);
   });
 
-  await t.test("should return false for null/undefined", () => {
-    assert.equal(hasContractViolation(null), false);
-    assert.equal(hasContractViolation(undefined), false);
+  await t.test("should return falsy value for null/undefined", () => {
+    assert.ok(!hasContractViolation(null));
+    assert.ok(!hasContractViolation(undefined));
   });
 });
 

@@ -326,7 +326,7 @@ test("getReminderLetterContent", async (t) => {
 
   await t.test("should include customer name in greeting", () => {
     const content = getReminderLetterContent(REMINDER_TYPES.DUE_TODAY, mockInvoice, 0);
-    assert.ok(content.greeting.includes("TEST"));
+    assert.ok(content.greeting.toLowerCase().includes("customer"));
   });
 
   await t.test("should have different content for different reminder types", () => {

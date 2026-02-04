@@ -508,16 +508,10 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
       {/* Fulfill Dialog */}
       {fulfillDialog.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
+          <button
+            type="button"
             className="absolute inset-0 bg-black/50"
             onClick={() => setFulfillDialog({ open: false, reservation: null })}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                setFulfillDialog({ open: false, reservation: null });
-              }
-            }}
-            role="button"
-            tabIndex={0}
             aria-label="Close dialog"
           />
           <div className="relative bg-white border border-gray-200 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
@@ -580,16 +574,10 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
       {/* Cancel Dialog */}
       {cancelDialog.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
+          <button
+            type="button"
             className="absolute inset-0 bg-black/50"
             onClick={() => setCancelDialog({ open: false, reservation: null })}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                setCancelDialog({ open: false, reservation: null });
-              }
-            }}
-            role="button"
-            tabIndex={0}
             aria-label="Close dialog"
           />
           <div className="relative bg-white border border-gray-200 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">

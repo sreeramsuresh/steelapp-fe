@@ -1,5 +1,5 @@
 import { Clock, Download, Edit, Eye, FileText, PlayCircle, Plus, Search, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import CreditNotePreview from "../components/credit-notes/CreditNotePreview";
@@ -148,7 +148,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const loadCreditNotes = async () => {
+  const loadCreditNotes = useCallback(async () => {
     try {
       setLoading(true);
       const response = await creditNoteService.getAllCreditNotes({
@@ -167,12 +167,11 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
       setLoading(false);
       setInitialLoading(false);
     }
-  };
+  }, [currentPage, pageSize, debouncedSearch, statusFilter]);
 
   useEffect(() => {
     loadCreditNotes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadCreditNotes]); // loadCreditNotes is stable
+  }, [loadCreditNotes]);
 
   const handleDelete = async (creditNote) => {
     const confirmed = await confirm({

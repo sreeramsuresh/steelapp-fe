@@ -485,16 +485,10 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
       {actionDialog.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Overlay */}
-          <div
+          <button
+            type="button"
             className="absolute inset-0 bg-black/50"
             onClick={() => setActionDialog({ open: false, type: null, transfer: null })}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                setActionDialog({ open: false, type: null, transfer: null });
-              }
-            }}
-            role="button"
-            tabIndex={0}
             aria-label="Close dialog"
           />
 
