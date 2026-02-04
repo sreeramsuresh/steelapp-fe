@@ -1,7 +1,7 @@
 import { jsPDF } from "jspdf";
-import { formatCurrency, formatDateDMY, normalizeLLC, titleCase } from "./invoiceUtils";
-import { calculateBalanceDue, calculatePaymentStatus } from "./paymentUtils";
-import { TIMEZONE_CONFIG } from "./timezone";
+import { formatCurrency, formatDateDMY, normalizeLLC, titleCase } from "./invoiceUtils.js";
+import { calculateBalanceDue, calculatePaymentStatus } from "./paymentUtils.js";
+import { TIMEZONE_CONFIG } from "./timezone.js";
 
 /**
  * Reminder types based on days until/past due date

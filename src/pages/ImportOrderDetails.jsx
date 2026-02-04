@@ -33,7 +33,7 @@ import {
   X,
   XCircle,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";
@@ -183,7 +183,7 @@ const ImportOrderDetails = () => {
   const [pendingStatus, setPendingStatus] = useState(null);
 
   // Load order data
-  const loadOrder = async () => {
+  const loadOrder = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -195,13 +195,12 @@ const ImportOrderDetails = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     if (id) {
       loadOrder();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, loadOrder]);
 
   // Auto-dismiss success message

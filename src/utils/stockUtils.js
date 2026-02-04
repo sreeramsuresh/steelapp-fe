@@ -1,5 +1,5 @@
-import { inventoryService } from "../services/inventoryService";
-import { stockMovementService } from "../services/stockMovementService";
+import { inventoryService } from "../services/inventoryService.js";
+import { stockMovementService } from "../services/stockMovementService.js";
 
 /**
  * Stock status constants

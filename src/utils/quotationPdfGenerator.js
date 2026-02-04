@@ -1,6 +1,6 @@
-import { getDocumentTemplateColor } from "../constants/defaultTemplateSettings";
-import { escapeHtml, escapeHtmlWithLineBreaks } from "./htmlEscape";
-import { calculateTRN, formatCurrency, formatDate, getCompanyImages } from "./invoiceUtils";
+import { getDocumentTemplateColor } from "../constants/defaultTemplateSettings.js";
+import { escapeHtml, escapeHtmlWithLineBreaks } from "./htmlEscape.js";
+import { calculateTRN, formatCurrency, formatDate, getCompanyImages } from "./invoiceUtils.js";
 
 export const generateQuotationPDF = async (quotation, company) => {
   try {

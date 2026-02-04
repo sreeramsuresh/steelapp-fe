@@ -1,4 +1,4 @@
-import { mergeTemplateSettings } from "../constants/defaultTemplateSettings";
+import { mergeTemplateSettings } from "../constants/defaultTemplateSettings.js";
 import {
   calculateDiscountedTRN,
   calculateSubtotal,
@@ -8,7 +8,7 @@ import {
   formatNumber,
   getCompanyImages,
   titleCase,
-} from "./invoiceUtils";
+} from "./invoiceUtils.js";
 
 /**
  * Convert hex color to RGB array

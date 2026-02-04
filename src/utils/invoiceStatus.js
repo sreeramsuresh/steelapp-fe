@@ -1,6 +1,6 @@
-import { assertValidInvoiceStatus, assertValidPaymentStatus } from "./invoiceTypes";
-import { getPaymentStatusConfig } from "./paymentUtils";
-import { calculateDaysUntilDue, getReminderType, REMINDER_CONFIG } from "./reminderUtils";
+import { assertValidInvoiceStatus, assertValidPaymentStatus } from "./invoiceTypes.js";
+import { getPaymentStatusConfig } from "./paymentUtils.js";
+import { calculateDaysUntilDue, getReminderType, REMINDER_CONFIG } from "./reminderUtils.js";
 
 /**
  * Invoice Status Configurations

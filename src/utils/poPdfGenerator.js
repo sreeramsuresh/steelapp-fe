@@ -1,6 +1,6 @@
-import { getDocumentTemplateColor } from "../constants/defaultTemplateSettings";
-import { escapeHtml, escapeHtmlWithLineBreaks } from "./htmlEscape";
-import { formatCurrency, formatDate, getCompanyImages } from "./invoiceUtils";
+import { getDocumentTemplateColor } from "../constants/defaultTemplateSettings.js";
+import { escapeHtml, escapeHtmlWithLineBreaks } from "./htmlEscape.js";
+import { formatCurrency, formatDate, getCompanyImages } from "./invoiceUtils.js";
 
 export const generatePurchaseOrderPDF = async (po, company) => {
   try {

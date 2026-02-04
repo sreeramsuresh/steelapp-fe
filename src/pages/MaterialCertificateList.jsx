@@ -230,14 +230,14 @@ const MaterialCertificateList = () => {
   );
 
   // Load import orders for linking
-  const loadImportOrders = async () => {
+  const loadImportOrders = useCallback(async () => {
     try {
       const response = await importOrderService.getImportOrders({ limit: 100 });
       setImportOrders(response.orders || []);
     } catch (err) {
       console.error("Error loading import orders:", err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadCertificates();

@@ -1,6 +1,6 @@
-import { getDocumentTemplateColor } from "../constants/defaultTemplateSettings";
-import { escapeHtml } from "./htmlEscape";
-import { formatDate, getCompanyImages } from "./invoiceUtils";
+import { getDocumentTemplateColor } from "../constants/defaultTemplateSettings.js";
+import { escapeHtml } from "./htmlEscape.js";
+import { formatDate, getCompanyImages } from "./invoiceUtils.js";
 
 export const generateDeliveryNotePDF = async (deliveryNote, company) => {
   try {

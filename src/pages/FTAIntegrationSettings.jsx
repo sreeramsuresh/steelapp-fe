@@ -248,7 +248,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
   };
 
   // Load audit log
-  const loadAuditLog = async () => {
+  const loadAuditLog = useCallback(async () => {
     try {
       setLoadingAudit(true);
       const response = await integrationService.getAuditLog(INTEGRATION_TYPE, {
@@ -260,7 +260,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
     } finally {
       setLoadingAudit(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (showAuditLog) {

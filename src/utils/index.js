@@ -6,4 +6,4 @@ export {
   getRawErrorMessage,
   isNetworkError,
   isSystemError,
-} from "./errorHandler";
+} from "./errorHandler.js";

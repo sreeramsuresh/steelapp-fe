@@ -1,5 +1,5 @@
-import { getDocumentTemplateColor } from "../constants/defaultTemplateSettings";
-import { formatCurrency, formatDate, getCompanyImages } from "./invoiceUtils";
+import { getDocumentTemplateColor } from "../constants/defaultTemplateSettings.js";
+import { formatCurrency, formatDate, getCompanyImages } from "./invoiceUtils.js";
 
 export const generateStatementPDF = async ({ customerName, periodStart, periodEnd, items, company }) => {
   try {

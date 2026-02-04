@@ -234,7 +234,7 @@ const ShippingDocumentList = () => {
   );
 
   // Load orders for linking
-  const loadOrders = async () => {
+  const loadOrders = useCallback(async () => {
     try {
       const [importRes, exportRes] = await Promise.all([
         importOrderService.getImportOrders({ limit: 100 }),
@@ -245,7 +245,7 @@ const ShippingDocumentList = () => {
     } catch (err) {
       console.error("Error loading orders:", err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadDocuments();

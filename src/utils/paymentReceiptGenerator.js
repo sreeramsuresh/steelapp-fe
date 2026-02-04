@@ -1,8 +1,8 @@
 // jsPDF is loaded dynamically to enable proper code splitting
 // This avoids the Vite warning about mixed static/dynamic imports
-import { formatCurrency, formatDateDMY, normalizeLLC, titleCase } from "./invoiceUtils";
-import { formatPaymentDisplay } from "./paymentUtils";
-import { generateReceiptHTML } from "./receiptTemplateGenerator";
+import { formatCurrency, formatDateDMY, normalizeLLC, titleCase } from "./invoiceUtils.js";
+import { formatPaymentDisplay } from "./paymentUtils.js";
+import { generateReceiptHTML } from "./receiptTemplateGenerator.js";
 
 /**
  * Lazy load jsPDF to reduce initial bundle size

@@ -13,7 +13,7 @@
  * - Exchange rate tracking for FX payments
  */
 
-import { formatCurrency } from "./invoiceUtils";
+import { formatCurrency } from "./invoiceUtils.js";
 
 /**
  * Generate FTA-compliant receipt HTML

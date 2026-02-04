@@ -24,7 +24,7 @@
  * @see steelapprnp/templates/ssrRenderer.js
  */
 
-import { mergeTemplateSettings } from "../constants/defaultTemplateSettings";
+import { mergeTemplateSettings } from "../constants/defaultTemplateSettings.js";
 import {
   calculateDiscountedTRN,
   calculateSubtotal,
@@ -36,7 +36,7 @@ import {
   titleCase,
   toUAEDateProfessional,
   toUAEPaymentDateTime,
-} from "./invoiceUtils";
+} from "./invoiceUtils.js";
 
 /**
  * Convert hex color to RGB array
