@@ -287,13 +287,15 @@ const TextField = ({
   readOnly = false,
   type = "text",
   className = "",
+  id,
 }) => {
   const { isDarkMode } = useTheme();
+  const fieldId = id || `textfield-${label?.toLowerCase().replace(/\s+/g, "-")}`;
 
   return (
     <div className="space-y-1">
       {label && (
-        <label className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
+        <label htmlFor={fieldId} className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
       )}
       <div className="relative">
         {startAdornment && (
@@ -301,6 +303,7 @@ const TextField = ({
         )}
         {multiline ? (
           <textarea
+            id={fieldId}
             value={value}
             onChange={onChange}
             placeholder={placeholder}
@@ -315,6 +318,7 @@ const TextField = ({
           />
         ) : (
           <input
+            id={fieldId}
             type={type}
             value={value}
             onChange={onChange}

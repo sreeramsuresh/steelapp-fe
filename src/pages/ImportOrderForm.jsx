@@ -130,13 +130,15 @@ const Button = ({
   );
 };
 
-const Input = ({ label, error, className = "", required = false, ...props }) => {
+const Input = ({ label, error, className = "", required = false, id, ...props }) => {
   const { isDarkMode } = useTheme();
+  const inputId = id || `input-${label?.toLowerCase().replace(/\s+/g, "-")}`;
 
   return (
     <div className="space-y-0.5">
       {label && (
         <label
+          htmlFor={inputId}
           className={`block text-xs font-medium ${
             isDarkMode ? "text-gray-400" : "text-gray-700"
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
@@ -145,6 +147,7 @@ const Input = ({ label, error, className = "", required = false, ...props }) => 
         </label>
       )}
       <input
+        id={inputId}
         className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
           isDarkMode
             ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
@@ -157,15 +160,17 @@ const Input = ({ label, error, className = "", required = false, ...props }) => 
   );
 };
 
-const Textarea = ({ label, error, className = "", ...props }) => {
+const Textarea = ({ label, error, className = "", id, ...props }) => {
   const { isDarkMode } = useTheme();
+  const textareaId = id || `textarea-${label?.toLowerCase().replace(/\s+/g, "-")}`;
 
   return (
     <div className="space-y-1">
       {label && (
-        <label className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
+        <label htmlFor={textareaId} className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
       )}
       <textarea
+        id={textareaId}
         className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300 resize-none ${
           isDarkMode
             ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500"

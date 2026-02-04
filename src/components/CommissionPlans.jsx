@@ -652,7 +652,10 @@ const CommissionPlans = () => {
 
               {/* User Selection */}
               <div>
-                <label htmlFor="user-selection-list" className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                <label
+                  htmlFor="user-selection-list"
+                  className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
                   Select Users ({selectedUsers.size} selected)
                 </label>
 

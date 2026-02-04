@@ -2723,10 +2723,11 @@ const PurchaseOrderForm = () => {
                 </FormSelect>
               </div>
               <div>
-                <label className={LABEL_CLASSES(isDarkMode)}>
+                <label htmlFor="discount-amount-input" className={LABEL_CLASSES(isDarkMode)}>
                   {purchaseOrder.discountType === "percentage" ? "Discount %" : "Discount Amount"}
                 </label>
                 <input
+                  id="discount-amount-input"
                   type="number"
                   step="0.01"
                   min="0"

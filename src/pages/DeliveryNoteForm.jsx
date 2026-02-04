@@ -603,7 +603,9 @@ const DeliveryNoteForm = () => {
       >
         <div className="max-w-[1400px] mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => navigate("/delivery-notes")}
+            <button
+              type="button"
+              onClick={() => navigate("/delivery-notes")}
               className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"}`}
             >
               <ArrowLeft size={20} />
@@ -627,7 +629,9 @@ const DeliveryNoteForm = () => {
               <Eye size={16} className="inline mr-1.5" />
               Preview
             </button>
-            <button type="button" onClick={handleSubmit}
+            <button
+              type="button"
+              onClick={handleSubmit}
               disabled={isSaving || !selectedInvoice}
               data-testid="create-dn"
               className={`${BTN_PRIMARY} ${isSaving || !selectedInvoice ? "opacity-60 cursor-not-allowed" : ""}`}
@@ -735,7 +739,9 @@ const DeliveryNoteForm = () => {
                       placeholder="Select an invoice..."
                       className={`flex-1 ${INPUT_CLASSES(isDarkMode)} cursor-not-allowed`}
                     />
-                    <button type="button" onClick={() => setShowInvoiceDialog(true)}
+                    <button
+                      type="button"
+                      onClick={() => setShowInvoiceDialog(true)}
                       disabled={isEdit}
                       data-testid="select-invoice-button"
                       className={`${BTN_CLASSES(isDarkMode)} ${isEdit ? "opacity-50 cursor-not-allowed" : ""}`}
@@ -1048,7 +1054,9 @@ const DeliveryNoteForm = () => {
                         <li key={validationError}>{validationError}</li>
                       ))}
                     </ul>
-                    <button type="button" onClick={() => {
+                    <button
+                      type="button"
+                      onClick={() => {
                         setValidationErrors([]);
                         setInvalidFields(new Set());
                       }}
@@ -1139,7 +1147,9 @@ const DeliveryNoteForm = () => {
               <div className={CARD_CLASSES(isDarkMode)}>
                 <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"} mb-2`}>Quick Actions</div>
                 <div className="space-y-1.5">
-                  <button type="button" onClick={() => setShowDeliveryAddressDrawer(true)}
+                  <button
+                    type="button"
+                    onClick={() => setShowDeliveryAddressDrawer(true)}
                     data-testid="delivery-address-drawer-button"
                     className={`${QUICK_LINK_CLASSES(isDarkMode)} w-full justify-between`}
                   >
@@ -1149,7 +1159,9 @@ const DeliveryNoteForm = () => {
                     </span>
                     <ChevronRight size={16} className="opacity-40" />
                   </button>
-                  <button type="button" onClick={() => setShowTransportDrawer(true)}
+                  <button
+                    type="button"
+                    onClick={() => setShowTransportDrawer(true)}
                     data-testid="transport-drawer-button"
                     className={`${QUICK_LINK_CLASSES(isDarkMode)} w-full justify-between`}
                   >
@@ -1159,7 +1171,9 @@ const DeliveryNoteForm = () => {
                     </span>
                     <ChevronRight size={16} className="opacity-40" />
                   </button>
-                  <button type="button" onClick={() => setShowNotesDrawer(true)}
+                  <button
+                    type="button"
+                    onClick={() => setShowNotesDrawer(true)}
                     data-testid="notes-drawer-button"
                     className={`${QUICK_LINK_CLASSES(isDarkMode)} w-full justify-between`}
                   >
@@ -1206,7 +1220,9 @@ const DeliveryNoteForm = () => {
                 Where should goods be delivered?
               </div>
             </div>
-            <button type="button" onClick={() => setShowDeliveryAddressDrawer(false)}
+            <button
+              type="button"
+              onClick={() => setShowDeliveryAddressDrawer(false)}
               className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
             >
               <X size={18} />
@@ -1270,7 +1286,9 @@ const DeliveryNoteForm = () => {
             }}
           >
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => setShowDeliveryAddressDrawer(false)}
+              <button
+                type="button"
+                onClick={() => setShowDeliveryAddressDrawer(false)}
                 className={BTN_CLASSES(isDarkMode)}
               >
                 Close
@@ -1310,7 +1328,9 @@ const DeliveryNoteForm = () => {
                 Vehicle and driver information
               </div>
             </div>
-            <button type="button" onClick={() => setShowTransportDrawer(false)}
+            <button
+              type="button"
+              onClick={() => setShowTransportDrawer(false)}
               className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
             >
               <X size={18} />
@@ -1410,7 +1430,9 @@ const DeliveryNoteForm = () => {
                 Special instructions and handling notes
               </div>
             </div>
-            <button type="button" onClick={() => setShowNotesDrawer(false)}
+            <button
+              type="button"
+              onClick={() => setShowNotesDrawer(false)}
               className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
             >
               <X size={18} />
@@ -1461,7 +1483,9 @@ const DeliveryNoteForm = () => {
               className={`flex items-center justify-between p-4 border-b ${isDarkMode ? "border-[#2a3640]" : "border-gray-200"}`}
             >
               <div className="text-sm font-extrabold">Select Invoice</div>
-              <button type="button" onClick={() => setShowInvoiceDialog(false)}
+              <button
+                type="button"
+                onClick={() => setShowInvoiceDialog(false)}
                 className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
               >
                 <X size={18} />

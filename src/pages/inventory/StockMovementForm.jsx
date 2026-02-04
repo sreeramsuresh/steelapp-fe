@@ -378,12 +378,12 @@ const StockMovementForm = () => {
                   <div className="grid grid-cols-12 gap-3">
                     {/* Product */}
                     <div className="col-span-12 md:col-span-6">
-                      {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                      <label className={`block text-xs ${textMuted} mb-1.5`}>
+                      <label htmlFor="product-select" className={`block text-xs ${textMuted} mb-1.5`}>
                         Product <span className="text-red-500">*</span>
                       </label>
                       {isEditing ? (
                         <FormSelect
+                          id="product-select"
                           value={formData.productId || "none"}
                           onValueChange={() => {}}
                           disabled={true}
