@@ -165,11 +165,13 @@ describe("productService", () => {
       test("should validate required fields", async () => {
         apiClient.post.mockRejectedValueOnce(new Error("Validation: Name required"));
 
-        await assert.ok(
-          productService.createProduct({
-            sku: "INCOMPLETE",
-          })
-        ).rejects.toThrow("Validation");
+        await assert
+          .ok(
+            productService.createProduct({
+              sku: "INCOMPLETE",
+            })
+          )
+          .rejects.toThrow("Validation");
       });
     });
 
