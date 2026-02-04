@@ -322,7 +322,7 @@ const CustomerPortfolioWidget = ({ data: propData, onRefresh, onViewDetails, isL
               <title>Icon</title>
               {
                 segments.reduce(
-                  (acc, segment, idx) => {
+                  (acc, segment, _idx) => {
                     const startAngle = acc.angle;
                     const sweepAngle = (segment.percent / 100) * 360;
                     const endAngle = startAngle + sweepAngle;

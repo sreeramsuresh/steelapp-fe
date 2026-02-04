@@ -15,7 +15,7 @@ vi.mock("../../../services/purchaseOrderService", () => ({
 }));
 
 vi.mock("../../../components/common/Modal", () => ({
-  default: ({ isOpen, children, onClose }) =>
+  default: ({ isOpen, children, _onClose }) =>
     isOpen ? React.createElement("div", { "data-testid": "modal" }, children) : null,
 }));
 

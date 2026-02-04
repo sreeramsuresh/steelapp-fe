@@ -40,7 +40,7 @@ vi.mock("../../../components/ui/card", () => ({
 }));
 
 vi.mock("../../../components/ui/dialog", () => ({
-  Dialog: ({ open, children, onOpenChange }) => (open ? <div data-testid="dialog">{children}</div> : null),
+  Dialog: ({ open, children, _onOpenChange }) => (open ? <div data-testid="dialog">{children}</div> : null),
   DialogContent: ({ children }) => <div>{children}</div>,
   DialogHeader: ({ children }) => <div>{children}</div>,
   DialogTitle: ({ children }) => <h3>{children}</h3>,

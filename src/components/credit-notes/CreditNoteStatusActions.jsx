@@ -59,7 +59,7 @@ const ACTION_CONFIG = {
 
 const CreditNoteStatusActions = ({
   creditNoteId,
-  currentStatus,
+  _currentStatus,
   onStatusChange,
   onOpenQCModal,
   onOpenRefundModal,

@@ -16,7 +16,7 @@ import { apiClient } from "../../services/api";
  *
  * Each card is clickable and navigates to /batch-analytics with the appropriate tab pre-selected.
  */
-const BatchAllocationKPIs = ({ refreshTrigger = 0 }) => {
+const BatchAllocationKPIs = ({ _refreshTrigger = 0 }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
 

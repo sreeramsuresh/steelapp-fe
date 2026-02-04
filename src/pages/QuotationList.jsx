@@ -358,7 +358,9 @@ const QuotationList = () => {
           </div>
 
           {/* Refresh Button */}
-          <button type="button" onClick={fetchQuotations}
+          <button
+            type="button"
+            onClick={fetchQuotations}
             className={`px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
                 ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
@@ -513,7 +515,9 @@ const QuotationList = () => {
                     <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
                         {authService.hasPermission("quotations", "read") && (
-                          <button type="button" onClick={() => handlePreview(quotation)}
+                          <button
+                            type="button"
+                            onClick={() => handlePreview(quotation)}
                             className={`p-2 rounded-lg transition-colors ${
                               isDarkMode
                                 ? "text-gray-400 hover:text-white hover:bg-gray-700"
@@ -538,7 +542,9 @@ const QuotationList = () => {
                           </Link>
                         )}
                         {authService.hasPermission("quotations", "read") && (
-                          <button type="button" onClick={() => handleDownloadPDF(quotation)}
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadPDF(quotation)}
                             disabled={downloadingIds.has(quotation.id)}
                             className={`p-2 rounded-lg transition-colors ${
                               downloadingIds.has(quotation.id)
@@ -560,7 +566,9 @@ const QuotationList = () => {
                         {/* Status Update Dropdown */}
                         {quotation.status !== "converted" && (
                           <div className="relative group">
-                            <button type="button" aria-haspopup="true"
+                            <button
+                              type="button"
+                              aria-haspopup="true"
                               aria-label="Update Status"
                               onClick={(e) => e.currentTarget.focus()}
                               className={`p-2 rounded-lg transition-colors ${
@@ -578,7 +586,9 @@ const QuotationList = () => {
                               }`}
                             >
                               {quotation.status === "draft" && (
-                                <button type="button" onClick={() => handleStatusUpdate(quotation.id, "sent")}
+                                <button
+                                  type="button"
+                                  onClick={() => handleStatusUpdate(quotation.id, "sent")}
                                   className={`w-full px-4 py-2 text-left text-sm hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} ${
                                     isDarkMode ? "text-white" : "text-gray-900"
                                   }`}
@@ -588,14 +598,18 @@ const QuotationList = () => {
                               )}
                               {quotation.status === "sent" && (
                                 <>
-                                  <button type="button" onClick={() => handleStatusUpdate(quotation.id, "accepted")}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleStatusUpdate(quotation.id, "accepted")}
                                     className={`w-full px-4 py-2 text-left text-sm hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} ${
                                       isDarkMode ? "text-white" : "text-gray-900"
                                     }`}
                                   >
                                     Mark as Accepted
                                   </button>
-                                  <button type="button" onClick={() => handleStatusUpdate(quotation.id, "rejected")}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleStatusUpdate(quotation.id, "rejected")}
                                     className={`w-full px-4 py-2 text-left text-sm hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} ${
                                       isDarkMode ? "text-white" : "text-gray-900"
                                     }`}
@@ -605,7 +619,9 @@ const QuotationList = () => {
                                 </>
                               )}
                               {quotation.status === "accepted" && (
-                                <button type="button" onClick={() => handleConvertToInvoice(quotation.id)}
+                                <button
+                                  type="button"
+                                  onClick={() => handleConvertToInvoice(quotation.id)}
                                   className={`w-full px-4 py-2 text-left text-sm hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} ${
                                     isDarkMode ? "text-white" : "text-gray-900"
                                   }`}
@@ -618,7 +634,9 @@ const QuotationList = () => {
                         )}
 
                         {authService.hasPermission("quotations", "delete") && (
-                          <button type="button" onClick={() => setDeleteConfirm(quotation.id)}
+                          <button
+                            type="button"
+                            onClick={() => setDeleteConfirm(quotation.id)}
                             className="p-2 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
                             title="Delete Quotation"
                           >
@@ -642,7 +660,9 @@ const QuotationList = () => {
                 Page {page} of {totalPages}
               </div>
               <div className="flex gap-2">
-                <button type="button" onClick={() => setPage(Math.max(1, page - 1))}
+                <button
+                  type="button"
+                  onClick={() => setPage(Math.max(1, page - 1))}
                   disabled={page === 1}
                   className={`p-2 rounded-lg border transition-colors ${
                     page === 1
@@ -656,7 +676,9 @@ const QuotationList = () => {
                 >
                   <ChevronLeft size={16} />
                 </button>
-                <button type="button" onClick={() => setPage(Math.min(totalPages, page + 1))}
+                <button
+                  type="button"
+                  onClick={() => setPage(Math.min(totalPages, page + 1))}
                   disabled={page === totalPages}
                   className={`p-2 rounded-lg border transition-colors ${
                     page === totalPages
@@ -690,7 +712,9 @@ const QuotationList = () => {
               Are you sure you want to delete this quotation? This action cannot be undone.
             </p>
             <div className="flex gap-3 justify-end">
-              <button type="button" onClick={() => setDeleteConfirm(null)}
+              <button
+                type="button"
+                onClick={() => setDeleteConfirm(null)}
                 className={`px-4 py-2 border rounded-lg ${
                   isDarkMode
                     ? "border-gray-600 text-gray-300 hover:bg-gray-700"
@@ -699,7 +723,9 @@ const QuotationList = () => {
               >
                 Cancel
               </button>
-              <button type="button" onClick={() => handleDelete(deleteConfirm)}
+              <button
+                type="button"
+                onClick={() => handleDelete(deleteConfirm)}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
               >
                 Delete
