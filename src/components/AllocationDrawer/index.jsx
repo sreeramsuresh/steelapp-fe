@@ -1212,11 +1212,15 @@ const AllocationDrawer = ({
         )}
 
         {/* Warehouse Allocation Guidance */}
-        {drawerState.sourceType === "WAREHOUSE" && (!allocations || allocations.length === 0) && drawerState.productId && (
-          <div className="drawer-info">
-            <strong>⚠️ Next Step:</strong> Use the <strong>Auto-Fill FIFO</strong> button or <strong>manually select batches</strong> below to allocate stock from your warehouse inventory. This reserves the stock for your invoice.
-          </div>
-        )}
+        {drawerState.sourceType === "WAREHOUSE" &&
+          (!allocations || allocations.length === 0) &&
+          drawerState.productId && (
+            <div className="drawer-info">
+              <strong>⚠️ Next Step:</strong> Use the <strong>Auto-Fill FIFO</strong> button or{" "}
+              <strong>manually select batches</strong> below to allocate stock from your warehouse inventory. This
+              reserves the stock for your invoice.
+            </div>
+          )}
 
         {/* Error Display */}
         {(drawerState.error || reservationError) && (

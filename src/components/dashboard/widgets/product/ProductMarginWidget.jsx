@@ -295,10 +295,16 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
                   r={isHovered ? size * 1.3 : size}
                   fill={getQuadrantColor(product.quadrant)}
                   opacity={isHovered ? 0.9 : 0.7}
-                  className="cursor-pointer transition-all duration-200"
+                  className="cursor-pointer transition-all duration-200 focus:outline-none"
                   onMouseEnter={() => setHoveredProduct(product)}
                   onMouseLeave={() => setHoveredProduct(null)}
                   onClick={() => onProductClick?.(product)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      onProductClick?.(product);
+                    }
+                  }}
+                  aria-label={`${product.name} - ${product.quadrant} quadrant - Revenue: $${product.revenue}, Margin: ${product.margin}%`}
                 />
                 {isHovered && (
                   <circle

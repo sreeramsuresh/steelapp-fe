@@ -182,7 +182,8 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
                   <div
                     key={value}
                     role="button"
-                    className={`flex-1 h-6 rounded cursor-pointer transition-all ${getTurnoverColor(value)} hover:ring-2 hover:ring-white/50`}
+                    tabIndex={0}
+                    className={`flex-1 h-6 rounded cursor-pointer transition-all ${getTurnoverColor(value)} hover:ring-2 hover:ring-white/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
                     style={{ opacity: getTurnoverOpacity(value) }}
                     onMouseEnter={() =>
                       setHoveredCell({
@@ -192,7 +193,17 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
                       })
                     }
                     onMouseLeave={() => setHoveredCell(null)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        setHoveredCell({
+                          product: product.displayName || product.display_name || "N/A",
+                          month: turnoverData.months[monthIndex],
+                          value,
+                        });
+                      }
+                    }}
                     title={`${product.displayName || product.display_name || "N/A"} - ${turnoverData.months[monthIndex]}: ${value}x`}
+                    aria-label={`${product.displayName || product.display_name || "N/A"} - ${turnoverData.months[monthIndex]}: ${value}x turnover rate`}
                   />
                 ))}
               </div>
