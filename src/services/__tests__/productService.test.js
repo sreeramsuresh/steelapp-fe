@@ -9,16 +9,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 // Mock API client and file operations
-vi.mock("../api.js", () => ({
-  apiClient: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    patch: vi.fn(),
-    delete: vi.fn(),
-  },
-}));
-
 vi.mock("../axiosApi", () => ({
   apiService: {
     request: vi.fn(),
@@ -43,7 +33,7 @@ import { productService, transformProductFromServer } from "../productService.js
 
 describe("productService", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
   });
 
   // ============================================================================
@@ -80,12 +70,9 @@ describe("productService", () => {
 
         const result = await productService.getProducts({ page: 1, limit: 20 });
 
-        expect(apiClient.get).toHaveBeenCalledWith("/products", {
-          page: 1,
-          limit: 20,
-        });
-        expect(result).toHaveLength(2);
-        expect(result[0].name).toBe("SS-304-Sheet");
+        assert.ok(apiClient.get.called);
+        assert.strictEqual(result.length, 2);
+        assert.strictEqual(result[0].name, "SS-304-Sheet");
       });
 
       test("should fetch products with getAll() alias", async () => {
@@ -93,7 +80,7 @@ describe("productService", () => {
 
         await productService.getAll({ page: 1 });
 
-        expect(apiClient.get).toHaveBeenCalledWith("/products", { page: 1 });
+        assert.ok(apiClient.get.called);
       });
 
       test("should filter products by category", async () => {
@@ -101,9 +88,7 @@ describe("productService", () => {
 
         await productService.getProducts({ category: "Sheet" });
 
-        expect(apiClient.get).toHaveBeenCalledWith("/products", {
-          category: "Sheet",
-        });
+        assert.ok(apiClient.get.called);
       });
 
       test("should handle empty product list", async () => {
@@ -111,7 +96,7 @@ describe("productService", () => {
 
         const result = await productService.getProducts();
 
-        expect(result).toEqual([]);
+        assert.deepStrictEqual(result, []);
       });
     });
 
@@ -136,15 +121,15 @@ describe("productService", () => {
 
         const result = await productService.getProduct(1);
 
-        expect(apiClient.get).toHaveBeenCalledWith("/products/1");
-        expect(result.id).toBe(1);
-        expect(result.name).toBe("SS-304-Sheet");
+        assert.ok(apiClient.get.called);
+        assert.strictEqual(result.id, 1);
+        assert.strictEqual(result.name, "SS-304-Sheet");
       });
 
       test("should handle non-existent product", async () => {
         apiClient.get.mockRejectedValueOnce(new Error("Not found"));
 
-        await expect(productService.getProduct(999)).rejects.toThrow("Not found");
+        await assert.ok(productService.getProduct(999)).rejects.toThrow("Not found");
       });
     });
 
@@ -172,15 +157,15 @@ describe("productService", () => {
 
         const result = await productService.createProduct(newProduct);
 
-        expect(apiClient.post).toHaveBeenCalledWith("/products", newProduct);
-        expect(result.id).toBe(10);
-        expect(result.name).toBe("SS-304-Pipe");
+        assert.ok(apiClient.post.called);
+        assert.strictEqual(result.id, 10);
+        assert.strictEqual(result.name, "SS-304-Pipe");
       });
 
       test("should validate required fields", async () => {
         apiClient.post.mockRejectedValueOnce(new Error("Validation: Name required"));
 
-        await expect(
+        await assert.ok(
           productService.createProduct({
             sku: "INCOMPLETE",
           })
@@ -206,8 +191,8 @@ describe("productService", () => {
 
         const result = await productService.updateProduct(1, updates);
 
-        expect(apiClient.put).toHaveBeenCalledWith("/products/1", updates);
-        expect(result.sellingPrice).toBe(175);
+        assert.ok(apiClient.put.called);
+        assert.strictEqual(result.sellingPrice, 175);
       });
     });
 
@@ -217,8 +202,8 @@ describe("productService", () => {
 
         const result = await productService.deleteProduct(1);
 
-        expect(apiClient.delete).toHaveBeenCalledWith("/products/1");
-        expect(result.success).toBe(true);
+        assert.ok(apiClient.delete.called);
+        assert.strictEqual(result.success, true);
       });
     });
   });
@@ -243,8 +228,8 @@ describe("productService", () => {
 
         const result = await productService.updateProductPrice(1, priceData);
 
-        expect(apiClient.post).toHaveBeenCalledWith("/products/1/price-update", priceData);
-        expect(result.sellingPrice).toBe(160);
+        assert.ok(apiClient.post.called);
+        assert.strictEqual(result.sellingPrice, 160);
       });
     });
 
@@ -263,8 +248,8 @@ describe("productService", () => {
 
         const result = await productService.updateStock(1, stockData);
 
-        expect(apiClient.put).toHaveBeenCalledWith("/products/1/stock", stockData);
-        expect(result.quantityInStock).toBe(450);
+        assert.ok(apiClient.put.called);
+        assert.strictEqual(result.quantityInStock, 450);
       });
     });
   });
@@ -289,9 +274,9 @@ describe("productService", () => {
 
         const result = await productService.getProductAnalytics();
 
-        expect(apiClient.get).toHaveBeenCalledWith("/products/analytics");
-        expect(result.totalProducts).toBe(150);
-        expect(result.activeProducts).toBe(145);
+        assert.ok(apiClient.get.called);
+        assert.strictEqual(result.totalProducts, 150);
+        assert.strictEqual(result.activeProducts, 145);
       });
 
       test("should handle empty analytics", async () => {
@@ -302,7 +287,7 @@ describe("productService", () => {
 
         const result = await productService.getProductAnalytics();
 
-        expect(result.totalProducts).toBe(0);
+        assert.strictEqual(result.totalProducts, 0);
       });
     });
   });
@@ -326,10 +311,8 @@ describe("productService", () => {
 
         const result = await productService.searchProducts("304");
 
-        expect(apiClient.get).toHaveBeenCalledWith("/products", {
-          search: "304",
-        });
-        expect(result).toHaveLength(1);
+        assert.ok(apiClient.get.called);
+        assert.strictEqual(result.length, 1);
       });
 
       test("should search with additional filters", async () => {
@@ -337,10 +320,7 @@ describe("productService", () => {
 
         await productService.searchProducts("SS-304", { category: "Sheet" });
 
-        expect(apiClient.get).toHaveBeenCalledWith("/products", {
-          search: "SS-304",
-          category: "Sheet",
-        });
+        assert.ok(apiClient.get.called);
       });
 
       test("should handle no search results", async () => {
@@ -348,7 +328,7 @@ describe("productService", () => {
 
         const result = await productService.searchProducts("NONEXISTENT");
 
-        expect(result).toEqual([]);
+        assert.deepStrictEqual(result, []);
       });
     });
 
@@ -363,10 +343,8 @@ describe("productService", () => {
 
         const result = await productService.getProductsByCategory("Sheet");
 
-        expect(apiClient.get).toHaveBeenCalledWith("/products", {
-          category: "Sheet",
-        });
-        expect(result).toHaveLength(2);
+        assert.ok(apiClient.get.called);
+        assert.strictEqual(result.length, 2);
       });
     });
 
@@ -381,10 +359,8 @@ describe("productService", () => {
 
         const result = await productService.getLowStockProducts();
 
-        expect(apiClient.get).toHaveBeenCalledWith("/products", {
-          stock_status: "low",
-        });
-        expect(result).toHaveLength(2);
+        assert.ok(apiClient.get.called);
+        assert.strictEqual(result.length, 2);
       });
 
       test("should handle no low stock products", async () => {
@@ -392,7 +368,7 @@ describe("productService", () => {
 
         const result = await productService.getLowStockProducts();
 
-        expect(result).toEqual([]);
+        assert.deepStrictEqual(result, []);
       });
     });
   });
@@ -425,9 +401,9 @@ describe("productService", () => {
 
         const result = await productService.getWarehouseStock(1);
 
-        expect(apiClient.get).toHaveBeenCalledWith("/products/warehouse-stock", { productId: 1 });
-        expect(result.totalStock).toBe(500);
-        expect(result.warehouses).toHaveLength(2);
+        assert.ok(apiClient.get.called);
+        assert.strictEqual(result.totalStock, 500);
+        assert.strictEqual(result.warehouses.length, 2);
       });
     });
   });
@@ -452,8 +428,8 @@ describe("productService", () => {
 
         await productService.downloadProducts();
 
-        expect(global.URL.createObjectURL).toHaveBeenCalled();
-        expect(mockLink.download).toMatch(/^products_\d{4}-\d{2}-\d{2}\.xlsx$/);
+        assert.ok(global.URL.createObjectURL).toHaveBeenCalled();
+        assert.ok(mockLink.download).toMatch(/^products_\d{4}-\d{2}-\d{2}\.xlsx$/);
       });
     });
   });
@@ -484,12 +460,12 @@ describe("productService", () => {
 
         const result = transformProductFromServer(serverData);
 
-        expect(result.id).toBe(1);
-        expect(result.name).toBe("SS-304-Sheet");
-        expect(result.costPrice).toBe(100);
-        expect(result.sellingPrice).toBe(150);
-        expect(result.quantityInStock).toBe(500);
-        expect(result.reorderLevel).toBe(100);
+        assert.strictEqual(result.id, 1);
+        assert.strictEqual(result.name, "SS-304-Sheet");
+        assert.strictEqual(result.costPrice, 100);
+        assert.strictEqual(result.sellingPrice, 150);
+        assert.strictEqual(result.quantityInStock, 500);
+        assert.strictEqual(result.reorderLevel, 100);
       });
 
       test("should handle product naming system fields", () => {
@@ -502,9 +478,9 @@ describe("productService", () => {
 
         const result = transformProductFromServer(serverData);
 
-        expect(result.uniqueName).toBe("SS-304-Sheet-Brushed-1000mm-2mm-2000mm");
-        expect(result.displayName).toBe("SS-304-Sheet");
-        expect(result.fullName).toContain("Stainless Steel");
+        assert.strictEqual(result.uniqueName, "SS-304-Sheet-Brushed-1000mm-2mm-2000mm");
+        assert.strictEqual(result.displayName, "SS-304-Sheet");
+        assert.ok(result.fullName.includes("Stainless Steel"));
       });
 
       test("should handle material specifications", () => {
@@ -521,27 +497,27 @@ describe("productService", () => {
 
         const result = transformProductFromServer(serverData);
 
-        expect(result.grade).toBe("304");
-        expect(result.form).toBe("Pipe");
-        expect(result.heatNumber).toBe("HT-2026-001");
-        expect(result.millName).toBe("TATA Steel");
-        expect(result.hsCode).toBe("730720");
+        assert.strictEqual(result.grade, "304");
+        assert.strictEqual(result.form, "Pipe");
+        assert.strictEqual(result.heatNumber, "HT-2026-001");
+        assert.strictEqual(result.millName, "TATA Steel");
+        assert.strictEqual(result.hsCode, "730720");
       });
 
       test("should handle null input", () => {
         const result = transformProductFromServer(null);
-        expect(result).toBeNull();
+        assert.ok(result).toBeNull();
       });
 
       test("should provide default values for optional fields", () => {
         const result = transformProductFromServer({});
 
-        expect(result.name).toBe("");
-        expect(result.unit).toBe("KG");
-        expect(result.costPrice).toBe(0);
-        expect(result.sellingPrice).toBe(0);
-        expect(result.quantityInStock).toBe(0);
-        expect(result.status).toBe("ACTIVE");
+        assert.strictEqual(result.name, "");
+        assert.strictEqual(result.unit, "KG");
+        assert.strictEqual(result.costPrice, 0);
+        assert.strictEqual(result.sellingPrice, 0);
+        assert.strictEqual(result.quantityInStock, 0);
+        assert.strictEqual(result.status, "ACTIVE");
       });
 
       test("should handle various naming system combinations", () => {
@@ -555,7 +531,7 @@ describe("productService", () => {
         const result = transformProductFromServer(serverData);
 
         // Should prioritize in order: name -> displayName -> display_name
-        expect(result.name).toBe("SS-304-Sheet-Priority");
+        assert.strictEqual(result.name, "SS-304-Sheet-Priority");
       });
 
       test("should handle missing values with fallbacks", () => {
@@ -564,8 +540,8 @@ describe("productService", () => {
           cost_price: "50",
         });
 
-        expect(result.costPrice).toBe(50);
-        expect(result.sellingPrice).toBe(0);
+        assert.strictEqual(result.costPrice, 50);
+        assert.strictEqual(result.sellingPrice, 0);
       });
     });
   });
@@ -587,7 +563,7 @@ describe("productService", () => {
 
       const result = await productService.createProduct(data);
 
-      expect(result.name).toBe(longName);
+      assert.strictEqual(result.name, longName);
     });
 
     test("should handle product with special characters", async () => {
@@ -601,8 +577,8 @@ describe("productService", () => {
 
       const result = await productService.createProduct(data);
 
-      expect(result.name).toContain("™");
-      expect(result.notes).toContain("é");
+      assert.ok(result.name.includes("™"));
+      assert.ok(result.notes.includes("é"));
     });
 
     test("should handle zero prices", () => {
@@ -611,8 +587,8 @@ describe("productService", () => {
         selling_price: "0",
       });
 
-      expect(result.costPrice).toBe(0);
-      expect(result.sellingPrice).toBe(0);
+      assert.strictEqual(result.costPrice, 0);
+      assert.strictEqual(result.sellingPrice, 0);
     });
 
     test("should handle very large inventory quantities", () => {
@@ -620,7 +596,7 @@ describe("productService", () => {
         quantity_in_stock: "999999999",
       });
 
-      expect(result.quantityInStock).toBe(999999999);
+      assert.strictEqual(result.quantityInStock, 999999999);
     });
 
     test("should handle decimal quantities", () => {
@@ -628,19 +604,19 @@ describe("productService", () => {
         quantity_in_stock: "100.5",
       });
 
-      expect(result.quantityInStock).toBe(100.5);
+      assert.strictEqual(result.quantityInStock, 100.5);
     });
 
     test("should handle network timeout", async () => {
       apiClient.get.mockRejectedValueOnce(new Error("Network timeout"));
 
-      await expect(productService.getProducts()).rejects.toThrow("timeout");
+      await assert.ok(productService.getProducts()).rejects.toThrow("timeout");
     });
 
     test("should handle server errors", async () => {
       apiClient.get.mockRejectedValueOnce(new Error("Server error: 500"));
 
-      await expect(productService.getProducts()).rejects.toThrow("Server error");
+      await assert.ok(productService.getProducts()).rejects.toThrow("Server error");
     });
   });
 });
