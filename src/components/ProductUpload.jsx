@@ -218,8 +218,7 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
             <h3 className={`font-medium ${textPrimary} mb-3`}>Step 2: Upload Your File</h3>
 
             {!selectedFile ? (
-              <div
-                role="region"
+              <section
                 aria-label="File upload drop zone"
                 className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                   dragOver
@@ -251,7 +250,7 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
                   accept=".xlsx,.xls,.csv"
                   onChange={handleFileInputChange}
                 />
-              </div>
+              </section>
             ) : (
               <div className={`border rounded-lg p-4 ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}>
                 <div className="flex items-center justify-between">
