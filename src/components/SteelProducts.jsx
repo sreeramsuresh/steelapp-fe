@@ -216,7 +216,12 @@ const Tooltip = ({ content, children, position = "top" }) => {
 
   return (
     <div className="relative inline-flex items-center">
-      <div role="group" onMouseEnter={() => setIsVisible(true)} onMouseLeave={() => setIsVisible(false)} className="cursor-help">
+      <div
+        role="group"
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+        className="cursor-help"
+      >
         {children}
       </div>
       {isVisible && (

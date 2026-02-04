@@ -543,8 +543,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-2"
-                        >
+                        <div className="flex items-center justify-end gap-2">
                           {/* Preview Button */}
                           <button
                             type="button"
