@@ -325,7 +325,7 @@ const ChargesDrawer = ({
                     />
                     <div className={`text-xs mt-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
                       VAT: {formatCurrencyFn(invoice.packingChargesVat || 0)}
-                    </button>
+                    </div>
                   </div>
 
                   {/* Freight */}
@@ -1361,7 +1361,7 @@ const ToggleSwitchInvoice = ({ enabled, onChange, label, description, isDarkMode
         }`}
       />
     </button>
-  </button>
+  </div>
 );
 
 // Form Settings Panel Component
@@ -4078,7 +4078,7 @@ const InvoiceForm = ({ onSave }) => {
                   <p className={`text-xs md:text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                     {invoice.invoiceNumber || "Invoice #"}
                   </p>
-                </button>
+                </div>
               </div>
 
               <div className="hidden md:flex gap-2 items-start relative">
@@ -5231,7 +5231,7 @@ const InvoiceForm = ({ onSave }) => {
                                           {option.origin ? `${option.origin} • ` : ""}
                                           {option.subtitle}
                                         </div>
-                                      </button>
+                                      </div>
                                     )}
                                     noOptionsText="No products found"
                                     size="small"
@@ -5423,7 +5423,7 @@ const InvoiceForm = ({ onSave }) => {
                                                 </span>
                                               );
                                             })}
-                                          </button>
+                                          </div>
                                         </div>
                                       </div>
 
@@ -6258,7 +6258,7 @@ const InvoiceForm = ({ onSave }) => {
                       </p>
                     </div>
                   </div>
-                </button>
+                </div>
 
                 {/* Close button - only show for Draft/Proforma */}
                 {canContinueEditing && (
@@ -6282,7 +6282,7 @@ const InvoiceForm = ({ onSave }) => {
                   >
                     <div className="p-2 bg-white/20 rounded-lg">
                       <Download size={20} />
-                    </button>
+                    </div>
                     <div className="text-left">
                       <div className="font-semibold">Download PDF</div>
                       <div className="text-xs text-teal-100">Save invoice to your device</div>
@@ -6296,7 +6296,7 @@ const InvoiceForm = ({ onSave }) => {
                     >
                       <div className="p-2 bg-white/20 rounded-lg">
                         <Banknote size={20} />
-                      </button>
+                      </div>
                       <div className="text-left">
                         <div className="font-semibold">Record Payment</div>
                         <div className="text-xs text-amber-100">Record advance or full payment</div>
