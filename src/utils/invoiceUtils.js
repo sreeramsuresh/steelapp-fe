@@ -7,7 +7,7 @@ import {
   toUAEDateTimeProfessional,
   toUAEPaymentDateTime,
   toUAETime,
-} from "./timezone";
+} from "./timezone.js";
 
 /**
  * Calculate invoice line item amount based on UAE stainless steel trading conventions.
