@@ -218,6 +218,8 @@ const InventoryUpload = ({ isOpen, onClose, onUploadComplete }) => {
 
             {!selectedFile ? (
               <div
+                role="region"
+                aria-label="File upload drop zone"
                 className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                   dragOver
                     ? "border-[#008B8B] bg-[#008B8B]/10"

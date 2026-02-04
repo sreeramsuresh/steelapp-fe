@@ -97,11 +97,7 @@ describe("stateAssertions", () => {
             <button type="button" onClick={() => setShow(true)}>
               Trigger Toast
             </button>
-            {show && (
-              <output className="toast toast-success">
-                Success: Operation completed
-              </output>
-            )}
+            {show && <output className="toast toast-success">Success: Operation completed</output>}
           </>
         );
       };

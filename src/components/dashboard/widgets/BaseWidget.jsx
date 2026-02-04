@@ -302,22 +302,12 @@ export const WidgetListItem = ({
   const { isDarkMode } = useTheme();
 
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onKeyDown={
-        onClick
-          ? (e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                onClick();
-              }
-            }
-          : undefined
-      }
-      className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
-        onClick ? "cursor-pointer hover:translate-x-1" : ""
+      disabled={!onClick}
+      className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 w-full text-left ${
+        onClick ? "hover:translate-x-1" : ""
       } ${
         isDarkMode
           ? "hover:bg-[#2E3B4E] border-b border-[#37474F] last:border-b-0"
@@ -354,7 +344,7 @@ export const WidgetListItem = ({
           {subValue && <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{subValue}</p>}
         </div>
       )}
-    </div>
+    </button>
   );
 };
 
