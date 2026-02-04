@@ -338,17 +338,10 @@ const AtRiskCustomersWidget = ({
               key={customer.id}
               className={`rounded-lg border transition-all duration-200 ${riskStyle.bg} ${riskStyle.border}`}
             >
-              <div
+              <button
+                type="button"
                 onClick={() => setExpandedCustomer(isExpanded ? null : customer.id)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setExpandedCustomer(isExpanded ? null : customer.id);
-                  }
-                }}
-                className="p-3 cursor-pointer"
+                className="p-3 cursor-pointer w-full text-left border-0 bg-transparent"
               >
                 <div className="flex items-center gap-3">
                   {/* Risk Score */}
@@ -385,7 +378,7 @@ const AtRiskCustomersWidget = ({
                     }`}
                   />
                 </div>
-              </div>
+              </button>
 
               {/* Expanded Details */}
               {isExpanded && (
