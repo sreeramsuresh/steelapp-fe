@@ -64,6 +64,7 @@ export function FormSelect({
       )}
       <Select value={value} onValueChange={onValueChange} disabled={disabled} {...props}>
         <SelectTrigger
+          id={selectId}
           data-testid={dataTestId}
           className={`${getValidationClasses()} h-[38px] text-sm ${
             isDarkMode

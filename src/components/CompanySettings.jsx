@@ -47,7 +47,7 @@ import {
   Warehouse,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApi, useApiData } from "../hooks/useApi";
@@ -118,7 +118,12 @@ const Input = ({ label, error, className = "", type = "text", startIcon, endIcon
   return (
     <div className="space-y-1">
       {label && (
-        <label htmlFor={inputId} className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
+        <label
+          htmlFor={inputId}
+          className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+        >
+          {label}
+        </label>
       )}
       <div className="relative">
         {startIcon && (
@@ -152,7 +157,12 @@ const Select = ({ label, options, value, onChange, placeholder = "Select...", cl
   return (
     <div className="space-y-1">
       {label && (
-        <label htmlFor={selectId} className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
+        <label
+          htmlFor={selectId}
+          className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+        >
+          {label}
+        </label>
       )}
       <select
         id={selectId}
@@ -1624,7 +1634,7 @@ const CompanySettings = () => {
   };
 
   // Role Management Handlers
-  const loadRoles = async () => {
+  const loadRoles = useCallback(async () => {
     try {
       setRolesLoading(true);
       const roles = await roleService.getRoles();
@@ -1635,7 +1645,7 @@ const CompanySettings = () => {
     } finally {
       setRolesLoading(false);
     }
-  };
+  }, []);
 
   const handleSaveRole = async () => {
     try {

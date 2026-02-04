@@ -6,15 +6,15 @@ import RequiredIndicator from "./RequiredIndicator";
  * Fixes bugs #8, #12: Consistent required indicators and validation feedback
  *
  * Usage:
- *   <FormFieldWrapper label="Email" required error={errors.email}>
- *     <input type="email" name="email" />
+ *   <FormFieldWrapper label="Email" required error={errors.email} id="email">
+ *     <input type="email" id="email" name="email" />
  *   </FormFieldWrapper>
  */
-const FormFieldWrapper = ({ label, required = false, error, children, helpText, className = "" }) => {
+const FormFieldWrapper = ({ label, required = false, error, children, helpText, className = "", id }) => {
   return (
     <div className={`space-y-1 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {label}
           {required && <RequiredIndicator />}
         </label>

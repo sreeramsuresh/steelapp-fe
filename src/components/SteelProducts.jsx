@@ -82,15 +82,17 @@ const Button = ({
   );
 };
 
-const Input = ({ label, error, className = "", type = "text", ...props }) => {
+const Input = ({ label, error, className = "", type = "text", id, ...props }) => {
   const { isDarkMode } = useTheme();
+  const inputId = id || `input-${label?.toLowerCase().replace(/\s+/g, "-")}`;
 
   return (
     <div className="space-y-1">
       {label && (
-        <label className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
+        <label htmlFor={inputId} className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
       )}
       <input
+        id={inputId}
         type={type}
         className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
           isDarkMode
