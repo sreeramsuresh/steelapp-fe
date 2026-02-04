@@ -12,7 +12,7 @@ import { apiClient } from "./api.js";
 // Map server response to UI model (camelCase)
 const fromServer = (warehouse = {}) => ({
   id: warehouse.id,
-  companyId: warehouse.companyId,
+  companyId: warehouse.companyId || warehouse.company_id,
   name: warehouse.name || "",
   code: warehouse.code || "",
   description: warehouse.description || "",
@@ -20,19 +20,19 @@ const fromServer = (warehouse = {}) => ({
   city: warehouse.city || "",
   state: warehouse.state || "",
   country: warehouse.country || "",
-  postalCode: warehouse.postalCode || "",
+  postalCode: warehouse.postalCode || warehouse.postal_code || "",
   phone: warehouse.phone || "",
   email: warehouse.email || "",
-  contactPerson: warehouse.contactPerson || "",
-  isDefault: warehouse.isDefault || false,
-  isActive: warehouse.isActive !== false,
+  contactPerson: warehouse.contactPerson || warehouse.contact_person || "",
+  isDefault: (warehouse.isDefault !== undefined ? warehouse.isDefault : warehouse.is_default) !== undefined ? (warehouse.isDefault || warehouse.is_default) : false,
+  isActive: warehouse.isActive !== undefined ? warehouse.isActive !== false : warehouse.is_active !== false,
   type: warehouse.type || "WAREHOUSE",
   capacity: parseFloat(warehouse.capacity) || 0,
-  capacityUnit: warehouse.capacityUnit || "MT",
-  inventoryCount: warehouse.inventoryCount || 0,
-  utilizationPercent: warehouse.utilizationPercent || 0,
-  createdAt: warehouse.createdAt,
-  updatedAt: warehouse.updatedAt,
+  capacityUnit: warehouse.capacityUnit || warehouse.capacity_unit || "MT",
+  inventoryCount: warehouse.inventoryCount || warehouse.inventory_count || 0,
+  utilizationPercent: warehouse.utilizationPercent || warehouse.utilization_percent || 0,
+  createdAt: warehouse.createdAt || warehouse.created_at,
+  updatedAt: warehouse.updatedAt || warehouse.updated_at,
 });
 
 // Map UI model to server payload (snake_case)

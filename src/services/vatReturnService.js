@@ -70,39 +70,40 @@ const transformVatReturnFromServer = (serverData) => {
 
   return {
     id: serverData.id,
-    companyId: serverData.companyId,
-    returnNumber: serverData.returnNumber || "",
-    periodStart: serverData.periodStart || serverData.startDate,
-    periodEnd: serverData.periodEnd || serverData.endDate,
+    companyId: serverData.companyId || serverData.company_id,
+    returnNumber: serverData.returnNumber || serverData.return_number || "",
+    periodStart: serverData.periodStart || serverData.period_start || serverData.startDate || serverData.start_date,
+    periodEnd: serverData.periodEnd || serverData.period_end || serverData.endDate || serverData.end_date,
     status: serverData.status || "draft",
     // Form 201 Boxes
-    box1Amount: parseFloat(serverData.box1Amount || 0),
-    box1Vat: parseFloat(serverData.box1Vat || 0),
-    box2Amount: parseFloat(serverData.box2Amount || 0),
-    box2Vat: parseFloat(serverData.box2Vat || 0),
-    box3Amount: parseFloat(serverData.box3Amount || 0),
-    box4Amount: parseFloat(serverData.box4Amount || 0),
-    box5Amount: parseFloat(serverData.box5Amount || 0),
-    box5Vat: parseFloat(serverData.box5Vat || 0),
-    box6Amount: parseFloat(serverData.box6Amount || 0),
-    box6Vat: parseFloat(serverData.box6Vat || 0),
-    box7Vat: parseFloat(serverData.box7Vat || 0), // Total output VAT
-    box8Amount: parseFloat(serverData.box8Amount || 0),
-    box8Vat: parseFloat(serverData.box8Vat || 0),
-    box9Amount: parseFloat(serverData.box9Amount || 0),
-    box9Vat: parseFloat(serverData.box9Vat || 0),
-    box10Vat: parseFloat(serverData.box10Vat || 0), // Total input VAT
-    box11Vat: parseFloat(serverData.box11Vat || 0), // Net VAT payable/refundable
+    box1Amount: parseFloat(serverData.box1Amount || serverData.box_1_amount || 0),
+    box1Vat: parseFloat(serverData.box1Vat || serverData.box_1_vat || 0),
+    box2Amount: parseFloat(serverData.box2Amount || serverData.box_2_amount || 0),
+    box2Vat: parseFloat(serverData.box2Vat || serverData.box_2_vat || 0),
+    box3Amount: parseFloat(serverData.box3Amount || serverData.box_3_amount || 0),
+    box3Vat: parseFloat(serverData.box3Vat || serverData.box_3_vat || 0),
+    box4Amount: parseFloat(serverData.box4Amount || serverData.box_4_amount || 0),
+    box5Amount: parseFloat(serverData.box5Amount || serverData.box_5_amount || 0),
+    box5Vat: parseFloat(serverData.box5Vat || serverData.box_5_vat || 0),
+    box6Amount: parseFloat(serverData.box6Amount || serverData.box_6_amount || 0),
+    box6Vat: parseFloat(serverData.box6Vat || serverData.box_6_vat || 0),
+    box7Vat: parseFloat(serverData.box7Vat || serverData.box_7_vat || 0), // Total output VAT
+    box8Amount: parseFloat(serverData.box8Amount || serverData.box_8_amount || 0),
+    box8Vat: parseFloat(serverData.box8Vat || serverData.box_8_vat || 0),
+    box9Amount: parseFloat(serverData.box9Amount || serverData.box_9_amount || 0),
+    box9Vat: parseFloat(serverData.box9Vat || serverData.box_9_vat || 0),
+    box10Vat: parseFloat(serverData.box10Vat || serverData.box_10_vat || 0), // Total input VAT
+    box11Vat: parseFloat(serverData.box11Vat || serverData.box_11_vat || 0), // Net VAT payable/refundable
     // Totals
-    totalOutputVat: parseFloat(serverData.totalOutputVat || serverData.box7Vat || 0),
-    totalInputVat: parseFloat(serverData.totalInputVat || serverData.box10Vat || 0),
-    netVatDue: parseFloat(serverData.netVatDue || serverData.box11Vat || 0),
+    totalOutputVat: parseFloat(serverData.totalOutputVat || serverData.total_output_vat || serverData.box7Vat || serverData.box_7_vat || 0),
+    totalInputVat: parseFloat(serverData.totalInputVat || serverData.total_input_vat || serverData.box10Vat || serverData.box_10_vat || 0),
+    netVatDue: parseFloat(serverData.netVatDue || serverData.net_vat_due || serverData.box11Vat || serverData.box_11_vat || 0),
     // Adjustments
-    adjustmentsTotal: parseFloat(serverData.adjustmentsTotal || 0),
-    blockedVatTotal: parseFloat(serverData.blockedVatTotal || 0),
+    adjustmentsTotal: parseFloat(serverData.adjustmentsTotal || serverData.adjustments_total || 0),
+    blockedVatTotal: parseFloat(serverData.blockedVatTotal || serverData.blocked_vat_total || 0),
     // Filing info
-    filedAt: serverData.filedAt || null,
-    filedBy: serverData.filedBy || null,
+    filedAt: serverData.filedAt || serverData.filed_at || null,
+    filedBy: serverData.filedBy || serverData.filed_by || null,
     ftaReferenceNumber: serverData.ftaReferenceNumber || serverData.fta_reference_number || "",
     ftaSubmissionDate: serverData.ftaSubmissionDate || serverData.fta_submission_date || null,
     acknowledgmentNumber: serverData.acknowledgmentNumber || serverData.acknowledgment_number || "",
