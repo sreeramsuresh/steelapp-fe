@@ -21,7 +21,7 @@ import {
   X,
   XCircle,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
@@ -987,58 +987,61 @@ const TradeFinanceList = () => {
   const [isAmendment, setIsAmendment] = useState(false);
 
   // Load records
-  const loadRecords = async (page = 1) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const loadRecords = useCallback(
+    async (page = 1) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const params = {
-        page,
-        limit: pagination.per_page,
-        ...filters,
-      };
+        const params = {
+          page,
+          limit: pagination.per_page,
+          ...filters,
+        };
 
-      // Remove empty filters
-      Object.keys(params).forEach((key) => {
-        if (params[key] === "" || params[key] === null) {
-          delete params[key];
+        // Remove empty filters
+        Object.keys(params).forEach((key) => {
+          if (params[key] === "" || params[key] === null) {
+            delete params[key];
+          }
+        });
+
+        const response = await tradeFinanceService.getTradeFinanceRecords(params);
+
+        // Handle both array and paginated response
+        if (Array.isArray(response)) {
+          setRecords(response);
+          setPagination((prev) => ({
+            ...prev,
+            total: response.length,
+            total_pages: 1,
+          }));
+        } else {
+          setRecords(response.records || response.data || []);
+          if (response.pagination) {
+            setPagination(response.pagination);
+          }
         }
-      });
-
-      const response = await tradeFinanceService.getTradeFinanceRecords(params);
-
-      // Handle both array and paginated response
-      if (Array.isArray(response)) {
-        setRecords(response);
-        setPagination((prev) => ({
-          ...prev,
-          total: response.length,
-          total_pages: 1,
-        }));
-      } else {
-        setRecords(response.records || response.data || []);
-        if (response.pagination) {
-          setPagination(response.pagination);
-        }
+      } catch (err) {
+        console.error("Error loading trade finance records:", err);
+        setError(err.message || "Failed to load trade finance records");
+        setRecords([]);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Error loading trade finance records:", err);
-      setError(err.message || "Failed to load trade finance records");
-      setRecords([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [pagination.per_page, filters]
+  );
 
   // Load import orders for linking
-  const loadImportOrders = async () => {
+  const loadImportOrders = useCallback(async () => {
     try {
       const response = await importOrderService.getImportOrders({ limit: 100 });
       setImportOrders(response.orders || response.data || []);
     } catch (err) {
       console.error("Error loading import orders:", err);
     }
-  };
+  }, []);
 
   // Initial load
   useEffect(() => {
@@ -1468,7 +1471,7 @@ const TradeFinanceList = () => {
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto"></div>
             <p className="mt-2 text-gray-500">Loading trade finance documents...</p>
-          </button>
+          </div>
         ) : filteredRecords.length === 0 ? (
           <div className="p-8 text-center">
             <FileWarning size={48} className="mx-auto text-gray-400 mb-4" />
