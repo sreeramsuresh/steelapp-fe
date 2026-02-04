@@ -34,7 +34,7 @@ describe("materialCertificateService", () => {
 
       assert.ok(result);
       assert.ok(result[0].material);
-      assert.ok(api.get).toHaveBeenCalledWith("/material-certificates", { params: {} });
+      sinon.assert.calledWith(api.get, "/material-certificates", { params: {} });
     });
 
     test("should filter by material type", async () => {
@@ -44,12 +44,10 @@ describe("materialCertificateService", () => {
         material: "SS304",
       });
 
-      assert.ok(api.get).toHaveBeenCalledWith(
-        "/material-certificates",
+      sinon.assert.calledWith(api.get, "/material-certificates",
         Object.keys({
           params: { material: "SS304" },
-        }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
   });
 
@@ -73,7 +71,7 @@ describe("materialCertificateService", () => {
 
       assert.ok(result.material);
       assert.ok(result.test_results.tensile_strength.status);
-      assert.ok(api.get).toHaveBeenCalledWith("/material-certificates/1");
+      sinon.assert.calledWith(api.get, "/material-certificates/1");
     });
   });
 
@@ -97,7 +95,7 @@ describe("materialCertificateService", () => {
       const result = await materialCertificateService.createMaterialCertificate(payload);
 
       assert.ok(result.certificate_number);
-      assert.ok(api.post).toHaveBeenCalledWith("/material-certificates", payload);
+      sinon.assert.calledWith(api.post, "/material-certificates", payload);
     });
   });
 
@@ -116,7 +114,7 @@ describe("materialCertificateService", () => {
       const result = await materialCertificateService.updateMaterialCertificate(1, payload);
 
       assert.ok(result.status);
-      assert.ok(api.put).toHaveBeenCalledWith("/material-certificates/1", payload);
+      sinon.assert.calledWith(api.put, "/material-certificates/1", payload);
     });
   });
 
@@ -127,7 +125,7 @@ describe("materialCertificateService", () => {
       const result = await materialCertificateService.deleteMaterialCertificate(1);
 
       assert.ok(result.success);
-      assert.ok(api.delete).toHaveBeenCalledWith("/material-certificates/1");
+      sinon.assert.calledWith(api.delete, "/material-certificates/1");
     });
   });
 
@@ -144,7 +142,7 @@ describe("materialCertificateService", () => {
       const result = await materialCertificateService.uploadTestReport(1, "file-content");
 
       assert.ok(result.test_report_url);
-      assert.ok(api.post).toHaveBeenCalledWith("/material-certificates/1/test-report", );
+      sinon.assert.calledWith(api.post, "/material-certificates/1/test-report", );
     });
   });
 
@@ -165,7 +163,7 @@ describe("materialCertificateService", () => {
 
       assert.ok(result.all_tests_pass);
       assert.ok(result.results);
-      assert.ok(api.post).toHaveBeenCalledWith("/material-certificates/1/verify", );
+      sinon.assert.calledWith(api.post, "/material-certificates/1/verify", );
     });
   });
 });

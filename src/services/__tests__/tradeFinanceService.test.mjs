@@ -36,7 +36,7 @@ describe("tradeFinanceService", () => {
 
       assert.ok(result);
       assert.ok(result[0].type);
-      assert.ok(api.get).toHaveBeenCalledWith("/trade-finance", { params: {} });
+      sinon.assert.calledWith(api.get, "/trade-finance", { params: {} });
     });
   });
 
@@ -57,7 +57,7 @@ describe("tradeFinanceService", () => {
 
       assert.ok(result.reference_number);
       assert.ok(result.amount);
-      assert.ok(api.get).toHaveBeenCalledWith("/trade-finance/1");
+      sinon.assert.calledWith(api.get, "/trade-finance/1");
     });
   });
 
@@ -81,7 +81,7 @@ describe("tradeFinanceService", () => {
       const result = await tradeFinanceService.createTradeFinanceRecord(payload);
 
       assert.ok(result.reference_number);
-      assert.ok(api.post).toHaveBeenCalledWith("/trade-finance", payload);
+      sinon.assert.calledWith(api.post, "/trade-finance", payload);
     });
   });
 
@@ -100,7 +100,7 @@ describe("tradeFinanceService", () => {
       const result = await tradeFinanceService.updateTradeFinanceRecord(1, payload);
 
       assert.ok(result.status);
-      assert.ok(api.put).toHaveBeenCalledWith("/trade-finance/1", payload);
+      sinon.assert.calledWith(api.put, "/trade-finance/1", payload);
     });
   });
 
@@ -111,7 +111,7 @@ describe("tradeFinanceService", () => {
       const result = await tradeFinanceService.deleteTradeFinanceRecord(1);
 
       assert.ok(result.success);
-      assert.ok(api.delete).toHaveBeenCalledWith("/trade-finance/1");
+      sinon.assert.calledWith(api.delete, "/trade-finance/1");
     });
   });
 });

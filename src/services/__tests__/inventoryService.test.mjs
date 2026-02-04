@@ -41,10 +41,10 @@ describe("inventoryService", () => {
 
       const result = await inventoryService.getAllItems({ page: 1, limit: 20 });
 
-      assert.ok(result).toBeDefined();
+      assert.ok(result !== undefined);
       assert.ok(result.data);
       assert.ok(result.data[0].productType);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/inventory", { page: 1, limit: 20 });
+      sinon.assert.calledWith(apiClient.get, "/inventory", { page: 1, limit: 20 });
     });
 
     test("should handle empty inventory list", async () => {
@@ -94,10 +94,10 @@ describe("inventoryService", () => {
 
       const result = await inventoryService.getItemById(1);
 
-      assert.ok(result).toBeDefined();
+      assert.ok(result !== undefined);
       assert.ok(result.productType);
       assert.ok(result.grade);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/inventory/1");
+      sinon.assert.calledWith(apiClient.get, "/inventory/1");
     });
 
     test("should handle item not found", async () => {
@@ -128,16 +128,14 @@ describe("inventoryService", () => {
 
       const result = await inventoryService.createItem(itemData);
 
-      assert.ok(result).toBeDefined();
+      assert.ok(result !== undefined);
       assert.ok(result.id);
-      assert.ok(apiClient.post).toHaveBeenCalledWith(
-        "/inventory",
+      sinon.assert.calledWith(apiClient.post, "/inventory",
         Object.keys({
           product_type: "PIPE",
           grade: "304",
           warehouse_id: 1,
-        }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
   });
 
@@ -160,9 +158,9 @@ describe("inventoryService", () => {
 
       const result = await inventoryService.updateItem(1, updateData);
 
-      assert.ok(result).toBeDefined();
+      assert.ok(result !== undefined);
       assert.ok(result.quantity);
-      assert.ok(apiClient.put).toHaveBeenCalledWith("/inventory/1", );
+      sinon.assert.calledWith(apiClient.put, "/inventory/1", );
     });
   });
 
@@ -174,8 +172,8 @@ describe("inventoryService", () => {
 
       const result = await inventoryService.deleteItem(1);
 
-      assert.ok(result).toBeDefined();
-      assert.ok(apiClient.delete).toHaveBeenCalledWith("/inventory/1");
+      assert.ok(result !== undefined);
+      sinon.assert.calledWith(apiClient.delete, "/inventory/1");
     });
   });
 
@@ -192,7 +190,7 @@ describe("inventoryService", () => {
 
       assert.ok(result);
       assert.ok(result[0].productType);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/inventory/by-product", { productType: "PIPE", grade: "304" });
+      sinon.assert.calledWith(apiClient.get, "/inventory/by-product", { productType: "PIPE", grade: "304" });
     });
   });
 
@@ -209,9 +207,9 @@ describe("inventoryService", () => {
 
       const result = await inventoryService.updateQuantity(1, 20, "add");
 
-      assert.ok(result).toBeDefined();
+      assert.ok(result !== undefined);
       assert.ok(result.quantity);
-      assert.ok(apiClient.patch).toHaveBeenCalledWith("/inventory/1/quantity", { quantity: 20, operation: "add" });
+      sinon.assert.calledWith(apiClient.patch, "/inventory/1/quantity", { quantity: 20, operation: "add" });
     });
 
     test("should support set operation", async () => {
@@ -221,8 +219,8 @@ describe("inventoryService", () => {
 
       const result = await inventoryService.updateQuantity(1, 100, "set");
 
-      assert.ok(result).toBeDefined();
-      assert.ok(apiClient.patch).toHaveBeenCalledWith("/inventory/1/quantity", { quantity: 100, operation: "set" });
+      assert.ok(result !== undefined);
+      sinon.assert.calledWith(apiClient.patch, "/inventory/1/quantity", { quantity: 100, operation: "set" });
     });
 
     test("should support subtract operation", async () => {
@@ -232,8 +230,8 @@ describe("inventoryService", () => {
 
       const result = await inventoryService.updateQuantity(1, 20, "subtract");
 
-      assert.ok(result).toBeDefined();
-      assert.ok(apiClient.patch).toHaveBeenCalledWith("/inventory/1/quantity", { quantity: 20, operation: "subtract" });
+      assert.ok(result !== undefined);
+      sinon.assert.calledWith(apiClient.patch, "/inventory/1/quantity", { quantity: 20, operation: "subtract" });
     });
   });
 
@@ -249,7 +247,7 @@ describe("inventoryService", () => {
       const result = await inventoryService.getLowStockItems(5);
 
       assert.ok(result);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/inventory/low-stock", { threshold: 5 });
+      sinon.assert.calledWith(apiClient.get, "/inventory/low-stock", { threshold: 5 });
     });
 
     test("should use default threshold", async () => {
@@ -259,7 +257,7 @@ describe("inventoryService", () => {
 
       await inventoryService.getLowStockItems();
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/inventory/low-stock", { threshold: 5 });
+      sinon.assert.calledWith(apiClient.get, "/inventory/low-stock", { threshold: 5 });
     });
   });
 
@@ -279,10 +277,10 @@ describe("inventoryService", () => {
 
       const result = await inventoryService.getInventorySummary();
 
-      assert.ok(result).toBeDefined();
+      assert.ok(result !== undefined);
       assert.ok(result.totalItems);
       assert.ok(result.lowStockCount);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/inventory/summary");
+      sinon.assert.calledWith(apiClient.get, "/inventory/summary");
     });
   });
 
@@ -298,7 +296,7 @@ describe("inventoryService", () => {
       const result = await inventoryService.searchItems("PIPE");
 
       assert.ok(result);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/inventory/search", { q: "PIPE" });
+      sinon.assert.calledWith(apiClient.get, "/inventory/search", { q: "PIPE" });
     });
 
     test("should handle empty search results", async () => {
@@ -324,7 +322,7 @@ describe("inventoryService", () => {
 
       assert.ok(result);
       assert.ok(result[0].location);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/inventory/by-location/WH-A-01");
+      sinon.assert.calledWith(apiClient.get, "/inventory/by-location/WH-A-01");
     });
   });
 

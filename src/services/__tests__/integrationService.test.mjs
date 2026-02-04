@@ -27,7 +27,7 @@ describe("integrationService", () => {
 
       assert.ok(result);
       assert.ok(result[0].type);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/integrations");
+      sinon.assert.calledWith(apiClient.get, "/integrations");
     });
   });
 
@@ -39,7 +39,7 @@ describe("integrationService", () => {
       const result = await integrationService.get("fta_trn");
 
       assert.ok(result.type);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/integrations/fta_trn");
+      sinon.assert.calledWith(apiClient.get, "/integrations/fta_trn");
     });
   });
 
@@ -52,7 +52,7 @@ describe("integrationService", () => {
       const result = await integrationService.save("fta_trn", data);
 
       assert.ok(result.status);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/integrations/fta_trn", data);
+      sinon.assert.calledWith(apiClient.post, "/integrations/fta_trn", data);
     });
   });
 
@@ -64,7 +64,7 @@ describe("integrationService", () => {
       const result = await integrationService.test("fta_trn");
 
       assert.ok(result.success);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/integrations/fta_trn/test");
+      sinon.assert.calledWith(apiClient.post, "/integrations/fta_trn/test");
     });
   });
 
@@ -76,7 +76,7 @@ describe("integrationService", () => {
       const result = await integrationService.unlock("fta_trn");
 
       assert.ok(result.locked);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/integrations/fta_trn/unlock");
+      sinon.assert.calledWith(apiClient.post, "/integrations/fta_trn/unlock");
     });
   });
 
@@ -88,7 +88,7 @@ describe("integrationService", () => {
       const result = await integrationService.lock("fta_trn");
 
       assert.ok(result.locked);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/integrations/fta_trn/lock");
+      sinon.assert.calledWith(apiClient.post, "/integrations/fta_trn/lock");
     });
   });
 
@@ -100,7 +100,7 @@ describe("integrationService", () => {
       const result = await integrationService.delete("fta_trn");
 
       assert.ok(result.success);
-      assert.ok(apiClient.delete).toHaveBeenCalledWith("/integrations/fta_trn");
+      sinon.assert.calledWith(apiClient.delete, "/integrations/fta_trn");
     });
   });
 
@@ -116,7 +116,7 @@ describe("integrationService", () => {
 
       assert.ok(result);
       assert.ok(result[0].action);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/integrations/fta_trn/audit", {});
+      sinon.assert.calledWith(apiClient.get, "/integrations/fta_trn/audit", {});
     });
 
     test("should support pagination params", async () => {
@@ -124,7 +124,7 @@ describe("integrationService", () => {
 
       await integrationService.getAuditLog("fta_trn", { limit: 10, offset: 0 });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/integrations/fta_trn/audit", {
+      sinon.assert.calledWith(apiClient.get, "/integrations/fta_trn/audit", {
         limit: 10,
         offset: 0,
       });

@@ -51,7 +51,7 @@ describe("creditNoteService", () => {
 
       assert.ok(result.data);
       assert.ok(result.data[0].creditNoteNumber);
-      assert.ok(result.pagination).toBeDefined();
+      assert.ok(result.pagination !== undefined);
       assert.ok(apiClient.get);
     });
 
@@ -200,8 +200,8 @@ describe("creditNoteService", () => {
 
       assert.ok(result.id);
       assert.ok(result.creditNoteNumber);
-      assert.ok(result.items).toBeDefined();
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/credit-notes/1", );
+      assert.ok(result.items !== undefined);
+      sinon.assert.calledWith(apiClient.get, "/credit-notes/1", );
     });
 
     test("should return null for non-existent credit note", async () => {
@@ -277,7 +277,7 @@ describe("creditNoteService", () => {
 
       assert.ok(result.id);
       assert.ok(result.creditNoteNumber);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/credit-notes", );
+      sinon.assert.calledWith(apiClient.post, "/credit-notes", );
     });
 
     test("should transform camelCase to snake_case on create", async () => {
@@ -380,7 +380,7 @@ describe("creditNoteService", () => {
 
       assert.ok(result.status);
       assert.ok(result.notes);
-      assert.ok(apiClient.put).toHaveBeenCalledWith("/credit-notes/1", );
+      sinon.assert.calledWith(apiClient.put, "/credit-notes/1", );
     });
 
     test("should only update specified fields", async () => {
@@ -412,7 +412,7 @@ describe("creditNoteService", () => {
       const result = await creditNoteService.deleteCreditNote(1);
 
       assert.ok(result.success);
-      assert.ok(apiClient.delete).toHaveBeenCalledWith("/credit-notes/1");
+      sinon.assert.calledWith(apiClient.delete, "/credit-notes/1");
     });
 
     test("should handle deletion of non-existent credit note", async () => {

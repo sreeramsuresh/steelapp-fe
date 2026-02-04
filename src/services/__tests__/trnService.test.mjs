@@ -102,7 +102,7 @@ describe("trnService", () => {
       const result = await trnService.verify("100123456789123", "AE");
 
       assert.ok(result.success);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/trn/verify", Object.keys({ trn: "100123456789123" }).every(k => typeof arguments[0][k] !== 'undefined'));
+      sinon.assert.calledWith(apiClient.post, "/trn/verify", Object.keys({ trn: "100123456789123" }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should handle API errors gracefully", async () => {
@@ -136,7 +136,7 @@ describe("trnService", () => {
       const result = await trnService.getStatus();
 
       assert.ok(result.success);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/trn/status");
+      sinon.assert.calledWith(apiClient.get, "/trn/status");
     });
 
     test("should handle service error", async () => {
@@ -154,14 +154,14 @@ describe("trnService", () => {
     test("should return local TRN formats without API call", () => {
       const formats = trnService.getLocalFormats();
 
-      assert.ok(formats.AE).toBeDefined();
-      assert.ok(formats.SA).toBeDefined();
-      assert.ok(formats.BH).toBeDefined();
+      assert.ok(formats.AE !== undefined);
+      assert.ok(formats.SA !== undefined);
+      assert.ok(formats.BH !== undefined);
     });
 
     test("should have AE format details", () => {
       const formats = trnService.getLocalFormats();
-      assert.ok(formats.AE.pattern).toBeDefined();
+      assert.ok(formats.AE.pattern !== undefined);
       assert.ok(formats.AE.country);
     });
   });
@@ -170,7 +170,7 @@ describe("trnService", () => {
     test("should return format for specific country", () => {
       const format = trnService.getFormatForCountry("AE");
       assert.ok(format.country);
-      assert.ok(format.pattern).toBeDefined();
+      assert.ok(format.pattern !== undefined);
     });
 
     test("should return null for unknown country", () => {

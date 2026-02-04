@@ -11,7 +11,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import PropTypes from "prop-types";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 // Lazy-load chart components for better initial load performance
 import { ChartSkeleton } from "../components/charts";
 import { useTheme } from "../contexts/ThemeContext";
@@ -88,7 +88,7 @@ const HealthTab = ({ isDarkMode }) => {
   const [error, setError] = useState(null);
   const [healthData, setHealthData] = useState(null);
 
-  const loadHealthData = async () => {
+  const loadHealthData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -100,7 +100,7 @@ const HealthTab = ({ isDarkMode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadHealthData();
@@ -253,7 +253,7 @@ const CostVarianceTab = ({ isDarkMode }) => {
   const [error, setError] = useState(null);
   const [varianceData, setVarianceData] = useState(null);
 
-  const loadVarianceData = async () => {
+  const loadVarianceData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -265,7 +265,7 @@ const CostVarianceTab = ({ isDarkMode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadVarianceData();
@@ -406,7 +406,7 @@ const ModificationLogTab = ({ isDarkMode }) => {
   });
   const [showFilters, setShowFilters] = useState(false);
 
-  const loadLogData = async () => {
+  const loadLogData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -425,7 +425,7 @@ const ModificationLogTab = ({ isDarkMode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   useEffect(() => {
     loadLogData();
@@ -696,7 +696,7 @@ const BatchAgingTab = ({ isDarkMode }) => {
   const [error, setError] = useState(null);
   const [agingData, setAgingData] = useState(null);
 
-  const loadAgingData = async () => {
+  const loadAgingData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -708,7 +708,7 @@ const BatchAgingTab = ({ isDarkMode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadAgingData();

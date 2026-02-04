@@ -37,7 +37,7 @@ describe("supplierBillService", () => {
 
       assert.ok(result.data);
       assert.ok(result.data[0].status);
-      assert.ok(result.pagination).toBeDefined();
+      assert.ok(result.pagination !== undefined);
     });
 
     test("should filter by supplier ID", async () => {
@@ -151,7 +151,7 @@ describe("supplierBillService", () => {
 
       assert.ok(result.id);
       assert.ok(result.supplierName);
-      assert.ok(result.items).toBeDefined();
+      assert.ok(result.items !== undefined);
     });
 
     test("should handle null response", async () => {
@@ -230,7 +230,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.create(billData);
 
       assert.ok(result.id);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/supplier-bills", );
+      sinon.assert.calledWith(apiClient.post, "/supplier-bills", );
     });
 
     test("should handle VAT categories in items", async () => {
@@ -274,7 +274,7 @@ describe("supplierBillService", () => {
 
       await supplierBillService.update(1, updateData);
 
-      assert.ok(apiClient.put).toHaveBeenCalledWith("/supplier-bills/1", );
+      sinon.assert.calledWith(apiClient.put, "/supplier-bills/1", );
     });
   });
 
@@ -285,7 +285,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.delete(1, "Duplicate entry");
 
       assert.ok(result.success);
-      assert.ok(apiClient.delete).toHaveBeenCalledWith("/supplier-bills/1", {
+      sinon.assert.calledWith(apiClient.delete, "/supplier-bills/1", {
         data: { reason: "Duplicate entry" },
       });
     });
@@ -295,7 +295,7 @@ describe("supplierBillService", () => {
 
       await supplierBillService.delete(1);
 
-      assert.ok(apiClient.delete).toHaveBeenCalledWith("/supplier-bills/1", {
+      sinon.assert.calledWith(apiClient.delete, "/supplier-bills/1", {
         data: { reason: "" },
       });
     });
@@ -312,7 +312,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.approve(1, "Ready for payment");
 
       assert.ok(result.status);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/supplier-bills/1/approve", {
+      sinon.assert.calledWith(apiClient.post, "/supplier-bills/1/approve", {
         notes: "Ready for payment",
       });
     });
@@ -328,7 +328,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.reject(1, "Missing documents");
 
       assert.ok(result.approvalStatus);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/supplier-bills/1/reject", {
+      sinon.assert.calledWith(apiClient.post, "/supplier-bills/1/reject", {
         reason: "Missing documents",
       });
     });
@@ -344,7 +344,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.cancel(1, "Order cancelled");
 
       assert.ok(result.status);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/supplier-bills/1/cancel", {
+      sinon.assert.calledWith(apiClient.post, "/supplier-bills/1/cancel", {
         cancellationReason: "Order cancelled",
       });
     });
@@ -367,10 +367,8 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.recordPayment(1, paymentData);
 
       assert.ok(result.amountPaid);
-      assert.ok(apiClient.post).toHaveBeenCalledWith(
-        "/supplier-bills/1/payments",
-        Object.keys({ amount: 500 }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+      sinon.assert.calledWith(apiClient.post, "/supplier-bills/1/payments",
+        Object.keys({ amount: 500 }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should handle payment with attachment", async () => {
@@ -415,7 +413,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.voidPayment(1, 123, "Erroneous payment");
 
       assert.ok(result.amountPaid);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/supplier-bills/1/payments/123/void", {
+      sinon.assert.calledWith(apiClient.post, "/supplier-bills/1/payments/123/void", {
         reason: "Erroneous payment",
       });
     });
@@ -439,7 +437,7 @@ describe("supplierBillService", () => {
       });
 
       assert.ok(result.totalInputVat);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/supplier-bills/vat-summary", );
+      sinon.assert.calledWith(apiClient.get, "/supplier-bills/vat-summary", );
     });
 
     test("should filter by VAT category", async () => {
@@ -487,7 +485,7 @@ describe("supplierBillService", () => {
         supplierId: 1,
       });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/supplier-bills/analytics", );
+      sinon.assert.calledWith(apiClient.get, "/supplier-bills/analytics", );
     });
   });
 

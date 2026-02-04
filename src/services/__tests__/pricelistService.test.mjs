@@ -30,7 +30,7 @@ describe("pricelistService", () => {
 
       assert.ok(result);
       assert.ok(result[0].name);
-      assert.ok(api.get).toHaveBeenCalledWith("/pricelists", { params: { page: 1 } });
+      sinon.assert.calledWith(api.get, "/pricelists", { params: { page: 1 } });
     });
 
     test("should handle empty pricelist", async () => {
@@ -59,7 +59,7 @@ describe("pricelistService", () => {
 
       assert.ok(result.id);
       assert.ok(result.items);
-      assert.ok(api.get).toHaveBeenCalledWith("/pricelists/1");
+      sinon.assert.calledWith(api.get, "/pricelists/1");
     });
 
     test("should handle pricelist not found", async () => {
@@ -85,7 +85,7 @@ describe("pricelistService", () => {
 
       assert.ok(result.id);
       assert.ok(result.name);
-      assert.ok(api.post).toHaveBeenCalledWith("/pricelists", newPricelist);
+      sinon.assert.calledWith(api.post, "/pricelists", newPricelist);
     });
 
     test("should handle validation errors on create", async () => {
@@ -105,7 +105,7 @@ describe("pricelistService", () => {
       const result = await pricelistService.update(1, updates);
 
       assert.ok(result.name);
-      assert.ok(api.put).toHaveBeenCalledWith("/pricelists/1", updates);
+      sinon.assert.calledWith(api.put, "/pricelists/1", updates);
     });
 
     test("should handle update not found", async () => {
@@ -122,7 +122,7 @@ describe("pricelistService", () => {
       const result = await pricelistService.delete(1);
 
       assert.ok(result.success);
-      assert.ok(api.delete).toHaveBeenCalledWith("/pricelists/1", {
+      sinon.assert.calledWith(api.delete, "/pricelists/1", {
         params: { hard_delete: false },
       });
     });
@@ -132,7 +132,7 @@ describe("pricelistService", () => {
 
       const _result = await pricelistService.delete(1, true);
 
-      assert.ok(api.delete).toHaveBeenCalledWith("/pricelists/1", {
+      sinon.assert.calledWith(api.delete, "/pricelists/1", {
         params: { hard_delete: true },
       });
     });
@@ -150,7 +150,7 @@ describe("pricelistService", () => {
 
       assert.ok(result);
       assert.ok(result[0].price);
-      assert.ok(api.get).toHaveBeenCalledWith("/pricelists/1/items");
+      sinon.assert.calledWith(api.get, "/pricelists/1/items");
     });
 
     test("should handle empty items list", async () => {
@@ -174,7 +174,7 @@ describe("pricelistService", () => {
       const result = await pricelistService.updateItems(1, items);
 
       assert.ok(result.updated);
-      assert.ok(api.put).toHaveBeenCalledWith("/pricelists/1/items", {
+      sinon.assert.calledWith(api.put, "/pricelists/1/items", {
         items,
         operation: "upsert",
       });
@@ -186,7 +186,7 @@ describe("pricelistService", () => {
 
       await pricelistService.updateItems(1, items, "replace");
 
-      assert.ok(api.put).toHaveBeenCalledWith("/pricelists/1/items", {
+      sinon.assert.calledWith(api.put, "/pricelists/1/items", {
         items,
         operation: "replace",
       });
@@ -201,7 +201,7 @@ describe("pricelistService", () => {
 
       await pricelistService.addItem(1, item);
 
-      assert.ok(api.post).toHaveBeenCalledWith("/pricelists/1/items", item);
+      sinon.assert.calledWith(api.post, "/pricelists/1/items", item);
     });
   });
 
@@ -212,7 +212,7 @@ describe("pricelistService", () => {
       const result = await pricelistService.removeItem(1, 101);
 
       assert.ok(result.success);
-      assert.ok(api.delete).toHaveBeenCalledWith("/pricelists/1/items/101");
+      sinon.assert.calledWith(api.delete, "/pricelists/1/items/101");
     });
   });
 
@@ -224,7 +224,7 @@ describe("pricelistService", () => {
       const result = await pricelistService.applyPercentage(1, 10, "increase");
 
       assert.ok(result.itemsUpdated);
-      assert.ok(api.post).toHaveBeenCalledWith("/pricelists/1/apply-percentage", {
+      sinon.assert.calledWith(api.post, "/pricelists/1/apply-percentage", {
         percentage: 10,
         operation: "increase",
       });
@@ -235,7 +235,7 @@ describe("pricelistService", () => {
 
       await pricelistService.applyPercentage(1, 5, "decrease");
 
-      assert.ok(api.post).toHaveBeenCalledWith("/pricelists/1/apply-percentage", {
+      sinon.assert.calledWith(api.post, "/pricelists/1/apply-percentage", {
         percentage: 5,
         operation: "decrease",
       });
@@ -250,7 +250,7 @@ describe("pricelistService", () => {
       const result = await pricelistService.copyFrom(2, 1, 0);
 
       assert.ok(result.itemsCopied);
-      assert.ok(api.post).toHaveBeenCalledWith("/pricelists/2/copy-from", {
+      sinon.assert.calledWith(api.post, "/pricelists/2/copy-from", {
         source_pricelist_id: 1,
         percentage_adjustment: 0,
       });
@@ -261,7 +261,7 @@ describe("pricelistService", () => {
 
       await pricelistService.copyFrom(2, 1, 15);
 
-      assert.ok(api.post).toHaveBeenCalledWith("/pricelists/2/copy-from", {
+      sinon.assert.calledWith(api.post, "/pricelists/2/copy-from", {
         source_pricelist_id: 1,
         percentage_adjustment: 15,
       });
@@ -276,7 +276,7 @@ describe("pricelistService", () => {
       const result = await pricelistService.getProductPrice(101, { listId: 1 });
 
       assert.ok(result.price);
-      assert.ok(api.get).toHaveBeenCalledWith("/products/101/price", {
+      sinon.assert.calledWith(api.get, "/products/101/price", {
         params: { listId: 1 },
       });
     });
@@ -297,7 +297,7 @@ describe("pricelistService", () => {
 
       assert.ok(result);
       assert.ok(result[0].price);
-      assert.ok(api.post).toHaveBeenCalledWith("/products/bulk-price-lookup", {
+      sinon.assert.calledWith(api.post, "/products/bulk-price-lookup", {
         product_ids: [101, 102, 103],
         listId: 1,
       });

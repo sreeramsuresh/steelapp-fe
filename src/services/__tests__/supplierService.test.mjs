@@ -48,7 +48,7 @@ describe("supplierService", () => {
 
       assert.ok(result.suppliers);
       assert.ok(result.suppliers[0].name);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/suppliers", { page: 1, limit: 20 });
+      sinon.assert.calledWith(apiClient.get, "/suppliers", { page: 1, limit: 20 });
     });
 
     test("should handle API errors and return localStorage fallback", async () => {
@@ -86,7 +86,7 @@ describe("supplierService", () => {
       const result = await supplierService.getSupplier(3);
 
       assert.ok(result.name);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/suppliers/3");
+      sinon.assert.calledWith(apiClient.get, "/suppliers/3");
     });
 
     test("should fallback to localStorage if API fails", async () => {
@@ -126,7 +126,7 @@ describe("supplierService", () => {
 
       assert.ok(result.id);
       assert.ok(result.companyId);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/suppliers", newSupplier);
+      sinon.assert.calledWith(apiClient.post, "/suppliers", newSupplier);
     });
 
     test("should fallback to localStorage if API fails", async () => {
@@ -154,7 +154,7 @@ describe("supplierService", () => {
 
       const result = await supplierService.createSupplier(newSupplier);
 
-      assert.ok(result.id).toBeDefined();
+      assert.ok(result.id !== undefined);
       assert.ok(result.id).toMatch(/^sup_\d+$/);
     });
   });
@@ -174,7 +174,7 @@ describe("supplierService", () => {
 
       assert.ok(result.status);
       assert.ok(result.country);
-      assert.ok(apiClient.put).toHaveBeenCalledWith("/suppliers/3", updates);
+      sinon.assert.calledWith(apiClient.put, "/suppliers/3", updates);
     });
 
     test("should fallback to localStorage if API fails", async () => {
@@ -198,7 +198,7 @@ describe("supplierService", () => {
       const result = await supplierService.deleteSupplier(5);
 
       assert.ok(result.success);
-      assert.ok(apiClient.delete).toHaveBeenCalledWith("/suppliers/5");
+      sinon.assert.calledWith(apiClient.delete, "/suppliers/5");
     });
 
     test("should fallback to localStorage if API fails", async () => {
@@ -338,7 +338,7 @@ describe("supplierService", () => {
       const result = await supplierService.createSupplier(data);
 
       assert.ok(result.name);
-      assert.ok(result.id).toBeDefined();
+      assert.ok(result.id !== undefined);
     });
   });
 });

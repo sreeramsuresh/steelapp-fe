@@ -28,7 +28,7 @@ describe("vatRateService", () => {
       const result = await vatRateService.getAll();
 
       assert.ok(result);
-      assert.ok(api.get).toHaveBeenCalledWith("/vat-rates");
+      sinon.assert.calledWith(api.get, "/vat-rates");
     });
 
     test("should handle response with rates property", async () => {
@@ -64,7 +64,7 @@ describe("vatRateService", () => {
       const result = await vatRateService.getById(1);
 
       assert.ok(result);
-      assert.ok(api.get).toHaveBeenCalledWith("/vat-rates/1");
+      sinon.assert.calledWith(api.get, "/vat-rates/1");
     });
 
     test("should handle rate not found", async () => {
@@ -84,7 +84,7 @@ describe("vatRateService", () => {
       const result = await vatRateService.create(rateData);
 
       assert.ok(result);
-      assert.ok(api.post).toHaveBeenCalledWith("/vat-rates", rateData);
+      sinon.assert.calledWith(api.post, "/vat-rates", rateData);
     });
 
     test("should handle creation errors", async () => {
@@ -105,7 +105,7 @@ describe("vatRateService", () => {
       const result = await vatRateService.update(1, rateData);
 
       assert.ok(result);
-      assert.ok(api.put).toHaveBeenCalledWith("/vat-rates/1", rateData);
+      sinon.assert.calledWith(api.put, "/vat-rates/1", rateData);
     });
 
     test("should handle update errors", async () => {
@@ -125,7 +125,7 @@ describe("vatRateService", () => {
       const result = await vatRateService.toggle(1);
 
       assert.ok(result);
-      assert.ok(api.patch).toHaveBeenCalledWith("/vat-rates/1/toggle");
+      sinon.assert.calledWith(api.patch, "/vat-rates/1/toggle");
     });
   });
 
@@ -138,7 +138,7 @@ describe("vatRateService", () => {
       const result = await vatRateService.delete(1);
 
       assert.ok(result);
-      assert.ok(api.delete).toHaveBeenCalledWith("/vat-rates/1");
+      sinon.assert.calledWith(api.delete, "/vat-rates/1");
     });
 
     test("should handle deletion errors", async () => {

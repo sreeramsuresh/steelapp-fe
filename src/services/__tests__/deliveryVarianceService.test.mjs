@@ -26,10 +26,8 @@ describe("deliveryVarianceService", () => {
 
       assert.ok(result.on_time_percentage);
       assert.ok(result.late_deliveries);
-      assert.ok(api.get).toHaveBeenCalledWith(
-        "/delivery-variance/kpis",
-        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+      sinon.assert.calledWith(api.get, "/delivery-variance/kpis",
+        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should support custom daysBack parameter", async () => {
@@ -40,10 +38,8 @@ describe("deliveryVarianceService", () => {
 
       await deliveryVarianceService.getDeliveryVarianceKPIs(30);
 
-      assert.ok(api.get).toHaveBeenCalledWith(
-        "/delivery-variance/kpis",
-        Object.keys({ params: { daysBack: 30 } }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+      sinon.assert.calledWith(api.get, "/delivery-variance/kpis",
+        Object.keys({ params: { daysBack: 30 } }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
   });
 
@@ -60,10 +56,8 @@ describe("deliveryVarianceService", () => {
 
       assert.ok(result);
       assert.ok(result[0].on_time_percentage);
-      assert.ok(api.get).toHaveBeenCalledWith(
-        "/delivery-variance/trend",
-        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+      sinon.assert.calledWith(api.get, "/delivery-variance/trend",
+        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
   });
 
@@ -81,10 +75,8 @@ describe("deliveryVarianceService", () => {
 
       assert.ok(result);
       assert.ok(result[0].range);
-      assert.ok(api.get).toHaveBeenCalledWith(
-        "/delivery-variance/breakdown",
-        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+      sinon.assert.calledWith(api.get, "/delivery-variance/breakdown",
+        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
   });
 
@@ -113,12 +105,10 @@ describe("deliveryVarianceService", () => {
 
       assert.ok(result);
       assert.ok(result[0].variance_days);
-      assert.ok(api.get).toHaveBeenCalledWith(
-        "/delivery-variance/late-deliveries",
+      sinon.assert.calledWith(api.get, "/delivery-variance/late-deliveries",
         Object.keys({
           params: { limit: 20, daysBack: 90 },
-        }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should support custom limit parameter", async () => {
@@ -126,12 +116,10 @@ describe("deliveryVarianceService", () => {
 
       await deliveryVarianceService.getRecentLateDeliveries(50, 180);
 
-      assert.ok(api.get).toHaveBeenCalledWith(
-        "/delivery-variance/late-deliveries",
+      sinon.assert.calledWith(api.get, "/delivery-variance/late-deliveries",
         Object.keys({
           params: { limit: 50, daysBack: 180 },
-        }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
   });
 
@@ -151,10 +139,8 @@ describe("deliveryVarianceService", () => {
       const result = await deliveryVarianceService.getSupplierPerformanceComparison(10, 90);
 
       assert.ok(Array.isArray(result));
-      assert.ok(api.get).toHaveBeenCalledWith(
-        "/delivery-variance/supplier-comparison",
-        Object.keys({ params: { limit: 10, daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+      sinon.assert.calledWith(api.get, "/delivery-variance/supplier-comparison",
+        Object.keys({ params: { limit: 10, daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
   });
 
@@ -171,10 +157,8 @@ describe("deliveryVarianceService", () => {
       const result = await deliveryVarianceService.getHealthReport(90);
 
       assert.ok(result.overall_health);
-      assert.ok(api.get).toHaveBeenCalledWith(
-        "/delivery-variance/health-report",
-        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+      sinon.assert.calledWith(api.get, "/delivery-variance/health-report",
+        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
   });
 
@@ -193,10 +177,8 @@ describe("deliveryVarianceService", () => {
       const result = await deliveryVarianceService.generateRecommendations(90);
 
       assert.ok(Array.isArray(result));
-      assert.ok(api.get).toHaveBeenCalledWith(
-        "/delivery-variance/recommendations",
-        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+      sinon.assert.calledWith(api.get, "/delivery-variance/recommendations",
+        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
   });
 
@@ -214,10 +196,8 @@ describe("deliveryVarianceService", () => {
       const result = await deliveryVarianceService.getSupplierScorecard(1, 90);
 
       assert.ok(result.supplier_name);
-      assert.ok(api.get).toHaveBeenCalledWith(
-        "/delivery-variance/supplier/1/scorecard",
-        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+      sinon.assert.calledWith(api.get, "/delivery-variance/supplier/1/scorecard",
+        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
   });
 
@@ -236,7 +216,7 @@ describe("deliveryVarianceService", () => {
       const result = await deliveryVarianceService.getAtRiskSuppliers();
 
       assert.ok(Array.isArray(result));
-      assert.ok(api.get).toHaveBeenCalledWith("/delivery-variance/at-risk-suppliers");
+      sinon.assert.calledWith(api.get, "/delivery-variance/at-risk-suppliers");
     });
   });
 });

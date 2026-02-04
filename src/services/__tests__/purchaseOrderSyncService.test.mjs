@@ -126,7 +126,7 @@ describe("purchaseOrderSyncService", () => {
 
       await purchaseOrderSyncService.addPOItemsToInventory(po);
 
-      assert.ok(notificationService.success).toHaveBeenCalledWith(expect.stringContaining("Added"));
+      sinon.assert.calledWith(notificationService.success, expect.stringContaining("Added"));
     });
   });
 

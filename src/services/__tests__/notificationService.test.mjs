@@ -37,8 +37,7 @@ describe("notificationService", () => {
     test("should show success toast with correct styling", () => {
       const result = notificationService.success("Operation completed!");
 
-      assert.ok(toast.success).toHaveBeenCalledWith(
-        "Operation completed!",
+      sinon.assert.calledWith(toast.success, "Operation completed!",
         Object.keys({
           duration: 4000,
           position: "top-right",
@@ -46,45 +45,44 @@ describe("notificationService", () => {
             primary: "#10b981", // green-500
             secondary: "#ffffff",
           },
-        }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
       assert.ok(result.type);
     });
 
     test("should support custom options", () => {
       notificationService.success("Custom message", { duration: 2000 });
 
-      assert.ok(toast.success).toHaveBeenCalledWith("Custom message", Object.keys({ duration: 2000 }).every(k => typeof arguments[0][k] !== 'undefined'));
+      sinon.assert.calledWith(toast.success, "Custom message", Object.keys({ duration: 2000 }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should use apiSuccess helper", () => {
       notificationService.apiSuccess("Save");
 
-      assert.ok(toast.success).toHaveBeenCalledWith("Save completed successfully!", );
+      sinon.assert.calledWith(toast.success, "Save completed successfully!", );
     });
 
     test("should use formSuccess helper", () => {
       notificationService.formSuccess("Contact Form");
 
-      assert.ok(toast.success).toHaveBeenCalledWith("Contact Form saved successfully!", );
+      sinon.assert.calledWith(toast.success, "Contact Form saved successfully!", );
     });
 
     test("should use createSuccess helper", () => {
       notificationService.createSuccess("Invoice");
 
-      assert.ok(toast.success).toHaveBeenCalledWith("Invoice created successfully!", );
+      sinon.assert.calledWith(toast.success, "Invoice created successfully!", );
     });
 
     test("should use updateSuccess helper", () => {
       notificationService.updateSuccess("Customer");
 
-      assert.ok(toast.success).toHaveBeenCalledWith("Customer updated successfully!", );
+      sinon.assert.calledWith(toast.success, "Customer updated successfully!", );
     });
 
     test("should use deleteSuccess helper", () => {
       notificationService.deleteSuccess("Product");
 
-      assert.ok(toast.success).toHaveBeenCalledWith("Product deleted successfully!", );
+      sinon.assert.calledWith(toast.success, "Product deleted successfully!", );
     });
   });
 
@@ -92,23 +90,21 @@ describe("notificationService", () => {
     test("should show error toast with longer duration", () => {
       const result = notificationService.error("Something went wrong!");
 
-      assert.ok(toast.error).toHaveBeenCalledWith(
-        "Something went wrong!",
+      sinon.assert.calledWith(toast.error, "Something went wrong!",
         Object.keys({
           duration: 6000, // Longer than success
           iconTheme: {
             primary: "#ef4444", // red-500
             secondary: "#ffffff",
           },
-        }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
       assert.ok(result.type);
     });
 
     test("should support custom error options", () => {
       notificationService.error("Custom error", { duration: 8000 });
 
-      assert.ok(toast.error).toHaveBeenCalledWith("Custom error", Object.keys({ duration: 8000 }).every(k => typeof arguments[0][k] !== 'undefined'));
+      sinon.assert.calledWith(toast.error, "Custom error", Object.keys({ duration: 8000 }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should use apiError helper with error object", () => {
@@ -118,7 +114,7 @@ describe("notificationService", () => {
 
       notificationService.apiError("Upload", error);
 
-      assert.ok(toast.error).toHaveBeenCalledWith("Server error", );
+      sinon.assert.calledWith(toast.error, "Server error", );
     });
 
     test("should use apiError helper with fallback message", () => {
@@ -126,7 +122,7 @@ describe("notificationService", () => {
 
       notificationService.apiError("Delete", error);
 
-      assert.ok(toast.error).toHaveBeenCalledWith("Network error", );
+      sinon.assert.calledWith(toast.error, "Network error", );
     });
 
     test("should use formError helper", () => {
@@ -134,7 +130,7 @@ describe("notificationService", () => {
 
       notificationService.formError("Profile", error);
 
-      assert.ok(toast.error).toHaveBeenCalledWith("Validation failed", );
+      sinon.assert.calledWith(toast.error, "Validation failed", );
     });
 
     test("should use deleteError helper", () => {
@@ -144,7 +140,7 @@ describe("notificationService", () => {
 
       notificationService.deleteError("Department", error);
 
-      assert.ok(toast.error).toHaveBeenCalledWith("Item in use", );
+      sinon.assert.calledWith(toast.error, "Item in use", );
     });
 
     test("should use updateError helper", () => {
@@ -152,7 +148,7 @@ describe("notificationService", () => {
 
       notificationService.updateError("Settings", error);
 
-      assert.ok(toast.error).toHaveBeenCalledWith("Update failed", );
+      sinon.assert.calledWith(toast.error, "Update failed", );
     });
 
     test("should use createError helper", () => {
@@ -160,7 +156,7 @@ describe("notificationService", () => {
 
       notificationService.createError("Account", error);
 
-      assert.ok(toast.error).toHaveBeenCalledWith("Create failed", );
+      sinon.assert.calledWith(toast.error, "Create failed", );
     });
   });
 
@@ -168,22 +164,20 @@ describe("notificationService", () => {
     test("should show warning toast", () => {
       notificationService.warning("Please review this carefully");
 
-      assert.ok(toast).toHaveBeenCalledWith(
-        "Please review this carefully",
+      sinon.assert.calledWith(toast, "Please review this carefully",
         Object.keys({
           icon: "⚠️",
           iconTheme: {
             primary: "#f59e0b", // amber-500
             secondary: "#ffffff",
           },
-        }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should support custom warning options", () => {
       notificationService.warning("Warning message", { duration: 5000 });
 
-      assert.ok(toast).toHaveBeenCalledWith("Warning message", Object.keys({ duration: 5000 }).every(k => typeof arguments[0][k] !== 'undefined'));
+      sinon.assert.calledWith(toast, "Warning message", Object.keys({ duration: 5000 }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
   });
 
@@ -191,22 +185,20 @@ describe("notificationService", () => {
     test("should show info toast", () => {
       notificationService.info("Processing your request...");
 
-      assert.ok(toast).toHaveBeenCalledWith(
-        "Processing your request...",
+      sinon.assert.calledWith(toast, "Processing your request...",
         Object.keys({
           icon: "ℹ️",
           iconTheme: {
             primary: "#3b82f6", // blue-500
             secondary: "#ffffff",
           },
-        }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should support custom info options", () => {
       notificationService.info("Info message", { position: "bottom-center" });
 
-      assert.ok(toast).toHaveBeenCalledWith("Info message", Object.keys({ position: "bottom-center" }).every(k => typeof arguments[0][k] !== 'undefined'));
+      sinon.assert.calledWith(toast, "Info message", Object.keys({ position: "bottom-center" }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
   });
 
@@ -214,14 +206,14 @@ describe("notificationService", () => {
     test("should show loading state", () => {
       const result = notificationService.loading("Loading data...");
 
-      assert.ok(toast.loading).toHaveBeenCalledWith("Loading data...", );
+      sinon.assert.calledWith(toast.loading, "Loading data...", );
       assert.ok(result.type);
     });
 
     test("should support custom loading options", () => {
       notificationService.loading("Processing...", { duration: 10000 });
 
-      assert.ok(toast.loading).toHaveBeenCalledWith("Processing...", Object.keys({ duration: 10000 }).every(k => typeof arguments[0][k] !== 'undefined'));
+      sinon.assert.calledWith(toast.loading, "Processing...", Object.keys({ duration: 10000 }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
   });
 
@@ -236,7 +228,7 @@ describe("notificationService", () => {
 
       await notificationService.promise(testPromise, messages);
 
-      assert.ok(toast.promise).toHaveBeenCalledWith(testPromise, messages, );
+      sinon.assert.calledWith(toast.promise, testPromise, messages, );
     });
 
     test("should handle rejected promises", async () => {
@@ -263,7 +255,7 @@ describe("notificationService", () => {
 
       notificationService.custom(customJsx);
 
-      assert.ok(toast.custom).toHaveBeenCalledWith(customJsx, );
+      sinon.assert.calledWith(toast.custom, customJsx, );
     });
 
     test("should support custom options", () => {
@@ -271,7 +263,7 @@ describe("notificationService", () => {
 
       notificationService.custom(customJsx, { duration: 3000 });
 
-      assert.ok(toast.custom).toHaveBeenCalledWith(customJsx, Object.keys({ duration: 3000 }).every(k => typeof arguments[0][k] !== 'undefined'));
+      sinon.assert.calledWith(toast.custom, customJsx, Object.keys({ duration: 3000 }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
   });
 
@@ -279,13 +271,13 @@ describe("notificationService", () => {
     test("should dismiss specific toast", () => {
       notificationService.dismiss("toast-id-123");
 
-      assert.ok(toast.dismiss).toHaveBeenCalledWith("toast-id-123");
+      sinon.assert.calledWith(toast.dismiss, "toast-id-123");
     });
 
     test("should remove specific toast", () => {
       notificationService.remove("toast-id-456");
 
-      assert.ok(toast.remove).toHaveBeenCalledWith("toast-id-456");
+      sinon.assert.calledWith(toast.remove, "toast-id-456");
     });
   });
 
@@ -294,32 +286,28 @@ describe("notificationService", () => {
       notificationService.setTheme(true);
       notificationService.success("Dark mode message");
 
-      assert.ok(toast.success).toHaveBeenCalledWith(
-        "Dark mode message",
+      sinon.assert.calledWith(toast.success, "Dark mode message",
         Object.keys({
           style: expect.objectContaining({
             background: "#1f2937", // gray-800
             color: "#f9fafb", // gray-50
             border: expect.stringContaining("#374151").every(k => typeof arguments[0][k] !== 'undefined'), // gray-700
           }),
-        })
-      );
+        }));
     });
 
     test("should apply light mode styles when disabled", () => {
       notificationService.setTheme(false);
       notificationService.success("Light mode message");
 
-      assert.ok(toast.success).toHaveBeenCalledWith(
-        "Light mode message",
+      sinon.assert.calledWith(toast.success, "Light mode message",
         Object.keys({
           style: expect.objectContaining({
             background: "#ffffff",
             color: "#111827", // gray-900
             border: expect.stringContaining("#e5e7eb").every(k => typeof arguments[0][k] !== 'undefined'), // gray-200
           }),
-        })
-      );
+        }));
     });
   });
 
@@ -385,7 +373,7 @@ describe("notificationService", () => {
 
       notificationService.apiError("Operation", error);
 
-      assert.ok(toast.error).toHaveBeenCalledWith("Custom error message", );
+      sinon.assert.calledWith(toast.error, "Custom error message", );
     });
 
     test("should fallback to error.message", () => {
@@ -393,13 +381,13 @@ describe("notificationService", () => {
 
       notificationService.apiError("Operation", error);
 
-      assert.ok(toast.error).toHaveBeenCalledWith("Fallback message", );
+      sinon.assert.calledWith(toast.error, "Fallback message", );
     });
 
     test("should use default message if no error details available", () => {
       notificationService.apiError("Operation");
 
-      assert.ok(toast.error).toHaveBeenCalledWith("Operation failed", );
+      sinon.assert.calledWith(toast.error, "Operation failed", );
     });
   });
 

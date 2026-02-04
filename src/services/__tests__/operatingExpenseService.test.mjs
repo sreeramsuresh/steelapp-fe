@@ -39,7 +39,7 @@ describe("operatingExpenseService", () => {
 
       assert.ok(result.data);
       assert.ok(result.pagination.total);
-      assert.ok(api.get).toHaveBeenCalledWith("/operating-expenses", );
+      sinon.assert.calledWith(api.get, "/operating-expenses", );
     });
 
     test("should filter by expense type", async () => {
@@ -49,14 +49,12 @@ describe("operatingExpenseService", () => {
         expense_type: "salaries",
       });
 
-      assert.ok(api.get).toHaveBeenCalledWith(
-        "/operating-expenses",
+      sinon.assert.calledWith(api.get, "/operating-expenses",
         Object.keys({
           params: expect.objectContaining({
             expense_type: "salaries",
           }).every(k => typeof arguments[0][k] !== 'undefined'),
-        })
-      );
+        }));
     });
   });
 
@@ -78,7 +76,7 @@ describe("operatingExpenseService", () => {
 
       assert.ok(result.amount);
       assert.ok(result.approved_by);
-      assert.ok(api.get).toHaveBeenCalledWith("/operating-expenses/1");
+      sinon.assert.calledWith(api.get, "/operating-expenses/1");
     });
   });
 
@@ -102,7 +100,7 @@ describe("operatingExpenseService", () => {
       const result = await operatingExpenseService.createExpense(payload);
 
       assert.ok(result.id);
-      assert.ok(api.post).toHaveBeenCalledWith("/operating-expenses", payload);
+      sinon.assert.calledWith(api.post, "/operating-expenses", payload);
     });
   });
 
@@ -117,7 +115,7 @@ describe("operatingExpenseService", () => {
       const result = await operatingExpenseService.updateExpense(1, payload);
 
       assert.ok(result.amount);
-      assert.ok(api.put).toHaveBeenCalledWith("/operating-expenses/1", payload);
+      sinon.assert.calledWith(api.put, "/operating-expenses/1", payload);
     });
   });
 
@@ -128,7 +126,7 @@ describe("operatingExpenseService", () => {
       const result = await operatingExpenseService.deleteExpense(1);
 
       assert.ok(result.success);
-      assert.ok(api.delete).toHaveBeenCalledWith("/operating-expenses/1");
+      sinon.assert.calledWith(api.delete, "/operating-expenses/1");
     });
   });
 
@@ -148,7 +146,7 @@ describe("operatingExpenseService", () => {
       });
 
       assert.ok(result.status);
-      assert.ok(api.put).toHaveBeenCalledWith("/operating-expenses/1/approve", );
+      sinon.assert.calledWith(api.put, "/operating-expenses/1/approve", );
     });
   });
 

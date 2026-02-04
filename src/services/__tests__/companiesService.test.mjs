@@ -50,7 +50,7 @@ describe("companiesService", () => {
 
       assert.ok(result.id);
       assert.ok(result.name);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/company");
+      sinon.assert.calledWith(apiClient.get, "/company");
     });
 
     test("should handle company not found", async () => {
@@ -113,7 +113,7 @@ describe("companiesService", () => {
       const result = await companyService.updateCompany(companyData);
 
       assert.ok(result.name);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/company", companyData);
+      sinon.assert.calledWith(apiClient.post, "/company", companyData);
     });
 
     test("should update company with all fields", async () => {
@@ -145,7 +145,7 @@ describe("companiesService", () => {
       const result = await companyService.updateCompanyById(companyId, companyData);
 
       assert.ok(result.name);
-      assert.ok(apiClient.put).toHaveBeenCalledWith(`/company/${companyId}`, companyData);
+      sinon.assert.calledWith(apiClient.put, `/company/${companyId}`, companyData);
     });
 
     test("should handle validation errors on update", async () => {
@@ -255,7 +255,7 @@ describe("companiesService", () => {
       const result = await companyService.deleteLogo(filename);
 
       assert.ok(result.success);
-      assert.ok(apiClient.delete).toHaveBeenCalledWith(`/company/logo/${filename}`);
+      sinon.assert.calledWith(apiClient.delete, `/company/logo/${filename}`);
     });
 
     test("should cleanup old logos", async () => {
@@ -265,7 +265,7 @@ describe("companiesService", () => {
       const result = await companyService.cleanupLogos();
 
       assert.ok(result.deleted);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/company/cleanup-logos");
+      sinon.assert.calledWith(apiClient.post, "/company/cleanup-logos");
     });
   });
 
@@ -291,7 +291,7 @@ describe("companiesService", () => {
       const result = await companyService.deleteBrandmark(filename);
 
       assert.ok(result.success);
-      assert.ok(apiClient.delete).toHaveBeenCalledWith(`/company/brandmark/${filename}`);
+      sinon.assert.calledWith(apiClient.delete, `/company/brandmark/${filename}`);
     });
 
     test("should handle brandmark upload error", async () => {
@@ -327,7 +327,7 @@ describe("companiesService", () => {
       const result = await companyService.deleteSeal(filename);
 
       assert.ok(result.success);
-      assert.ok(apiClient.delete).toHaveBeenCalledWith(`/company/seal/${filename}`);
+      sinon.assert.calledWith(apiClient.delete, `/company/seal/${filename}`);
     });
   });
 
@@ -352,7 +352,7 @@ describe("companiesService", () => {
 
       assert.ok(result.success);
       assert.ok(result.selectedTemplate);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/company/template-settings", templateSettings);
+      sinon.assert.calledWith(apiClient.post, "/company/template-settings", templateSettings);
     });
 
     test("should get current template settings", async () => {
@@ -369,7 +369,7 @@ describe("companiesService", () => {
       const result = await companyService.getTemplateSettings();
 
       assert.ok(result.selectedTemplate);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/company/template-settings");
+      sinon.assert.calledWith(apiClient.get, "/company/template-settings");
     });
 
     test("should handle missing template settings", async () => {
@@ -378,7 +378,7 @@ describe("companiesService", () => {
       const result = await companyService.getTemplateSettings();
 
       // Should handle gracefully
-      assert.ok(result).toBeDefined();
+      assert.ok(result !== undefined);
     });
 
     test("should validate template selection", async () => {

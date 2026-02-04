@@ -38,7 +38,7 @@ describe("warehouseService", () => {
 
       assert.ok(result.data);
       assert.ok(result.data[0].name);
-      assert.ok(result.pagination).toBeDefined();
+      assert.ok(result.pagination !== undefined);
     });
 
     test("should apply default pagination values", async () => {
@@ -49,13 +49,11 @@ describe("warehouseService", () => {
 
       await warehouseService.getAll();
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith(
-        "/warehouses",
+      sinon.assert.calledWith(apiClient.get, "/warehouses",
         Object.keys({
           page: 1,
           limit: 100,
-        }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should filter by search term", async () => {
@@ -63,7 +61,7 @@ describe("warehouseService", () => {
 
       await warehouseService.getAll({ search: "Main" });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/warehouses", Object.keys({ search: "Main" }).every(k => typeof arguments[0][k] !== 'undefined'));
+      sinon.assert.calledWith(apiClient.get, "/warehouses", Object.keys({ search: "Main" }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should filter by active status", async () => {
@@ -71,7 +69,7 @@ describe("warehouseService", () => {
 
       await warehouseService.getAll({ isActive: true });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/warehouses", Object.keys({ is_active: true }).every(k => typeof arguments[0][k] !== 'undefined'));
+      sinon.assert.calledWith(apiClient.get, "/warehouses", Object.keys({ is_active: true }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should handle custom pagination", async () => {
@@ -79,13 +77,11 @@ describe("warehouseService", () => {
 
       await warehouseService.getAll({ page: 2, limit: 50 });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith(
-        "/warehouses",
+      sinon.assert.calledWith(apiClient.get, "/warehouses",
         Object.keys({
           page: 2,
           limit: 50,
-        }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should handle different response formats", async () => {
@@ -135,7 +131,7 @@ describe("warehouseService", () => {
 
       assert.ok(result.totalQuantity);
       assert.ok(result.availableQuantity);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/warehouses/1/dashboard");
+      sinon.assert.calledWith(apiClient.get, "/warehouses/1/dashboard");
     });
 
     test("should return mock data on endpoint failure", async () => {
@@ -176,8 +172,8 @@ describe("warehouseService", () => {
         period: "MONTHLY",
       });
 
-      assert.ok(result.inboundTrend).toBeDefined();
-      assert.ok(result.outboundTrend).toBeDefined();
+      assert.ok(result.inboundTrend !== undefined);
+      assert.ok(result.outboundTrend !== undefined);
       assert.ok(apiClient.get.calledWith("/warehouses/1/analytics", true));
     });
 
@@ -193,13 +189,11 @@ describe("warehouseService", () => {
         endDate: "2024-01-31",
       });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith(
-        "/warehouses/1/analytics",
+      sinon.assert.calledWith(apiClient.get, "/warehouses/1/analytics",
         Object.keys({
           start_date: "2024-01-01",
           end_date: "2024-01-31",
-        }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should return empty analytics on error", async () => {

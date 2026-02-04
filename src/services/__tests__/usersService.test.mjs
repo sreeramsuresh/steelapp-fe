@@ -47,7 +47,7 @@ describe("usersService (userAdminAPI)", () => {
 
       assert.ok(result);
       assert.ok(result[0].email);
-      assert.ok(apiService.get).toHaveBeenCalledWith("/users", { params: {} });
+      sinon.assert.calledWith(apiService.get, "/users", { params: {} });
     });
 
     test("should list users with pagination", async () => {
@@ -64,7 +64,7 @@ describe("usersService (userAdminAPI)", () => {
       const result = await userAdminAPI.list({ page: 1, limit: 10 });
 
       assert.ok(result);
-      assert.ok(apiService.get).toHaveBeenCalledWith("/users", {
+      sinon.assert.calledWith(apiService.get, "/users", {
         params: { page: 1, limit: 10 },
       });
     });
@@ -77,7 +77,7 @@ describe("usersService (userAdminAPI)", () => {
 
       assert.ok(result);
       assert.ok(result[0].role);
-      assert.ok(apiService.get).toHaveBeenCalledWith("/users", {
+      sinon.assert.calledWith(apiService.get, "/users", {
         params: { role: "ADMIN" },
       });
     });
@@ -124,7 +124,7 @@ describe("usersService (userAdminAPI)", () => {
       const result = await userAdminAPI.list({ search: "john@example.com" });
 
       assert.ok(result);
-      assert.ok(apiService.get).toHaveBeenCalledWith("/users", {
+      sinon.assert.calledWith(apiService.get, "/users", {
         params: { search: "john@example.com" },
       });
     });
@@ -164,7 +164,7 @@ describe("usersService (userAdminAPI)", () => {
 
       assert.ok(result.id);
       assert.ok(result.email);
-      assert.ok(apiService.post).toHaveBeenCalledWith("/users", userData);
+      sinon.assert.calledWith(apiService.post, "/users", userData);
     });
 
     test("should create user with permissions", async () => {
@@ -183,7 +183,7 @@ describe("usersService (userAdminAPI)", () => {
       const result = await userAdminAPI.create(userData);
 
       assert.ok(result.permissions);
-      assert.ok(apiService.post).toHaveBeenCalledWith("/users", userData);
+      sinon.assert.calledWith(apiService.post, "/users", userData);
     });
 
     test("should handle user creation error", async () => {
@@ -266,7 +266,7 @@ describe("usersService (userAdminAPI)", () => {
       const result = await userAdminAPI.update(userId, payload);
 
       assert.ok(result.name);
-      assert.ok(apiService.patch).toHaveBeenCalledWith(`/users/${userId}`, payload);
+      sinon.assert.calledWith(apiService.patch, `/users/${userId}`, payload);
     });
 
     test("should update user role", async () => {
@@ -351,7 +351,7 @@ describe("usersService (userAdminAPI)", () => {
       const result = await userAdminAPI.changePassword(userId, payload);
 
       assert.ok(result.success);
-      assert.ok(apiService.put).toHaveBeenCalledWith(`/users/${userId}/password`, payload);
+      sinon.assert.calledWith(apiService.put, `/users/${userId}/password`, payload);
     });
 
     test("should reject incorrect current password", async () => {
@@ -400,7 +400,7 @@ describe("usersService (userAdminAPI)", () => {
       const result = await userAdminAPI.remove(userId);
 
       assert.ok(result.success);
-      assert.ok(apiService.delete).toHaveBeenCalledWith(`/users/${userId}`);
+      sinon.assert.calledWith(apiService.delete, `/users/${userId}`);
     });
 
     test("should handle deletion of non-existent user", async () => {
@@ -471,7 +471,7 @@ describe("usersService (userAdminAPI)", () => {
 
       const result = await userAdminAPI.create(userData);
 
-      assert.ok(result.companyId).toBeDefined();
+      assert.ok(result.companyId !== undefined);
     });
   });
 

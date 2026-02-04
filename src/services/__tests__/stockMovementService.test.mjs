@@ -15,8 +15,8 @@ describe("stockMovementService", () => {
     test("should define all movement types", () => {
       assert.ok(MOVEMENT_TYPES.IN.value);
       assert.ok(MOVEMENT_TYPES.OUT.value);
-      assert.ok(MOVEMENT_TYPES.TRANSFER_OUT).toBeDefined();
-      assert.ok(MOVEMENT_TYPES.ADJUSTMENT).toBeDefined();
+      assert.ok(MOVEMENT_TYPES.TRANSFER_OUT !== undefined);
+      assert.ok(MOVEMENT_TYPES.ADJUSTMENT !== undefined);
     });
 
     test("should have display labels for movements", () => {
@@ -44,8 +44,8 @@ describe("stockMovementService", () => {
     });
 
     test("should support return and credit references", () => {
-      assert.ok(REFERENCE_TYPES.RETURN).toBeDefined();
-      assert.ok(REFERENCE_TYPES.CREDIT_NOTE).toBeDefined();
+      assert.ok(REFERENCE_TYPES.RETURN !== undefined);
+      assert.ok(REFERENCE_TYPES.CREDIT_NOTE !== undefined);
     });
   });
 
@@ -81,7 +81,7 @@ describe("stockMovementService", () => {
 
       await stockMovementService.getAll({ productId: 100 });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/stock-movements", Object.keys({ product_id: 100 }).every(k => typeof arguments[0][k] !== 'undefined'));
+      sinon.assert.calledWith(apiClient.get, "/stock-movements", Object.keys({ product_id: 100 }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should filter by warehouse", async () => {
@@ -89,7 +89,7 @@ describe("stockMovementService", () => {
 
       await stockMovementService.getAll({ warehouseId: 1 });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/stock-movements", Object.keys({ warehouse_id: 1 }).every(k => typeof arguments[0][k] !== 'undefined'));
+      sinon.assert.calledWith(apiClient.get, "/stock-movements", Object.keys({ warehouse_id: 1 }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should filter by movement type", async () => {
@@ -97,7 +97,7 @@ describe("stockMovementService", () => {
 
       await stockMovementService.getAll({ movementType: "IN" });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/stock-movements", Object.keys({ movement_type: "IN" }).every(k => typeof arguments[0][k] !== 'undefined'));
+      sinon.assert.calledWith(apiClient.get, "/stock-movements", Object.keys({ movement_type: "IN" }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should filter by date range", async () => {
@@ -108,7 +108,7 @@ describe("stockMovementService", () => {
         endDate: "2024-01-31",
       });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/stock-movements", );
+      sinon.assert.calledWith(apiClient.get, "/stock-movements", );
     });
   });
 
@@ -300,7 +300,7 @@ describe("stockMovementService", () => {
       const result = await stockMovementService.deleteMovement(1);
 
       assert.ok(result.success);
-      assert.ok(apiClient.delete).toHaveBeenCalledWith("/stock-movements/1");
+      sinon.assert.calledWith(apiClient.delete, "/stock-movements/1");
     });
 
     test("should handle deletion errors", async () => {
@@ -384,7 +384,7 @@ describe("stockMovementService", () => {
       const result = await stockMovementService.getById(1);
 
       assert.ok(result.createdByName);
-      assert.ok(result.createdAt).toBeDefined();
+      assert.ok(result.createdAt !== undefined);
     });
 
     test("should track when movement was updated", async () => {
@@ -397,7 +397,7 @@ describe("stockMovementService", () => {
 
       const result = await stockMovementService.getById(1);
 
-      assert.ok(result.updatedAt).toBeDefined();
+      assert.ok(result.updatedAt !== undefined);
     });
   });
 });

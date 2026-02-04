@@ -63,7 +63,7 @@ describe("payablesService", () => {
 
         assert.ok(result.items);
         assert.ok(result.items[0].invoice_number);
-        assert.ok(result.aggregates).toBeDefined();
+        assert.ok(result.aggregates !== undefined);
       });
 
       test("should handle invoices response format", async () => {
@@ -160,7 +160,7 @@ describe("payablesService", () => {
 
         const result = await payablesService.getInvoice(1);
 
-        assert.ok(result.status).toBeDefined();
+        assert.ok(result.status !== undefined);
       });
     });
 
@@ -183,7 +183,7 @@ describe("payablesService", () => {
         const result = await payablesService.addInvoicePayment(1, paymentData);
 
         assert.ok(result.id);
-        assert.ok(apiClient.post).toHaveBeenCalledWith("/payables/invoices/1/payments", );
+        sinon.assert.calledWith(apiClient.post, "/payables/invoices/1/payments", );
       });
 
       test("should fall back to local storage on error", async () => {
@@ -196,7 +196,7 @@ describe("payablesService", () => {
 
         const result = await payablesService.addInvoicePayment(1, paymentData);
 
-        assert.ok(result.payments).toBeDefined();
+        assert.ok(result.payments !== undefined);
         const stored = localStorage.getItem("payables:inv:payments");
         assert.ok(stored).toBeTruthy();
       });
@@ -231,7 +231,7 @@ describe("payablesService", () => {
         const result = await payablesService.voidInvoicePayment(1, "p1", "Erroneous entry");
 
         assert.ok(result.id);
-        assert.ok(apiClient.post).toHaveBeenCalledWith("/payables/invoices/1/payments/p1/void", {
+        sinon.assert.calledWith(apiClient.post, "/payables/invoices/1/payments/p1/void", {
           reason: "Erroneous entry",
         });
       });
@@ -247,7 +247,7 @@ describe("payablesService", () => {
 
         const result = await payablesService.voidInvoicePayment(1, "p1", "Void reason");
 
-        assert.ok(result.payments).toBeDefined();
+        assert.ok(result.payments !== undefined);
       });
     });
   });
@@ -337,7 +337,7 @@ describe("payablesService", () => {
         const result = await payablesService.addPOPayment(1, paymentData);
 
         assert.ok(result.id);
-        assert.ok(apiClient.post).toHaveBeenCalledWith("/payables/pos/1/payments", );
+        sinon.assert.calledWith(apiClient.post, "/payables/pos/1/payments", );
       });
 
       test("should fall back to local storage on error", async () => {
@@ -349,7 +349,7 @@ describe("payablesService", () => {
 
         const result = await payablesService.addPOPayment(1, paymentData);
 
-        assert.ok(result.payments).toBeDefined();
+        assert.ok(result.payments !== undefined);
       });
     });
 
@@ -408,7 +408,7 @@ describe("payablesService", () => {
 
       const result = await payablesService.getInvoice(1);
 
-      assert.ok(result.status).toBeDefined();
+      assert.ok(result.status !== undefined);
     });
   });
 
@@ -429,7 +429,7 @@ describe("payablesService", () => {
         payment_date: "2024-01-15",
       });
 
-      assert.ok(result.payments).toBeDefined();
+      assert.ok(result.payments !== undefined);
     });
   });
 

@@ -44,7 +44,7 @@ describe("userPreferencesService", () => {
         ui: { homeSectionOrder: ["a", "b", "c"] },
       });
 
-      assert.ok(userAdminAPI.update).toHaveBeenCalledWith(1, {
+      sinon.assert.calledWith(userAdminAPI.update, 1, {
         permissions: { ui: { homeSectionOrder: ["a", "b", "c"] } },
       });
       assert.ok(result);
@@ -141,7 +141,7 @@ describe("userPreferencesService", () => {
 
       userPreferencesService.setHomeSectionOrder(mockOrder);
 
-      assert.ok(consoleWarnSpy).toHaveBeenCalledWith("Failed to save section order to localStorage:", );
+      sinon.assert.calledWith(consoleWarnSpy, "Failed to save section order to localStorage:", );
 
       consoleWarnSpy.mockRestore();
     });

@@ -38,8 +38,8 @@ describe("purchaseOrderService", () => {
 
       const result = await purchaseOrderService.getAll({ page: 1, limit: 20 });
 
-      assert.ok(result.purchaseOrders || result).toBeDefined();
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/purchase-orders", {
+      assert.ok(result.purchaseOrders || result !== undefined);
+      sinon.assert.calledWith(apiClient.get, "/purchase-orders", {
         page: 1,
         limit: 20,
       });
@@ -50,7 +50,7 @@ describe("purchaseOrderService", () => {
 
       await purchaseOrderService.getAll({ search: "Acme" });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/purchase-orders", {
+      sinon.assert.calledWith(apiClient.get, "/purchase-orders", {
         search: "Acme",
       });
     });
@@ -60,7 +60,7 @@ describe("purchaseOrderService", () => {
 
       await purchaseOrderService.getAll({ status: "draft" });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/purchase-orders", {
+      sinon.assert.calledWith(apiClient.get, "/purchase-orders", {
         status: "draft",
       });
     });
@@ -70,7 +70,7 @@ describe("purchaseOrderService", () => {
 
       await purchaseOrderService.getAll({ supplierId: 1 });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/purchase-orders", {
+      sinon.assert.calledWith(apiClient.get, "/purchase-orders", {
         supplierId: 1,
       });
     });
@@ -107,7 +107,7 @@ describe("purchaseOrderService", () => {
 
       assert.ok(result.id);
       assert.ok(result.poNumber);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/purchase-orders/1");
+      sinon.assert.calledWith(apiClient.get, "/purchase-orders/1");
     });
 
     test("should include all line items", async () => {
@@ -154,7 +154,7 @@ describe("purchaseOrderService", () => {
 
       assert.ok(result.id);
       assert.ok(result.poNumber);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/purchase-orders", newPO);
+      sinon.assert.calledWith(apiClient.post, "/purchase-orders", newPO);
     });
 
     test("should validate required fields", async () => {
@@ -167,7 +167,7 @@ describe("purchaseOrderService", () => {
 
       const _result = await purchaseOrderService.create(incompletePO);
 
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/purchase-orders", incompletePO);
+      sinon.assert.calledWith(apiClient.post, "/purchase-orders", incompletePO);
     });
   });
 
@@ -184,7 +184,7 @@ describe("purchaseOrderService", () => {
       const result = await purchaseOrderService.update(1, updates);
 
       assert.ok(result.id);
-      assert.ok(apiClient.put).toHaveBeenCalledWith("/purchase-orders/1", updates);
+      sinon.assert.calledWith(apiClient.put, "/purchase-orders/1", updates);
     });
 
     test("should only allow update of draft POs", async () => {
@@ -209,7 +209,7 @@ describe("purchaseOrderService", () => {
       const result = await purchaseOrderService.updateStatus(1, "approved");
 
       assert.ok(result.status);
-      assert.ok(apiClient.patch).toHaveBeenCalledWith("/purchase-orders/1/status", { status: "approved" });
+      sinon.assert.calledWith(apiClient.patch, "/purchase-orders/1/status", { status: "approved" });
     });
 
     test("should support draft → approved → closed status transitions", async () => {
@@ -217,7 +217,7 @@ describe("purchaseOrderService", () => {
 
       await purchaseOrderService.updateStatus(1, "closed");
 
-      assert.ok(apiClient.patch).toHaveBeenCalledWith("/purchase-orders/1/status", { status: "closed" });
+      sinon.assert.calledWith(apiClient.patch, "/purchase-orders/1/status", { status: "closed" });
     });
   });
 
@@ -229,7 +229,7 @@ describe("purchaseOrderService", () => {
       const result = await purchaseOrderService.updateTransitStatus(1, "in_transit");
 
       assert.ok(result.transitStatus);
-      assert.ok(apiClient.patch).toHaveBeenCalledWith("/purchase-orders/1/transit-status", {
+      sinon.assert.calledWith(apiClient.patch, "/purchase-orders/1/transit-status", {
         transit_status: "in_transit",
       });
     });
@@ -241,7 +241,7 @@ describe("purchaseOrderService", () => {
 
       await purchaseOrderService.updateTransitStatus(1, "delivered");
 
-      assert.ok(apiClient.patch).toHaveBeenCalledWith("/purchase-orders/1/transit-status", {
+      sinon.assert.calledWith(apiClient.patch, "/purchase-orders/1/transit-status", {
         transit_status: "delivered",
       });
     });
@@ -255,7 +255,7 @@ describe("purchaseOrderService", () => {
       const result = await purchaseOrderService.updateStockStatus(1, "received");
 
       assert.ok(result.stockStatus);
-      assert.ok(apiClient.patch).toHaveBeenCalledWith("/purchase-orders/1/stock-status", { stock_status: "received" });
+      sinon.assert.calledWith(apiClient.patch, "/purchase-orders/1/stock-status", { stock_status: "received" });
     });
 
     test("should support GRN workflow (pending → received → inspected → closed)", async () => {
@@ -263,7 +263,7 @@ describe("purchaseOrderService", () => {
 
       await purchaseOrderService.updateStockStatus(1, "inspected");
 
-      assert.ok(apiClient.patch).toHaveBeenCalledWith("/purchase-orders/1/stock-status", { stock_status: "inspected" });
+      sinon.assert.calledWith(apiClient.patch, "/purchase-orders/1/stock-status", { stock_status: "inspected" });
     });
   });
 
@@ -275,7 +275,7 @@ describe("purchaseOrderService", () => {
       const result = await purchaseOrderService.delete(1);
 
       assert.ok(result.success);
-      assert.ok(apiClient.delete).toHaveBeenCalledWith("/purchase-orders/1");
+      sinon.assert.calledWith(apiClient.delete, "/purchase-orders/1");
     });
 
     test("should only allow deletion of draft POs", async () => {
@@ -284,7 +284,7 @@ describe("purchaseOrderService", () => {
 
       const _result = await purchaseOrderService.delete(2);
 
-      assert.ok(apiClient.delete).toHaveBeenCalledWith("/purchase-orders/2");
+      sinon.assert.calledWith(apiClient.delete, "/purchase-orders/2");
     });
   });
 
@@ -296,7 +296,7 @@ describe("purchaseOrderService", () => {
       const result = await purchaseOrderService.getNextNumber();
 
       assert.ok(result.nextNumber);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/purchase-orders/number/next");
+      sinon.assert.calledWith(apiClient.get, "/purchase-orders/number/next");
     });
   });
 
@@ -311,7 +311,7 @@ describe("purchaseOrderService", () => {
       const result = await purchaseOrderService.getWarehouses();
 
       assert.ok(result);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/warehouses");
+      sinon.assert.calledWith(apiClient.get, "/warehouses");
     });
 
     test("should seed warehouses", async () => {
@@ -321,7 +321,7 @@ describe("purchaseOrderService", () => {
       const result = await purchaseOrderService.seedWarehouses();
 
       assert.ok(result.seeded);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/warehouses/seed");
+      sinon.assert.calledWith(apiClient.post, "/warehouses/seed");
     });
   });
 
@@ -341,7 +341,7 @@ describe("purchaseOrderService", () => {
 
       await purchaseOrderService.downloadPDF(1);
 
-      assert.ok(apiService.request).toHaveBeenCalledWith({
+      sinon.assert.calledWith(apiService.request, {
         method: "GET",
         url: "/purchase-orders/1/pdf",
         responseType: "blob",

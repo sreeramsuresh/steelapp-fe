@@ -46,7 +46,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.getById(1);
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/vat-adjustments/1");
+      sinon.assert.calledWith(apiClient.get, "/vat-adjustments/1");
       assert.ok(result).toHaveProperty("id", 1);
     });
   });
@@ -58,7 +58,7 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.getByPeriod("2024-01-01", "2024-12-31");
 
       assert.ok(Array.isArray(result));
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/vat-adjustments/by-period", {
+      sinon.assert.calledWith(apiClient.get, "/vat-adjustments/by-period", {
         startDate: "2024-01-01",
         endDate: "2024-12-31",
       });
@@ -72,7 +72,7 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.getPendingApproval();
 
       assert.ok(Array.isArray(result));
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/vat-adjustments/pending-approval");
+      sinon.assert.calledWith(apiClient.get, "/vat-adjustments/pending-approval");
     });
   });
 
@@ -91,7 +91,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.create(adjustmentData);
 
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/vat-adjustments", );
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments", );
       assert.ok(result).toHaveProperty("id");
     });
   });
@@ -107,7 +107,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.update(1, adjustmentData);
 
-      assert.ok(apiClient.put).toHaveBeenCalledWith("/vat-adjustments/1", );
+      sinon.assert.calledWith(apiClient.put, "/vat-adjustments/1", );
       assert.ok(result).toHaveProperty("id");
     });
   });
@@ -118,7 +118,7 @@ describe("vatAdjustmentService", () => {
 
       await vatAdjustmentService.delete(1);
 
-      assert.ok(apiClient.delete).toHaveBeenCalledWith("/vat-adjustments/1");
+      sinon.assert.calledWith(apiClient.delete, "/vat-adjustments/1");
     });
   });
 
@@ -131,7 +131,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.submitForApproval(1);
 
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/vat-adjustments/1/submit");
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/submit");
       assert.ok(result).toHaveProperty("status", "pending_approval");
     });
   });
@@ -145,7 +145,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.approve(1, "Approved");
 
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/vat-adjustments/1/approve", {
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/approve", {
         notes: "Approved",
       });
       assert.ok(result).toHaveProperty("status", "approved");
@@ -161,7 +161,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.reject(1, "Incomplete");
 
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/vat-adjustments/1/reject", {
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/reject", {
         rejectionReason: "Incomplete",
       });
       assert.ok(result).toHaveProperty("status", "rejected");
@@ -177,7 +177,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.applyToVatReturn(1, 100);
 
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/vat-adjustments/1/apply", {
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/apply", {
         vatReturnId: 100,
       });
       assert.ok(result).toHaveProperty("status", "applied");
@@ -193,7 +193,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.cancel(1, "Changed mind");
 
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/vat-adjustments/1/cancel", {
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/cancel", {
         cancellationReason: "Changed mind",
       });
       assert.ok(result).toHaveProperty("status", "cancelled");
@@ -208,7 +208,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.getNextNumber();
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/vat-adjustments/number/next");
+      sinon.assert.calledWith(apiClient.get, "/vat-adjustments/number/next");
       assert.ok(result).toHaveProperty("adjustmentNumber");
     });
   });
@@ -222,7 +222,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.checkBadDebtEligibility(1);
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/vat-adjustments/bad-debt-eligibility/1");
+      sinon.assert.calledWith(apiClient.get, "/vat-adjustments/bad-debt-eligibility/1");
       assert.ok(result).toHaveProperty("eligible", true);
     });
   });
@@ -236,7 +236,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.createBadDebtRelief(1, { notes: "Test" });
 
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/vat-adjustments/bad-debt-relief", {
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments/bad-debt-relief", {
         invoiceId: 1,
         notes: "Test",
         supportingDocuments: [],
@@ -256,7 +256,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.getSummary(params);
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/vat-adjustments/summary", params);
+      sinon.assert.calledWith(apiClient.get, "/vat-adjustments/summary", params);
       assert.ok(result).toHaveProperty("totalAdjustments");
     });
   });
@@ -267,7 +267,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.getAuditTrail(1);
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/vat-adjustments/1/audit-trail");
+      sinon.assert.calledWith(apiClient.get, "/vat-adjustments/1/audit-trail");
       assert.ok(Array.isArray(result));
     });
   });

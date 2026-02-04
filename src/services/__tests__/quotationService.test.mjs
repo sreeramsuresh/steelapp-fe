@@ -35,8 +35,8 @@ describe("quotationService", () => {
 
       const result = await quotationService.getAll({ page: 1, limit: 20 });
 
-      assert.ok(result).toBeDefined();
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/quotations", {
+      assert.ok(result !== undefined);
+      sinon.assert.calledWith(apiClient.get, "/quotations", {
         page: 1,
         limit: 20,
       });
@@ -47,7 +47,7 @@ describe("quotationService", () => {
 
       await quotationService.getAll({ customerId: 5 });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/quotations", {
+      sinon.assert.calledWith(apiClient.get, "/quotations", {
         customerId: 5,
       });
     });
@@ -57,7 +57,7 @@ describe("quotationService", () => {
 
       await quotationService.getAll({ status: "approved" });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/quotations", {
+      sinon.assert.calledWith(apiClient.get, "/quotations", {
         status: "approved",
       });
     });
@@ -92,7 +92,7 @@ describe("quotationService", () => {
 
       assert.ok(result.id);
       assert.ok(result.quotationNumber);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/quotations/1");
+      sinon.assert.calledWith(apiClient.get, "/quotations/1");
     });
   });
 
@@ -124,7 +124,7 @@ describe("quotationService", () => {
 
       assert.ok(result.id);
       assert.ok(result.quotationNumber);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/quotations", newQuotation);
+      sinon.assert.calledWith(apiClient.post, "/quotations", newQuotation);
     });
   });
 
@@ -137,7 +137,7 @@ describe("quotationService", () => {
       const result = await quotationService.update(1, updates);
 
       assert.ok(result.id);
-      assert.ok(apiClient.put).toHaveBeenCalledWith("/quotations/1", updates);
+      sinon.assert.calledWith(apiClient.put, "/quotations/1", updates);
     });
 
     test("should only allow update of draft quotations", async () => {
@@ -162,7 +162,7 @@ describe("quotationService", () => {
       const result = await quotationService.delete(1);
 
       assert.ok(result.success);
-      assert.ok(apiClient.delete).toHaveBeenCalledWith("/quotations/1");
+      sinon.assert.calledWith(apiClient.delete, "/quotations/1");
     });
   });
 
@@ -174,7 +174,7 @@ describe("quotationService", () => {
       const result = await quotationService.updateStatus(1, "approved");
 
       assert.ok(result.status);
-      assert.ok(apiClient.patch).toHaveBeenCalledWith("/quotations/1/status", {
+      sinon.assert.calledWith(apiClient.patch, "/quotations/1/status", {
         status: "approved",
       });
     });
@@ -184,7 +184,7 @@ describe("quotationService", () => {
 
       await quotationService.updateStatus(1, "expired");
 
-      assert.ok(apiClient.patch).toHaveBeenCalledWith("/quotations/1/status", {
+      sinon.assert.calledWith(apiClient.patch, "/quotations/1/status", {
         status: "expired",
       });
     });
@@ -203,7 +203,7 @@ describe("quotationService", () => {
 
       assert.ok(result.invoiceId);
       assert.ok(result.invoiceNumber);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/quotations/1/convert-to-invoice");
+      sinon.assert.calledWith(apiClient.post, "/quotations/1/convert-to-invoice");
     });
 
     test("should not convert expired quotation", async () => {
@@ -221,7 +221,7 @@ describe("quotationService", () => {
       const result = await quotationService.getNextNumber();
 
       assert.ok(result.nextNumber);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/quotations/number/next");
+      sinon.assert.calledWith(apiClient.get, "/quotations/number/next");
     });
   });
 
@@ -241,7 +241,7 @@ describe("quotationService", () => {
 
       await quotationService.downloadPDF(1);
 
-      assert.ok(apiService.request).toHaveBeenCalledWith({
+      sinon.assert.calledWith(apiService.request, {
         method: "GET",
         url: "/quotations/1/pdf",
         responseType: "blob",

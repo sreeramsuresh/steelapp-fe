@@ -28,7 +28,7 @@ describe("templateService", () => {
       const result = await templateService.getTemplates();
 
       assert.ok(result);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/templates");
+      sinon.assert.calledWith(apiClient.get, "/templates");
     });
 
     test("should handle empty template list", async () => {
@@ -62,7 +62,7 @@ describe("templateService", () => {
       const result = await templateService.getTemplate(1);
 
       assert.ok(result);
-      assert.ok(apiClient.get).toHaveBeenCalledWith("/templates/1");
+      sinon.assert.calledWith(apiClient.get, "/templates/1");
     });
 
     test("should handle template not found", async () => {
@@ -88,7 +88,7 @@ describe("templateService", () => {
       const result = await templateService.createTemplate(templateData);
 
       assert.ok(result);
-      assert.ok(apiClient.post).toHaveBeenCalledWith("/templates", templateData);
+      sinon.assert.calledWith(apiClient.post, "/templates", templateData);
     });
 
     test("should handle creation errors", async () => {
@@ -113,7 +113,7 @@ describe("templateService", () => {
       const result = await templateService.updateTemplate(1, updateData);
 
       assert.ok(result);
-      assert.ok(apiClient.put).toHaveBeenCalledWith("/templates/1", updateData);
+      sinon.assert.calledWith(apiClient.put, "/templates/1", updateData);
     });
 
     test("should handle update errors", async () => {
@@ -133,7 +133,7 @@ describe("templateService", () => {
       const result = await templateService.deleteTemplate(1);
 
       assert.ok(result);
-      assert.ok(apiClient.delete).toHaveBeenCalledWith("/templates/1");
+      sinon.assert.calledWith(apiClient.delete, "/templates/1");
     });
 
     test("should handle deletion errors", async () => {

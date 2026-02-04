@@ -35,12 +35,10 @@ describe("financialReportsService", () => {
 
       assert.ok(result.totals.isBalanced);
       assert.ok(result.totals.totalDebit);
-      assert.ok(apiClient.get).toHaveBeenCalledWith(
-        "/financial-reports/trial-balance",
+      sinon.assert.calledWith(apiClient.get, "/financial-reports/trial-balance",
         Object.keys({
           params: { periodId: 1 },
-        }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should include zero balance accounts when requested", async () => {
@@ -60,12 +58,10 @@ describe("financialReportsService", () => {
       });
 
       assert.ok(result.accountDetails);
-      assert.ok(apiClient.get).toHaveBeenCalledWith(
-        "/financial-reports/trial-balance",
+      sinon.assert.calledWith(apiClient.get, "/financial-reports/trial-balance",
         Object.keys({
           params: expect.objectContaining({ includeZeroBalances: true }).every(k => typeof arguments[0][k] !== 'undefined'),
-        })
-      );
+        }));
     });
 
     test("should filter by account category", async () => {
@@ -80,12 +76,10 @@ describe("financialReportsService", () => {
       });
 
       assert.ok(result.accountDetails[0].accountCategory);
-      assert.ok(apiClient.get).toHaveBeenCalledWith(
-        "/financial-reports/trial-balance",
+      sinon.assert.calledWith(apiClient.get, "/financial-reports/trial-balance",
         Object.keys({
           params: expect.objectContaining({ accountCategory: "ASSET" }).every(k => typeof arguments[0][k] !== 'undefined'),
-        })
-      );
+        }));
     });
 
     test("should detect unbalanced trial balance", async () => {
@@ -140,15 +134,13 @@ describe("financialReportsService", () => {
 
       assert.ok(result.entries);
       assert.ok(result.entries[0].lines);
-      assert.ok(apiClient.get).toHaveBeenCalledWith(
-        "/financial-reports/journal-register",
+      sinon.assert.calledWith(apiClient.get, "/financial-reports/journal-register",
         Object.keys({
           params: expect.objectContaining({
             startDate: "2024-01-01",
             endDate: "2024-01-31",
           }).every(k => typeof arguments[0][k] !== 'undefined'),
-        })
-      );
+        }));
     });
 
     test("should filter by source module", async () => {
@@ -250,12 +242,10 @@ describe("financialReportsService", () => {
       assert.ok(result.accountCode);
       assert.ok(result.transactions);
       assert.ok(result.closingBalance);
-      assert.ok(apiClient.get).toHaveBeenCalledWith(
-        "/financial-reports/general-ledger/1000",
+      sinon.assert.calledWith(apiClient.get, "/financial-reports/general-ledger/1000",
         Object.keys({
           params: ,
-        }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should track running balance", async () => {
@@ -287,15 +277,13 @@ describe("financialReportsService", () => {
         endDate: "2024-12-31",
       });
 
-      assert.ok(apiClient.get).toHaveBeenCalledWith(
-        "/financial-reports/general-ledger/1000",
+      sinon.assert.calledWith(apiClient.get, "/financial-reports/general-ledger/1000",
         Object.keys({
           params: expect.objectContaining({
             startDate: "2024-01-01",
             endDate: "2024-12-31",
           }).every(k => typeof arguments[0][k] !== 'undefined'),
-        })
-      );
+        }));
     });
   });
 
@@ -326,12 +314,10 @@ describe("financialReportsService", () => {
 
       assert.ok(result);
       assert.ok(result[0].accountType);
-      assert.ok(apiClient.get).toHaveBeenCalledWith(
-        "/financial-reports/chart-of-accounts",
+      sinon.assert.calledWith(apiClient.get, "/financial-reports/chart-of-accounts",
         Object.keys({
           params: ,
-        }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should filter by category", async () => {
@@ -407,10 +393,8 @@ describe("financialReportsService", () => {
 
       assert.ok(result.isValid);
       assert.ok(result.totalDebit);
-      assert.ok(apiClient.post).toHaveBeenCalledWith(
-        "/financial-reports/validate-trial-balance",
-        Object.keys({ periodId: 1 }).every(k => typeof arguments[0][k] !== 'undefined')
-      );
+      sinon.assert.calledWith(apiClient.post, "/financial-reports/validate-trial-balance",
+        Object.keys({ periodId: 1 }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
     test("should report validation errors", async () => {

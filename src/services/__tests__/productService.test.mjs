@@ -413,7 +413,7 @@ describe("productService", () => {
 
         await productService.downloadProducts();
 
-        assert.ok(global.URL.createObjectURL).toHaveBeenCalled();
+        assert.ok(global.URL.createObjectURL.called);
         assert.ok(mockLink.download).toMatch(/^products_\d{4}-\d{2}-\d{2}\.xlsx$/);
       });
     });
