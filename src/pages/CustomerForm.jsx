@@ -15,7 +15,7 @@
  */
 
 import { AlertCircle, ArrowLeft, Building2, ChevronDown, CreditCard, Info, Loader2, Save, User } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomerCreditPanel from "../components/credit/CustomerCreditPanel";
 import TRNInput from "../components/TRNInput";
@@ -338,15 +338,7 @@ const CustomerForm = () => {
   const [isPaymentHistoryModalOpen, setIsPaymentHistoryModalOpen] = useState(false);
   const [paymentHistory, setPaymentHistory] = useState([]);
 
-  // Fetch customer data if editing
-  useEffect(() => {
-    if (customerId) {
-      fetchCustomer();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customerId, fetchCustomer]);
-
-  const fetchCustomer = async () => {
+  const fetchCustomer = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -422,7 +414,14 @@ const CustomerForm = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [customerId]);
+
+  // Fetch customer data if editing
+  useEffect(() => {
+    if (customerId) {
+      fetchCustomer();
+    }
+  }, [customerId, fetchCustomer]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

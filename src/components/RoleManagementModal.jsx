@@ -1,5 +1,5 @@
 import { AlertCircle, Edit2, Lock, Plus, Shield, Trash2, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { notificationService } from "../services/notificationService";
 import { roleService } from "../services/roleService";
@@ -37,7 +37,7 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
     roleName: null,
   });
 
-  const loadRoles = async () => {
+  const loadRoles = useCallback(async () => {
     try {
       setLoading(true);
       const data = await roleService.getRoles();
@@ -48,7 +48,7 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Load roles when modal opens
   useEffect(() => {

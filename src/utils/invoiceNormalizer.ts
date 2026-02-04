@@ -109,10 +109,7 @@ function normalizePaymentStatus(rawStatus: unknown): string {
  * @param source - Source of the data for debugging
  * @returns Normalized Invoice with camelCase fields
  */
-export function normalizeInvoice(
-  rawInvoice: unknown,
-  source = "unknown"
-): Invoice | null {
+export function normalizeInvoice(rawInvoice: unknown, source = "unknown"): Invoice | null {
   if (!rawInvoice || typeof rawInvoice !== "object") {
     console.error(`❌ [Invoice Normalizer] Invalid invoice data from ${source}:`, rawInvoice);
     return null;
@@ -207,9 +204,7 @@ export function normalizeInvoice(
     };
 
     // Normalize delivery status
-    const normalizeDeliveryStatus = (
-      status: unknown
-    ): DeliveryStatus | undefined => {
+    const normalizeDeliveryStatus = (status: unknown): DeliveryStatus | undefined => {
       if (!status) return undefined;
 
       return {

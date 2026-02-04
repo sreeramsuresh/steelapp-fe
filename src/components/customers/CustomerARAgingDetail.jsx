@@ -1,5 +1,5 @@
 import { AlertTriangle, Clock, CreditCard, RefreshCw, TrendingUp } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { apiClient } from "../../services/api";
 import { formatCurrency, formatDate } from "../../utils/invoiceUtils";
@@ -21,7 +21,7 @@ export default function CustomerARAgingDetail({ customerId }) {
   const [error, setError] = useState(null);
 
   // Fetch customer AR aging data
-  const fetchCustomerARAging = async () => {
+  const fetchCustomerARAging = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -33,7 +33,7 @@ export default function CustomerARAgingDetail({ customerId }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [customerId]);
 
   useEffect(() => {
     if (customerId) {

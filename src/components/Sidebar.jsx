@@ -25,7 +25,7 @@ import {
   Users,
   Warehouse,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
@@ -47,7 +47,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
   });
 
   // Handle scroll to update fade indicators
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
@@ -56,7 +56,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
 
     setShowTopFade(scrollTop > threshold);
     setShowBottomFade(scrollTop + clientHeight < scrollHeight - threshold);
-  };
+  }, []);
 
   // Scroll to top when top chevron is clicked
   const handleScrollUp = (e) => {

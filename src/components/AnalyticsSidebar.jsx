@@ -22,7 +22,7 @@ import {
   TrendingUp,
   Truck,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
@@ -35,7 +35,7 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
   const [showBottomFade, setShowBottomFade] = useState(false);
 
   // Handle scroll to update fade indicators
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
@@ -44,7 +44,7 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
 
     setShowTopFade(scrollTop > threshold);
     setShowBottomFade(scrollTop + clientHeight < scrollHeight - threshold);
-  };
+  }, []);
 
   const handleScrollUp = (e) => {
     e.stopPropagation();

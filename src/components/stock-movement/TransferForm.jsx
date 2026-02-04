@@ -632,7 +632,12 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                   return (
                     <tr key={item.id} className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                       <td className="px-4 py-3" style={{ minWidth: "300px" }}>
-                        <div className="relative" ref={(el) => { if (el) dropdownRefs.current[item.id] = el; }}>
+                        <div
+                          className="relative"
+                          ref={(el) => {
+                            if (el) dropdownRefs.current[item.id] = el;
+                          }}
+                        >
                           <input
                             type="text"
                             value={productSearchTerms[item.id] || ""}

@@ -235,8 +235,8 @@ class WarehouseService {
 
       // Remove undefined params
       Object.keys(params).forEach((key) => {
-      if (params[key] === undefined) delete params[key];
-    });
+        if (params[key] === undefined) delete params[key];
+      });
 
       const response = await apiClient.get(`${this.endpoint}/${warehouseId}/stock`, params);
       return {

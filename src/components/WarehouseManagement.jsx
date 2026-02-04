@@ -11,7 +11,7 @@ import {
   Warehouse,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
 import { apiClient } from "../services/api";
@@ -46,7 +46,7 @@ const WarehouseManagement = () => {
   });
 
   // Fetch warehouses from API
-  const fetchWarehouses = async () => {
+  const fetchWarehouses = useCallback(async () => {
     try {
       setLoading(true);
       const response = await warehouseService.getAll({ limit: 100 });
@@ -78,7 +78,7 @@ const WarehouseManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchWarehouses();

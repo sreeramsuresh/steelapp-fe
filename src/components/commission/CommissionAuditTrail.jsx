@@ -12,7 +12,7 @@ import {
   User,
   XCircle,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { commissionService } from "../../services/commissionService";
 import { notificationService } from "../../services/notificationService";
@@ -36,7 +36,7 @@ const CommissionAuditTrail = ({
   const [error, setError] = useState(null);
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
 
-  const loadAuditTrail = async () => {
+  const loadAuditTrail = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -50,13 +50,12 @@ const CommissionAuditTrail = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [invoiceId]);
 
   useEffect(() => {
     if (invoiceId && (isExpanded || asModal)) {
       loadAuditTrail();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoiceId, isExpanded, asModal, loadAuditTrail]);
 
   const getEventIcon = (eventType) => {

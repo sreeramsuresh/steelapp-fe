@@ -21,7 +21,7 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import advancePaymentService from "../services/advancePaymentService";
@@ -103,7 +103,12 @@ const VATReturnReport = () => {
     open: false,
   });
 
-  const loadPeriods = async () => {
+  const formatDateForInput = (date) => {
+    const d = new Date(date);
+    return d.toISOString().split("T")[0];
+  };
+
+  const loadPeriods = useCallback(async () => {
     try {
       const response = await api.get("/vat-return/periods");
       // api.get() returns response.data directly, so check response.success (not response.data.success)
@@ -124,9 +129,9 @@ const VATReturnReport = () => {
     } catch (err) {
       console.error("Error loading VAT periods:", err);
     }
-  };
+  }, []);
 
-  const loadVATReturnData = async (returnId) => {
+  const loadVATReturnData = useCallback(async (returnId) => {
     setLoading(true);
     setError(null);
 
@@ -191,12 +196,11 @@ const VATReturnReport = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Load available periods on mount
   useEffect(() => {
     loadPeriods();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadPeriods]);
 
   // Load data when period changes
@@ -204,12 +208,7 @@ const VATReturnReport = () => {
     if (periodId) {
       loadVATReturnData(periodId);
     }
-  }, [periodId, loadVATReturnData]); // loadVATReturnData is stable within component lifecycle
-
-  const formatDateForInput = (date) => {
-    const d = new Date(date);
-    return d.toISOString().split("T")[0];
-  };
+  }, [periodId, loadVATReturnData]);
 
   const generateReport = async () => {
     if (!customDates.startDate || !customDates.endDate) {

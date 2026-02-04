@@ -6,7 +6,7 @@
  */
 
 import { Banknote, CheckCircle, ClipboardCheck, CreditCard, Loader2, Package, Send, XCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { creditNoteService } from "../../services/creditNoteService";
 import { notificationService } from "../../services/notificationService";
 import ConfirmDialog from "../ConfirmDialog";
@@ -74,7 +74,7 @@ const CreditNoteStatusActions = ({
     message: null,
   });
 
-  const loadAllowedTransitions = async () => {
+  const loadAllowedTransitions = useCallback(async () => {
     try {
       setLoading(true);
       const response = await creditNoteService.getAllowedTransitions(creditNoteId);
@@ -85,14 +85,13 @@ const CreditNoteStatusActions = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [creditNoteId]);
 
   useEffect(() => {
     if (creditNoteId) {
       loadAllowedTransitions();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [creditNoteId, loadAllowedTransitions]); // loadAllowedTransitions is stable
+  }, [creditNoteId, loadAllowedTransitions]);
 
   const handleAction = async (targetStatus) => {
     const config = ACTION_CONFIG[targetStatus];

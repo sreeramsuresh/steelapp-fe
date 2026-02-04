@@ -1,5 +1,5 @@
 import { AlertTriangle, Package, RefreshCw, Search, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { creditNoteService } from "../../services/creditNoteService";
 import { formatCurrency } from "../../utils/invoiceUtils";
@@ -20,7 +20,7 @@ const ScrapItemsList = ({ creditNoteId = null, showFilters = true }) => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchScrapItems = async () => {
+  const fetchScrapItems = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -39,7 +39,7 @@ const ScrapItemsList = ({ creditNoteId = null, showFilters = true }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchScrapItems();

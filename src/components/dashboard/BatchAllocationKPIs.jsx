@@ -1,6 +1,6 @@
 import { AlertTriangle, Clock, DollarSign, Loader2, RefreshCw, TrendingDown } from "lucide-react";
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
 import { apiClient } from "../../services/api";
@@ -30,7 +30,7 @@ const BatchAllocationKPIs = ({ _refreshTrigger = 0 }) => {
   });
 
   // Fetch metrics from API
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -57,7 +57,7 @@ const BatchAllocationKPIs = ({ _refreshTrigger = 0 }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Fetch metrics on mount and when refreshTrigger changes
   useEffect(() => {

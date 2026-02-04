@@ -10,7 +10,7 @@ import {
   TrendingUp,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
 import { productService } from "../services/productService";
@@ -36,7 +36,7 @@ const StockMovement = () => {
   const [productOptions, setProductOptions] = useState([]);
   const [_productSearching, setProductSearching] = useState(false);
 
-  const fetchMovements = async () => {
+  const fetchMovements = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -95,7 +95,7 @@ const StockMovement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchMovements();

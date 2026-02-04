@@ -33,7 +33,7 @@ const CreditManagementPanel = ({
     open: false,
   });
 
-  const loadCreditIssues = async () => {
+  const loadCreditIssues = useCallback(async () => {
     try {
       setLoading(true);
       // TODO: Call backend service
@@ -89,7 +89,7 @@ const CreditManagementPanel = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Load credit issues on mount
   useEffect(() => {

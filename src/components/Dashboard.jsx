@@ -12,7 +12,7 @@ import {
   Percent,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { analyticsService } from "../services/analyticsService";
@@ -293,7 +293,7 @@ const Dashboard = () => {
     creditUtilization: 0,
   });
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -380,7 +380,7 @@ const Dashboard = () => {
       setLoading(false);
       setIsRefreshing(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchDashboardData();

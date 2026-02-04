@@ -1,5 +1,5 @@
 import { CheckCircle, Edit2, Search, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { commissionService } from "../services/commissionService";
 import { notificationService } from "../services/notificationService";
@@ -20,7 +20,7 @@ const SalesAgentsManagement = () => {
   });
   const [saving, setSaving] = useState(false);
 
-  const loadAgents = async () => {
+  const loadAgents = useCallback(async () => {
     try {
       setLoading(true);
       const response = await commissionService.getAgents();
@@ -31,7 +31,7 @@ const SalesAgentsManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadAgents();
