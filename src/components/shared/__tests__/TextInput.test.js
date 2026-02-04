@@ -38,7 +38,9 @@ describe("TextInput", () => {
   });
 
   it("should not display required indicator when required is false", () => {
-    const { container: _container } = render(<TextInput label="Phone" value="" onChange={mockOnChange} required={false} />);
+    const { container: _container } = render(
+      <TextInput label="Phone" value="" onChange={mockOnChange} required={false} />
+    );
 
     const label = screen.getByLabelText("Phone");
     expect(label.textContent).not.toContain("*");
@@ -121,7 +123,9 @@ describe("TextInput", () => {
   });
 
   it("should apply custom className", () => {
-    const { container: _container } = render(<TextInput label="Email" value="" onChange={mockOnChange} className="custom-input" />);
+    const { container: _container } = render(
+      <TextInput label="Email" value="" onChange={mockOnChange} className="custom-input" />
+    );
 
     const input = screen.getByRole("textbox");
     expect(input).toHaveClass("custom-input");
@@ -149,7 +153,9 @@ describe("TextInput", () => {
   });
 
   it("should apply correct styling when disabled", () => {
-    const { container: _container } = render(<TextInput label="Email" value="" onChange={mockOnChange} disabled={true} />);
+    const { container: _container } = render(
+      <TextInput label="Email" value="" onChange={mockOnChange} disabled={true} />
+    );
 
     const input = screen.getByRole("textbox");
     expect(input).toHaveClass("cursor-not-allowed");

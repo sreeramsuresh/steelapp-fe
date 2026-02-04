@@ -57,8 +57,12 @@ vi.mock("../ConfirmDialog", () => ({
       <div data-testid="confirm-dialog">
         <h2>{title}</h2>
         <p>{message}</p>
-        <button onClick={onConfirm}>Confirm</button>
-        <button onClick={onCancel}>Cancel</button>
+        <button type="button" onClick={onConfirm}>
+          Confirm
+        </button>
+        <button type="button" onClick={onCancel}>
+          Cancel
+        </button>
       </div>
     );
   },

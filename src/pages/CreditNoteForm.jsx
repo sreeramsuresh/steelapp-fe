@@ -1787,7 +1787,7 @@ const CreditNoteForm = () => {
                       }}
                       onBlur={() => handleFieldBlur("creditNoteDate")}
                       disabled={!isEditable}
-                      aria-required="true"
+                      required
                       aria-invalid={shouldShowError("creditNoteDate")}
                       className={`w-full px-4 py-2 rounded-lg border transition-colors ${
                         !isEditable ? "cursor-not-allowed opacity-60" : ""
