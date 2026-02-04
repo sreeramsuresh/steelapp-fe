@@ -6,18 +6,26 @@
  */
 
 // Polyfill import.meta.env for tests
-Object.defineProperty(import.meta, 'env', {
-  value: {
-    DEV: true,
-    PROD: false,
-    SSR: false,
-    VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || 'http://localhost:3001/api',
-    VITE_DISABLE_CONTRACT_VALIDATION: 'true',
-    MODE: 'test',
-  },
-  writable: true,
-  configurable: true,
-});
+// Store on globalThis so all modules can access it
+globalThis.__VITE_ENV__ = {
+  DEV: true,
+  PROD: false,
+  SSR: false,
+  VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || 'http://localhost:3001/api',
+  VITE_DISABLE_CONTRACT_VALIDATION: 'true',
+  MODE: 'test',
+};
+
+// Also try to set on this module's import.meta
+try {
+  Object.defineProperty(import.meta, 'env', {
+    value: globalThis.__VITE_ENV__,
+    writable: true,
+    configurable: true,
+  });
+} catch (e) {
+  // Ignore if can't set
+}
 
 // Polyfill global browser objects for Node environment
 globalThis.localStorage = (() => {

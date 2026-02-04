@@ -416,8 +416,8 @@ const CommissionDashboard = () => {
                             },
                           ]
                             .filter((d) => d.value > 0)
-                            .map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            .map((entry) => (
+                              <Cell key={`commission-${entry.name || entry.value}`} fill={entry.color} />
                             ))}
                         </Pie>
                         <Tooltip

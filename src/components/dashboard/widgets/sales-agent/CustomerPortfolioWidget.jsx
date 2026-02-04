@@ -335,7 +335,7 @@ const CustomerPortfolioWidget = ({ data: propData, onRefresh, onViewDetails, isL
 
                     acc.paths.push(
                       <path
-                        key={idx}
+                        key={`segment-${segment.color}-${segment.percent}`}
                         d={`M 32 32 L ${startX} ${startY} A 24 24 0 ${largeArc} 1 ${endX} ${endY} Z`}
                         fill={segment.color}
                         className="transition-all duration-300 hover:opacity-80"

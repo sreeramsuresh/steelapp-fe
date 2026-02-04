@@ -322,7 +322,7 @@ export default function CommissionApprovalWorkflow() {
             </div>
           ) : (
             <div className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
-              {paginatedApprovals.map((commission, idx) => {
+              {paginatedApprovals.map((commission) => {
                 // Handle both snake_case and camelCase field names
                 const salesPersonId = commission.salesPersonId || commission.sales_person_id;
                 const invoiceId = commission.invoiceId || commission.invoice_id;
@@ -343,7 +343,7 @@ export default function CommissionApprovalWorkflow() {
 
                 return (
                   <div
-                    key={idx}
+                    key={invoiceId}
                     className={`p-4 cursor-pointer transition ${isSelected ? (isDarkMode ? "bg-blue-900/30" : "bg-blue-50") : ""} ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
                     onClick={() => setSelectedCommission(commission)}
                     onKeyDown={(e) => {

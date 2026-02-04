@@ -196,8 +196,8 @@ const HealthTab = ({ isDarkMode }) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {healthData.negativeStock?.map((item, index) => (
-                  <TableRow key={`neg-${index}`}>
+                {healthData.negativeStock?.map((item) => (
+                  <TableRow key={`neg-${item.batchNumber || item.productName}`}>
                     <TableCell>
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
                         Negative Stock
@@ -214,8 +214,8 @@ const HealthTab = ({ isDarkMode }) => {
                     </TableCell>
                   </TableRow>
                 ))}
-                {healthData.mismatches?.map((item, index) => (
-                  <TableRow key={`mis-${index}`}>
+                {healthData.mismatches?.map((item) => (
+                  <TableRow key={`mis-${item.batchNumber || item.productName}`}>
                     <TableCell>
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
                         Mismatch

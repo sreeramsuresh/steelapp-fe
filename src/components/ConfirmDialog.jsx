@@ -74,7 +74,9 @@ const ConfirmDialog = ({
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center">
       {/* Backdrop */}
-      <button type="button" className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+      <button
+        type="button"
+        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onCancel}
         onKeyDown={(e) => {
           if (e.key === "Escape") onCancel();
@@ -88,7 +90,9 @@ const ConfirmDialog = ({
         }`}
       >
         {/* Close button */}
-        <button type="button" onClick={onCancel}
+        <button
+          type="button"
+          onClick={onCancel}
           className={`absolute top-4 right-4 p-1 rounded-lg transition-colors ${
             isDarkMode
               ? "hover:bg-gray-700 text-gray-400 hover:text-gray-300"
@@ -114,7 +118,9 @@ const ConfirmDialog = ({
 
           {/* Actions */}
           <div className="flex gap-3 mt-6">
-            <button type="button" onClick={onCancel}
+            <button
+              type="button"
+              onClick={onCancel}
               className={`flex-1 px-4 py-2.5 rounded-lg font-medium transition-colors ${
                 isDarkMode
                   ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
@@ -123,7 +129,9 @@ const ConfirmDialog = ({
             >
               {cancelText}
             </button>
-            <button type="button" onClick={() => {
+            <button
+              type="button"
+              onClick={() => {
                 onConfirm();
                 onCancel();
               }}

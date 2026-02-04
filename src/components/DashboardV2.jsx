@@ -208,14 +208,8 @@ const DashboardV2 = () => {
     warehouseUtilization: false,
   });
 
-  useEffect(() => {
-    fetchDashboardData();
-    fetchWidgetData();
-    preloadByRole(role);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role, fetchDashboardData, fetchWidgetData]);
-
-  const fetchDashboardData = async () => {
+  // Fetch dashboard data
+  const fetchDashboardData = useCallback(async () => {
     try {
       setIsRefreshing(true);
       const dashboard = await analyticsService.getDashboardData().catch(() => ({}));
@@ -239,7 +233,7 @@ const DashboardV2 = () => {
       setLoading(false);
       setIsRefreshing(false);
     }
-  };
+  }, []);
 
   // Fetch widget-specific data from dashboardService
   const fetchWidgetData = useCallback(async () => {
@@ -619,6 +613,12 @@ const DashboardV2 = () => {
       console.error("Error fetching widget data:", error);
     }
   }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+    fetchWidgetData();
+    preloadByRole(role);
+  }, [role, fetchDashboardData, fetchWidgetData]);
 
   // Refresh handler for individual widgets
   const handleWidgetRefresh = useCallback(

@@ -200,7 +200,7 @@ export default function StockDeductionPreview({
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {inventoryItems.map((item, index) => {
+                  {inventoryItems.map((item) => {
                     const productId = item.productId || item.product_id;
                     const stock = stockLevels[productId] || {
                       currentStock: 0,
@@ -211,7 +211,7 @@ export default function StockDeductionPreview({
                     const status = getStockStatus(productId, quantity);
 
                     return (
-                      <tr key={index} className="hover:bg-gray-50">
+                      <tr key={`stock-${productId}-${quantity}`} className="hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm text-gray-900">
                           <div className="font-medium">{item.name}</div>
                           {item.size && (

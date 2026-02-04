@@ -155,8 +155,8 @@ export const BarChartWrapper = ({
             ))
           ) : (
             <Bar dataKey={dataKey} fill={chartColors[0]} barSize={barSize} radius={[4, 4, 0, 0]}>
-              {data?.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color || chartColors[index % chartColors.length]} />
+              {data?.map((entry) => (
+                <Cell key={`${dataKey}-${entry.name || entry.value}`} fill={entry.color || chartColors[data.indexOf(entry) % chartColors.length]} />
               ))}
             </Bar>
           )}
@@ -404,8 +404,8 @@ export const PieChartWrapper = ({
             label={showLabels ? renderCustomizedLabel : false}
             labelLine={false}
           >
-            {data?.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color || chartColors[index % chartColors.length]} />
+            {data?.map((entry) => (
+              <Cell key={`pie-${entry.name || entry.value}`} fill={entry.color || chartColors[data.indexOf(entry) % chartColors.length]} />
             ))}
           </Pie>
           <Tooltip content={<CustomTooltip isDarkMode={isDarkMode} formatter={formatter} />} />

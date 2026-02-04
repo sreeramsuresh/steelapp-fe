@@ -4217,7 +4217,7 @@ const InvoiceForm = ({ onSave }) => {
                     <div className="flex-1">
                       <h4 className="font-bold text-lg mb-2">Please fix the following errors:</h4>
                       <ul className="space-y-1 text-sm">
-                        {validationErrors.map((error, index) => {
+                        {validationErrors.map((error) => {
                           // Parse error to extract field name for scrolling
                           let fieldName = null;
                           if (error.includes("Customer")) fieldName = "customer.name";
@@ -4235,7 +4235,7 @@ const InvoiceForm = ({ onSave }) => {
                           }
 
                           return (
-                            <li key={index}>
+                            <li key={error}>
                               <button type="button" onClick={() => fieldName && scrollToField(fieldName)}
                                 disabled={!fieldName}
                                 className={`flex items-center gap-2 w-full text-left ${fieldName ? "cursor-pointer hover:underline hover:text-red-400" : "opacity-60 cursor-default"}`}
