@@ -18,7 +18,7 @@ export function normalizeSupplier(rawSupplier: any, source = "unknown"): any | n
   }
 
   // Helper to safely parse dates
-  const parseDate = (value: any): string | undefined => {
+  const parseDate = (value: unknown): string | undefined => {
     if (!value) return undefined;
     if (value?.seconds) return new Date(parseInt(value.seconds, 10) * 1000).toISOString();
     if (typeof value === "string") {
@@ -30,7 +30,7 @@ export function normalizeSupplier(rawSupplier: any, source = "unknown"): any | n
 
   try {
     // Build the normalized Supplier object
-    const normalized: any = {
+    const normalized: unknown = {
       // Core identifiers
       id: rawSupplier.id || 0,
       companyId: rawSupplier.company_id || rawSupplier.companyId,
@@ -86,7 +86,7 @@ export function normalizeSupplier(rawSupplier: any, source = "unknown"): any | n
  * @param source - Source identifier for debugging
  * @returns Array of normalized Supplier objects
  */
-export function normalizeSuppliers(rawSuppliers: any[], source = "list"): any[] {
+export function normalizeSuppliers(rawSuppliers: unknown[], source = "list"): unknown[] {
   if (!Array.isArray(rawSuppliers)) {
     console.error(`❌ [Supplier Normalizer] Expected array, got ${typeof rawSuppliers}`);
     return [];

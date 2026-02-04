@@ -13,7 +13,7 @@ import type { CustomerDetails, DeliveryStatus, Invoice, InvoiceItem, PaymentReco
  * @returns Normalized status: 'draft' | 'proforma' | 'issued' | 'sent' | 'cancelled'
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function normalizeInvoiceStatus(rawStatus: any): string {
+function normalizeInvoiceStatus(rawStatus: unknown): string {
   // Handle null/undefined/empty
   if (!rawStatus || rawStatus === "") {
     if (process.env.NODE_ENV !== "production") {
@@ -62,7 +62,7 @@ function normalizeInvoiceStatus(rawStatus: any): string {
  * @returns Normalized payment status: 'unpaid' | 'partially_paid' | 'paid' | 'fully_paid'
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function normalizePaymentStatus(rawStatus: any): string {
+function normalizePaymentStatus(rawStatus: unknown): string {
   // Handle null/undefined/empty
   if (!rawStatus || rawStatus === "") {
     if (process.env.NODE_ENV !== "production") {
@@ -155,7 +155,7 @@ export function normalizeInvoice(
 
     // Normalize customer details (handle both snake_case and camelCase)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const normalizeCustomerDetails = (raw: any): CustomerDetails => {
+    const normalizeCustomerDetails = (raw: unknown): CustomerDetails => {
       if (!raw) {
         return {
           id: 0,
@@ -175,7 +175,7 @@ export function normalizeInvoice(
 
     // Normalize invoice items
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const normalizeItems = (items: any[]): InvoiceItem[] => {
+    const normalizeItems = (items: unknown[]): InvoiceItem[] => {
       if (!Array.isArray(items)) return [];
 
       return items.map((item) => ({
@@ -194,7 +194,7 @@ export function normalizeInvoice(
 
     // Normalize payments
     const normalizePayments = (
-      payments: any[] // eslint-disable-line @typescript-eslint/no-explicit-any -- raw payment data
+      payments: unknown[] // eslint-disable-line @typescript-eslint/no-explicit-any -- raw payment data
     ): PaymentRecord[] | undefined => {
       if (!Array.isArray(payments)) return undefined;
 
@@ -417,7 +417,7 @@ export function normalizeInvoice(
  * @returns Array of normalized Invoice objects
  */
 export function normalizeInvoices(
-  rawInvoices: any[], // eslint-disable-line @typescript-eslint/no-explicit-any -- raw API data
+  rawInvoices: unknown[], // eslint-disable-line @typescript-eslint/no-explicit-any -- raw API data
   source = "list"
 ): Invoice[] {
   if (!Array.isArray(rawInvoices)) {

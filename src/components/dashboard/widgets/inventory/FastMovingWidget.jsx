@@ -16,7 +16,8 @@ const MiniTrendLine = ({ data, width = 50, height = 20 }) => {
     .join(" ");
 
   return (
-    <svg width={width} height={height}>
+    <svg aria-label="icon" width={width} height={height}>
+      <title>Icon</title>
       <polyline
         points={points}
         fill="none"

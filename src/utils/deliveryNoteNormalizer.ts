@@ -19,7 +19,7 @@ export function normalizeDeliveryNote(rawDN: any, source = "unknown"): any | nul
 
   try {
     // Helper to safely parse dates
-    const parseDate = (value: any): string | undefined => {
+    const parseDate = (value: unknown): string | undefined => {
       if (!value) return undefined;
 
       // Handle Timestamp objects
@@ -39,7 +39,7 @@ export function normalizeDeliveryNote(rawDN: any, source = "unknown"): any | nul
     };
 
     // Build the normalized DeliveryNote object
-    const normalized: any = {
+    const normalized: unknown = {
       // Core identifiers
       id: rawDN.id || 0,
       companyId: rawDN.company_id || rawDN.companyId,
@@ -99,7 +99,7 @@ export function normalizeDeliveryNote(rawDN: any, source = "unknown"): any | nul
  * @param source - Source identifier for debugging
  * @returns Array of normalized DeliveryNote objects
  */
-export function normalizeDeliveryNotes(rawDNs: any[], source = "list"): any[] {
+export function normalizeDeliveryNotes(rawDNs: unknown[], source = "list"): unknown[] {
   if (!Array.isArray(rawDNs)) {
     console.error(`❌ [DeliveryNote Normalizer] Expected array, got ${typeof rawDNs}`);
     return [];

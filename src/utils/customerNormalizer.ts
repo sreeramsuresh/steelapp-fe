@@ -19,14 +19,14 @@ export function normalizeCustomer(rawCustomer: any, source = "unknown"): any | n
 
   try {
     // Helper to safely parse numbers
-    const parseNumber = (value: any, fallback: any = undefined): number | undefined => {
+    const parseNumber = (value: any, fallback: unknown = undefined): number | undefined => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
       return Number.isNaN(parsed) ? fallback : parsed;
     };
 
     // Build the normalized Customer object
-    const normalized: any = {
+    const normalized: unknown = {
       // Core identifiers
       id: rawCustomer.id || 0,
       name: rawCustomer.name || rawCustomer.customer_name || "",
@@ -69,7 +69,7 @@ export function normalizeCustomer(rawCustomer: any, source = "unknown"): any | n
  * @param source - Source identifier for debugging
  * @returns Array of normalized Customer objects
  */
-export function normalizeCustomers(rawCustomers: any[], source = "list"): any[] {
+export function normalizeCustomers(rawCustomers: unknown[], source = "list"): unknown[] {
   if (!Array.isArray(rawCustomers)) {
     console.error(`❌ [Customer Normalizer] Expected array, got ${typeof rawCustomers}`);
     return [];

@@ -55,7 +55,7 @@ export interface PurchaseOrder {
 
   // Items & Status
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  items: any[];
+  items: unknown[];
   stockStatus?: string;
 
   // Approval

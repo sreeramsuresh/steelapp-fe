@@ -5182,7 +5182,8 @@ const InvoiceForm = ({ onSave }) => {
                                       }
                                       title={isExpanded ? "Collapse allocation details" : "Expand allocation details"}
                                     >
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <svg aria-label="icon" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <title>Icon</title>
                                         <path
                                           strokeLinecap="round"
                                           strokeLinejoin="round"
@@ -5342,7 +5343,8 @@ const InvoiceForm = ({ onSave }) => {
                                   <button type="button" onClick={() => removeItem(index)}
                                     className="text-gray-400 hover:text-red-500 p-1"
                                   >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg aria-label="icon" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <title>Icon</title>
                                       <path
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -6239,7 +6241,8 @@ const InvoiceForm = ({ onSave }) => {
                 <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-5">
                   <div className="flex items-center gap-4">
                     <div className="flex-shrink-0 bg-white/20 rounded-full p-3">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg aria-label="icon" className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <title>Icon</title>
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>

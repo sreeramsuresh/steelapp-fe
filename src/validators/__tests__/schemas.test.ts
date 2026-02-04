@@ -40,7 +40,7 @@ describe("PageInfoSchema", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues.some((i: any) => i.path.includes("totalItems"))).toBe(true);
+      expect(result.error.issues.some((i) => i.path.includes("totalItems"))).toBe(true);
     }
   });
 
@@ -57,7 +57,7 @@ describe("PageInfoSchema", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues.some((i: any) => i.path.includes("totalItems"))).toBe(true);
+      expect(result.error.issues.some((i) => i.path.includes("totalItems"))).toBe(true);
     }
   });
 
@@ -73,7 +73,7 @@ describe("PageInfoSchema", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues.some((i: any) => i.path.includes("perPage"))).toBe(true);
+      expect(result.error.issues.some((i) => i.path.includes("perPage"))).toBe(true);
     }
   });
 

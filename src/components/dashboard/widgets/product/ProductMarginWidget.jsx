@@ -200,7 +200,8 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
 
       {/* Scatter Plot */}
       <div className={`relative rounded-lg p-2 ${isDarkMode ? "bg-[#121418]" : "bg-gray-50"}`}>
-        <svg width={chartWidth} height={chartHeight} className="w-full">
+        <svg aria-label="icon" width={chartWidth} height={chartHeight} className="w-full">
+          <title>Icon</title>
           {/* Grid lines */}
           <line
             x1={chartWidth / 2}

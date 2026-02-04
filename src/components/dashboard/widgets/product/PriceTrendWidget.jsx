@@ -19,7 +19,8 @@ const MiniLineChart = ({ data, width = 120, height = 40, isDarkMode }) => {
   const marketPath = data.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.market)}`).join(" ");
 
   return (
-    <svg width={width} height={height} className="overflow-visible">
+    <svg aria-label="icon" width={width} height={height} className="overflow-visible">
+      <title>Icon</title>
       {/* Market price line (dashed) */}
       <path
         d={marketPath}

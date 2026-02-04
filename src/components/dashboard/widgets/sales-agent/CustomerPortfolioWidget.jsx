@@ -318,7 +318,8 @@ const CustomerPortfolioWidget = ({ data: propData, onRefresh, onViewDetails, isL
         {/* Mini Pie Visualization */}
         <div className="flex items-center gap-3 mb-2">
           <div className="relative w-16 h-16">
-            <svg className="w-16 h-16 transform -rotate-90">
+            <svg aria-label="icon" className="w-16 h-16 transform -rotate-90">
+              <title>Icon</title>
               {
                 segments.reduce(
                   (acc, segment, idx) => {

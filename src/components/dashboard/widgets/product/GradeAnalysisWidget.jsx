@@ -18,7 +18,8 @@ const MiniSparkline = ({ data, positive, isDarkMode: _isDarkMode }) => {
     .join(" ");
 
   return (
-    <svg width={width} height={height} className="overflow-visible">
+    <svg aria-label="icon" width={width} height={height} className="overflow-visible">
+      <title>Icon</title>
       <polyline
         points={points}
         fill="none"

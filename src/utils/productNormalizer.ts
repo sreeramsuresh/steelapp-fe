@@ -19,14 +19,14 @@ export function normalizeProduct(rawProduct: any, source = "unknown"): any | nul
 
   try {
     // Helper to safely parse numbers
-    const parseNumber = (value: any, fallback: any = undefined): number | undefined => {
+    const parseNumber = (value: any, fallback: unknown = undefined): number | undefined => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
       return Number.isNaN(parsed) ? fallback : parsed;
     };
 
     // Build the normalized Product object (EXPLICIT snake_case → camelCase conversion)
-    const normalized: any = {
+    const normalized: unknown = {
       // Core identifiers
       id: rawProduct.id || 0,
       // uniqueName: Technical identifier with origin (source of truth for identity)
@@ -118,7 +118,7 @@ export function normalizeProduct(rawProduct: any, source = "unknown"): any | nul
  * @param source - Source identifier for debugging
  * @returns Array of normalized Product objects
  */
-export function normalizeProducts(rawProducts: any[], source = "list"): any[] {
+export function normalizeProducts(rawProducts: unknown[], source = "list"): unknown[] {
   if (!Array.isArray(rawProducts)) {
     console.error(`❌ [Product Normalizer] Expected array, got ${typeof rawProducts}`);
     return [];

@@ -32,7 +32,7 @@ export interface DeliveryNote {
 
   // Items & Status
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  items: any[];
+  items: unknown[];
   status?: string;
   isPartial?: boolean;
 

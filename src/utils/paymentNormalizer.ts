@@ -19,14 +19,14 @@ export function normalizePayment(rawPayment: any, source = "unknown"): any | nul
 
   try {
     // Helper to safely parse numbers
-    const parseNumber = (value: any, fallback: any = undefined): number | undefined => {
+    const parseNumber = (value: any, fallback: unknown = undefined): number | undefined => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
       return Number.isNaN(parsed) ? fallback : parsed;
     };
 
     // Helper to safely parse dates
-    const parseDate = (value: any): string | undefined => {
+    const parseDate = (value: unknown): string | undefined => {
       if (!value) return undefined;
 
       // Handle Timestamp objects from Firestore/backend
@@ -46,7 +46,7 @@ export function normalizePayment(rawPayment: any, source = "unknown"): any | nul
     };
 
     // Build the normalized Payment object
-    const normalized: any = {
+    const normalized: unknown = {
       // Core identifiers
       id: rawPayment.id || 0,
       invoiceNumber: rawPayment.invoiceNumber || rawPayment.invoice_number || undefined,
@@ -95,7 +95,7 @@ export function normalizePayment(rawPayment: any, source = "unknown"): any | nul
  * @param source - Source identifier for debugging
  * @returns Array of normalized Payment objects
  */
-export function normalizePayments(rawPayments: any[], source = "list"): any[] {
+export function normalizePayments(rawPayments: unknown[], source = "list"): unknown[] {
   if (!Array.isArray(rawPayments)) {
     console.error(`❌ [Payment Normalizer] Expected array, got ${typeof rawPayments}`);
     return [];

@@ -65,7 +65,7 @@ export interface PaginatedResponse<T> {
  */
 export interface InvoiceListResponse {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  invoices: any[]; // Will be typed properly with Invoice type
+  invoices: unknown[]; // Will be typed properly with Invoice type
   pagination: PageInfo | null;
 }
 
@@ -74,7 +74,7 @@ export interface InvoiceListResponse {
  */
 export interface CustomerListResponse {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  customers: any[];
+  customers: unknown[];
   pagination: PageInfo | null;
 }
 
@@ -83,7 +83,7 @@ export interface CustomerListResponse {
  */
 export interface ProductListResponse {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  products: any[];
+  products: unknown[];
   pagination: PageInfo | null;
 }
 

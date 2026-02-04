@@ -19,14 +19,14 @@ export function normalizePurchaseOrder(rawPO: any, source = "unknown"): any | nu
 
   try {
     // Helper to safely parse numbers
-    const parseNumber = (value: any, fallback: any = undefined): number | undefined => {
+    const parseNumber = (value: any, fallback: unknown = undefined): number | undefined => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
       return Number.isNaN(parsed) ? fallback : parsed;
     };
 
     // Helper to safely parse dates
-    const parseDate = (value: any): string | undefined => {
+    const parseDate = (value: unknown): string | undefined => {
       if (!value) return undefined;
 
       // Handle Timestamp objects
@@ -46,7 +46,7 @@ export function normalizePurchaseOrder(rawPO: any, source = "unknown"): any | nu
     };
 
     // Build the normalized PurchaseOrder object
-    const normalized: any = {
+    const normalized: unknown = {
       // Core identifiers
       id: rawPO.id || 0,
       companyId: rawPO.company_id || rawPO.companyId,
@@ -137,7 +137,7 @@ export function normalizePurchaseOrder(rawPO: any, source = "unknown"): any | nu
  * @param source - Source identifier for debugging
  * @returns Array of normalized PurchaseOrder objects
  */
-export function normalizePurchaseOrders(rawPOs: any[], source = "list"): any[] {
+export function normalizePurchaseOrders(rawPOs: unknown[], source = "list"): unknown[] {
   if (!Array.isArray(rawPOs)) {
     console.error(`❌ [PurchaseOrder Normalizer] Expected array, got ${typeof rawPOs}`);
     return [];

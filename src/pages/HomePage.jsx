@@ -304,7 +304,8 @@ const HomePage = () => {
             }`}
             title="Refresh"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-label="icon" className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <title>Icon</title>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

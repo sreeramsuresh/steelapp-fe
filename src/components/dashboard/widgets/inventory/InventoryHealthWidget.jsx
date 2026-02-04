@@ -23,7 +23,8 @@ const GaugeChart = ({ value, size = 120, strokeWidth = 10, isDarkMode }) => {
 
   return (
     <div className="relative" style={{ width: size, height: size / 2 + 20 }}>
-      <svg width={size} height={size / 2 + 10} className="overflow-visible">
+      <svg aria-label="icon" width={size} height={size / 2 + 10} className="overflow-visible">
+        <title>Icon</title>
         {/* Background arc */}
         <path
           d={`M ${strokeWidth / 2} ${size / 2} A ${radius} ${radius} 0 0 1 ${size - strokeWidth / 2} ${size / 2}`}

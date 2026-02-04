@@ -727,7 +727,7 @@ const FORBIDDEN_SNAKE_CASE_PRODUCT_FIELDS = new Set([
  * @param product - The normalized Product object
  * @returns Proxied product (dev) or original product (production)
  */
-export function guardProductDev(product: any): any {
+export function guardProductDev(product: unknown): any {
   if (import.meta.env.PROD) {
     return product;
   }
@@ -804,7 +804,7 @@ export function guardProductDev(product: any): any {
  * @param products - Array of normalized products
  * @returns Guarded products (dev) or original (production)
  */
-export function guardProductsDev(products: any[]): any[] {
+export function guardProductsDev(products: unknown[]): unknown[] {
   if (import.meta.env.PROD) {
     return products;
   }
@@ -830,7 +830,7 @@ const FORBIDDEN_SNAKE_CASE_CUSTOMER_FIELDS = new Set([
 /**
  * Wrap a Customer object with a dev-time Proxy
  */
-export function guardCustomerDev(customer: any): any {
+export function guardCustomerDev(customer: unknown): any {
   if (import.meta.env.PROD) {
     return customer;
   }
@@ -903,7 +903,7 @@ export function guardCustomerDev(customer: any): any {
 /**
  * Guard an array of customers in development
  */
-export function guardCustomersDev(customers: any[]): any[] {
+export function guardCustomersDev(customers: unknown[]): unknown[] {
   if (import.meta.env.PROD) {
     return customers;
   }
@@ -925,7 +925,7 @@ const FORBIDDEN_SNAKE_CASE_SUPPLIER_FIELDS = new Set([
 /**
  * Wrap a Supplier object with a dev-time Proxy
  */
-export function guardSupplierDev(supplier: any): any {
+export function guardSupplierDev(supplier: unknown): any {
   if (import.meta.env.PROD) {
     return supplier;
   }
@@ -998,7 +998,7 @@ export function guardSupplierDev(supplier: any): any {
 /**
  * Guard an array of suppliers in development
  */
-export function guardSuppliersDev(suppliers: any[]): any[] {
+export function guardSuppliersDev(suppliers: unknown[]): unknown[] {
   if (import.meta.env.PROD) {
     return suppliers;
   }
@@ -1023,7 +1023,7 @@ const FORBIDDEN_SNAKE_CASE_PAYMENT_FIELDS = new Set([
 /**
  * Wrap a Payment object with a dev-time Proxy
  */
-export function guardPaymentDev(payment: any): any {
+export function guardPaymentDev(payment: unknown): any {
   if (import.meta.env.PROD) {
     return payment;
   }
@@ -1095,7 +1095,7 @@ export function guardPaymentDev(payment: any): any {
 /**
  * Guard an array of payments in development
  */
-export function guardPaymentsDev(payments: any[]): any[] {
+export function guardPaymentsDev(payments: unknown[]): unknown[] {
   if (import.meta.env.PROD) {
     return payments;
   }
@@ -1142,7 +1142,7 @@ const FORBIDDEN_SNAKE_CASE_PURCHASE_ORDER_FIELDS = new Set([
 /**
  * Wrap a PurchaseOrder object with a dev-time Proxy
  */
-export function guardPurchaseOrderDev(purchaseOrder: any): any {
+export function guardPurchaseOrderDev(purchaseOrder: unknown): any {
   if (import.meta.env.PROD) {
     return purchaseOrder;
   }
@@ -1215,7 +1215,7 @@ export function guardPurchaseOrderDev(purchaseOrder: any): any {
 /**
  * Guard an array of purchase orders in development
  */
-export function guardPurchaseOrdersDev(purchaseOrders: any[]): any[] {
+export function guardPurchaseOrdersDev(purchaseOrders: unknown[]): unknown[] {
   if (import.meta.env.PROD) {
     return purchaseOrders;
   }
@@ -1244,7 +1244,7 @@ const FORBIDDEN_SNAKE_CASE_DELIVERY_NOTE_FIELDS = new Set([
 /**
  * Wrap a DeliveryNote object with a dev-time Proxy
  */
-export function guardDeliveryNoteDev(deliveryNote: any): any {
+export function guardDeliveryNoteDev(deliveryNote: unknown): any {
   if (import.meta.env.PROD) {
     return deliveryNote;
   }
@@ -1317,7 +1317,7 @@ export function guardDeliveryNoteDev(deliveryNote: any): any {
 /**
  * Guard an array of delivery notes in development
  */
-export function guardDeliveryNotesDev(deliveryNotes: any[]): any[] {
+export function guardDeliveryNotesDev(deliveryNotes: unknown[]): unknown[] {
   if (import.meta.env.PROD) {
     return deliveryNotes;
   }

@@ -283,7 +283,8 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
       <div className="flex items-center gap-4 mb-4">
         {/* Pie Chart */}
         <div className="relative w-24 h-24 flex-shrink-0">
-          <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-0">
+          <svg aria-label="icon" viewBox="0 0 100 100" className="w-full h-full transform -rotate-0">
+            <title>Icon</title>
             {pieSlices.map((slice, idx) => (
               <path
                 key={slice.id || slice.name || `slice-${idx}`}

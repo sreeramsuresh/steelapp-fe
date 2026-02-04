@@ -32,7 +32,7 @@ export const NotificationCenterProvider = ({ children }) => {
     return validNotifications.filter((n) => n?.unread).length;
   }, [notifications]);
 
-  const persist = (next) => {
+  const persist = useCallback((next) => {
     // Validate and clean notifications before persisting
     const validNotifications = Array.isArray(next) ? next.filter((n) => n && typeof n === "object" && n.id) : [];
     setNotifications(validNotifications);
@@ -41,18 +41,21 @@ export const NotificationCenterProvider = ({ children }) => {
     } catch {
       /* ignore storage errors */
     }
-  };
+  }, []);
 
-  const normalize = (list = []) =>
-    list.map((n) => ({
-      id: n.id ?? uuid(),
-      title: n.title ?? "Notification",
-      message: n.message ?? "",
-      time: n.time ?? new Date().toISOString(),
-      unread: n.unread ?? true,
-      link: n.link ?? null,
-      type: n.type ?? "info",
-    }));
+  const normalize = useCallback(
+    (list = []) =>
+      list.map((n) => ({
+        id: n.id ?? uuid(),
+        title: n.title ?? "Notification",
+        message: n.message ?? "",
+        time: n.time ?? new Date().toISOString(),
+        unread: n.unread ?? true,
+        link: n.link ?? null,
+        type: n.type ?? "info",
+      })),
+    []
+  );
 
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
@@ -63,56 +66,30 @@ export const NotificationCenterProvider = ({ children }) => {
       // const list = Array.isArray(res?.notifications) ? res.notifications : (Array.isArray(res) ? res : []);
       // persist(normalize(list));
 
-      // Validate current notifications and sync with storage
-      const currentNotifications = Array.isArray(notifications) ? notifications.filter((n) => n?.id) : [];
-
       // Fallback: seed with a couple of sample items if empty
-      if (currentNotifications.length === 0) {
-        const now = new Date();
-        const oneMinAgo = new Date(now.getTime() - 60000);
-        const seed = normalize([
-          {
-            title: "Welcome",
-            message: "You are all set!",
-            time: now.toISOString(),
-            unread: true,
-          },
-          {
-            title: "Tip",
-            message: "Use the global search to find anything.",
-            time: oneMinAgo.toISOString(),
-            unread: false,
-          },
-        ]);
-        persist(seed);
-      }
+      const now = new Date();
+      const oneMinAgo = new Date(now.getTime() - 60000);
+      const seed = normalize([
+        {
+          title: "Welcome",
+          message: "You are all set!",
+          time: now.toISOString(),
+          unread: true,
+        },
+        {
+          title: "Tip",
+          message: "Use the global search to find anything.",
+          time: oneMinAgo.toISOString(),
+          unread: false,
+        },
+      ]);
+      persist(seed);
     } catch (err) {
       console.warn("Notification fetch error (expected during development):", err);
-      // Fallback: seed with a couple of sample items if empty
-      const currentNotifications = Array.isArray(notifications) ? notifications.filter((n) => n?.id) : [];
-      if (currentNotifications.length === 0) {
-        const now = new Date();
-        const oneMinAgo = new Date(now.getTime() - 60000);
-        const seed = normalize([
-          {
-            title: "Welcome",
-            message: "You are all set!",
-            time: now.toISOString(),
-            unread: true,
-          },
-          {
-            title: "Tip",
-            message: "Use the global search to find anything.",
-            time: oneMinAgo.toISOString(),
-            unread: false,
-          },
-        ]);
-        persist(seed);
-      }
     } finally {
       setLoading(false);
     }
-  }, [notifications, normalize, persist]);
+  }, [normalize, persist]);
 
   const markAsRead = useCallback(async (id) => {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, unread: false } : n)));

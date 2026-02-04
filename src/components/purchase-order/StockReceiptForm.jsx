@@ -1011,7 +1011,8 @@ const StockReceiptForm = ({
               >
                 {loading ? (
                   <>
-                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24">
+                    <svg aria-label="icon" className="animate-spin w-4 h-4" viewBox="0 0 24 24">
+                      <title>Icon</title>
                       <circle
                         className="opacity-25"
                         cx="12"

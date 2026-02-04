@@ -143,7 +143,13 @@ export default function InvoiceStockMovements({
 
       {movements.length === 0 ? (
         <div className="text-center py-6 bg-gray-50 rounded-lg border border-gray-200">
-          <svg className="mx-auto h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            aria-label="icon"
+            className="mx-auto h-10 w-10 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
