@@ -313,7 +313,6 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
             <div
               key={segment}
               onClick={() => onViewSegment?.(segment, activeView)}
-              role="button"
               tabIndex={0}
               onKeyDown={
                 onViewSegment
@@ -352,7 +351,6 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
           <div
             key={segment}
             onClick={() => onViewSegment?.(segment, activeView)}
-            role="button"
             tabIndex={0}
             onKeyDown={
               onViewSegment

@@ -250,8 +250,7 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
         // Error already handled in execute
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, dependencies);
+  }, [execute, immediate, ...dependencies]);
 
   const reset = useCallback(() => {
     setData(initialData);

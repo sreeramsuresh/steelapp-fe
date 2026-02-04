@@ -1,5 +1,5 @@
 import { ArrowLeft, Download, FileSpreadsheet, Filter } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApiData } from "../hooks/useApi";
@@ -38,7 +38,7 @@ const CustomerPerspective = () => {
   const [end, setEnd] = useState(sp.get("end") || "");
   const containerRef = useRef(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const params = {
       // Send both forms to maximize backend compatibility
@@ -76,11 +76,10 @@ const CustomerPerspective = () => {
     }
     setItems(list);
     setLoading(false);
-  };
+  }, [customerNameParam, customerId, start, end]);
 
   useEffect(() => {
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchData]);
 
   const totals = useMemo(() => {
