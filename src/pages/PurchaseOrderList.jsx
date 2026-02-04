@@ -123,7 +123,7 @@ const PurchaseOrderList = () => {
   };
 
   // Fetch purchase orders
-  const fetchPurchaseOrders = async () => {
+  const fetchPurchaseOrders = useCallback(async () => {
     setLoading(true);
     try {
       const params = {
@@ -164,11 +164,10 @@ const PurchaseOrderList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, searchTerm, statusFilter]);
 
   useEffect(() => {
     fetchPurchaseOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchPurchaseOrders]);
 
   const { data: company } = useApiData(companyService.getCompany, [], true);

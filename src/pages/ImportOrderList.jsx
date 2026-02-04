@@ -28,7 +28,7 @@ const ImportOrderList = () => {
   });
 
   // Load orders
-  const loadOrders = async (page = 1) => {
+  const loadOrders = useCallback(async (page = 1) => {
     try {
       setLoading(true);
       const params = {
@@ -45,11 +45,10 @@ const ImportOrderList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.perPage, filters]);
 
   useEffect(() => {
     loadOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadOrders]);
 
   // Handle search

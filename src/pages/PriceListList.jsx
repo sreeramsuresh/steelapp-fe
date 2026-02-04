@@ -87,11 +87,7 @@ export default function PriceListList() {
     name: null,
   });
 
-  useEffect(() => {
-    fetchPricelists();
-  }, [fetchPricelists]);
-
-  const fetchPricelists = async () => {
+  const fetchPricelists = useCallback(async () => {
     try {
       setLoading(true);
       const response = await pricelistService.getAll({ includeItems: false });
@@ -102,7 +98,11 @@ export default function PriceListList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchPricelists();
+  }, [fetchPricelists]);
 
   const handleDelete = async (id, name, e) => {
     e.stopPropagation();

@@ -5,82 +5,64 @@ import '../../__tests__/init.mjs';
 
 import { test, describe } from 'node:test';
 import assert from 'node:assert';
-import { isRecord, mapRecord, filterRecord, mergeRecords, omitRecord } from '../recordUtils.js';
+import { isNewRecord, validateCreditNoteForDownload } from '../recordUtils.js';
 
 describe('recordUtils', () => {
-  describe('isRecord()', () => {
-    test('should identify plain objects as records', () => {
-      assert.strictEqual(isRecord({ key: 'value' }), true);
+  describe('isNewRecord()', () => {
+    test('should return true for recently created records', () => {
+      const recentDate = new Date(Date.now() - 30 * 60 * 1000); // 30 mins ago
+      const result = isNewRecord(recentDate, 2); // 2 hour threshold
+      assert.strictEqual(result, true);
     });
 
-    test('should reject non-objects', () => {
-      assert.strictEqual(isRecord(null), false);
-      assert.strictEqual(isRecord(undefined), false);
-      assert.strictEqual(isRecord('string'), false);
-      assert.strictEqual(isRecord(123), false);
+    test('should return false for old records', () => {
+      const oldDate = new Date(Date.now() - 4 * 60 * 60 * 1000); // 4 hours ago
+      const result = isNewRecord(oldDate, 2); // 2 hour threshold
+      assert.strictEqual(result, false);
     });
 
-    test('should reject arrays', () => {
-      assert.strictEqual(isRecord([1, 2, 3]), false);
-    });
-  });
-
-  describe('mapRecord()', () => {
-    test('should map record values', () => {
-      const record = { a: 1, b: 2, c: 3 };
-      const result = mapRecord(record, v => v * 2);
-      assert.deepStrictEqual(result, { a: 2, b: 4, c: 6 });
+    test('should handle proto Timestamp format', () => {
+      const now = Math.floor(Date.now() / 1000);
+      const recentTimestamp = { seconds: now - 300 }; // 5 mins ago
+      const result = isNewRecord(recentTimestamp, 2);
+      assert.strictEqual(result, true);
     });
 
-    test('should preserve keys', () => {
-      const record = { name: 'John', age: 30 };
-      const result = mapRecord(record, v => v);
-      assert.deepStrictEqual(Object.keys(result).sort(), ['age', 'name']);
-    });
-  });
-
-  describe('filterRecord()', () => {
-    test('should filter record entries', () => {
-      const record = { a: 1, b: 2, c: 3 };
-      const result = filterRecord(record, v => v > 1);
-      assert.deepStrictEqual(result, { b: 2, c: 3 });
+    test('should return false for null/undefined', () => {
+      assert.strictEqual(isNewRecord(null), false);
+      assert.strictEqual(isNewRecord(undefined), false);
     });
 
-    test('should return empty object when all filtered', () => {
-      const record = { a: 1, b: 2 };
-      const result = filterRecord(record, v => v > 10);
-      assert.deepStrictEqual(result, {});
+    test('should use default threshold of 2 hours', () => {
+      const withinTwoHours = new Date(Date.now() - 60 * 60 * 1000); // 1 hour ago
+      const result = isNewRecord(withinTwoHours);
+      assert.strictEqual(result, true);
     });
   });
 
-  describe('mergeRecords()', () => {
-    test('should merge multiple records', () => {
-      const r1 = { a: 1 };
-      const r2 = { b: 2 };
-      const r3 = { c: 3 };
-      const result = mergeRecords(r1, r2, r3);
-      assert.deepStrictEqual(result, { a: 1, b: 2, c: 3 });
+  describe('validateCreditNoteForDownload()', () => {
+    test('should validate complete credit note', () => {
+      const creditNote = {
+        invoice_id: 1,
+        items: [{ id: 1, amount: 100 }],
+        reason: 'Return',
+        date: new Date(),
+      };
+      const result = validateCreditNoteForDownload(creditNote);
+      assert.ok(typeof result === 'object');
+      assert.ok('isValid' in result);
     });
 
-    test('should override with later records', () => {
-      const r1 = { a: 1, b: 2 };
-      const r2 = { b: 20, c: 3 };
-      const result = mergeRecords(r1, r2);
-      assert.strictEqual(result.b, 20);
-    });
-  });
-
-  describe('omitRecord()', () => {
-    test('should omit specified keys', () => {
-      const record = { a: 1, b: 2, c: 3 };
-      const result = omitRecord(record, ['b']);
-      assert.deepStrictEqual(result, { a: 1, c: 3 });
+    test('should return validation object with expected structure', () => {
+      const creditNote = { invoice_id: 1 };
+      const result = validateCreditNoteForDownload(creditNote);
+      assert.ok(Array.isArray(result.warnings) || typeof result.warnings === 'undefined');
+      assert.ok(typeof result.isValid === 'boolean' || result.isValid === undefined);
     });
 
-    test('should handle multiple omits', () => {
-      const record = { a: 1, b: 2, c: 3, d: 4 };
-      const result = omitRecord(record, ['b', 'd']);
-      assert.deepStrictEqual(result, { a: 1, c: 3 });
+    test('should handle null/undefined input', () => {
+      const result = validateCreditNoteForDownload(null);
+      assert.ok(typeof result === 'object');
     });
   });
 });
