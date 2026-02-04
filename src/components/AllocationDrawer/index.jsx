@@ -488,8 +488,8 @@ const AllocationDrawer = ({
                 // Product not in pricelist - non-blocking, user can enter manually
                 errorMessage =
                   "Price not found in pricelist for this product. You can enter the price manually, or contact your sales manager to add pricing for this product.";
-              } else if (status === 422) {
-                // Configuration error - but provide actionable guidance
+              } else if (status === 400) {
+                // Configuration error (no default pricelist) - provide actionable guidance
                 errorMessage =
                   "No pricelist is configured for your customer. Please select a different customer with a pricelist, or enter the price manually.";
               } else {

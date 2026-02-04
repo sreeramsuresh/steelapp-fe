@@ -1,5 +1,5 @@
 import { AlertCircle, ArrowLeft, CheckCircle, Download, Edit, Package, Plus, Truck, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApiData } from "../hooks/useApi";
@@ -33,14 +33,7 @@ const DeliveryNoteDetails = () => {
     cancelled: "Cancelled",
   };
 
-  useEffect(() => {
-    loadDeliveryNote();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadDeliveryNote]);
-
-  const { data: _company } = useApiData(companyService.getCompany, [], true);
-
-  const loadDeliveryNote = async () => {
+  const loadDeliveryNote = useCallback(async () => {
     try {
       setLoading(true);
       const data = await deliveryNoteService.getById(id);
@@ -50,7 +43,13 @@ const DeliveryNoteDetails = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    loadDeliveryNote();
+  }, [loadDeliveryNote]);
+
+  const { data: _company } = useApiData(companyService.getCompany, [], true);
 
   const handleDownloadPDF = async () => {
     try {

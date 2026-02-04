@@ -1,5 +1,5 @@
 import { BarChart3, DollarSign, Download, ShoppingCart, TrendingUp } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -30,12 +30,7 @@ export default function ProfitAnalysisReport() {
     totalQuantity: 0,
   });
 
-  useEffect(() => {
-    fetchReport();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchReport]);
-
-  const fetchReport = async () => {
+  const fetchReport = useCallback(async () => {
     try {
       setLoading(true);
       setHasError(false);
@@ -96,7 +91,11 @@ export default function ProfitAnalysisReport() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateRange.startDate, dateRange.endDate, hasError]);
+
+  useEffect(() => {
+    fetchReport();
+  }, [fetchReport]);
 
   const exportToCSV = () => {
     const headers = ["Product", "Category", "Grade", "Quantity", "Revenue", "Cost", "Profit", "Margin %"];

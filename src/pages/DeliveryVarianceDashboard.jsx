@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 // Lazy-load chart components for better initial load performance
 import { ChartSkeleton } from "../components/charts";
 import { useTheme } from "../contexts/ThemeContext";
@@ -18,7 +18,7 @@ export default function DeliveryVarianceDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const loadDashboard = async () => {
+  const loadDashboard = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -59,15 +59,11 @@ export default function DeliveryVarianceDashboard() {
     }
 
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadDashboard();
-  }, [
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadDashboard,
-  ]);
+  }, [loadDashboard]);
 
   if (loading)
     return (

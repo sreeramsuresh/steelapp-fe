@@ -12,7 +12,7 @@ import {
   Ship,
   Trash2,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";
@@ -104,7 +104,7 @@ const ExportOrderList = () => {
   ];
 
   // Load orders
-  const loadOrders = async (page = 1) => {
+  const loadOrders = useCallback(async (page = 1) => {
     try {
       setLoading(true);
       setError(null);
@@ -133,11 +133,10 @@ const ExportOrderList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.per_page, sortConfig.key, sortConfig.direction, filters]);
 
   useEffect(() => {
     loadOrders(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadOrders]);
 
   // Handle search form submit
