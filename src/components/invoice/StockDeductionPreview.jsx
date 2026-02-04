@@ -11,7 +11,7 @@
  * Phase 3: Invoice-Stock Integration
  */
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { apiClient } from "../../services/api";
 
 export default function StockDeductionPreview({
@@ -29,7 +29,7 @@ export default function StockDeductionPreview({
   // Filter items that have product_id (inventory-tracked)
   const inventoryItems = items.filter((item) => item.productId || item.product_id);
 
-  const fetchStockLevels = async () => {
+  const fetchStockLevels = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -60,7 +60,7 @@ export default function StockDeductionPreview({
     } finally {
       setLoading(false);
     }
-  };
+  }, [warehouseId, inventoryItems]);
 
   useEffect(() => {
     if (inventoryItems.length > 0) {

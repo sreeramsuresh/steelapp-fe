@@ -9,7 +9,7 @@
  */
 
 import { AlertCircle, ExternalLink, Loader2, Plus, ReceiptText } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { creditNoteService } from "../../services/creditNoteService";
 import { formatCurrency, formatDate } from "../../utils/invoiceUtils";
@@ -66,7 +66,7 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
   // Only show for issued invoices
   const canCreateCreditNote = invoiceStatus === "issued" || invoiceStatus === "STATUS_ISSUED";
 
-  const loadCreditNotes = async () => {
+  const loadCreditNotes = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -79,7 +79,7 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
     } finally {
       setLoading(false);
     }
-  };
+  }, [invoiceId]);
 
   useEffect(() => {
     if (invoiceId) {

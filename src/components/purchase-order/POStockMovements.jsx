@@ -7,7 +7,7 @@
  */
 
 import { ChevronDown, ChevronUp, Package, Truck } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MOVEMENT_TYPES, stockMovementService } from "../../services/stockMovementService";
 
@@ -48,7 +48,7 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
   const [error, setError] = useState(null);
   const [expanded, setExpanded] = useState(defaultExpanded);
 
-  const fetchMovements = async () => {
+  const fetchMovements = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -60,7 +60,7 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
     } finally {
       setLoading(false);
     }
-  };
+  }, [purchaseOrderId]);
 
   useEffect(() => {
     if (purchaseOrderId) {
@@ -121,7 +121,7 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
           {loading ? (
             <div className="flex justify-center py-6">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-            </button>
+            </div>
           ) : error ? (
             <div className="mt-2 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">{error}</div>
           ) : movements.length === 0 ? (

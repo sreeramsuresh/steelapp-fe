@@ -10,7 +10,7 @@
  */
 
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { invoiceService } from "../../services/invoiceService";
 
 const movementTypeColors = {
@@ -43,7 +43,7 @@ export default function InvoiceStockMovements({
   const [error, setError] = useState(null);
   const [deducting, setDeducting] = useState(false);
 
-  const fetchMovements = async () => {
+  const fetchMovements = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -55,7 +55,7 @@ export default function InvoiceStockMovements({
     } finally {
       setLoading(false);
     }
-  };
+  }, [invoiceId]);
 
   useEffect(() => {
     if (invoiceId) {
