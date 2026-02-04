@@ -2292,8 +2292,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                       </span>
                                     )}
                                   </button>
-                                ) : // Show disabled truck for non-issued invoices
-                                ["issued", "sent"].includes(invoice.status) ? null : (
+                                ) : ["issued", "sent"].includes(invoice.status) ? null : (
                                   <span
                                     className={`p-2 rounded shadow-sm opacity-30 ${
                                       isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"

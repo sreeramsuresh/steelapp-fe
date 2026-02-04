@@ -414,7 +414,7 @@ const CurrencyConversionModal = ({
           )}
         </div>
       </div>
-    </button>
+    </div>
   );
 };
 

@@ -1092,7 +1092,9 @@ const AllocationDrawer = ({
                     )}
                   </label>
                   {drawerState.unitPriceOverridden && (
-                    <button type="button" className="btn-reset-price"
+                    <button
+                      type="button"
+                      className="btn-reset-price"
                       onClick={handleResetPrice}
                       title="Reset to price list"
                     >
@@ -1207,7 +1209,9 @@ const AllocationDrawer = ({
         <button type="button" className="btn-secondary" data-testid="drawer-clear" onClick={handleClear}>
           Clear
         </button>
-        <button type="button" className="btn-primary"
+        <button
+          type="button"
+          className="btn-primary"
           data-testid="drawer-add-to-invoice"
           onClick={handleAddToInvoice}
           disabled={!isValid || reservationLoading}
