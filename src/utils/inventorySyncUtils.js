@@ -20,7 +20,8 @@ const INVENTORY_CACHE = {
  * @returns {Object|null} Cached data or null if expired/not available
  */
 export function getCachedInventoryData() {
-  if (!INVENTORY_CACHE.data || !INVENTORY_CACHE.lastFetch) {
+  // Check if cache is empty (handle 0 as valid timestamp)
+  if (!INVENTORY_CACHE.data || INVENTORY_CACHE.lastFetch === null || INVENTORY_CACHE.lastFetch === undefined) {
     return null;
   }
 
@@ -119,7 +120,7 @@ export function calculateLowStockCount(products, minimumStockLevel = 50) {
 export function getConsistentStockStatus(quantity, minimumLevel = 50) {
   const qty = Number(quantity) || 0;
 
-  if (qty === 0) {
+  if (qty <= 0) {
     return "out_of_stock";
   }
 
