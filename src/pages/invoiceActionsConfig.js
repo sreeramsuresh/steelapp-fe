@@ -56,7 +56,7 @@ export function getInvoiceActionButtonConfig(
           type: "edit",
           enabled: true,
           tooltip: "Edit Invoice",
-          link: `/edit/${invoice.id}`,
+          link: `/invoices/${invoice.id}`,
         };
       }
       // Issued/sent invoices: check 24-hour window
@@ -66,7 +66,7 @@ export function getInvoiceActionButtonConfig(
           type: "edit",
           enabled: true,
           tooltip: `Edit Invoice (${hoursRemaining}h remaining)`,
-          link: `/edit/${invoice.id}`,
+          link: `/invoices/${invoice.id}`,
         };
       }
       // Locked: after 24h, deleted, cancelled, or no permission
@@ -99,7 +99,7 @@ export function getInvoiceActionButtonConfig(
             : nonEditableStatuses.includes(invoice.status) && !withinEditWindow
               ? `Cannot edit ${invoice.status} invoice`
               : "Edit Invoice",
-      link: `/edit/${invoice.id}`,
+      link: `/invoices/${invoice.id}`,
     },
     creditNote: {
       enabled: canCreateCreditNote && !isDeleted && creditNoteAllowedStatuses.includes(invoice.status),
@@ -225,7 +225,7 @@ export function getInvoiceActionButtonConfig(
           type: "edit",
           enabled: true,
           tooltip: "Edit Invoice",
-          link: `/edit/${invoice.id}`,
+          link: `/invoices/${invoice.id}`,
         };
       }
       // Locked

@@ -9,9 +9,13 @@ const AnalyticsLayout = lazy(() => import("../layouts/AnalyticsLayout"));
 
 // Loading Screen for Analytics
 import AnalyticsLoadingScreen from "./AnalyticsLoadingScreen";
-
+// Error Boundary
+import ErrorBoundary from "./ErrorBoundary";
 // Legacy Redirect Component
 import LegacyRedirect from "./LegacyRedirect";
+
+// Loading Fallbacks
+import { InvoiceFormLoadingFallback } from "./LoadingFallback";
 
 // Lazy loaded components
 const CustomerDetail = lazy(() => import("../pages/CustomerDetail"));
@@ -330,33 +334,45 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="invoices"
               element={
-                <ProtectedRoute user={user} requiredPermission="invoices_all.read">
-                  <InvoiceList />
-                </ProtectedRoute>
+                <ErrorBoundary>
+                  <ProtectedRoute user={user} requiredPermission="invoices_all.read">
+                    <InvoiceList />
+                  </ProtectedRoute>
+                </ErrorBoundary>
               }
             />
             <Route
               path="invoices/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="invoices.create">
-                  <InvoiceForm onSave={handleSaveInvoice} />
-                </ProtectedRoute>
+                <ErrorBoundary>
+                  <ProtectedRoute user={user} requiredPermission="invoices.create">
+                    <Suspense fallback={<InvoiceFormLoadingFallback />}>
+                      <InvoiceForm onSave={handleSaveInvoice} />
+                    </Suspense>
+                  </ProtectedRoute>
+                </ErrorBoundary>
               }
             />
             <Route
               path="invoices/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="invoices.update">
-                  <InvoiceForm onSave={handleSaveInvoice} />
-                </ProtectedRoute>
+                <ErrorBoundary>
+                  <ProtectedRoute user={user} requiredPermission="invoices.update">
+                    <Suspense fallback={<InvoiceFormLoadingFallback />}>
+                      <InvoiceForm onSave={handleSaveInvoice} />
+                    </Suspense>
+                  </ProtectedRoute>
+                </ErrorBoundary>
               }
             />
             <Route
               path="invoices/:invoiceId/confirm-allocation"
               element={
-                <ProtectedRoute user={user} requiredPermission="invoices.read">
-                  <InvoiceAllocationConfirmation />
-                </ProtectedRoute>
+                <ErrorBoundary>
+                  <ProtectedRoute user={user} requiredPermission="invoices.read">
+                    <InvoiceAllocationConfirmation />
+                  </ProtectedRoute>
+                </ErrorBoundary>
               }
             />
 

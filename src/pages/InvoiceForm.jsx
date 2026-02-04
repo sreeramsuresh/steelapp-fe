@@ -1759,7 +1759,7 @@ const InvoiceForm = ({ onSave }) => {
   );
 
   // Track if form has unsaved changes (for navigation warning)
-  const [_formDirty, setFormDirty] = useState(false);
+  const [formDirty, setFormDirty] = useState(false);
   // Removed unused states: showExitConfirmModal, setShowExitConfirmModal, pendingNavigation, setPendingNavigation
 
   // Track the ORIGINAL saved status for isLocked calculation
@@ -1792,18 +1792,17 @@ const InvoiceForm = ({ onSave }) => {
   }, [createdInvoiceId]);
 
   // Warn before browser close/refresh if there are unsaved changes
-  // DISABLED FOR TESTING - Re-enable before deployment
-  // useEffect(() => {
-  //   const handleBeforeUnload = (e) => {
-  //     if (formDirty) {
-  //       e.preventDefault();
-  //       e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-  //       return e.returnValue;
-  //     }
-  //   };
-  //   window.addEventListener('beforeunload', handleBeforeUnload);
-  //   return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  // }, [formDirty]);
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (formDirty) {
+        e.preventDefault();
+        e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+        return e.returnValue;
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [formDirty]);
 
   // UAE VAT COMPLIANCE: Check if invoice is locked
   // Issued invoices can be edited within 24 hours of issuance (creates revision)

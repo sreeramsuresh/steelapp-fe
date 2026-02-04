@@ -450,7 +450,9 @@ export const TemplateSelector = ({
     <div className={className}>
       <div className={`grid gap-3 ${columns === 4 ? "grid-cols-2 lg:grid-cols-4" : "grid-cols-2"}`}>
         {templates.map((template) => (
-          <button type="button" key={template.id}
+          <button
+            type="button"
+            key={template.id}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -557,7 +559,9 @@ export const TemplateSelector = ({
             </label>
           </div>
           {customColor && (
-            <button type="button" onClick={(e) => {
+            <button
+              type="button"
+              onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 onColorChange(null);
@@ -587,7 +591,9 @@ export const RecurringInvoiceSettings = ({ settings, onToggle, onUpdate, isDarkM
             Automatically create invoices on schedule
           </div>
         </div>
-        <button type="button" onClick={() => onToggle(!settings.enabled)}
+        <button
+          type="button"
+          onClick={() => onToggle(!settings.enabled)}
           className={`
             relative w-11 h-6 rounded-full transition-colors duration-200
             ${settings.enabled ? "bg-teal-500" : isDarkMode ? "bg-gray-600" : "bg-gray-300"}
@@ -684,7 +690,9 @@ export const RecurringInvoiceSettings = ({ settings, onToggle, onUpdate, isDarkM
             <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
               Send automatically when created
             </span>
-            <button type="button" onClick={() => onUpdate({ sendAutomatically: !settings.sendAutomatically })}
+            <button
+              type="button"
+              onClick={() => onUpdate({ sendAutomatically: !settings.sendAutomatically })}
               className={`
                 relative w-9 h-5 rounded-full transition-colors duration-200
                 ${settings.sendAutomatically ? "bg-teal-500" : isDarkMode ? "bg-gray-600" : "bg-gray-300"}

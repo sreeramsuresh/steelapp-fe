@@ -836,6 +836,19 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     };
   };
 
+  // Helper function to get human-readable missing fields list
+  const getMissingFieldsList = (invoice) => {
+    const validation = validateInvoiceForDownload(invoice);
+    const missingFields = [];
+
+    if (validation.missing.customer) missingFields.push("Customer");
+    if (validation.missing.date) missingFields.push("Invoice Date");
+    if (validation.missing.dueDate) missingFields.push("Due Date");
+    if (validation.missing.items) missingFields.push("Items (with name, quantity, and rate)");
+
+    return missingFields.length > 0 ? `Missing: ${missingFields.join(", ")}` : "Incomplete invoice";
+  };
+
   const handleDownloadPDF = async (invoice) => {
     if (downloadingIds.has(invoice.id)) return;
 
@@ -2057,7 +2070,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           statusFilter === "all" &&
                           paymentStatusFilter === "all" && (
                             <Link
-                              to="/app/invoices/new"
+                              to="/invoices/new"
                               className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
                             >
                               <Plus size={16} />
@@ -2237,12 +2250,17 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                       )}
                                     </button>
                                     {!actions.download.isValid && (
-                                      <div
-                                        className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${
-                                          isDarkMode ? "bg-orange-400" : "bg-orange-500"
+                                      <Link
+                                        to={`/invoices/${invoice.id}`}
+                                        className={`absolute -top-1 -right-1 w-3 h-3 rounded-full flex items-center justify-center hover:scale-125 transition-transform cursor-pointer ${
+                                          isDarkMode
+                                            ? "bg-orange-400 hover:bg-orange-300"
+                                            : "bg-orange-500 hover:bg-orange-600"
                                         }`}
-                                        title="Incomplete"
-                                      ></div>
+                                        title={`${getMissingFieldsList(invoice)} - Click to edit`}
+                                      >
+                                        <span className="text-xs font-bold text-white">!</span>
+                                      </Link>
                                     )}
                                   </div>
                                 ) : (
