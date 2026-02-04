@@ -67,32 +67,42 @@ export const NotificationCenterProvider = ({ children }) => {
       // persist(normalize(list));
 
       // Fallback: seed with a couple of sample items if empty
-      const currentNotifications = Array.isArray(notifications) ? notifications.filter((n) => n?.id) : [];
-      if (currentNotifications.length === 0) {
-        const now = new Date();
-        const oneMinAgo = new Date(now.getTime() - 60000);
-        const seed = normalize([
-          {
-            title: "Welcome",
-            message: "You are all set!",
-            time: now.toISOString(),
-            unread: true,
-          },
-          {
-            title: "Tip",
-            message: "Use the global search to find anything.",
-            time: oneMinAgo.toISOString(),
-            unread: false,
-          },
-        ]);
-        persist(seed);
-      }
+      // Use state setter to avoid dependency on notifications
+      setNotifications((currentNotifications) => {
+        const validCurrent = Array.isArray(currentNotifications) ? currentNotifications.filter((n) => n?.id) : [];
+        if (validCurrent.length === 0) {
+          const now = new Date();
+          const oneMinAgo = new Date(now.getTime() - 60000);
+          const seed = normalize([
+            {
+              title: "Welcome",
+              message: "You are all set!",
+              time: now.toISOString(),
+              unread: true,
+            },
+            {
+              title: "Tip",
+              message: "Use the global search to find anything.",
+              time: oneMinAgo.toISOString(),
+              unread: false,
+            },
+          ]);
+          // Persist to localStorage
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
+          } catch {
+            /* ignore storage errors */
+          }
+          return seed;
+        }
+        return validCurrent;
+      });
     } catch (err) {
       console.warn("Notification fetch error (expected during development):", err);
     } finally {
       setLoading(false);
     }
-  }, [notifications, normalize, persist]);
+  }, [normalize]);
 
   const markAsRead = useCallback(async (id) => {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, unread: false } : n)));
