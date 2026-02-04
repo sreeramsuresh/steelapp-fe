@@ -263,8 +263,8 @@ const LeaderboardWidget = ({ data: propData, onRefresh, onViewAgent, isLoading =
                     ? "bg-[#2E3B4E] hover:bg-[#374151]"
                     : "bg-gray-50 hover:bg-gray-100"
               }`}
-              role={onViewAgent ? "button" : undefined}
-              tabIndex={onViewAgent ? 0 : undefined}
+              role="button"
+              tabIndex={0}
               onKeyDown={
                 onViewAgent
                   ? (e) => {

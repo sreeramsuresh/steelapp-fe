@@ -384,8 +384,8 @@ const NewCustomerWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
               <div
                 key={customer.id}
                 onClick={() => onViewCustomer?.(customer)}
-                role={onViewCustomer ? "button" : undefined}
-                tabIndex={onViewCustomer ? 0 : undefined}
+                role="button"
+                tabIndex={0}
                 onKeyDown={
                   onViewCustomer
                     ? (e) => {
