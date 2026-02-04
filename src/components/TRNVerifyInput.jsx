@@ -162,11 +162,14 @@ const TRNVerifyInput = ({
     return null;
   };
 
+  const inputId = `trn-verify-input-${label?.toLowerCase().replace(/\s+/g, "-") || "default"}`;
+
   return (
     <div className={`space-y-1 ${className}`}>
       {/* Label */}
       {label && (
         <label
+          htmlFor={inputId}
           className={`block text-xs font-medium ${
             isDarkMode ? "text-gray-400" : "text-gray-700"
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
@@ -179,6 +182,7 @@ const TRNVerifyInput = ({
       <div className="flex gap-2">
         <div className="relative flex-1">
           <input
+            id={inputId}
             type="text"
             value={localValue}
             onChange={handleChange}

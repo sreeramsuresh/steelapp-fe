@@ -120,10 +120,13 @@ const TRNInput = ({
     return null;
   };
 
+  const inputId = `trn-input-${name}`;
+
   return (
     <div className={`space-y-1 ${className}`}>
       {label && (
         <label
+          htmlFor={inputId}
           className={`block text-sm font-medium ${
             isDarkMode ? "text-gray-300" : "text-gray-700"
           } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
@@ -134,6 +137,7 @@ const TRNInput = ({
 
       <div className="relative">
         <input
+          id={inputId}
           type="text"
           name={name}
           value={displayValue}

@@ -652,7 +652,7 @@ const CommissionPlans = () => {
 
               {/* User Selection */}
               <div>
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                <label htmlFor="user-selection-list" className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                   Select Users ({selectedUsers.size} selected)
                 </label>
 
@@ -667,7 +667,7 @@ const CommissionPlans = () => {
                     <p>No sales agents available</p>
                   </div>
                 ) : (
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                  <div id="user-selection-list" className="space-y-2 max-h-60 overflow-y-auto">
                     {availableUsers.map((user) => (
                       <div
                         key={user.id}

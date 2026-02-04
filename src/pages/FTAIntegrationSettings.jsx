@@ -548,6 +548,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                     {/* API Key */}
                     <div>
                       <label
+                        htmlFor="fta-api-key"
                         className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         <div className="flex items-center gap-2">
@@ -558,6 +559,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                       </label>
                       <div className="relative">
                         <input
+                          id="fta-api-key"
                           type={showApiKey ? "text" : "password"}
                           value={formData.api_key}
                           onChange={(e) => handleChange("api_key", e.target.value)}

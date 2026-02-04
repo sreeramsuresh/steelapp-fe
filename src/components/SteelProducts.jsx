@@ -158,7 +158,12 @@ const Textarea = ({ label, error, className = "", id, ...props }) => {
   return (
     <div className="space-y-1">
       {label && (
-        <label htmlFor={textareaId} className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>{label}</label>
+        <label
+          htmlFor={textareaId}
+          className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+        >
+          {label}
+        </label>
       )}
       <textarea
         id={textareaId}

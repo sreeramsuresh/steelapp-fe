@@ -99,11 +99,11 @@ const WarehouseAvailability = ({
 
   return (
     <div className="warehouse-availability" data-testid="warehouse-availability">
-      <label className="availability-label">
+      <label htmlFor="warehouse-list" className="availability-label">
         Warehouse Availability
         {selectedWarehouseId && onWarehouseSelect && <span className="selection-hint"> (Click to change)</span>}
       </label>
-      <div className="warehouse-list" data-testid="warehouse-list">
+      <div id="warehouse-list" className="warehouse-list" data-testid="warehouse-list">
         {warehouses.map((warehouse, index) => {
           const hasStock = parseFloat(warehouse.availableQuantity || 0) > 0;
           const isSelected = warehouse.warehouseId === selectedWarehouseId;

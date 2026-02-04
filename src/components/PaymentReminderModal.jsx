@@ -416,11 +416,12 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
 
                 {/* Promised Amount (Optional) */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
+                  <label htmlFor="promised-amount-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
                     <span>💰</span>
                     Promised Amount <span className="text-gray-500 text-xs">(Optional)</span>
                   </label>
                   <input
+                    id="promised-amount-input"
                     type="number"
                     step="0.01"
                     min="0"
@@ -438,12 +439,13 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
 
                 {/* Promised Payment Date (Important) */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
+                  <label htmlFor="promised-date-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
                     <span>📅</span>
                     When Will Customer Pay?{" "}
                     <span className="text-blue-600 dark:text-blue-400 text-xs font-semibold">(Important)</span>
                   </label>
                   <input
+                    id="promised-date-input"
                     type="date"
                     value={formData.promised_date}
                     onChange={(e) =>

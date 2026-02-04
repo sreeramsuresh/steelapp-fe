@@ -470,28 +470,32 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
   };
 
   // Number input component
-  const NumberInput = ({ label, value, onChange, min, max, step = 1, unit = "", description }) => (
-    <div className="mb-4">
-      <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-        {label}
-      </label>
-      {description && <p className={`text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{description}</p>}
-      <div className="flex items-center gap-2">
-        <input
-          type="number"
-          value={value}
-          onChange={(e) => onChange(parseFloat(e.target.value))}
-          min={min}
-          max={max}
-          step={step}
-          className={`flex-1 px-3 py-2 border rounded-lg ${
-            isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-          }`}
-        />
-        {unit && <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>{unit}</span>}
+  const NumberInput = ({ id, label, value, onChange, min, max, step = 1, unit = "", description }) => {
+    const inputId = id || `number-input-${label?.toLowerCase().replace(/\s+/g, "-")}`;
+    return (
+      <div className="mb-4">
+        <label htmlFor={inputId} className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+          {label}
+        </label>
+        {description && <p className={`text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{description}</p>}
+        <div className="flex items-center gap-2">
+          <input
+            id={inputId}
+            type="number"
+            value={value}
+            onChange={(e) => onChange(parseFloat(e.target.value))}
+            min={min}
+            max={max}
+            step={step}
+            className={`flex-1 px-3 py-2 border rounded-lg ${
+              isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
+            }`}
+          />
+          {unit && <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>{unit}</span>}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Checkbox component
   const CheckboxInput = ({ label, checked, onChange, description }) => (
