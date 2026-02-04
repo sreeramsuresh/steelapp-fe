@@ -123,7 +123,9 @@ const ErrorState = ({
         {action === "LOGIN" && (
           <button
             type="button"
-            onClick={() => (window.location.href = "/login")}
+            onClick={() => {
+              window.location.href = "/login";
+            }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-colors ${colors.buttonBg}`}
           >
             <LogOut size={16} />

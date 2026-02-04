@@ -39,7 +39,7 @@ describe("stateAssertions", () => {
             {isOpen && (
               <div role="dialog">
                 <h2>Create Invoice</h2>
-              </button>
+              </div>
             )}
           </>
         );
@@ -100,7 +100,7 @@ describe("stateAssertions", () => {
             {show && (
               <div role="status" className="toast toast-success">
                 Success: Operation completed
-              </button>
+              </div>
             )}
           </>
         );
