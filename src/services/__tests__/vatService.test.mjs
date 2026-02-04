@@ -388,8 +388,9 @@ describe('vatService', () => {
         categories: [{ type: 'non_business_input', amount: 5000 }],
         total_blocked_vat: 5000,
       };
-      sinon.stub(apiClient, 'get').onFirstCall().resolves(mockReturns);
-      sinon.stub(apiClient, 'get').onSecondCall().resolves(mockBlocked);
+      sinon.stub(apiClient, 'get')
+        .onFirstCall().resolves(mockReturns)
+        .onSecondCall().resolves(mockBlocked);
 
       const result = await vatService.getVATDashboardMetrics();
 
@@ -414,11 +415,12 @@ describe('vatService', () => {
     });
 
     test('should generate alerts for VAT returns due soon', async () => {
-      sinon.stub(apiClient, 'get').onFirstCall().resolves({ data: [] });
-      sinon.stub(apiClient, 'get').onSecondCall().resolves({
-        categories: [],
-        total_blocked_vat: 0,
-      });
+      sinon.stub(apiClient, 'get')
+        .onFirstCall().resolves({ data: [] })
+        .onSecondCall().resolves({
+          categories: [],
+          total_blocked_vat: 0,
+        });
 
       const result = await vatService.getVATDashboardMetrics();
 

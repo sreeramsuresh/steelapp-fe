@@ -16,10 +16,6 @@ import { tokenUtils } from '../axiosApi.js';
 import { companyService } from '../companyService.js';
 
 describe('companyService', () => {
-  beforeEach(() => {
-    sinon.stub(global, 'fetch');
-  });
-
   afterEach(() => {
     sinon.restore();
   });
@@ -83,7 +79,7 @@ describe('companyService', () => {
       const mockFile = new File(['logo content'], 'logo.png', { type: 'image/png' });
       const mockResponse = { filename: 'logo-12345.png', url: '/logos/logo-12345.png' };
 
-      global.fetch.resolves({
+      sinon.stub(global, 'fetch').resolves({
         ok: true,
         json: async () => mockResponse,
       });
@@ -99,7 +95,7 @@ describe('companyService', () => {
 
     test('should handle upload failure', async () => {
       const mockFile = new File(['logo'], 'logo.png', { type: 'image/png' });
-      global.fetch.resolves({
+      sinon.stub(global, 'fetch').resolves({
         ok: false,
         json: async () => ({ error: 'File too large' }),
       });
@@ -143,7 +139,7 @@ describe('companyService', () => {
       });
       const mockResponse = { filename: 'brandmark-12345.png' };
 
-      global.fetch.resolves({
+      sinon.stub(global, 'fetch').resolves({
         ok: true,
         json: async () => mockResponse,
       });
@@ -171,7 +167,7 @@ describe('companyService', () => {
       const mockFile = new File(['seal'], 'seal.png', { type: 'image/png' });
       const mockResponse = { filename: 'seal-12345.png' };
 
-      global.fetch.resolves({
+      sinon.stub(global, 'fetch').resolves({
         ok: true,
         json: async () => mockResponse,
       });
@@ -216,7 +212,7 @@ describe('companyService', () => {
       sinon.stub(tokenUtils, 'getToken').returns('test-token-xyz');
       const mockFile = new File(['test'], 'test.png', { type: 'image/png' });
 
-      global.fetch.resolves({
+      sinon.stub(global, 'fetch').resolves({
         ok: true,
         json: async () => ({ filename: 'test.png' }),
       });
@@ -230,7 +226,7 @@ describe('companyService', () => {
     test('should set correct content headers for uploads', async () => {
       const mockFile = new File(['test'], 'test.png', { type: 'image/png' });
 
-      global.fetch.resolves({
+      sinon.stub(global, 'fetch').resolves({
         ok: true,
         json: async () => ({ filename: 'test.png' }),
       });
