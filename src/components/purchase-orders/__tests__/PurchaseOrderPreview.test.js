@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import React from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import PurchaseOrderPreview from "../PurchaseOrderPreview";
-import React from "react";
 
 const mockPurchaseOrderService = {
   getPurchaseOrder: vi.fn(),
@@ -56,53 +56,39 @@ describe("PurchaseOrderPreview", () => {
 
   describe("Rendering", () => {
     it("should render PO preview modal", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should display supplier information section", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should display items table", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should display financial totals", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should display delivery information", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should display PO notes section", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
   });
 
   describe("Status Handling", () => {
     it("should show editable state for Draft PO", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
@@ -111,9 +97,7 @@ describe("PurchaseOrderPreview", () => {
         ...mockPOData,
         status: "Submitted",
       });
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
@@ -122,9 +106,7 @@ describe("PurchaseOrderPreview", () => {
         ...mockPOData,
         status: "Approved",
       });
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
@@ -133,9 +115,7 @@ describe("PurchaseOrderPreview", () => {
         ...mockPOData,
         status: "Received",
       });
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
@@ -144,32 +124,24 @@ describe("PurchaseOrderPreview", () => {
         ...mockPOData,
         status: "Cancelled",
       });
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
   });
 
   describe("Financial Calculations", () => {
     it("should calculate subtotal from all items", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should apply tax calculation", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should calculate total with tax included", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
@@ -179,39 +151,29 @@ describe("PurchaseOrderPreview", () => {
         tax: 0,
         total: 5000.0,
       });
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should format currency correctly", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
   });
 
   describe("Items Management", () => {
     it("should display all line items", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should show item quantity and unit price", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should calculate line item total", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
@@ -225,9 +187,7 @@ describe("PurchaseOrderPreview", () => {
         ],
       };
       mockPurchaseOrderService.getPurchaseOrder.mockResolvedValue(multiItemPO);
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
@@ -236,9 +196,7 @@ describe("PurchaseOrderPreview", () => {
         ...mockPOData,
         items: [],
       });
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
   });
@@ -246,16 +204,12 @@ describe("PurchaseOrderPreview", () => {
   describe("User Actions", () => {
     it("should call onClose when closing modal", () => {
       const onCloseMock = vi.fn();
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} onClose={onCloseMock} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} onClose={onCloseMock} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should enable Edit for Draft status", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
@@ -264,9 +218,7 @@ describe("PurchaseOrderPreview", () => {
         ...mockPOData,
         status: "Submitted",
       });
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
@@ -275,73 +227,49 @@ describe("PurchaseOrderPreview", () => {
         ...mockPOData,
         status: "Submitted",
       });
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should enable Cancel action", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should enable Print action", () => {
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
   });
 
   describe("Error Handling", () => {
     it("should handle loading state gracefully", () => {
-      mockPurchaseOrderService.getPurchaseOrder.mockImplementation(
-        () => new Promise(() => {}),
-      );
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      mockPurchaseOrderService.getPurchaseOrder.mockImplementation(() => new Promise(() => {}));
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should display error message on API failure", () => {
-      mockPurchaseOrderService.getPurchaseOrder.mockRejectedValue(
-        new Error("API Error"),
-      );
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      mockPurchaseOrderService.getPurchaseOrder.mockRejectedValue(new Error("API Error"));
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should handle null PO gracefully", () => {
       mockPurchaseOrderService.getPurchaseOrder.mockResolvedValue(null);
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should handle network errors", () => {
-      mockPurchaseOrderService.getPurchaseOrder.mockRejectedValue(
-        new Error("Network failed"),
-      );
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      mockPurchaseOrderService.getPurchaseOrder.mockRejectedValue(new Error("Network failed"));
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
     it("should handle timeout errors", () => {
-      mockPurchaseOrderService.getPurchaseOrder.mockRejectedValue(
-        new Error("Request timeout"),
-      );
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      mockPurchaseOrderService.getPurchaseOrder.mockRejectedValue(new Error("Request timeout"));
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
   });
@@ -352,9 +280,7 @@ describe("PurchaseOrderPreview", () => {
         ...mockPOData,
         items: [{ ...mockPOData.items[0], quantity: 999999 }],
       });
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
@@ -363,9 +289,7 @@ describe("PurchaseOrderPreview", () => {
         ...mockPOData,
         items: [{ ...mockPOData.items[0], unitPrice: 99999.99 }],
       });
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
@@ -374,9 +298,7 @@ describe("PurchaseOrderPreview", () => {
         ...mockPOData,
         supplierName: "Supplier & Co. <Test>",
       });
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
@@ -386,9 +308,7 @@ describe("PurchaseOrderPreview", () => {
         ...mockPOData,
         notes: longNotes,
       });
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
 
@@ -398,9 +318,7 @@ describe("PurchaseOrderPreview", () => {
         poNumber: "PO/2024/001",
         status: "Draft",
       });
-      const { container } = renderWithProviders(
-        <PurchaseOrderPreview {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
   });

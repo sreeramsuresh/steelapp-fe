@@ -314,10 +314,7 @@ describe("vatReturnService", () => {
       const result = await vatReturnService.saveReport("2024-01-01", "2024-03-31");
 
       expect(result.status).toBe("draft");
-      expect(apiClient.post).toHaveBeenCalledWith(
-        "/vat-return/save",
-        expect.any(Object)
-      );
+      expect(apiClient.post).toHaveBeenCalledWith("/vat-return/save", expect.any(Object));
     });
   });
 
@@ -369,10 +366,7 @@ describe("vatReturnService", () => {
       });
 
       expect(result.status).toBe("filed");
-      expect(apiClient.post).toHaveBeenCalledWith(
-        "/vat-returns/1/file",
-        expect.any(Object)
-      );
+      expect(apiClient.post).toHaveBeenCalledWith("/vat-returns/1/file", expect.any(Object));
     });
   });
 
@@ -395,9 +389,7 @@ describe("vatReturnService", () => {
 
   describe("getAuditTrail", () => {
     it("should get audit trail for VAT return", async () => {
-      const mockResponse = [
-        { action: "created", timestamp: "2024-01-15T10:00:00Z", user: "admin" },
-      ];
+      const mockResponse = [{ action: "created", timestamp: "2024-01-15T10:00:00Z", user: "admin" }];
 
       apiClient.get.mockResolvedValue(mockResponse);
 
@@ -436,17 +428,13 @@ describe("vatReturnService", () => {
       const result = await vatReturnService.getSupportingDocuments(1);
 
       expect(result.invoices).toBeDefined();
-      expect(apiClient.get).toHaveBeenCalledWith(
-        "/vat-returns/1/supporting-documents"
-      );
+      expect(apiClient.get).toHaveBeenCalledWith("/vat-returns/1/supporting-documents");
     });
   });
 
   describe("getBlockedVATCategories", () => {
     it("should get blocked VAT categories", async () => {
-      const mockResponse = [
-        { code: "FUEL", description: "Fuel expenses" },
-      ];
+      const mockResponse = [{ code: "FUEL", description: "Fuel expenses" }];
 
       apiClient.get.mockResolvedValue(mockResponse);
 
@@ -484,10 +472,7 @@ describe("vatReturnService", () => {
       const result = await vatReturnService.updateStatus(1, "review");
 
       expect(result.status).toBe("review");
-      expect(apiClient.patch).toHaveBeenCalledWith(
-        "/vat-returns/1/status",
-        expect.any(Object)
-      );
+      expect(apiClient.patch).toHaveBeenCalledWith("/vat-returns/1/status", expect.any(Object));
     });
   });
 
@@ -503,10 +488,7 @@ describe("vatReturnService", () => {
       const result = await vatReturnService.addNotes(1, "Updated notes");
 
       expect(result.notes).toBe("Updated notes");
-      expect(apiClient.patch).toHaveBeenCalledWith(
-        "/vat-returns/1/notes",
-        expect.any(Object)
-      );
+      expect(apiClient.patch).toHaveBeenCalledWith("/vat-returns/1/notes", expect.any(Object));
     });
   });
 
@@ -531,10 +513,7 @@ describe("vatReturnService", () => {
       const result = await vatReturnService.downloadPDF(1, "VAT-2024-Q1");
 
       expect(result).toBe(true);
-      expect(apiClient.get).toHaveBeenCalledWith(
-        "/vat-returns/1/pdf",
-        expect.any(Object)
-      );
+      expect(apiClient.get).toHaveBeenCalledWith("/vat-returns/1/pdf", expect.any(Object));
     });
   });
 
@@ -599,11 +578,9 @@ describe("vatReturnService", () => {
       const result = await vatReturnService.recalculate(1);
 
       expect(result.box11Vat).toBe(10000);
-      expect(apiClient.post).toHaveBeenCalledWith(
-        "/vat-returns/1/recalculate"
-      );
+      expect(apiClient.post).toHaveBeenCalledWith("/vat-returns/1/recalculate");
     });
-  })
+  });
 
   describe("Multi-tenancy", () => {
     it("should maintain company context", async () => {

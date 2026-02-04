@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import Header from "../Header";
 

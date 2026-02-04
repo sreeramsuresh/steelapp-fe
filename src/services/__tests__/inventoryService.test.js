@@ -137,11 +137,14 @@ describe("inventoryService", () => {
 
       expect(result).toBeDefined();
       expect(result.id).toBe(101);
-      expect(apiClient.post).toHaveBeenCalledWith("/inventory", expect.objectContaining({
-        product_type: "PIPE",
-        grade: "304",
-        warehouse_id: 1,
-      }));
+      expect(apiClient.post).toHaveBeenCalledWith(
+        "/inventory",
+        expect.objectContaining({
+          product_type: "PIPE",
+          grade: "304",
+          warehouse_id: 1,
+        })
+      );
     });
   });
 
@@ -196,10 +199,7 @@ describe("inventoryService", () => {
 
       expect(result).toHaveLength(2);
       expect(result[0].productType).toBe("PIPE");
-      expect(apiClient.get).toHaveBeenCalledWith(
-        "/inventory/by-product",
-        { productType: "PIPE", grade: "304" }
-      );
+      expect(apiClient.get).toHaveBeenCalledWith("/inventory/by-product", { productType: "PIPE", grade: "304" });
     });
   });
 
@@ -218,10 +218,7 @@ describe("inventoryService", () => {
 
       expect(result).toBeDefined();
       expect(result.quantity).toBe(120);
-      expect(apiClient.patch).toHaveBeenCalledWith(
-        "/inventory/1/quantity",
-        { quantity: 20, operation: "add" }
-      );
+      expect(apiClient.patch).toHaveBeenCalledWith("/inventory/1/quantity", { quantity: 20, operation: "add" });
     });
 
     it("should support set operation", async () => {
@@ -232,10 +229,7 @@ describe("inventoryService", () => {
       const result = await inventoryService.updateQuantity(1, 100, "set");
 
       expect(result).toBeDefined();
-      expect(apiClient.patch).toHaveBeenCalledWith(
-        "/inventory/1/quantity",
-        { quantity: 100, operation: "set" }
-      );
+      expect(apiClient.patch).toHaveBeenCalledWith("/inventory/1/quantity", { quantity: 100, operation: "set" });
     });
 
     it("should support subtract operation", async () => {
@@ -246,10 +240,7 @@ describe("inventoryService", () => {
       const result = await inventoryService.updateQuantity(1, 20, "subtract");
 
       expect(result).toBeDefined();
-      expect(apiClient.patch).toHaveBeenCalledWith(
-        "/inventory/1/quantity",
-        { quantity: 20, operation: "subtract" }
-      );
+      expect(apiClient.patch).toHaveBeenCalledWith("/inventory/1/quantity", { quantity: 20, operation: "subtract" });
     });
   });
 
@@ -265,10 +256,7 @@ describe("inventoryService", () => {
       const result = await inventoryService.getLowStockItems(5);
 
       expect(result).toHaveLength(2);
-      expect(apiClient.get).toHaveBeenCalledWith(
-        "/inventory/low-stock",
-        { threshold: 5 }
-      );
+      expect(apiClient.get).toHaveBeenCalledWith("/inventory/low-stock", { threshold: 5 });
     });
 
     it("should use default threshold", async () => {
@@ -278,10 +266,7 @@ describe("inventoryService", () => {
 
       await inventoryService.getLowStockItems();
 
-      expect(apiClient.get).toHaveBeenCalledWith(
-        "/inventory/low-stock",
-        { threshold: 5 }
-      );
+      expect(apiClient.get).toHaveBeenCalledWith("/inventory/low-stock", { threshold: 5 });
     });
   });
 
@@ -320,10 +305,7 @@ describe("inventoryService", () => {
       const result = await inventoryService.searchItems("PIPE");
 
       expect(result).toHaveLength(2);
-      expect(apiClient.get).toHaveBeenCalledWith(
-        "/inventory/search",
-        { q: "PIPE" }
-      );
+      expect(apiClient.get).toHaveBeenCalledWith("/inventory/search", { q: "PIPE" });
     });
 
     it("should handle empty search results", async () => {
@@ -381,7 +363,7 @@ describe("inventoryService", () => {
       const mockItem = {
         id: 1,
         quantity: 100, // Legacy field
-        minStock: 10,  // Legacy field
+        minStock: 10, // Legacy field
         productType: "PIPE",
       };
 
@@ -397,9 +379,9 @@ describe("inventoryService", () => {
       const mockItem = {
         id: 1,
         quantityOnHand: 150, // ERP field (takes precedence)
-        quantity: 100,        // Legacy field
-        minimumStock: 15,     // ERP field (takes precedence)
-        minStock: 10,         // Legacy field
+        quantity: 100, // Legacy field
+        minimumStock: 15, // ERP field (takes precedence)
+        minStock: 10, // Legacy field
         productType: "PIPE",
       };
 
@@ -408,7 +390,7 @@ describe("inventoryService", () => {
       const result = await inventoryService.getItemById(1);
 
       expect(result.quantity).toBe(150); // Should use quantityOnHand
-      expect(result.minStock).toBe(15);   // Should use minimumStock
+      expect(result.minStock).toBe(15); // Should use minimumStock
     });
   });
 });

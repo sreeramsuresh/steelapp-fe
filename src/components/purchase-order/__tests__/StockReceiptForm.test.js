@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import StockReceiptForm from "../StockReceiptForm";
 
@@ -39,9 +39,7 @@ describe("StockReceiptForm", () => {
       "should display form actions",
     ].forEach((test) => {
       it(test, () => {
-        const { container } = renderWithProviders(
-          <StockReceiptForm {...defaultProps} />,
-        );
+        const { container } = renderWithProviders(<StockReceiptForm {...defaultProps} />);
         expect(container).toBeInTheDocument();
       });
     });
@@ -56,9 +54,7 @@ describe("StockReceiptForm", () => {
       "should handle excess receipts",
     ].forEach((test) => {
       it(test, () => {
-        const { container } = renderWithProviders(
-          <StockReceiptForm {...defaultProps} />,
-        );
+        const { container } = renderWithProviders(<StockReceiptForm {...defaultProps} />);
         expect(container).toBeInTheDocument();
       });
     });
@@ -73,9 +69,7 @@ describe("StockReceiptForm", () => {
       "should assign to warehouse",
     ].forEach((test) => {
       it(test, () => {
-        const { container } = renderWithProviders(
-          <StockReceiptForm {...defaultProps} />,
-        );
+        const { container } = renderWithProviders(<StockReceiptForm {...defaultProps} />);
         expect(container).toBeInTheDocument();
       });
     });
@@ -90,9 +84,7 @@ describe("StockReceiptForm", () => {
       "should capture quality notes",
     ].forEach((test) => {
       it(test, () => {
-        const { container } = renderWithProviders(
-          <StockReceiptForm {...defaultProps} />,
-        );
+        const { container } = renderWithProviders(<StockReceiptForm {...defaultProps} />);
         expect(container).toBeInTheDocument();
       });
     });
@@ -106,9 +98,7 @@ describe("StockReceiptForm", () => {
       "should recover from errors",
     ].forEach((test) => {
       it(test, () => {
-        const { container } = renderWithProviders(
-          <StockReceiptForm {...defaultProps} />,
-        );
+        const { container } = renderWithProviders(<StockReceiptForm {...defaultProps} />);
         expect(container).toBeInTheDocument();
       });
     });

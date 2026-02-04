@@ -146,9 +146,7 @@ describe("templateService", () => {
       const error = new Error("Cannot delete default template");
       apiClient.delete.mockRejectedValueOnce(error);
 
-      await expect(templateService.deleteTemplate(1)).rejects.toThrow(
-        "Cannot delete default template"
-      );
+      await expect(templateService.deleteTemplate(1)).rejects.toThrow("Cannot delete default template");
     });
   });
 

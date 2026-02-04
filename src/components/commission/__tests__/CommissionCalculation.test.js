@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import CommissionCalculation from "../CommissionCalculation";
 
@@ -19,9 +19,7 @@ describe("CommissionCalculation", () => {
   describe("Rendering", () => {
     ["should render commission view", "should display amounts", "should show details"].forEach((test) => {
       it(test, () => {
-        const { container } = renderWithProviders(
-          <CommissionCalculation />,
-        );
+        const { container } = renderWithProviders(<CommissionCalculation />);
         expect(container).toBeInTheDocument();
       });
     });

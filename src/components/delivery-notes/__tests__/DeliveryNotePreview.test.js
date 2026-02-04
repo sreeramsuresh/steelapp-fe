@@ -6,7 +6,7 @@
  */
 
 // Jest provides describe, it, expect, beforeEach globally - no need to import
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import DeliveryNotePreview from "../DeliveryNotePreview";
 
@@ -219,9 +219,7 @@ describe("DeliveryNotePreview", () => {
         driverName: null,
       };
 
-      const { container } = renderWithProviders(
-        <DeliveryNotePreview {...defaultProps} deliveryNote={noTransport} />
-      );
+      const { container } = renderWithProviders(<DeliveryNotePreview {...defaultProps} deliveryNote={noTransport} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -261,9 +259,7 @@ describe("DeliveryNotePreview", () => {
         ],
       };
 
-      const { container } = renderWithProviders(
-        <DeliveryNotePreview {...defaultProps} deliveryNote={multiItem} />
-      );
+      const { container } = renderWithProviders(<DeliveryNotePreview {...defaultProps} deliveryNote={multiItem} />);
 
       expect(container.textContent).toContain("Item 1");
       expect(container.textContent).toContain("Item 2");
@@ -275,9 +271,7 @@ describe("DeliveryNotePreview", () => {
         items: [],
       };
 
-      const { container } = renderWithProviders(
-        <DeliveryNotePreview {...defaultProps} deliveryNote={noItems} />
-      );
+      const { container } = renderWithProviders(<DeliveryNotePreview {...defaultProps} deliveryNote={noItems} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -331,9 +325,7 @@ describe("DeliveryNotePreview", () => {
         delivery_note_number: "DN-2024-002",
       };
 
-      const { container } = renderWithProviders(
-        <DeliveryNotePreview {...defaultProps} deliveryNote={snakeCase} />
-      );
+      const { container } = renderWithProviders(<DeliveryNotePreview {...defaultProps} deliveryNote={snakeCase} />);
 
       expect(container.textContent).toContain("DN-2024-002");
     });
@@ -344,9 +336,7 @@ describe("DeliveryNotePreview", () => {
         delivery_date: "2024-01-20",
       };
 
-      const { container } = renderWithProviders(
-        <DeliveryNotePreview {...defaultProps} deliveryNote={snakeCase} />
-      );
+      const { container } = renderWithProviders(<DeliveryNotePreview {...defaultProps} deliveryNote={snakeCase} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -357,9 +347,7 @@ describe("DeliveryNotePreview", () => {
         invoice_number: "INV-2024-002",
       };
 
-      const { container } = renderWithProviders(
-        <DeliveryNotePreview {...defaultProps} deliveryNote={snakeCase} />
-      );
+      const { container } = renderWithProviders(<DeliveryNotePreview {...defaultProps} deliveryNote={snakeCase} />);
 
       expect(container.textContent).toContain("INV-2024-002");
     });
@@ -370,9 +358,7 @@ describe("DeliveryNotePreview", () => {
         delivery_address: { city: "Abu Dhabi" },
       };
 
-      const { container } = renderWithProviders(
-        <DeliveryNotePreview {...defaultProps} deliveryNote={snakeCase} />
-      );
+      const { container } = renderWithProviders(<DeliveryNotePreview {...defaultProps} deliveryNote={snakeCase} />);
 
       expect(container.textContent).toContain("Abu Dhabi");
     });
@@ -383,9 +369,7 @@ describe("DeliveryNotePreview", () => {
         vehicle_number: "AUH-2024",
       };
 
-      const { container } = renderWithProviders(
-        <DeliveryNotePreview {...defaultProps} deliveryNote={snakeCase} />
-      );
+      const { container } = renderWithProviders(<DeliveryNotePreview {...defaultProps} deliveryNote={snakeCase} />);
 
       expect(container.textContent).toContain("AUH-2024");
     });
@@ -396,9 +380,7 @@ describe("DeliveryNotePreview", () => {
         driver_name: "Mohammed Al-Naqbi",
       };
 
-      const { container } = renderWithProviders(
-        <DeliveryNotePreview {...defaultProps} deliveryNote={snakeCase} />
-      );
+      const { container } = renderWithProviders(<DeliveryNotePreview {...defaultProps} deliveryNote={snakeCase} />);
 
       expect(container.textContent).toContain("Mohammed Al-Naqbi");
     });
@@ -411,9 +393,7 @@ describe("DeliveryNotePreview", () => {
         items: [],
       };
 
-      const { container } = renderWithProviders(
-        <DeliveryNotePreview {...defaultProps} deliveryNote={noItems} />
-      );
+      const { container } = renderWithProviders(<DeliveryNotePreview {...defaultProps} deliveryNote={noItems} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -424,9 +404,7 @@ describe("DeliveryNotePreview", () => {
         customerDetails: null,
       };
 
-      const { container } = renderWithProviders(
-        <DeliveryNotePreview {...defaultProps} deliveryNote={noCustomer} />
-      );
+      const { container } = renderWithProviders(<DeliveryNotePreview {...defaultProps} deliveryNote={noCustomer} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -448,9 +426,7 @@ describe("DeliveryNotePreview", () => {
         })),
       };
 
-      const { container } = renderWithProviders(
-        <DeliveryNotePreview {...defaultProps} deliveryNote={largeList} />
-      );
+      const { container } = renderWithProviders(<DeliveryNotePreview {...defaultProps} deliveryNote={largeList} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -461,9 +437,7 @@ describe("DeliveryNotePreview", () => {
         status: "pending",
       };
 
-      const { container } = renderWithProviders(
-        <DeliveryNotePreview {...defaultProps} deliveryNote={minimal} />
-      );
+      const { container } = renderWithProviders(<DeliveryNotePreview {...defaultProps} deliveryNote={minimal} />);
 
       expect(container).toBeInTheDocument();
     });

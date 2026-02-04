@@ -53,11 +53,7 @@ describe("purchaseOrderSyncService", () => {
       inventoryService.createItem.mockResolvedValue({ id: 1 });
       stockMovementService.createMovement.mockResolvedValue({ id: 1 });
 
-      const result = await purchaseOrderSyncService.handlePOStatusChange(
-        po,
-        "received",
-        "retain"
-      );
+      const result = await purchaseOrderSyncService.handlePOStatusChange(po, "received", "retain");
 
       expect(result).toBe(true);
       expect(inventoryService.createItem).toHaveBeenCalled();
@@ -73,11 +69,7 @@ describe("purchaseOrderSyncService", () => {
         warehouseId: 1,
       };
 
-      const result = await purchaseOrderSyncService.handlePOStatusChange(
-        po,
-        "received",
-        "retain"
-      );
+      const result = await purchaseOrderSyncService.handlePOStatusChange(po, "received", "retain");
 
       expect(result).toBe(true);
     });
@@ -92,9 +84,7 @@ describe("purchaseOrderSyncService", () => {
 
       inventoryService.createItem.mockRejectedValue(new Error("DB Error"));
 
-      await expect(
-        purchaseOrderSyncService.handlePOStatusChange(po, "received", "retain")
-      ).rejects.toThrow();
+      await expect(purchaseOrderSyncService.handlePOStatusChange(po, "received", "retain")).rejects.toThrow();
 
       expect(notificationService.error).toHaveBeenCalled();
     });
@@ -151,9 +141,7 @@ describe("purchaseOrderSyncService", () => {
 
       await purchaseOrderSyncService.addPOItemsToInventory(po);
 
-      expect(notificationService.success).toHaveBeenCalledWith(
-        expect.stringContaining("Added")
-      );
+      expect(notificationService.success).toHaveBeenCalledWith(expect.stringContaining("Added"));
     });
   });
 
@@ -262,10 +250,7 @@ describe("purchaseOrderSyncService", () => {
   describe("findExistingInventoryItem", () => {
     it("should return empty array (not implemented)", () => {
       const item = { productType: "Plate", quantity: 100 };
-      const result = purchaseOrderSyncService.findExistingInventoryItem(
-        item,
-        1
-      );
+      const result = purchaseOrderSyncService.findExistingInventoryItem(item, 1);
 
       expect(Array.isArray(result)).toBe(true);
       expect(result).toHaveLength(0);
@@ -286,12 +271,7 @@ describe("purchaseOrderSyncService", () => {
 
       stockMovementService.createMovement.mockResolvedValue({ id: 1 });
 
-      await purchaseOrderSyncService.createStockMovement(
-        po,
-        item,
-        "IN",
-        "Received from PO"
-      );
+      await purchaseOrderSyncService.createStockMovement(po, item, "IN", "Received from PO");
 
       expect(stockMovementService.createMovement).toHaveBeenCalled();
     });

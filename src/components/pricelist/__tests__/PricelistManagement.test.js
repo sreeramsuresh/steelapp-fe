@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import PricelistManagement from "../PricelistManagement";
 
@@ -20,9 +20,7 @@ describe("PricelistManagement", () => {
   describe("Rendering", () => {
     ["should render pricelist list", "should display add button", "should show items"].forEach((test) => {
       it(test, () => {
-        const { container } = renderWithProviders(
-          <PricelistManagement />,
-        );
+        const { container } = renderWithProviders(<PricelistManagement />);
         expect(container).toBeInTheDocument();
       });
     });

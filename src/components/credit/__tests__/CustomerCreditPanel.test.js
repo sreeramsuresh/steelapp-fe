@@ -6,7 +6,7 @@
  */
 
 // Jest provides describe, it, expect, beforeEach globally - no need to import
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import CustomerCreditPanel from "../CustomerCreditPanel";
 
@@ -202,9 +202,7 @@ describe("CustomerCreditPanel", () => {
         creditUsed: 37500, // 75%
       };
 
-      const { container } = renderWithProviders(
-        <CustomerCreditPanel {...defaultProps} customer={mediumUtilization} />
-      );
+      const { container } = renderWithProviders(<CustomerCreditPanel {...defaultProps} customer={mediumUtilization} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -215,9 +213,7 @@ describe("CustomerCreditPanel", () => {
         creditUsed: 45000, // 90%
       };
 
-      const { container } = renderWithProviders(
-        <CustomerCreditPanel {...defaultProps} customer={highUtilization} />
-      );
+      const { container } = renderWithProviders(<CustomerCreditPanel {...defaultProps} customer={highUtilization} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -257,9 +253,7 @@ describe("CustomerCreditPanel", () => {
         lastPaymentDate: null,
       };
 
-      const { container } = renderWithProviders(
-        <CustomerCreditPanel {...defaultProps} customer={noPayments} />
-      );
+      const { container } = renderWithProviders(<CustomerCreditPanel {...defaultProps} customer={noPayments} />);
 
       expect(container.textContent).toContain("No payments");
     });
@@ -318,9 +312,7 @@ describe("CustomerCreditPanel", () => {
         aging90_plus: 5000,
       };
 
-      const { container } = renderWithProviders(
-        <CustomerCreditPanel {...defaultProps} customer={aging90Plus} />
-      );
+      const { container } = renderWithProviders(<CustomerCreditPanel {...defaultProps} customer={aging90Plus} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -607,9 +599,7 @@ describe("CustomerCreditPanel", () => {
         creditAvailable: 0,
       };
 
-      const { container } = renderWithProviders(
-        <CustomerCreditPanel {...defaultProps} customer={zeroLimit} />
-      );
+      const { container } = renderWithProviders(<CustomerCreditPanel {...defaultProps} customer={zeroLimit} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -622,9 +612,7 @@ describe("CustomerCreditPanel", () => {
         creditAvailable: -5000,
       };
 
-      const { container } = renderWithProviders(
-        <CustomerCreditPanel {...defaultProps} customer={overused} />
-      );
+      const { container } = renderWithProviders(<CustomerCreditPanel {...defaultProps} customer={overused} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -635,9 +623,7 @@ describe("CustomerCreditPanel", () => {
         dsoDays: 120,
       };
 
-      const { container } = renderWithProviders(
-        <CustomerCreditPanel {...defaultProps} customer={highDSO} />
-      );
+      const { container } = renderWithProviders(<CustomerCreditPanel {...defaultProps} customer={highDSO} />);
 
       expect(container).toContain("120");
     });
@@ -652,9 +638,7 @@ describe("CustomerCreditPanel", () => {
         aging90_plus: 1000,
       };
 
-      const { container } = renderWithProviders(
-        <CustomerCreditPanel {...defaultProps} customer={multipleAging} />
-      );
+      const { container } = renderWithProviders(<CustomerCreditPanel {...defaultProps} customer={multipleAging} />);
 
       expect(container.textContent).toContain("10000");
       expect(container.textContent).toContain("5000");

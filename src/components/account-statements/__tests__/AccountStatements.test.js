@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import AccountStatements from "../AccountStatements";
 
@@ -19,9 +19,7 @@ describe("AccountStatements", () => {
   describe("Rendering", () => {
     ["should render statement", "should display transactions", "should show totals"].forEach((test) => {
       it(test, () => {
-        const { container } = renderWithProviders(
-          <AccountStatements />,
-        );
+        const { container } = renderWithProviders(<AccountStatements />);
         expect(container).toBeInTheDocument();
       });
     });
@@ -30,9 +28,7 @@ describe("AccountStatements", () => {
   describe("Statement Details", () => {
     ["should show opening balance", "should show closing balance", "should calculate differences"].forEach((test) => {
       it(test, () => {
-        const { container } = renderWithProviders(
-          <AccountStatements />,
-        );
+        const { container } = renderWithProviders(<AccountStatements />);
         expect(container).toBeInTheDocument();
       });
     });

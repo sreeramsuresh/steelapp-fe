@@ -24,7 +24,10 @@ const fromServer = (warehouse = {}) => ({
   phone: warehouse.phone || "",
   email: warehouse.email || "",
   contactPerson: warehouse.contactPerson || warehouse.contact_person || "",
-  isDefault: (warehouse.isDefault !== undefined ? warehouse.isDefault : warehouse.is_default) !== undefined ? (warehouse.isDefault || warehouse.is_default) : false,
+  isDefault:
+    (warehouse.isDefault !== undefined ? warehouse.isDefault : warehouse.is_default) !== undefined
+      ? warehouse.isDefault || warehouse.is_default
+      : false,
   isActive: warehouse.isActive !== undefined ? warehouse.isActive !== false : warehouse.is_active !== false,
   type: warehouse.type || "WAREHOUSE",
   capacity: parseFloat(warehouse.capacity) || 0,

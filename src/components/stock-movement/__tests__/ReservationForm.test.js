@@ -6,7 +6,7 @@
  */
 
 // Jest provides describe, it, expect, beforeEach globally - no need to import
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import ReservationForm from "../ReservationForm";
 
@@ -85,9 +85,7 @@ describe("ReservationForm", () => {
     });
 
     mockStockMovementService.getCurrentStock.mockResolvedValue({
-      warehouses: [
-        { warehouseId: 1, quantityOnHand: 1000, quantityAvailable: 950, unit: "KG" },
-      ],
+      warehouses: [{ warehouseId: 1, quantityOnHand: 1000, quantityAvailable: 950, unit: "KG" }],
     });
 
     mockBatchReservationService.getAvailableBatches.mockResolvedValue({
@@ -249,8 +247,8 @@ describe("ReservationForm", () => {
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      const submitButton = Array.from(container.querySelectorAll("button")).find((btn) =>
-        btn.textContent.toLowerCase().includes("create") || btn.textContent.toLowerCase().includes("submit")
+      const submitButton = Array.from(container.querySelectorAll("button")).find(
+        (btn) => btn.textContent.toLowerCase().includes("create") || btn.textContent.toLowerCase().includes("submit")
       );
 
       if (submitButton) {

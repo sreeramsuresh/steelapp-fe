@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import Modal from "../Modal";
 
@@ -10,9 +10,7 @@ describe("Modal", () => {
 
   ["should render modal", "should display content", "should handle close"].forEach((test) => {
     it(test, () => {
-      const { container } = renderWithProviders(
-        <Modal {...defaultProps} />,
-      );
+      const { container } = renderWithProviders(<Modal {...defaultProps} />);
       expect(container).toBeInTheDocument();
     });
   });

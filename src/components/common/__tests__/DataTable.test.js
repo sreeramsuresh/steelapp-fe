@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import DataTable from "../DataTable";
 
@@ -8,12 +8,12 @@ describe("DataTable", () => {
     columns: [],
   };
 
-  ["should render table", "should display columns", "should handle sorting", "should handle pagination"].forEach((test) => {
-    it(test, () => {
-      const { container } = renderWithProviders(
-        <DataTable {...defaultProps} />,
-      );
-      expect(container).toBeInTheDocument();
-    });
-  });
+  ["should render table", "should display columns", "should handle sorting", "should handle pagination"].forEach(
+    (test) => {
+      it(test, () => {
+        const { container } = renderWithProviders(<DataTable {...defaultProps} />);
+        expect(container).toBeInTheDocument();
+      });
+    }
+  );
 });

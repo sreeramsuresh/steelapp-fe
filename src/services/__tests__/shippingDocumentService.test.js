@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { shippingDocumentService } from '../shippingDocumentService';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../api';
+import { shippingDocumentService } from '../shippingDocumentService';
 
 vi.mock("../api);
 

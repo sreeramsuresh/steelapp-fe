@@ -163,12 +163,10 @@ describe("auditHubService", () => {
       ];
       api.get.mockResolvedValueOnce({ data: mockTransactions });
 
-      const result = await auditHubService.getDatasetTransactions(
-        companyId,
-        datasetId,
-        "INVOICES",
-        { page: 1, limit: 20 }
-      );
+      const result = await auditHubService.getDatasetTransactions(companyId, datasetId, "INVOICES", {
+        page: 1,
+        limit: 20,
+      });
 
       expect(result).toEqual(mockTransactions);
       const call = api.get.mock.calls[0];
@@ -241,13 +239,10 @@ describe("auditHubService", () => {
       const result = await auditHubService.downloadExport(companyId, datasetId, "EXCEL");
 
       expect(result).toEqual(mockBlob);
-      expect(api.get).toHaveBeenCalledWith(
-        `/audit-hub/exports/download/${datasetId}/excel`,
-        {
-          headers: { "X-Company-Id": companyId },
-          responseType: "blob",
-        }
-      );
+      expect(api.get).toHaveBeenCalledWith(`/audit-hub/exports/download/${datasetId}/excel`, {
+        headers: { "X-Company-Id": companyId },
+        responseType: "blob",
+      });
     });
 
     it("should verify export regeneration", async () => {
@@ -269,19 +264,16 @@ describe("auditHubService", () => {
     it("should get reconciliations for fiscal period", async () => {
       const mockReconciliations = [
         { id: 1, type: "AR", status: "PASSED", differences: 0 },
-        { id: 2, type: "AP", status: "REVIEW_NEEDED", differences: 150.50 },
+        { id: 2, type: "AP", status: "REVIEW_NEEDED", differences: 150.5 },
       ];
       api.get.mockResolvedValueOnce({ data: mockReconciliations });
 
       const result = await auditHubService.getReconciliations(companyId, "2024-Q1");
 
       expect(result).toEqual(mockReconciliations);
-      expect(api.get).toHaveBeenCalledWith(
-        "/reconciliations?fiscal_period=2024-Q1",
-        {
-          headers: { "X-Company-Id": companyId },
-        }
-      );
+      expect(api.get).toHaveBeenCalledWith("/reconciliations?fiscal_period=2024-Q1", {
+        headers: { "X-Company-Id": companyId },
+      });
     });
 
     it("should reconcile AR", async () => {
@@ -343,7 +335,7 @@ describe("auditHubService", () => {
 
     it("should get reconciliation exceptions", async () => {
       const mockExceptions = [
-        { id: 1, type: "AMOUNT_MISMATCH", amount: 150.50 },
+        { id: 1, type: "AMOUNT_MISMATCH", amount: 150.5 },
         { id: 2, type: "MISSING_DOCUMENT", amount: 0 },
       ];
       api.get.mockResolvedValueOnce({ data: mockExceptions });
@@ -440,9 +432,7 @@ describe("auditHubService", () => {
       const error = new Error("Validation failed");
       api.post.mockRejectedValueOnce(error);
 
-      await expect(auditHubService.generateExcelExport(companyId, datasetId)).rejects.toThrow(
-        "Validation failed"
-      );
+      await expect(auditHubService.generateExcelExport(companyId, datasetId)).rejects.toThrow("Validation failed");
     });
 
     it("should include company ID in all requests", async () => {

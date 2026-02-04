@@ -107,10 +107,7 @@ describe("trnService", () => {
       const result = await trnService.verify("100123456789123", "AE");
 
       expect(result.success).toBe(true);
-      expect(apiClient.post).toHaveBeenCalledWith(
-        "/trn/verify",
-        expect.objectContaining({ trn: "100123456789123" })
-      );
+      expect(apiClient.post).toHaveBeenCalledWith("/trn/verify", expect.objectContaining({ trn: "100123456789123" }));
     });
 
     it("should handle API errors gracefully", async () => {
@@ -145,10 +142,7 @@ describe("trnService", () => {
       const result = await trnService.validateRemote("100123456789123");
 
       expect(result.success).toBe(true);
-      expect(apiClient.post).toHaveBeenCalledWith(
-        "/trn/validate",
-        expect.any(Object)
-      );
+      expect(apiClient.post).toHaveBeenCalledWith("/trn/validate", expect.any(Object));
     });
 
     it("should handle validation errors", async () => {

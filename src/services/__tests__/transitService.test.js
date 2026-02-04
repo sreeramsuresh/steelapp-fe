@@ -87,10 +87,7 @@ describe("transitService", () => {
       const result = await transitService.updateStatus("shipment", 1, "arrived");
 
       expect(result.status).toBe("arrived");
-      expect(apiClient.patch).toHaveBeenCalledWith(
-        "/transit/shipment/1/status",
-        { status: "arrived" }
-      );
+      expect(apiClient.patch).toHaveBeenCalledWith("/transit/shipment/1/status", { status: "arrived" });
     });
 
     it("should handle status changes", async () => {
@@ -98,10 +95,7 @@ describe("transitService", () => {
 
       await transitService.updateStatus("invoice", 2, "in_transit");
 
-      expect(apiClient.patch).toHaveBeenCalledWith(
-        "/transit/invoice/2/status",
-        expect.any(Object)
-      );
+      expect(apiClient.patch).toHaveBeenCalledWith("/transit/invoice/2/status", expect.any(Object));
     });
   });
 });

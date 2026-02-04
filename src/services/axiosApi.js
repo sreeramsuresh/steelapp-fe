@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const IS_DEV = import.meta?.env?.DEV ?? false;
+const DISABLE_VALIDATION = import.meta?.env?.VITE_DISABLE_CONTRACT_VALIDATION === "true";
 
 // ============================================================================
 // DEV-ONLY: Response Validator Import (Module Load Time - Correction #3)
@@ -12,7 +13,7 @@ const IS_DEV = import.meta?.env?.DEV ?? false;
 let validateResponse = null;
 let _contractGuard = null;
 
-if (IS_DEV) {
+if (IS_DEV && !DISABLE_VALIDATION) {
   // Import validator at module load time (once)
   import("./validators/responseValidator.js")
     .then((module) => {

@@ -6,7 +6,7 @@
  */
 
 // Jest provides describe, it, expect, beforeEach globally - no need to import
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import { createMockAllocation, createMockArray } from "../../../test/mock-factories";
 import StockDeductionPreview from "../StockDeductionPreview";

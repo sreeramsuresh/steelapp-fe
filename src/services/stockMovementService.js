@@ -43,8 +43,10 @@ const fromServer = (movement = {}) => ({
   companyId: movement.companyId || movement.company_id,
   productId: movement.productId || movement.product_id,
   productName: movement.productName || movement.product_name || "",
-  productUniqueName: movement.productUniqueName || movement.product_unique_name || movement.productName || movement.product_name || "",
-  productDisplayName: movement.productDisplayName || movement.product_display_name || movement.productName || movement.product_name || "",
+  productUniqueName:
+    movement.productUniqueName || movement.product_unique_name || movement.productName || movement.product_name || "",
+  productDisplayName:
+    movement.productDisplayName || movement.product_display_name || movement.productName || movement.product_name || "",
   productSku: movement.productSku || movement.product_sku || "",
   productType: movement.productType || movement.product_type || "",
   warehouseId: movement.warehouseId || movement.warehouse_id,

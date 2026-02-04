@@ -59,8 +59,18 @@ const transformDebitNoteFromServer = (serverData) => {
     supplierBillNumber: serverData.supplierBillNumber || serverData.supplier_bill_number || "",
     supplierId: serverData.supplierId || serverData.supplier_id || null,
     supplierDetails: serverData.supplierDetails || serverData.supplier_details || {},
-    supplierName: serverData.supplierName || serverData.supplier_name || serverData.supplierDetails?.name || serverData.supplier_details?.name || "",
-    supplierTrn: serverData.supplierTrn || serverData.supplier_trn || serverData.supplierDetails?.trn || serverData.supplier_details?.trn || "",
+    supplierName:
+      serverData.supplierName ||
+      serverData.supplier_name ||
+      serverData.supplierDetails?.name ||
+      serverData.supplier_details?.name ||
+      "",
+    supplierTrn:
+      serverData.supplierTrn ||
+      serverData.supplier_trn ||
+      serverData.supplierDetails?.trn ||
+      serverData.supplier_details?.trn ||
+      "",
     debitNoteNumber: serverData.debitNoteNumber || serverData.debit_note_number || "",
     debitNoteDate: serverData.debitNoteDate || serverData.debit_note_date || null,
     reason: serverData.reason || "",
@@ -95,10 +105,30 @@ const transformDebitNoteFromServer = (serverData) => {
       reason: item.reason || "",
     })),
     // Timestamps - handle audit object structure from gRPC
-    createdAt: serverData.createdAt || serverData.created_at || serverData.audit?.createdAt || serverData.audit?.created_at || null,
-    updatedAt: serverData.updatedAt || serverData.updated_at || serverData.audit?.updatedAt || serverData.audit?.updated_at || null,
-    createdBy: serverData.createdBy || serverData.created_by || serverData.audit?.createdBy || serverData.audit?.created_by || null,
-    updatedBy: serverData.updatedBy || serverData.updated_by || serverData.audit?.updatedBy || serverData.audit?.updated_by || null,
+    createdAt:
+      serverData.createdAt ||
+      serverData.created_at ||
+      serverData.audit?.createdAt ||
+      serverData.audit?.created_at ||
+      null,
+    updatedAt:
+      serverData.updatedAt ||
+      serverData.updated_at ||
+      serverData.audit?.updatedAt ||
+      serverData.audit?.updated_at ||
+      null,
+    createdBy:
+      serverData.createdBy ||
+      serverData.created_by ||
+      serverData.audit?.createdBy ||
+      serverData.audit?.created_by ||
+      null,
+    updatedBy:
+      serverData.updatedBy ||
+      serverData.updated_by ||
+      serverData.audit?.updatedBy ||
+      serverData.audit?.updated_by ||
+      null,
     approvedAt: serverData.approvedAt || serverData.approved_at || null,
     approvedBy: serverData.approvedBy || serverData.approved_by || null,
     cancelledAt: serverData.cancelledAt || serverData.cancelled_at || null,

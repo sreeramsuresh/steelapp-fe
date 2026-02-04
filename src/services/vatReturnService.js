@@ -95,9 +95,15 @@ const transformVatReturnFromServer = (serverData) => {
     box10Vat: parseFloat(serverData.box10Vat || serverData.box_10_vat || 0), // Total input VAT
     box11Vat: parseFloat(serverData.box11Vat || serverData.box_11_vat || 0), // Net VAT payable/refundable
     // Totals
-    totalOutputVat: parseFloat(serverData.totalOutputVat || serverData.total_output_vat || serverData.box7Vat || serverData.box_7_vat || 0),
-    totalInputVat: parseFloat(serverData.totalInputVat || serverData.total_input_vat || serverData.box10Vat || serverData.box_10_vat || 0),
-    netVatDue: parseFloat(serverData.netVatDue || serverData.net_vat_due || serverData.box11Vat || serverData.box_11_vat || 0),
+    totalOutputVat: parseFloat(
+      serverData.totalOutputVat || serverData.total_output_vat || serverData.box7Vat || serverData.box_7_vat || 0
+    ),
+    totalInputVat: parseFloat(
+      serverData.totalInputVat || serverData.total_input_vat || serverData.box10Vat || serverData.box_10_vat || 0
+    ),
+    netVatDue: parseFloat(
+      serverData.netVatDue || serverData.net_vat_due || serverData.box11Vat || serverData.box_11_vat || 0
+    ),
     // Adjustments
     adjustmentsTotal: parseFloat(serverData.adjustmentsTotal || serverData.adjustments_total || 0),
     blockedVatTotal: parseFloat(serverData.blockedVatTotal || serverData.blocked_vat_total || 0),

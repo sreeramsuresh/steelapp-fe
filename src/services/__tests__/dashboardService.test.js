@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { dashboardService } from '../dashboardService';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { analyticsService } from '../analyticsService';
 import { commissionService } from '../commissionService';
 import { customerService } from '../customerService';
+import { dashboardService } from '../dashboardService';
 import { inventoryService } from '../inventoryService';
 import { invoiceService } from '../invoiceService';
 import { productService } from '../productService';

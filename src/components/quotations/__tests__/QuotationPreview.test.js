@@ -6,7 +6,7 @@
  */
 
 // Jest provides describe, it, expect, beforeEach globally - no need to import
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import QuotationPreview from "../QuotationPreview";
 
@@ -289,9 +289,7 @@ describe("QuotationPreview", () => {
         ],
       };
 
-      const { container } = renderWithProviders(
-        <QuotationPreview {...defaultProps} quotation={multiItemQuotation} />
-      );
+      const { container } = renderWithProviders(<QuotationPreview {...defaultProps} quotation={multiItemQuotation} />);
 
       expect(container.textContent).toContain("SS304 Coil");
       expect(container.textContent).toContain("SS316 Sheet");
@@ -303,9 +301,7 @@ describe("QuotationPreview", () => {
         items: [],
       };
 
-      const { container } = renderWithProviders(
-        <QuotationPreview {...defaultProps} quotation={noItemsQuotation} />
-      );
+      const { container } = renderWithProviders(<QuotationPreview {...defaultProps} quotation={noItemsQuotation} />);
 
       expect(container.textContent).toContain("No items added");
     });
@@ -355,9 +351,7 @@ describe("QuotationPreview", () => {
         grand_total: 5250,
       };
 
-      const { container } = renderWithProviders(
-        <QuotationPreview {...defaultProps} quotation={snakeCaseQuotation} />
-      );
+      const { container } = renderWithProviders(<QuotationPreview {...defaultProps} quotation={snakeCaseQuotation} />);
 
       expect(container.textContent).toContain("5000");
     });
@@ -367,11 +361,7 @@ describe("QuotationPreview", () => {
         ...defaultProps.quotation,
         subtotal: 0,
         total: 0,
-        items: [
-          { amount: 1000 },
-          { amount: 2000 },
-          { amount: 3000 },
-        ],
+        items: [{ amount: 1000 }, { amount: 2000 }, { amount: 3000 }],
       };
 
       const { container } = renderWithProviders(
@@ -403,9 +393,7 @@ describe("QuotationPreview", () => {
         notes: null,
       };
 
-      const { container } = renderWithProviders(
-        <QuotationPreview {...defaultProps} quotation={quotationNoNotes} />
-      );
+      const { container } = renderWithProviders(<QuotationPreview {...defaultProps} quotation={quotationNoNotes} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -472,9 +460,7 @@ describe("QuotationPreview", () => {
         quotation_number: "QTN-2024-002",
       };
 
-      const { container } = renderWithProviders(
-        <QuotationPreview {...defaultProps} quotation={quotationSnakeCase} />
-      );
+      const { container } = renderWithProviders(<QuotationPreview {...defaultProps} quotation={quotationSnakeCase} />);
 
       expect(container.textContent).toContain("QTN-2024-002");
     });
@@ -486,9 +472,7 @@ describe("QuotationPreview", () => {
         valid_until: "2024-02-20",
       };
 
-      const { container } = renderWithProviders(
-        <QuotationPreview {...defaultProps} quotation={quotationSnakeCase} />
-      );
+      const { container } = renderWithProviders(<QuotationPreview {...defaultProps} quotation={quotationSnakeCase} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -502,9 +486,7 @@ describe("QuotationPreview", () => {
         },
       };
 
-      const { container } = renderWithProviders(
-        <QuotationPreview {...defaultProps} quotation={quotationSnakeCase} />
-      );
+      const { container } = renderWithProviders(<QuotationPreview {...defaultProps} quotation={quotationSnakeCase} />);
 
       expect(container.textContent).toContain("Another Customer");
     });
@@ -515,9 +497,7 @@ describe("QuotationPreview", () => {
         warehouse_name: "Abu Dhabi Warehouse",
       };
 
-      const { container } = renderWithProviders(
-        <QuotationPreview {...defaultProps} quotation={quotationSnakeCase} />
-      );
+      const { container } = renderWithProviders(<QuotationPreview {...defaultProps} quotation={quotationSnakeCase} />);
 
       expect(container.textContent).toContain("Abu Dhabi Warehouse");
     });
@@ -528,9 +508,7 @@ describe("QuotationPreview", () => {
         terms_and_conditions: "Snake case terms",
       };
 
-      const { container } = renderWithProviders(
-        <QuotationPreview {...defaultProps} quotation={quotationSnakeCase} />
-      );
+      const { container } = renderWithProviders(<QuotationPreview {...defaultProps} quotation={quotationSnakeCase} />);
 
       expect(container.textContent).toContain("Snake case terms");
     });
@@ -557,9 +535,7 @@ describe("QuotationPreview", () => {
         items: [],
       };
 
-      const { container } = renderWithProviders(
-        <QuotationPreview {...defaultProps} quotation={noItemsQuotation} />
-      );
+      const { container } = renderWithProviders(<QuotationPreview {...defaultProps} quotation={noItemsQuotation} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -570,9 +546,7 @@ describe("QuotationPreview", () => {
         customerDetails: null,
       };
 
-      const { container } = renderWithProviders(
-        <QuotationPreview {...defaultProps} quotation={noCustomerQuotation} />
-      );
+      const { container } = renderWithProviders(<QuotationPreview {...defaultProps} quotation={noCustomerQuotation} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -596,9 +570,7 @@ describe("QuotationPreview", () => {
         total: 500000,
       };
 
-      const { container } = renderWithProviders(
-        <QuotationPreview {...defaultProps} quotation={largeQuotation} />
-      );
+      const { container } = renderWithProviders(<QuotationPreview {...defaultProps} quotation={largeQuotation} />);
 
       expect(container).toBeInTheDocument();
     });
@@ -610,9 +582,7 @@ describe("QuotationPreview", () => {
         items: [],
       };
 
-      const { container } = renderWithProviders(
-        <QuotationPreview {...defaultProps} quotation={minimalQuotation} />
-      );
+      const { container } = renderWithProviders(<QuotationPreview {...defaultProps} quotation={minimalQuotation} />);
 
       expect(container).toBeInTheDocument();
     });

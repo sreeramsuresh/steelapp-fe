@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { demoDataService } from '../demoDataService';
-import { productService } from '../productService';
 import { notificationService } from '../notificationService';
+import { productService } from '../productService';
 
 vi.mock("../productService);
 vi.mock("../notificationService);

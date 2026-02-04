@@ -116,9 +116,7 @@ describe("axiosAuthService", () => {
 
       await authService.login("user@company.com", "password");
 
-      expect(tokenUtils.setUser).toHaveBeenCalledWith(
-        expect.objectContaining({ role: "admin" })
-      );
+      expect(tokenUtils.setUser).toHaveBeenCalledWith(expect.objectContaining({ role: "admin" }));
     });
   });
 
