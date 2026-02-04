@@ -394,7 +394,7 @@ const StockLevelsDashboard = () => {
                 <span className="w-2 h-2 rounded-full bg-teal-400" />
               )}
             </button>
-          </button>
+          </div>
 
           {/* Extended filters */}
           {showFilters && (
