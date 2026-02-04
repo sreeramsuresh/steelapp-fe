@@ -1915,38 +1915,48 @@ const InvoiceForm = ({ onSave }) => {
     return invoice.items.some((item) => !item.sourceType || item.sourceType === "WAREHOUSE");
   }, [invoice.items]);
 
+  // Memoize API functions to maintain stable identity across renders
+  // This ensures refetch functions from useApiData are stable and don't cause infinite loops in useEffect
+  const getCompanyFn = useCallback(() => companyService.getCompany(), []);
+  const getProductsFn = useCallback(() => productService.getProducts({ limit: 1000 }), []);
+  const getCustomersFn = useCallback(() => customerService.getCustomers({ status: "active", limit: 1000 }), []);
+  const getAgentsFn = useCallback(() => commissionService.getAgents(), []);
+  const getNextInvoiceNumberFn = useCallback(() => invoiceService.getNextInvoiceNumber(), []);
+  const getExistingInvoiceFn = useCallback(() => (id ? invoiceService.getInvoice(id) : null), [id]);
+  const getPinnedProductsFn = useCallback(() => pinnedProductsService.getPinnedProducts(), []);
+
   const {
     data: company,
     loading: loadingCompany,
     refetch: refetchCompany,
-  } = useApiData(companyService.getCompany, [], true);
+  } = useApiData(getCompanyFn, [], true);
   const { execute: saveInvoice, loading: savingInvoice } = useApi(invoiceService.createInvoice);
   const { execute: updateInvoice, loading: updatingInvoice } = useApi(invoiceService.updateInvoice);
   const { data: existingInvoice, loading: loadingInvoice } = useApiData(
-    () => (id ? invoiceService.getInvoice(id) : null),
+    getExistingInvoiceFn,
     [id],
     { immediate: !!id, skipInitialLoading: !id }
   );
   const { data: _nextInvoiceData, refetch: refetchNextInvoice } = useApiData(
-    () => invoiceService.getNextInvoiceNumber(),
+    getNextInvoiceNumberFn,
     [],
     !id
   );
   const { data: customersData, loading: loadingCustomers } = useApiData(
-    () => customerService.getCustomers({ status: "active", limit: 1000 }),
+    getCustomersFn,
     []
   );
-  const { data: salesAgentsData, loading: loadingAgents } = useApiData(() => commissionService.getAgents(), []);
+  const { data: salesAgentsData, loading: loadingAgents } = useApiData(getAgentsFn, []);
   const {
     data: productsData,
     loading: loadingProducts,
     refetch: refetchProducts,
-  } = useApiData(() => productService.getProducts({ limit: 1000 }), []);
+  } = useApiData(getProductsFn, []);
   const { execute: _createProduct, loading: _creatingProduct } = useApi(productService.createProduct);
 
   // Pinned products state
   const [pinnedProductIds, setPinnedProductIds] = useState([]);
-  const { data: pinnedData, refetch: _refetchPinned } = useApiData(() => pinnedProductsService.getPinnedProducts(), []);
+  const { data: pinnedData, refetch: _refetchPinned } = useApiData(getPinnedProductsFn, []);
 
   // Pricelist state
   const [selectedPricelistId, setSelectedPricelistId] = useState(null);
@@ -2032,8 +2042,7 @@ const InvoiceForm = ({ onSave }) => {
   // Refetch products when form loads to ensure fresh data (updated names, latest sales data)
   useEffect(() => {
     refetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refetchProducts]);
 
   // Also refetch when window regains focus (user returns from product management)
   useEffect(() => {
@@ -2042,8 +2051,7 @@ const InvoiceForm = ({ onSave }) => {
     };
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refetchProducts]);
 
   // Refetch company data when window regains focus (user returns from company settings)
   useEffect(() => {
@@ -2052,8 +2060,7 @@ const InvoiceForm = ({ onSave }) => {
     };
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refetchCompany]);
 
   // Get sorted products: pinned first, then top sold
   const sortedProducts = useMemo(() => {

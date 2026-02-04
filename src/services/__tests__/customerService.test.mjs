@@ -11,23 +11,7 @@ import { test, describe, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert';
 import sinon from 'sinon';
 
-// Mock the API client
-vi.mock("../api.js", async () => {
-  const actual = await vi.importActual("../api.js");
-  return {
-    ...actual,
-    apiClient: {
-      get: vi.fn(),
-      post: vi.fn(),
-      put: vi.fn(),
-      patch: vi.fn(),
-      delete: vi.fn(),
-    },
-  };
-});
-
 import { apiClient } from "../api.js";
-// Import after mocks are set up
 import { customerService, transformCustomerFromServer } from "../customerService.js";
 
 describe("customerService", () => {
@@ -47,7 +31,7 @@ describe("customerService", () => {
           { id: 2, name: "XYZ Ltd", status: "ACTIVE", creditLimit: 5000 },
         ];
 
-        apiClient.get.resolves({
+        sinon.stub(apiClient, 'get').resolves({
           customers: mockCustomers,
           pagination: { page: 1, totalPages: 1, total: 2 },
         });
@@ -65,7 +49,7 @@ describe("customerService", () => {
       });
 
       test("should apply search and filter parameters", async () => {
-        apiClient.get.resolves({ customers: [] });
+        sinon.stub(apiClient, 'get').resolves({ customers: [] });
 
         await customerService.getCustomers({
           search: "Acme",
@@ -81,7 +65,7 @@ describe("customerService", () => {
       });
 
       test("should handle empty customer list", async () => {
-        apiClient.get.resolves({ customers: [] });
+        sinon.stub(apiClient, 'get').resolves({ customers: [] });
 
         const result = await customerService.getCustomers();
 
@@ -100,7 +84,7 @@ describe("customerService", () => {
           currentBalance: 2500,
         };
 
-        apiClient.get.resolves(mockCustomer);
+        sinon.stub(apiClient, 'get').resolves(mockCustomer);
 
         const result = await customerService.getCustomer(1);
 
@@ -109,9 +93,9 @@ describe("customerService", () => {
       });
 
       test("should handle 404 for non-existent customer", async () => {
-        apiClient.get.rejects(new Error("Customer not found"));
+        sinon.stub(apiClient, 'get').rejects(new Error("Customer not found"));
 
-        await assert.ok(customerService.getCustomer(999)).rejects.toThrow("Customer not found");
+        await assert.rejects(() => customerService.getCustomer(999), /Customer not found/);
       });
     });
 
@@ -140,7 +124,7 @@ describe("customerService", () => {
           createdAt: "2026-02-01T00:00:00Z",
         };
 
-        apiClient.post.resolves(createdCustomer);
+        sinon.stub(apiClient, 'post').resolves(createdCustomer);
 
         const result = await customerService.createCustomer(customerData);
 
@@ -149,9 +133,9 @@ describe("customerService", () => {
       });
 
       test("should handle validation errors on creation", async () => {
-        apiClient.post.rejects(new Error("Email is required"));
+        sinon.stub(apiClient, 'post').rejects(new Error("Email is required"));
 
-        await assert.ok(customerService.createCustomer({ name: "Test" })).rejects.toThrow("Email is required");
+        await assert.rejects(() => customerService.createCustomer({ name: "Test" }), /Email is required/);
       });
 
       test("should create customer with minimal fields", async () => {
@@ -160,7 +144,7 @@ describe("customerService", () => {
           email: "contact@simple.com",
         };
 
-        apiClient.post.resolves({ id: 5, ...minimalData });
+        sinon.stub(apiClient, 'post').resolves({ id: 5, ...minimalData });
 
         const result = await customerService.createCustomer(minimalData);
 
@@ -181,7 +165,7 @@ describe("customerService", () => {
           ...updates,
         };
 
-        apiClient.put.resolves(updatedCustomer);
+        sinon.stub(apiClient, 'put').resolves(updatedCustomer);
 
         const result = await customerService.updateCustomer(1, updates);
 
@@ -191,9 +175,9 @@ describe("customerService", () => {
       });
 
       test("should handle update conflicts", async () => {
-        apiClient.put.rejects(new Error("Customer was modified by another user"));
+        sinon.stub(apiClient, 'put').rejects(new Error("Customer was modified by another user"));
 
-        await assert.ok(customerService.updateCustomer(1, { name: "Updated" })).rejects.toThrow("Customer was modified");
+        await assert.rejects(() => customerService.updateCustomer(1, { name: "Updated" }), /Customer was modified/);
       });
     });
 
@@ -201,7 +185,7 @@ describe("customerService", () => {
       test("should delete customer with config options", async () => {
         const config = { reason: "Inactive account" };
 
-        apiClient.delete.resolves({ success: true });
+        sinon.stub(apiClient, 'delete').resolves({ success: true });
 
         const result = await customerService.deleteCustomer(1, config);
 
@@ -210,9 +194,9 @@ describe("customerService", () => {
       });
 
       test("should handle deletion of customer with outstanding balance", async () => {
-        apiClient.delete.rejects(new Error("Cannot delete customer with outstanding balance"));
+        sinon.stub(apiClient, 'delete').rejects(new Error("Cannot delete customer with outstanding balance"));
 
-        await assert.ok(customerService.deleteCustomer(1)).rejects.toThrow("outstanding balance");
+        await assert.rejects(() => customerService.deleteCustomer(1), /outstanding balance/);
       });
     });
 
@@ -220,7 +204,7 @@ describe("customerService", () => {
       test("should try PATCH /customers/:id/status first (preferred)", async () => {
         const archivedCustomer = { id: 1, status: "archived" };
 
-        apiClient.patch.resolves(archivedCustomer);
+        sinon.stub(apiClient, 'patch').resolves(archivedCustomer);
 
         const result = await customerService.archiveCustomer(1);
 
@@ -231,10 +215,10 @@ describe("customerService", () => {
       });
 
       test("should fallback to PATCH /customers/:id if status endpoint not found", async () => {
-        apiClient.patch.rejects({
+        sinon.stub(apiClient, 'patch').rejects({
           response: { status: 404 },
         });
-        apiClient.patch.resolves({ id: 1, status: "archived" });
+        sinon.stub(apiClient, 'patch').resolves({ id: 1, status: "archived" });
 
         await customerService.archiveCustomer(1);
 
@@ -249,7 +233,7 @@ describe("customerService", () => {
           .rejects({ response: { status: 404 } })
           .rejects({ response: { status: 404 } });
 
-        apiClient.put.resolves({ id: 1, status: "archived" });
+        sinon.stub(apiClient, 'put').resolves({ id: 1, status: "archived" });
 
         await customerService.archiveCustomer(1);
 
@@ -444,7 +428,7 @@ describe("customerService", () => {
 
   describe("Multi-Tenancy Compliance", () => {
     test("should filter customers by company_id in API call", async () => {
-      apiClient.get.resolves({ customers: [] });
+      sinon.stub(apiClient, 'get').resolves({ customers: [] });
 
       await customerService.getCustomers({ companyId: 5 });
 
@@ -459,7 +443,7 @@ describe("customerService", () => {
         { id: 2, companyId: 5, name: "Customer B" },
       ];
 
-      apiClient.get.resolves({ customers: mockCustomers });
+      sinon.stub(apiClient, 'get').resolves({ customers: mockCustomers });
 
       const result = await customerService.getCustomers({ companyId: 5 });
 
@@ -467,9 +451,9 @@ describe("customerService", () => {
     });
 
     test("should not allow cross-tenant customer access", async () => {
-      apiClient.get.rejects(new Error("Not authorized to access this customer"));
+      sinon.stub(apiClient, 'get').rejects(new Error("Not authorized to access this customer"));
 
-      await assert.ok(customerService.getCustomer(999)).rejects.toThrow("Not authorized");
+      await assert.rejects(() => customerService.getCustomer(999), /Not authorized/);
     });
   });
 
@@ -479,26 +463,27 @@ describe("customerService", () => {
 
   describe("Edge Cases & Error Handling", () => {
     test("should handle network timeout gracefully", async () => {
-      apiClient.get.rejects(new Error("Network timeout"));
+      sinon.stub(apiClient, 'get').rejects(new Error("Network timeout"));
 
-      await assert.ok(customerService.getCustomers()).rejects.toThrow("Network timeout");
+      await assert.rejects(() => customerService.getCustomers(), /Network timeout/);
     });
 
     test("should handle invalid email format validation", async () => {
-      apiClient.post.rejects(new Error("Invalid email format"));
+      sinon.stub(apiClient, 'post').rejects(new Error("Invalid email format"));
 
-      await assert.ok(
-        customerService.createCustomer({
+      await assert.rejects(
+        () => customerService.createCustomer({
           name: "Test",
           email: "invalid-email",
-        })
-      ).rejects.toThrow("Invalid email format");
+        }),
+        /Invalid email format/
+      );
     });
 
     test("should handle very long customer names", async () => {
       const longName = "A".repeat(255);
 
-      apiClient.post.resolves({ id: 1, name: longName });
+      sinon.stub(apiClient, 'post').resolves({ id: 1, name: longName });
 
       const result = await customerService.createCustomer({ name: longName });
 
@@ -511,7 +496,7 @@ describe("customerService", () => {
         email: "contact+test@example.com",
       };
 
-      apiClient.post.resolves({ id: 1, ...specialData });
+      sinon.stub(apiClient, 'post').resolves({ id: 1, ...specialData });
 
       const result = await customerService.createCustomer(specialData);
 
