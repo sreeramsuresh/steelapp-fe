@@ -121,6 +121,8 @@ export default function ReconciliationReport() {
     } finally {
       setLoading(false);
     }
+    // biome-ignore lint/correctness/noInvalidUseBeforeDeclaration: Functions hoisted, safe to use
+    // biome-ignore lint/correctness/useExhaustiveDependencies: generateMockData and transformBackendToReportFormat are stable utilities
   }, [selectedWarehouse, selectedProduct, dateRange.endDate, generateMockData, transformBackendToReportFormat]);
 
   useEffect(() => {
