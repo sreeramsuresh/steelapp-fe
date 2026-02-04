@@ -95,7 +95,11 @@ describe("EmptyState", () => {
   });
 
   it("should render action button when provided", () => {
-    const action = <button type="button" data-testid="action-btn">Create New</button>;
+    const action = (
+      <button type="button" data-testid="action-btn">
+        Create New
+      </button>
+    );
     render(<EmptyState title="Empty" description="No items" action={action} />);
 
     expect(screen.getByTestId("action-btn")).toBeInTheDocument();
@@ -204,8 +208,12 @@ describe("EmptyState", () => {
   it("should render multiple action elements", () => {
     const action = (
       <div>
-        <button type="button" data-testid="btn1">Action 1</button>
-        <button type="button" data-testid="btn2">Action 2</button>
+        <button type="button" data-testid="btn1">
+          Action 1
+        </button>
+        <button type="button" data-testid="btn2">
+          Action 2
+        </button>
       </div>
     );
     render(<EmptyState title="Empty" action={action} />);
@@ -276,7 +284,11 @@ describe("EmptyState", () => {
   });
 
   it("should render in proper semantic order: icon -> title -> description -> action", () => {
-    const action = <button type="button" data-testid="action">Click</button>;
+    const action = (
+      <button type="button" data-testid="action">
+        Click
+      </button>
+    );
     const { container } = render(<EmptyState title="Title" description="Description" action={action} icon={Info} />);
 
     const children = container.firstChild.children;

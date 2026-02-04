@@ -200,7 +200,12 @@ describe("Drawer Component", () => {
       const handleOuterClick = vi.fn();
       const { getByTestId } = renderWithProviders(
         // biome-ignore lint/a11y/useSemanticElements: Test wrapper div - intentional for testing event propagation
-        <div onClick={handleOuterClick} onKeyDown={(e) => e.key === "Enter" && handleOuterClick()} role="button" tabIndex={0}>
+        <div
+          onClick={handleOuterClick}
+          onKeyDown={(e) => e.key === "Enter" && handleOuterClick()}
+          role="button"
+          tabIndex={0}
+        >
           <Drawer {...defaultProps} />
         </div>
       );

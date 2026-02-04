@@ -71,7 +71,7 @@ describe("Database Integrity & Data Consistency", () => {
               Delete Customer
             </button>
             {!canDelete && (
-              <div className="alert-error">Cannot delete: Customer has {invoices.length} associated invoices</button>
+              <div className="alert-error">Cannot delete: Customer has {invoices.length} associated invoices</div>
             )}
           </>
         );

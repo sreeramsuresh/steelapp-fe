@@ -311,7 +311,9 @@ describe("Popover Component", () => {
     it("should be keyboard navigable", () => {
       const { getByTestId } = renderWithProviders(
         <Popover {...defaultProps}>
-          <button type="button" data-testid="action-button">Action</button>
+          <button type="button" data-testid="action-button">
+            Action
+          </button>
         </Popover>
       );
       const button = getByTestId("action-button");

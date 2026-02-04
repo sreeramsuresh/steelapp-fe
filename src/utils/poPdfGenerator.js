@@ -2,6 +2,77 @@ import { getDocumentTemplateColor } from "../constants/defaultTemplateSettings.j
 import { escapeHtml, escapeHtmlWithLineBreaks } from "./htmlEscape.js";
 import { formatCurrency, formatDate, getCompanyImages } from "./invoiceUtils.js";
 
+/**
+ * Layer 1: Pure data transformation (testable, no DOM/browser dependencies)
+ * Extracts and structures all data needed for PO rendering
+ */
+export function buildPurchaseOrderDocumentStructure(po, company) {
+  const p = po || {};
+  const comp = company || {};
+  const compAddr = comp.address || {};
+
+  // Transform items with calculations
+  const items = Array.isArray(p.items)
+    ? p.items.map((it) => ({
+        name: it.name || it.productType || "",
+        description: it.description || "",
+        specification:
+          (it.specification && String(it.specification).trim()) ||
+          [it.grade, it.finish, it.size, it.thickness].filter(Boolean).join(" | ") ||
+          "",
+        unit: it.unit || "MT",
+        quantity: parseFloat(it.quantity) || 0,
+        rate: parseFloat(it.rate) || 0,
+        amount: parseFloat(it.amount) || 0,
+      }))
+    : [];
+
+  // Calculate totals
+  const subtotal = items.reduce((sum, it) => sum + it.amount, 0);
+  const vatAmount = parseFloat(p.vatAmount) || 0;
+  const total = subtotal + vatAmount;
+
+  return {
+    po: {
+      number: p.poNumber || "",
+      date: p.poDate || "",
+      expectedDeliveryDate: p.expectedDeliveryDate || "",
+      status: p.status || "",
+      supplierName: p.supplierName || "",
+      notes: p.notes || "",
+      terms: p.terms || "",
+    },
+    company: {
+      name: comp.name || "",
+      address: {
+        street: compAddr.street || "",
+        city: compAddr.city || "",
+        emirate: compAddr.emirate || "",
+        poBox: compAddr.poBox || "",
+        country: compAddr.country || "",
+      },
+      phone: comp.phone || "",
+      email: comp.email || "",
+      trn: comp.vatNumber || "",
+    },
+    items: items,
+    calculations: {
+      subtotal: subtotal,
+      vatAmount: vatAmount,
+      total: total,
+    },
+    metadata: {
+      hasDescription: items.some((it) => !!it.description),
+      hasNotes: !!p.notes,
+      hasTerms: !!p.terms,
+    },
+  };
+}
+
+/**
+ * Layer 2: Browser-dependent PDF generation
+ * Uses pre-built document structure for rendering
+ */
 export const generatePurchaseOrderPDF = async (po, company) => {
   try {
     const { jsPDF } = await import("jspdf");
@@ -10,7 +81,11 @@ export const generatePurchaseOrderPDF = async (po, company) => {
     const { logoUrl, sealUrl } = getCompanyImages(company);
     // Get the template color for purchase orders
     const templateColor = getDocumentTemplateColor("purchaseOrder", company);
-    const el = createPOElement(po, company, logoUrl, sealUrl, templateColor);
+
+    // Extract structure first (testable logic)
+    const docStructure = buildPurchaseOrderDocumentStructure(po, company);
+
+    const el = createPOElement(docStructure, logoUrl, sealUrl, templateColor);
     document.body.appendChild(el);
 
     await waitForImages(el);
@@ -40,7 +115,7 @@ export const generatePurchaseOrderPDF = async (po, company) => {
   }
 };
 
-const createPOElement = (po, company, logoCompany, sealImage, templateColor = "#2563eb") => {
+const createPOElement = (docStructure, logoCompany, sealImage, templateColor = "#2563eb") => {
   const el = document.createElement("div");
   el.style.cssText = `
     width: 210mm;
@@ -57,10 +132,10 @@ const createPOElement = (po, company, logoCompany, sealImage, templateColor = "#
   `;
 
   const safe = (v) => (v === null || v === undefined ? "" : v);
-  const comp = company || {};
-  const compAddr = comp.address || {};
-  const items = Array.isArray(po.items) ? po.items : [];
-  const hasDescription = items.some((it) => !!it.description);
+  const comp = docStructure.company;
+  const compAddr = comp.address;
+  const items = docStructure.items;
+  const hasDescription = docStructure.metadata.hasDescription;
 
   el.innerHTML = `
     <div style="display: flex; justify-content: space-between; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #e2e8f0;">
@@ -75,19 +150,19 @@ const createPOElement = (po, company, logoCompany, sealImage, templateColor = "#
           <p style="margin: 0; font-size: 11px; color: #334155;">${safe(compAddr.country)}</p>
           <p style="margin: 0; font-size: 11px; color: #334155;">Phone: ${safe(comp.phone)}</p>
           <p style="margin: 0; font-size: 11px; color: #334155;">Email: ${safe(comp.email)}</p>
-          <p style="margin: 0; font-size: 11px; color: #334155;">TRN: ${safe(comp.vatNumber)}</p>
+          <p style="margin: 0; font-size: 11px; color: #334155;">TRN: ${safe(comp.trn)}</p>
         </div>
       </div>
 
       <div style="text-align: left;">
         <div style="margin-bottom: 6px;">
-          <p style="margin: 2px 0;">${safe(po.supplierName || po.supplierName || "Supplier")}</p>
+          <p style="margin: 2px 0;">${safe(docStructure.po.supplierName || "Supplier")}</p>
         </div>
         <div style="margin-bottom: 10px;">
-          <p style="margin: 2px 0;"><strong>PO #:</strong> ${safe(po.poNumber || po.poNumber)}</p>
-          <p style="margin: 2px 0;"><strong>Date:</strong> ${formatDate(po.poDate || po.poDate)}</p>
-          ${po.expectedDeliveryDate || po.expectedDeliveryDate ? `<p style="margin: 2px 0;"><strong>Expected:</strong> ${formatDate(po.expectedDeliveryDate || po.expectedDeliveryDate)}</p>` : ""}
-          ${po.status ? `<p style="margin: 2px 0; line-height: 1.5;"><strong>Status:</strong> <span style="color: #2563eb; text-transform: uppercase; font-weight: 600; display: inline-block; padding: 2px 8px; background-color: #eff6ff; border: 1px solid #2563eb; border-radius: 4px; white-space: nowrap;">${safe(po.status)}</span></p>` : ""}
+          <p style="margin: 2px 0;"><strong>PO #:</strong> ${safe(docStructure.po.number)}</p>
+          <p style="margin: 2px 0;"><strong>Date:</strong> ${formatDate(docStructure.po.date)}</p>
+          ${docStructure.po.expectedDeliveryDate ? `<p style="margin: 2px 0;"><strong>Expected:</strong> ${formatDate(docStructure.po.expectedDeliveryDate)}</p>` : ""}
+          ${docStructure.po.status ? `<p style="margin: 2px 0; line-height: 1.5;"><strong>Status:</strong> <span style="color: #2563eb; text-transform: uppercase; font-weight: 600; display: inline-block; padding: 2px 8px; background-color: #eff6ff; border: 1px solid #2563eb; border-radius: 4px; white-space: nowrap;">${safe(docStructure.po.status)}</span></p>` : ""}
         </div>
       </div>
     </div>
@@ -111,20 +186,17 @@ const createPOElement = (po, company, logoCompany, sealImage, templateColor = "#
         <tbody>
           ${items
             .map((item) => {
-              const spec =
-                (item.specification && String(item.specification).trim()) ||
-                [item.grade, item.finish, item.size, item.thickness].filter(Boolean).join(" | ");
               return `
               <tr>
                 <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">
-                  <div style="font-weight:600;color:#0f172a;">${safe(item.name || item.productType)}</div>
-                  ${spec ? `<div style="font-size:10px;color:#64748b;">${spec}</div>` : ""}
+                  <div style="font-weight:600;color:#0f172a;">${safe(item.name)}</div>
+                  ${item.specification ? `<div style="font-size:10px;color:#64748b;">${safe(item.specification)}</div>` : ""}
                 </td>
                 ${hasDescription ? `<td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${safe(item.description) || "-"}</td>` : ""}
-                <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${safe(item.unit) || "MT"}</td>
+                <td style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">${safe(item.unit)}</td>
                 <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${safe(item.quantity)}</td>
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(item.rate || 0)}</td>
-                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">${formatCurrency(item.amount || 0)}</td>
+                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(item.rate)}</td>
+                <td style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">${formatCurrency(item.amount)}</td>
               </tr>
             `;
             })
@@ -137,44 +209,44 @@ const createPOElement = (po, company, logoCompany, sealImage, templateColor = "#
       <div style="min-width: 300px;">
         <div style="display: flex; justify-content: space-between; padding: 8px 0;">
           <span>Subtotal:</span>
-          <span>${formatCurrency(po.subtotal || 0)}</span>
+          <span>${formatCurrency(docStructure.calculations.subtotal)}</span>
         </div>
         ${
-          po.vatAmount
+          docStructure.calculations.vatAmount
             ? `
         <div style="display: flex; justify-content: space-between; padding: 8px 0;">
           <span>VAT Amount:</span>
-          <span>${formatCurrency(po.vatAmount || 0)}</span>
+          <span>${formatCurrency(docStructure.calculations.vatAmount)}</span>
         </div>`
             : ""
         }
         <div style="display: flex; justify-content: space-between; padding: 16px 0; border-top: 1px solid #e2e8f0; margin-top: 8px; font-weight: 600; font-size: 14px;">
           <span><strong>Total Amount:</strong></span>
-          <span><strong>${formatCurrency(po.total || 0)}</strong></span>
+          <span><strong>${formatCurrency(docStructure.calculations.total)}</strong></span>
         </div>
       </div>
     </div>
 
     ${
-      po.notes || po.terms
+      docStructure.metadata.hasNotes || docStructure.metadata.hasTerms
         ? `
       <div style="margin-bottom: 30px;">
         ${
-          po.notes
+          docStructure.po.notes
             ? `
           <div style="margin-bottom: 15px;">
             <h4 style="margin: 0 0 5px 0; color: #1e293b;">Notes:</h4>
-            <p style="margin: 0; color: #64748b;">${escapeHtml(po.notes)}</p>
+            <p style="margin: 0; color: #64748b;">${escapeHtml(docStructure.po.notes)}</p>
           </div>
         `
             : ""
         }
         ${
-          po.terms
+          docStructure.po.terms
             ? `
           <div style="margin-bottom: 15px;">
             <h4 style="margin: 0 0 5px 0; color: #1e293b;">Terms:</h4>
-            <p style="margin: 0; color: #64748b;">${escapeHtmlWithLineBreaks(po.terms)}</p>
+            <p style="margin: 0; color: #64748b;">${escapeHtmlWithLineBreaks(docStructure.po.terms)}</p>
           </div>
         `
             : ""
@@ -190,7 +262,7 @@ const createPOElement = (po, company, logoCompany, sealImage, templateColor = "#
         <div style="text-align: center; min-width: 200px;">
           <p style="margin: 0;">Authorized Signatory</p>
           <div style="border-bottom: 1px solid #000; margin: 40px 0 10px 0;"></div>
-          <p style="margin: 0; font-weight: 600;">${safe(comp.name) || "Company"}</p>
+          <p style="margin: 0; font-weight: 600;">${safe(comp.name)}</p>
         </div>
       </div>
     </div>

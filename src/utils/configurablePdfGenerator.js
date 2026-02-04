@@ -21,17 +21,123 @@ const hexToRgb = (hex) => {
 };
 
 /**
- * Fully configurable PDF generator based on template settings
- * Reads settings from company.settings.invoiceTemplate
- * Falls back to defaults if not configured
- * @param {Object} invoice - Invoice data
- * @param {Object} company - Company data
- * @param {Object} options - Options { isPreview: boolean }
+ * Layer 1: Pure data transformation (testable, no DOM/browser dependencies)
+ * Extracts and structures all invoice data for configurable PDF rendering
+ */
+export function buildConfigurableDocumentStructure(invoice, company) {
+  const inv = invoice || {};
+  const comp = company || {};
+  const compAddr = comp.address || {};
+  const cust = inv.customer || {};
+  const custAddr = cust.address || {};
+
+  // Transform items with calculations
+  const items = Array.isArray(inv.items)
+    ? inv.items.map((item) => ({
+        name: item.name || "",
+        quantity: parseFloat(item.quantity) || 0,
+        rate: parseFloat(item.rate) || 0,
+        amount: parseFloat(item.amount) || 0,
+        vatRate: parseFloat(item.vatRate) || 0,
+      }))
+    : [];
+
+  // Calculate totals
+  const subtotal = calculateSubtotal(items);
+  const discountPerc = parseFloat(inv.discountPercentage) || 0;
+  const discountFlat = parseFloat(inv.discountAmount) || 0;
+  const discountValue = inv.discountType === "percentage" ? (subtotal * discountPerc) / 100 : discountFlat;
+  const vatAmount = calculateDiscountedTRN(items, inv.discountType, inv.discountPercentage, inv.discountAmount);
+  const additionalCharges =
+    (parseFloat(inv.packingCharges) || 0) +
+    (parseFloat(inv.freightCharges) || 0) +
+    (parseFloat(inv.loadingCharges) || 0) +
+    (parseFloat(inv.otherCharges) || 0);
+  const total = calculateTotal(Math.max(0, subtotal - discountValue) + additionalCharges, vatAmount);
+
+  // Calculate payment totals
+  const payments = Array.isArray(inv.payments)
+    ? inv.payments.map((p) => ({
+        date: p.date || "",
+        method: p.method || "",
+        reference: p.reference || "",
+        amount: parseFloat(p.amount) || 0,
+      }))
+    : [];
+  const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+  const balanceDue = Math.max(0, total - totalPaid);
+
+  return {
+    invoice: {
+      number: inv.invoiceNumber || "",
+      date: inv.date || "",
+      customerPO: inv.customerPurchaseOrderNumber || "",
+      customerPODate: inv.customerPurchaseOrderDate || "",
+      dueDate: inv.dueDate || "",
+      notes: inv.notes || "",
+      terms: inv.terms || "",
+      warehouseName: inv.warehouseName || "",
+      warehouseCode: inv.warehouseCode || "",
+    },
+    company: {
+      name: comp.name || "",
+      address: {
+        street: compAddr.street || "",
+        city: compAddr.city || "",
+        country: compAddr.country || "",
+      },
+      phone: comp.phone || "",
+      email: comp.email || "",
+      website: comp.website || "",
+      trn: comp.vatNumber || "",
+    },
+    customer: {
+      name: cust.name || "",
+      address: {
+        street: custAddr.street || "",
+        city: custAddr.city || "",
+        country: custAddr.country || "",
+      },
+      email: cust.email || "",
+      phone: cust.phone || "",
+      trn: cust.vatNumber || "",
+    },
+    items: items,
+    payments: payments,
+    calculations: {
+      subtotal: subtotal,
+      discountPercentage: discountPerc,
+      discountAmount: discountFlat,
+      discountValue: discountValue,
+      vatAmount: vatAmount,
+      additionalCharges: additionalCharges,
+      total: total,
+      totalPaid: totalPaid,
+      balanceDue: balanceDue,
+    },
+    metadata: {
+      hasNotes: !!inv.notes,
+      hasTerms: !!inv.terms,
+      hasWarehouse: !!(inv.warehouseName || inv.warehouseCode),
+      hasPayments: payments.length > 0,
+      hasCustomerPO: !!inv.customerPurchaseOrderNumber,
+      hasCustomerPODate: !!inv.customerPurchaseOrderDate,
+      isDueToday: !!inv.dueDate,
+    },
+  };
+}
+
+/**
+ * Layer 2: Browser-dependent PDF generation
+ * Uses pre-built document structure for rendering
  */
 export const generateConfigurablePDF = async (invoice, company, options = {}) => {
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF("p", "mm", "a4");
   const { isPreview = false } = options;
+
+  // Extract document structure first (testable logic)
+  const docStructure = buildConfigurableDocumentStructure(invoice, company);
 
   // Get company images from company profile
   const { logoUrl: logoCompany, sealUrl: sealImage } = getCompanyImages(company);
@@ -144,20 +250,19 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
 
   pdf.setFontSize(typography.fontSize.base);
   pdf.setFont(typography.fontFamily, "normal");
-  const cust = invoice.customer || {};
-  const custAddr = cust.address || {};
+  const cust = docStructure.customer;
 
   if (cust.name) {
     pdf.text(titleCase(cust.name), leftColX, currentY);
     currentY += layout.lineSpacing;
   }
 
-  if (custAddr.street) {
-    pdf.text(custAddr.street, leftColX, currentY);
+  if (cust.address.street) {
+    pdf.text(cust.address.street, leftColX, currentY);
     currentY += layout.lineSpacing;
   }
 
-  const custCityCountry = [custAddr.city, custAddr.country].filter(Boolean).join(", ");
+  const custCityCountry = [cust.address.city, cust.address.country].filter(Boolean).join(", ");
   if (custCityCountry) {
     pdf.text(custCityCountry, leftColX, currentY);
     currentY += layout.lineSpacing;
@@ -176,8 +281,8 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
     currentY += layout.lineSpacing;
   }
 
-  if (cust.vatNumber) {
-    pdf.text(`TRN: ${cust.vatNumber}`, leftColX, currentY);
+  if (cust.trn) {
+    pdf.text(`TRN: ${cust.trn}`, leftColX, currentY);
   }
 
   // RIGHT SIDE - Invoice Info Box
