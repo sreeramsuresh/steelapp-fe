@@ -132,7 +132,9 @@ const WarehouseAvailability = ({
               </div>
               <div className="warehouse-stock">
                 <span className="stock-quantity" data-testid={`warehouse-stock-${index}`}>
-                  {parseFloat(warehouse.availableQuantity || 0).toFixed(2)}
+                  {warehouse.unit === "PCS"
+                    ? Math.round(parseFloat(warehouse.availableQuantity || 0))
+                    : parseFloat(warehouse.availableQuantity || 0).toFixed(2)}
                 </span>
                 <span className="stock-unit">{warehouse.unit}</span>
               </div>

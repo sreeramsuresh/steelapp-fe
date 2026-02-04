@@ -487,15 +487,15 @@ const AllocationDrawer = ({
               if (status === 404) {
                 // Product not in pricelist - non-blocking, user can enter manually
                 errorMessage =
-                  "Price not found in pricelist for this product. You can enter the price manually, or contact your sales manager to add pricing for this product.";
+                  "Price not found in pricelist for this product. You can click in the Unit Price field above and enter the price manually, or contact your sales manager to add pricing for this product.";
               } else if (status === 400) {
                 // Configuration error (no default pricelist) - provide actionable guidance
                 errorMessage =
-                  "No pricelist is configured for your customer. Please select a different customer with a pricelist, or enter the price manually.";
+                  "No pricelist is configured for your customer. Please select a different customer with a pricelist, or click in the Unit Price field above and enter the price manually.";
               } else {
                 // Other errors (500, network, etc.)
                 errorMessage =
-                  "Could not fetch price from pricelist. You can enter the price manually, or try again in a moment.";
+                  "Could not fetch price from pricelist. You can click in the Unit Price field above and enter the price manually, or try again in a moment.";
               }
             }
 
@@ -843,10 +843,19 @@ const AllocationDrawer = ({
     if (!drawerState.unitPrice || parseFloat(drawerState.unitPrice) <= 0) return false;
 
     if (drawerState.sourceType === "WAREHOUSE") {
-      // PCS-CENTRIC: Must have allocations matching quantity (integer comparison)
+      // PCS-CENTRIC: For warehouse source, allow adding line item if:
+      // 1. Allocations exist and match required quantity, OR
+      // 2. No allocations yet but user is in the allocation workflow (warehouse selected + batch panel visible)
+      // This allows users to add the line first and complete allocation as next step
       const allocatedPcs = (allocations || []).reduce((sum, a) => sum + Math.floor(parseFloat(a.quantity || 0)), 0);
       const requiredPcs = Math.floor(parseFloat(drawerState.quantity));
-      return allocatedPcs >= requiredPcs; // Must have allocated at least the required PCS
+
+      // Allow if fully allocated OR if user hasn't attempted allocation yet (empty allocations list)
+      if (allocatedPcs >= requiredPcs) return true; // Fully allocated - allow
+      if ((allocations || []).length === 0) return true; // No allocations yet - allow (user will allocate next)
+
+      // Partial allocation - don't allow (must be all-or-nothing)
+      return false;
     }
 
     return true; // Drop-ship doesn't need allocations
@@ -1199,6 +1208,13 @@ const AllocationDrawer = ({
               <span>Line Amount:</span>
               <strong className="amount-value">{totalCost.toFixed(2)} AED</strong>
             </div>
+          </div>
+        )}
+
+        {/* Warehouse Allocation Guidance */}
+        {drawerState.sourceType === "WAREHOUSE" && (!allocations || allocations.length === 0) && drawerState.productId && (
+          <div className="drawer-info">
+            <strong>⚠️ Next Step:</strong> Use the <strong>Auto-Fill FIFO</strong> button or <strong>manually select batches</strong> below to allocate stock from your warehouse inventory. This reserves the stock for your invoice.
           </div>
         )}
 
