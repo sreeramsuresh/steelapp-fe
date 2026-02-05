@@ -655,9 +655,9 @@ const SteelProducts = () => {
   useEffect(() => {
     const fetchDefaultPricelist = async () => {
       try {
-        const pricelists = await pricelistService.getAll({ is_default: true });
-        if (pricelists && pricelists.length > 0) {
-          setDefaultPricelistId(pricelists[0].id);
+        const response = await pricelistService.getAll({ is_default: true });
+        if (response?.pricelists && response.pricelists.length > 0) {
+          setDefaultPricelistId(response.pricelists[0].id);
         }
       } catch (error) {
         console.error("Error fetching default pricelist:", error);
