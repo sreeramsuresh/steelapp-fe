@@ -1,18 +1,19 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
+import sinon from "sinon";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { userPreferencesService } from "../../services/userPreferencesService";
 import useHomeSectionOrder from "../useHomeSectionOrder";
-import sinon from 'sinon';
 
 // Mock the userPreferencesService
 // sinon.stub() // "../../services/userPreferencesService", () => ({
-  userPreferencesService: {
-    getHomeSectionOrder: sinon.stub(),
-    setHomeSectionOrder: sinon.stub(),
+{
+  getHomeSectionOrder: sinon.stub(), setHomeSectionOrder;
+  : sinon.stub(),
     getCurrentUser: sinon.stub(),
     updatePermissions: sinon.stub(),
-  },
-}));
+}
+,
+}))
 
 describe("useHomeSectionOrder", () => {
   beforeEach(() => {

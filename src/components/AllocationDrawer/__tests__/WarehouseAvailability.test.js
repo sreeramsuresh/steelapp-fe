@@ -7,10 +7,10 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { productService } from "../../../services/productService";
 import WarehouseAvailability from "../WarehouseAvailability";
-import sinon from 'sinon';
 
 // sinon.stub() // "../../../services/productService");
 

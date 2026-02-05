@@ -15,10 +15,10 @@
  */
 
 import { screen, waitFor } from "@testing-library/react";
+import sinon from "sinon";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../../test/component-setup";
 import CustomerPaymentsTab from "../CustomerPaymentsTab";
-import sinon from 'sinon';
 
 // Mock API Client
 const mockApiClient = {
@@ -26,19 +26,19 @@ const mockApiClient = {
 };
 
 // sinon.stub() // "../../../../services/api", () => ({
-  apiClient: mockApiClient,
-}));
+apiClient: mockApiClient,
+}))
 
 // Mock ThemeContext
 // sinon.stub() // "../../../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 // Mock utilities
 // sinon.stub() // "../../../../utils/invoiceUtils", () => ({
-  formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
-  formatDate: (date) => new Date(date).toLocaleDateString(),
-}));
+formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`, formatDate;
+: (date) => new Date(date).toLocaleDateString(),
+}))
 
 describe("CustomerPaymentsTab Component", () => {
   let mockPayments;

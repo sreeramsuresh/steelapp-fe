@@ -10,7 +10,7 @@ import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import {
 import sinon from 'sinon';
-  assertButtonDisabled,
+assertButtonDisabled,
   assertButtonEnabled,
   clickButton,
   findAllButtons,
@@ -18,7 +18,7 @@ import sinon from 'sinon';
   getButtonVariant,
   isButtonLoading,
   waitForButtonEnabled,
-} from "../buttonTestUtils";
+} from "../buttonTestUtils"
 
 describe("buttonTestUtils", () => {
   describe("findButtonByRole", () => {

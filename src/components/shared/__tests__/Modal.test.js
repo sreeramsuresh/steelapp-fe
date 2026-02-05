@@ -11,9 +11,9 @@
  * - Dark mode
  */
 
+import sinon from "sinon";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
-import sinon from 'sinon';
 
 // Mock Modal component for testing
 const Modal = ({ isOpen, onClose, children, className = "", overlayClassName = "" }) => {

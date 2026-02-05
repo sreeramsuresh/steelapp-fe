@@ -11,9 +11,9 @@
  * - Icon and badge support
  */
 
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
-import sinon from 'sinon';
 
 // Mock Dropdown component
 const Dropdown = ({ isOpen, onClose, trigger = "Menu", items = [], onItemSelect, disabled = false }) => {

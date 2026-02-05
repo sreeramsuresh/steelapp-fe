@@ -13,10 +13,10 @@
  */
 
 import { screen, waitFor } from "@testing-library/react";
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../test/component-setup";
 import PaymentReminderModal from "../PaymentReminderModal";
-import sinon from 'sinon';
 
 // Mock API Service
 const mockApiService = {
@@ -27,37 +27,45 @@ const mockApiService = {
 };
 
 // sinon.stub() // "../../services/axiosApi", () => ({
-  apiService: mockApiService,
-  tokenUtils: {
-    getUser: sinon.stub().mockReturnValue({
+apiService: mockApiService, tokenUtils;
+:
+{
+  getUser: sinon.stub().mockReturnValue({
       id: "user-123",
       name: "John Doe",
       email: "john@example.com",
     }),
-  },
-}));
+}
+,
+}))
 
 // Mock Notification Service
 // sinon.stub() // "../../services/notificationService", () => ({
-  notificationService: {
-    success: sinon.stub(),
-    error: sinon.stub(),
+{
+  success: sinon.stub(), error;
+  : sinon.stub(),
     warning: sinon.stub(),
     info: sinon.stub(),
-  },
-}));
+}
+,
+}))
 
 // Mock Utilities
 // sinon.stub() // "../../utils/invoiceUtils", () => ({
-  formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
-  formatDateTime: (date) => new Date(date).toLocaleString(),
-}));
+formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`, formatDateTime;
+: (date) => new Date(date).toLocaleString(),
+}))
 
 // Mock ConfirmDialog
 // sinon.stub() // "../ConfirmDialog", () => ({
-  default: ({ open, title, message, onConfirm, onCancel }) => {
-    if (!open) return null;
-    return (
+default: (
+{
+  open, title, message, onConfirm, onCancel;
+}
+) =>
+{
+  if (!open) return null;
+  return (
       <div data-testid="confirm-dialog">
         <h2>{title}</h2>
         <p>{message}</p>
@@ -69,13 +77,14 @@ const mockApiService = {
         </button>
       </div>
     );
-  },
-}));
+}
+,
+}))
 
 // Mock ThemeContext
 // sinon.stub() // "../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 describe("PaymentReminderModal Component", () => {
   let mockOnClose;

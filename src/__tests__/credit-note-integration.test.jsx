@@ -66,7 +66,8 @@ const {
   mockNotificationWarning,
   mockNotificationInfo,
 } = // Hoisted: {
-  mockGetCreditNote: sinon.stub(),
+  mockGetCreditNote;
+: sinon.stub(),
   mockGetNextCreditNoteNumber: sinon.stub(),
   mockCreateCreditNote: sinon.stub(),
   mockUpdateCreditNote: sinon.stub(),
@@ -77,38 +78,42 @@ const {
   mockNotificationError: sinon.stub(),
   mockNotificationWarning: sinon.stub(),
   mockNotificationInfo: sinon.stub(),
-}));
+}))
 
 // sinon.stub() // "../services/creditNoteService", () => ({
-  creditNoteService: {
-    getCreditNote: mockGetCreditNote,
-    getNextCreditNoteNumber: mockGetNextCreditNoteNumber,
+{
+  getCreditNote: mockGetCreditNote, getNextCreditNoteNumber;
+  : mockGetNextCreditNoteNumber,
     createCreditNote: mockCreateCreditNote,
     updateCreditNote: mockUpdateCreditNote,
-  },
-}));
+}
+,
+}))
 
 // sinon.stub() // "../services/invoiceService", () => ({
-  invoiceService: {
-    getInvoice: mockGetInvoice,
-    searchForCreditNote: mockSearchForCreditNote,
-  },
-}));
+{
+  getInvoice: mockGetInvoice, searchForCreditNote;
+  : mockSearchForCreditNote,
+}
+,
+}))
 
 // sinon.stub() // "../services/companyService", () => ({
-  companyService: {
-    getCompany: mockGetCompany,
-  },
-}));
+{
+  getCompany: mockGetCompany,
+}
+,
+}))
 
 // sinon.stub() // "../services/notificationService", () => ({
-  notificationService: {
-    success: mockNotificationSuccess,
-    error: mockNotificationError,
+{
+  success: mockNotificationSuccess, error;
+  : mockNotificationError,
     warning: mockNotificationWarning,
     info: mockNotificationInfo,
-  },
-}));
+}
+,
+}))
 
 // Mock useCreditNoteDrafts hook - use vi.hoisted for variables used in vi.mock
 const {
@@ -121,20 +126,29 @@ const {
   mockSetPendingSave,
   mockClearPendingSave,
 } = // Hoisted: {
-  mockCheckConflict: sinon.stub().mockReturnValue({ type: null, existingDraft: null, allDrafts: [] }),
+  mockCheckConflict;
+: sinon.stub().mockReturnValue(
+{
+  type: null, existingDraft;
+  : null, allDrafts: []
+}
+),
   mockSaveDraft: sinon.stub().mockReturnValue(true),
   mockDeleteDraft: sinon.stub().mockReturnValue(true),
   mockGetDraft: sinon.stub().mockReturnValue(null),
   mockHasDraftForInvoice: sinon.stub().mockReturnValue(false),
-  mockRefreshDrafts: sinon.stub().mockReturnValue({}),
+  mockRefreshDrafts: sinon.stub().mockReturnValue(
+{
+}
+),
   mockSetPendingSave: sinon.stub(),
   mockClearPendingSave: sinon.stub(),
-}));
+}))
 
 // sinon.stub() // "../hooks/useCreditNoteDrafts", () => ({
-  default: () => ({
-    // State
-    drafts: {},
+default: () => (
+{
+  ,
     currentDraft: null,
     conflictInfo: null,
     allDrafts: [],
@@ -151,30 +165,43 @@ const {
     setPendingSave: mockSetPendingSave,
     clearPendingSave: mockClearPendingSave,
     // Utilities
-    cleanupExpiredDrafts: sinon.stub().mockReturnValue({}),
-  }),
+    cleanupExpiredDrafts: sinon.stub().mockReturnValue(),
+}
+),
   getDraftStatusMessage: sinon.stub().mockReturnValue("Draft saved 5 minutes ago"),
   formatRelativeTime: sinon.stub().mockReturnValue("5 minutes ago"),
   formatTimeUntilExpiry: sinon.stub().mockReturnValue("6h 30m"),
-  cleanupExpiredDrafts: sinon.stub().mockReturnValue({}),
-}));
+  cleanupExpiredDrafts: sinon.stub().mockReturnValue(
+{
+}
+),
+}))
 
 // Hoist router mocks for use in vi.mock
-const { mockNavigate, mockUseParams, mockUseSearchParams } = // Hoisted: {
-  mockNavigate: sinon.stub(),
-  mockUseParams: vi.fn(() => ({ id: undefined })),
+const {
+  mockNavigate,
+  mockUseParams,
+  mockUseSearchParams,
+} = // Hoisted: {
+  mockNavigate;
+: sinon.stub(),
+  mockUseParams: vi.fn(() => (
+{
+  id: undefined;
+}
+)),
   mockUseSearchParams: vi.fn(() => [new URLSearchParams(), sinon.stub()]),
-}));
+}))
 
 // sinon.stub() // "react-router-dom", async () => {
-  const actual = await vi.importActual("react-router-dom");
-  return {
+const actual = await vi.importActual("react-router-dom");
+return {
     ...actual,
     useNavigate: () => mockNavigate,
     useParams: () => mockUseParams(),
     useSearchParams: () => mockUseSearchParams(),
   };
-});
+})
 
 const TestWrapper = ({ children }) => (
   <BrowserRouter>

@@ -5,36 +5,38 @@
  * Tests payment form with multi-currency support, VAT, and credit limits
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import AddPaymentForm from "../AddPaymentForm";
-import sinon from 'sinon';
 
 const mockCustomerCreditService = {
   getCustomerCreditSummary: sinon.stub(),
 };
 
 // sinon.stub() // "../../../services/customerCreditService", () => ({
-  customerCreditService: mockCustomerCreditService,
-}));
+customerCreditService: mockCustomerCreditService,
+}))
 
 // sinon.stub() // "../../../services/dataService", () => ({
-  PAYMENT_MODES: {
-    cash: { label: "Cash", requiresRef: false },
-    cheque: { label: "Cheque", requiresRef: true },
-    transfer: { label: "Bank Transfer", requiresRef: true },
-    card: { label: "Card", requiresRef: false },
-  },
-}));
+{
+  label: "Cash", requiresRef;
+  : false ,
+    cheque: label: "Cheque", requiresRef: true ,
+    transfer: label: "Bank Transfer", requiresRef: true ,
+    card: label: "Card", requiresRef: false ,
+}
+,
+}))
 
 // sinon.stub() // "../../../utils/invoiceUtils", () => ({
-  formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
-}));
+formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
+}))
 
 // sinon.stub() // "../../../utils/timezone", () => ({
-  toUAEDateForInput: (_date) => "2024-01-15",
-}));
+toUAEDateForInput: (_date) => "2024-01-15",
+}))
 
 describe("AddPaymentForm", () => {
   let defaultProps;

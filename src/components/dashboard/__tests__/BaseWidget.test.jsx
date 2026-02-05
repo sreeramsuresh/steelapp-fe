@@ -4,10 +4,10 @@
  */
 
 import { fireEvent, render, screen } from "@testing-library/react";
+import sinon from "sinon";
 import { describe, expect, it, vi } from "vitest";
 import { ThemeContext } from "../../../contexts/ThemeContext";
 import BaseWidget, { MetricValue, WidgetEmptyState, WidgetListItem } from "../widgets/BaseWidget";
-import sinon from 'sinon';
 
 const renderWithTheme = (component, isDarkMode = false) => {
   return render(

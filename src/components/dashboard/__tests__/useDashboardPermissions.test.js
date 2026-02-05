@@ -6,50 +6,62 @@
 
 // Mock authService
 // sinon.stub() // "../../../services/authService", () => ({
-  authService: {
-    getUser: sinon.stub(),
-    getToken: sinon.stub(),
-  },
-}));
+{
+  getUser: sinon.stub(), getToken;
+  : sinon.stub(),
+}
+,
+}))
 
 // Mock DashboardConfig
 // sinon.stub() // "../config/DashboardConfig", () => ({
-  canViewWidget: vi.fn((widgetId, role) => {
-    const allowedWidgets = {
-      ceo: ["revenue-kpi", "vat-collection", "inventory-health", "agent-scorecard"],
-      cfo: ["revenue-kpi", "vat-collection", "ar-aging"],
-      sales_agent: ["agent-scorecard", "commission-tracker"],
-      warehouse_manager: ["inventory-health", "reorder-alerts"],
-    };
-    return allowedWidgets[role]?.includes(widgetId) ?? false;
-  }),
-  getVisibleWidgets: vi.fn((role) => {
-    const widgets = {
-      ceo: ["revenue-kpi", "vat-collection", "inventory-health"],
-      sales_agent: ["agent-scorecard", "commission-tracker"],
-    };
-    return widgets[role] || [];
-  }),
-  getWidgetsByCategory: vi.fn((category, role) => {
-    if (role === "ceo" && category === "FINANCIAL") return ["revenue-kpi", "ar-aging"];
-    if (role === "sales_agent" && category === "SALES_AGENT") return ["agent-scorecard"];
-    return [];
-  }),
-  getDefaultLayout: vi.fn(() => ({ sections: [] })),
-  DASHBOARD_ROLES: {
-    ADMIN: "admin",
-    CEO: "ceo",
+canViewWidget: vi.fn((widgetId, role) => {
+  const allowedWidgets = {
+    ceo: ["revenue-kpi", "vat-collection", "inventory-health", "agent-scorecard"],
+    cfo: ["revenue-kpi", "vat-collection", "ar-aging"],
+    sales_agent: ["agent-scorecard", "commission-tracker"],
+    warehouse_manager: ["inventory-health", "reorder-alerts"],
+  };
+  return allowedWidgets[role]?.includes(widgetId) ?? false;
+}),
+  getVisibleWidgets;
+: vi.fn((role) =>
+{
+  const widgets = {
+    ceo: ["revenue-kpi", "vat-collection", "inventory-health"],
+    sales_agent: ["agent-scorecard", "commission-tracker"],
+  };
+  return widgets[role] || [];
+}
+),
+  getWidgetsByCategory: vi.fn((category, role) =>
+{
+  if (role === "ceo" && category === "FINANCIAL") return ["revenue-kpi", "ar-aging"];
+  if (role === "sales_agent" && category === "SALES_AGENT") return ["agent-scorecard"];
+  return [];
+}
+),
+  getDefaultLayout: vi.fn(() => (
+{
+  sections: [];
+}
+)),
+  DASHBOARD_ROLES:
+{
+  ADMIN: "admin", CEO;
+  : "ceo",
     CFO: "cfo",
     SALES_MANAGER: "sales_manager",
     OPERATIONS_MANAGER: "operations_manager",
     WAREHOUSE_MANAGER: "warehouse_manager",
     SALES_AGENT: "sales_agent",
     ACCOUNTANT: "accountant",
-  },
-}));
+}
+,
+}))
 
+import sinon from "sinon";
 import { authService } from "../../../services/authService";
-import sinon from 'sinon';
 
 describe("useDashboardPermissions role mapping", () => {
   beforeEach(() => {

@@ -11,13 +11,13 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
+import sinon from "sinon";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ThemeProvider } from "../../contexts/ThemeContext";
 import * as companyService from "../../services/companyService";
 import * as creditNoteService from "../../services/creditNoteService";
 import * as invoiceService from "../../services/invoiceService";
 import CreditNoteForm from "../CreditNoteForm";
-import sinon from 'sinon';
 
 // Mock data
 const _mockCreditNote = {
@@ -112,56 +112,69 @@ const mockCompany = {
 
 // Mock services
 // sinon.stub() // "../../services/creditNoteService", () => ({
-  creditNoteService: {
-    getCreditNote: sinon.stub(),
-    getNextCreditNoteNumber: sinon.stub(),
+{
+  getCreditNote: sinon.stub(), getNextCreditNoteNumber;
+  : sinon.stub(),
     createCreditNote: sinon.stub(),
     updateCreditNote: sinon.stub(),
-  },
-}));
+}
+,
+}))
 
 // sinon.stub() // "../../services/invoiceService", () => ({
-  invoiceService: {
-    getInvoice: sinon.stub(),
-    searchForCreditNote: sinon.stub(),
-  },
-}));
+{
+  getInvoice: sinon.stub(), searchForCreditNote;
+  : sinon.stub(),
+}
+,
+}))
 
 // sinon.stub() // "../../services/companyService", () => ({
-  companyService: {
-    getCompany: sinon.stub(),
-  },
-}));
+{
+  getCompany: sinon.stub(),
+}
+,
+}))
 
 // sinon.stub() // "../../services/notificationService", () => ({
-  notificationService: {
-    success: sinon.stub(),
-    error: sinon.stub(),
+{
+  success: sinon.stub(), error;
+  : sinon.stub(),
     warning: sinon.stub(),
     info: sinon.stub(),
-  },
-}));
+}
+,
+}))
 
 // DON'T mock useCreditNoteDrafts - use the real implementation
 // The real hook properly reads from localStorage which the tests setup
 // Mocking it prevents conflict detection from working
 
 // Mock router hooks - hoist for vi.mock
-const { mockNavigate, mockUseParams, mockUseSearchParams } = // Hoisted: {
-  mockNavigate: sinon.stub(),
-  mockUseParams: vi.fn(() => ({ id: undefined })),
+const {
+  mockNavigate,
+  mockUseParams,
+  mockUseSearchParams,
+} = // Hoisted: {
+  mockNavigate;
+: sinon.stub(),
+  mockUseParams: vi.fn(() => (
+{
+  id: undefined;
+}
+)),
   mockUseSearchParams: vi.fn(() => [new URLSearchParams(), sinon.stub()]),
-}));
+}))
 
 // sinon.stub() // "react-router-dom", async () => {
-  const actual = await vi.importActual("react-router-dom");
-  return {
+const actual = await vi.importActual("react-router-dom");
+return {
     ...actual,
     useNavigate: () => mockNavigate,
     useParams: () => mockUseParams(),
     useSearchParams: () => mockUseSearchParams(),
   };
-});
+})
 
 // Test wrapper component
 const TestWrapper = ({ children }) => (

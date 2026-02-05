@@ -12,7 +12,7 @@ import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import {
 import sinon from 'sinon';
-  clickAndWaitForApi,
+clickAndWaitForApi,
   createTimer,
   performAsyncButtonClick,
   pollForCondition,
@@ -23,7 +23,7 @@ import sinon from 'sinon';
   waitForDebounce,
   waitForLoadingEnd,
   waitForLoadingStart,
-} from "../asyncHelpers";
+} from "../asyncHelpers"
 
 describe("asyncHelpers", () => {
   describe("waitForApiCall", () => {

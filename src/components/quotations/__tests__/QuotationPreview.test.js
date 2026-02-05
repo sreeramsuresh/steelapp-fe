@@ -5,29 +5,29 @@
  * Tests quotation preview modal with status display, items, and totals
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import QuotationPreview from "../QuotationPreview";
-import sinon from 'sinon';
 
 // sinon.stub() // "../../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 // sinon.stub() // "../../../constants/defaultTemplateSettings", () => ({
-  getDocumentTemplateColor: () => "#1e40af",
-}));
+getDocumentTemplateColor: () => "#1e40af",
+}))
 
 // sinon.stub() // "../../../utils/invoiceUtils", () => ({
-  formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
-  toUAEDateProfessional: (_date) => "15 January 2024",
+formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`, toUAEDateProfessional;
+: (_date) => "15 January 2024",
   TIMEZONE_DISCLAIMER: "Times shown in UAE timezone",
-}));
+}))
 
 // sinon.stub() // "../../../utils/recordUtils", () => ({
-  validateQuotationForDownload: () => ({ isValid: true, warnings: [] }),
-}));
+validateQuotationForDownload: () => ({ isValid: true, warnings: [] }),
+}))
 
 describe("QuotationPreview", () => {
   let defaultProps;

@@ -5,24 +5,29 @@
  * Tests FIFO batch allocation display and management
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import { createMockAllocation, createMockArray } from "../../../test/mock-factories";
 import AllocationPanel from "../AllocationPanel";
-import sinon from 'sinon';
 
 // Mock the auth service
 // sinon.stub() // "../../../services/axiosAuthService", () => ({
-  authService: {
-    getUserRole: sinon.stub(),
-  },
-}));
+{
+  getUserRole: sinon.stub(),
+}
+,
+}))
 
 // Mock the reallocation modal
 // sinon.stub() // "../ReallocationModal", () => ({
-  default: ({ isOpen }) => (isOpen ? <div>Reallocation Modal</div> : null),
-}));
+default: (
+{
+  isOpen;
+}
+) => (isOpen ? <div>Reallocation Modal</div> : null),
+}))
 
 import { authService } from "../../../services/axiosAuthService";
 

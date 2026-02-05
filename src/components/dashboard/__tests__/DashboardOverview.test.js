@@ -1,7 +1,7 @@
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import DashboardOverview from "../DashboardOverview";
-import sinon from 'sinon';
 
 const mockDashboardService = {
   getSalesData: sinon.stub(),
@@ -9,8 +9,8 @@ const mockDashboardService = {
 };
 
 // sinon.stub() // "../../../services/dashboardService", () => ({
-  default: mockDashboardService,
-}));
+default: mockDashboardService,
+}))
 
 describe("DashboardOverview", () => {
   beforeEach(() => {

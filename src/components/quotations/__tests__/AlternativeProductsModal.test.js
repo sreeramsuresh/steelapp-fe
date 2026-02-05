@@ -7,19 +7,20 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AlternativeProductsModal from "../AlternativeProductsModal";
-import sinon from 'sinon';
 
 // sinon.stub() // "../../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 // sinon.stub() // "../../../services/api", () => ({
-  productsAPI: {
-    list: sinon.stub(),
-  },
-}));
+{
+  list: sinon.stub(),
+}
+,
+}))
 
 const mockProductsAPI = () => require("../../../services/api").productsAPI;
 

@@ -1,7 +1,7 @@
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import WarehouseFormDialog from "../WarehouseFormDialog";
-import sinon from 'sinon';
 
 const mockWarehouseService = {
   createWarehouse: sinon.stub(),
@@ -11,8 +11,8 @@ const mockWarehouseService = {
 };
 
 // sinon.stub() // "../../../services/warehouseService", () => ({
-  default: mockWarehouseService,
-}));
+default: mockWarehouseService,
+}))
 
 describe("WarehouseFormDialog", () => {
   const defaultProps = {

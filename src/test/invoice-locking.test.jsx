@@ -13,8 +13,8 @@
  * - Rule 8: UAE VAT compliance
  */
 
+import sinon from "sinon";
 import { describe, expect, it, vi } from "vitest";
-import sinon from 'sinon';
 
 // Test the isLocked logic directly
 describe("Invoice Locking Logic - isLocked computation", () => {

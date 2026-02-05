@@ -5,18 +5,20 @@
  * Tests real-time stock availability indicator
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import { createMockArray, createMockBatch } from "../../../test/mock-factories";
 import StockAvailabilityIndicator from "../StockAvailabilityIndicator";
-import sinon from 'sinon';
 
 // sinon.stub() // "../../../services/api", () => ({
-  default: {
-    get: sinon.stub(),
-  },
-}));
+default:
+{
+  get: sinon.stub(),
+}
+,
+}))
 
 import api from "../../../services/api";
 

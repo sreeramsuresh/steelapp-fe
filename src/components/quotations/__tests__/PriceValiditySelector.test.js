@@ -7,13 +7,13 @@
 
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import PriceValiditySelector from "../PriceValiditySelector";
-import sinon from 'sinon';
 
 // sinon.stub() // "../../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 describe("PriceValiditySelector", () => {
   let mockOnChange;

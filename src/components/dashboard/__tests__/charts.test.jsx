@@ -4,20 +4,44 @@
  */
 
 import { render, screen } from "@testing-library/react";
+import sinon from "sinon";
 import { describe, expect, it, vi } from "vitest";
 import { ThemeContext } from "../../../contexts/ThemeContext";
-import sinon from 'sinon';
 
 // Mock recharts to avoid canvas issues in tests
 // sinon.stub() // "recharts", () => ({
-  ResponsiveContainer: ({ children }) => <div data-testid="responsive-container">{children}</div>,
-  BarChart: ({ children }) => <div data-testid="bar-chart">{children}</div>,
-  LineChart: ({ children }) => <div data-testid="line-chart">{children}</div>,
-  AreaChart: ({ children }) => <div data-testid="area-chart">{children}</div>,
-  PieChart: ({ children }) => <div data-testid="pie-chart">{children}</div>,
-  RadarChart: ({ children }) => <div data-testid="radar-chart">{children}</div>,
-  Bar: () => null,
-  Line: () => null,
+ResponsiveContainer: ({ children }) => <div data-testid="responsive-container">{children}</div>, BarChart;
+: (
+{
+  children;
+}
+) => <div data-testid="bar-chart">
+{
+  children;
+}
+</div>,
+LineChart: ({ children }) => <div data-testid="line-chart">{children}</div>, AreaChart;
+: (
+{
+  children;
+}
+) => <div data-testid="area-chart">
+{
+  children;
+}
+</div>,
+PieChart: ({ children }) => <div data-testid="pie-chart">{children}</div>, RadarChart;
+: (
+{
+  children;
+}
+) => <div data-testid="radar-chart">
+{
+  children;
+}
+</div>,
+Bar: () => null, Line;
+: () => null,
   Area: () => null,
   Pie: () => null,
   Radar: () => null,
@@ -30,12 +54,20 @@ import sinon from 'sinon';
   PolarGrid: () => null,
   PolarAngleAxis: () => null,
   PolarRadiusAxis: () => null,
-}));
+}))
 
 // Mock echarts-for-react
 // sinon.stub() // "echarts-for-react", () => ({
-  default: ({ option }) => <div data-testid="echarts" data-option={JSON.stringify(option)} />,
-}));
+default: (
+{
+  option;
+}
+) => <div data-testid="echarts" data-option=
+{
+  JSON.stringify(option);
+}
+/,>;
+}))
 
 import { FunnelChartWrapper, GaugeChartWrapper, TreemapChartWrapper } from "../charts/EChartsWrapper";
 import { AreaChartWrapper, BarChartWrapper, LineChartWrapper, PieChartWrapper } from "../charts/RechartsWrapper";

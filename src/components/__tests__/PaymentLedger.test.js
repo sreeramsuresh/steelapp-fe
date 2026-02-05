@@ -13,48 +13,63 @@
  */
 
 import { screen, waitFor } from "@testing-library/react";
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../test/component-setup";
 import PaymentLedger from "../PaymentLedger";
-import sinon from 'sinon';
 
 // Mock ThemeContext
 // sinon.stub() // "../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 // Mock utilities
 // sinon.stub() // "../../utils/invoiceUtils", () => ({
-  formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
-}));
+formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
+}))
 
 // sinon.stub() // "../../utils/paymentUtils", () => ({
-  calculateBalanceDue: (total, payments) => {
-    const paid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
-    return Math.max(0, total - paid);
-  },
-  calculateTotalPaid: (payments) => payments.reduce((sum, p) => sum + (p.amount || 0), 0),
-  formatPaymentDisplay: (payment) => ({
-    formattedDate: new Date(payment.date).toLocaleDateString(),
-    formattedAmount: `AED ${payment.amount?.toFixed(2) || "0.00"}`,
-  }),
-  getPaymentModeConfig: (mode) => ({
-    icon: "💳",
-    label: mode === "cash" ? "Cash" : mode === "cheque" ? "Cheque" : "Transfer",
-  }),
-}));
+calculateBalanceDue: (total, payments) => {
+  const paid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+  return Math.max(0, total - paid);
+},
+  calculateTotalPaid;
+: (payments) => payments.reduce((sum, p) => sum + (p.amount || 0), 0),
+  formatPaymentDisplay: (payment) => (
+{
+  formattedDate: new Date(payment.date).toLocaleDateString(), formattedAmount;
+  : `AED $payment.amount?.toFixed(2) || "0.00"`,
+}
+),
+  getPaymentModeConfig: (mode) => (
+{
+  icon: "💳", label;
+  : mode === "cash" ? "Cash" : mode === "cheque" ? "Cheque" : "Transfer",
+}
+),
+}))
 
 // Mock receipt generator
 // sinon.stub() // "../../utils/paymentReceiptGenerator", () => ({
-  generatePaymentReceipt: sinon.stub().mockResolvedValue({ success: true }),
-  printPaymentReceipt: sinon.stub().mockResolvedValue({ success: true }),
-}));
+generatePaymentReceipt: sinon.stub().mockResolvedValue({ success: true }), printPaymentReceipt;
+: sinon.stub().mockResolvedValue(
+{
+  success: true;
+}
+),
+}))
 
 // Mock ConfirmDialog
 // sinon.stub() // "../ConfirmDialog", () => ({
-  default: ({ open, title, message, onConfirm, onCancel, variant: _variant }) => {
-    if (!open) return null;
-    return (
+default: (
+{
+  open, title, message, onConfirm, onCancel, variant;
+  : _variant
+}
+) =>
+{
+  if (!open) return null;
+  return (
       <div data-testid="confirm-dialog">
         <h2>{title}</h2>
         <p>{message}</p>
@@ -66,8 +81,9 @@ import sinon from 'sinon';
         </button>
       </div>
     );
-  },
-}));
+}
+,
+}))
 
 describe("PaymentLedger Component", () => {
   let mockOnAddPayment;
@@ -225,7 +241,7 @@ describe("PaymentLedger Component", () => {
       await user.click(checkboxes[1]);
       await user.click(checkboxes[2]);
 
-      expect(screen.getByText(/Delete Selected \(2\)/)).toBeInTheDocument();
+      expect(screen.getByText(/Delete Selected (2)/)).toBeInTheDocument();
     });
 
     it("should open confirmation dialog on delete", async () => {

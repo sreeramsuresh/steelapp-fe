@@ -12,9 +12,9 @@
  * - Disabled items
  */
 
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
-import sinon from 'sinon';
 
 // Mock ContextMenu component
 const ContextMenu = ({ children, items = [], onItemSelect, onShow = null, onHide = null }) => {

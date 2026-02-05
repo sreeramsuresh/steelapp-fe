@@ -13,28 +13,30 @@
  * - TC-006: Issued, partially paid, 5 days overdue
  */
 
+import sinon from "sinon";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import sinon from 'sinon';
 
 // Mock dependencies before imports
 // sinon.stub() // "../../services/axiosAuthService", () => ({
-  authService: {
-    hasPermission: sinon.stub(),
-  },
-}));
+{
+  hasPermission: sinon.stub(),
+}
+,
+}))
 
 // sinon.stub() // "../../utils/reminderUtils", () => ({
-  getInvoiceReminderInfo: sinon.stub(),
-  generatePaymentReminder: sinon.stub(),
-}));
+getInvoiceReminderInfo: sinon.stub(), generatePaymentReminder;
+: sinon.stub(),
+}))
 
 // sinon.stub() // "../../services/notificationService", () => ({
-  notificationService: {
-    error: sinon.stub(),
-    success: sinon.stub(),
+{
+  error: sinon.stub(), success;
+  : sinon.stub(),
     warning: sinon.stub(),
-  },
-}));
+}
+,
+}))
 
 import { getInvoiceReminderInfo } from "../../utils/reminderUtils";
 import { getInvoiceActionButtonConfig } from "../invoiceActionsConfig";

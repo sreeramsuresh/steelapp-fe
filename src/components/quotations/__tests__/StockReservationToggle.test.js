@@ -7,13 +7,13 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import sinon from "sinon";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import StockReservationToggle from "../StockReservationToggle";
-import sinon from 'sinon';
 
 // sinon.stub() // "../../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 describe("StockReservationToggle", () => {
   let mockOnToggleReservation;

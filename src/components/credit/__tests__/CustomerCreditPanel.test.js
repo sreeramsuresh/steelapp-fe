@@ -5,48 +5,84 @@
  * Tests credit management panel with DSO-based grading, utilization, and aging analysis
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import CustomerCreditPanel from "../CustomerCreditPanel";
-import sinon from 'sinon';
 
 // sinon.stub() // "../../../contexts/ThemeContext", () => ({
-  ThemeContext: {
-    Provider: ({ children }) => children,
-  },
-  useTheme: () => ({
-    isDarkMode: false,
-  }),
-}));
+{
+  Provider: ({ children }) => children,
+}
+,
+  useTheme: () => (
+{
+  isDarkMode: false,
+}
+),
+}))
 
 // sinon.stub() // "../../../components/ui/badge", () => ({
-  Badge: ({ children, className }) => <span className={className}>{children}</span>,
-}));
+Badge: ({ children, className }) => <span className={className}>{children}</span>,
+}))
 
 // sinon.stub() // "../../../components/ui/button", () => ({
-  Button: ({ children, onClick, disabled, ...props }) => (
+Button: ({ children, onClick, disabled, ...props }) => (
     <button onClick={onClick} disabled={disabled} {...props}>
       {children}
     </button>
   ),
-}));
+}))
 
 // sinon.stub() // "../../../components/ui/card", () => ({
-  Card: ({ children, className }) => <div className={className}>{children}</div>,
-  CardHeader: ({ children }) => <div>{children}</div>,
-  CardTitle: ({ children }) => <h2>{children}</h2>,
-  CardDescription: ({ children }) => <p>{children}</p>,
-  CardContent: ({ children }) => <div>{children}</div>,
-}));
+Card: ({ children, className }) => <div className={className}>{children}</div>, CardHeader;
+: (
+{
+  children;
+}
+) => <div>
+{
+  children;
+}
+</div>,
+CardTitle: ({ children }) => <h2>{children}</h2>, CardDescription;
+: (
+{
+  children;
+}
+) => <p>
+{
+  children;
+}
+</p>,
+CardContent: ({ children }) => <div>{children}</div>,
+}))
 
 // sinon.stub() // "../../../components/ui/dialog", () => ({
-  Dialog: ({ open, children, _onOpenChange }) => (open ? <div data-testid="dialog">{children}</div> : null),
-  DialogContent: ({ children }) => <div>{children}</div>,
-  DialogHeader: ({ children }) => <div>{children}</div>,
-  DialogTitle: ({ children }) => <h3>{children}</h3>,
-  DialogDescription: ({ children }) => <p>{children}</p>,
-}));
+Dialog: ({ open, children, _onOpenChange }) => (open ? <div data-testid="dialog">{children}</div> : null),
+  DialogContent;
+: (
+{
+  children;
+}
+) => <div>
+{
+  children;
+}
+</div>,
+DialogHeader: ({ children }) => <div>{children}</div>, DialogTitle;
+: (
+{
+  children;
+}
+) => <h3>
+{
+  children;
+}
+</h3>,
+DialogDescription: ({ children }) => <p>{children}</p>,
+}))
 
 describe("CustomerCreditPanel", () => {
   let defaultProps;

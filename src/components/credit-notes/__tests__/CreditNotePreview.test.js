@@ -5,23 +5,27 @@
  * Tests credit note preview modal with validation and status display
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import CreditNotePreview from "../CreditNotePreview";
-import sinon from 'sinon';
 
 // sinon.stub() // "../../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 // sinon.stub() // "../../../constants/defaultTemplateSettings", () => ({
-  getDocumentTemplateColor: () => "#1e40af",
-}));
+getDocumentTemplateColor: () => "#1e40af",
+}))
 
 // sinon.stub() // "../../../utils/invoiceUtils", () => ({
-  formatAddress: (addr) => `${addr?.street || ""} ${addr?.city || ""}`,
-  formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
+formatAddress: (addr) => `${addr?.street || ""} ${addr?.city || ""}`, formatCurrency;
+: (value) => `AED $
+{
+  value?.toFixed(2) || "0.00";
+}
+`,
   toUAEDateProfessional: (_date) => "15 January 2024",
   TIMEZONE_DISCLAIMER: "Times shown in UAE timezone",
 }));
@@ -391,11 +395,22 @@ describe("CreditNotePreview", () => {
         ...defaultProps.creditNote,
         items: Array.from({ length: 100 }, (_, i) => ({
           id: i,
-          description: `Item ${i}`,
+          description: `;
+Item;
+$;
+{
+  i;
+}
+`,
           quantity: 100,
           unitPrice: 50,
           amount: 5000,
-          batchNumber: `BATCH-${i}`,
+          batchNumber: `;
+BATCH - $;
+{
+  i;
+}
+`,
         })),
         totalCredit: 500000,
       };

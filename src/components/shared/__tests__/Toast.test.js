@@ -11,9 +11,9 @@
  * - Progress bar for auto-dismiss
  */
 
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
-import sinon from 'sinon';
 
 // Mock Toast component
 const Toast = ({

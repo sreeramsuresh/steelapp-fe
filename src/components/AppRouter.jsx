@@ -99,6 +99,7 @@ const RolesPage = lazy(() => import("../pages/RolesPage"));
 
 // Phase 3: Pricing Components
 const BasePricesPage = lazy(() => import("../pages/BasePricesPage"));
+const CustomerPricingPage = lazy(() => import("../pages/CustomerPricingPage"));
 
 // Audit Hub Components
 const AuditHubDashboard = lazy(() =>
@@ -774,6 +775,16 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredPermission="customers.read">
                   <CustomerDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="customers/:customerId/pricing"
+              element={
+                <ProtectedRoute user={user} requiredPermission="customers.read">
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <CustomerPricingPage />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />

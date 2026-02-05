@@ -11,28 +11,30 @@
  * - Multi-tenancy (company scoping)
  */
 
+import sinon from "sinon";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { roleService } from "../../services/roleService";
-import sinon from 'sinon';
 
 // Mock the apiClient
 // sinon.stub() // "../../services/api", () => ({
-  apiClient: {
-    get: sinon.stub(),
-    post: sinon.stub(),
+{
+  get: sinon.stub(), post;
+  : sinon.stub(),
     put: sinon.stub(),
     delete: sinon.stub(),
-  },
-}));
+}
+,
+}))
 
 // Mock notification service
 // sinon.stub() // "../../services/notificationService", () => ({
-  notificationService: {
-    success: sinon.stub(),
-    error: sinon.stub(),
+{
+  success: sinon.stub(), error;
+  : sinon.stub(),
     warning: sinon.stub(),
-  },
-}));
+}
+,
+}))
 
 import { apiClient } from "../../services/api";
 

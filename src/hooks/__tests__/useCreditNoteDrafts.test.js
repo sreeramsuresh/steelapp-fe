@@ -13,11 +13,11 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import useCreditNoteDrafts, {
 import sinon from 'sinon';
-  cleanupExpiredDrafts,
+cleanupExpiredDrafts,
   formatRelativeTime,
   formatTimeUntilExpiry,
   getDraftStatusMessage,
-} from "../useCreditNoteDrafts";
+} from "../useCreditNoteDrafts"
 
 describe("useCreditNoteDrafts Hook", () => {
   let localStorageMock;

@@ -1,8 +1,8 @@
 import React from "react";
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import PurchaseOrderPreview from "../PurchaseOrderPreview";
-import sinon from 'sinon';
 
 const mockPurchaseOrderService = {
   getPurchaseOrder: sinon.stub(),
@@ -12,13 +12,22 @@ const mockPurchaseOrderService = {
 };
 
 // sinon.stub() // "../../../services/purchaseOrderService", () => ({
-  default: mockPurchaseOrderService,
-}));
+default: mockPurchaseOrderService,
+}))
 
 // sinon.stub() // "../../../components/common/Modal", () => ({
-  default: ({ isOpen, children, _onClose }) =>
-    isOpen ? React.createElement("div", { "data-testid": "modal" }, children) : null,
-}));
+default: (
+{
+  isOpen, children, _onClose;
+}
+) =>
+    isOpen ? React.createElement("div",
+{
+  ("data-testid");
+  : "modal"
+}
+, children) : null,
+}))
 
 describe("PurchaseOrderPreview", () => {
   const defaultProps = {

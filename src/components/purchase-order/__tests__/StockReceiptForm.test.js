@@ -1,7 +1,7 @@
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import StockReceiptForm from "../StockReceiptForm";
-import sinon from 'sinon';
 
 const mockGrnService = {
   createGrn: sinon.stub(),
@@ -14,8 +14,8 @@ const mockStockBatchService = {
 
 // sinon.stub() // "../../../services/grnService", () => ({ default: mockGrnService }));
 // sinon.stub() // "../../../services/stockBatchService", () => ({
-  default: mockStockBatchService,
-}));
+default: mockStockBatchService,
+}))
 
 describe("StockReceiptForm", () => {
   const defaultProps = {

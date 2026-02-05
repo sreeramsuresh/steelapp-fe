@@ -5,11 +5,11 @@
  * Tests stock reservation form with warehouse/product selection, batch allocation, and validation
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import ReservationForm from "../ReservationForm";
-import sinon from 'sinon';
 
 const mockWarehouseService = {
   getAll: sinon.stub(),
@@ -29,31 +29,31 @@ const mockBatchReservationService = {
 };
 
 // sinon.stub() // "../../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 // sinon.stub() // "../../../services/warehouseService", () => ({
-  warehouseService: mockWarehouseService,
-}));
+warehouseService: mockWarehouseService,
+}))
 
 // sinon.stub() // "../../../services/dataService", () => ({
-  productService: mockProductService,
-}));
+productService: mockProductService,
+}))
 
 // sinon.stub() // "../../../services/stockMovementService", () => ({
-  stockMovementService: mockStockMovementService,
-}));
+stockMovementService: mockStockMovementService,
+}))
 
 // sinon.stub() // "../../../services/batchReservationService", () => ({
-  batchReservationService: mockBatchReservationService,
-}));
+batchReservationService: mockBatchReservationService,
+}))
 
 // sinon.stub() // "../../../utils/productSsotValidation", () => ({
-  validateSsotPattern: (_name) => ({
+validateSsotPattern: (_name) => ({
     isValid: true,
     pattern: "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
   }),
-}));
+}))
 
 describe("ReservationForm", () => {
   let defaultProps;

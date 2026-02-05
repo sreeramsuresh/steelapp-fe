@@ -1,15 +1,15 @@
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import AllocationDrawer from "../AllocationDrawer";
-import sinon from 'sinon';
 
 const mockAllocationService = {
   allocateStock: sinon.stub(),
 };
 
 // sinon.stub() // "../../../services/allocationService", () => ({
-  default: mockAllocationService,
-}));
+default: mockAllocationService,
+}))
 
 describe("AllocationDrawer", () => {
   const defaultProps = {

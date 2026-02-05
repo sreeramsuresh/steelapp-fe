@@ -5,29 +5,38 @@
  * Tests payment drawer UI, payment history, receipts, and void management
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import PaymentDrawer from "../PaymentDrawer";
-import sinon from 'sinon';
 
 // sinon.stub() // "../AddPaymentForm", () => ({
-  default: ({ onSave, onCancel: _onCancel }) => (
+default: (
+{
+  onSave, onCancel;
+  : _onCancel
+}
+) => (
     <div data-testid="add-payment-form">
-      <button type="button" onClick={() => onSave({ amount: 1000 })}>
+      <button
+type = "button";
+onClick={() => onSave({ amount: 1000 }
+)}>
         Save Payment
       </button>
-      <button type="button" onClick={_onCancel}>
-        Cancel
-      </button>
+      <button
+type = "button";
+onClick = { _onCancel } > Cancel;
+</button>
     </div>
   ),
-}));
+}))
 
 // sinon.stub() // "../../../utils/invoiceUtils", () => ({
-  formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
-  formatDate: (_date) => "2024-01-15",
-}));
+formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`, formatDate;
+: (_date) => "2024-01-15",
+}))
 
 describe("PaymentDrawer", () => {
   let defaultProps;

@@ -5,19 +5,21 @@
  * Tests warehouse selection with stock availability display
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import { createMockArray, createMockWarehouse } from "../../../test/mock-factories";
 import WarehouseStockSelector from "../WarehouseStockSelector";
-import sinon from 'sinon';
 
 // Mock the API service
 // sinon.stub() // "../../../services/api", () => ({
-  default: {
-    get: sinon.stub(),
-  },
-}));
+default:
+{
+  get: sinon.stub(),
+}
+,
+}))
 
 import api from "../../../services/api";
 

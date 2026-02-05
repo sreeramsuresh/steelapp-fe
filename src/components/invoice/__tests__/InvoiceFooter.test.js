@@ -5,15 +5,15 @@
  * Tests invoice footer with company details and disclaimer
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import InvoiceFooter from "../InvoiceFooter";
-import sinon from 'sinon';
 
 // sinon.stub() // "../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 describe("InvoiceFooter", () => {
   let defaultProps;

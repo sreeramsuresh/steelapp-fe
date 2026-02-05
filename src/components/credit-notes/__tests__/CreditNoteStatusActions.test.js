@@ -5,11 +5,11 @@
  * Tests credit note status transitions, action buttons, and workflow management
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import CreditNoteStatusActions from "../CreditNoteStatusActions";
-import sinon from 'sinon';
 
 const mockCreditNoteService = {
   getAllowedTransitions: sinon.stub(),
@@ -26,27 +26,36 @@ const mockNotificationService = {
 };
 
 // sinon.stub() // "../../../services/creditNoteService", () => ({
-  creditNoteService: mockCreditNoteService,
-}));
+creditNoteService: mockCreditNoteService,
+}))
 
 // sinon.stub() // "../../../services/notificationService", () => ({
-  notificationService: mockNotificationService,
-}));
+notificationService: mockNotificationService,
+}))
 
 // sinon.stub() // "../ConfirmDialog", () => ({
-  default: ({ title, message, onConfirm, onCancel }) => (
+default: (
+{
+  title, message, onConfirm, onCancel;
+}
+) => (
     <div data-testid="confirm-dialog">
-      <h2>{title}</h2>
-      <p>{message}</p>
-      <button type="button" onClick={onConfirm}>
-        Confirm
-      </button>
-      <button type="button" onClick={onCancel}>
-        Cancel
-      </button>
+      <h2>
+{
+  title;
+}
+</h2>
+(<p>{message}</p>) < button;
+type = "button";
+onClick = { onConfirm } > Confirm;
+</button>
+      <button
+type = "button";
+onClick = { onCancel } > Cancel;
+</button>
     </div>
   ),
-}));
+}))
 
 describe("CreditNoteStatusActions", () => {
   let defaultProps;

@@ -8,9 +8,9 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import { AlertCircle, Check, Edit, Trash2 } from "lucide-react";
+import sinon from "sinon";
 import { describe, expect, it, vi } from "vitest";
 import IconButton from "../IconButton";
-import sinon from 'sinon';
 
 describe("IconButton", () => {
   it("should render button element", () => {

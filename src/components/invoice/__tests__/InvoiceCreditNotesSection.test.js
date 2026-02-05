@@ -5,19 +5,21 @@
  * Tests invoice credit notes display and management
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import InvoiceCreditNotesSection from "../InvoiceCreditNotesSection";
-import sinon from 'sinon';
 
 // Mock the API service
 // sinon.stub() // "../../../services/api", () => ({
-  default: {
-    post: sinon.stub(),
-    get: sinon.stub(),
-  },
-}));
+default:
+{
+  post: sinon.stub(), get;
+  : sinon.stub(),
+}
+,
+}))
 
 import api from "../../../services/api";
 

@@ -19,17 +19,17 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ThemeContext } from "../../contexts/ThemeContext";
 import { companyService } from "../../services/companyService";
 import { creditNoteService } from "../../services/creditNoteService";
 import { notificationService } from "../../services/notificationService";
 import CreditNoteList from "../CreditNoteList";
-import sinon from 'sinon';
 
 // Mock services - Must return objects matching the exact export structure
 // sinon.stub() // "../../services/creditNoteService", () => {
-  return {
+return {
     creditNoteService: {
       getAllCreditNotes: sinon.stub(),
       getCreditNote: sinon.stub(),
@@ -41,18 +41,18 @@ import sinon from 'sinon';
       getAllowedTransitions: sinon.stub().mockResolvedValue({ allowed_transitions: [], allowedTransitions: [] }),
     },
   };
-});
+})
 
 // sinon.stub() // "../../services/companyService", () => {
-  return {
+return {
     companyService: {
       getCompany: sinon.stub(),
     },
   };
-});
+})
 
 // sinon.stub() // "../../services/notificationService", () => {
-  return {
+return {
     notificationService: {
       success: sinon.stub(),
       error: sinon.stub(),
@@ -60,35 +60,37 @@ import sinon from 'sinon';
       info: sinon.stub(),
     },
   };
-});
+})
 
 // Mock authService to enable permission-gated UI elements
 // sinon.stub() // "../../services/axiosAuthService", () => {
-  return {
+return {
     authService: {
       hasPermission: () => true, // Allow all permission checks
       getCurrentUser: sinon.stub().mockReturnValue({ id: 1, companyId: 1 }),
     },
   };
-});
+})
 
 // sinon.stub() // "../../hooks/useConfirm", () => ({
-  useConfirm: () => ({
+useConfirm: () => ({
     confirm: sinon.stub().mockResolvedValue(true),
     dialogState: { open: false },
     handleConfirm: sinon.stub(),
     handleCancel: sinon.stub(),
   }),
-}));
+}))
 // sinon.stub() // "../../hooks/useCreditNoteDrafts", () => ({
-  default: () => ({
-    allDrafts: [],
-    hasDrafts: false,
+default: () => (
+{
+  allDrafts: [], hasDrafts;
+  : false,
     deleteDraft: sinon.stub(),
     refreshDrafts: sinon.stub(),
-  }),
+}
+),
   getDraftStatusMessage: sinon.stub().mockReturnValue("Draft saved 5 minutes ago"),
-}));
+}))
 
 // Mock data
 const mockCreditNotes = [

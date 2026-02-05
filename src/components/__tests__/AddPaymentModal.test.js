@@ -5,12 +5,12 @@
  * Tests payment modal with form validation, mode selection, and balance calculations
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../test/component-setup";
 import { createMockPayment } from "../../test/mock-factories";
 import AddPaymentModal from "../AddPaymentModal";
-import sinon from 'sinon';
 
 describe("AddPaymentModal", () => {
   let mockOnClose;

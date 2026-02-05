@@ -3,9 +3,9 @@
  */
 
 import { fireEvent, render, screen } from "@testing-library/react";
+import sinon from "sinon";
 import { describe, expect, it, vi } from "vitest";
 import { ThemeContext } from "../../../contexts/ThemeContext";
-import sinon from 'sinon';
 
 const renderWithTheme = (component, isDarkMode = false) => {
   return render(
@@ -14,36 +14,68 @@ const renderWithTheme = (component, isDarkMode = false) => {
 };
 
 // sinon.stub() // "../widgets/BaseWidget", () => ({
-  default: ({ title, children, loading, error, onRefresh }) => (
+default: (
+{
+  title, children, loading, error, onRefresh;
+}
+) => (
     <div data-testid="base-widget">
-      <h3>{title}</h3>
-      {loading && <div data-testid="loading">Loading...</div>}
-      {error && <div data-testid="error">{error}</div>}
-      {!loading && !error && children}
-      {onRefresh && (
-        <button type="button" onClick={onRefresh}>
-          Refresh
-        </button>
-      )}
-    </div>
+      <h3>
+{
+  title;
+}
+</h3>
+{
+  loading && <div data-testid="loading">Loading...</div>;
+}
+{
+  error && <div data-testid="error">{error}</div>;
+}
+{
+  !loading && !error && children;
+}
+{
+  onRefresh && (
+    <button type="button" onClick={onRefresh}>
+      Refresh
+    </button>
+  );
+}
+</div>
   ),
-  WidgetEmptyState: ({ message }) => <div>{message}</div>,
-  MetricValue: ({ value }) => <div>{value}</div>,
-  WidgetListItem: ({ title }) => <div>{title}</div>,
-}));
+  WidgetEmptyState: (
+{
+  message;
+}
+) => <div>
+{
+  message;
+}
+</div>,
+MetricValue: ({ value }) => <div>{value}</div>, WidgetListItem;
+: (
+{
+  title;
+}
+) => <div>
+{
+  title;
+}
+</div>,
+}))
 
 // sinon.stub() // "../charts/RechartsWrapper", () => ({
-  BarChartWrapper: () => <div data-testid="bar-chart" />,
-  LineChartWrapper: () => <div data-testid="line-chart" />,
+BarChartWrapper: () => <div data-testid="bar-chart" />, LineChartWrapper;
+: () => <div data-testid="line-chart" />,
   PieChartWrapper: () => <div data-testid="pie-chart" />,
   DonutChartWrapper: () => <div data-testid="donut-chart" />,
-}));
+}))
 
 // sinon.stub() // "../charts/EChartsWrapper", () => ({
-  GaugeChartWrapper: () => <div data-testid="gauge-chart" />,
-  TreemapChartWrapper: () => <div data-testid="treemap-chart" />,
+GaugeChartWrapper: () => <div data-testid="gauge-chart" />, TreemapChartWrapper;
+: () => <div data-testid="treemap-chart" />,
   FunnelChartWrapper: () => <div data-testid="funnel-chart" />,
-}));
+}))
 
 import RevenueKPIWidget from "../widgets/financial/RevenueKPIWidget";
 import InventoryHealthWidget from "../widgets/inventory/InventoryHealthWidget";

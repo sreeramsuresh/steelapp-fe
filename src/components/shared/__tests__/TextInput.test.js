@@ -7,9 +7,9 @@
 
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import sinon from "sinon";
 import { describe, expect, it, vi } from "vitest";
 import TextInput from "../TextInput";
-import sinon from 'sinon';
 
 describe("TextInput", () => {
   let mockOnChange;

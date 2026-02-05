@@ -7,13 +7,13 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useConfirm } from "../../hooks/useConfirm";
 import { purchaseOrderService } from "../../services/purchaseOrderService";
 import { stockMovementService } from "../../services/stockMovementService";
 import StockMovement from "../StockMovement";
-import sinon from 'sinon';
 
 // sinon.stub() // "../../services/stockMovementService");
 // sinon.stub() // "../../services/purchaseOrderService");

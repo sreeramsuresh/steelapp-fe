@@ -5,22 +5,24 @@
  * Tests invoice stock movements tracking
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import InvoiceStockMovements from "../InvoiceStockMovements";
-import sinon from 'sinon';
 
 // sinon.stub() // "../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 // Mock the API service
 // sinon.stub() // "../../../services/api", () => ({
-  default: {
-    get: sinon.stub(),
-  },
-}));
+default:
+{
+  get: sinon.stub(),
+}
+,
+}))
 
 import api from "../../../services/api";
 

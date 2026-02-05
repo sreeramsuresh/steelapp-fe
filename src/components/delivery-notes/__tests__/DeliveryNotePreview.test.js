@@ -5,28 +5,28 @@
  * Tests delivery note preview modal with status display and delivery details
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import DeliveryNotePreview from "../DeliveryNotePreview";
-import sinon from 'sinon';
 
 // sinon.stub() // "../../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 // sinon.stub() // "../../../constants/defaultTemplateSettings", () => ({
-  getDocumentTemplateColor: () => "#1e40af",
-}));
+getDocumentTemplateColor: () => "#1e40af",
+}))
 
 // sinon.stub() // "../../../utils/invoiceUtils", () => ({
-  toUAEDateProfessional: (_date) => "15 January 2024",
-  TIMEZONE_DISCLAIMER: "Times shown in UAE timezone",
-}));
+toUAEDateProfessional: (_date) => "15 January 2024", TIMEZONE_DISCLAIMER;
+: "Times shown in UAE timezone",
+}))
 
 // sinon.stub() // "../../../utils/recordUtils", () => ({
-  validateDeliveryNoteForDownload: () => ({ isValid: true, warnings: [] }),
-}));
+validateDeliveryNoteForDownload: () => ({ isValid: true, warnings: [] }),
+}))
 
 describe("DeliveryNotePreview", () => {
   let defaultProps;

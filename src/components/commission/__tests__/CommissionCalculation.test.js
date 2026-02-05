@@ -1,7 +1,7 @@
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import CommissionCalculation from "../CommissionCalculation";
-import sinon from 'sinon';
 
 const mockCommissionService = {
   calculateCommission: sinon.stub(),
@@ -9,8 +9,8 @@ const mockCommissionService = {
 };
 
 // sinon.stub() // "../../../services/commissionService", () => ({
-  default: mockCommissionService,
-}));
+default: mockCommissionService,
+}))
 
 describe("CommissionCalculation", () => {
   beforeEach(() => {

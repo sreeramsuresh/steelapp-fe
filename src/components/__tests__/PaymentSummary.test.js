@@ -12,66 +12,71 @@
  */
 
 import { screen } from "@testing-library/react";
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../test/component-setup";
 import PaymentSummary from "../PaymentSummary";
-import sinon from 'sinon';
 
 // Mock ThemeContext
 // sinon.stub() // "../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 // Mock utilities
 // sinon.stub() // "../../utils/invoiceUtils", () => ({
-  formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
-}));
+formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
+}))
 
 // sinon.stub() // "../../utils/paymentUtils", () => ({
-  calculateBalanceDue: (total, payments) => {
-    const paid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
-    return Math.max(0, total - paid);
-  },
-  calculateTotalPaid: (payments) => payments.reduce((sum, p) => sum + (p.amount || 0), 0),
-  calculatePaymentStatus: (total, payments) => {
-    const paid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
-    if (paid >= total) return "fully_paid";
-    if (paid > 0) return "partially_paid";
-    return "unpaid";
-  },
-  getPaymentStatusConfig: (status) => {
-    const configs = {
-      fully_paid: {
-        label: "Fully Paid",
-        bgLight: "bg-green-50",
-        textLight: "text-green-700",
-        borderLight: "border-green-300",
-        bgDark: "bg-green-900/30",
-        textDark: "text-green-400",
-        borderDark: "border-green-700",
-      },
-      partially_paid: {
-        label: "Partially Paid",
-        bgLight: "bg-yellow-50",
-        textLight: "text-yellow-700",
-        borderLight: "border-yellow-300",
-        bgDark: "bg-yellow-900/30",
-        textDark: "text-yellow-400",
-        borderDark: "border-yellow-700",
-      },
-      unpaid: {
-        label: "Not Paid",
-        bgLight: "bg-red-50",
-        textLight: "text-red-700",
-        borderLight: "border-red-300",
-        bgDark: "bg-red-900/30",
-        textDark: "text-red-400",
-        borderDark: "border-red-700",
-      },
-    };
-    return configs[status] || configs.unpaid;
-  },
-}));
+calculateBalanceDue: (total, payments) => {
+  const paid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+  return Math.max(0, total - paid);
+},
+  calculateTotalPaid;
+: (payments) => payments.reduce((sum, p) => sum + (p.amount || 0), 0),
+  calculatePaymentStatus: (total, payments) =>
+{
+  const paid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+  if (paid >= total) return "fully_paid";
+  if (paid > 0) return "partially_paid";
+  return "unpaid";
+}
+,
+  getPaymentStatusConfig: (status) =>
+{
+  const configs = {
+    fully_paid: {
+      label: "Fully Paid",
+      bgLight: "bg-green-50",
+      textLight: "text-green-700",
+      borderLight: "border-green-300",
+      bgDark: "bg-green-900/30",
+      textDark: "text-green-400",
+      borderDark: "border-green-700",
+    },
+    partially_paid: {
+      label: "Partially Paid",
+      bgLight: "bg-yellow-50",
+      textLight: "text-yellow-700",
+      borderLight: "border-yellow-300",
+      bgDark: "bg-yellow-900/30",
+      textDark: "text-yellow-400",
+      borderDark: "border-yellow-700",
+    },
+    unpaid: {
+      label: "Not Paid",
+      bgLight: "bg-red-50",
+      textLight: "text-red-700",
+      borderLight: "border-red-300",
+      bgDark: "bg-red-900/30",
+      textDark: "text-red-400",
+      borderDark: "border-red-700",
+    },
+  };
+  return configs[status] || configs.unpaid;
+}
+,
+}))
 
 describe("PaymentSummary Component", () => {
   let defaultProps;

@@ -1,7 +1,7 @@
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import TransferForm from "../TransferForm";
-import sinon from 'sinon';
 
 const mockStockMovementService = {
   createTransfer: sinon.stub(),
@@ -11,8 +11,8 @@ const mockStockMovementService = {
 };
 
 // sinon.stub() // "../../../services/stockMovementService", () => ({
-  default: mockStockMovementService,
-}));
+default: mockStockMovementService,
+}))
 
 describe("TransferForm", () => {
   const defaultProps = {

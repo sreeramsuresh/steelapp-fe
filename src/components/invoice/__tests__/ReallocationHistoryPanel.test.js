@@ -5,36 +5,60 @@
  * Tests batch reallocation history display and interaction
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import ReallocationHistoryPanel from "../ReallocationHistoryPanel";
-import sinon from 'sinon';
 
 const mockApiClient = {
   get: sinon.stub(),
 };
 
 // sinon.stub() // "../../services/apiClient", () => ({
-  default: mockApiClient,
-}));
+default: mockApiClient,
+}))
 
 // sinon.stub() // "../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 // sinon.stub() // "../../components/ui/badge", () => ({
-  Badge: ({ children, className }) => <span className={className}>{children}</span>,
-}));
+Badge: ({ children, className }) => <span className={className}>{children}</span>,
+}))
 
 // sinon.stub() // "../../components/ui/table", () => ({
-  Table: ({ children }) => <table>{children}</table>,
-  TableHeader: ({ children }) => <thead>{children}</thead>,
-  TableBody: ({ children }) => <tbody>{children}</tbody>,
-  TableRow: ({ children }) => <tr>{children}</tr>,
-  TableHead: ({ children }) => <th>{children}</th>,
-  TableCell: ({ children }) => <td>{children}</td>,
-}));
+Table: ({ children }) => <table>{children}</table>, TableHeader;
+: (
+{
+  children;
+}
+) => <thead>
+{
+  children;
+}
+</thead>,
+TableBody: ({ children }) => <tbody>{children}</tbody>, TableRow;
+: (
+{
+  children;
+}
+) => <tr>
+{
+  children;
+}
+</tr>,
+TableHead: ({ children }) => <th>{children}</th>, TableCell;
+: (
+{
+  children;
+}
+) => <td>
+{
+  children;
+}
+</td>,
+}))
 
 describe("ReallocationHistoryPanel", () => {
   let mockHistory;

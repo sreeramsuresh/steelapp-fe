@@ -7,10 +7,10 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import sinon from "sinon";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as batchReservationService from "../../../services/batchReservationService";
 import BatchAllocationPanel from "../BatchAllocationPanel";
-import sinon from 'sinon';
 
 // sinon.stub() // "../../../services/batchReservationService");
 

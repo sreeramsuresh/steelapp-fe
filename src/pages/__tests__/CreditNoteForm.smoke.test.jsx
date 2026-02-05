@@ -23,6 +23,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ThemeContext } from "../../contexts/ThemeContext";
 import { companyService } from "../../services/companyService";
@@ -30,11 +31,10 @@ import { creditNoteService } from "../../services/creditNoteService";
 import { invoiceService } from "../../services/invoiceService";
 import { notificationService } from "../../services/notificationService";
 import CreditNoteForm from "../CreditNoteForm";
-import sinon from 'sinon';
 
 // Mock services - Must return objects matching the exact export structure
 // sinon.stub() // "../../services/creditNoteService", () => {
-  return {
+return {
     creditNoteService: {
       getNextCreditNoteNumber: sinon.stub(),
       getCreditNote: sinon.stub(),
@@ -46,27 +46,27 @@ import sinon from 'sinon';
       getAllowedTransitions: sinon.stub().mockResolvedValue({ allowed_transitions: [], allowedTransitions: [] }),
     },
   };
-});
+})
 
 // sinon.stub() // "../../services/invoiceService", () => {
-  return {
+return {
     invoiceService: {
       getInvoice: sinon.stub(),
       searchForCreditNote: sinon.stub(),
     },
   };
-});
+})
 
 // sinon.stub() // "../../services/companyService", () => {
-  return {
+return {
     companyService: {
       getCompany: sinon.stub(),
     },
   };
-});
+})
 
 // sinon.stub() // "../../services/notificationService", () => {
-  return {
+return {
     notificationService: {
       success: sinon.stub(),
       error: sinon.stub(),
@@ -74,20 +74,24 @@ import sinon from 'sinon';
       info: sinon.stub(),
     },
   };
-});
+})
 // sinon.stub() // "../../hooks/useCreditNoteDrafts", () => ({
-  default: () => ({
-    saveDraft: sinon.stub(),
-    getDraft: sinon.stub(),
+default: () => (
+{
+  saveDraft: sinon.stub(), getDraft;
+  : sinon.stub(),
     deleteDraft: sinon.stub(),
     hasDraftForInvoice: sinon.stub().mockReturnValue(false),
-    checkConflict: sinon.stub().mockReturnValue({ type: null }),
+    checkConflict: sinon.stub().mockReturnValue(
+  type: null;
+  ),
     setPendingSave: sinon.stub(),
     clearPendingSave: sinon.stub(),
     refreshDrafts: sinon.stub(),
-  }),
+}
+),
   getDraftStatusMessage: sinon.stub().mockReturnValue("Draft saved"),
-}));
+}))
 
 // Mock data
 const mockInvoice = {

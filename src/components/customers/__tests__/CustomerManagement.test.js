@@ -1,7 +1,7 @@
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import CustomerManagement from "../CustomerManagement";
-import sinon from 'sinon';
 
 const mockCustomerService = {
   listCustomers: sinon.stub(),
@@ -11,8 +11,8 @@ const mockCustomerService = {
 };
 
 // sinon.stub() // "../../../services/customerService", () => ({
-  default: mockCustomerService,
-}));
+default: mockCustomerService,
+}))
 
 describe("CustomerManagement", () => {
   beforeEach(() => {

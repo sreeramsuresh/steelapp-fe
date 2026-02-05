@@ -7,12 +7,12 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useNotifications } from "../../contexts/NotificationCenterContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import api from "../../services/axiosApi";
 import InventoryUpload from "../InventoryUpload";
-import sinon from 'sinon';
 
 // sinon.stub() // "../../contexts/ThemeContext");
 // sinon.stub() // "../../contexts/NotificationCenterContext");

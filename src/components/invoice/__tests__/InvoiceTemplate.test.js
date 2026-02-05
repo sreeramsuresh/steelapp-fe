@@ -5,47 +5,82 @@
  * Tests invoice template page layout and composition
  */
 
+import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import InvoiceTemplate from "../InvoiceTemplate";
-import sinon from 'sinon';
 
 // sinon.stub() // "../InvoiceHeader", () => ({
-  default: ({ isFirstPage }) => <div data-testid="invoice-header">Header {isFirstPage ? "(First)" : ""}</div>,
-}));
+default: (
+{
+  isFirstPage;
+}
+) => <div data-testid="invoice-header">Header
+{
+  isFirstPage ? "(First)" : "";
+}
+</div>,
+}))
 
 // sinon.stub() // "../InvoiceItemsTable", () => ({
-  default: ({ items, isFirstPage, isContinued, startingIndex }) => (
+default: (
+{
+  items, isFirstPage, isContinued, startingIndex;
+}
+) => (
     <div data-testid="invoice-items-table">
-      Items {items.length} {isFirstPage ? "(First)" : ""} {isContinued ? "(Continued)" : ""} Start: {startingIndex}
-    </div>
+      Items
+{
+  items.length;
+}
+{
+  isFirstPage ? "(First)" : "";
+}
+{
+  isContinued ? "(Continued)" : "";
+}
+{
+  startingIndex;
+}
+</div>
   ),
-}));
+}))
 
 // sinon.stub() // "../InvoiceTotalsSection", () => ({
-  default: () => <div data-testid="invoice-totals-section">Totals</div>,
-}));
+default: () => <div data-testid="invoice-totals-section">Totals</div>,
+}))
 
 // sinon.stub() // "../InvoiceFooterNotes", () => ({
-  default: () => <div data-testid="invoice-footer-notes">Notes</div>,
-}));
+default: () => <div data-testid="invoice-footer-notes">Notes</div>,
+}))
 
 // sinon.stub() // "../InvoiceSignatureSection", () => ({
-  default: () => <div data-testid="invoice-signature-section">Signature</div>,
-}));
+default: () => <div data-testid="invoice-signature-section">Signature</div>,
+}))
 
 // sinon.stub() // "../InvoiceFooter", () => ({
-  default: ({ pageNumber, totalPages }) => (
+default: (
+{
+  pageNumber, totalPages;
+}
+) => (
     <div data-testid="invoice-footer">
-      Footer {pageNumber} of {totalPages}
-    </div>
+      Footer
+{
+  pageNumber;
+}
+of;
+{
+  totalPages;
+}
+</div>
   ),
-}));
+}))
 
 // sinon.stub() // "../../contexts/ThemeContext", () => ({
-  useTheme: () => ({ isDarkMode: false }),
-}));
+useTheme: () => ({ isDarkMode: false }),
+}))
 
 describe("InvoiceTemplate", () => {
   let defaultProps;

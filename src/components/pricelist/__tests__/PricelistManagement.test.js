@@ -1,7 +1,7 @@
+import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import PricelistManagement from "../PricelistManagement";
-import sinon from 'sinon';
 
 const mockPricelistService = {
   listPricelists: sinon.stub(),
@@ -9,8 +9,8 @@ const mockPricelistService = {
 };
 
 // sinon.stub() // "../../../services/pricelistService", () => ({
-  default: mockPricelistService,
-}));
+default: mockPricelistService,
+}))
 
 describe("PricelistManagement", () => {
   beforeEach(() => {
