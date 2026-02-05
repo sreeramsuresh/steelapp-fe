@@ -225,7 +225,7 @@ describe("supplierService", () => {
       assert.ok(result.success);
       // Verify deleted from localStorage
       const stored = JSON.parse(localStorage.getItem("steel-app-suppliers"));
-      assert.ok(stored.some((s) => s.id === 5));
+      assert.strictEqual(stored.some((s) => s.id === 5), false);
       assert.ok(stored.some((s) => s.id === 6));
     });
   });
@@ -280,13 +280,13 @@ describe("supplierService", () => {
 
       const transformed = transformSupplierFromServer(serverData);
 
-      assert.ok(transformed.name);
-      assert.ok(transformed.email);
-      assert.ok(transformed.phone);
-      assert.ok(transformed.status);
-      assert.ok(transformed.currentCredit);
-      assert.ok(transformed.creditLimit);
-      assert.ok(transformed.defaultCurrency);
+      assert.strictEqual(transformed.name, "Minimal Supplier");
+      assert.strictEqual(transformed.email, "");
+      assert.strictEqual(transformed.phone, "");
+      assert.strictEqual(transformed.status, "ACTIVE");
+      assert.strictEqual(transformed.currentCredit, 0);
+      assert.strictEqual(transformed.creditLimit, 0);
+      assert.strictEqual(transformed.defaultCurrency, "AED");
     });
 
     test("should return null for null input", () => {

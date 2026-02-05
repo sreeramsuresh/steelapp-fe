@@ -586,13 +586,13 @@ describe("supplierBillService", () => {
       getStub.resolves(mockBlob);
 
       // Mock window.URL and document methods
-      // Skipped: global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
+      // Skipped: global.URL.createObjectURL = sinon.stub().returns("blob:mock-url");
       global.URL.revokeObjectURL = sinon.stub();
-      document.createElement = vi.fn(() => ({
+      document.createElement = sinon.stub().returns({
         href: "",
         download: "",
         click: sinon.stub(),
-      }));
+      });
       document.body.appendChild = sinon.stub();
       document.body.removeChild = sinon.stub();
 
@@ -667,8 +667,9 @@ describe("supplierBillService", () => {
 
       await supplierBillService.create(billData);
 
-      assert.ok(callArgs).toHaveProperty("supplierId", 1);
-      assert.ok(callArgs).toHaveProperty("supplierInvoiceNumber", "INV-001");
+      const callArgs = postStub.firstCall.args[1];
+      assert.strictEqual(callArgs.supplierId, 1);
+      assert.strictEqual(callArgs.supplierInvoiceNumber, "INV-001");
     });
 
     test("should handle snake_case from server response", async () => {
@@ -748,8 +749,8 @@ describe("supplierBillService", () => {
 
       const result = await supplierBillService.getById(1);
 
-      assert.ok(result.items[0].vatRate);
-      assert.ok(result.items[0].vatCategory);
+      assert.strictEqual(result.items[0].vatRate, 0);
+      assert.strictEqual(result.items[0].vatCategory, "ZERO_RATED");
     });
 
     test("should track blocked VAT items", async () => {
@@ -831,7 +832,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.getById(1);
 
       assert.ok(result.paymentStatus);
-      assert.ok(result.balanceDue);
+      assert.strictEqual(result.balanceDue, 0);
     });
   });
 
@@ -920,7 +921,7 @@ describe("supplierBillService", () => {
 
       const result = await supplierBillService.getById(1);
 
-      assert.ok(result.vatAmount);
+      assert.strictEqual(result.vatAmount, 0);
     });
 
     test("should handle decimal currency values", async () => {

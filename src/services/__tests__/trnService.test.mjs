@@ -118,7 +118,9 @@ describe("trnService", () => {
 
       sinon.stub(apiClient, 'post').rejects(error);
 
-      await assert.rejects(() => trnService.validateRemote("INVALID"), Error);
+      const result = await trnService.validateRemote("INVALID");
+      assert.strictEqual(result.success, false);
+      assert.strictEqual(result.error, "Verification failed");
     });
   });
 
@@ -142,7 +144,9 @@ describe("trnService", () => {
       const error = new Error("Service Error");
       sinon.stub(apiClient, 'get').rejects(error);
 
-      await assert.rejects(() => trnService.getFormats(), Error);
+      const result = await trnService.getFormats();
+      assert.strictEqual(result.success, true);
+      assert.ok(Array.isArray(result.formats));
     });
   });
 
