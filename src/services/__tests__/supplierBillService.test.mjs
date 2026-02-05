@@ -424,7 +424,7 @@ describe("supplierBillService", () => {
 
       const result = await supplierBillService.voidPayment(1, 123, "Erroneous payment");
 
-      assert.ok(result.amountPaid);
+      assert.strictEqual(result.amountPaid, 0);
       sinon.assert.calledWith(postStub, "/supplier-bills/1/payments/123/void", {
         reason: "Erroneous payment",
       });
