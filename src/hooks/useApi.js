@@ -232,8 +232,11 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
         // Error already handled in execute
       });
     }
+    // Note: execute is intentionally NOT in the dependency array.
+    // execute is stable (created with useCallback) and should not trigger this effect.
+    // Only immediate should trigger the mount effect since it controls whether to fetch.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [execute, immediate]);
+  }, [immediate]);
 
   // Separate effect for dependency changes (after initial mount)
   const isFirstRenderRef = useRef(true);
@@ -250,7 +253,11 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
         // Error already handled in execute
       });
     }
-  }, [execute, immediate, ...dependencies]);
+    // Note: execute is intentionally NOT in the dependency array to prevent infinite loops.
+    // execute is created with useCallback and is stable across renders (only changes if apiFunction changes).
+    // Including it would create: dependencies change → effect runs → setData → re-render → dependencies might change again → loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [immediate, ...dependencies]);
 
   const reset = useCallback(() => {
     setData(initialData);
