@@ -3,16 +3,28 @@
  * Tests VAT rate management operations
  */
 
+import '../../__tests__/init.mjs';
+
 import { test, describe, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert';
 import sinon from 'sinon';
-
 
 import { api } from "../api.js";
 import vatRateService from "../vatRateService.js";
 
 describe("vatRateService", () => {
+  let getStub, postStub, putStub, patchStub, deleteStub;
+
   beforeEach(() => {
+    sinon.restore();
+    getStub = sinon.stub(api, 'get');
+    postStub = sinon.stub(api, 'post');
+    putStub = sinon.stub(api, 'put');
+    patchStub = sinon.stub(api, 'patch');
+    deleteStub = sinon.stub(api, 'delete');
+  });
+
+  afterEach(() => {
     sinon.restore();
   });
 
@@ -23,17 +35,17 @@ describe("vatRateService", () => {
         { id: 2, rate: 0, category: "zero", description: "Zero rated" },
       ];
 
-      api.get.mockResolvedValueOnce(mockRates);
+      getStub.resolves(mockRates);
 
       const result = await vatRateService.getAll();
 
       assert.ok(result);
-      sinon.assert.calledWith(api.get, "/vat-rates");
+      sinon.assert.calledWith(getStub, "/vat-rates");
     });
 
     test("should handle response with rates property", async () => {
       const mockRates = [{ id: 1, rate: 5 }];
-      api.get.mockResolvedValueOnce({ rates: mockRates });
+      getStub.resolves({ rates: mockRates });
 
       const result = await vatRateService.getAll();
 
@@ -42,7 +54,7 @@ describe("vatRateService", () => {
 
     test("should handle response with data property", async () => {
       const mockRates = [{ id: 1, rate: 5 }];
-      api.get.mockResolvedValueOnce({ data: mockRates });
+      getStub.resolves({ data: mockRates });
 
       const result = await vatRateService.getAll();
 
@@ -50,7 +62,7 @@ describe("vatRateService", () => {
     });
 
     test("should return empty array on error", async () => {
-      api.get.mockRejectedValueOnce(new Error("Network error"));
+      getStub.rejects(new Error("Network error"));
 
       assert.rejects(vatRateService.getAll(), Error);
     });
@@ -59,16 +71,16 @@ describe("vatRateService", () => {
   describe("getById", () => {
     test("should get VAT rate by ID", async () => {
       const mockRate = { id: 1, rate: 5, category: "standard", description: "Standard rate" };
-      api.get.mockResolvedValueOnce(mockRate);
+      getStub.resolves(mockRate);
 
       const result = await vatRateService.getById(1);
 
       assert.ok(result);
-      sinon.assert.calledWith(api.get, "/vat-rates/1");
+      sinon.assert.calledWith(getStub, "/vat-rates/1");
     });
 
     test("should handle rate not found", async () => {
-      api.get.mockRejectedValueOnce(new Error("Not found"));
+      getStub.rejects(new Error("Not found"));
 
       assert.rejects(vatRateService.getById(999), Error);
     });
@@ -79,17 +91,17 @@ describe("vatRateService", () => {
       const rateData = { rate: 15, category: "standard", description: "Standard VAT" };
       const mockResponse = { id: 3, ...rateData };
 
-      api.post.mockResolvedValueOnce(mockResponse);
+      postStub.resolves(mockResponse);
 
       const result = await vatRateService.create(rateData);
 
       assert.ok(result);
-      sinon.assert.calledWith(api.post, "/vat-rates", rateData);
+      sinon.assert.calledWith(postStub, "/vat-rates", rateData);
     });
 
     test("should handle creation errors", async () => {
       const error = new Error("Invalid rate");
-      api.post.mockRejectedValueOnce(error);
+      postStub.rejects(error);
 
       assert.rejects(vatRateService.create({}), Error);
     });
@@ -100,17 +112,17 @@ describe("vatRateService", () => {
       const rateData = { rate: 10, description: "Updated rate" };
       const mockResponse = { id: 1, ...rateData };
 
-      api.put.mockResolvedValueOnce(mockResponse);
+      putStub.resolves(mockResponse);
 
       const result = await vatRateService.update(1, rateData);
 
       assert.ok(result);
-      sinon.assert.calledWith(api.put, "/vat-rates/1", rateData);
+      sinon.assert.calledWith(putStub, "/vat-rates/1", rateData);
     });
 
     test("should handle update errors", async () => {
       const error = new Error("Rate in use");
-      api.put.mockRejectedValueOnce(error);
+      putStub.rejects(error);
 
       assert.rejects(vatRateService.update(1, {}), Error);
     });
@@ -120,12 +132,12 @@ describe("vatRateService", () => {
     test("should toggle VAT rate active status", async () => {
       const mockResponse = { id: 1, rate: 5, isActive: false };
 
-      api.patch.mockResolvedValueOnce(mockResponse);
+      patchStub.resolves(mockResponse);
 
       const result = await vatRateService.toggle(1);
 
       assert.ok(result);
-      sinon.assert.calledWith(api.patch, "/vat-rates/1/toggle");
+      sinon.assert.calledWith(patchStub, "/vat-rates/1/toggle");
     });
   });
 
@@ -133,17 +145,17 @@ describe("vatRateService", () => {
     test("should delete VAT rate", async () => {
       const mockResponse = { id: 1, deleted: true };
 
-      api.delete.mockResolvedValueOnce(mockResponse);
+      deleteStub.resolves(mockResponse);
 
       const result = await vatRateService.delete(1);
 
       assert.ok(result);
-      sinon.assert.calledWith(api.delete, "/vat-rates/1");
+      sinon.assert.calledWith(deleteStub, "/vat-rates/1");
     });
 
     test("should handle deletion errors", async () => {
       const error = new Error("Rate in use");
-      api.delete.mockRejectedValueOnce(error);
+      deleteStub.rejects(error);
 
       assert.rejects(vatRateService.delete(1), Error);
     });
@@ -152,7 +164,7 @@ describe("vatRateService", () => {
   describe("Error Handling", () => {
     test("should propagate API errors", async () => {
       const error = new Error("Network error");
-      api.get.mockRejectedValueOnce(error);
+      getStub.rejects(error);
 
       assert.rejects(vatRateService.getAll(), Error);
     });

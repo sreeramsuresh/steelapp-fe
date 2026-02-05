@@ -2,6 +2,8 @@
  * Template Service Unit Tests
  * Tests template management operations (invoices, delivery notes, etc.)
  */
+import '../../__tests__/init.mjs';
+
 
 import { test, describe, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert';

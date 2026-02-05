@@ -2,6 +2,8 @@
  * Supplier Bill Service Unit Tests
  * Tests supplier bill CRUD, VAT compliance, payment tracking, approval workflows
  */
+import '../../__tests__/init.mjs';
+
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 

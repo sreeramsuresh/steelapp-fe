@@ -2,6 +2,8 @@
  * Credit Note Service Unit Tests
  * ✅ Tests CRUD operations (list, create, get, update, delete)
  * ✅ Tests financial document handling (UAE VAT, totals calculation)
+import '../../__tests__/init.mjs';
+
  * ✅ Tests data transformation (camelCase ↔ snake_case)
  * ✅ Tests pagination and search filtering
  * ✅ Tests validation error cases

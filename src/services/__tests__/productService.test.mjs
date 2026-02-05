@@ -2,6 +2,8 @@
  * Product Service Unit Tests
  * ✅ Comprehensive test coverage for productService
  * ✅ Tests CRUD operations, search, filtering, stock management
+import '../../__tests__/init.mjs';
+
  * ✅ Covers data transformation, analytics, and file downloads
  * ✅ 100% coverage target for productService.js
  */

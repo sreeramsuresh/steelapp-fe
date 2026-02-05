@@ -2,6 +2,8 @@
  * Quotation Service Unit Tests
  * ✅ Tests CRUD operations for sales quotations
  * ✅ Tests status transitions (draft → approved → expired)
+import '../../__tests__/init.mjs';
+
  * ✅ Tests conversion to invoice workflow
  * ✅ Tests PDF generation
  * ✅ 100% coverage target for quotationService.js

@@ -2,6 +2,8 @@
  * Purchase Order Service Unit Tests
  * ✅ Tests CRUD operations for purchase orders
  * ✅ Tests status transitions (draft → approved → received → closed)
+import '../../__tests__/init.mjs';
+
  * ✅ Tests stock status and transit status updates
  * ✅ Tests GRN/stock receipt workflows
  * ✅ 100% coverage target for purchaseOrderService.js

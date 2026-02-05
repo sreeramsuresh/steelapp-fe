@@ -2,6 +2,8 @@
  * Supplier Service Unit Tests
  * ✅ Tests supplier CRUD operations
  * ✅ Tests data transformation (snake_case ↔ camelCase)
+import '../../__tests__/init.mjs';
+
  * ✅ Tests multi-tenancy isolation
  * ✅ Tests localStorage fallback for offline support
  * ✅ 100% coverage target for supplierService.js

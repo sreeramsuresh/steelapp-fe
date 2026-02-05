@@ -2,6 +2,8 @@
  * Payables Service Unit Tests
  * Tests invoice and PO payment tracking, status management
  */
+import '../../__tests__/init.mjs';
+
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 

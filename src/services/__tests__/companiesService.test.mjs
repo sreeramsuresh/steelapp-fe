@@ -2,6 +2,8 @@
  * Companies Service Unit Tests
  * ✅ Tests company/tenant management operations
  * ✅ Tests company CRUD operations
+import '../../__tests__/init.mjs';
+
  * ✅ Tests file uploads (logo, brandmark, seal)
  * ✅ Tests template settings management
  * ✅ Tests company isolation and multi-tenancy

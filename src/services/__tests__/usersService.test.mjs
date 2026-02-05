@@ -2,6 +2,8 @@
  * Users Service Unit Tests (userAdminAPI wrapper)
  * ✅ Tests user CRUD operations (create, read, update, delete)
  * ✅ Tests user listing with pagination and filters
+import '../../__tests__/init.mjs';
+
  * ✅ Tests password management operations
  * ✅ Tests error handling (network, validation, not found)
  * ✅ Tests multi-tenancy enforcement (company_id filtering)

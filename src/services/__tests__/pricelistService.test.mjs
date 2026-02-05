@@ -2,6 +2,8 @@
  * Pricelist Service Unit Tests
  * ✅ Tests pricelist CRUD operations
  * ✅ Tests pricelist item management
+import '../../__tests__/init.mjs';
+
  * ✅ Tests bulk operations and price calculations
  * ✅ Tests percentage adjustments and copying
  * ✅ 100% coverage target for pricelistService.js
@@ -14,8 +16,16 @@ import api from "../api.js";
 import pricelistService from "../pricelistService.js";
 
 describe("pricelistService", () => {
+  let getStub;
+  let postStub;
+  let putStub;
+  let deleteStub;
   beforeEach(() => {
     sinon.restore();
+    getStub = sinon.stub(api, 'get');
+    postStub = sinon.stub(api, 'post');
+    putStub = sinon.stub(api, 'put');
+    deleteStub = sinon.stub(api, 'delete');
   });
 
   describe("getAll", () => {
@@ -24,17 +34,17 @@ describe("pricelistService", () => {
         { id: 1, name: "Standard Pricing", currency: "AED", status: "ACTIVE" },
         { id: 2, name: "Bulk Pricing", currency: "AED", status: "ACTIVE" },
       ];
-      api.get.mockResolvedValueOnce(mockPricelists);
+      getStub.resolves(mockPricelists);
 
       const result = await pricelistService.getAll({ page: 1 });
 
       assert.ok(result);
       assert.ok(result[0].name);
-      sinon.assert.calledWith(api.get, "/pricelists", { params: { page: 1 } });
+      sinon.assert.calledWith(getStub, "/pricelists", { params: { page: 1 } });
     });
 
     test("should handle empty pricelist", async () => {
-      api.get.mockResolvedValueOnce([]);
+      getStub.resolves([]);
 
       const result = await pricelistService.getAll();
 
@@ -53,17 +63,17 @@ describe("pricelistService", () => {
           { productId: 102, price: 200, currency: "AED" },
         ],
       };
-      api.get.mockResolvedValueOnce(mockPricelist);
+      getStub.resolves(mockPricelist);
 
       const result = await pricelistService.getById(1);
 
       assert.ok(result.id);
       assert.ok(result.items);
-      sinon.assert.calledWith(api.get, "/pricelists/1");
+      sinon.assert.calledWith(getStub, "/pricelists/1");
     });
 
     test("should handle pricelist not found", async () => {
-      api.get.mockResolvedValueOnce(null);
+      getStub.resolves(null);
 
       const result = await pricelistService.getById(999);
 
@@ -79,18 +89,18 @@ describe("pricelistService", () => {
         description: "Test pricelist",
       };
       const mockResponse = { id: 3, ...newPricelist };
-      api.post.mockResolvedValueOnce(mockResponse);
+      postStub.resolves(mockResponse);
 
       const result = await pricelistService.create(newPricelist);
 
       assert.ok(result.id);
       assert.ok(result.name);
-      sinon.assert.calledWith(api.post, "/pricelists", newPricelist);
+      sinon.assert.calledWith(postStub, "/pricelists", newPricelist);
     });
 
     test("should handle validation errors on create", async () => {
       const invalidPricelist = { name: "" };
-      api.post.mockRejectedValueOnce(new Error("Validation error"));
+      postStub.rejects(new Error("Validation error"));
 
       assert.rejects(pricelistService.create(invalidPricelist), Error);
     });
@@ -100,16 +110,16 @@ describe("pricelistService", () => {
     test("should update existing pricelist", async () => {
       const updates = { name: "Updated Pricing", status: "ACTIVE" };
       const mockResponse = { id: 1, ...updates };
-      api.put.mockResolvedValueOnce(mockResponse);
+      putStub.resolves(mockResponse);
 
       const result = await pricelistService.update(1, updates);
 
       assert.ok(result.name);
-      sinon.assert.calledWith(api.put, "/pricelists/1", updates);
+      sinon.assert.calledWith(putStub, "/pricelists/1", updates);
     });
 
     test("should handle update not found", async () => {
-      api.put.mockRejectedValueOnce(new Error("Not found"));
+      putStub.rejects(new Error("Not found"));
 
       assert.rejects(pricelistService.update(999, { name: "Test" }), Error);
     });
@@ -117,22 +127,22 @@ describe("pricelistService", () => {
 
   describe("delete", () => {
     test("should soft delete pricelist by default", async () => {
-      api.delete.mockResolvedValueOnce({ success: true });
+      deleteStub.resolves({ success: true });
 
       const result = await pricelistService.delete(1);
 
       assert.ok(result.success);
-      sinon.assert.calledWith(api.delete, "/pricelists/1", {
+      sinon.assert.calledWith(deleteStub, "/pricelists/1", {
         params: { hard_delete: false },
       });
     });
 
     test("should hard delete when specified", async () => {
-      api.delete.mockResolvedValueOnce({ success: true });
+      deleteStub.resolves({ success: true });
 
       const _result = await pricelistService.delete(1, true);
 
-      sinon.assert.calledWith(api.delete, "/pricelists/1", {
+      sinon.assert.calledWith(deleteStub, "/pricelists/1", {
         params: { hard_delete: true },
       });
     });
@@ -144,17 +154,17 @@ describe("pricelistService", () => {
         { productId: 101, price: 150, currency: "AED" },
         { productId: 102, price: 200, currency: "AED" },
       ];
-      api.get.mockResolvedValueOnce(mockItems);
+      getStub.resolves(mockItems);
 
       const result = await pricelistService.getItems(1);
 
       assert.ok(result);
       assert.ok(result[0].price);
-      sinon.assert.calledWith(api.get, "/pricelists/1/items");
+      sinon.assert.calledWith(getStub, "/pricelists/1/items");
     });
 
     test("should handle empty items list", async () => {
-      api.get.mockResolvedValueOnce([]);
+      getStub.resolves([]);
 
       const result = await pricelistService.getItems(1);
 
@@ -169,12 +179,12 @@ describe("pricelistService", () => {
         { productId: 103, price: 250 },
       ];
       const mockResponse = { success: true, updated: 2 };
-      api.put.mockResolvedValueOnce(mockResponse);
+      putStub.resolves(mockResponse);
 
       const result = await pricelistService.updateItems(1, items);
 
       assert.ok(result.updated);
-      sinon.assert.calledWith(api.put, "/pricelists/1/items", {
+      sinon.assert.calledWith(putStub, "/pricelists/1/items", {
         items,
         operation: "upsert",
       });
@@ -182,11 +192,11 @@ describe("pricelistService", () => {
 
     test("should replace items when operation specified", async () => {
       const items = [{ productId: 101, price: 160 }];
-      api.put.mockResolvedValueOnce({ success: true });
+      putStub.resolves({ success: true });
 
       await pricelistService.updateItems(1, items, "replace");
 
-      sinon.assert.calledWith(api.put, "/pricelists/1/items", {
+      sinon.assert.calledWith(putStub, "/pricelists/1/items", {
         items,
         operation: "replace",
       });
@@ -197,45 +207,45 @@ describe("pricelistService", () => {
     test("should add single item to pricelist", async () => {
       const item = { productId: 104, price: 180 };
       const mockResponse = { id: 1, items: [item] };
-      api.post.mockResolvedValueOnce(mockResponse);
+      postStub.resolves(mockResponse);
 
       await pricelistService.addItem(1, item);
 
-      sinon.assert.calledWith(api.post, "/pricelists/1/items", item);
+      sinon.assert.calledWith(postStub, "/pricelists/1/items", item);
     });
   });
 
   describe("removeItem", () => {
     test("should remove item from pricelist", async () => {
-      api.delete.mockResolvedValueOnce({ success: true });
+      deleteStub.resolves({ success: true });
 
       const result = await pricelistService.removeItem(1, 101);
 
       assert.ok(result.success);
-      sinon.assert.calledWith(api.delete, "/pricelists/1/items/101");
+      sinon.assert.calledWith(deleteStub, "/pricelists/1/items/101");
     });
   });
 
   describe("applyPercentage", () => {
     test("should increase prices by percentage", async () => {
       const mockResponse = { success: true, itemsUpdated: 5 };
-      api.post.mockResolvedValueOnce(mockResponse);
+      postStub.resolves(mockResponse);
 
       const result = await pricelistService.applyPercentage(1, 10, "increase");
 
       assert.ok(result.itemsUpdated);
-      sinon.assert.calledWith(api.post, "/pricelists/1/apply-percentage", {
+      sinon.assert.calledWith(postStub, "/pricelists/1/apply-percentage", {
         percentage: 10,
         operation: "increase",
       });
     });
 
     test("should decrease prices by percentage", async () => {
-      api.post.mockResolvedValueOnce({ success: true, itemsUpdated: 5 });
+      postStub.resolves({ success: true, itemsUpdated: 5 });
 
       await pricelistService.applyPercentage(1, 5, "decrease");
 
-      sinon.assert.calledWith(api.post, "/pricelists/1/apply-percentage", {
+      sinon.assert.calledWith(postStub, "/pricelists/1/apply-percentage", {
         percentage: 5,
         operation: "decrease",
       });
@@ -245,23 +255,23 @@ describe("pricelistService", () => {
   describe("copyFrom", () => {
     test("should copy items from another pricelist", async () => {
       const mockResponse = { success: true, itemsCopied: 10 };
-      api.post.mockResolvedValueOnce(mockResponse);
+      postStub.resolves(mockResponse);
 
       const result = await pricelistService.copyFrom(2, 1, 0);
 
       assert.ok(result.itemsCopied);
-      sinon.assert.calledWith(api.post, "/pricelists/2/copy-from", {
+      sinon.assert.calledWith(postStub, "/pricelists/2/copy-from", {
         source_pricelist_id: 1,
         percentage_adjustment: 0,
       });
     });
 
     test("should copy with percentage adjustment", async () => {
-      api.post.mockResolvedValueOnce({ success: true, itemsCopied: 10 });
+      postStub.resolves({ success: true, itemsCopied: 10 });
 
       await pricelistService.copyFrom(2, 1, 15);
 
-      sinon.assert.calledWith(api.post, "/pricelists/2/copy-from", {
+      sinon.assert.calledWith(postStub, "/pricelists/2/copy-from", {
         source_pricelist_id: 1,
         percentage_adjustment: 15,
       });
@@ -271,12 +281,12 @@ describe("pricelistService", () => {
   describe("getProductPrice", () => {
     test("should get price for single product", async () => {
       const mockPrice = { productId: 101, price: 155, currency: "AED" };
-      api.get.mockResolvedValueOnce(mockPrice);
+      getStub.resolves(mockPrice);
 
       const result = await pricelistService.getProductPrice(101, { listId: 1 });
 
       assert.ok(result.price);
-      sinon.assert.calledWith(api.get, "/products/101/price", {
+      sinon.assert.calledWith(getStub, "/products/101/price", {
         params: { listId: 1 },
       });
     });
@@ -289,7 +299,7 @@ describe("pricelistService", () => {
         { productId: 102, price: 205 },
         { productId: 103, price: 255 },
       ];
-      api.post.mockResolvedValueOnce(mockPrices);
+      postStub.resolves(mockPrices);
 
       const result = await pricelistService.bulkPriceLookup([101, 102, 103], {
         listId: 1,
@@ -297,14 +307,14 @@ describe("pricelistService", () => {
 
       assert.ok(result);
       assert.ok(result[0].price);
-      sinon.assert.calledWith(api.post, "/products/bulk-price-lookup", {
+      sinon.assert.calledWith(postStub, "/products/bulk-price-lookup", {
         product_ids: [101, 102, 103],
         listId: 1,
       });
     });
 
     test("should handle empty product list", async () => {
-      api.post.mockResolvedValueOnce([]);
+      postStub.resolves([]);
 
       const result = await pricelistService.bulkPriceLookup([]);
 
