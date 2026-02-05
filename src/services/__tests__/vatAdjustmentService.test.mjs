@@ -1,5 +1,9 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import vatAdjustmentService from "../vatAdjustmentService";
+import '../../__tests__/init.mjs';
+
+import { test, describe, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
+import sinon from 'sinon';
+import vatAdjustmentService from "../vatAdjustmentService.js";
 
 
 describe("vatAdjustmentService", () => {
@@ -7,9 +11,7 @@ describe("vatAdjustmentService", () => {
     sinon.restore();
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
+  afterEach(() => {});
 
   describe("getAll", () => {
     test("should fetch all VAT adjustments with pagination", async () => {
@@ -20,8 +22,8 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.getAll({ page: 1, pageSize: 50 });
 
-      assert.ok(result).toHaveProperty("data");
-      assert.ok(result).toHaveProperty("pagination");
+      assert.ok(result && result.data);
+      assert.ok(result && result.pagination);
       assert.ok(Array.isArray(result.data));
     });
 
@@ -36,7 +38,7 @@ describe("vatAdjustmentService", () => {
     test("should handle error", async () => {
       sinon.stub(apiClient, 'get').rejects(new Error("API Error"));
 
-      assert.rejects(vatAdjustmentService.getAll(), Error);
+      await assert.rejects(() => vatAdjustmentService.getAll(), Error);
     });
   });
 
@@ -92,7 +94,7 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.create(adjustmentData);
 
       sinon.assert.calledWith(apiClient.post, "/vat-adjustments", );
-      assert.ok(result).toHaveProperty("id");
+      assert.ok(result && result.id);
     });
   });
 
@@ -108,7 +110,7 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.update(1, adjustmentData);
 
       sinon.assert.calledWith(apiClient.put, "/vat-adjustments/1", );
-      assert.ok(result).toHaveProperty("id");
+      assert.ok(result && result.id);
     });
   });
 
@@ -209,7 +211,7 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.getNextNumber();
 
       sinon.assert.calledWith(apiClient.get, "/vat-adjustments/number/next");
-      assert.ok(result).toHaveProperty("adjustmentNumber");
+      assert.ok(result && result.adjustmentNumber);
     });
   });
 
@@ -241,7 +243,7 @@ describe("vatAdjustmentService", () => {
         notes: "Test",
         supportingDocuments: [],
       });
-      assert.ok(result).toHaveProperty("id");
+      assert.ok(result && result.id);
     });
   });
 
@@ -257,7 +259,7 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.getSummary(params);
 
       sinon.assert.calledWith(apiClient.get, "/vat-adjustments/summary", params);
-      assert.ok(result).toHaveProperty("totalAdjustments");
+      assert.ok(result && result.totalAdjustments);
     });
   });
 

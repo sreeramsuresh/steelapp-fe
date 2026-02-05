@@ -5,7 +5,9 @@
 import '../../__tests__/init.mjs';
 
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { test, describe, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
+import sinon from 'sinon';
 
 
 
@@ -13,8 +15,16 @@ import supplierBillService from "../supplierBillService.js";
 import { apiClient } from "../api.js";
 
 describe("supplierBillService", () => {
+  let getStub;
+  let postStub;
+  let putStub;
+  let deleteStub;
   beforeEach(() => {
     sinon.restore();
+    getStub = sinon.stub(apiClient, 'get');
+    postStub = sinon.stub(apiClient, 'post');
+    putStub = sinon.stub(apiClient, 'put');
+    deleteStub = sinon.stub(apiClient, 'delete');
   });
 
   describe("getAll", () => {
@@ -33,7 +43,7 @@ describe("supplierBillService", () => {
         ],
         pagination: { page: 1, total: 1 },
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getAll({ page: 1 });
 
@@ -43,7 +53,7 @@ describe("supplierBillService", () => {
     });
 
     test("should filter by supplier ID", async () => {
-      apiClient.get.mockResolvedValueOnce({ data: [], pagination: null });
+      getStub.resolves({ data: [], pagination: null });
 
       await supplierBillService.getAll({ supplierId: 1 });
 
@@ -51,7 +61,7 @@ describe("supplierBillService", () => {
     });
 
     test("should filter by VAT category", async () => {
-      apiClient.get.mockResolvedValueOnce({ data: [], pagination: null });
+      getStub.resolves({ data: [], pagination: null });
 
       await supplierBillService.getAll({ vatCategory: "STANDARD" });
 
@@ -59,7 +69,7 @@ describe("supplierBillService", () => {
     });
 
     test("should filter by date range", async () => {
-      apiClient.get.mockResolvedValueOnce({ data: [], pagination: null });
+      getStub.resolves({ data: [], pagination: null });
 
       await supplierBillService.getAll({
         startDate: "2024-01-01",
@@ -70,7 +80,7 @@ describe("supplierBillService", () => {
     });
 
     test("should handle search parameter", async () => {
-      apiClient.get.mockResolvedValueOnce({ data: [], pagination: null });
+      getStub.resolves({ data: [], pagination: null });
 
       await supplierBillService.getAll({ search: "supplier name" });
 
@@ -88,7 +98,7 @@ describe("supplierBillService", () => {
           total: 1050,
         },
       ];
-      apiClient.get.mockResolvedValueOnce(billsArray);
+      getStub.resolves(billsArray);
 
       const result = await supplierBillService.getAll();
 
@@ -110,7 +120,7 @@ describe("supplierBillService", () => {
         ],
         pagination: { page: 1, total: 1 },
       };
-      apiClient.get.mockResolvedValueOnce(response);
+      getStub.resolves(response);
 
       const result = await supplierBillService.getAll();
 
@@ -118,7 +128,7 @@ describe("supplierBillService", () => {
     });
 
     test("should handle empty response", async () => {
-      apiClient.get.mockResolvedValueOnce({ data: null });
+      getStub.resolves({ data: null });
 
       const result = await supplierBillService.getAll();
 
@@ -147,7 +157,7 @@ describe("supplierBillService", () => {
           },
         ],
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -157,7 +167,7 @@ describe("supplierBillService", () => {
     });
 
     test("should handle null response", async () => {
-      apiClient.get.mockResolvedValueOnce(null);
+      getStub.resolves(null);
 
       const result = await supplierBillService.getById(1);
 
@@ -178,7 +188,7 @@ describe("supplierBillService", () => {
           total: 1050,
         },
       ];
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getBySupplier(1);
 
@@ -199,7 +209,7 @@ describe("supplierBillService", () => {
           },
         ],
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getBySupplier(1);
 
@@ -223,7 +233,7 @@ describe("supplierBillService", () => {
           },
         ],
       };
-      apiClient.post.mockResolvedValueOnce({
+      postStub.resolves({
         id: 1,
         bill_number: "SB-001",
         ...billData,
@@ -232,7 +242,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.create(billData);
 
       assert.ok(result.id);
-      sinon.assert.calledWith(apiClient.post, "/supplier-bills", );
+      sinon.assert.calledWith(postStub, "/supplier-bills", );
     });
 
     test("should handle VAT categories in items", async () => {
@@ -248,7 +258,7 @@ describe("supplierBillService", () => {
           },
         ],
       };
-      apiClient.post.mockResolvedValueOnce({ id: 1, bill_number: "SB-001" });
+      postStub.resolves({ id: 1, bill_number: "SB-001" });
 
       await supplierBillService.create(billData);
 
@@ -259,7 +269,7 @@ describe("supplierBillService", () => {
   describe("update", () => {
     test("should update supplier bill", async () => {
       const updateData = { status: "approved" };
-      apiClient.put.mockResolvedValueOnce({ id: 1, status: "approved" });
+      putStub.resolves({ id: 1, status: "approved" });
 
       const result = await supplierBillService.update(1, updateData);
 
@@ -272,32 +282,32 @@ describe("supplierBillService", () => {
         subtotal: 1500,
         vatAmount: 75,
       };
-      apiClient.put.mockResolvedValueOnce({ id: 1, ...updateData });
+      putStub.resolves({ id: 1, ...updateData });
 
       await supplierBillService.update(1, updateData);
 
-      sinon.assert.calledWith(apiClient.put, "/supplier-bills/1", );
+      sinon.assert.calledWith(putStub, "/supplier-bills/1", );
     });
   });
 
   describe("delete", () => {
     test("should delete supplier bill with reason", async () => {
-      apiClient.delete.mockResolvedValueOnce({ success: true });
+      deleteStub.resolves({ success: true });
 
       const result = await supplierBillService.delete(1, "Duplicate entry");
 
       assert.ok(result.success);
-      sinon.assert.calledWith(apiClient.delete, "/supplier-bills/1", {
+      sinon.assert.calledWith(deleteStub, "/supplier-bills/1", {
         data: { reason: "Duplicate entry" },
       });
     });
 
     test("should handle delete without reason", async () => {
-      apiClient.delete.mockResolvedValueOnce({ success: true });
+      deleteStub.resolves({ success: true });
 
       await supplierBillService.delete(1);
 
-      sinon.assert.calledWith(apiClient.delete, "/supplier-bills/1", {
+      sinon.assert.calledWith(deleteStub, "/supplier-bills/1", {
         data: { reason: "" },
       });
     });
@@ -305,7 +315,7 @@ describe("supplierBillService", () => {
 
   describe("approve", () => {
     test("should approve bill for payment", async () => {
-      apiClient.post.mockResolvedValueOnce({
+      postStub.resolves({
         id: 1,
         status: "approved",
         approval_status: "approved",
@@ -314,7 +324,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.approve(1, "Ready for payment");
 
       assert.ok(result.status);
-      sinon.assert.calledWith(apiClient.post, "/supplier-bills/1/approve", {
+      sinon.assert.calledWith(postStub, "/supplier-bills/1/approve", {
         notes: "Ready for payment",
       });
     });
@@ -322,7 +332,7 @@ describe("supplierBillService", () => {
 
   describe("reject", () => {
     test("should reject bill approval", async () => {
-      apiClient.post.mockResolvedValueOnce({
+      postStub.resolves({
         id: 1,
         approval_status: "rejected",
       });
@@ -330,7 +340,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.reject(1, "Missing documents");
 
       assert.ok(result.approvalStatus);
-      sinon.assert.calledWith(apiClient.post, "/supplier-bills/1/reject", {
+      sinon.assert.calledWith(postStub, "/supplier-bills/1/reject", {
         reason: "Missing documents",
       });
     });
@@ -338,7 +348,7 @@ describe("supplierBillService", () => {
 
   describe("cancel", () => {
     test("should cancel supplier bill", async () => {
-      apiClient.post.mockResolvedValueOnce({
+      postStub.resolves({
         id: 1,
         status: "cancelled",
       });
@@ -346,7 +356,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.cancel(1, "Order cancelled");
 
       assert.ok(result.status);
-      sinon.assert.calledWith(apiClient.post, "/supplier-bills/1/cancel", {
+      sinon.assert.calledWith(postStub, "/supplier-bills/1/cancel", {
         cancellationReason: "Order cancelled",
       });
     });
@@ -360,7 +370,7 @@ describe("supplierBillService", () => {
         paymentMethod: "bank_transfer",
         referenceNumber: "CHQ-123",
       };
-      apiClient.post.mockResolvedValueOnce({
+      postStub.resolves({
         id: 1,
         amount_paid: 500,
         balance_due: 550,
@@ -369,7 +379,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.recordPayment(1, paymentData);
 
       assert.ok(result.amountPaid);
-      sinon.assert.calledWith(apiClient.post, "/supplier-bills/1/payments",
+      sinon.assert.calledWith(postStub, "/supplier-bills/1/payments",
         Object.keys({ amount: 500 }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
@@ -381,7 +391,7 @@ describe("supplierBillService", () => {
         referenceNumber: "CHQ-123",
         attachmentUrl: "https://example.com/receipt.pdf",
       };
-      apiClient.post.mockResolvedValueOnce({
+      postStub.resolves({
         id: 1,
         amount_paid: 1050,
       });
@@ -396,7 +406,7 @@ describe("supplierBillService", () => {
         amount: 0,
         paymentDate: "2024-01-15",
       };
-      apiClient.post.mockResolvedValueOnce({ id: 1 });
+      postStub.resolves({ id: 1 });
 
       await supplierBillService.recordPayment(1, paymentData);
 
@@ -406,7 +416,7 @@ describe("supplierBillService", () => {
 
   describe("voidPayment", () => {
     test("should void payment on bill", async () => {
-      apiClient.post.mockResolvedValueOnce({
+      postStub.resolves({
         id: 1,
         amount_paid: 0,
         balance_due: 1050,
@@ -415,7 +425,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.voidPayment(1, 123, "Erroneous payment");
 
       assert.ok(result.amountPaid);
-      sinon.assert.calledWith(apiClient.post, "/supplier-bills/1/payments/123/void", {
+      sinon.assert.calledWith(postStub, "/supplier-bills/1/payments/123/void", {
         reason: "Erroneous payment",
       });
     });
@@ -431,7 +441,7 @@ describe("supplierBillService", () => {
         reverseChargeVat: 0,
         totalInputVat: 5250,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getVATSummary({
         startDate: "2024-01-01",
@@ -439,11 +449,11 @@ describe("supplierBillService", () => {
       });
 
       assert.ok(result.totalInputVat);
-      sinon.assert.calledWith(apiClient.get, "/supplier-bills/vat-summary", );
+      sinon.assert.calledWith(getStub, "/supplier-bills/vat-summary", );
     });
 
     test("should filter by VAT category", async () => {
-      apiClient.get.mockResolvedValueOnce({
+      getStub.resolves({
         standardVat: 5000,
         totalInputVat: 5000,
       });
@@ -466,7 +476,7 @@ describe("supplierBillService", () => {
         averageAmount: 500,
         outstandingAmount: 10000,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getAnalytics({
         startDate: "2024-01-01",
@@ -477,7 +487,7 @@ describe("supplierBillService", () => {
     });
 
     test("should filter by supplier", async () => {
-      apiClient.get.mockResolvedValueOnce({
+      getStub.resolves({
         totalBills: 10,
         totalAmount: 5000,
       });
@@ -487,13 +497,13 @@ describe("supplierBillService", () => {
         supplierId: 1,
       });
 
-      sinon.assert.calledWith(apiClient.get, "/supplier-bills/analytics", );
+      sinon.assert.calledWith(getStub, "/supplier-bills/analytics", );
     });
   });
 
   describe("getNextNumber", () => {
     test("should get next bill number", async () => {
-      apiClient.get.mockResolvedValueOnce({ billNumber: "SB-001" });
+      getStub.resolves({ billNumber: "SB-001" });
 
       const result = await supplierBillService.getNextNumber();
 
@@ -515,7 +525,7 @@ describe("supplierBillService", () => {
           },
         ],
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.search("ABC Suppliers");
 
@@ -524,7 +534,7 @@ describe("supplierBillService", () => {
     });
 
     test("should handle search with filters", async () => {
-      apiClient.get.mockResolvedValueOnce({
+      getStub.resolves({
         data: [
           {
             id: 1,
@@ -543,7 +553,7 @@ describe("supplierBillService", () => {
     });
 
     test("should handle items array response", async () => {
-      apiClient.get.mockResolvedValueOnce({
+      getStub.resolves({
         items: [
           {
             id: 1,
@@ -562,7 +572,7 @@ describe("supplierBillService", () => {
     });
 
     test("should return empty array for non-array response", async () => {
-      apiClient.get.mockResolvedValueOnce({ success: true });
+      getStub.resolves({ success: true });
 
       const result = await supplierBillService.search("NoMatch");
 
@@ -573,18 +583,18 @@ describe("supplierBillService", () => {
   describe("downloadPDF", () => {
     test("should download supplier bill PDF", async () => {
       const mockBlob = new Blob(["test"], { type: "application/pdf" });
-      apiClient.get.mockResolvedValueOnce(mockBlob);
+      getStub.resolves(mockBlob);
 
       // Mock window.URL and document methods
       // Skipped: global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
-      global.URL.revokeObjectURL = vi.fn();
+      global.URL.revokeObjectURL = sinon.stub();
       document.createElement = vi.fn(() => ({
         href: "",
         download: "",
-        click: vi.fn(),
+        click: sinon.stub(),
       }));
-      document.body.appendChild = vi.fn();
-      document.body.removeChild = vi.fn();
+      document.body.appendChild = sinon.stub();
+      document.body.removeChild = sinon.stub();
 
       const result = await supplierBillService.downloadPDF(1, "SB-001");
 
@@ -592,9 +602,9 @@ describe("supplierBillService", () => {
     });
 
     test("should handle PDF download error", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Network error"));
+      getStub.rejects(new Error("Network error"));
 
-      assert.rejects(supplierBillService.downloadPDF(1, "SB-001"), Error);
+      await assert.rejects(() => supplierBillService.downloadPDF(1, "SB-001"), Error);
     });
   });
 
@@ -610,7 +620,7 @@ describe("supplierBillService", () => {
           },
         ],
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getBlockedVATItems(1);
 
@@ -626,7 +636,7 @@ describe("supplierBillService", () => {
           vat_category: "BLOCKED",
         },
       ];
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getBlockedVATItems(1);
 
@@ -634,7 +644,7 @@ describe("supplierBillService", () => {
     });
 
     test("should return empty array for no blocked items", async () => {
-      apiClient.get.mockResolvedValueOnce([]);
+      getStub.resolves([]);
 
       const result = await supplierBillService.getBlockedVATItems(1);
 
@@ -650,14 +660,13 @@ describe("supplierBillService", () => {
         billDate: "2024-01-01",
         primaryVatCategory: "STANDARD",
       };
-      apiClient.post.mockResolvedValueOnce({
+      postStub.resolves({
         id: 1,
         bill_number: "SB-001",
       });
 
       await supplierBillService.create(billData);
 
-      const callArgs = apiClient.post.mock.calls[0][1];
       assert.ok(callArgs).toHaveProperty("supplierId", 1);
       assert.ok(callArgs).toHaveProperty("supplierInvoiceNumber", "INV-001");
     });
@@ -672,7 +681,7 @@ describe("supplierBillService", () => {
         balance_due: 1050,
         payment_status: "unpaid",
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -690,7 +699,7 @@ describe("supplierBillService", () => {
         vat_amount: "50.00",
         total: "1050.00",
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -714,7 +723,7 @@ describe("supplierBillService", () => {
           },
         ],
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -735,7 +744,7 @@ describe("supplierBillService", () => {
           },
         ],
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -756,7 +765,7 @@ describe("supplierBillService", () => {
           },
         ],
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -770,7 +779,7 @@ describe("supplierBillService", () => {
         is_reverse_charge: true,
         reverse_charge_vat: 75,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -787,7 +796,7 @@ describe("supplierBillService", () => {
         amount_paid: 0,
         balance_due: 1050,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -802,7 +811,7 @@ describe("supplierBillService", () => {
         amount_paid: 500,
         balance_due: 550,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -817,7 +826,7 @@ describe("supplierBillService", () => {
         amount_paid: 1050,
         balance_due: 0,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -833,7 +842,7 @@ describe("supplierBillService", () => {
         status: "draft",
         approval_status: "pending",
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -847,7 +856,7 @@ describe("supplierBillService", () => {
         approved_at: "2024-01-15T10:00:00Z",
         approved_by: "user123",
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -858,27 +867,27 @@ describe("supplierBillService", () => {
 
   describe("Error Handling", () => {
     test("should handle network errors", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Network error"));
+      getStub.rejects(new Error("Network error"));
 
-      assert.rejects(supplierBillService.getAll(), Error);
+      await assert.rejects(() => supplierBillService.getAll(), Error);
     });
 
     test("should handle server errors", async () => {
-      apiClient.post.mockRejectedValueOnce(new Error("Server error"));
+      postStub.rejects(new Error("Server error"));
 
-      assert.rejects(supplierBillService.create({ supplierId: 1 }), Error);
+      await assert.rejects(() => supplierBillService.create({ supplierId: 1 }), Error);
     });
 
     test("should handle invalid bill ID", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Bill not found"));
+      getStub.rejects(new Error("Bill not found"));
 
-      assert.rejects(supplierBillService.getById(999), Error);
+      await assert.rejects(() => supplierBillService.getById(999), Error);
     });
   });
 
   describe("Edge Cases", () => {
     test("should handle empty bills list", async () => {
-      apiClient.get.mockResolvedValueOnce({ data: [] });
+      getStub.resolves({ data: [] });
 
       const result = await supplierBillService.getAll();
 
@@ -892,7 +901,7 @@ describe("supplierBillService", () => {
         vat_amount: 50000,
         total: 1050000,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -907,7 +916,7 @@ describe("supplierBillService", () => {
         vat_amount: 0,
         total: 1000,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -921,7 +930,7 @@ describe("supplierBillService", () => {
         vat_amount: 50.25,
         total: 1050.75,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -935,7 +944,7 @@ describe("supplierBillService", () => {
         bill_number: "SB-001",
         items: undefined,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -950,7 +959,7 @@ describe("supplierBillService", () => {
         total: 1050,
         total_aed: 3853.5,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 
@@ -964,7 +973,7 @@ describe("supplierBillService", () => {
         company_id: 1,
         bill_number: "SB-001",
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await supplierBillService.getById(1);
 

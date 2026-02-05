@@ -11,7 +11,9 @@ import '../../__tests__/init.mjs';
  * ✅ 100% coverage target for creditNoteService.js
  */
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { test, describe, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
+import sinon from 'sinon';
 
 // Mock API client
 
@@ -19,8 +21,16 @@ import { creditNoteService } from "../creditNoteService.js";
 import { apiClient } from "../api.js";
 
 describe("creditNoteService", () => {
+  let getStub;
+  let postStub;
+  let putStub;
+  let deleteStub;
   beforeEach(() => {
     sinon.restore();
+    getStub = sinon.stub(apiClient, 'get');
+    postStub = sinon.stub(apiClient, 'post');
+    putStub = sinon.stub(apiClient, 'put');
+    deleteStub = sinon.stub(apiClient, 'delete');
   });
 
   // ============================================================================
@@ -47,7 +57,7 @@ describe("creditNoteService", () => {
         ],
         pagination: { page: 1, limit: 50, total: 1, totalPages: 1 },
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await creditNoteService.getAllCreditNotes({ page: 1, limit: 50 });
 
@@ -59,7 +69,7 @@ describe("creditNoteService", () => {
 
     test("should support pagination parameters", async () => {
       const mockResponse = { data: [], pagination: { page: 2, limit: 20, total: 50 } };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       await creditNoteService.getAllCreditNotes({ page: 2, limit: 20 });
 
@@ -68,7 +78,7 @@ describe("creditNoteService", () => {
 
     test("should filter credit notes by status", async () => {
       const mockResponse = { data: [], pagination: null };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       await creditNoteService.getAllCreditNotes({ status: "issued" });
 
@@ -77,7 +87,7 @@ describe("creditNoteService", () => {
 
     test("should filter credit notes by customer", async () => {
       const mockResponse = { data: [], pagination: null };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       await creditNoteService.getAllCreditNotes({ customerId: 5 });
 
@@ -86,7 +96,7 @@ describe("creditNoteService", () => {
 
     test("should filter credit notes by invoice", async () => {
       const mockResponse = { data: [], pagination: null };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       await creditNoteService.getAllCreditNotes({ invoiceId: 100 });
 
@@ -95,7 +105,7 @@ describe("creditNoteService", () => {
 
     test("should support date range filtering", async () => {
       const mockResponse = { data: [], pagination: null };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       await creditNoteService.getAllCreditNotes({
         startDate: "2026-01-01",
@@ -107,7 +117,7 @@ describe("creditNoteService", () => {
 
     test("should support search parameter", async () => {
       const mockResponse = { data: [], pagination: null };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       await creditNoteService.getAllCreditNotes({ search: "ABC Corp" });
 
@@ -117,7 +127,7 @@ describe("creditNoteService", () => {
     test("should support abort signal for cancellation", async () => {
       const abortSignal = new AbortController().signal;
       const mockResponse = { data: [], pagination: null };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       await creditNoteService.getAllCreditNotes({}, abortSignal);
 
@@ -133,7 +143,7 @@ describe("creditNoteService", () => {
           customer_name: "ABC Corp",
         },
       ];
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await creditNoteService.getAllCreditNotes();
 
@@ -158,7 +168,7 @@ describe("creditNoteService", () => {
         ],
         pagination: null,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await creditNoteService.getAllCreditNotes();
 
@@ -196,18 +206,18 @@ describe("creditNoteService", () => {
           },
         ],
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await creditNoteService.getCreditNote(1);
 
       assert.ok(result.id);
       assert.ok(result.creditNoteNumber);
       assert.ok(result.items !== undefined);
-      sinon.assert.calledWith(apiClient.get, "/credit-notes/1", );
+      sinon.assert.calledWith(getStub, "/credit-notes/1", );
     });
 
     test("should return null for non-existent credit note", async () => {
-      apiClient.get.mockResolvedValueOnce(null);
+      getStub.resolves(null);
 
       const result = await creditNoteService.getCreditNote(999);
 
@@ -231,7 +241,7 @@ describe("creditNoteService", () => {
           },
         ],
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await creditNoteService.getCreditNote(1);
 
@@ -273,13 +283,13 @@ describe("creditNoteService", () => {
         credit_note_number: "CN-001",
         ...creditNoteData,
       };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+      postStub.resolves(mockResponse);
 
       const result = await creditNoteService.createCreditNote(creditNoteData);
 
       assert.ok(result.id);
       assert.ok(result.creditNoteNumber);
-      sinon.assert.calledWith(apiClient.post, "/credit-notes", );
+      sinon.assert.calledWith(postStub, "/credit-notes", );
     });
 
     test("should transform camelCase to snake_case on create", async () => {
@@ -294,11 +304,10 @@ describe("creditNoteService", () => {
         items: [],
       };
 
-      apiClient.post.mockResolvedValueOnce({ id: 1 });
+      postStub.resolves({ id: 1 });
 
       await creditNoteService.createCreditNote(creditNoteData);
 
-      const callArgs = apiClient.post.mock.calls[0][1];
       assert.ok(callArgs.customer_id);
       assert.ok(callArgs.customer_name);
       assert.ok(callArgs.invoice_id);
@@ -312,9 +321,9 @@ describe("creditNoteService", () => {
         items: [],
       };
 
-      apiClient.post.mockRejectedValueOnce(new Error("Customer ID is required"));
+      postStub.rejects(new Error("Customer ID is required"));
 
-      assert.rejects(creditNoteService.createCreditNote(invalidData), Error);
+      await assert.rejects(() => creditNoteService.createCreditNote(invalidData), Error);
     });
 
     test("should parse numeric fields as floats", async () => {
@@ -326,11 +335,10 @@ describe("creditNoteService", () => {
         items: [],
       };
 
-      apiClient.post.mockResolvedValueOnce({ id: 1 });
+      postStub.resolves({ id: 1 });
 
       await creditNoteService.createCreditNote(creditNoteData);
 
-      const callArgs = apiClient.post.mock.calls[0][1];
       assert.ok(callArgs.subtotal);
       assert.ok(callArgs.vat_amount);
       assert.ok(callArgs.total_credit);
@@ -349,11 +357,10 @@ describe("creditNoteService", () => {
         ],
       };
 
-      apiClient.post.mockResolvedValueOnce({ id: 1 });
+      postStub.resolves({ id: 1 });
 
       await creditNoteService.createCreditNote(creditNoteData);
 
-      const callArgs = apiClient.post.mock.calls[0][1];
       assert.ok(callArgs.items[0].quantity_returned);
       assert.ok(callArgs.items[0].original_quantity);
     });
@@ -376,30 +383,29 @@ describe("creditNoteService", () => {
         status: "approved",
         notes: "Updated notes",
       };
-      apiClient.put.mockResolvedValueOnce(mockResponse);
+      putStub.resolves(mockResponse);
 
       const result = await creditNoteService.updateCreditNote(1, updateData);
 
       assert.ok(result.status);
       assert.ok(result.notes);
-      sinon.assert.calledWith(apiClient.put, "/credit-notes/1", );
+      sinon.assert.calledWith(putStub, "/credit-notes/1", );
     });
 
     test("should only update specified fields", async () => {
       const updateData = { notes: "Updated" };
 
-      apiClient.put.mockResolvedValueOnce({ id: 1, notes: "Updated" });
+      putStub.resolves({ id: 1, notes: "Updated" });
 
       await creditNoteService.updateCreditNote(1, updateData);
 
-      const callArgs = apiClient.put.mock.calls[0][1];
       assert.ok(callArgs.notes);
     });
 
     test("should prevent update of issued credit notes", async () => {
-      apiClient.put.mockRejectedValueOnce(new Error("Cannot update issued credit note"));
+      putStub.rejects(new Error("Cannot update issued credit note"));
 
-      assert.rejects(creditNoteService.updateCreditNote(1, { status: "draft" }), Error);
+      await assert.rejects(() => creditNoteService.updateCreditNote(1, { status: "draft" }), Error);
     });
   });
 
@@ -409,18 +415,18 @@ describe("creditNoteService", () => {
 
   describe("deleteCreditNote", () => {
     test("should delete credit note", async () => {
-      apiClient.delete.mockResolvedValueOnce({ success: true });
+      deleteStub.resolves({ success: true });
 
       const result = await creditNoteService.deleteCreditNote(1);
 
       assert.ok(result.success);
-      sinon.assert.calledWith(apiClient.delete, "/credit-notes/1");
+      sinon.assert.calledWith(deleteStub, "/credit-notes/1");
     });
 
     test("should handle deletion of non-existent credit note", async () => {
-      apiClient.delete.mockRejectedValueOnce(new Error("Credit note not found"));
+      deleteStub.rejects(new Error("Credit note not found"));
 
-      assert.rejects(creditNoteService.deleteCreditNote(999), Error);
+      await assert.rejects(() => creditNoteService.deleteCreditNote(999), Error);
     });
   });
 
@@ -438,11 +444,10 @@ describe("creditNoteService", () => {
         items: [],
       };
 
-      apiClient.post.mockResolvedValueOnce({ id: 1 });
+      postStub.resolves({ id: 1 });
 
       await creditNoteService.createCreditNote(creditNoteData);
 
-      const callArgs = apiClient.post.mock.calls[0][1];
       assert.ok(callArgs.vat_amount);
       assert.ok(callArgs.total_credit);
     });
@@ -463,11 +468,10 @@ describe("creditNoteService", () => {
         ],
       };
 
-      apiClient.post.mockResolvedValueOnce({ id: 1 });
+      postStub.resolves({ id: 1 });
 
       await creditNoteService.createCreditNote(creditNoteData);
 
-      const callArgs = apiClient.post.mock.calls[0][1];
       assert.ok(callArgs.items[0].vat_rate);
       assert.ok(callArgs.vat_amount);
     });
@@ -484,7 +488,7 @@ describe("creditNoteService", () => {
         items: [],
       };
 
-      apiClient.post.mockResolvedValueOnce({ id: 1 });
+      postStub.resolves({ id: 1 });
 
       await creditNoteService.createCreditNote(creditNoteData);
 
@@ -498,21 +502,21 @@ describe("creditNoteService", () => {
 
   describe("Error Handling", () => {
     test("should handle network errors gracefully", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Network error"));
+      getStub.rejects(new Error("Network error"));
 
-      assert.rejects(creditNoteService.getAllCreditNotes(), Error);
+      await assert.rejects(() => creditNoteService.getAllCreditNotes(), Error);
     });
 
     test("should handle server validation errors", async () => {
-      apiClient.post.mockRejectedValueOnce(new Error("Validation: VAT amount must match calculation"));
+      postStub.rejects(new Error("Validation: VAT amount must match calculation"));
 
-      assert.rejects(creditNoteService.createCreditNote({}), Error);
+      await assert.rejects(() => creditNoteService.createCreditNote({}), Error);
     });
 
     test("should handle authorization errors", async () => {
-      apiClient.delete.mockRejectedValueOnce(new Error("Unauthorized"));
+      deleteStub.rejects(new Error("Unauthorized"));
 
-      assert.rejects(creditNoteService.deleteCreditNote(1), Error);
+      await assert.rejects(() => creditNoteService.deleteCreditNote(1), Error);
     });
   });
 
@@ -523,7 +527,7 @@ describe("creditNoteService", () => {
   describe("Edge Cases", () => {
     test("should handle empty credit note list", async () => {
       const mockResponse = { data: [], pagination: { total: 0 } };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await creditNoteService.getAllCreditNotes();
 
@@ -537,7 +541,7 @@ describe("creditNoteService", () => {
         customer_id: null,
         notes: undefined,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await creditNoteService.getCreditNote(1);
 
@@ -553,11 +557,10 @@ describe("creditNoteService", () => {
         items: [],
       };
 
-      apiClient.post.mockResolvedValueOnce({ id: 1 });
+      postStub.resolves({ id: 1 });
 
       await creditNoteService.createCreditNote(creditNoteData);
 
-      const callArgs = apiClient.post.mock.calls[0][1];
       assert.ok(typeof callArgs.subtotal);
       assert.ok(typeof callArgs.vat_amount);
     });
@@ -574,11 +577,10 @@ describe("creditNoteService", () => {
         ],
       };
 
-      apiClient.post.mockResolvedValueOnce({ id: 1 });
+      postStub.resolves({ id: 1 });
 
       await creditNoteService.createCreditNote(creditNoteData);
 
-      const callArgs = apiClient.post.mock.calls[0][1];
       assert.ok(callArgs.items[0].quantity_returned);
     });
   });

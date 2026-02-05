@@ -64,7 +64,7 @@ describe("vatRateService", () => {
     test("should return empty array on error", async () => {
       getStub.rejects(new Error("Network error"));
 
-      assert.rejects(vatRateService.getAll(), Error);
+      await assert.rejects(() => vatRateService.getAll(), Error);
     });
   });
 
@@ -82,7 +82,7 @@ describe("vatRateService", () => {
     test("should handle rate not found", async () => {
       getStub.rejects(new Error("Not found"));
 
-      assert.rejects(vatRateService.getById(999), Error);
+      await assert.rejects(() => vatRateService.getById(999), Error);
     });
   });
 
@@ -103,7 +103,7 @@ describe("vatRateService", () => {
       const error = new Error("Invalid rate");
       postStub.rejects(error);
 
-      assert.rejects(vatRateService.create({}), Error);
+      await assert.rejects(() => vatRateService.create({}), Error);
     });
   });
 
@@ -124,7 +124,7 @@ describe("vatRateService", () => {
       const error = new Error("Rate in use");
       putStub.rejects(error);
 
-      assert.rejects(vatRateService.update(1, {}), Error);
+      await assert.rejects(() => vatRateService.update(1, {}), Error);
     });
   });
 
@@ -157,7 +157,7 @@ describe("vatRateService", () => {
       const error = new Error("Rate in use");
       deleteStub.rejects(error);
 
-      assert.rejects(vatRateService.delete(1), Error);
+      await assert.rejects(() => vatRateService.delete(1), Error);
     });
   });
 
@@ -166,7 +166,7 @@ describe("vatRateService", () => {
       const error = new Error("Network error");
       getStub.rejects(error);
 
-      assert.rejects(vatRateService.getAll(), Error);
+      await assert.rejects(() => vatRateService.getAll(), Error);
     });
   });
 });

@@ -17,11 +17,11 @@ import sinon from 'sinon';
 // Mock API client
 vi.mock("../api.js", () => ({
   apiClient: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    patch: vi.fn(),
-    delete: vi.fn(),
+    get: sinon.stub(),
+    post: sinon.stub(),
+    put: sinon.stub(),
+    patch: sinon.stub(),
+    delete: sinon.stub(),
   },
 }));
 
@@ -285,7 +285,6 @@ describe("debitNoteService", () => {
 
       await debitNoteService.create(debitNoteData);
 
-      const callArgs = apiClient.post.mock.calls[0][1];
       assert.ok(callArgs.items !== undefined);
     });
 
@@ -313,7 +312,6 @@ describe("debitNoteService", () => {
 
       await debitNoteService.create(debitNoteData);
 
-      const callArgs = apiClient.post.mock.calls[0][1];
       assert.ok(callArgs.subtotal !== undefined);
     });
 
@@ -342,7 +340,6 @@ describe("debitNoteService", () => {
 
       await debitNoteService.create(debitNoteData);
 
-      const callArgs = apiClient.post.mock.calls[0][1];
       assert.strictEqual(callArgs.items.length, 2);
     });
   });
@@ -427,7 +424,6 @@ describe("debitNoteService", () => {
 
       await debitNoteService.create(debitNoteData);
 
-      const callArgs = apiClient.post.mock.calls[0][1];
       assert.strictEqual(callArgs.items[0].vatRate, 5);
     });
 
@@ -452,7 +448,6 @@ describe("debitNoteService", () => {
 
       await debitNoteService.create(debitNoteData);
 
-      const callArgs = apiClient.post.mock.calls[0][1];
       assert.strictEqual(callArgs.items[0].vatRate, 0);
     });
 
@@ -481,7 +476,6 @@ describe("debitNoteService", () => {
 
       await debitNoteService.create(debitNoteData);
 
-      const callArgs = apiClient.post.mock.calls[0][1];
       assert.strictEqual(callArgs.items[0].vatCategory, "STANDARD");
       assert.strictEqual(callArgs.items[1].vatCategory, "EXEMPT");
     });

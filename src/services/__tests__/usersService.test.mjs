@@ -10,7 +10,9 @@ import '../../__tests__/init.mjs';
  * ✅ 40-50 tests covering all critical paths
  */
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { test, describe, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
+import sinon from 'sinon';
 
 
 import { apiService } from "../axiosApi.js";
@@ -43,7 +45,7 @@ describe("usersService (userAdminAPI)", () => {
           companyId: 1,
         },
       ];
-      apiService.get.mockResolvedValueOnce({ users: mockUsers });
+      apiService.get.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list();
 
@@ -61,7 +63,7 @@ describe("usersService (userAdminAPI)", () => {
           role: "USER",
         },
       ];
-      apiService.get.mockResolvedValueOnce({ users: mockUsers });
+      apiService.get.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list({ page: 1, limit: 10 });
 
@@ -73,7 +75,7 @@ describe("usersService (userAdminAPI)", () => {
 
     test("should list users filtered by role", async () => {
       const mockUsers = [{ id: 1, name: "Admin User", email: "admin@example.com", role: "ADMIN" }];
-      apiService.get.mockResolvedValueOnce({ users: mockUsers });
+      apiService.get.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list({ role: "ADMIN" });
 
@@ -86,7 +88,7 @@ describe("usersService (userAdminAPI)", () => {
 
     test("should list users filtered by company", async () => {
       const mockUsers = [{ id: 1, name: "User", email: "user@example.com", companyId: 5 }];
-      apiService.get.mockResolvedValueOnce({ users: mockUsers });
+      apiService.get.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list({ companyId: 5 });
 
@@ -96,7 +98,7 @@ describe("usersService (userAdminAPI)", () => {
 
     test("should handle array response format", async () => {
       const mockUsers = [{ id: 1, name: "User One", email: "user1@example.com" }];
-      apiService.get.mockResolvedValueOnce(mockUsers);
+      apiService.get.resolves(mockUsers);
 
       const result = await userAdminAPI.list();
 
@@ -104,7 +106,7 @@ describe("usersService (userAdminAPI)", () => {
     });
 
     test("should handle empty user list", async () => {
-      apiService.get.mockResolvedValueOnce({ users: [] });
+      apiService.get.resolves({ users: [] });
 
       const result = await userAdminAPI.list();
 
@@ -112,7 +114,7 @@ describe("usersService (userAdminAPI)", () => {
     });
 
     test("should handle null response gracefully", async () => {
-      apiService.get.mockResolvedValueOnce(null);
+      apiService.get.resolves(null);
 
       const result = await userAdminAPI.list();
 
@@ -121,7 +123,7 @@ describe("usersService (userAdminAPI)", () => {
 
     test("should search users by email", async () => {
       const mockUsers = [{ id: 1, name: "John", email: "john@example.com", role: "ADMIN" }];
-      apiService.get.mockResolvedValueOnce({ users: mockUsers });
+      apiService.get.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list({ search: "john@example.com" });
 
@@ -136,7 +138,7 @@ describe("usersService (userAdminAPI)", () => {
         { id: 2, name: "Alice", email: "alice@example.com" },
         { id: 1, name: "Bob", email: "bob@example.com" },
       ];
-      apiService.get.mockResolvedValueOnce({ users: mockUsers });
+      apiService.get.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list({ sort: "name", order: "asc" });
 
@@ -160,7 +162,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: 10, ...userData, companyId: 1 },
       };
-      apiService.post.mockResolvedValueOnce(mockResponse);
+      apiService.post.resolves(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -180,7 +182,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: 11, ...userData, companyId: 1 },
       };
-      apiService.post.mockResolvedValueOnce(mockResponse);
+      apiService.post.resolves(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -195,9 +197,9 @@ describe("usersService (userAdminAPI)", () => {
         password: "Pass123!",
         role: "USER",
       };
-      apiService.post.mockRejectedValueOnce(new Error("Email already exists"));
+      apiService.post.rejects(new Error("Email already exists"));
 
-      assert.rejects(userAdminAPI.create(userData), Error);
+      await assert.rejects(() => userAdminAPI.create(userData), Error);
     });
 
     test("should reject weak password", async () => {
@@ -207,9 +209,9 @@ describe("usersService (userAdminAPI)", () => {
         password: "123",
         role: "USER",
       };
-      apiService.post.mockRejectedValueOnce(new Error("Password too weak"));
+      apiService.post.rejects(new Error("Password too weak"));
 
-      assert.rejects(userAdminAPI.create(userData), Error);
+      await assert.rejects(() => userAdminAPI.create(userData), Error);
     });
 
     test("should validate email format on creation", async () => {
@@ -219,9 +221,9 @@ describe("usersService (userAdminAPI)", () => {
         password: "Pass123!",
         role: "USER",
       };
-      apiService.post.mockRejectedValueOnce(new Error("Invalid email format"));
+      apiService.post.rejects(new Error("Invalid email format"));
 
-      assert.rejects(userAdminAPI.create(userData), Error);
+      await assert.rejects(() => userAdminAPI.create(userData), Error);
     });
 
     test("should handle network error on creation", async () => {
@@ -231,9 +233,9 @@ describe("usersService (userAdminAPI)", () => {
         password: "Pass123!",
         role: "USER",
       };
-      apiService.post.mockRejectedValueOnce(new Error("Network error"));
+      apiService.post.rejects(new Error("Network error"));
 
-      assert.rejects(userAdminAPI.create(userData), Error);
+      await assert.rejects(() => userAdminAPI.create(userData), Error);
     });
 
     test("should handle response without user object", async () => {
@@ -244,7 +246,7 @@ describe("usersService (userAdminAPI)", () => {
         role: "USER",
       };
       const mockResponse = { id: 12, name: "User" };
-      apiService.post.mockResolvedValueOnce(mockResponse);
+      apiService.post.resolves(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -263,7 +265,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, name: "Updated Name", email: "user@example.com" },
       };
-      apiService.patch.mockResolvedValueOnce(mockResponse);
+      apiService.patch.resolves(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -277,7 +279,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, role: "MANAGER", email: "user@example.com" },
       };
-      apiService.patch.mockResolvedValueOnce(mockResponse);
+      apiService.patch.resolves(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -290,7 +292,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, ...payload, email: "user@example.com" },
       };
-      apiService.patch.mockResolvedValueOnce(mockResponse);
+      apiService.patch.resolves(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -301,17 +303,17 @@ describe("usersService (userAdminAPI)", () => {
     test("should handle user not found error", async () => {
       const userId = 999;
       const payload = { name: "Updated" };
-      apiService.patch.mockRejectedValueOnce(new Error("User not found"));
+      apiService.patch.rejects(new Error("User not found"));
 
-      assert.rejects(userAdminAPI.update(userId, payload), Error);
+      await assert.rejects(() => userAdminAPI.update(userId, payload), Error);
     });
 
     test("should handle validation errors on update", async () => {
       const userId = 1;
       const payload = { email: "invalid-email" };
-      apiService.patch.mockRejectedValueOnce(new Error("Invalid email"));
+      apiService.patch.rejects(new Error("Invalid email"));
 
-      assert.rejects(userAdminAPI.update(userId, payload), Error);
+      await assert.rejects(() => userAdminAPI.update(userId, payload), Error);
     });
 
     test("should return user from user object in response", async () => {
@@ -320,7 +322,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, name: "Updated", email: "user@example.com" },
       };
-      apiService.patch.mockResolvedValueOnce(mockResponse);
+      apiService.patch.resolves(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -331,7 +333,7 @@ describe("usersService (userAdminAPI)", () => {
       const userId = 1;
       const payload = { name: "Updated" };
       const mockResponse = { id: userId, name: "Updated", email: "user@example.com" };
-      apiService.patch.mockResolvedValueOnce(mockResponse);
+      apiService.patch.resolves(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -348,7 +350,7 @@ describe("usersService (userAdminAPI)", () => {
       const userId = 1;
       const payload = { currentPassword: "OldPass123!", newPassword: "NewPass456!" };
       const mockResponse = { success: true, message: "Password changed" };
-      apiService.put.mockResolvedValueOnce(mockResponse);
+      apiService.put.resolves(mockResponse);
 
       const result = await userAdminAPI.changePassword(userId, payload);
 
@@ -359,33 +361,33 @@ describe("usersService (userAdminAPI)", () => {
     test("should reject incorrect current password", async () => {
       const userId = 1;
       const payload = { currentPassword: "WrongPass", newPassword: "NewPass456!" };
-      apiService.put.mockRejectedValueOnce(new Error("Current password incorrect"));
+      apiService.put.rejects(new Error("Current password incorrect"));
 
-      assert.rejects(userAdminAPI.changePassword(userId, payload), Error);
+      await assert.rejects(() => userAdminAPI.changePassword(userId, payload), Error);
     });
 
     test("should enforce password strength on new password", async () => {
       const userId = 1;
       const payload = { currentPassword: "OldPass123!", newPassword: "123" };
-      apiService.put.mockRejectedValueOnce(new Error("New password too weak"));
+      apiService.put.rejects(new Error("New password too weak"));
 
-      assert.rejects(userAdminAPI.changePassword(userId, payload), Error);
+      await assert.rejects(() => userAdminAPI.changePassword(userId, payload), Error);
     });
 
     test("should prevent reusing old password", async () => {
       const userId = 1;
       const payload = { currentPassword: "OldPass123!", newPassword: "OldPass123!" };
-      apiService.put.mockRejectedValueOnce(new Error("Cannot reuse previous password"));
+      apiService.put.rejects(new Error("Cannot reuse previous password"));
 
-      assert.rejects(userAdminAPI.changePassword(userId, payload), Error);
+      await assert.rejects(() => userAdminAPI.changePassword(userId, payload), Error);
     });
 
     test("should handle network error during password change", async () => {
       const userId = 1;
       const payload = { currentPassword: "OldPass123!", newPassword: "NewPass456!" };
-      apiService.put.mockRejectedValueOnce(new Error("Network error"));
+      apiService.put.rejects(new Error("Network error"));
 
-      assert.rejects(userAdminAPI.changePassword(userId, payload), Error);
+      await assert.rejects(() => userAdminAPI.changePassword(userId, payload), Error);
     });
   });
 
@@ -397,7 +399,7 @@ describe("usersService (userAdminAPI)", () => {
     test("should delete user by ID", async () => {
       const userId = 5;
       const mockResponse = { success: true, message: "User deleted" };
-      apiService.delete.mockResolvedValueOnce(mockResponse);
+      apiService.delete.resolves(mockResponse);
 
       const result = await userAdminAPI.remove(userId);
 
@@ -407,30 +409,30 @@ describe("usersService (userAdminAPI)", () => {
 
     test("should handle deletion of non-existent user", async () => {
       const userId = 999;
-      apiService.delete.mockRejectedValueOnce(new Error("User not found"));
+      apiService.delete.rejects(new Error("User not found"));
 
-      assert.rejects(userAdminAPI.remove(userId), Error);
+      await assert.rejects(() => userAdminAPI.remove(userId), Error);
     });
 
     test("should prevent deletion of last admin user", async () => {
       const userId = 1;
-      apiService.delete.mockRejectedValueOnce(new Error("Cannot delete last admin"));
+      apiService.delete.rejects(new Error("Cannot delete last admin"));
 
-      assert.rejects(userAdminAPI.remove(userId), Error);
+      await assert.rejects(() => userAdminAPI.remove(userId), Error);
     });
 
     test("should handle authorization error on deletion", async () => {
       const userId = 10;
-      apiService.delete.mockRejectedValueOnce(new Error("Insufficient permissions"));
+      apiService.delete.rejects(new Error("Insufficient permissions"));
 
-      assert.rejects(userAdminAPI.remove(userId), Error);
+      await assert.rejects(() => userAdminAPI.remove(userId), Error);
     });
 
     test("should handle network error on deletion", async () => {
       const userId = 5;
-      apiService.delete.mockRejectedValueOnce(new Error("Network error"));
+      apiService.delete.rejects(new Error("Network error"));
 
-      assert.rejects(userAdminAPI.remove(userId), Error);
+      await assert.rejects(() => userAdminAPI.remove(userId), Error);
     });
   });
 
@@ -441,7 +443,7 @@ describe("usersService (userAdminAPI)", () => {
   describe("Multi-Tenancy Enforcement", () => {
     test("should filter users by company context", async () => {
       const mockUsers = [{ id: 1, name: "User", email: "user@example.com", companyId: 1 }];
-      apiService.get.mockResolvedValueOnce({ users: mockUsers });
+      apiService.get.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list({ companyId: 1 });
 
@@ -451,7 +453,7 @@ describe("usersService (userAdminAPI)", () => {
     test("should not allow cross-company user access", async () => {
       // API should enforce this, client just sends request
       const mockUsers = [{ id: 1, name: "User", email: "user@example.com", companyId: 2 }];
-      apiService.get.mockResolvedValueOnce({ users: mockUsers });
+      apiService.get.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list({ companyId: 1 });
 
@@ -469,7 +471,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: 10, ...userData, companyId: 1 },
       };
-      apiService.post.mockResolvedValueOnce(mockResponse);
+      apiService.post.resolves(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -483,19 +485,19 @@ describe("usersService (userAdminAPI)", () => {
 
   describe("Error Handling", () => {
     test("should handle API timeout", async () => {
-      apiService.get.mockRejectedValueOnce(new Error("Request timeout"));
+      apiService.get.rejects(new Error("Request timeout"));
 
-      assert.rejects(userAdminAPI.list(), Error);
+      await assert.rejects(() => userAdminAPI.list(), Error);
     });
 
     test("should handle server error responses", async () => {
-      apiService.get.mockRejectedValueOnce(new Error("Server error: 500"));
+      apiService.get.rejects(new Error("Server error: 500"));
 
-      assert.rejects(userAdminAPI.list(), Error);
+      await assert.rejects(() => userAdminAPI.list(), Error);
     });
 
     test("should handle malformed response", async () => {
-      apiService.get.mockResolvedValueOnce(null);
+      apiService.get.resolves(null);
 
       const result = await userAdminAPI.list();
 
@@ -506,8 +508,8 @@ describe("usersService (userAdminAPI)", () => {
       const mockUsers1 = [{ id: 1, name: "User 1", email: "user1@example.com" }];
       const mockUsers2 = [{ id: 2, name: "User 2", email: "user2@example.com" }];
 
-      apiService.get.mockResolvedValueOnce({ users: mockUsers1 });
-      apiService.get.mockResolvedValueOnce({ users: mockUsers2 });
+      apiService.get.resolves({ users: mockUsers1 });
+      apiService.get.resolves({ users: mockUsers2 });
 
       const [result1, result2] = await Promise.all([userAdminAPI.list({ page: 1 }), userAdminAPI.list({ page: 2 })]);
 
@@ -529,7 +531,7 @@ describe("usersService (userAdminAPI)", () => {
         role: "ADMIN",
       };
       const mockResponse = { user: { id: 20, ...userData } };
-      apiService.post.mockResolvedValueOnce(mockResponse);
+      apiService.post.resolves(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -545,7 +547,7 @@ describe("usersService (userAdminAPI)", () => {
         permissions: ["READ_INVOICE", "CREATE_PO", "APPROVE_PAYMENT"],
       };
       const mockResponse = { user: { id: 21, ...userData } };
-      apiService.post.mockResolvedValueOnce(mockResponse);
+      apiService.post.resolves(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -559,7 +561,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, ...payload, email: "user@example.com" },
       };
-      apiService.patch.mockResolvedValueOnce(mockResponse);
+      apiService.patch.resolves(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 

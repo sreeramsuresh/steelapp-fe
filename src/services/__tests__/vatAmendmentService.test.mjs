@@ -1,2 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import vatAmendmentService from "../vatAmendmentService";
+import '../../__tests__/init.mjs';
+
+import { test, describe, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
+import sinon from 'sinon';
+import vatAmendmentService from "../vatAmendmentService.js";

@@ -45,7 +45,7 @@ describe("templateService", () => {
       const error = new Error("Network error");
       apiClient.get.mockRejectedValueOnce(error);
 
-      assert.rejects(templateService.getTemplates(), Error);
+      await assert.rejects(() => templateService.getTemplates(), Error);
     });
   });
 
@@ -71,7 +71,7 @@ describe("templateService", () => {
       const error = new Error("Not found");
       apiClient.get.mockRejectedValueOnce(error);
 
-      assert.rejects(templateService.getTemplate(999), Error);
+      await assert.rejects(() => templateService.getTemplate(999), Error);
     });
   });
 
@@ -97,7 +97,7 @@ describe("templateService", () => {
       const error = new Error("Invalid template");
       apiClient.post.mockRejectedValueOnce(error);
 
-      assert.rejects(templateService.createTemplate({}), Error);
+      await assert.rejects(() => templateService.createTemplate({}), Error);
     });
   });
 
@@ -122,7 +122,7 @@ describe("templateService", () => {
       const error = new Error("Template in use");
       apiClient.put.mockRejectedValueOnce(error);
 
-      assert.rejects(templateService.updateTemplate(1, {}), Error);
+      await assert.rejects(() => templateService.updateTemplate(1, {}), Error);
     });
   });
 
@@ -142,7 +142,7 @@ describe("templateService", () => {
       const error = new Error("Cannot delete default template");
       apiClient.delete.mockRejectedValueOnce(error);
 
-      assert.rejects(templateService.deleteTemplate(1), Error);
+      await assert.rejects(() => templateService.deleteTemplate(1), Error);
     });
   });
 
@@ -151,7 +151,7 @@ describe("templateService", () => {
       const error = new Error("Server error");
       apiClient.get.mockRejectedValueOnce(error);
 
-      assert.rejects(templateService.getTemplates(), Error);
+      await assert.rejects(() => templateService.getTemplates(), Error);
     });
   });
 });

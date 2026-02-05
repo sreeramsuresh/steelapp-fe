@@ -255,7 +255,7 @@ describe("vatReturnService", () => {
     test("should validate return before submission", async () => {
       sinon.stub(apiClient, 'post').rejects(new Error("Box 1 VAT exceeds expected threshold"));
 
-      assert.rejects(vatReturnService.submitReturn(1), Error);
+      await assert.rejects(() => vatReturnService.submitReturn(1), Error);
     });
   });
 
@@ -636,13 +636,13 @@ describe("vatReturnService", () => {
     test("should handle API errors", async () => {
       sinon.stub(apiClient, 'get').rejects(new Error("API Error"));
 
-      assert.rejects(vatReturnService.getAll(), Error);
+      await assert.rejects(() => vatReturnService.getAll(), Error);
     });
 
     test("should validate return data before submission", async () => {
       sinon.stub(apiClient, 'post').rejects(new Error("Invalid return data"));
 
-      assert.rejects(vatReturnService.submitReturn(1), Error);
+      await assert.rejects(() => vatReturnService.submitReturn(1), Error);
     });
   });
 });

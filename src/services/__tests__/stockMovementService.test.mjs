@@ -306,7 +306,7 @@ describe("stockMovementService", () => {
     test("should handle deletion errors", async () => {
       sinon.stub(apiClient, 'delete').rejects(new Error("Movement already processed"));
 
-      assert.rejects(stockMovementService.deleteMovement(1), Error);
+      await assert.rejects(() => stockMovementService.deleteMovement(1), Error);
     });
   });
 

@@ -104,7 +104,7 @@ describe("inventoryService", () => {
       const error = new Error("Item not found");
       sinon.stub(apiClient, 'get').onFirstCall().rejects(error);
 
-      assert.rejects(inventoryService.getItemById(999), Error);
+      await assert.rejects(() => inventoryService.getItemById(999), Error);
     });
   });
 
@@ -326,21 +326,21 @@ describe("inventoryService", () => {
       const error = new Error("Network error");
       sinon.stub(apiClient, 'get').onFirstCall().rejects(error);
 
-      assert.rejects(inventoryService.getAllItems(), Error);
+      await assert.rejects(() => inventoryService.getAllItems(), Error);
     });
 
     test("should handle validation errors", async () => {
       const error = new Error("Invalid item data");
       sinon.stub(apiClient, 'post').onFirstCall().rejects(error);
 
-      assert.rejects(inventoryService.createItem({}), Error);
+      await assert.rejects(() => inventoryService.createItem({}), Error);
     });
 
     test("should handle deletion errors", async () => {
       const error = new Error("Item in use");
       sinon.stub(apiClient, 'delete').onFirstCall().rejects(error);
 
-      assert.rejects(inventoryService.deleteItem(1), Error);
+      await assert.rejects(() => inventoryService.deleteItem(1), Error);
     });
   });
 

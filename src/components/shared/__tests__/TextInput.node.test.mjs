@@ -21,7 +21,7 @@
 import { test, describe, beforeEach, afterEach } from 'node:test';
 import { strictEqual, ok, deepStrictEqual, match } from 'node:assert';
 import sinon from 'sinon';
-import './../../__tests__/init.mjs';
+import '../../../__tests__/init.mjs';
 
 describe('TextInput Component', () => {
   let sandbox;

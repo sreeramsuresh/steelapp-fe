@@ -1,4 +1,8 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import '../../__tests__/init.mjs';
+
+import { test, describe, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
+import sinon from 'sinon';
 
 
 import { userAdminAPI } from "../userAdminApi.js";

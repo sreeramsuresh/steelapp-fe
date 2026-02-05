@@ -9,7 +9,9 @@ import '../../__tests__/init.mjs';
  * ✅ 100% coverage target for pricelistService.js
  */
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { test, describe, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
+import sinon from 'sinon';
 
 
 import api from "../api.js";
@@ -102,7 +104,7 @@ describe("pricelistService", () => {
       const invalidPricelist = { name: "" };
       postStub.rejects(new Error("Validation error"));
 
-      assert.rejects(pricelistService.create(invalidPricelist), Error);
+      await assert.rejects(() => pricelistService.create(invalidPricelist), Error);
     });
   });
 
@@ -121,7 +123,7 @@ describe("pricelistService", () => {
     test("should handle update not found", async () => {
       putStub.rejects(new Error("Not found"));
 
-      assert.rejects(pricelistService.update(999, { name: "Test" }), Error);
+      await assert.rejects(() => pricelistService.update(999, { name: "Test" }), Error);
     });
   });
 

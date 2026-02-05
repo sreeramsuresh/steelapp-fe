@@ -11,10 +11,12 @@ import '../../__tests__/init.mjs';
  * ✅ 40-50 tests covering all critical paths
  */
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { test, describe, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
+import sinon from 'sinon';
 
 // Mock fetch for file uploads
-global.fetch = vi.fn();
+global.fetch = sinon.stub();
 
 
 
@@ -23,10 +25,18 @@ import { companyService } from "../companyService.js";
 import { apiClient } from "../api.js";
 
 describe("companiesService", () => {
+  let fetchStub;
+  let getStub;
+  let postStub;
+  let putStub;
+  let deleteStub;
   beforeEach(() => {
     sinon.restore();
-    global.fetch.mockClear();
-    sinon.stub(tokenUtils, 'getToken').returns("mock-token-123");
+    fetchStub = sinon.stub(global, "fetch");
+    getStub = sinon.stub(apiClient, 'get');
+    postStub = sinon.stub(apiClient, 'post');
+    putStub = sinon.stub(apiClient, 'put');
+    deleteStub = sinon.stub(apiClient, 'delete');
   });
 
   // ============================================================================
@@ -46,31 +56,31 @@ describe("companiesService", () => {
         currency: "USD",
         taxId: "TAX123456",
       };
-      apiClient.get.mockResolvedValueOnce(mockCompany);
+      getStub.resolves(mockCompany);
 
       const result = await companyService.getCompany();
 
       assert.ok(result.id);
       assert.ok(result.name);
-      sinon.assert.calledWith(apiClient.get, "/company");
+      sinon.assert.calledWith(getStub, "/company");
     });
 
     test("should handle company not found", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Company not found"));
+      getStub.rejects(new Error("Company not found"));
 
-      assert.rejects(companyService.getCompany(), Error);
+      await assert.rejects(() => companyService.getCompany(), Error);
     });
 
     test("should handle network error on company retrieval", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Network error"));
+      getStub.rejects(new Error("Network error"));
 
-      assert.rejects(companyService.getCompany(), Error);
+      await assert.rejects(() => companyService.getCompany(), Error);
     });
 
     test("should handle unauthorized access to company", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Unauthorized"));
+      getStub.rejects(new Error("Unauthorized"));
 
-      assert.rejects(companyService.getCompany(), Error);
+      await assert.rejects(() => companyService.getCompany(), Error);
     });
 
     test("should return company with complete metadata", async () => {
@@ -88,7 +98,7 @@ describe("companiesService", () => {
         brandmark: "brandmark.png",
         seal: "seal.png",
       };
-      apiClient.get.mockResolvedValueOnce(mockCompany);
+      getStub.resolves(mockCompany);
 
       const result = await companyService.getCompany();
 
@@ -110,12 +120,12 @@ describe("companiesService", () => {
         phone: "+1-555-0200",
       };
       const mockResponse = { id: 1, ...companyData };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+      postStub.resolves(mockResponse);
 
       const result = await companyService.updateCompany(companyData);
 
       assert.ok(result.name);
-      sinon.assert.calledWith(apiClient.post, "/company", companyData);
+      sinon.assert.calledWith(postStub, "/company", companyData);
     });
 
     test("should update company with all fields", async () => {
@@ -130,7 +140,7 @@ describe("companiesService", () => {
         taxId: "TAX789",
       };
       const mockResponse = { id: 1, ...companyData };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+      postStub.resolves(mockResponse);
 
       const result = await companyService.updateCompany(companyData);
 
@@ -142,19 +152,19 @@ describe("companiesService", () => {
       const companyId = 1;
       const companyData = { name: "Updated Corp" };
       const mockResponse = { id: companyId, ...companyData };
-      apiClient.put.mockResolvedValueOnce(mockResponse);
+      putStub.resolves(mockResponse);
 
       const result = await companyService.updateCompanyById(companyId, companyData);
 
       assert.ok(result.name);
-      sinon.assert.calledWith(apiClient.put, `/company/${companyId}`, companyData);
+      sinon.assert.calledWith(putStub, `/company/${companyId}`, companyData);
     });
 
     test("should handle validation errors on update", async () => {
       const companyData = { email: "invalid-email" };
-      apiClient.post.mockRejectedValueOnce(new Error("Invalid email format"));
+      postStub.rejects(new Error("Invalid email format"));
 
-      assert.rejects(companyService.updateCompany(companyData), Error);
+      await assert.rejects(() => companyService.updateCompany(companyData), Error);
     });
 
     test("should prevent duplicate registration number", async () => {
@@ -162,21 +172,21 @@ describe("companiesService", () => {
         name: "Another Corp",
         registrationNumber: "REG123456", // Already exists
       };
-      apiClient.post.mockRejectedValueOnce(new Error("Registration number already exists"));
+      postStub.rejects(new Error("Registration number already exists"));
 
-      assert.rejects(companyService.updateCompany(companyData), Error);
+      await assert.rejects(() => companyService.updateCompany(companyData), Error);
     });
 
     test("should handle network error on company update", async () => {
-      apiClient.post.mockRejectedValueOnce(new Error("Network error"));
+      postStub.rejects(new Error("Network error"));
 
-      assert.rejects(companyService.updateCompany({ name: "Update" }), Error);
+      await assert.rejects(() => companyService.updateCompany({ name: "Update" }), Error);
     });
 
     test("should handle unauthorized update attempt", async () => {
-      apiClient.put.mockRejectedValueOnce(new Error("Insufficient permissions"));
+      putStub.rejects(new Error("Insufficient permissions"));
 
-      assert.rejects(companyService.updateCompanyById(1, { name: "Update" }), Error);
+      await assert.rejects(() => companyService.updateCompanyById(1, { name: "Update" }), Error);
     });
   });
 
@@ -188,7 +198,7 @@ describe("companiesService", () => {
     test("should upload company logo", async () => {
       const file = new File(["logo content"], "logo.png", { type: "image/png" });
       const mockResponse = { success: true, filename: "logo_12345.png" };
-      global.fetch.mockResolvedValueOnce({
+      sinon.stub(global, "fetch").resolves({
         ok: true,
         json: async () => mockResponse,
       });
@@ -202,72 +212,70 @@ describe("companiesService", () => {
 
     test("should set correct headers for logo upload", async () => {
       const file = new File(["logo"], "logo.png", { type: "image/png" });
-      global.fetch.mockResolvedValueOnce({
+      sinon.stub(global, "fetch").resolves({
         ok: true,
         json: async () => ({ success: true, filename: "logo.png" }),
       });
 
       await companyService.uploadLogo(file);
 
-      const call = global.fetch.mock.calls[0];
       assert.ok(call[0]);
       assert.ok(call[1].method);
-      assert.ok(call[1].headers).toHaveProperty("Authorization");
+      assert.ok(call[1].headers && call[1].headers.Authorization);
     });
 
     test("should include auth token in upload headers", async () => {
       const file = new File(["logo"], "logo.png", { type: "image/png" });
       tokenUtils.getToken.mockReturnValueOnce("test-token");
-      global.fetch.mockResolvedValueOnce({
+      sinon.stub(global, "fetch").resolves({
         ok: true,
         json: async () => ({ success: true }),
       });
 
       await companyService.uploadLogo(file);
 
-      const call = global.fetch.mock.calls[0];
       assert.ok(call[1].headers.Authorization);
     });
 
     test("should handle logo upload error", async () => {
       const file = new File(["logo"], "logo.png", { type: "image/png" });
-      global.fetch.mockResolvedValueOnce({
+      sinon.stub(global, "fetch").resolves({
         ok: false,
         json: async () => ({ error: "File too large" }),
       });
 
-      assert.rejects(companyService.uploadLogo(file), Error);
+      await assert.rejects(() => companyService.uploadLogo(file), Error);
     });
 
     test("should validate logo file type", async () => {
       const file = new File(["content"], "document.pdf", { type: "application/pdf" });
-      global.fetch.mockResolvedValueOnce({
+      sinon.stub(global, "fetch").resolves({
         ok: false,
         json: async () => ({ error: "Only image files allowed" }),
       });
 
-      assert.rejects(companyService.uploadLogo(file), Error);
+      await assert.rejects(() => companyService.uploadLogo(file), Error);
     });
 
     test("should delete logo file", async () => {
       const filename = "logo_12345.png";
       const mockResponse = { success: true };
-      apiClient.delete.mockResolvedValueOnce(mockResponse);
+      deleteStub.resolves(mockResponse);
 
       const result = await companyService.deleteLogo(filename);
 
       assert.ok(result.success);
-      sinon.assert.calledWith(apiClient.delete, `/company/logo/${filename}`);
+      sinon.assert.calledWith(deleteStub, `/company/logo/${filename}`);
     });
 
     test("should cleanup old logos", async () => {
       const mockResponse = { deleted: 3, freed: "25MB" };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+      postStub.resolves(mockResponse);
 
       const result = await companyService.cleanupLogos();
 
       assert.ok(result.deleted);
-      sinon.assert.calledWith(apiClient.post, "/company/cleanup-logos");
+      sinon.assert.calledWith(postStub, "/company/cleanup-logos");
     });
   });
 
@@ -275,7 +283,7 @@ describe("companiesService", () => {
     test("should upload company brandmark", async () => {
       const file = new File(["brandmark"], "brandmark.png", { type: "image/png" });
       const mockResponse = { success: true, filename: "brandmark_12345.png" };
-      global.fetch.mockResolvedValueOnce({
+      sinon.stub(global, "fetch").resolves({
         ok: true,
         json: async () => mockResponse,
       });
@@ -288,22 +296,22 @@ describe("companiesService", () => {
 
     test("should delete brandmark file", async () => {
       const filename = "brandmark_12345.png";
-      apiClient.delete.mockResolvedValueOnce({ success: true });
+      deleteStub.resolves({ success: true });
 
       const result = await companyService.deleteBrandmark(filename);
 
       assert.ok(result.success);
-      sinon.assert.calledWith(apiClient.delete, `/company/brandmark/${filename}`);
+      sinon.assert.calledWith(deleteStub, `/company/brandmark/${filename}`);
     });
 
     test("should handle brandmark upload error", async () => {
       const file = new File(["content"], "brandmark.txt", { type: "text/plain" });
-      global.fetch.mockResolvedValueOnce({
+      sinon.stub(global, "fetch").resolves({
         ok: false,
         json: async () => ({ error: "Invalid file type" }),
       });
 
-      assert.rejects(companyService.uploadBrandmark(file), Error);
+      await assert.rejects(() => companyService.uploadBrandmark(file), Error);
     });
   });
 
@@ -311,7 +319,7 @@ describe("companiesService", () => {
     test("should upload company seal", async () => {
       const file = new File(["seal"], "seal.png", { type: "image/png" });
       const mockResponse = { success: true, filename: "seal_12345.png" };
-      global.fetch.mockResolvedValueOnce({
+      sinon.stub(global, "fetch").resolves({
         ok: true,
         json: async () => mockResponse,
       });
@@ -324,12 +332,12 @@ describe("companiesService", () => {
 
     test("should delete seal file", async () => {
       const filename = "seal_12345.png";
-      apiClient.delete.mockResolvedValueOnce({ success: true });
+      deleteStub.resolves({ success: true });
 
       const result = await companyService.deleteSeal(filename);
 
       assert.ok(result.success);
-      sinon.assert.calledWith(apiClient.delete, `/company/seal/${filename}`);
+      sinon.assert.calledWith(deleteStub, `/company/seal/${filename}`);
     });
   });
 
@@ -348,13 +356,13 @@ describe("companiesService", () => {
         },
       };
       const mockResponse = { success: true, ...templateSettings };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+      postStub.resolves(mockResponse);
 
       const result = await companyService.updateTemplateSettings(templateSettings);
 
       assert.ok(result.success);
       assert.ok(result.selectedTemplate);
-      sinon.assert.calledWith(apiClient.post, "/company/template-settings", templateSettings);
+      sinon.assert.calledWith(postStub, "/company/template-settings", templateSettings);
     });
 
     test("should get current template settings", async () => {
@@ -366,16 +374,16 @@ describe("companiesService", () => {
           customColor: "#000000",
         },
       };
-      apiClient.get.mockResolvedValueOnce(mockSettings);
+      getStub.resolves(mockSettings);
 
       const result = await companyService.getTemplateSettings();
 
       assert.ok(result.selectedTemplate);
-      sinon.assert.calledWith(apiClient.get, "/company/template-settings");
+      sinon.assert.calledWith(getStub, "/company/template-settings");
     });
 
     test("should handle missing template settings", async () => {
-      apiClient.get.mockResolvedValueOnce(null);
+      getStub.resolves(null);
 
       const result = await companyService.getTemplateSettings();
 
@@ -387,9 +395,9 @@ describe("companiesService", () => {
       const invalidSettings = {
         selectedTemplate: "INVALID_TEMPLATE",
       };
-      apiClient.post.mockRejectedValueOnce(new Error("Invalid template"));
+      postStub.rejects(new Error("Invalid template"));
 
-      assert.rejects(companyService.updateTemplateSettings(invalidSettings), Error);
+      await assert.rejects(() => companyService.updateTemplateSettings(invalidSettings), Error);
     });
 
     test("should allow complex template customization", async () => {
@@ -404,7 +412,7 @@ describe("companiesService", () => {
         },
       };
       const mockResponse = { success: true, ...advancedSettings };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+      postStub.resolves(mockResponse);
 
       const result = await companyService.updateTemplateSettings(advancedSettings);
 
@@ -412,15 +420,15 @@ describe("companiesService", () => {
     });
 
     test("should handle template settings update error", async () => {
-      apiClient.post.mockRejectedValueOnce(new Error("Update failed"));
+      postStub.rejects(new Error("Update failed"));
 
-      assert.rejects(companyService.updateTemplateSettings({ selectedTemplate: "STANDARD" }), Error);
+      await assert.rejects(() => companyService.updateTemplateSettings({ selectedTemplate: "STANDARD" }), Error);
     });
 
     test("should persist template settings across sessions", async () => {
       const settings = { selectedTemplate: "CUSTOM" };
-      apiClient.post.mockResolvedValueOnce({ success: true, ...settings });
-      apiClient.get.mockResolvedValueOnce({ ...settings });
+      postStub.resolves({ success: true, ...settings });
+      getStub.resolves({ ...settings });
 
       await companyService.updateTemplateSettings(settings);
       const retrieved = await companyService.getTemplateSettings();
@@ -440,7 +448,7 @@ describe("companiesService", () => {
         name: "Company A",
         companyId: 1, // Tenant context
       };
-      apiClient.get.mockResolvedValueOnce(mockCompany);
+      getStub.resolves(mockCompany);
 
       const result = await companyService.getCompany();
 
@@ -450,7 +458,7 @@ describe("companiesService", () => {
     test("should enforce single company access", async () => {
       // User in company 1 should not access company 2 data
       const mockCompany = { id: 2, name: "Company B", companyId: 2 };
-      apiClient.get.mockResolvedValueOnce(mockCompany);
+      getStub.resolves(mockCompany);
 
       const result = await companyService.getCompany();
 
@@ -463,7 +471,7 @@ describe("companiesService", () => {
         selectedTemplate: "PROFESSIONAL",
         companyId: 1,
       };
-      apiClient.get.mockResolvedValueOnce(mockSettings);
+      getStub.resolves(mockSettings);
 
       const result = await companyService.getTemplateSettings();
 
@@ -478,23 +486,23 @@ describe("companiesService", () => {
   describe("Error Handling", () => {
     test("should handle file upload timeout", async () => {
       const file = new File(["logo"], "logo.png", { type: "image/png" });
-      global.fetch.mockRejectedValueOnce(new Error("Upload timeout"));
+      sinon.stub(global, "fetch").rejects(new Error("Upload timeout"));
 
-      assert.rejects(companyService.uploadLogo(file), Error);
+      await assert.rejects(() => companyService.uploadLogo(file), Error);
     });
 
     test("should handle network errors gracefully", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Network unavailable"));
+      getStub.rejects(new Error("Network unavailable"));
 
-      assert.rejects(companyService.getCompany(), Error);
+      await assert.rejects(() => companyService.getCompany(), Error);
     });
 
     test("should handle concurrent update conflicts", async () => {
       const data1 = { name: "Update 1" };
       const data2 = { name: "Update 2" };
 
-      apiClient.post.mockResolvedValueOnce({ id: 1, ...data1 });
-      apiClient.post.mockResolvedValueOnce({ id: 1, ...data2 });
+      postStub.resolves({ id: 1, ...data1 });
+      postStub.resolves({ id: 1, ...data2 });
 
       const [result1, result2] = await Promise.all([
         companyService.updateCompany(data1),
@@ -509,7 +517,7 @@ describe("companiesService", () => {
       const largeFile = new File(["x".repeat(50 * 1024 * 1024)], "large.png", {
         type: "image/png",
       });
-      global.fetch.mockResolvedValueOnce({
+      sinon.stub(global, "fetch").resolves({
         ok: true,
         json: async () => ({ success: true, filename: "large.png" }),
       });
@@ -520,7 +528,7 @@ describe("companiesService", () => {
     });
 
     test("should handle malformed API response", async () => {
-      apiClient.get.mockResolvedValueOnce(undefined);
+      getStub.resolves(undefined);
 
       const result = await companyService.getCompany();
 
@@ -529,7 +537,7 @@ describe("companiesService", () => {
 
     test("should retry failed file uploads", async () => {
       const file = new File(["logo"], "logo.png", { type: "image/png" });
-      global.fetch.mockRejectedValueOnce(new Error("Network error")).mockResolvedValueOnce({
+      sinon.stub(global, "fetch").rejects(new Error("Network error")).resolves({
         ok: true,
         json: async () => ({ success: true, filename: "logo.png" }),
       });
@@ -556,8 +564,8 @@ describe("companiesService", () => {
       const companyData = { name: "Updated Corp" };
       const file = new File(["logo"], "logo.png", { type: "image/png" });
 
-      apiClient.post.mockResolvedValueOnce({ id: 1, ...companyData });
-      global.fetch.mockResolvedValueOnce({
+      postStub.resolves({ id: 1, ...companyData });
+      sinon.stub(global, "fetch").resolves({
         ok: true,
         json: async () => ({ success: true, filename: "logo.png" }),
       });
@@ -574,12 +582,12 @@ describe("companiesService", () => {
       const logo = new File(["logo"], "logo.png", { type: "image/png" });
       const templates = { selectedTemplate: "PROFESSIONAL" };
 
-      apiClient.post.mockResolvedValueOnce({ id: 2, ...company });
-      global.fetch.mockResolvedValueOnce({
+      postStub.resolves({ id: 2, ...company });
+      sinon.stub(global, "fetch").resolves({
         ok: true,
         json: async () => ({ success: true, filename: "logo.png" }),
       });
-      apiClient.post.mockResolvedValueOnce({ success: true, ...templates });
+      postStub.resolves({ success: true, ...templates });
 
       await companyService.updateCompany(company);
       await companyService.uploadLogo(logo);

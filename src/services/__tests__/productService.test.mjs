@@ -118,7 +118,7 @@ describe("productService", () => {
       test("should handle non-existent product", async () => {
         sinon.stub(apiClient, "get").onFirstCall().rejects(new Error("Not found"));
 
-        assert.rejects(productService.getProduct(999), Error);
+        await assert.rejects(() => productService.getProduct(999), Error);
       });
     });
 
@@ -407,10 +407,10 @@ describe("productService", () => {
         });
 
         const { apiService } = await import("../axiosApi.js");
-        apiService.request = vi.fn().mockResolvedValueOnce(mockBlob);
+        apiService.request = sinon.stub().mockResolvedValueOnce(mockBlob);
 
         // Mock document functions
-        const mockLink = { click: vi.fn(), style: {}, download: "" };
+        const mockLink = { click: sinon.stub(), style: {}, download: "" };
         vi.mocked(global.document.createElement).mockReturnValueOnce(mockLink);
 
         await productService.downloadProducts();
@@ -597,13 +597,13 @@ describe("productService", () => {
     test("should handle network timeout", async () => {
       sinon.stub(apiClient, "get").onFirstCall().rejects(new Error("Network timeout"));
 
-      assert.rejects(productService.getProducts(), Error);
+      await assert.rejects(() => productService.getProducts(), Error);
     });
 
     test("should handle server errors", async () => {
       sinon.stub(apiClient, "get").onFirstCall().rejects(new Error("Server error: 500"));
 
-      assert.rejects(productService.getProducts(), Error);
+      await assert.rejects(() => productService.getProducts(), Error);
     });
   });
 });

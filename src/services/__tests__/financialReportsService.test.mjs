@@ -244,7 +244,7 @@ describe("financialReportsService", () => {
       assert.ok(result.closingBalance);
       sinon.assert.calledWith(apiClient.get, "/financial-reports/general-ledger/1000",
         Object.keys({
-          params: ,
+          params: { startDate: "2024-01-01", endDate: "2024-01-31" },
         }).every(k => typeof arguments[0][k] !== 'undefined'));
     });
 
@@ -467,7 +467,7 @@ describe("financialReportsService", () => {
     test("should handle API errors gracefully", async () => {
       sinon.stub(apiClient, 'get').rejects(new Error("Period not found"));
 
-      assert.rejects(financialReportsService.getTrialBalance(999), Error);
+      await assert.rejects(() => financialReportsService.getTrialBalance(999), Error);
     });
 
     test("should handle multiple fiscal periods", async () => {

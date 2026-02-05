@@ -69,7 +69,7 @@ describe("purchaseOrderSyncService", () => {
 
       inventoryService.createItem.mockRejectedValue(new Error("DB Error"));
 
-      assert.rejects(purchaseOrderSyncService.handlePOStatusChange(po, "received", "retain"), Error);
+      await assert.rejects(() => purchaseOrderSyncService.handlePOStatusChange(po, "received", "retain"), Error);
 
       assert.ok(notificationService.error);
     });

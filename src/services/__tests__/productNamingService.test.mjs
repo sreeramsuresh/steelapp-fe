@@ -4,9 +4,6 @@ import sinon from 'sinon';
 import { productNamingService } from "../productNamingService.js";
 import '../../__tests__/init.mjs';
 
-
-global.fetch = vi.fn();
-
 describe("productNamingService", () => {
   beforeEach(() => {
     sinon.restore();
@@ -16,7 +13,7 @@ describe("productNamingService", () => {
     test("should verify sheet product naming", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: async () => ({
           uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm",
           displayName: "304 Sheet 2B 1220×2×2440",
           isValid: true,
@@ -41,7 +38,7 @@ describe("productNamingService", () => {
     test("should verify pipe product naming", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: async () => ({
           uniqueName: "SS-316L-PIPE-BA-2inch-Sch40",
           displayName: '316L Pipe BA 2" Sch40',
           isValid: true,
@@ -64,7 +61,7 @@ describe("productNamingService", () => {
     test("should verify tube product naming", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: async () => ({
           uniqueName: "SS-316-TUBE-2B-25mm-1.5mm",
           displayName: "316 Tube 2B 25×1.5",
           isValid: true,
@@ -87,7 +84,7 @@ describe("productNamingService", () => {
     test("should verify coil product naming", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: async () => ({
           uniqueName: "SS-304-COIL-2B-1000mm-1mm",
           displayName: "304 Coil 2B 1000×1",
           isValid: true,
@@ -109,7 +106,7 @@ describe("productNamingService", () => {
     test("should include mill information in naming", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: async () => ({
           uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm-POSCO-KR",
           displayName: "304 Sheet 2B 1220×2×2440 (POSCO, Korea)",
           isValid: true,
@@ -138,7 +135,7 @@ describe("productNamingService", () => {
       for (const grade of grades) {
         const mockResponse = {
           ok: true,
-          json: vi.fn().mockResolvedValue({
+          json: async () => ({
             uniqueName: `SS-${grade}-SHEET-2B`,
             displayName: `${grade} Sheet 2B`,
             isValid: true,
@@ -162,7 +159,7 @@ describe("productNamingService", () => {
       for (const finish of finishes) {
         const mockResponse = {
           ok: true,
-          json: vi.fn().mockResolvedValue({
+          json: sinon.stub().mockResolvedValue({
             uniqueName: `SS-304-SHEET-${finish}`,
             displayName: `304 Sheet ${finish}`,
             isValid: true,
@@ -183,26 +180,26 @@ describe("productNamingService", () => {
     test("should return error on API failure", async () => {
       const mockResponse = {
         ok: false,
-        json: vi.fn().mockResolvedValue({
+        json: sinon.stub().mockResolvedValue({
           error: "Invalid grade specification",
         }),
       };
 
       sinon.stub(global, 'fetch').resolves(mockResponse);
 
-      assert.rejects(productNamingService.verifyNamingLogic("sheet", { grade: "INVALID" }), Error);
+      await assert.rejects(() => productNamingService.verifyNamingLogic("sheet", { grade: "INVALID" }), Error);
     });
 
     test("should handle network errors", async () => {
-      global.fetch.mockRejectedValue(new Error("Network error"));
+      global.fetch.rejects(new Error("Network error"));
 
-      assert.rejects(productNamingService.verifyNamingLogic("sheet", { grade: "304" }), Error);
+      await assert.rejects(() => productNamingService.verifyNamingLogic("sheet", { grade: "304" }), Error);
     });
 
     test("should include mandatory SSOT concatenation format", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: sinon.stub().mockResolvedValue({
           uniqueName: "SS-316L-SHEET-2B-1220mm-2mm-2440mm",
           displayName: "316L Sheet 2B 1220×2×2440",
           isValid: true,
@@ -249,7 +246,7 @@ describe("productNamingService", () => {
       sinon.stub(global, 'fetch').callsFake(() => {
         const mockResponse = {
           ok: true,
-          json: vi.fn().mockResolvedValue(mockResponses[callIndex]),
+          json: sinon.stub() = sinon.stub().resolves(mockResponses[callIndex]),
         };
         callIndex++;
         return Promise.resolve(mockResponse);
@@ -267,7 +264,7 @@ describe("productNamingService", () => {
     test("should verify standard product type sample data", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: sinon.stub().mockResolvedValue({
           verifiedTypes: ["sheet", "pipe", "tube", "coil", "bar", "anglebar"],
           allValid: true,
         }),
@@ -286,7 +283,7 @@ describe("productNamingService", () => {
     test("should support sheet products", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: sinon.stub().mockResolvedValue({
           uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm",
         }),
       };
@@ -303,7 +300,7 @@ describe("productNamingService", () => {
     test("should support pipe products", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: sinon.stub().mockResolvedValue({
           uniqueName: "SS-304-PIPE-BA-2inch-Sch40",
         }),
       };
@@ -320,7 +317,7 @@ describe("productNamingService", () => {
     test("should support tube products", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: sinon.stub().mockResolvedValue({
           uniqueName: "SS-316-TUBE-2B-25mm-1.5mm",
         }),
       };
@@ -337,7 +334,7 @@ describe("productNamingService", () => {
     test("should support coil products", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: sinon.stub().mockResolvedValue({
           uniqueName: "SS-304-COIL-2B-1000mm-1mm",
         }),
       };
@@ -354,7 +351,7 @@ describe("productNamingService", () => {
     test("should support bar products", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: sinon.stub().mockResolvedValue({
           uniqueName: "SS-304-BAR-Bright-16mm",
         }),
       };
@@ -374,7 +371,7 @@ describe("productNamingService", () => {
     test("should support standard metric dimensions", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: sinon.stub().mockResolvedValue({
           uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm",
         }),
       };
@@ -393,7 +390,7 @@ describe("productNamingService", () => {
     test("should support imperial dimensions", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: sinon.stub().mockResolvedValue({
           uniqueName: "SS-304-PIPE-BA-2inch-Sch40",
         }),
       };
@@ -413,14 +410,14 @@ describe("productNamingService", () => {
     test("should generate unique names for different products", async () => {
       const product1 = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: sinon.stub().mockResolvedValue({
           uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm",
         }),
       };
 
       const product2 = {
         ok: true,
-        json: vi.fn().mockResolvedValue({
+        json: sinon.stub().mockResolvedValue({
           uniqueName: "SS-316L-SHEET-2B-1220mm-3mm-2440mm",
         }),
       };

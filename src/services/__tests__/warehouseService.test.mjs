@@ -184,7 +184,7 @@ describe("warehouseService", () => {
     test("should return empty analytics on error", async () => {
       sinon.stub(apiClient, 'get').rejects(new Error("Network error"));
 
-      assert.rejects(warehouseService.getById("invalid"), Error);
+      await assert.rejects(() => warehouseService.getById("invalid"), Error);
     });
   });
 });

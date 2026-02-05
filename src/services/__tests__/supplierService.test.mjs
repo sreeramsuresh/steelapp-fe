@@ -9,18 +9,25 @@ import '../../__tests__/init.mjs';
  * ✅ 100% coverage target for supplierService.js
  */
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { test, describe, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
+import sinon from 'sinon';
 
 
 import supplierService, { transformSupplierFromServer } from "../supplierService.js";
 import { apiClient } from "../api.js";
 
 describe("supplierService", () => {
+  let getStub;
+  let postStub;
+  let putStub;
+  let deleteStub;
   beforeEach(() => {
     sinon.restore();
-    localStorage.clear();
-    // Mock environment variable to enable API calls in tests
-    import.meta.env.VITE_ENABLE_SUPPLIERS = "true";
+    getStub = sinon.stub(apiClient, 'get');
+    postStub = sinon.stub(apiClient, 'post');
+    putStub = sinon.stub(apiClient, 'put');
+    deleteStub = sinon.stub(apiClient, 'delete');
   });
 
   describe("getSuppliers", () => {
@@ -44,19 +51,19 @@ describe("supplierService", () => {
         ],
         pageInfo: { page: 1, totalPages: 1, total: 2 },
       };
-      apiClient.get.mockResolvedValueOnce(mockSuppliers);
+      getStub.resolves(mockSuppliers);
 
       const result = await supplierService.getSuppliers({ page: 1, limit: 20 });
 
       assert.ok(result.suppliers);
       assert.ok(result.suppliers[0].name);
-      sinon.assert.calledWith(apiClient.get, "/suppliers", { page: 1, limit: 20 });
+      sinon.assert.calledWith(getStub, "/suppliers", { page: 1, limit: 20 });
     });
 
     test("should handle API errors and return localStorage fallback", async () => {
       const localSuppliers = [{ id: 1, name: "Cached Supplier", country: "UAE" }];
       localStorage.setItem("steel-app-suppliers", JSON.stringify(localSuppliers));
-      apiClient.get.mockRejectedValueOnce(new Error("Network error"));
+      getStub.rejects(new Error("Network error"));
 
       const result = await supplierService.getSuppliers();
 
@@ -65,7 +72,7 @@ describe("supplierService", () => {
     });
 
     test("should return empty array if API fails and no local cache", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Network error"));
+      getStub.rejects(new Error("Network error"));
 
       const result = await supplierService.getSuppliers();
 
@@ -83,18 +90,18 @@ describe("supplierService", () => {
         contactName: "John Doe",
         email: "john@supplier.com",
       };
-      apiClient.get.mockResolvedValueOnce(mockSupplier);
+      getStub.resolves(mockSupplier);
 
       const result = await supplierService.getSupplier(3);
 
       assert.ok(result.name);
-      sinon.assert.calledWith(apiClient.get, "/suppliers/3");
+      sinon.assert.calledWith(getStub, "/suppliers/3");
     });
 
     test("should fallback to localStorage if API fails", async () => {
       const localSupplier = { id: 3, name: "Local Supplier", country: "UAE" };
       localStorage.setItem("steel-app-suppliers", JSON.stringify([localSupplier]));
-      apiClient.get.mockRejectedValueOnce(new Error("API unavailable"));
+      getStub.rejects(new Error("API unavailable"));
 
       const result = await supplierService.getSupplier(3);
 
@@ -102,7 +109,7 @@ describe("supplierService", () => {
     });
 
     test("should return undefined if supplier not found in API or localStorage", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Not found"));
+      getStub.rejects(new Error("Not found"));
 
       const result = await supplierService.getSupplier(999);
 
@@ -122,13 +129,13 @@ describe("supplierService", () => {
         companyId: 1,
         ...newSupplier,
       };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+      postStub.resolves(mockResponse);
 
       const result = await supplierService.createSupplier(newSupplier);
 
       assert.ok(result.id);
       assert.ok(result.companyId);
-      sinon.assert.calledWith(apiClient.post, "/suppliers", newSupplier);
+      sinon.assert.calledWith(postStub, "/suppliers", newSupplier);
     });
 
     test("should fallback to localStorage if API fails", async () => {
@@ -137,7 +144,7 @@ describe("supplierService", () => {
         name: "Fallback Supplier",
         address: { country: "UAE" },
       };
-      apiClient.post.mockRejectedValueOnce(new Error("API error"));
+      postStub.rejects(new Error("API error"));
 
       const result = await supplierService.createSupplier(newSupplier);
 
@@ -152,7 +159,7 @@ describe("supplierService", () => {
         name: "No ID Supplier",
         address: { country: "UAE" },
       };
-      apiClient.post.mockRejectedValueOnce(new Error("API error"));
+      postStub.rejects(new Error("API error"));
 
       const result = await supplierService.createSupplier(newSupplier);
 
@@ -170,18 +177,18 @@ describe("supplierService", () => {
         name: "Supplier",
         ...updates,
       };
-      apiClient.put.mockResolvedValueOnce(mockResponse);
+      putStub.resolves(mockResponse);
 
       const result = await supplierService.updateSupplier(3, updates);
 
       assert.ok(result.status);
       assert.ok(result.country);
-      sinon.assert.calledWith(apiClient.put, "/suppliers/3", updates);
+      sinon.assert.calledWith(putStub, "/suppliers/3", updates);
     });
 
     test("should fallback to localStorage if API fails", async () => {
       const updates = { status: "INACTIVE" };
-      apiClient.put.mockRejectedValueOnce(new Error("API error"));
+      putStub.rejects(new Error("API error"));
 
       const result = await supplierService.updateSupplier(3, updates);
 
@@ -195,12 +202,12 @@ describe("supplierService", () => {
 
   describe("deleteSupplier", () => {
     test("should delete supplier via API", async () => {
-      apiClient.delete.mockResolvedValueOnce({ success: true });
+      deleteStub.resolves({ success: true });
 
       const result = await supplierService.deleteSupplier(5);
 
       assert.ok(result.success);
-      sinon.assert.calledWith(apiClient.delete, "/suppliers/5");
+      sinon.assert.calledWith(deleteStub, "/suppliers/5");
     });
 
     test("should fallback to localStorage if API fails", async () => {
@@ -211,7 +218,7 @@ describe("supplierService", () => {
           { id: 6, name: "Keep", country: "UAE" },
         ])
       );
-      apiClient.delete.mockRejectedValueOnce(new Error("API error"));
+      deleteStub.rejects(new Error("API error"));
 
       const result = await supplierService.deleteSupplier(5);
 
@@ -318,7 +325,7 @@ describe("supplierService", () => {
 
   describe("Error Handling", () => {
     test("should handle network errors in getSuppliers gracefully", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Network timeout"));
+      getStub.rejects(new Error("Network timeout"));
 
       const result = await supplierService.getSuppliers();
 
@@ -326,7 +333,7 @@ describe("supplierService", () => {
     });
 
     test("should handle network errors in getSupplier gracefully", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Network error"));
+      getStub.rejects(new Error("Network error"));
 
       const result = await supplierService.getSupplier(1);
 
@@ -335,7 +342,7 @@ describe("supplierService", () => {
 
     test("should handle network errors in createSupplier with fallback", async () => {
       const data = { name: "Test" };
-      apiClient.post.mockRejectedValueOnce(new Error("API error"));
+      postStub.rejects(new Error("API error"));
 
       const result = await supplierService.createSupplier(data);
 

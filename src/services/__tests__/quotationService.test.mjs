@@ -9,7 +9,9 @@ import '../../__tests__/init.mjs';
  * ✅ 100% coverage target for quotationService.js
  */
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { test, describe, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
+import sinon from 'sinon';
 
 
 
@@ -18,8 +20,18 @@ import { quotationService } from "../quotationService.js";
 import { apiClient } from "../api.js";
 
 describe("quotationService", () => {
+  let getStub;
+  let postStub;
+  let putStub;
+  let deleteStub;
+  let patchStub;
   beforeEach(() => {
     sinon.restore();
+    getStub = sinon.stub(apiClient, 'get');
+    postStub = sinon.stub(apiClient, 'post');
+    putStub = sinon.stub(apiClient, 'put');
+    deleteStub = sinon.stub(apiClient, 'delete');
+    patchStub = sinon.stub(apiClient, 'patch');
   });
 
   describe("getAll", () => {
@@ -33,33 +45,33 @@ describe("quotationService", () => {
           totalAmount: 50000,
         },
       ];
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await quotationService.getAll({ page: 1, limit: 20 });
 
       assert.ok(result !== undefined);
-      sinon.assert.calledWith(apiClient.get, "/quotations", {
+      sinon.assert.calledWith(getStub, "/quotations", {
         page: 1,
         limit: 20,
       });
     });
 
     test("should filter by customer", async () => {
-      apiClient.get.mockResolvedValueOnce([]);
+      getStub.resolves([]);
 
       await quotationService.getAll({ customerId: 5 });
 
-      sinon.assert.calledWith(apiClient.get, "/quotations", {
+      sinon.assert.calledWith(getStub, "/quotations", {
         customerId: 5,
       });
     });
 
     test("should filter by status", async () => {
-      apiClient.get.mockResolvedValueOnce([]);
+      getStub.resolves([]);
 
       await quotationService.getAll({ status: "approved" });
 
-      sinon.assert.calledWith(apiClient.get, "/quotations", {
+      sinon.assert.calledWith(getStub, "/quotations", {
         status: "approved",
       });
     });
@@ -88,13 +100,13 @@ describe("quotationService", () => {
         totalAmount: 52500,
         status: "draft",
       };
-      apiClient.get.mockResolvedValueOnce(mockQuotation);
+      getStub.resolves(mockQuotation);
 
       const result = await quotationService.getById(1);
 
       assert.ok(result.id);
       assert.ok(result.quotationNumber);
-      sinon.assert.calledWith(apiClient.get, "/quotations/1");
+      sinon.assert.calledWith(getStub, "/quotations/1");
     });
   });
 
@@ -120,13 +132,13 @@ describe("quotationService", () => {
       };
 
       const mockResponse = { id: 5, ...newQuotation, status: "draft" };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+      postStub.resolves(mockResponse);
 
       const result = await quotationService.create(newQuotation);
 
       assert.ok(result.id);
       assert.ok(result.quotationNumber);
-      sinon.assert.calledWith(apiClient.post, "/quotations", newQuotation);
+      sinon.assert.calledWith(postStub, "/quotations", newQuotation);
     });
   });
 
@@ -134,17 +146,17 @@ describe("quotationService", () => {
     test("should update quotation", async () => {
       const updates = { validUntil: "2026-03-15", notes: "Updated terms" };
       const mockResponse = { id: 1, ...updates };
-      apiClient.put.mockResolvedValueOnce(mockResponse);
+      putStub.resolves(mockResponse);
 
       const result = await quotationService.update(1, updates);
 
       assert.ok(result.id);
-      sinon.assert.calledWith(apiClient.put, "/quotations/1", updates);
+      sinon.assert.calledWith(putStub, "/quotations/1", updates);
     });
 
     test("should only allow update of draft quotations", async () => {
       const updates = { notes: "Updated" };
-      apiClient.put.mockResolvedValueOnce({
+      putStub.resolves({
         id: 1,
         status: "draft",
         ...updates,
@@ -159,34 +171,34 @@ describe("quotationService", () => {
   describe("delete", () => {
     test("should delete quotation", async () => {
       const mockResponse = { success: true };
-      apiClient.delete.mockResolvedValueOnce(mockResponse);
+      deleteStub.resolves(mockResponse);
 
       const result = await quotationService.delete(1);
 
       assert.ok(result.success);
-      sinon.assert.calledWith(apiClient.delete, "/quotations/1");
+      sinon.assert.calledWith(deleteStub, "/quotations/1");
     });
   });
 
   describe("updateStatus", () => {
     test("should update quotation status", async () => {
       const mockResponse = { id: 1, status: "approved" };
-      apiClient.patch.mockResolvedValueOnce(mockResponse);
+      patchStub.resolves(mockResponse);
 
       const result = await quotationService.updateStatus(1, "approved");
 
       assert.ok(result.status);
-      sinon.assert.calledWith(apiClient.patch, "/quotations/1/status", {
+      sinon.assert.calledWith(patchStub, "/quotations/1/status", {
         status: "approved",
       });
     });
 
     test("should support draft → approved → expired status transitions", async () => {
-      apiClient.patch.mockResolvedValueOnce({ status: "expired" });
+      patchStub.resolves({ status: "expired" });
 
       await quotationService.updateStatus(1, "expired");
 
-      sinon.assert.calledWith(apiClient.patch, "/quotations/1/status", {
+      sinon.assert.calledWith(patchStub, "/quotations/1/status", {
         status: "expired",
       });
     });
@@ -199,31 +211,31 @@ describe("quotationService", () => {
         invoiceNumber: "INV-001",
         status: "draft",
       };
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+      postStub.resolves(mockResponse);
 
       const result = await quotationService.convertToInvoice(1);
 
       assert.ok(result.invoiceId);
       assert.ok(result.invoiceNumber);
-      sinon.assert.calledWith(apiClient.post, "/quotations/1/convert-to-invoice");
+      sinon.assert.calledWith(postStub, "/quotations/1/convert-to-invoice");
     });
 
     test("should not convert expired quotation", async () => {
-      apiClient.post.mockRejectedValueOnce(new Error("Cannot convert expired quotation"));
+      postStub.rejects(new Error("Cannot convert expired quotation"));
 
-      assert.rejects(quotationService.convertToInvoice(1), Error);
+      await assert.rejects(() => quotationService.convertToInvoice(1), Error);
     });
   });
 
   describe("getNextNumber", () => {
     test("should get next quotation number", async () => {
       const mockResponse = { nextNumber: "QT-00045", prefix: "QT-" };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await quotationService.getNextNumber();
 
       assert.ok(result.nextNumber);
-      sinon.assert.calledWith(apiClient.get, "/quotations/number/next");
+      sinon.assert.calledWith(getStub, "/quotations/number/next");
     });
   });
 
@@ -233,13 +245,13 @@ describe("quotationService", () => {
 
       // Mock URL creation
       // Skipped: global.URL.createObjectURL = vi.fn(() => "blob:test-url");
-      global.URL.revokeObjectURL = vi.fn();
+      global.URL.revokeObjectURL = sinon.stub();
 
       // Mock document methods
-      document.body.appendChild = vi.fn();
-      document.body.removeChild = vi.fn();
+      document.body.appendChild = sinon.stub();
+      document.body.removeChild = sinon.stub();
 
-      apiService.request.mockResolvedValueOnce(mockBlob);
+      apiService.request.resolves(mockBlob);
 
       await quotationService.downloadPDF(1);
 
@@ -251,35 +263,35 @@ describe("quotationService", () => {
     });
 
     test("should handle PDF download errors", async () => {
-      apiService.request.mockRejectedValueOnce(new Error("PDF generation failed"));
+      apiService.request.rejects(new Error("PDF generation failed"));
 
-      assert.rejects(quotationService.downloadPDF(999), Error);
+      await assert.rejects(() => quotationService.downloadPDF(999), Error);
     });
   });
 
   describe("Error Handling", () => {
     test("should handle API errors in getAll", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Network error"));
+      getStub.rejects(new Error("Network error"));
 
-      assert.rejects(quotationService.getAll(), Error);
+      await assert.rejects(() => quotationService.getAll(), Error);
     });
 
     test("should handle errors in create", async () => {
-      apiClient.post.mockRejectedValueOnce(new Error("Validation failed"));
+      postStub.rejects(new Error("Validation failed"));
 
-      assert.rejects(quotationService.create({}), Error);
+      await assert.rejects(() => quotationService.create({}), Error);
     });
 
     test("should handle errors in convertToInvoice", async () => {
-      apiClient.post.mockRejectedValueOnce(new Error("Conversion failed"));
+      postStub.rejects(new Error("Conversion failed"));
 
-      assert.rejects(quotationService.convertToInvoice(1), Error);
+      await assert.rejects(() => quotationService.convertToInvoice(1), Error);
     });
 
     test("should handle errors in updateStatus", async () => {
-      apiClient.patch.mockRejectedValueOnce(new Error("Invalid status transition"));
+      patchStub.rejects(new Error("Invalid status transition"));
 
-      assert.rejects(quotationService.updateStatus(1, "invalid"), Error);
+      await assert.rejects(() => quotationService.updateStatus(1, "invalid"), Error);
     });
   });
 });

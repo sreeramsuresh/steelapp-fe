@@ -5,7 +5,9 @@
 import '../../__tests__/init.mjs';
 
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { test, describe, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
+import sinon from 'sinon';
 
 
 
@@ -30,15 +32,12 @@ const localStorageMock = (() => {
 })();
 
 describe("payablesService", () => {
+  let getStub;
+  let postStub;
   beforeEach(() => {
     sinon.restore();
-    // Set up localStorage mock before each test
-    if (typeof window !== "undefined") {
-      Object.defineProperty(window, "localStorage", {
-        value: localStorageMock,
-        writable: true,
-      });
-    }
+    getStub = sinon.stub(apiClient, 'get');
+    postStub = sinon.stub(apiClient, 'post');
     localStorageMock.clear();
   });
 
@@ -59,7 +58,7 @@ describe("payablesService", () => {
           ],
           aggregates: { total_amount: 10000, total_paid: 0 },
         };
-        apiClient.get.mockResolvedValueOnce(mockResponse);
+        getStub.resolves(mockResponse);
 
         const result = await payablesService.getInvoices({ page: 1 });
 
@@ -79,7 +78,7 @@ describe("payablesService", () => {
           ],
           aggregates: {},
         };
-        apiClient.get.mockResolvedValueOnce(mockResponse);
+        getStub.resolves(mockResponse);
 
         const result = await payablesService.getInvoices();
 
@@ -94,7 +93,7 @@ describe("payablesService", () => {
             invoice_amount: 10000,
           },
         ];
-        apiClient.get.mockResolvedValueOnce(mockResponse);
+        getStub.resolves(mockResponse);
 
         const result = await payablesService.getInvoices();
 
@@ -103,7 +102,7 @@ describe("payablesService", () => {
       });
 
       test("should return empty array on error", async () => {
-        apiClient.get.mockRejectedValueOnce(new Error("Network error"));
+        getStub.rejects(new Error("Network error"));
 
         const result = await payablesService.getInvoices();
 
@@ -127,7 +126,7 @@ describe("payablesService", () => {
             },
           ],
         };
-        apiClient.get.mockResolvedValueOnce(mockResponse);
+        getStub.resolves(mockResponse);
 
         const result = await payablesService.getInvoice(1);
 
@@ -142,7 +141,7 @@ describe("payablesService", () => {
           invoice_amount: 10000,
           payments: [],
         };
-        apiClient.get.mockResolvedValueOnce(mockResponse);
+        getStub.resolves(mockResponse);
         localStorage.setItem("payables:inv:payments", JSON.stringify({ 1: [{ id: "local-1", amount: 2000 }] }));
 
         const result = await payablesService.getInvoice(1);
@@ -158,7 +157,7 @@ describe("payablesService", () => {
           paid: 10000,
           balance: 0,
         };
-        apiClient.get.mockResolvedValueOnce(mockResponse);
+        getStub.resolves(mockResponse);
 
         const result = await payablesService.getInvoice(1);
 
@@ -174,7 +173,7 @@ describe("payablesService", () => {
           method: "bank_transfer",
           reference_no: "CHQ-123",
         };
-        apiClient.post.mockResolvedValueOnce({
+        postStub.resolves({
           id: 1,
           invoice_number: "INV-001",
           paid: 5000,
@@ -185,7 +184,7 @@ describe("payablesService", () => {
         const result = await payablesService.addInvoicePayment(1, paymentData);
 
         assert.ok(result.id);
-        sinon.assert.calledWith(apiClient.post, "/payables/invoices/1/payments", );
+        sinon.assert.calledWith(postStub, "/payables/invoices/1/payments", );
       });
 
       test("should fall back to local storage on error", async () => {
@@ -194,7 +193,7 @@ describe("payablesService", () => {
           amount: 5000,
           payment_date: "2024-01-15",
         };
-        apiClient.post.mockRejectedValueOnce(new Error("Server error"));
+        postStub.rejects(new Error("Server error"));
 
         const result = await payablesService.addInvoicePayment(1, paymentData);
 
@@ -210,7 +209,7 @@ describe("payablesService", () => {
           notes: "Full payment",
           attachment_url: "https://example.com/receipt.pdf",
         };
-        apiClient.post.mockResolvedValueOnce({
+        postStub.resolves({
           id: 1,
           paid: 5000,
         });
@@ -223,7 +222,7 @@ describe("payablesService", () => {
 
     describe("voidInvoicePayment", () => {
       test("should void invoice payment", async () => {
-        apiClient.post.mockResolvedValueOnce({
+        postStub.resolves({
           id: 1,
           invoice_number: "INV-001",
           paid: 0,
@@ -233,13 +232,13 @@ describe("payablesService", () => {
         const result = await payablesService.voidInvoicePayment(1, "p1", "Erroneous entry");
 
         assert.ok(result.id);
-        sinon.assert.calledWith(apiClient.post, "/payables/invoices/1/payments/p1/void", {
+        sinon.assert.calledWith(postStub, "/payables/invoices/1/payments/p1/void", {
           reason: "Erroneous entry",
         });
       });
 
       test("should fall back to local storage on error", async () => {
-        apiClient.post.mockRejectedValueOnce(new Error("Server error"));
+        postStub.rejects(new Error("Server error"));
         localStorage.setItem(
           "payables:inv:payments",
           JSON.stringify({
@@ -270,7 +269,7 @@ describe("payablesService", () => {
           ],
           aggregates: { total_amount: 50000, total_paid: 0 },
         };
-        apiClient.get.mockResolvedValueOnce(mockResponse);
+        getStub.resolves(mockResponse);
 
         const result = await payablesService.getPOs({ page: 1 });
 
@@ -288,7 +287,7 @@ describe("payablesService", () => {
             },
           ],
         };
-        apiClient.get.mockResolvedValueOnce(mockResponse);
+        getStub.resolves(mockResponse);
 
         const result = await payablesService.getPOs();
 
@@ -296,7 +295,7 @@ describe("payablesService", () => {
       });
 
       test("should return empty array on error", async () => {
-        apiClient.get.mockRejectedValueOnce(new Error("Network error"));
+        getStub.rejects(new Error("Network error"));
 
         const result = await payablesService.getPOs();
 
@@ -313,7 +312,7 @@ describe("payablesService", () => {
           po_amount: 50000,
           payments: [],
         };
-        apiClient.get.mockResolvedValueOnce(mockResponse);
+        getStub.resolves(mockResponse);
 
         const result = await payablesService.getPO(1);
 
@@ -329,7 +328,7 @@ describe("payablesService", () => {
           payment_date: "2024-01-15",
           method: "bank_transfer",
         };
-        apiClient.post.mockResolvedValueOnce({
+        postStub.resolves({
           id: 1,
           po_number: "PO-001",
           paid: 20000,
@@ -339,7 +338,7 @@ describe("payablesService", () => {
         const result = await payablesService.addPOPayment(1, paymentData);
 
         assert.ok(result.id);
-        sinon.assert.calledWith(apiClient.post, "/payables/pos/1/payments", );
+        sinon.assert.calledWith(postStub, "/payables/pos/1/payments", );
       });
 
       test("should fall back to local storage on error", async () => {
@@ -347,7 +346,7 @@ describe("payablesService", () => {
           amount: 20000,
           payment_date: "2024-01-15",
         };
-        apiClient.post.mockRejectedValueOnce(new Error("Server error"));
+        postStub.rejects(new Error("Server error"));
 
         const result = await payablesService.addPOPayment(1, paymentData);
 
@@ -357,7 +356,7 @@ describe("payablesService", () => {
 
     describe("voidPOPayment", () => {
       test("should void PO payment", async () => {
-        apiClient.post.mockResolvedValueOnce({
+        postStub.resolves({
           id: 1,
           po_number: "PO-001",
           paid: 0,
@@ -378,7 +377,7 @@ describe("payablesService", () => {
         paid: 0,
         balance: 10000,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await payablesService.getInvoice(1);
 
@@ -392,7 +391,7 @@ describe("payablesService", () => {
         paid: 5000,
         balance: 5000,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await payablesService.getInvoice(1);
 
@@ -406,7 +405,7 @@ describe("payablesService", () => {
         paid: 10000,
         balance: 0,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await payablesService.getInvoice(1);
 
@@ -416,7 +415,7 @@ describe("payablesService", () => {
 
   describe("Error Handling", () => {
     test("should handle network errors gracefully", async () => {
-      apiClient.get.mockRejectedValueOnce(new Error("Network error"));
+      getStub.rejects(new Error("Network error"));
 
       const result = await payablesService.getInvoices();
 
@@ -424,7 +423,7 @@ describe("payablesService", () => {
     });
 
     test("should handle payment posting errors with fallback", async () => {
-      apiClient.post.mockRejectedValueOnce(new Error("Server error"));
+      postStub.rejects(new Error("Server error"));
 
       const result = await payablesService.addInvoicePayment(1, {
         amount: 5000,
@@ -437,7 +436,7 @@ describe("payablesService", () => {
 
   describe("Edge Cases", () => {
     test("should handle empty invoice list", async () => {
-      apiClient.get.mockResolvedValueOnce({ items: [], aggregates: {} });
+      getStub.resolves({ items: [], aggregates: {} });
 
       const result = await payablesService.getInvoices();
 
@@ -451,7 +450,7 @@ describe("payablesService", () => {
         paid: 500000,
         balance: 500000,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await payablesService.getInvoice(1);
 
@@ -465,7 +464,7 @@ describe("payablesService", () => {
         paid: 5000.25,
         balance: 5000.25,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await payablesService.getInvoice(1);
 
@@ -479,7 +478,7 @@ describe("payablesService", () => {
         invoice_amount: 10000,
         payments: null,
       };
-      apiClient.get.mockResolvedValueOnce(mockResponse);
+      getStub.resolves(mockResponse);
 
       const result = await payablesService.getInvoice(1);
 
