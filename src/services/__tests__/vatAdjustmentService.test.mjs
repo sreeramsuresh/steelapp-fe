@@ -3,6 +3,7 @@ import '../../__tests__/init.mjs';
 import { test, describe, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert';
 import sinon from 'sinon';
+import { apiClient } from "../api.js";
 import vatAdjustmentService from "../vatAdjustmentService.js";
 
 
@@ -49,7 +50,7 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.getById(1);
 
       sinon.assert.calledWith(apiClient.get, "/vat-adjustments/1");
-      assert.ok(result).toHaveProperty("id", 1);
+      assert.strictEqual(result.id, 1);
     });
   });
 
@@ -93,7 +94,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.create(adjustmentData);
 
-      sinon.assert.calledWith(apiClient.post, "/vat-adjustments", );
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments");
       assert.ok(result && result.id);
     });
   });
@@ -109,7 +110,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.update(1, adjustmentData);
 
-      sinon.assert.calledWith(apiClient.put, "/vat-adjustments/1", );
+      sinon.assert.calledWith(apiClient.put, "/vat-adjustments/1");
       assert.ok(result && result.id);
     });
   });
@@ -134,7 +135,7 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.submitForApproval(1);
 
       sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/submit");
-      assert.ok(result).toHaveProperty("status", "pending_approval");
+      assert.strictEqual(result.status, "pending_approval");
     });
   });
 
@@ -150,7 +151,7 @@ describe("vatAdjustmentService", () => {
       sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/approve", {
         notes: "Approved",
       });
-      assert.ok(result).toHaveProperty("status", "approved");
+      assert.strictEqual(result.status, "approved");
     });
   });
 
@@ -166,7 +167,7 @@ describe("vatAdjustmentService", () => {
       sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/reject", {
         rejectionReason: "Incomplete",
       });
-      assert.ok(result).toHaveProperty("status", "rejected");
+      assert.strictEqual(result.status, "rejected");
     });
   });
 
@@ -182,7 +183,7 @@ describe("vatAdjustmentService", () => {
       sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/apply", {
         vatReturnId: 100,
       });
-      assert.ok(result).toHaveProperty("status", "applied");
+      assert.strictEqual(result.status, "applied");
     });
   });
 
@@ -198,7 +199,7 @@ describe("vatAdjustmentService", () => {
       sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/cancel", {
         cancellationReason: "Changed mind",
       });
-      assert.ok(result).toHaveProperty("status", "cancelled");
+      assert.strictEqual(result.status, "cancelled");
     });
   });
 
@@ -225,7 +226,7 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.checkBadDebtEligibility(1);
 
       sinon.assert.calledWith(apiClient.get, "/vat-adjustments/bad-debt-eligibility/1");
-      assert.ok(result).toHaveProperty("eligible", true);
+      assert.strictEqual(result.eligible, true);
     });
   });
 

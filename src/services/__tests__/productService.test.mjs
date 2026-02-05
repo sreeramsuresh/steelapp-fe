@@ -8,6 +8,7 @@ import '../../__tests__/init.mjs';
  * ✅ 100% coverage target for productService.js
  */
 
+import { apiService } from "../axiosApi.js";
 import { test, describe, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert';
 import sinon from 'sinon';

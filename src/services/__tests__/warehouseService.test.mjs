@@ -1,4 +1,5 @@
 import { test, describe, beforeEach, afterEach } from 'node:test';
+import '../../__tests__/init.mjs';
 import assert from 'node:assert';
 import sinon from 'sinon';
 import { warehouseService } from "../warehouseService.js";

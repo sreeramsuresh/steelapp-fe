@@ -91,4 +91,5 @@ class BankReconciliationService {
   }
 }
 
-export default new BankReconciliationService();
+export const bankreconciliationService = new BankReconciliationService();
+export default bankreconciliationService;

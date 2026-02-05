@@ -32,10 +32,13 @@ import { useConfirm } from "../hooks/useConfirm";
 import { categoryPolicyService } from "../services/categoryPolicyService";
 import { productService } from "../services/dataService";
 import { notificationService } from "../services/notificationService";
+import pricelistService from "../services/pricelistService";
 import { FINISHES } from "../types";
 import { clearInventoryCache } from "../utils/inventorySyncUtils";
 import ConfirmDialog from "./ConfirmDialog";
 import ProductUpload from "./ProductUpload";
+import PricingStatusPanel from "./pricing/PricingStatusPanel";
+import QuickPriceEditModal from "./pricing/QuickPriceEditModal";
 
 // Custom components for consistent theming
 const Button = ({
@@ -648,6 +651,22 @@ const SteelProducts = () => {
     localStorage.setItem("steelProducts_visibleColumns", JSON.stringify(visibleColumns));
   }, [visibleColumns]);
 
+  // Phase 3: Fetch default pricelist ID on mount
+  useEffect(() => {
+    const fetchDefaultPricelist = async () => {
+      try {
+        const pricelists = await pricelistService.getAll({ is_default: true });
+        if (pricelists && pricelists.length > 0) {
+          setDefaultPricelistId(pricelists[0].id);
+        }
+      } catch (error) {
+        console.error("Error fetching default pricelist:", error);
+      }
+    };
+
+    fetchDefaultPricelist();
+  }, []);
+
   // Close column picker when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -733,6 +752,10 @@ const SteelProducts = () => {
   const [copySearchTerm, setCopySearchTerm] = useState("");
   const [_activeTooltip, _setActiveTooltip] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  // Phase 3: Pricing edit modal state
+  const [showPricingEditModal, setShowPricingEditModal] = useState(false);
+  const [defaultPricelistId, setDefaultPricelistId] = useState(null);
 
   // Phase 2-6: Enhanced form state
   const [selectedTemplate, setSelectedTemplate] = useState("");
@@ -3914,6 +3937,19 @@ const SteelProducts = () => {
                     }
                     placeholder="e.g., 2.5"
                   />
+
+                  {/* Phase 3: Pricing Status Panel */}
+                  {selectedProduct.id && defaultPricelistId && (
+                    <div className="sm:col-span-2">
+                      <PricingStatusPanel
+                        productId={selectedProduct.id}
+                        sellingPrice={selectedProduct.sellingPrice || selectedProduct.selling_price}
+                        isDarkMode={isDarkMode}
+                        onQuickEdit={() => setShowPricingEditModal(true)}
+                      />
+                    </div>
+                  )}
+
                   <Input
                     label="Supplier"
                     value={selectedProduct.supplier}
@@ -4660,6 +4696,25 @@ const SteelProducts = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Phase 3: Quick Price Edit Modal */}
+        {showPricingEditModal && selectedProduct && defaultPricelistId && (
+          <QuickPriceEditModal
+            isOpen={showPricingEditModal}
+            onClose={() => setShowPricingEditModal(false)}
+            productId={selectedProduct.id}
+            productName={selectedProduct.displayName || selectedProduct.name || "Product"}
+            currentPrice={selectedProduct.sellingPrice || selectedProduct.selling_price}
+            defaultPricelistId={defaultPricelistId}
+            onPriceSaved={(newPrice) => {
+              setSelectedProduct({
+                ...selectedProduct,
+                sellingPrice: newPrice,
+                selling_price: newPrice,
+              });
+            }}
+          />
         )}
       </div>
     </div>

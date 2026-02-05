@@ -342,4 +342,5 @@ class AuditHubService {
   }
 }
 
-export default new AuditHubService();
+export const auditHubService = new AuditHubService();
+export default auditHubService;

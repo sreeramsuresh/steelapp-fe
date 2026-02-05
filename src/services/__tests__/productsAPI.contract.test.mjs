@@ -21,6 +21,7 @@
  * - Verify contract assertions pass
  */
 
+import { apiClient } from "../api.js";
 import { test, describe, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert';
 import sinon from 'sinon';

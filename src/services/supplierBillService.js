@@ -8,7 +8,7 @@
  * Frontend (camelCase) -> API Gateway (auto-converts) -> gRPC Backend (snake_case)
  */
 
-import { normalizeUom } from "../utils/fieldAccessors";
+import { normalizeUom } from "../utils/fieldAccessors.js";
 import { apiClient } from "./api.js";
 
 // ============================================================================

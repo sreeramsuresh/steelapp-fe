@@ -138,3 +138,17 @@ globalThis.document = {
 // URL and fetch are already defined in window mock above
 
 console.log('[Test Init] Node test environment configured');
+
+// Browser API mocks for component tests
+if (typeof global !== 'undefined' && !global.window) {
+  global.window = {
+    confirm: () => true,
+    alert: () => {},
+    localStorage: {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+      clear: () => {},
+    },
+  };
+}

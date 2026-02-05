@@ -131,4 +131,5 @@ class FinancialReportsService {
   }
 }
 
-export default new FinancialReportsService();
+export const financialreportsService = new FinancialReportsService();
+export default financialreportsService;

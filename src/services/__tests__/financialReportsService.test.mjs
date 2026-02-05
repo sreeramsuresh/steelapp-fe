@@ -1,4 +1,5 @@
 import { test, describe, beforeEach, afterEach } from 'node:test';
+import '../../__tests__/init.mjs';
 import assert from 'node:assert';
 import sinon from 'sinon';
 import financialReportsService from "../financialReportsService.js";
@@ -314,10 +315,7 @@ describe("financialReportsService", () => {
 
       assert.ok(result);
       assert.ok(result[0].accountType);
-      sinon.assert.calledWith(apiClient.get, "/financial-reports/chart-of-accounts",
-        Object.keys({
-          params: ,
-        }).every(k => typeof arguments[0][k] !== 'undefined'));
+      sinon.assert.calledWith(apiClient.get, "/financial-reports/chart-of-accounts", sinon.match.object);
     });
 
     test("should filter by category", async () => {
