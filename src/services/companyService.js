@@ -1,6 +1,6 @@
+import env from "../config/env.js";
 import { apiClient } from "./api.js";
 import { tokenUtils } from "./axiosApi.js";
-import env from "../config/env.js";
 
 // Simple, direct upload function like Google uses for profile pictures
 const uploadFile = async (endpoint, fieldName, file) => {

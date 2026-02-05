@@ -10,8 +10,8 @@
  * backwards compatibility during Phase 0 transition.
  */
 
-import { api } from "./api.js";
 import env from "../config/env.js";
+import { api } from "./api.js";
 
 // Dev-only warning for deprecated _companyId parameter usage
 const IS_DEV = env.DEV || process.env.NODE_ENV === "development";

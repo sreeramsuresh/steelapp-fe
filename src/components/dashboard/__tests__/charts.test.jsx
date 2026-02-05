@@ -82,7 +82,7 @@ default: (
 {
   JSON.stringify(option);
 }
-/,;;>;
+/,;;;>;
 }))
 
 import { FunnelChartWrapper, GaugeChartWrapper, TreemapChartWrapper } from "../charts/EChartsWrapper";

@@ -19,10 +19,10 @@
  * where errors originate (network, API Gateway, gRPC backend).
  */
 
+import env from "../config/env.js";
 import { findSnakeCaseKeys, toCamelCaseDeep, toSnakeCaseDeep } from "../utils/caseConverters";
 import { generateRequestId } from "../utils/requestId";
 import api from "./axiosApi";
-import env from "../config/env.js";
 
 /**
  * Import contract validation library
