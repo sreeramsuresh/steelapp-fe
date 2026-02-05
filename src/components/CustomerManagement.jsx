@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { ArrowDown, ArrowUp, ArrowUpDown, Settings2, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   FaArchive,
   FaArrowUp,
@@ -99,12 +99,7 @@ const CustomerManagement = () => {
 
   const canReadCustomers = authService.hasPermission("customers", "read") || authService.hasRole("admin");
 
-  const {
-    data: customersData,
-    loading: loadingCustomers,
-    error: customersError,
-    refetch: refetchCustomers,
-  } = useApiData(() => {
+  const getCustomersCallback = useCallback(() => {
     if (!canReadCustomers) {
       // Avoid hitting the API if not permitted
       return Promise.resolve({ customers: [] });
@@ -117,13 +112,15 @@ const CustomerManagement = () => {
     });
   }, [searchTerm, filterStatus, currentPage, customerPageSize, canReadCustomers]);
 
-  // Suppliers API hooks
   const {
-    data: suppliersData,
-    loading: loadingSuppliers,
-    error: suppliersError,
-    refetch: refetchSuppliers,
-  } = useApiData(
+    data: customersData,
+    loading: loadingCustomers,
+    error: customersError,
+    refetch: refetchCustomers,
+  } = useApiData(getCustomersCallback, [searchTerm, filterStatus, currentPage, customerPageSize, canReadCustomers]);
+
+  // Suppliers API hooks
+  const getSuppliersCallback = useCallback(
     () =>
       supplierService.getSuppliers({
         query: supplierSearchTerm,
@@ -133,11 +130,17 @@ const CustomerManagement = () => {
     [supplierSearchTerm, supplierCurrentPage, supplierPageSize]
   );
 
+  const {
+    data: suppliersData,
+    loading: loadingSuppliers,
+    error: suppliersError,
+    refetch: refetchSuppliers,
+  } = useApiData(getSuppliersCallback, [supplierSearchTerm, supplierCurrentPage, supplierPageSize]);
+
   // Pricelists API hooks
-  const { data: pricelistsData, loading: _loadingPricelists } = useApiData(
-    () => pricelistService.getAll({ include_items: false }),
-    []
-  );
+  const getPricelistsCallback = useCallback(() => pricelistService.getAll({ include_items: false }), []);
+
+  const { data: pricelistsData, loading: _loadingPricelists } = useApiData(getPricelistsCallback, []);
   const { execute: createSupplier, loading: creatingSupplier } = useApi(supplierService.createSupplier);
   const { execute: updateSupplier, loading: updatingSupplier } = useApi(supplierService.updateSupplier);
   const { execute: deleteSupplier } = useApi(supplierService.deleteSupplier);
