@@ -1,3 +1,4 @@
+import sinon from 'sinon';
 /**
  * Integration Tests - Credit Note Full Workflow
  *
@@ -65,17 +66,17 @@ const {
   mockNotificationWarning,
   mockNotificationInfo,
 } = vi.hoisted(() => ({
-  mockGetCreditNote: vi.fn(),
-  mockGetNextCreditNoteNumber: vi.fn(),
-  mockCreateCreditNote: vi.fn(),
-  mockUpdateCreditNote: vi.fn(),
-  mockGetInvoice: vi.fn(),
-  mockSearchForCreditNote: vi.fn(),
-  mockGetCompany: vi.fn(),
-  mockNotificationSuccess: vi.fn(),
-  mockNotificationError: vi.fn(),
-  mockNotificationWarning: vi.fn(),
-  mockNotificationInfo: vi.fn(),
+  mockGetCreditNote: sinon.stub(),
+  mockGetNextCreditNoteNumber: sinon.stub(),
+  mockCreateCreditNote: sinon.stub(),
+  mockUpdateCreditNote: sinon.stub(),
+  mockGetInvoice: sinon.stub(),
+  mockSearchForCreditNote: sinon.stub(),
+  mockGetCompany: sinon.stub(),
+  mockNotificationSuccess: sinon.stub(),
+  mockNotificationError: sinon.stub(),
+  mockNotificationWarning: sinon.stub(),
+  mockNotificationInfo: sinon.stub(),
 }));
 
 vi.mock("../services/creditNoteService", () => ({
@@ -120,14 +121,14 @@ const {
   mockSetPendingSave,
   mockClearPendingSave,
 } = vi.hoisted(() => ({
-  mockCheckConflict: vi.fn().mockReturnValue({ type: null, existingDraft: null, allDrafts: [] }),
-  mockSaveDraft: vi.fn().mockReturnValue(true),
-  mockDeleteDraft: vi.fn().mockReturnValue(true),
-  mockGetDraft: vi.fn().mockReturnValue(null),
-  mockHasDraftForInvoice: vi.fn().mockReturnValue(false),
-  mockRefreshDrafts: vi.fn().mockReturnValue({}),
-  mockSetPendingSave: vi.fn(),
-  mockClearPendingSave: vi.fn(),
+  mockCheckConflict: sinon.stub().mockReturnValue({ type: null, existingDraft: null, allDrafts: [] }),
+  mockSaveDraft: sinon.stub().mockReturnValue(true),
+  mockDeleteDraft: sinon.stub().mockReturnValue(true),
+  mockGetDraft: sinon.stub().mockReturnValue(null),
+  mockHasDraftForInvoice: sinon.stub().mockReturnValue(false),
+  mockRefreshDrafts: sinon.stub().mockReturnValue({}),
+  mockSetPendingSave: sinon.stub(),
+  mockClearPendingSave: sinon.stub(),
 }));
 
 vi.mock("../hooks/useCreditNoteDrafts", () => ({
@@ -142,7 +143,7 @@ vi.mock("../hooks/useCreditNoteDrafts", () => ({
     saveDraft: mockSaveDraft,
     getDraft: mockGetDraft,
     deleteDraft: mockDeleteDraft,
-    clearAllDrafts: vi.fn(),
+    clearAllDrafts: sinon.stub(),
     hasDraftForInvoice: mockHasDraftForInvoice,
     checkConflict: mockCheckConflict,
     refreshDrafts: mockRefreshDrafts,
@@ -150,19 +151,19 @@ vi.mock("../hooks/useCreditNoteDrafts", () => ({
     setPendingSave: mockSetPendingSave,
     clearPendingSave: mockClearPendingSave,
     // Utilities
-    cleanupExpiredDrafts: vi.fn().mockReturnValue({}),
+    cleanupExpiredDrafts: sinon.stub().mockReturnValue({}),
   }),
-  getDraftStatusMessage: vi.fn().mockReturnValue("Draft saved 5 minutes ago"),
-  formatRelativeTime: vi.fn().mockReturnValue("5 minutes ago"),
-  formatTimeUntilExpiry: vi.fn().mockReturnValue("6h 30m"),
-  cleanupExpiredDrafts: vi.fn().mockReturnValue({}),
+  getDraftStatusMessage: sinon.stub().mockReturnValue("Draft saved 5 minutes ago"),
+  formatRelativeTime: sinon.stub().mockReturnValue("5 minutes ago"),
+  formatTimeUntilExpiry: sinon.stub().mockReturnValue("6h 30m"),
+  cleanupExpiredDrafts: sinon.stub().mockReturnValue({}),
 }));
 
 // Hoist router mocks for use in vi.mock
 const { mockNavigate, mockUseParams, mockUseSearchParams } = vi.hoisted(() => ({
-  mockNavigate: vi.fn(),
+  mockNavigate: sinon.stub(),
   mockUseParams: vi.fn(() => ({ id: undefined })),
-  mockUseSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]),
+  mockUseSearchParams: vi.fn(() => [new URLSearchParams(), sinon.stub()]),
 }));
 
 vi.mock("react-router-dom", async () => {
@@ -201,7 +202,7 @@ describe("Credit Note Integration Tests", () => {
 
     // Reset router mocks to defaults
     mockUseParams.mockReturnValue({ id: undefined });
-    mockUseSearchParams.mockReturnValue([new URLSearchParams(), vi.fn()]);
+    mockUseSearchParams.mockReturnValue([new URLSearchParams(), sinon.stub()]);
 
     // Reset useCreditNoteDrafts mocks
     mockCheckConflict.mockReturnValue({
@@ -224,7 +225,7 @@ describe("Credit Note Integration Tests", () => {
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
     localStorageMock = {};
   });
 
@@ -234,7 +235,7 @@ describe("Credit Note Integration Tests", () => {
 
   describe("Complete Workflow - Manual Credit Amount", () => {
     it("should create credit note with manual amount from start to finish", async () => {
-      mockUseSearchParams.mockReturnValue([new URLSearchParams("invoiceId=337"), vi.fn()]);
+      mockUseSearchParams.mockReturnValue([new URLSearchParams("invoiceId=337"), sinon.stub()]);
 
       mockCreateCreditNote.mockResolvedValue({
         id: 108,
@@ -274,7 +275,7 @@ describe("Credit Note Integration Tests", () => {
 
       // Step 6: Verify API call
       await waitFor(() => {
-        expect(mockCreateCreditNote).toHaveBeenCalled();
+        assert.ok(mockCreateCreditNote.called);
       });
 
       // Step 7: Verify saved data
@@ -329,7 +330,7 @@ describe("Credit Note Integration Tests", () => {
       // Mock getDraft to return the draft data when resumed
       mockGetDraft.mockReturnValue(existingDraft);
 
-      mockUseSearchParams.mockReturnValue([new URLSearchParams("invoiceId=337"), vi.fn()]);
+      mockUseSearchParams.mockReturnValue([new URLSearchParams("invoiceId=337"), sinon.stub()]);
 
       mockCreateCreditNote.mockResolvedValue({
         id: 108,
@@ -370,7 +371,7 @@ describe("Credit Note Integration Tests", () => {
 
       // Step 5: Verify updated amount
       await waitFor(() => {
-        expect(mockCreateCreditNote).toHaveBeenCalled();
+        assert.ok(mockCreateCreditNote.called);
         const callArgs = mockCreateCreditNote.mock.calls[0][0];
         expect(callArgs.manualCreditAmount).toBe(750);
       });
@@ -433,7 +434,7 @@ describe("Credit Note Integration Tests", () => {
 
       // Step 5: Verify date maintained in save
       await waitFor(() => {
-        expect(mockUpdateCreditNote).toHaveBeenCalled();
+        assert.ok(mockUpdateCreditNote.called);
         const callArgs = mockUpdateCreditNote.mock.calls[0][1];
         expect(callArgs.creditNoteDate).toBe("2025-12-05"); // Should be yyyy-MM-dd
       });
@@ -446,7 +447,7 @@ describe("Credit Note Integration Tests", () => {
 
   describe("Validation Workflow", () => {
     it("should prevent save without required fields", async () => {
-      mockUseSearchParams.mockReturnValue([new URLSearchParams("invoiceId=337"), vi.fn()]);
+      mockUseSearchParams.mockReturnValue([new URLSearchParams("invoiceId=337"), sinon.stub()]);
 
       render(
         <TestWrapper>
@@ -474,7 +475,7 @@ describe("Credit Note Integration Tests", () => {
     });
 
     it("should allow save with manual credit amount and reason", async () => {
-      mockUseSearchParams.mockReturnValue([new URLSearchParams("invoiceId=337"), vi.fn()]);
+      mockUseSearchParams.mockReturnValue([new URLSearchParams("invoiceId=337"), sinon.stub()]);
 
       mockCreateCreditNote.mockResolvedValue({
         id: 108,
@@ -511,7 +512,7 @@ describe("Credit Note Integration Tests", () => {
 
       // Should succeed
       await waitFor(() => {
-        expect(mockCreateCreditNote).toHaveBeenCalled();
+        assert.ok(mockCreateCreditNote.called);
       });
     });
   });
@@ -522,7 +523,7 @@ describe("Credit Note Integration Tests", () => {
 
   describe("Issue Tax Document Workflow", () => {
     it("should issue credit note immediately (skip draft)", async () => {
-      mockUseSearchParams.mockReturnValue([new URLSearchParams("invoiceId=337"), vi.fn()]);
+      mockUseSearchParams.mockReturnValue([new URLSearchParams("invoiceId=337"), sinon.stub()]);
 
       mockCreateCreditNote.mockResolvedValue({
         id: 108,
@@ -559,7 +560,7 @@ describe("Credit Note Integration Tests", () => {
 
       // Should save with issued status
       await waitFor(() => {
-        expect(mockCreateCreditNote).toHaveBeenCalled();
+        assert.ok(mockCreateCreditNote.called);
         const callArgs = mockCreateCreditNote.mock.calls[0][0];
         expect(callArgs.status).toBe("issued");
       });

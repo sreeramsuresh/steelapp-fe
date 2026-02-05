@@ -49,7 +49,7 @@ export default function QuickPriceEditModal({
       onClose();
     } catch (error) {
       console.error("Error updating price:", error);
-      notificationService.error("Failed to update price: " + error.message);
+      notificationService.error(`Failed to update price: ${error.message}`);
     } finally {
       setIsLoading(false);
     }

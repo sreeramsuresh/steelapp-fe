@@ -36,26 +36,17 @@ export default function BasePriceRow({
     <tr className={`border-b ${borderColor} transition-colors ${rowBgColor}`}>
       {/* Checkbox */}
       <td className="px-4 py-3">
-        <input
-          type="checkbox"
-          checked={isSelected}
-          onChange={onToggleSelect}
-          className="w-4 h-4 cursor-pointer"
-        />
+        <input type="checkbox" checked={isSelected} onChange={onToggleSelect} className="w-4 h-4 cursor-pointer" />
       </td>
 
       {/* Product Name */}
       <td className={`px-4 py-3 text-sm ${darkMode ? "text-white" : "text-gray-900"}`}>
         <div className="font-medium">{product.name || "Unknown"}</div>
-        <div className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
-          ID: {item.product_id}
-        </div>
+        <div className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}>ID: {item.product_id}</div>
       </td>
 
       {/* Grade */}
-      <td className={`px-4 py-3 text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-        {product.grade || "-"}
-      </td>
+      <td className={`px-4 py-3 text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>{product.grade || "-"}</td>
 
       {/* Form */}
       <td className={`px-4 py-3 text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
@@ -67,13 +58,7 @@ export default function BasePriceRow({
         {isEditing ? (
           <div className="flex items-center justify-end gap-2">
             <div className="relative">
-              <span
-                className={`absolute right-10 top-1 ${
-                  darkMode ? "text-gray-500" : "text-gray-400"
-                }`}
-              >
-                د.إ
-              </span>
+              <span className={`absolute right-10 top-1 ${darkMode ? "text-gray-500" : "text-gray-400"}`}>د.إ</span>
               <input
                 type="number"
                 value={editingPrice}
@@ -103,9 +88,7 @@ export default function BasePriceRow({
               type="button"
               onClick={onCancelEdit}
               className={`p-1 rounded transition-colors ${
-                darkMode
-                  ? "bg-gray-700 hover:bg-gray-600 text-gray-400"
-                  : "bg-gray-200 hover:bg-gray-300 text-gray-600"
+                darkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-400" : "bg-gray-200 hover:bg-gray-300 text-gray-600"
               }`}
               title="Cancel"
             >
@@ -117,9 +100,7 @@ export default function BasePriceRow({
             type="button"
             onClick={onStartEdit}
             className={`px-2 py-1 rounded transition-colors font-medium text-right w-full ${
-              darkMode
-                ? "text-teal-300 hover:bg-teal-900/20"
-                : "text-blue-600 hover:bg-blue-50"
+              darkMode ? "text-teal-300 hover:bg-teal-900/20" : "text-blue-600 hover:bg-blue-50"
             }`}
           >
             AED {(item.selling_price || 0).toFixed(2)}

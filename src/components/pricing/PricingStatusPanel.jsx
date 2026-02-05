@@ -102,7 +102,7 @@ export default function PricingStatusPanel({ productId, sellingPrice, isDarkMode
       },
     };
 
-    return configs[status] || configs["error"];
+    return configs[status] || configs.error;
   };
 
   if (isLoading) {

@@ -6,13 +6,7 @@ import { useState } from "react";
  *
  * Allows applying +/- percentage to multiple selected products
  */
-export default function BulkPriceModal({
-  isOpen,
-  onClose,
-  selectedCount,
-  isDarkMode,
-  onApply,
-}) {
+export default function BulkPriceModal({ isOpen, onClose, selectedCount, isDarkMode, onApply }) {
   const [percentage, setPercentage] = useState(5);
   const [operation, setOperation] = useState("multiply");
   const [isLoading, setIsLoading] = useState(false);
@@ -37,17 +31,13 @@ export default function BulkPriceModal({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div
-        className={`${
-          isDarkMode ? "bg-gray-800" : "bg-white"
-        } rounded-lg shadow-lg max-w-md w-full p-6 border ${
+        className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-lg max-w-md w-full p-6 border ${
           isDarkMode ? "border-gray-700" : "border-gray-200"
         }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-            Adjust Prices
-          </h3>
+          <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Adjust Prices</h3>
           <button
             type="button"
             onClick={onClose}
@@ -61,7 +51,9 @@ export default function BulkPriceModal({
         </div>
 
         {/* Selected Count */}
-        <div className={`mb-4 p-3 rounded-lg ${isDarkMode ? "bg-blue-900/20 border border-blue-700" : "bg-blue-50 border border-blue-300"}`}>
+        <div
+          className={`mb-4 p-3 rounded-lg ${isDarkMode ? "bg-blue-900/20 border border-blue-700" : "bg-blue-50 border border-blue-300"}`}
+        >
           <p className={`text-sm font-medium ${isDarkMode ? "text-blue-100" : "text-blue-900"}`}>
             {selectedCount} products selected
           </p>
@@ -86,9 +78,7 @@ export default function BulkPriceModal({
                 disabled={isLoading}
                 className="w-4 h-4"
               />
-              <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                Increase (+)
-              </span>
+              <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>Increase (+)</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -100,9 +90,7 @@ export default function BulkPriceModal({
                 disabled={isLoading}
                 className="w-4 h-4"
               />
-              <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                Decrease (-)
-              </span>
+              <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>Decrease (-)</span>
             </label>
           </div>
         </fieldset>
@@ -131,17 +119,14 @@ export default function BulkPriceModal({
             } focus:outline-none focus:ring-1 disabled:opacity-50`}
           />
           <p className={`text-xs mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-            {operation === "multiply" ? "Prices will increase" : "Prices will decrease"} by{" "}
-            {percentage || 0}%
+            {operation === "multiply" ? "Prices will increase" : "Prices will decrease"} by {percentage || 0}%
           </p>
         </div>
 
         {/* Warning */}
         <div
           className={`mb-6 p-3 rounded-lg flex gap-3 ${
-            isDarkMode
-              ? "bg-yellow-900/20 border border-yellow-700"
-              : "bg-yellow-50 border border-yellow-300"
+            isDarkMode ? "bg-yellow-900/20 border border-yellow-700" : "bg-yellow-50 border border-yellow-300"
           }`}
         >
           <AlertCircle className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />

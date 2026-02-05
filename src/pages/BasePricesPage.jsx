@@ -1,18 +1,11 @@
-import {
-  AlertTriangle,
-  ArrowUpDown,
-  DollarSign,
-  Download,
-  Search,
-  Zap,
-} from "lucide-react";
+import { AlertTriangle, ArrowUpDown, DollarSign, Download, Search, Zap } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useTheme } from "../contexts/ThemeContext";
-import { notificationService } from "../services/notificationService";
-import pricelistService from "../services/pricelistService";
 import BasePriceRow from "../components/pricing/BasePriceRow";
 import BasePricesStatsCard from "../components/pricing/BasePricesStatsCard";
 import BulkPriceModal from "../components/pricing/BulkPriceModal";
+import { useTheme } from "../contexts/ThemeContext";
+import { notificationService } from "../services/notificationService";
+import pricelistService from "../services/pricelistService";
 
 /**
  * BasePricesPage - Dedicated management view for company default pricelist
@@ -95,9 +88,24 @@ export default function BasePricesPage() {
     };
   }, [items]);
 
+  // Helper function to get sort value (defined outside useMemo)
+  const getItemSortValue = (item, key) => {
+    const product = item.product || {};
+    switch (key) {
+      case "productName":
+        return product.name || "";
+      case "price":
+        return Number(item.selling_price) || 0;
+      case "updated":
+        return new Date(item.updated_at || 0).getTime();
+      default:
+        return "";
+    }
+  };
+
   // Filter and sort items
   const filteredItems = useMemo(() => {
-    let filtered = items.filter((item) => {
+    const filtered = items.filter((item) => {
       const product = item.product || {};
       const productName = (product.name || "").toLowerCase();
       const searchLower = searchTerm.toLowerCase();
@@ -135,32 +143,15 @@ export default function BasePricesPage() {
     return filtered;
   }, [items, searchTerm, gradeFilter, formFilter, sortConfig]);
 
-  const getItemSortValue = (item, key) => {
-    const product = item.product || {};
-    switch (key) {
-      case "productName":
-        return product.name || "";
-      case "price":
-        return Number(item.selling_price) || 0;
-      case "updated":
-        return new Date(item.updated_at || 0).getTime();
-      default:
-        return "";
-    }
-  };
-
   // Calculate statistics
   const stats = useMemo(() => {
     const now = new Date();
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     const totalWithPrice = items.filter((item) => item.selling_price > 0).length;
-    const recentlyUpdated = items.filter(
-      (item) => new Date(item.updated_at || 0) > sevenDaysAgo
-    ).length;
-    const avgPrice = items.length > 0
-      ? items.reduce((sum, item) => sum + (Number(item.selling_price) || 0), 0) / items.length
-      : 0;
+    const recentlyUpdated = items.filter((item) => new Date(item.updated_at || 0) > sevenDaysAgo).length;
+    const avgPrice =
+      items.length > 0 ? items.reduce((sum, item) => sum + (Number(item.selling_price) || 0), 0) / items.length : 0;
 
     return {
       total: items.length,
@@ -201,11 +192,7 @@ export default function BasePricesPage() {
       );
 
       // Update local state
-      setItems((prev) =>
-        prev.map((i) =>
-          i.id === item.id ? { ...i, selling_price: Number(newPrice) } : i
-        )
-      );
+      setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, selling_price: Number(newPrice) } : i)));
 
       notificationService.success(`Price updated to AED ${Number(newPrice).toFixed(2)}`);
       setEditingRowId(null);
@@ -263,9 +250,7 @@ export default function BasePricesPage() {
       await pricelistService.updateItems(defaultPricelist.id, updates, "upsert");
 
       // Update local state
-      const updateMap = new Map(
-        updates.map((u) => [u.product_id, u.selling_price])
-      );
+      const updateMap = new Map(updates.map((u) => [u.product_id, u.selling_price]));
       setItems((prev) =>
         prev.map((i) => {
           const newPrice = updateMap.get(i.product_id);
@@ -295,10 +280,7 @@ export default function BasePricesPage() {
       item.updated_at ? new Date(item.updated_at).toLocaleDateString() : "",
     ]);
 
-    const csv = [
-      headers.join(","),
-      ...rows.map((r) => r.map((v) => `"${v}"`).join(",")),
-    ].join("\n");
+    const csv = [headers.join(","), ...rows.map((r) => r.map((v) => `"${v}"`).join(","))].join("\n");
 
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -327,9 +309,7 @@ export default function BasePricesPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className={`text-3xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-            Base Prices
-          </h1>
+          <h1 className={`text-3xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Base Prices</h1>
           <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
             Manage company default pricelist
           </p>
@@ -338,37 +318,21 @@ export default function BasePricesPage() {
         {error && (
           <div
             className={`mb-6 p-4 rounded-lg border flex items-start gap-3 ${
-              isDarkMode
-                ? "bg-red-900/20 border-red-700"
-                : "bg-red-50 border-red-300"
+              isDarkMode ? "bg-red-900/20 border-red-700" : "bg-red-50 border-red-300"
             }`}
           >
             <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <div>
-              <p className={`font-medium ${isDarkMode ? "text-red-100" : "text-red-900"}`}>
-                Error Loading Prices
-              </p>
-              <p className={`text-sm ${isDarkMode ? "text-red-200/70" : "text-red-700"}`}>
-                {error}
-              </p>
+              <p className={`font-medium ${isDarkMode ? "text-red-100" : "text-red-900"}`}>Error Loading Prices</p>
+              <p className={`text-sm ${isDarkMode ? "text-red-200/70" : "text-red-700"}`}>{error}</p>
             </div>
           </div>
         )}
 
         {/* Stats Dashboard */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <BasePricesStatsCard
-            icon={DollarSign}
-            label="Total Products"
-            value={stats.total}
-            isDarkMode={isDarkMode}
-          />
-          <BasePricesStatsCard
-            icon={Zap}
-            label="With Base Price"
-            value={stats.priced}
-            isDarkMode={isDarkMode}
-          />
+          <BasePricesStatsCard icon={DollarSign} label="Total Products" value={stats.total} isDarkMode={isDarkMode} />
+          <BasePricesStatsCard icon={Zap} label="With Base Price" value={stats.priced} isDarkMode={isDarkMode} />
           <BasePricesStatsCard
             icon={ArrowUpDown}
             label="Updated (7 days)"
@@ -502,9 +466,7 @@ export default function BasePricesPage() {
                 type="button"
                 onClick={() => setShowBulkModal(true)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  isDarkMode
-                    ? "bg-teal-600 hover:bg-teal-700 text-white"
-                    : "bg-blue-500 hover:bg-blue-600 text-white"
+                  isDarkMode ? "bg-teal-600 hover:bg-teal-700 text-white" : "bg-blue-500 hover:bg-blue-600 text-white"
                 }`}
               >
                 <Zap className="w-4 h-4 inline mr-2" />
@@ -544,19 +506,29 @@ export default function BasePricesPage() {
                     className="w-4 h-4 cursor-pointer"
                   />
                 </th>
-                <th className={`px-4 py-3 text-left text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                <th
+                  className={`px-4 py-3 text-left text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
                   Product Name
                 </th>
-                <th className={`px-4 py-3 text-left text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                <th
+                  className={`px-4 py-3 text-left text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
                   Grade
                 </th>
-                <th className={`px-4 py-3 text-left text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                <th
+                  className={`px-4 py-3 text-left text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
                   Form
                 </th>
-                <th className={`px-4 py-3 text-right text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                <th
+                  className={`px-4 py-3 text-right text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
                   Base Price (AED)
                 </th>
-                <th className={`px-4 py-3 text-left text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                <th
+                  className={`px-4 py-3 text-left text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
                   Last Updated
                 </th>
               </tr>
@@ -598,9 +570,7 @@ export default function BasePricesPage() {
             type="button"
             onClick={handleExportCSV}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-              isDarkMode
-                ? "bg-gray-700 hover:bg-gray-600 text-white"
-                : "bg-gray-200 hover:bg-gray-300 text-gray-900"
+              isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-900"
             }`}
           >
             <Download className="w-4 h-4" />
