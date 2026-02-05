@@ -14,6 +14,15 @@ globalThis.__VITE_ENV__ = {
   VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || 'http://localhost:3001/api',
   VITE_DISABLE_CONTRACT_VALIDATION: 'true',
   MODE: 'test',
+  VITE_ENABLE_SUPPLIERS: 'true',
+  VITE_ENABLE_TEMPLATES: 'true',
+  VITE_ENABLE_QUOTATIONS: 'true',
+  VITE_ENABLE_PURCHASE_ORDERS: 'true',
+  VITE_ENABLE_VENDOR_BILLS: 'true',
+  VITE_ENABLE_INVENTORY: 'true',
+  VITE_ENABLE_BANKING: 'true',
+  VITE_ENABLE_VAT: 'true',
+  VITE_ENABLE_REPORTS: 'true',
 };
 
 // Also try to set on this module's import.meta
