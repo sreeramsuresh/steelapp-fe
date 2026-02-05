@@ -504,16 +504,17 @@ describe("usersService (userAdminAPI)", () => {
     });
 
     test("should handle concurrent requests", async () => {
-      const mockUsers1 = [{ id: 1, name: "User 1", email: "user1@example.com" }];
-      const mockUsers2 = [{ id: 2, name: "User 2", email: "user2@example.com" }];
+      const mockUsers1 = { users: [{ id: 1, name: "User 1", email: "user1@example.com" }] };
+      const mockUsers2 = { users: [{ id: 2, name: "User 2", email: "user2@example.com" }] };
 
-      sinon.stub(apiService, 'get').resolves({ users: mockUsers1 });
-      sinon.stub(apiService, 'get').resolves({ users: mockUsers2 });
+      const getStub = sinon.stub(apiService, 'get');
+      getStub.onFirstCall().resolves(mockUsers1);
+      getStub.onSecondCall().resolves(mockUsers2);
 
       const [result1, result2] = await Promise.all([userAdminAPI.list({ page: 1 }), userAdminAPI.list({ page: 2 })]);
 
-      assert.ok(result1[0].id);
-      assert.ok(result2[0].id);
+      assert.ok(result1[0]?.id);
+      assert.ok(result2[0]?.id);
     });
   });
 
