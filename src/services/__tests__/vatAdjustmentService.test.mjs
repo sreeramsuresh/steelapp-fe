@@ -16,7 +16,7 @@ describe("vatAdjustmentService", () => {
 
   describe("getAll", () => {
     test("should fetch all VAT adjustments with pagination", async () => {
-      sinon.stub(apiClient, 'get').resolves({
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves({
         data: [{ id: 1, adjustmentNumber: "VA001", status: "draft" }],
         pagination: { page: 1, totalPages: 1 },
       });
@@ -29,7 +29,7 @@ describe("vatAdjustmentService", () => {
     });
 
     test("should handle array response", async () => {
-      sinon.stub(apiClient, 'get').resolves([{ id: 1, adjustmentNumber: "VA001" }]);
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves([{ id: 1, adjustmentNumber: "VA001" }]);
 
       const result = await vatAdjustmentService.getAll();
 
@@ -37,7 +37,7 @@ describe("vatAdjustmentService", () => {
     });
 
     test("should handle error", async () => {
-      sinon.stub(apiClient, 'get').rejects(new Error("API Error"));
+      const getStub = sinon.stub(apiClient, 'get'); getStub.rejects(new Error("API Error"));
 
       await assert.rejects(() => vatAdjustmentService.getAll(), Error);
     });
@@ -45,7 +45,7 @@ describe("vatAdjustmentService", () => {
 
   describe("getById", () => {
     test("should fetch adjustment by ID", async () => {
-      sinon.stub(apiClient, 'get').resolves({ id: 1, adjustmentNumber: "VA001" });
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves({ id: 1, adjustmentNumber: "VA001" });
 
       const result = await vatAdjustmentService.getById(1);
 
@@ -56,7 +56,7 @@ describe("vatAdjustmentService", () => {
 
   describe("getByPeriod", () => {
     test("should fetch adjustments for a period", async () => {
-      sinon.stub(apiClient, 'get').resolves([{ id: 1, adjustmentNumber: "VA001" }]);
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves([{ id: 1, adjustmentNumber: "VA001" }]);
 
       const result = await vatAdjustmentService.getByPeriod("2024-01-01", "2024-12-31");
 
@@ -70,7 +70,7 @@ describe("vatAdjustmentService", () => {
 
   describe("getPendingApproval", () => {
     test("should fetch pending adjustments", async () => {
-      sinon.stub(apiClient, 'get').resolves([{ id: 1, status: "pending_approval" }]);
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves([{ id: 1, status: "pending_approval" }]);
 
       const result = await vatAdjustmentService.getPendingApproval();
 
@@ -87,7 +87,7 @@ describe("vatAdjustmentService", () => {
         status: "draft",
       };
 
-      sinon.stub(apiClient, 'post').resolves({
+      const postStub = sinon.stub(apiClient, 'post'); postStub.resolves({
         id: 1,
         ...adjustmentData,
       });
@@ -103,7 +103,7 @@ describe("vatAdjustmentService", () => {
     test("should update existing adjustment", async () => {
       const adjustmentData = { status: "pending_approval" };
 
-      sinon.stub(apiClient, 'put').resolves({
+      const putStub = sinon.stub(apiClient, 'put'); putStub.resolves({
         id: 1,
         ...adjustmentData,
       });
@@ -117,7 +117,7 @@ describe("vatAdjustmentService", () => {
 
   describe("delete", () => {
     test("should delete adjustment", async () => {
-      sinon.stub(apiClient, 'delete').resolves({ success: true });
+      const deleteStub = sinon.stub(apiClient, 'delete'); deleteStub.resolves({ success: true });
 
       await vatAdjustmentService.delete(1);
 
@@ -127,7 +127,7 @@ describe("vatAdjustmentService", () => {
 
   describe("submitForApproval", () => {
     test("should submit adjustment for approval", async () => {
-      sinon.stub(apiClient, 'post').resolves({
+      const postStub = sinon.stub(apiClient, 'post'); postStub.resolves({
         id: 1,
         status: "pending_approval",
       });
@@ -141,7 +141,7 @@ describe("vatAdjustmentService", () => {
 
   describe("approve", () => {
     test("should approve adjustment", async () => {
-      sinon.stub(apiClient, 'post').resolves({
+      const postStub = sinon.stub(apiClient, 'post'); postStub.resolves({
         id: 1,
         status: "approved",
       });
@@ -157,7 +157,7 @@ describe("vatAdjustmentService", () => {
 
   describe("reject", () => {
     test("should reject adjustment", async () => {
-      sinon.stub(apiClient, 'post').resolves({
+      const postStub = sinon.stub(apiClient, 'post'); postStub.resolves({
         id: 1,
         status: "rejected",
       });
@@ -173,7 +173,7 @@ describe("vatAdjustmentService", () => {
 
   describe("applyToVatReturn", () => {
     test("should apply adjustment to VAT return", async () => {
-      sinon.stub(apiClient, 'post').resolves({
+      const postStub = sinon.stub(apiClient, 'post'); postStub.resolves({
         id: 1,
         status: "applied",
       });
@@ -189,7 +189,7 @@ describe("vatAdjustmentService", () => {
 
   describe("cancel", () => {
     test("should cancel adjustment", async () => {
-      sinon.stub(apiClient, 'post').resolves({
+      const postStub = sinon.stub(apiClient, 'post'); postStub.resolves({
         id: 1,
         status: "cancelled",
       });
@@ -205,7 +205,7 @@ describe("vatAdjustmentService", () => {
 
   describe("getNextNumber", () => {
     test("should get next adjustment number", async () => {
-      sinon.stub(apiClient, 'get').resolves({
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves({
         adjustmentNumber: "VA025",
       });
 
@@ -218,7 +218,7 @@ describe("vatAdjustmentService", () => {
 
   describe("checkBadDebtEligibility", () => {
     test("should check bad debt eligibility", async () => {
-      sinon.stub(apiClient, 'get').resolves({
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves({
         eligible: true,
         debtAgeDays: 180,
       });
@@ -232,7 +232,7 @@ describe("vatAdjustmentService", () => {
 
   describe("createBadDebtRelief", () => {
     test("should create bad debt relief adjustment", async () => {
-      sinon.stub(apiClient, 'post').resolves({
+      const postStub = sinon.stub(apiClient, 'post'); postStub.resolves({
         id: 1,
         adjustmentType: "BAD_DEBT_RELIEF",
       });
@@ -252,7 +252,7 @@ describe("vatAdjustmentService", () => {
     test("should get adjustment summary", async () => {
       const params = { startDate: "2024-01-01", endDate: "2024-12-31" };
 
-      sinon.stub(apiClient, 'get').resolves({
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves({
         totalAdjustments: 10,
         totalAmount: 50000,
       });
@@ -266,7 +266,7 @@ describe("vatAdjustmentService", () => {
 
   describe("getAuditTrail", () => {
     test("should get audit trail", async () => {
-      sinon.stub(apiClient, 'get').resolves([{ action: "created", timestamp: "2024-01-15" }]);
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves([{ action: "created", timestamp: "2024-01-15" }]);
 
       const result = await vatAdjustmentService.getAuditTrail(1);
 
@@ -277,7 +277,7 @@ describe("vatAdjustmentService", () => {
 
   describe("search", () => {
     test("should search adjustments", async () => {
-      sinon.stub(apiClient, 'get').resolves({
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves({
         data: [{ id: 1, adjustmentNumber: "VA001" }],
       });
 

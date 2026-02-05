@@ -17,6 +17,19 @@ import sinon from 'sinon';
 import { apiService } from "../axiosApi.js";
 import { userAdminAPI } from "../userAdminApi.js";
 
+
+// Helper to create fresh stubs for each test
+function stubApiService() {
+  const stubs = {};
+  stubs.get = sinon.stub(apiService, 'get');
+  stubs.post = sinon.stub(apiService, 'post');
+  stubs.put = sinon.stub(apiService, 'put');
+  stubs.patch = sinon.stub(apiService, 'patch');
+  stubs.delete = sinon.stub(apiService, 'delete');
+  return stubs;
+}
+
+
 describe("usersService (userAdminAPI)", () => {
   beforeEach(() => {
     sinon.restore();
@@ -44,7 +57,7 @@ describe("usersService (userAdminAPI)", () => {
           companyId: 1,
         },
       ];
-      sinon.stub(apiService, 'get').resolves({ users: mockUsers });
+      const getStub = sinon.stub(apiService, 'get'); getStub.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list();
 
@@ -62,7 +75,7 @@ describe("usersService (userAdminAPI)", () => {
           role: "USER",
         },
       ];
-      sinon.stub(apiService, 'get').resolves({ users: mockUsers });
+      const getStub = sinon.stub(apiService, 'get'); getStub.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list({ page: 1, limit: 10 });
 
@@ -74,7 +87,7 @@ describe("usersService (userAdminAPI)", () => {
 
     test("should list users filtered by role", async () => {
       const mockUsers = [{ id: 1, name: "Admin User", email: "admin@example.com", role: "ADMIN" }];
-      sinon.stub(apiService, 'get').resolves({ users: mockUsers });
+      const getStub = sinon.stub(apiService, 'get'); getStub.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list({ role: "ADMIN" });
 
@@ -87,7 +100,7 @@ describe("usersService (userAdminAPI)", () => {
 
     test("should list users filtered by company", async () => {
       const mockUsers = [{ id: 1, name: "User", email: "user@example.com", companyId: 5 }];
-      sinon.stub(apiService, 'get').resolves({ users: mockUsers });
+      const getStub = sinon.stub(apiService, 'get'); getStub.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list({ companyId: 5 });
 
@@ -97,7 +110,7 @@ describe("usersService (userAdminAPI)", () => {
 
     test("should handle array response format", async () => {
       const mockUsers = [{ id: 1, name: "User One", email: "user1@example.com" }];
-      sinon.stub(apiService, 'get').resolves(mockUsers);
+      const getStub = sinon.stub(apiService, 'get'); getStub.resolves(mockUsers);
 
       const result = await userAdminAPI.list();
 
@@ -105,7 +118,7 @@ describe("usersService (userAdminAPI)", () => {
     });
 
     test("should handle empty user list", async () => {
-      sinon.stub(apiService, 'get').resolves({ users: [] });
+      const getStub = sinon.stub(apiService, 'get'); getStub.resolves({ users: [] });
 
       const result = await userAdminAPI.list();
 
@@ -113,7 +126,7 @@ describe("usersService (userAdminAPI)", () => {
     });
 
     test("should handle null response gracefully", async () => {
-      sinon.stub(apiService, 'get').resolves(null);
+      const getStub = sinon.stub(apiService, 'get'); getStub.resolves(null);
 
       const result = await userAdminAPI.list();
 
@@ -122,7 +135,7 @@ describe("usersService (userAdminAPI)", () => {
 
     test("should search users by email", async () => {
       const mockUsers = [{ id: 1, name: "John", email: "john@example.com", role: "ADMIN" }];
-      sinon.stub(apiService, 'get').resolves({ users: mockUsers });
+      const getStub = sinon.stub(apiService, 'get'); getStub.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list({ search: "john@example.com" });
 
@@ -137,7 +150,7 @@ describe("usersService (userAdminAPI)", () => {
         { id: 2, name: "Alice", email: "alice@example.com" },
         { id: 1, name: "Bob", email: "bob@example.com" },
       ];
-      sinon.stub(apiService, 'get').resolves({ users: mockUsers });
+      const getStub = sinon.stub(apiService, 'get'); getStub.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list({ sort: "name", order: "asc" });
 
@@ -161,7 +174,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: 10, ...userData, companyId: 1 },
       };
-      sinon.stub(apiService, 'post').resolves(mockResponse);
+      const postStub = sinon.stub(apiService, 'post'); postStub.resolves(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -181,7 +194,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: 11, ...userData, companyId: 1 },
       };
-      sinon.stub(apiService, 'post').resolves(mockResponse);
+      const postStub = sinon.stub(apiService, 'post'); postStub.resolves(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -196,7 +209,7 @@ describe("usersService (userAdminAPI)", () => {
         password: "Pass123!",
         role: "USER",
       };
-      sinon.stub(apiService, 'post').rejects(new Error("Email already exists"));
+      const postStub = sinon.stub(apiService, 'post'); postStub.rejects(new Error("Email already exists"));
 
       await assert.rejects(() => userAdminAPI.create(userData), Error);
     });
@@ -208,7 +221,7 @@ describe("usersService (userAdminAPI)", () => {
         password: "123",
         role: "USER",
       };
-      sinon.stub(apiService, 'post').rejects(new Error("Password too weak"));
+      const postStub = sinon.stub(apiService, 'post'); postStub.rejects(new Error("Password too weak"));
 
       await assert.rejects(() => userAdminAPI.create(userData), Error);
     });
@@ -220,7 +233,7 @@ describe("usersService (userAdminAPI)", () => {
         password: "Pass123!",
         role: "USER",
       };
-      sinon.stub(apiService, 'post').rejects(new Error("Invalid email format"));
+      const postStub = sinon.stub(apiService, 'post'); postStub.rejects(new Error("Invalid email format"));
 
       await assert.rejects(() => userAdminAPI.create(userData), Error);
     });
@@ -232,7 +245,7 @@ describe("usersService (userAdminAPI)", () => {
         password: "Pass123!",
         role: "USER",
       };
-      sinon.stub(apiService, 'post').rejects(new Error("Network error"));
+      const postStub = sinon.stub(apiService, 'post'); postStub.rejects(new Error("Network error"));
 
       await assert.rejects(() => userAdminAPI.create(userData), Error);
     });
@@ -245,7 +258,7 @@ describe("usersService (userAdminAPI)", () => {
         role: "USER",
       };
       const mockResponse = { id: 12, name: "User" };
-      sinon.stub(apiService, 'post').resolves(mockResponse);
+      const postStub = sinon.stub(apiService, 'post'); postStub.resolves(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -264,7 +277,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, name: "Updated Name", email: "user@example.com" },
       };
-      sinon.stub(apiService, 'patch').resolves(mockResponse);
+      const patchStub = sinon.stub(apiService, 'patch'); patchStub.resolves(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -278,7 +291,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, role: "MANAGER", email: "user@example.com" },
       };
-      sinon.stub(apiService, 'patch').resolves(mockResponse);
+      const patchStub = sinon.stub(apiService, 'patch'); patchStub.resolves(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -291,7 +304,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, ...payload, email: "user@example.com" },
       };
-      sinon.stub(apiService, 'patch').resolves(mockResponse);
+      const patchStub = sinon.stub(apiService, 'patch'); patchStub.resolves(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -302,7 +315,7 @@ describe("usersService (userAdminAPI)", () => {
     test("should handle user not found error", async () => {
       const userId = 999;
       const payload = { name: "Updated" };
-      sinon.stub(apiService, 'patch').rejects(new Error("User not found"));
+      const patchStub = sinon.stub(apiService, 'patch'); patchStub.rejects(new Error("User not found"));
 
       await assert.rejects(() => userAdminAPI.update(userId, payload), Error);
     });
@@ -310,7 +323,7 @@ describe("usersService (userAdminAPI)", () => {
     test("should handle validation errors on update", async () => {
       const userId = 1;
       const payload = { email: "invalid-email" };
-      sinon.stub(apiService, 'patch').rejects(new Error("Invalid email"));
+      const patchStub = sinon.stub(apiService, 'patch'); patchStub.rejects(new Error("Invalid email"));
 
       await assert.rejects(() => userAdminAPI.update(userId, payload), Error);
     });
@@ -321,7 +334,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, name: "Updated", email: "user@example.com" },
       };
-      sinon.stub(apiService, 'patch').resolves(mockResponse);
+      const patchStub = sinon.stub(apiService, 'patch'); patchStub.resolves(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -332,7 +345,7 @@ describe("usersService (userAdminAPI)", () => {
       const userId = 1;
       const payload = { name: "Updated" };
       const mockResponse = { id: userId, name: "Updated", email: "user@example.com" };
-      sinon.stub(apiService, 'patch').resolves(mockResponse);
+      const patchStub = sinon.stub(apiService, 'patch'); patchStub.resolves(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -349,7 +362,7 @@ describe("usersService (userAdminAPI)", () => {
       const userId = 1;
       const payload = { currentPassword: "OldPass123!", newPassword: "NewPass456!" };
       const mockResponse = { success: true, message: "Password changed" };
-      sinon.stub(apiService, 'put').resolves(mockResponse);
+      const putStub = sinon.stub(apiService, 'put'); putStub.resolves(mockResponse);
 
       const result = await userAdminAPI.changePassword(userId, payload);
 
@@ -360,7 +373,7 @@ describe("usersService (userAdminAPI)", () => {
     test("should reject incorrect current password", async () => {
       const userId = 1;
       const payload = { currentPassword: "WrongPass", newPassword: "NewPass456!" };
-      sinon.stub(apiService, 'put').rejects(new Error("Current password incorrect"));
+      const putStub = sinon.stub(apiService, 'put'); putStub.rejects(new Error("Current password incorrect"));
 
       await assert.rejects(() => userAdminAPI.changePassword(userId, payload), Error);
     });
@@ -368,7 +381,7 @@ describe("usersService (userAdminAPI)", () => {
     test("should enforce password strength on new password", async () => {
       const userId = 1;
       const payload = { currentPassword: "OldPass123!", newPassword: "123" };
-      sinon.stub(apiService, 'put').rejects(new Error("New password too weak"));
+      const putStub = sinon.stub(apiService, 'put'); putStub.rejects(new Error("New password too weak"));
 
       await assert.rejects(() => userAdminAPI.changePassword(userId, payload), Error);
     });
@@ -376,7 +389,7 @@ describe("usersService (userAdminAPI)", () => {
     test("should prevent reusing old password", async () => {
       const userId = 1;
       const payload = { currentPassword: "OldPass123!", newPassword: "OldPass123!" };
-      sinon.stub(apiService, 'put').rejects(new Error("Cannot reuse previous password"));
+      const putStub = sinon.stub(apiService, 'put'); putStub.rejects(new Error("Cannot reuse previous password"));
 
       await assert.rejects(() => userAdminAPI.changePassword(userId, payload), Error);
     });
@@ -384,7 +397,7 @@ describe("usersService (userAdminAPI)", () => {
     test("should handle network error during password change", async () => {
       const userId = 1;
       const payload = { currentPassword: "OldPass123!", newPassword: "NewPass456!" };
-      sinon.stub(apiService, 'put').rejects(new Error("Network error"));
+      const putStub = sinon.stub(apiService, 'put'); putStub.rejects(new Error("Network error"));
 
       await assert.rejects(() => userAdminAPI.changePassword(userId, payload), Error);
     });
@@ -398,7 +411,7 @@ describe("usersService (userAdminAPI)", () => {
     test("should delete user by ID", async () => {
       const userId = 5;
       const mockResponse = { success: true, message: "User deleted" };
-      sinon.stub(apiService, 'delete').resolves(mockResponse);
+      const deleteStub = sinon.stub(apiService, 'delete'); deleteStub.resolves(mockResponse);
 
       const result = await userAdminAPI.remove(userId);
 
@@ -408,28 +421,28 @@ describe("usersService (userAdminAPI)", () => {
 
     test("should handle deletion of non-existent user", async () => {
       const userId = 999;
-      sinon.stub(apiService, 'delete').rejects(new Error("User not found"));
+      const deleteStub = sinon.stub(apiService, 'delete'); deleteStub.rejects(new Error("User not found"));
 
       await assert.rejects(() => userAdminAPI.remove(userId), Error);
     });
 
     test("should prevent deletion of last admin user", async () => {
       const userId = 1;
-      sinon.stub(apiService, 'delete').rejects(new Error("Cannot delete last admin"));
+      const deleteStub = sinon.stub(apiService, 'delete'); deleteStub.rejects(new Error("Cannot delete last admin"));
 
       await assert.rejects(() => userAdminAPI.remove(userId), Error);
     });
 
     test("should handle authorization error on deletion", async () => {
       const userId = 10;
-      sinon.stub(apiService, 'delete').rejects(new Error("Insufficient permissions"));
+      const deleteStub = sinon.stub(apiService, 'delete'); deleteStub.rejects(new Error("Insufficient permissions"));
 
       await assert.rejects(() => userAdminAPI.remove(userId), Error);
     });
 
     test("should handle network error on deletion", async () => {
       const userId = 5;
-      sinon.stub(apiService, 'delete').rejects(new Error("Network error"));
+      const deleteStub = sinon.stub(apiService, 'delete'); deleteStub.rejects(new Error("Network error"));
 
       await assert.rejects(() => userAdminAPI.remove(userId), Error);
     });
@@ -442,7 +455,7 @@ describe("usersService (userAdminAPI)", () => {
   describe("Multi-Tenancy Enforcement", () => {
     test("should filter users by company context", async () => {
       const mockUsers = [{ id: 1, name: "User", email: "user@example.com", companyId: 1 }];
-      sinon.stub(apiService, 'get').resolves({ users: mockUsers });
+      const getStub = sinon.stub(apiService, 'get'); getStub.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list({ companyId: 1 });
 
@@ -452,7 +465,7 @@ describe("usersService (userAdminAPI)", () => {
     test("should not allow cross-company user access", async () => {
       // API should enforce this, client just sends request
       const mockUsers = [{ id: 1, name: "User", email: "user@example.com", companyId: 2 }];
-      sinon.stub(apiService, 'get').resolves({ users: mockUsers });
+      const getStub = sinon.stub(apiService, 'get'); getStub.resolves({ users: mockUsers });
 
       const result = await userAdminAPI.list({ companyId: 1 });
 
@@ -470,7 +483,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: 10, ...userData, companyId: 1 },
       };
-      sinon.stub(apiService, 'post').resolves(mockResponse);
+      const postStub = sinon.stub(apiService, 'post'); postStub.resolves(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -484,19 +497,19 @@ describe("usersService (userAdminAPI)", () => {
 
   describe("Error Handling", () => {
     test("should handle API timeout", async () => {
-      sinon.stub(apiService, 'get').rejects(new Error("Request timeout"));
+      const getStub = sinon.stub(apiService, 'get'); getStub.rejects(new Error("Request timeout"));
 
       await assert.rejects(() => userAdminAPI.list(), Error);
     });
 
     test("should handle server error responses", async () => {
-      sinon.stub(apiService, 'get').rejects(new Error("Server error: 500"));
+      const getStub = sinon.stub(apiService, 'get'); getStub.rejects(new Error("Server error: 500"));
 
       await assert.rejects(() => userAdminAPI.list(), Error);
     });
 
     test("should handle malformed response", async () => {
-      sinon.stub(apiService, 'get').resolves(null);
+      const getStub = sinon.stub(apiService, 'get'); getStub.resolves(null);
 
       const result = await userAdminAPI.list();
 
@@ -531,7 +544,7 @@ describe("usersService (userAdminAPI)", () => {
         role: "ADMIN",
       };
       const mockResponse = { user: { id: 20, ...userData } };
-      sinon.stub(apiService, 'post').resolves(mockResponse);
+      const postStub = sinon.stub(apiService, 'post'); postStub.resolves(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -547,7 +560,7 @@ describe("usersService (userAdminAPI)", () => {
         permissions: ["READ_INVOICE", "CREATE_PO", "APPROVE_PAYMENT"],
       };
       const mockResponse = { user: { id: 21, ...userData } };
-      sinon.stub(apiService, 'post').resolves(mockResponse);
+      const postStub = sinon.stub(apiService, 'post'); postStub.resolves(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -561,7 +574,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, ...payload, email: "user@example.com" },
       };
-      sinon.stub(apiService, 'patch').resolves(mockResponse);
+      const patchStub = sinon.stub(apiService, 'patch'); patchStub.resolves(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 

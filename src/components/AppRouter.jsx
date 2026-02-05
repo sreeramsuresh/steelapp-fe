@@ -97,6 +97,9 @@ const VATReturnReport = lazy(() => import("./VATReturnReport"));
 // Admin Components - Roles & Permissions
 const RolesPage = lazy(() => import("../pages/RolesPage"));
 
+// Phase 3: Pricing Components
+const BasePricesPage = lazy(() => import("../pages/BasePricesPage"));
+
 // Audit Hub Components
 const AuditHubDashboard = lazy(() =>
   import("../pages/AuditHub/AuditHubDashboard").then((m) => ({
@@ -920,6 +923,16 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredRole="admin">
                   <AuditLogs />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ===== PRICING MANAGEMENT ===== */}
+            <Route
+              path="base-prices"
+              element={
+                <ProtectedRoute user={user} requiredPermission="products.update">
+                  <BasePricesPage />
                 </ProtectedRoute>
               }
             />
