@@ -7,88 +7,7 @@ import { AlertTriangle, Package, RefreshCw, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
-
-// Mock data - would come from API
-const mockStockData = [
-  {
-    id: 1,
-    productName: "SS304 2B Sheet 2.0mm",
-    productSku: "SS304-2B-2.0",
-    productType: "Sheet",
-    grade: "304",
-    quantityOnHand: 500,
-    quantityReserved: 50,
-    quantityAvailable: 450,
-    unit: "KG",
-    minimumStock: 100,
-    isLowStock: false,
-  },
-  {
-    id: 2,
-    productName: "SS316L BA Sheet 1.5mm",
-    productSku: "SS316L-BA-1.5",
-    productType: "Sheet",
-    grade: "316L",
-    quantityOnHand: 200,
-    quantityReserved: 0,
-    quantityAvailable: 200,
-    unit: "KG",
-    minimumStock: 150,
-    isLowStock: false,
-  },
-  {
-    id: 3,
-    productName: "MS Round Bar 20mm",
-    productSku: "MS-RB-20",
-    productType: "Long",
-    grade: "MS",
-    quantityOnHand: 1000,
-    quantityReserved: 100,
-    quantityAvailable: 900,
-    unit: "KG",
-    minimumStock: 200,
-    isLowStock: false,
-  },
-  {
-    id: 4,
-    productName: "GI Sheet 1.2mm",
-    productSku: "GI-SH-1.2",
-    productType: "Sheet",
-    grade: "GI",
-    quantityOnHand: 50,
-    quantityReserved: 0,
-    quantityAvailable: 50,
-    unit: "KG",
-    minimumStock: 100,
-    isLowStock: true,
-  },
-  {
-    id: 5,
-    productName: 'SS304 Pipe 2"',
-    productSku: "SS304-PIPE-2",
-    productType: "Pipe",
-    grade: "304",
-    quantityOnHand: 150,
-    quantityReserved: 25,
-    quantityAvailable: 125,
-    unit: "PCS",
-    minimumStock: 50,
-    isLowStock: false,
-  },
-  {
-    id: 6,
-    productName: "SS316 Coil 0.8mm",
-    productSku: "SS316-COIL-0.8",
-    productType: "Coil",
-    grade: "316",
-    quantityOnHand: 30,
-    quantityReserved: 0,
-    quantityAvailable: 30,
-    unit: "MT",
-    minimumStock: 50,
-    isLowStock: true,
-  },
-];
+import { warehouseService } from "../../services/warehouseService";
 
 const WarehouseStockView = ({ warehouseId, warehouseName: _warehouseName }) => {
   const { isDarkMode } = useTheme();
@@ -100,16 +19,45 @@ const WarehouseStockView = ({ warehouseId, warehouseName: _warehouseName }) => {
   const [filterProductType, setFilterProductType] = useState("");
 
   useEffect(() => {
-    // Simulate API call
-    setLoading(true);
-    setTimeout(() => {
-      setStockItems(mockStockData);
-      setLoading(false);
-    }, 500);
-  }, []);
+    const fetchStockData = async () => {
+      setLoading(true);
+      try {
+        const response = await warehouseService.getStock(warehouseId, {
+          search: searchTerm,
+          productType: filterProductType,
+          lowStockOnly: filterLowStock,
+        });
+        setStockItems(response.data || []);
+      } catch (error) {
+        console.error("Failed to fetch warehouse stock:", error);
+        setStockItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Filter items
-  const filteredItems = stockItems.filter((item) => {
+    if (warehouseId) {
+      fetchStockData();
+    }
+  }, [warehouseId, searchTerm, filterProductType, filterLowStock]);
+
+  // Map API response to UI fields
+  const mappedItems = stockItems.map((item) => ({
+    id: item.id,
+    productName: item.description || item.product_name,
+    productSku: item.product_id ? `SKU-${item.product_id}` : "N/A",
+    productType: item.product_type || "Unknown",
+    grade: item.grade || "N/A",
+    quantityOnHand: item.quantity || 0,
+    quantityReserved: 0, // Not available in current API
+    quantityAvailable: item.quantity || 0,
+    unit: "KG", // Default unit - can be enhanced if stored in DB
+    minimumStock: item.min_stock || 0,
+    isLowStock: (item.quantity || 0) <= (item.min_stock || 5),
+  }));
+
+  // Apply filters to mapped items
+  const filteredItems = mappedItems.filter((item) => {
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       if (!item.productName.toLowerCase().includes(term) && !item.productSku.toLowerCase().includes(term)) {
@@ -126,7 +74,7 @@ const WarehouseStockView = ({ warehouseId, warehouseName: _warehouseName }) => {
   });
 
   // Get unique product types for filter
-  const productTypes = [...new Set(stockItems.map((item) => item.productType))];
+  const productTypes = [...new Set(mappedItems.map((item) => item.productType))];
 
   // Summary stats
   const lowStockCount = filteredItems.filter((item) => item.isLowStock).length;
@@ -193,7 +141,7 @@ const WarehouseStockView = ({ warehouseId, warehouseName: _warehouseName }) => {
       {/* Results Summary */}
       <div className="flex items-center justify-between">
         <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-          Showing {filteredItems.length} of {stockItems.length} products
+          Showing {filteredItems.length} of {mappedItems.length} products
         </p>
         <Link to={`/inventory?warehouse_id=${warehouseId}`} className="text-sm text-teal-500 hover:underline">
           View in Inventory →

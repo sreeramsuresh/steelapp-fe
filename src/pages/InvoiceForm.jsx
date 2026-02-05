@@ -27,12 +27,10 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import InvoicePreview from "../components/InvoicePreview";
 import AllocationPanel from "../components/invoice/AllocationPanel";
 import InvoiceValidationPanel from "../components/invoice/InvoiceValidationPanel";
-import LineItemPricingStatus from "../components/invoice/LineItemPricingStatus";
 import SourceTypeSelector from "../components/invoice/SourceTypeSelector";
 import LoadingOverlay from "../components/LoadingOverlay";
 import FormErrorBoundaryWithTheme from "../components/quotations/FormErrorBoundary";
 import { useTheme } from "../contexts/ThemeContext";
-import { useReducedMotion } from "../hooks/useAccessibility";
 import { useApi, useApiData } from "../hooks/useApi";
 import useBulkActions from "../hooks/useBulkActions";
 // AutoSave removed - was causing status bug on new invoices
@@ -80,7 +78,14 @@ const DRAWER_OVERLAY_CLASSES = (isOpen) =>
   `fixed inset-0 bg-black/55 z-30 transition-opacity ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`;
 
 const DRAWER_PANEL_CLASSES = (isDarkMode, isOpen) =>
-  `fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31] ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${isOpen ? "translate-x-0" : "translate-x-full"}`;
+  `fixed top-[53px] right-0 bottom-0 w-[min(620px,92vw)] z-[31] ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${isOpen ? "translate-x-0" : "translate-x-full"}`;
+
+// Drawer panel with rounded corners and shadow (inline style to override overflow clipping)
+const DRAWER_STYLE = {
+  borderTopLeftRadius: "8px",
+  borderBottomLeftRadius: "8px",
+  boxShadow: "-4px 0 16px rgba(0, 0, 0, 0.1)",
+};
 
 const QUICK_LINK_CLASSES = (isDarkMode) =>
   `flex items-center gap-2 py-2 px-2.5 w-full text-left ${isDarkMode ? "bg-gray-900 border-gray-700 text-gray-200" : "bg-gray-50 border-gray-200 text-gray-900"} border rounded-[10px] cursor-pointer text-[13px] transition-colors hover:border-teal-500 hover:text-teal-400`;
@@ -666,22 +671,18 @@ const AddProductDrawer = ({
       />
 
       {/* Drawer Panel */}
-      <div className={DRAWER_PANEL_CLASSES(isDarkMode, isOpen)}>
+      <div className={DRAWER_PANEL_CLASSES(isDarkMode, isOpen)} style={DRAWER_STYLE}>
         <div className="p-4">
           {/* Sticky Header */}
-          <div
-            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 z-[1] ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"}`}
-          >
+          <div className="sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 z-[1] bg-teal-600 border-b border-teal-700">
             <div>
-              <div className="text-sm font-extrabold">Add Product Line</div>
-              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                Search products, allocate batches, and add to invoice
-              </div>
+              <div className="text-sm font-extrabold text-white">Add Product Line</div>
+              <div className="text-xs text-teal-100">Search products, allocate batches, and add to invoice</div>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
+              className="p-1.5 rounded-lg transition-colors hover:bg-teal-700 text-white"
             >
               <X className="w-5 h-5" />
             </button>
@@ -1287,53 +1288,6 @@ const Autocomplete = ({
   );
 };
 
-const _Modal = ({ isOpen, onClose, title, children, size = "lg" }) => {
-  const { isDarkMode } = useTheme();
-
-  if (!isOpen) return null;
-
-  const sizes = {
-    sm: "max-w-md",
-    md: "max-w-lg",
-    lg: "max-w-2xl",
-    xl: "max-w-4xl",
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <button
-          type="button"
-          className="fixed inset-0 transition-opacity"
-          onClick={onClose}
-          tabIndex={-1}
-          onKeyDown={(e) => e.key === "Escape" && onClose()}
-        >
-          <div className={`absolute inset-0 ${isDarkMode ? "bg-gray-900" : "bg-black"} opacity-75`}></div>
-        </button>
-
-        <div
-          className={`inline-block align-bottom border rounded-2xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle ${
-            sizes[size]
-          } sm:w-full sm:p-6 ${isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-200"}`}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className={`text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>{title}</h3>
-            <button
-              type="button"
-              onClick={onClose}
-              className={isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-700"}
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const LoadingSpinner = ({ size = "md" }) => {
   const { isDarkMode } = useTheme();
   const sizes = {
@@ -1451,35 +1405,6 @@ const InvoiceForm = ({ onSave }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
 
-  // Helper function to generate auto-concatenated product name
-  const _generateProductName = useCallback((item) => {
-    const parts = [];
-    // Commodity is not available in steel item, we'll use a default "SS" if not set
-    // Category/Product Type
-    if (item.productType) parts.push(item.productType);
-    // Grade (clean, no prefix)
-    if (item.grade) {
-      const g = String(item.grade)
-        .trim()
-        .replace(/^(gr|ss)\s*/i, "")
-        .toUpperCase();
-      parts.push(g);
-    }
-    // Finish
-    if (item.finish) parts.push(item.finish);
-    // Size (add " for pipes/tubes)
-    const isPipeOrTube = /pipe|tube/i.test(item.productType || "");
-    if (item.size) {
-      parts.push(isPipeOrTube ? `${item.size}"` : item.size);
-    }
-    // Thickness
-    if (item.thickness) parts.push(item.thickness);
-    return parts.join(" ");
-  }, []);
-
-  // Debounce timeout refs for charges fields
-  const _chargesTimeout = useRef(null);
-
   // Field refs for scroll-to-field functionality (Option C Hybrid UX)
   const customerRef = useRef(null);
   const dateRef = useRef(null);
@@ -1574,7 +1499,6 @@ const InvoiceForm = ({ onSave }) => {
     criticalIssues: [],
     warnings: [],
   });
-  const [isValidating, setIsValidating] = useState(false);
   const [deleteLineItemConfirm, setDeleteLineItemConfirm] = useState({
     open: false,
     itemId: null,
@@ -1943,9 +1867,6 @@ const InvoiceForm = ({ onSave }) => {
   // ============================================================
   // PHASE 2-5 UI IMPROVEMENTS
   // ============================================================
-
-  // Reduced motion preference for accessibility
-  const _prefersReducedMotion = useReducedMotion();
 
   // Drag reorder for line items
   const handleItemsReorder = useCallback((newItems) => {
@@ -2439,11 +2360,7 @@ const InvoiceForm = ({ onSave }) => {
   }, [id, existingInvoice]);
 
   // Validate fields on load and when invoice changes
-  // Extract complex expressions for dependency array
-  const _placeOfSupply = invoice.placeOfSupply || "";
-  const _supplyDate = invoice.supplyDate || "";
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Dependencies extracted as variables above for granular tracking
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Dependencies tracked for granular validation updates
   useEffect(() => {
     if (invoice) {
       validateField("customer", invoice.customer);
@@ -2616,92 +2533,6 @@ const InvoiceForm = ({ onSave }) => {
 
   // Get allocation status badge for a line item
   // Only show status badges for saved invoices (when id exists)
-  // For new invoices, hide the "Pending" status as it's just noise
-  const _getAllocationStatusBadge = useCallback(
-    (item) => {
-      const status = item.allocationStatus || "pending";
-
-      // Don't show "Pending" badge on new/unsaved invoices - it's confusing
-      // Only show meaningful statuses (allocated, partial, failed) on saved invoices
-      if (!id && status === "pending") {
-        return null;
-      }
-
-      if (status === "allocated") {
-        return (
-          <span
-            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-              isDarkMode
-                ? "bg-green-900/40 text-green-300 border border-green-700"
-                : "bg-green-50 text-green-700 border border-green-200"
-            }`}
-          >
-            <CheckCircle size={12} />
-            Allocated
-          </span>
-        );
-      } else if (status === "partial") {
-        return (
-          <span
-            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-              isDarkMode
-                ? "bg-amber-900/40 text-amber-300 border border-amber-700"
-                : "bg-amber-50 text-amber-700 border border-amber-200"
-            }`}
-          >
-            <AlertTriangle size={12} />
-            Partial
-          </span>
-        );
-      } else if (status === "failed") {
-        return (
-          <span
-            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-              isDarkMode
-                ? "bg-red-900/40 text-red-300 border border-red-700"
-                : "bg-red-50 text-red-700 border border-red-200"
-            }`}
-          >
-            <X size={12} />
-            Failed
-          </span>
-        );
-      } else {
-        // pending or no status
-        return (
-          <span
-            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-              isDarkMode
-                ? "bg-gray-700 text-gray-300 border border-gray-600"
-                : "bg-gray-100 text-gray-600 border border-gray-300"
-            }`}
-          >
-            <Info size={12} />
-            Pending
-          </span>
-        );
-      }
-    },
-    [isDarkMode, id]
-  );
-
-  // Get UOM conversion display text
-  const _getUomConversionText = useCallback((item) => {
-    if (!item.itemUom || !item.primaryUom || item.itemUom === item.primaryUom) {
-      return null;
-    }
-
-    const qty = item.quantity || 0;
-    const factor = item.conversionFactor || 1;
-    const convertedQty = qty * factor;
-
-    if (item.unitWeight && item.itemUom === "PCS" && item.primaryUom === "KG") {
-      return `${qty} PCS = ${convertedQty.toFixed(2)} KG (unit weight: ${item.unitWeight} kg)`;
-    }
-
-    return `${qty} ${item.itemUom} = ${convertedQty.toFixed(2)} ${item.primaryUom}`;
-  }, []);
-
   // Check if product already exists in items (excluding current index)
   const findDuplicateProduct = useCallback(
     (productId, excludeIndex) => {
@@ -4114,7 +3945,7 @@ const InvoiceForm = ({ onSave }) => {
       >
         {/* Sticky Header - Mobile & Desktop */}
         <header
-          className={`sticky top-0 z-20 backdrop-blur-md border-b ${
+          className={`sticky top-0 z-20 shrink-0 backdrop-blur-md border-b ${
             isDarkMode ? "bg-gray-900/92 border-gray-700" : "bg-white/92 border-gray-200"
           }`}
         >
@@ -4484,7 +4315,7 @@ const InvoiceForm = ({ onSave }) => {
                     </h3>
                     <FormSelect
                       label="Sales Agent (Optional)"
-                      value={invoice.salesAgentId || "none"}
+                      value={invoice.sales_agent_id || "none"}
                       onValueChange={(value) => handleSalesAgentSelect(value)}
                       disabled={loadingAgents}
                       className="text-base"
@@ -4507,7 +4338,7 @@ const InvoiceForm = ({ onSave }) => {
                     )}
 
                     {/* Commission Details - Only shown when sales agent is selected */}
-                    {invoice.salesAgentId && (
+                    {invoice.sales_agent_id && (
                       <div
                         className="border-t pt-4 mt-4"
                         style={{

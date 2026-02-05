@@ -169,18 +169,28 @@ describe('Button Component', () => {
     });
 
     test('Test 2.5: Should prevent double submission', () => {
+      let submitCount = 0;
+      const onSubmit = () => {
+        submitCount++;
+      };
+
+      // Simulate rapid double clicks
       let isSubmitting = false;
-      const onClick = sandbox.stub().callsFake(() => {
+      const handleClick = () => {
         if (!isSubmitting) {
           isSubmitting = true;
-          onClick();
+          onSubmit();
+          // Simulate async operation completing
+          setTimeout(() => {
+            isSubmitting = false;
+          }, 100);
         }
-      });
+      };
 
-      onClick();
-      onClick();
+      handleClick();
+      handleClick(); // Second click immediately after first
 
-      strictEqual(onClick.callCount, 1, 'Should prevent double submission');
+      strictEqual(submitCount, 1, 'Should prevent double submission on rapid clicks');
     });
 
     test('Test 2.6: Should support async onClick', async () => {

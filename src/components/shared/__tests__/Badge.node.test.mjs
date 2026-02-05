@@ -763,7 +763,7 @@ describe('Badge Component', () => {
       strictEqual(visible.length, 20, 'Should virtualize list');
     });
 
-    test('Test 12.4: Should debounce count updates', () => {
+    test('Test 12.4: Should debounce count updates', async () => {
       const onUpdate = sandbox.spy();
       const debounce = (fn, delay) => {
         let timeout;
@@ -777,6 +777,9 @@ describe('Badge Component', () => {
       update(1);
       update(2);
       update(3);
+
+      // Wait for debounce timeout to complete
+      await new Promise((resolve) => setTimeout(resolve, 350));
 
       ok(onUpdate.called, 'Should debounce updates');
     });

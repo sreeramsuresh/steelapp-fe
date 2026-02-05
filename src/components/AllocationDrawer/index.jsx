@@ -30,7 +30,6 @@ const AllocationDrawer = ({
   warehouseId,
   companyId,
   onAddLineItem,
-  onCancel,
   visible = true,
   customerId = null,
   priceListId = null,
@@ -1012,15 +1011,6 @@ const AllocationDrawer = ({
     handleClear,
   ]);
 
-  // Wrap onCancel to cancel reservation on drawer close
-  const handleCancel = useCallback(async () => {
-    // Clear the form state first
-    await handleClear();
-
-    // Then close the drawer
-    if (onCancel) onCancel();
-  }, [handleClear, onCancel]);
-
   if (!visible) return null;
 
   const requiredQty = parseFloat(drawerState.quantity) || 0;
@@ -1028,15 +1018,6 @@ const AllocationDrawer = ({
 
   return (
     <div className="allocation-drawer" data-testid="allocation-drawer">
-      <div className="drawer-header">
-        <h3>Add Product Line</h3>
-        {onCancel && (
-          <button type="button" className="drawer-close-btn" onClick={handleCancel}>
-            x
-          </button>
-        )}
-      </div>
-
       <div className="drawer-content">
         {/* Product Selector */}
         <ProductSelector

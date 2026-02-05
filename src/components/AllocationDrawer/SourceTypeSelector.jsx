@@ -1,3 +1,4 @@
+import { Package, Ship, Truck } from "lucide-react";
 import PropTypes from "prop-types";
 import { useCallback } from "react";
 
@@ -12,24 +13,34 @@ import { useCallback } from "react";
  * Import Drop-Ship: Direct from import, no stock allocation needed
  */
 const SourceTypeSelector = ({ value, onChange, disabled = false }) => {
+  const getIconComponent = (iconType) => {
+    switch (iconType) {
+      case "WAREHOUSE":
+        return <Package className="w-5 h-5" />;
+      case "LOCAL_DROP_SHIP":
+        return <Truck className="w-5 h-5" />;
+      case "IMPORT_DROP_SHIP":
+        return <Ship className="w-5 h-5" />;
+      default:
+        return null;
+    }
+  };
+
   const sourceTypes = [
     {
       value: "WAREHOUSE",
       label: "Warehouse",
       description: "From existing stock",
-      icon: "🏭",
     },
     {
       value: "LOCAL_DROP_SHIP",
       label: "Local Drop-Ship",
       description: "Direct from local supplier",
-      icon: "🚚",
     },
     {
       value: "IMPORT_DROP_SHIP",
       label: "Import Drop-Ship",
       description: "Direct from import",
-      icon: "🚢",
     },
   ];
 
@@ -63,7 +74,7 @@ const SourceTypeSelector = ({ value, onChange, disabled = false }) => {
               disabled={disabled}
               data-testid={`source-type-radio-${sourceType.value.toLowerCase()}`}
             />
-            <span className="source-type-icon">{sourceType.icon}</span>
+            <span className="source-type-icon">{getIconComponent(sourceType.value)}</span>
             <div className="source-type-text">
               <span className="source-type-name">{sourceType.label}</span>
               <span className="source-type-desc">{sourceType.description}</span>
