@@ -45,7 +45,8 @@ export default function BasePricesPage() {
       setError(null);
 
       // Get default pricelist
-      const pricelists = await pricelistService.getAll({ is_default: true });
+      const response = await pricelistService.getAll({ is_default: true });
+      const pricelists = response?.pricelists || [];
       if (!pricelists || pricelists.length === 0) {
         setError("No default pricelist found");
         return;
