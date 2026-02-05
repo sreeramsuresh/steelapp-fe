@@ -15,7 +15,8 @@ import InvoiceFooterNotes from "../InvoiceFooterNotes";
 useTheme: () => ({ isDarkMode: false }),
 }))
 
-describe("InvoiceFooterNotes", () => {
+describe("InvoiceFooterNotes", () =>
+{
   let mockOnNotesChange;
   let defaultProps;
 
@@ -406,4 +407,5 @@ describe("InvoiceFooterNotes", () => {
       expect(container).toBeInTheDocument();
     });
   });
-});
+}
+)

@@ -29,7 +29,8 @@ default: (
 , children) : null,
 }))
 
-describe("PurchaseOrderPreview", () => {
+describe("PurchaseOrderPreview", () =>
+{
   const defaultProps = {
     poId: "PO-001",
     onClose: sinon.stub(),
@@ -332,4 +333,5 @@ describe("PurchaseOrderPreview", () => {
       expect(container).toBeInTheDocument();
     });
   });
-});
+}
+)

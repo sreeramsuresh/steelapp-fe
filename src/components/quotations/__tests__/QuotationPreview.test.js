@@ -20,7 +20,11 @@ getDocumentTemplateColor: () => "#1e40af",
 }))
 
 // sinon.stub() // "../../../utils/invoiceUtils", () => ({
-formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`, toUAEDateProfessional;
+formatCurrency: (value) => `AED $
+{
+  value?.toFixed(2) || "0.00";
+}
+`, toUAEDateProfessional;
 : (_date) => "15 January 2024",
   TIMEZONE_DISCLAIMER: "Times shown in UAE timezone",
 }))
@@ -562,7 +566,13 @@ describe("QuotationPreview", () => {
       const largeQuotation = {
         ...defaultProps.quotation,
         items: Array.from({ length: 100 }, (_, i) => ({
-          name: `Item ${i}`,
+          name: `;
+Item;
+$;
+{
+  i;
+}
+`,
           quantity: 100,
           unit: "kg",
           rate: 50,

@@ -15,7 +15,8 @@ import VolumeDiscountTiersModal from "../VolumeDiscountTiersModal";
 useTheme: () => ({ isDarkMode: false }),
 }))
 
-describe("VolumeDiscountTiersModal", () => {
+describe("VolumeDiscountTiersModal", () =>
+{
   let mockOnClose;
   let mockOnSave;
 
@@ -188,4 +189,5 @@ describe("VolumeDiscountTiersModal", () => {
 
     expect(descriptionInput).toHaveValue("Bulk purchase discount");
   });
-});
+}
+)

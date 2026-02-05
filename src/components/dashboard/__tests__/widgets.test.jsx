@@ -52,7 +52,15 @@ default: (
   message;
 }
 </div>,
-MetricValue: ({ value }) => <div>{value}</div>, WidgetListItem;
+MetricValue: (
+{
+  value;
+}
+) => <div>
+{
+  value;
+}
+</div>, WidgetListItem;
 : (
 {
   title;
@@ -65,14 +73,14 @@ MetricValue: ({ value }) => <div>{value}</div>, WidgetListItem;
 }))
 
 // sinon.stub() // "../charts/RechartsWrapper", () => ({
-BarChartWrapper: () => <div data-testid="bar-chart" />, LineChartWrapper;
+BarChartWrapper: () => <div data-testid="bar-chart" />, LineChartWrapper
 : () => <div data-testid="line-chart" />,
   PieChartWrapper: () => <div data-testid="pie-chart" />,
   DonutChartWrapper: () => <div data-testid="donut-chart" />,
 }))
 
 // sinon.stub() // "../charts/EChartsWrapper", () => ({
-GaugeChartWrapper: () => <div data-testid="gauge-chart" />, TreemapChartWrapper;
+GaugeChartWrapper: () => <div data-testid="gauge-chart" />, TreemapChartWrapper
 : () => <div data-testid="treemap-chart" />,
   FunnelChartWrapper: () => <div data-testid="funnel-chart" />,
 }))

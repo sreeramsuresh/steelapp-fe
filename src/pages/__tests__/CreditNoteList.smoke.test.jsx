@@ -73,12 +73,14 @@ return {
 })
 
 // sinon.stub() // "../../hooks/useConfirm", () => ({
-useConfirm: () => ({
-    confirm: sinon.stub().mockResolvedValue(true),
-    dialogState: { open: false },
+useConfirm: () => (
+{
+  confirm: sinon.stub().mockResolvedValue(true), dialogState;
+  : open: false ,
     handleConfirm: sinon.stub(),
     handleCancel: sinon.stub(),
-  }),
+}
+),
 }))
 // sinon.stub() // "../../hooks/useCreditNoteDrafts", () => ({
 default: () => (

@@ -12,7 +12,8 @@ const mockAuditService = {
 default: mockAuditService,
 }))
 
-describe("AuditLog", () => {
+describe("AuditLog", () =>
+{
   beforeEach(() => {
     sinon.restore();
     mockAuditService.listAuditLogs.mockResolvedValue([]);
@@ -35,4 +36,5 @@ describe("AuditLog", () => {
       });
     });
   });
-});
+}
+)

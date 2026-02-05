@@ -14,7 +14,8 @@ const mockCustomerService = {
 default: mockCustomerService,
 }))
 
-describe("CustomerManagement", () => {
+describe("CustomerManagement", () =>
+{
   beforeEach(() => {
     sinon.restore();
     mockCustomerService.listCustomers.mockResolvedValue([]);
@@ -53,4 +54,5 @@ describe("CustomerManagement", () => {
       });
     });
   });
-});
+}
+)

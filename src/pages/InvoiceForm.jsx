@@ -27,6 +27,8 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import InvoicePreview from "../components/InvoicePreview";
 import AllocationPanel from "../components/invoice/AllocationPanel";
 import SourceTypeSelector from "../components/invoice/SourceTypeSelector";
+import InvoiceValidationPanel from "../components/invoice/InvoiceValidationPanel";
+import LineItemPricingStatus from "../components/invoice/LineItemPricingStatus";
 import LoadingOverlay from "../components/LoadingOverlay";
 import FormErrorBoundaryWithTheme from "../components/quotations/FormErrorBoundary";
 import { useTheme } from "../contexts/ThemeContext";
@@ -1567,6 +1569,12 @@ const InvoiceForm = ({ onSave }) => {
 
   // Confirmation dialogs
   const [issueConfirm, setIssueConfirm] = useState({ open: false });
+  const [validationModal, setValidationModal] = useState({
+    open: false,
+    criticalIssues: [],
+    warnings: [],
+  });
+  const [isValidating, setIsValidating] = useState(false);
   const [deleteLineItemConfirm, setDeleteLineItemConfirm] = useState({
     open: false,
     itemId: null,
@@ -3470,7 +3478,56 @@ const InvoiceForm = ({ onSave }) => {
       return;
     }
 
-    // Show confirmation dialog
+    // Phase 13: Validate pricing before finalization
+    try {
+      setIsValidating(true);
+
+      const response = await fetch("/api/invoices/validate-pricing", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          customer_id: invoice.customer?.id,
+          line_items: (invoice.items || []).map((item) => ({
+            product_id: item.product_id,
+            quantity: item.quantity,
+            unit_price: item.unitPrice,
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Validation failed: ${response.statusText}`);
+      }
+
+      const validationResult = await response.json();
+
+      // Show validation modal if there are issues or warnings
+      if (!validationResult.valid || validationResult.warnings.length > 0) {
+        setValidationModal({
+          open: true,
+          criticalIssues: validationResult.critical_issues || [],
+          warnings: validationResult.warnings || [],
+        });
+        return;
+      }
+
+      // If no issues, show confirmation dialog
+      setIssueConfirm({ open: true });
+    } catch (error) {
+      console.error("Pricing validation error:", error);
+      notificationService.warning("Could not validate pricing. Proceeding with caution.");
+      setIssueConfirm({ open: true });
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  const handleValidationProceed = async () => {
+    // Close validation modal and show issue confirmation
+    setValidationModal({ open: false, criticalIssues: [], warnings: [] });
     setIssueConfirm({ open: true });
   };
 
@@ -6509,6 +6566,19 @@ const InvoiceForm = ({ onSave }) => {
           customerId={invoice.customer?.id || null} // NEW - for pricing
           priceListId={selectedPricelistId || null} // NEW - for pricing
           onAddLineItem={handleAddLineItem}
+        />
+      )}
+
+      {/* Phase 13: Invoice Pricing Validation Modal */}
+      {validationModal.open && (
+        <InvoiceValidationPanel
+          isOpen={validationModal.open}
+          onClose={() => setValidationModal({ open: false, criticalIssues: [], warnings: [] })}
+          criticalIssues={validationModal.criticalIssues}
+          warnings={validationModal.warnings}
+          isDarkMode={isDarkMode}
+          onProceed={handleValidationProceed}
+          isLoading={isSaving}
         />
       )}
 

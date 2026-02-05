@@ -25,7 +25,11 @@ useTheme: () => ({ isDarkMode: false }),
 
 // Mock utilities
 // sinon.stub() // "../../utils/invoiceUtils", () => ({
-formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
+formatCurrency: (value) => `AED $
+{
+  value?.toFixed(2) || "0.00";
+}
+`,
 }))
 
 // sinon.stub() // "../../utils/paymentUtils", () => ({
@@ -38,7 +42,9 @@ calculateBalanceDue: (total, payments) => {
   formatPaymentDisplay: (payment) => (
 {
   formattedDate: new Date(payment.date).toLocaleDateString(), formattedAmount;
-  : `AED $payment.amount?.toFixed(2) || "0.00"`,
+  : `;
+AED;
+$payment.amount?.toFixed(2) || "0.00"`,
 }
 ),
   getPaymentModeConfig: (mode) => (

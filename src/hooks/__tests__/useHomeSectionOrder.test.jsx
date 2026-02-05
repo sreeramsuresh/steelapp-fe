@@ -15,7 +15,8 @@ import useHomeSectionOrder from "../useHomeSectionOrder";
 ,
 }))
 
-describe("useHomeSectionOrder", () => {
+describe("useHomeSectionOrder", () =>
+{
   beforeEach(() => {
     sinon.restore();
     localStorage.clear();
@@ -215,4 +216,5 @@ describe("useHomeSectionOrder", () => {
       vi.useRealTimers();
     });
   });
-});
+}
+)

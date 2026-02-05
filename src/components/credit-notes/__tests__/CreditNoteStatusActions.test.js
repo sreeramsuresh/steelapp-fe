@@ -45,7 +45,11 @@ default: (
   title;
 }
 </h2>
-(<p>{message}</p>) < button;
+(<p>
+{
+  message;
+}
+</p>) < button;
 type = "button";
 onClick = { onConfirm } > Confirm;
 </button>
@@ -57,7 +61,8 @@ onClick = { onCancel } > Cancel;
   ),
 }))
 
-describe("CreditNoteStatusActions", () => {
+describe("CreditNoteStatusActions", () =>
+{
   let defaultProps;
   let mockOnStatusChange;
   let mockOnOpenQCModal;
@@ -666,4 +671,5 @@ describe("CreditNoteStatusActions", () => {
       expect(container).toBeInTheDocument();
     });
   });
-});
+}
+)

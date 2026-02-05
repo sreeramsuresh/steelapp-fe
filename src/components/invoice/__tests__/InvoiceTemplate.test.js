@@ -79,10 +79,15 @@ of;
 }))
 
 // sinon.stub() // "../../contexts/ThemeContext", () => ({
-useTheme: () => ({ isDarkMode: false }),
+useTheme: () => (
+{
+  isDarkMode: false;
+}
+),
 }))
 
-describe("InvoiceTemplate", () => {
+describe("InvoiceTemplate", () =>
+{
   let defaultProps;
   let defaultInvoice;
   let defaultCompany;
@@ -573,4 +578,5 @@ describe("InvoiceTemplate", () => {
       expect(getByTestId("invoice-items-table").textContent).toContain("Start: 0");
     });
   });
-});
+}
+)

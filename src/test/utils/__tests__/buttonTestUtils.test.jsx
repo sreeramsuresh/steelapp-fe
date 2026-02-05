@@ -20,7 +20,8 @@ assertButtonDisabled,
   waitForButtonEnabled,
 } from "../buttonTestUtils"
 
-describe("buttonTestUtils", () => {
+describe("buttonTestUtils", () =>
+{
   describe("findButtonByRole", () => {
     it("finds button by role name", () => {
       render(<button type="button">Save</button>);
@@ -273,4 +274,5 @@ describe("buttonTestUtils", () => {
       await expect(waitForButtonEnabled(button, 100)).rejects.toThrow();
     });
   });
-});
+}
+)

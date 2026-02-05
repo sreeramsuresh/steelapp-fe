@@ -25,7 +25,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 }))
 
 // sinon.stub() // "../../utils/reminderUtils", () => ({
-getInvoiceReminderInfo: sinon.stub(), generatePaymentReminder;
+getInvoiceReminderInfo: sinon.stub(), generatePaymentReminder
 : sinon.stub(),
 }))
 

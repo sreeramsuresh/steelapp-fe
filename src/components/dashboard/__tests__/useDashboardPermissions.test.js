@@ -15,7 +15,8 @@
 
 // Mock DashboardConfig
 // sinon.stub() // "../config/DashboardConfig", () => ({
-canViewWidget: vi.fn((widgetId, role) => {
+canViewWidget: vi.fn((widgetId, role) =>
+{
   const allowedWidgets = {
     ceo: ["revenue-kpi", "vat-collection", "inventory-health", "agent-scorecard"],
     cfo: ["revenue-kpi", "vat-collection", "ar-aging"],
@@ -23,8 +24,9 @@ canViewWidget: vi.fn((widgetId, role) => {
     warehouse_manager: ["inventory-health", "reorder-alerts"],
   };
   return allowedWidgets[role]?.includes(widgetId) ?? false;
-}),
-  getVisibleWidgets;
+}
+),
+  getVisibleWidgets
 : vi.fn((role) =>
 {
   const widgets = {

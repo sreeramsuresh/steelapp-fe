@@ -24,19 +24,58 @@ import CustomerCreditPanel from "../CustomerCreditPanel";
 }))
 
 // sinon.stub() // "../../../components/ui/badge", () => ({
-Badge: ({ children, className }) => <span className={className}>{children}</span>,
+Badge: (
+{
+  children, className;
+}
+) => <span className=
+{
+  className;
+}
+>
+{
+  children;
+}
+</span>,
 }))
 
 // sinon.stub() // "../../../components/ui/button", () => ({
-Button: ({ children, onClick, disabled, ...props }) => (
-    <button onClick={onClick} disabled={disabled} {...props}>
-      {children}
-    </button>
+Button: (
+{
+  children, onClick, disabled,
+  ...props
+}
+) => (
+    <button onClick=
+{
+  onClick;
+}
+disabled = { disabled };
+{
+  ...props
+}
+>
+{
+  children;
+}
+</button>
   ),
 }))
 
 // sinon.stub() // "../../../components/ui/card", () => ({
-Card: ({ children, className }) => <div className={className}>{children}</div>, CardHeader;
+Card: (
+{
+  children, className;
+}
+) => <div className=
+{
+  className;
+}
+>
+{
+  children;
+}
+</div>, CardHeader;
 : (
 {
   children;
@@ -46,7 +85,15 @@ Card: ({ children, className }) => <div className={className}>{children}</div>, 
   children;
 }
 </div>,
-CardTitle: ({ children }) => <h2>{children}</h2>, CardDescription;
+CardTitle: (
+{
+  children;
+}
+) => <h2>
+{
+  children;
+}
+</h2>, CardDescription;
 : (
 {
   children;
@@ -56,12 +103,28 @@ CardTitle: ({ children }) => <h2>{children}</h2>, CardDescription;
   children;
 }
 </p>,
-CardContent: ({ children }) => <div>{children}</div>,
+CardContent: (
+{
+  children;
+}
+) => <div>
+{
+  children;
+}
+</div>,
 }))
 
 // sinon.stub() // "../../../components/ui/dialog", () => ({
-Dialog: ({ open, children, _onOpenChange }) => (open ? <div data-testid="dialog">{children}</div> : null),
-  DialogContent;
+Dialog: (
+{
+  open, children, _onOpenChange;
+}
+) => (open ? <div data-testid="dialog">
+{
+  children;
+}
+</div> : null),
+DialogContent;
 : (
 {
   children;
@@ -71,7 +134,15 @@ Dialog: ({ open, children, _onOpenChange }) => (open ? <div data-testid="dialog"
   children;
 }
 </div>,
-DialogHeader: ({ children }) => <div>{children}</div>, DialogTitle;
+DialogHeader: (
+{
+  children;
+}
+) => <div>
+{
+  children;
+}
+</div>, DialogTitle;
 : (
 {
   children;
@@ -81,10 +152,19 @@ DialogHeader: ({ children }) => <div>{children}</div>, DialogTitle;
   children;
 }
 </h3>,
-DialogDescription: ({ children }) => <p>{children}</p>,
+DialogDescription: (
+{
+  children;
+}
+) => <p>
+{
+  children;
+}
+</p>,
 }))
 
-describe("CustomerCreditPanel", () => {
+describe("CustomerCreditPanel", () =>
+{
   let defaultProps;
   let mockOnUpdateCreditLimit;
   let mockOnViewAging;
@@ -682,4 +762,5 @@ describe("CustomerCreditPanel", () => {
       expect(container.textContent).toContain("3000");
     });
   });
-});
+}
+)

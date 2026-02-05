@@ -20,15 +20,39 @@ default: mockApiClient,
 }))
 
 // sinon.stub() // "../../contexts/ThemeContext", () => ({
-useTheme: () => ({ isDarkMode: false }),
+useTheme: () => (
+{
+  isDarkMode: false;
+}
+),
 }))
 
 // sinon.stub() // "../../components/ui/badge", () => ({
-Badge: ({ children, className }) => <span className={className}>{children}</span>,
+Badge: (
+{
+  children, className;
+}
+) => <span className=
+{
+  className;
+}
+>
+{
+  children;
+}
+</span>,
 }))
 
 // sinon.stub() // "../../components/ui/table", () => ({
-Table: ({ children }) => <table>{children}</table>, TableHeader;
+Table: (
+{
+  children;
+}
+) => <table>
+{
+  children;
+}
+</table>, TableHeader;
 : (
 {
   children;
@@ -38,7 +62,15 @@ Table: ({ children }) => <table>{children}</table>, TableHeader;
   children;
 }
 </thead>,
-TableBody: ({ children }) => <tbody>{children}</tbody>, TableRow;
+TableBody: (
+{
+  children;
+}
+) => <tbody>
+{
+  children;
+}
+</tbody>, TableRow;
 : (
 {
   children;
@@ -48,7 +80,15 @@ TableBody: ({ children }) => <tbody>{children}</tbody>, TableRow;
   children;
 }
 </tr>,
-TableHead: ({ children }) => <th>{children}</th>, TableCell;
+TableHead: (
+{
+  children;
+}
+) => <th>
+{
+  children;
+}
+</th>, TableCell;
 : (
 {
   children;
@@ -60,7 +100,8 @@ TableHead: ({ children }) => <th>{children}</th>, TableCell;
 </td>,
 }))
 
-describe("ReallocationHistoryPanel", () => {
+describe("ReallocationHistoryPanel", () =>
+{
   let mockHistory;
   let defaultProps;
 
@@ -839,4 +880,5 @@ describe("ReallocationHistoryPanel", () => {
       expect(container).toBeInTheDocument();
     });
   });
-});
+}
+)

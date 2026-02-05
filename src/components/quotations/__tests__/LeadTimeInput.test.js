@@ -15,7 +15,8 @@ import LeadTimeInput from "../LeadTimeInput";
 useTheme: () => ({ isDarkMode: false }),
 }))
 
-describe("LeadTimeInput", () => {
+describe("LeadTimeInput", () =>
+{
   let mockOnUpdate;
 
   beforeEach(() => {
@@ -182,4 +183,5 @@ describe("LeadTimeInput", () => {
 
     expect(screen.getByDisplayValue("10")).toBeInTheDocument();
   });
-});
+}
+)

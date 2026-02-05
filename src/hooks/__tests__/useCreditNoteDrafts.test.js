@@ -19,7 +19,8 @@ cleanupExpiredDrafts,
   getDraftStatusMessage,
 } from "../useCreditNoteDrafts"
 
-describe("useCreditNoteDrafts Hook", () => {
+describe("useCreditNoteDrafts Hook", () =>
+{
   let localStorageMock;
 
   beforeEach(() => {
@@ -527,4 +528,5 @@ describe("useCreditNoteDrafts Hook", () => {
       expect(saved.data.manualCreditAmount).toBe(109);
     });
   });
-});
+}
+)

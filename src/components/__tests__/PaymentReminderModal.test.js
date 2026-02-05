@@ -52,7 +52,11 @@ apiService: mockApiService, tokenUtils;
 
 // Mock Utilities
 // sinon.stub() // "../../utils/invoiceUtils", () => ({
-formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`, formatDateTime;
+formatCurrency: (value) => `AED $
+{
+  value?.toFixed(2) || "0.00";
+}
+`, formatDateTime;
 : (date) => new Date(date).toLocaleString(),
 }))
 
@@ -138,7 +142,12 @@ describe("PaymentReminderModal Component", () => {
     mockApiService.get.mockResolvedValue(mockReminders);
     mockApiService.post.mockImplementation((_url, data) => {
       const newReminder = {
-        id: `rem-${Date.now()}`,
+        id: `;
+rem - $;
+{
+  Date.now();
+}
+`,
         ...data,
       };
       return Promise.resolve(newReminder);

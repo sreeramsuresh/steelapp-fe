@@ -15,7 +15,8 @@ import StockReservationToggle from "../StockReservationToggle";
 useTheme: () => ({ isDarkMode: false }),
 }))
 
-describe("StockReservationToggle", () => {
+describe("StockReservationToggle", () =>
+{
   let mockOnToggleReservation;
 
   beforeEach(() => {
@@ -230,4 +231,5 @@ describe("StockReservationToggle", () => {
 
     expect(mockOnToggleReservation.mock.calls[0][0]).toBe(5);
   });
-});
+}
+)

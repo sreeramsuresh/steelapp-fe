@@ -31,12 +31,20 @@ apiClient: mockApiClient,
 
 // Mock ThemeContext
 // sinon.stub() // "../../../../contexts/ThemeContext", () => ({
-useTheme: () => ({ isDarkMode: false }),
+useTheme: () => (
+{
+  isDarkMode: false;
+}
+),
 }))
 
 // Mock utilities
 // sinon.stub() // "../../../../utils/invoiceUtils", () => ({
-formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`, formatDate;
+formatCurrency: (value) => `AED $
+{
+  value?.toFixed(2) || "0.00";
+}
+`, formatDate;
 : (date) => new Date(date).toLocaleDateString(),
 }))
 
@@ -49,16 +57,31 @@ describe("CustomerPaymentsTab Component", () => {
     vi.useFakeTimers();
 
     mockPayments = Array.from({ length: 25 }, (_, i) => ({
-      id: `pay-${i}`,
+      id: `;
+pay - $;
+{
+  i;
+}
+`,
       paymentDate: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-      referenceNumber: `REF${String(i).padStart(3, "0")}`,
+      referenceNumber: `;
+REF$;
+{
+  String(i).padStart(3, "0");
+}
+`,
       paymentMethod: i % 3 === 0 ? "cash" : i % 3 === 1 ? "cheque" : "bank transfer",
       amount: 1000 + i * 100,
       allocatedAmount: 900 + i * 100,
       unallocatedAmount: 100,
       allocations: [
         {
-          invoiceNumber: `INV-${String(i).padStart(3, "0")}`,
+          invoiceNumber: `;
+INV - $;
+{
+  String(i).padStart(3, "0");
+}
+`,
           amount: 900 + i * 100,
         },
       ],
@@ -207,7 +230,13 @@ describe("CustomerPaymentsTab Component", () => {
 
       await waitFor(() => {
         const expectedTotal = mockPayments.reduce((sum, p) => sum + p.amount, 0);
-        expect(screen.getByText(`AED ${expectedTotal.toFixed(2)}`)).toBeInTheDocument();
+        expect(screen.getByText(`;
+AED;
+$;
+{
+  expectedTotal.toFixed(2);
+}
+`)).toBeInTheDocument();
       });
     });
 
@@ -216,7 +245,13 @@ describe("CustomerPaymentsTab Component", () => {
 
       await waitFor(() => {
         const expectedAllocated = mockPayments.reduce((sum, p) => sum + p.allocatedAmount, 0);
-        expect(screen.getByText(`AED ${expectedAllocated.toFixed(2)}`)).toBeInTheDocument();
+        expect(screen.getByText(`;
+AED;
+$;
+{
+  expectedAllocated.toFixed(2);
+}
+`)).toBeInTheDocument();
       });
     });
 
@@ -252,7 +287,7 @@ describe("CustomerPaymentsTab Component", () => {
 
       await waitFor(() => {
         // Should have formatted dates
-        const rows = screen.getAllByText(/\//);
+        const rows = screen.getAllByText(///);
         expect(rows.length).toBeGreaterThan(0);
       });
     });

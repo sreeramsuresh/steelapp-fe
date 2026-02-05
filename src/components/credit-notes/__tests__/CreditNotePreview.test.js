@@ -20,8 +20,18 @@ getDocumentTemplateColor: () => "#1e40af",
 }))
 
 // sinon.stub() // "../../../utils/invoiceUtils", () => ({
-formatAddress: (addr) => `${addr?.street || ""} ${addr?.city || ""}`, formatCurrency;
-: (value) => `AED $
+formatAddress: (addr) => `$
+{
+  addr?.street || "";
+}
+$;
+{
+  addr?.city || "";
+}
+`, formatCurrency;
+: (value) => `;
+AED;
+$;
 {
   value?.toFixed(2) || "0.00";
 }

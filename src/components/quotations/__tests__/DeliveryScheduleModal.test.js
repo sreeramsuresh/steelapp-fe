@@ -15,7 +15,8 @@ import DeliveryScheduleModal from "../DeliveryScheduleModal";
 useTheme: () => ({ isDarkMode: false }),
 }))
 
-describe("DeliveryScheduleModal", () => {
+describe("DeliveryScheduleModal", () =>
+{
   let mockOnClose;
   let mockOnSave;
 
@@ -372,4 +373,5 @@ describe("DeliveryScheduleModal", () => {
     // Error should be cleared
     expect(screen.queryByText(/All delivery entries must have a date/)).not.toBeInTheDocument();
   });
-});
+}
+)

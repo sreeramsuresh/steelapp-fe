@@ -34,7 +34,11 @@ onClick = { _onCancel } > Cancel;
 }))
 
 // sinon.stub() // "../../../utils/invoiceUtils", () => ({
-formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`, formatDate;
+formatCurrency: (value) => `AED $
+{
+  value?.toFixed(2) || "0.00";
+}
+`, formatDate;
 : (_date) => "2024-01-15",
 }))
 

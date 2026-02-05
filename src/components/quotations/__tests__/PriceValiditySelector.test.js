@@ -15,7 +15,8 @@ import PriceValiditySelector from "../PriceValiditySelector";
 useTheme: () => ({ isDarkMode: false }),
 }))
 
-describe("PriceValiditySelector", () => {
+describe("PriceValiditySelector", () =>
+{
   let mockOnChange;
 
   beforeEach(() => {
@@ -177,4 +178,5 @@ describe("PriceValiditySelector", () => {
       unmount();
     });
   });
-});
+}
+)

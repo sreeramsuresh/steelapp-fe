@@ -20,15 +20,21 @@ getDocumentTemplateColor: () => "#1e40af",
 }))
 
 // sinon.stub() // "../../../utils/invoiceUtils", () => ({
-toUAEDateProfessional: (_date) => "15 January 2024", TIMEZONE_DISCLAIMER;
+toUAEDateProfessional: (_date) => "15 January 2024", TIMEZONE_DISCLAIMER
 : "Times shown in UAE timezone",
 }))
 
 // sinon.stub() // "../../../utils/recordUtils", () => ({
-validateDeliveryNoteForDownload: () => ({ isValid: true, warnings: [] }),
+validateDeliveryNoteForDownload: () => (
+{
+  isValid: true, warnings;
+  : []
+}
+),
 }))
 
-describe("DeliveryNotePreview", () => {
+describe("DeliveryNotePreview", () =>
+{
   let defaultProps;
   let mockOnClose;
 
@@ -443,4 +449,5 @@ describe("DeliveryNotePreview", () => {
       expect(container).toBeInTheDocument();
     });
   });
-});
+}
+)

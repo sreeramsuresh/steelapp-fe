@@ -49,13 +49,16 @@ batchReservationService: mockBatchReservationService,
 }))
 
 // sinon.stub() // "../../../utils/productSsotValidation", () => ({
-validateSsotPattern: (_name) => ({
-    isValid: true,
-    pattern: "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
-  }),
+validateSsotPattern: (_name) => (
+{
+  isValid: true, pattern;
+  : "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
+}
+),
 }))
 
-describe("ReservationForm", () => {
+describe("ReservationForm", () =>
+{
   let defaultProps;
   let mockOnClose;
   let mockOnSuccess;
@@ -507,4 +510,5 @@ describe("ReservationForm", () => {
       expect(container).toBeInTheDocument();
     });
   });
-});
+}
+)

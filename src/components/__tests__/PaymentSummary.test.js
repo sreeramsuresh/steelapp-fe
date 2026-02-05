@@ -24,7 +24,11 @@ useTheme: () => ({ isDarkMode: false }),
 
 // Mock utilities
 // sinon.stub() // "../../utils/invoiceUtils", () => ({
-formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
+formatCurrency: (value) => `AED $
+{
+  value?.toFixed(2) || "0.00";
+}
+`,
 }))
 
 // sinon.stub() // "../../utils/paymentUtils", () => ({
@@ -113,7 +117,7 @@ describe("PaymentSummary Component", () => {
 
     it("should display payments received when there are payments", () => {
       renderWithProviders(<PaymentSummary {...defaultProps} />);
-      expect(screen.getByText(/Payments Received \(2\):/)).toBeInTheDocument();
+      expect(screen.getByText(/Payments Received (2):/)).toBeInTheDocument();
     });
 
     it("should display total paid", () => {
@@ -243,7 +247,12 @@ describe("PaymentSummary Component", () => {
 
     it("should display correct count for many payments", () => {
       const manyPayments = Array.from({ length: 5 }, (_, i) => ({
-        id: `pay-${i}`,
+        id: `;
+pay - $;
+{
+  i;
+}
+`,
         amount: 1000,
       }));
 
@@ -502,7 +511,12 @@ describe("PaymentSummary Component", () => {
   describe("Performance", () => {
     it("should render efficiently with many payments", () => {
       const manyPayments = Array.from({ length: 100 }, (_, i) => ({
-        id: `pay-${i}`,
+        id: `;
+pay - $;
+{
+  i;
+}
+`,
         amount: 100,
       }));
 
@@ -531,7 +545,7 @@ describe("PaymentSummary Component", () => {
         ],
       };
       renderWithProviders(<PaymentSummary {...props} />);
-      expect(screen.getByText(/Payments Received \(3\):/)).toBeInTheDocument();
+      expect(screen.getByText(/Payments Received (3):/)).toBeInTheDocument();
     });
 
     it("should sum all payment amounts correctly", () => {

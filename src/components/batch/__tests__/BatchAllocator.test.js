@@ -14,7 +14,8 @@ const mockStockBatchService = {
 default: mockStockBatchService,
 }))
 
-describe("BatchAllocator", () => {
+describe("BatchAllocator", () =>
+{
   const defaultProps = {
     productId: "PROD-001",
     quantity: 100,
@@ -308,4 +309,5 @@ describe("BatchAllocator", () => {
       expect(container).toBeInTheDocument();
     });
   });
-});
+}
+)

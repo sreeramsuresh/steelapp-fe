@@ -12,7 +12,8 @@ const mockPricelistService = {
 default: mockPricelistService,
 }))
 
-describe("PricelistManagement", () => {
+describe("PricelistManagement", () =>
+{
   beforeEach(() => {
     sinon.restore();
     mockPricelistService.listPricelists.mockResolvedValue([]);
@@ -26,4 +27,5 @@ describe("PricelistManagement", () => {
       });
     });
   });
-});
+}
+)

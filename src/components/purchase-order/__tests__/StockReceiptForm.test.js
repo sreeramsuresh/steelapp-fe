@@ -17,7 +17,8 @@ const mockStockBatchService = {
 default: mockStockBatchService,
 }))
 
-describe("StockReceiptForm", () => {
+describe("StockReceiptForm", () =>
+{
   const defaultProps = {
     poId: "PO-001",
     onSuccess: sinon.stub(),
@@ -104,4 +105,5 @@ describe("StockReceiptForm", () => {
       });
     });
   });
-});
+}
+)

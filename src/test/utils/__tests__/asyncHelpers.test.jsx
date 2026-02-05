@@ -25,7 +25,8 @@ clickAndWaitForApi,
   waitForLoadingStart,
 } from "../asyncHelpers"
 
-describe("asyncHelpers", () => {
+describe("asyncHelpers", () =>
+{
   describe("waitForApiCall", () => {
     it("waits for mock function to be called", async () => {
       const mockApi = sinon.stub().mockResolvedValue({ success: true });
@@ -346,4 +347,5 @@ describe("asyncHelpers", () => {
       expect(mockApi).toHaveBeenCalled();
     });
   });
-});
+}
+)

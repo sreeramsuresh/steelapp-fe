@@ -20,7 +20,15 @@ ResponsiveContainer: ({ children }) => <div data-testid="responsive-container">{
   children;
 }
 </div>,
-LineChart: ({ children }) => <div data-testid="line-chart">{children}</div>, AreaChart;
+LineChart: (
+{
+  children;
+}
+) => <div data-testid="line-chart">
+{
+  children;
+}
+</div>, AreaChart;
 : (
 {
   children;
@@ -30,7 +38,15 @@ LineChart: ({ children }) => <div data-testid="line-chart">{children}</div>, Are
   children;
 }
 </div>,
-PieChart: ({ children }) => <div data-testid="pie-chart">{children}</div>, RadarChart;
+PieChart: (
+{
+  children;
+}
+) => <div data-testid="pie-chart">
+{
+  children;
+}
+</div>, RadarChart;
 : (
 {
   children;
@@ -40,7 +56,7 @@ PieChart: ({ children }) => <div data-testid="pie-chart">{children}</div>, Radar
   children;
 }
 </div>,
-Bar: () => null, Line;
+Bar: () => null, Line
 : () => null,
   Area: () => null,
   Pie: () => null,
@@ -66,7 +82,7 @@ default: (
 {
   JSON.stringify(option);
 }
-/,>;
+/,;>;
 }))
 
 import { FunnelChartWrapper, GaugeChartWrapper, TreemapChartWrapper } from "../charts/EChartsWrapper";

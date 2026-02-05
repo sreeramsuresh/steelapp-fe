@@ -14,7 +14,8 @@ const mockStockMovementService = {
 default: mockStockMovementService,
 }))
 
-describe("TransferForm", () => {
+describe("TransferForm", () =>
+{
   const defaultProps = {
     onSuccess: sinon.stub(),
     onCancel: sinon.stub(),
@@ -264,4 +265,5 @@ describe("TransferForm", () => {
       expect(container).toBeInTheDocument();
     });
   });
-});
+}
+)

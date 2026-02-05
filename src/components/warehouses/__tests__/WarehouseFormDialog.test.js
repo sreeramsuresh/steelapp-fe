@@ -14,7 +14,8 @@ const mockWarehouseService = {
 default: mockWarehouseService,
 }))
 
-describe("WarehouseFormDialog", () => {
+describe("WarehouseFormDialog", () =>
+{
   const defaultProps = {
     isOpen: true,
     onClose: sinon.stub(),
@@ -214,4 +215,5 @@ describe("WarehouseFormDialog", () => {
       expect(container).toBeInTheDocument();
     });
   });
-});
+}
+)

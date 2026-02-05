@@ -15,7 +15,8 @@ import InvoiceSignatureSection from "../InvoiceSignatureSection";
 useTheme: () => ({ isDarkMode: false }),
 }))
 
-describe("InvoiceSignatureSection", () => {
+describe("InvoiceSignatureSection", () =>
+{
   let defaultProps;
 
   beforeEach(() => {
@@ -453,4 +454,5 @@ describe("InvoiceSignatureSection", () => {
       expect(container).toBeInTheDocument();
     });
   });
-});
+}
+)

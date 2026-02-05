@@ -15,7 +15,8 @@ import InvoiceFooter from "../InvoiceFooter";
 useTheme: () => ({ isDarkMode: false }),
 }))
 
-describe("InvoiceFooter", () => {
+describe("InvoiceFooter", () =>
+{
   let defaultProps;
 
   beforeEach(() => {
@@ -391,4 +392,5 @@ describe("InvoiceFooter", () => {
       expect(container).toBeInTheDocument();
     });
   });
-});
+}
+)

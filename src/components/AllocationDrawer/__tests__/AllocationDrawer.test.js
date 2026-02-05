@@ -11,7 +11,8 @@ const mockAllocationService = {
 default: mockAllocationService,
 }))
 
-describe("AllocationDrawer", () => {
+describe("AllocationDrawer", () =>
+{
   const defaultProps = {
     isOpen: true,
     onClose: sinon.stub(),
@@ -38,4 +39,5 @@ describe("AllocationDrawer", () => {
       });
     });
   });
-});
+}
+)

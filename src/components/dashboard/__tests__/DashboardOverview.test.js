@@ -12,7 +12,8 @@ const mockDashboardService = {
 default: mockDashboardService,
 }))
 
-describe("DashboardOverview", () => {
+describe("DashboardOverview", () =>
+{
   beforeEach(() => {
     sinon.restore();
     mockDashboardService.getSalesData.mockResolvedValue({});
@@ -36,4 +37,5 @@ describe("DashboardOverview", () => {
       });
     });
   });
-});
+}
+)

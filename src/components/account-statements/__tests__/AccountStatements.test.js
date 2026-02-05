@@ -12,7 +12,8 @@ const mockAccountService = {
 default: mockAccountService,
 }))
 
-describe("AccountStatements", () => {
+describe("AccountStatements", () =>
+{
   beforeEach(() => {
     sinon.restore();
   });
@@ -34,4 +35,5 @@ describe("AccountStatements", () => {
       });
     });
   });
-});
+}
+)

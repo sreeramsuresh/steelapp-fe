@@ -12,7 +12,8 @@ const mockCommissionService = {
 default: mockCommissionService,
 }))
 
-describe("CommissionCalculation", () => {
+describe("CommissionCalculation", () =>
+{
   beforeEach(() => {
     sinon.restore();
   });
@@ -25,4 +26,5 @@ describe("CommissionCalculation", () => {
       });
     });
   });
-});
+}
+)
