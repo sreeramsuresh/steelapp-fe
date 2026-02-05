@@ -18,23 +18,24 @@ import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../../test/component-setup";
 import CustomerPaymentsTab from "../CustomerPaymentsTab";
+import sinon from 'sinon';
 
 // Mock API Client
 const mockApiClient = {
-  get: vi.fn(),
+  get: sinon.stub(),
 };
 
-vi.mock("../../../../services/api", () => ({
+// sinon.stub() // "../../../../services/api", () => ({
   apiClient: mockApiClient,
 }));
 
 // Mock ThemeContext
-vi.mock("../../../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
 // Mock utilities
-vi.mock("../../../../utils/invoiceUtils", () => ({
+// sinon.stub() // "../../../../utils/invoiceUtils", () => ({
   formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
   formatDate: (date) => new Date(date).toLocaleDateString(),
 }));
@@ -44,7 +45,7 @@ describe("CustomerPaymentsTab Component", () => {
   let defaultProps;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
     vi.useFakeTimers();
 
     mockPayments = Array.from({ length: 25 }, (_, i) => ({

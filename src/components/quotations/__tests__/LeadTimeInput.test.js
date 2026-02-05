@@ -9,8 +9,9 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import LeadTimeInput from "../LeadTimeInput";
+import sinon from 'sinon';
 
-vi.mock("../../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
@@ -18,8 +19,8 @@ describe("LeadTimeInput", () => {
   let mockOnUpdate;
 
   beforeEach(() => {
-    mockOnUpdate = vi.fn();
-    vi.clearAllMocks();
+    mockOnUpdate = sinon.stub();
+    sinon.restore();
   });
 
   it("should render lead time input when sourceType is TO_BE_PROCURED", () => {

@@ -9,14 +9,15 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import BatchesModal from "../BatchesModal";
+import sinon from 'sinon';
 
-vi.mock("../../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../../services/api", () => ({
+// sinon.stub() // "../../../services/api", () => ({
   apiClient: {
-    get: vi.fn(),
+    get: sinon.stub(),
   },
 }));
 
@@ -26,8 +27,8 @@ describe("BatchesModal", () => {
   let mockOnClose;
 
   beforeEach(() => {
-    mockOnClose = vi.fn();
-    vi.clearAllMocks();
+    mockOnClose = sinon.stub();
+    sinon.restore();
     mockApiClient().get.mockResolvedValue({
       data: {
         batches: [

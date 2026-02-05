@@ -10,11 +10,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import { createMockArray, createMockWarehouse } from "../../../test/mock-factories";
 import WarehouseStockSelector from "../WarehouseStockSelector";
+import sinon from 'sinon';
 
 // Mock the API service
-vi.mock("../../../services/api", () => ({
+// sinon.stub() // "../../../services/api", () => ({
   default: {
-    get: vi.fn(),
+    get: sinon.stub(),
   },
 }));
 
@@ -26,8 +27,8 @@ describe("WarehouseStockSelector", () => {
   let defaultProps;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockOnWarehouseSelect = vi.fn();
+    sinon.restore();
+    mockOnWarehouseSelect = sinon.stub();
 
     mockWarehouses = createMockArray(createMockWarehouse, 3, (index) => ({
       id: `WH-${String(index + 1).padStart(3, "0")}`,

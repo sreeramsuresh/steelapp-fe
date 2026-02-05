@@ -1,23 +1,24 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import AllocationDrawer from "../AllocationDrawer";
+import sinon from 'sinon';
 
 const mockAllocationService = {
-  allocateStock: vi.fn(),
+  allocateStock: sinon.stub(),
 };
 
-vi.mock("../../../services/allocationService", () => ({
+// sinon.stub() // "../../../services/allocationService", () => ({
   default: mockAllocationService,
 }));
 
 describe("AllocationDrawer", () => {
   const defaultProps = {
     isOpen: true,
-    onClose: vi.fn(),
+    onClose: sinon.stub(),
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
   });
 
   describe("Rendering", () => {

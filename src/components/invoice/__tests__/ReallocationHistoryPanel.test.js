@@ -9,24 +9,25 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import ReallocationHistoryPanel from "../ReallocationHistoryPanel";
+import sinon from 'sinon';
 
 const mockApiClient = {
-  get: vi.fn(),
+  get: sinon.stub(),
 };
 
-vi.mock("../../services/apiClient", () => ({
+// sinon.stub() // "../../services/apiClient", () => ({
   default: mockApiClient,
 }));
 
-vi.mock("../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../components/ui/badge", () => ({
+// sinon.stub() // "../../components/ui/badge", () => ({
   Badge: ({ children, className }) => <span className={className}>{children}</span>,
 }));
 
-vi.mock("../../components/ui/table", () => ({
+// sinon.stub() // "../../components/ui/table", () => ({
   Table: ({ children }) => <table>{children}</table>,
   TableHeader: ({ children }) => <thead>{children}</thead>,
   TableBody: ({ children }) => <tbody>{children}</tbody>,
@@ -40,7 +41,7 @@ describe("ReallocationHistoryPanel", () => {
   let defaultProps;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
 
     mockHistory = [
       {

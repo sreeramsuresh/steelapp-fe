@@ -13,6 +13,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
+import sinon from 'sinon';
 
 // Mock Dropdown component
 const Dropdown = ({ isOpen, onClose, trigger = "Menu", items = [], onItemSelect, disabled = false }) => {
@@ -81,8 +82,8 @@ describe("Dropdown Component", () => {
   let defaultItems;
 
   beforeEach(() => {
-    mockOnClose = vi.fn();
-    mockOnItemSelect = vi.fn();
+    mockOnClose = sinon.stub();
+    mockOnItemSelect = sinon.stub();
     defaultItems = [
       { label: "Option 1", value: "opt1" },
       { label: "Option 2", value: "opt2" },

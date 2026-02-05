@@ -15,18 +15,19 @@ import { screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../test/component-setup";
 import PaymentSummary from "../PaymentSummary";
+import sinon from 'sinon';
 
 // Mock ThemeContext
-vi.mock("../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
 // Mock utilities
-vi.mock("../../utils/invoiceUtils", () => ({
+// sinon.stub() // "../../utils/invoiceUtils", () => ({
   formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
 }));
 
-vi.mock("../../utils/paymentUtils", () => ({
+// sinon.stub() // "../../utils/paymentUtils", () => ({
   calculateBalanceDue: (total, payments) => {
     const paid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
     return Math.max(0, total - paid);
@@ -76,7 +77,7 @@ describe("PaymentSummary Component", () => {
   let defaultProps;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
 
     defaultProps = {
       invoiceTotal: 10000,

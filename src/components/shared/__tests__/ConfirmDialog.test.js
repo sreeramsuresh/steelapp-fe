@@ -12,6 +12,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
+import sinon from 'sinon';
 
 // Mock ConfirmDialog component
 const ConfirmDialog = ({
@@ -86,8 +87,8 @@ describe("ConfirmDialog Component", () => {
   let defaultProps;
 
   beforeEach(() => {
-    mockOnConfirm = vi.fn();
-    mockOnCancel = vi.fn();
+    mockOnConfirm = sinon.stub();
+    mockOnCancel = sinon.stub();
     defaultProps = {
       isOpen: true,
       onConfirm: mockOnConfirm,

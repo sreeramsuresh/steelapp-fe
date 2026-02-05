@@ -7,6 +7,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ThemeContext } from "../../../contexts/ThemeContext";
 import BaseWidget, { MetricValue, WidgetEmptyState, WidgetListItem } from "../widgets/BaseWidget";
+import sinon from 'sinon';
 
 const renderWithTheme = (component, isDarkMode = false) => {
   return render(
@@ -14,7 +15,7 @@ const renderWithTheme = (component, isDarkMode = false) => {
       value={{
         isDarkMode,
         themeMode: isDarkMode ? "dark" : "light",
-        toggleTheme: vi.fn(),
+        toggleTheme: sinon.stub(),
       }}
     >
       {component}
@@ -54,7 +55,7 @@ describe("BaseWidget", () => {
     });
 
     it("shows retry button in error state", () => {
-      const onRefresh = vi.fn();
+      const onRefresh = sinon.stub();
       renderWithTheme(
         <BaseWidget title="Test" error="Error" onRefresh={onRefresh}>
           <div>Content</div>
@@ -64,7 +65,7 @@ describe("BaseWidget", () => {
     });
 
     it("calls onRefresh when retry clicked", () => {
-      const onRefresh = vi.fn();
+      const onRefresh = sinon.stub();
       renderWithTheme(
         <BaseWidget title="Test" error="Error" onRefresh={onRefresh}>
           <div>Content</div>
@@ -164,7 +165,7 @@ describe("WidgetListItem", () => {
   });
 
   it("handles click", () => {
-    const onClick = vi.fn();
+    const onClick = sinon.stub();
     renderWithTheme(<WidgetListItem title="Item" onClick={onClick} />);
     fireEvent.click(screen.getByText("Item"));
     expect(onClick).toHaveBeenCalled();

@@ -9,16 +9,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import AddPaymentForm from "../AddPaymentForm";
+import sinon from 'sinon';
 
 const mockCustomerCreditService = {
-  getCustomerCreditSummary: vi.fn(),
+  getCustomerCreditSummary: sinon.stub(),
 };
 
-vi.mock("../../../services/customerCreditService", () => ({
+// sinon.stub() // "../../../services/customerCreditService", () => ({
   customerCreditService: mockCustomerCreditService,
 }));
 
-vi.mock("../../../services/dataService", () => ({
+// sinon.stub() // "../../../services/dataService", () => ({
   PAYMENT_MODES: {
     cash: { label: "Cash", requiresRef: false },
     cheque: { label: "Cheque", requiresRef: true },
@@ -27,11 +28,11 @@ vi.mock("../../../services/dataService", () => ({
   },
 }));
 
-vi.mock("../../../utils/invoiceUtils", () => ({
+// sinon.stub() // "../../../utils/invoiceUtils", () => ({
   formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
 }));
 
-vi.mock("../../../utils/timezone", () => ({
+// sinon.stub() // "../../../utils/timezone", () => ({
   toUAEDateForInput: (_date) => "2024-01-15",
 }));
 
@@ -41,9 +42,9 @@ describe("AddPaymentForm", () => {
   let mockOnCancel;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockOnSave = vi.fn();
-    mockOnCancel = vi.fn();
+    sinon.restore();
+    mockOnSave = sinon.stub();
+    mockOnCancel = sinon.stub();
 
     defaultProps = {
       outstanding: 10000,

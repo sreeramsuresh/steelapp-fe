@@ -13,6 +13,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
+import sinon from 'sinon';
 
 // Mock Toast component
 const Toast = ({
@@ -103,7 +104,7 @@ describe("Toast Component", () => {
   let defaultProps;
 
   beforeEach(() => {
-    mockOnClose = vi.fn();
+    mockOnClose = sinon.stub();
     defaultProps = {
       id: "toast-1",
       message: "Toast message",
@@ -282,14 +283,14 @@ describe("Toast Component", () => {
 
   describe("Action Button", () => {
     it("should display action button when provided", () => {
-      const action = { label: "Undo", onClick: vi.fn() };
+      const action = { label: "Undo", onClick: sinon.stub() };
       const { getByTestId } = renderWithProviders(<Toast {...defaultProps} action={action} />);
       expect(getByTestId("toast-action")).toBeInTheDocument();
     });
 
     it("should call action onClick when clicked", async () => {
       const user = setupUser();
-      const mockActionClick = vi.fn();
+      const mockActionClick = sinon.stub();
       const action = { label: "Retry", onClick: mockActionClick };
       const { getByTestId } = renderWithProviders(<Toast {...defaultProps} action={action} />);
       await user.click(getByTestId("toast-action"));
@@ -297,7 +298,7 @@ describe("Toast Component", () => {
     });
 
     it("should display action label", () => {
-      const action = { label: "View Details", onClick: vi.fn() };
+      const action = { label: "View Details", onClick: sinon.stub() };
       const { getByText } = renderWithProviders(<Toast {...defaultProps} action={action} />);
       expect(getByText("View Details")).toBeInTheDocument();
     });

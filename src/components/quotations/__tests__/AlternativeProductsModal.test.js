@@ -9,14 +9,15 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AlternativeProductsModal from "../AlternativeProductsModal";
+import sinon from 'sinon';
 
-vi.mock("../../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../../services/api", () => ({
+// sinon.stub() // "../../../services/api", () => ({
   productsAPI: {
-    list: vi.fn(),
+    list: sinon.stub(),
   },
 }));
 
@@ -27,9 +28,9 @@ describe("AlternativeProductsModal", () => {
   let mockOnSave;
 
   beforeEach(() => {
-    mockOnClose = vi.fn();
-    mockOnSave = vi.fn();
-    vi.clearAllMocks();
+    mockOnClose = sinon.stub();
+    mockOnSave = sinon.stub();
+    sinon.restore();
     mockProductsAPI().list.mockResolvedValue({
       data: {
         products: [

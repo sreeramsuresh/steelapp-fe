@@ -11,6 +11,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
+import sinon from 'sinon';
 
 // Mock AlertDialog component
 const AlertDialog = ({
@@ -120,7 +121,7 @@ describe("AlertDialog Component", () => {
   let defaultProps;
 
   beforeEach(() => {
-    mockOnClose = vi.fn();
+    mockOnClose = sinon.stub();
     defaultProps = {
       isOpen: true,
       onClose: mockOnClose,

@@ -25,68 +25,69 @@ import { companyService } from "../../services/companyService";
 import { creditNoteService } from "../../services/creditNoteService";
 import { notificationService } from "../../services/notificationService";
 import CreditNoteList from "../CreditNoteList";
+import sinon from 'sinon';
 
 // Mock services - Must return objects matching the exact export structure
-vi.mock("../../services/creditNoteService", () => {
+// sinon.stub() // "../../services/creditNoteService", () => {
   return {
     creditNoteService: {
-      getAllCreditNotes: vi.fn(),
-      getCreditNote: vi.fn(),
-      deleteCreditNote: vi.fn(),
-      downloadPDF: vi.fn(),
-      getNextCreditNoteNumber: vi.fn(),
-      createCreditNote: vi.fn(),
-      updateCreditNote: vi.fn(),
-      getAllowedTransitions: vi.fn().mockResolvedValue({ allowed_transitions: [], allowedTransitions: [] }),
+      getAllCreditNotes: sinon.stub(),
+      getCreditNote: sinon.stub(),
+      deleteCreditNote: sinon.stub(),
+      downloadPDF: sinon.stub(),
+      getNextCreditNoteNumber: sinon.stub(),
+      createCreditNote: sinon.stub(),
+      updateCreditNote: sinon.stub(),
+      getAllowedTransitions: sinon.stub().mockResolvedValue({ allowed_transitions: [], allowedTransitions: [] }),
     },
   };
 });
 
-vi.mock("../../services/companyService", () => {
+// sinon.stub() // "../../services/companyService", () => {
   return {
     companyService: {
-      getCompany: vi.fn(),
+      getCompany: sinon.stub(),
     },
   };
 });
 
-vi.mock("../../services/notificationService", () => {
+// sinon.stub() // "../../services/notificationService", () => {
   return {
     notificationService: {
-      success: vi.fn(),
-      error: vi.fn(),
-      warning: vi.fn(),
-      info: vi.fn(),
+      success: sinon.stub(),
+      error: sinon.stub(),
+      warning: sinon.stub(),
+      info: sinon.stub(),
     },
   };
 });
 
 // Mock authService to enable permission-gated UI elements
-vi.mock("../../services/axiosAuthService", () => {
+// sinon.stub() // "../../services/axiosAuthService", () => {
   return {
     authService: {
       hasPermission: () => true, // Allow all permission checks
-      getCurrentUser: vi.fn().mockReturnValue({ id: 1, companyId: 1 }),
+      getCurrentUser: sinon.stub().mockReturnValue({ id: 1, companyId: 1 }),
     },
   };
 });
 
-vi.mock("../../hooks/useConfirm", () => ({
+// sinon.stub() // "../../hooks/useConfirm", () => ({
   useConfirm: () => ({
-    confirm: vi.fn().mockResolvedValue(true),
+    confirm: sinon.stub().mockResolvedValue(true),
     dialogState: { open: false },
-    handleConfirm: vi.fn(),
-    handleCancel: vi.fn(),
+    handleConfirm: sinon.stub(),
+    handleCancel: sinon.stub(),
   }),
 }));
-vi.mock("../../hooks/useCreditNoteDrafts", () => ({
+// sinon.stub() // "../../hooks/useCreditNoteDrafts", () => ({
   default: () => ({
     allDrafts: [],
     hasDrafts: false,
-    deleteDraft: vi.fn(),
-    refreshDrafts: vi.fn(),
+    deleteDraft: sinon.stub(),
+    refreshDrafts: sinon.stub(),
   }),
-  getDraftStatusMessage: vi.fn().mockReturnValue("Draft saved 5 minutes ago"),
+  getDraftStatusMessage: sinon.stub().mockReturnValue("Draft saved 5 minutes ago"),
 }));
 
 // Mock data
@@ -145,10 +146,10 @@ const mockCompany = {
 const TestWrapper = ({ children, isDarkMode = false }) => {
   const mockThemeContext = {
     isDarkMode,
-    toggleDarkMode: vi.fn(),
+    toggleDarkMode: sinon.stub(),
     themeMode: isDarkMode ? "dark" : "light",
-    toggleTheme: vi.fn(),
-    setTheme: vi.fn(),
+    toggleTheme: sinon.stub(),
+    setTheme: sinon.stub(),
   };
 
   return (
@@ -160,7 +161,7 @@ const TestWrapper = ({ children, isDarkMode = false }) => {
 
 describe("CreditNoteList - Smoke Tests", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
 
     // Default mock implementations
     creditNoteService.getAllCreditNotes.mockResolvedValue({
@@ -174,10 +175,10 @@ describe("CreditNoteList - Smoke Tests", () => {
     creditNoteService.downloadPDF.mockResolvedValue({});
     creditNoteService.getCreditNote.mockResolvedValue(mockCreditNotes[0]);
 
-    notificationService.success = vi.fn();
-    notificationService.error = vi.fn();
-    notificationService.warning = vi.fn();
-    notificationService.info = vi.fn();
+    notificationService.success = sinon.stub();
+    notificationService.error = sinon.stub();
+    notificationService.warning = sinon.stub();
+    notificationService.info = sinon.stub();
   });
 
   describe("Header Section", () => {

@@ -5,15 +5,15 @@
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 
 // Mock authService
-vi.mock("../../../services/authService", () => ({
+// sinon.stub() // "../../../services/authService", () => ({
   authService: {
-    getUser: vi.fn(),
-    getToken: vi.fn(),
+    getUser: sinon.stub(),
+    getToken: sinon.stub(),
   },
 }));
 
 // Mock DashboardConfig
-vi.mock("../config/DashboardConfig", () => ({
+// sinon.stub() // "../config/DashboardConfig", () => ({
   canViewWidget: vi.fn((widgetId, role) => {
     const allowedWidgets = {
       ceo: ["revenue-kpi", "vat-collection", "inventory-health", "agent-scorecard"],
@@ -49,10 +49,11 @@ vi.mock("../config/DashboardConfig", () => ({
 }));
 
 import { authService } from "../../../services/authService";
+import sinon from 'sinon';
 
 describe("useDashboardPermissions role mapping", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
   });
 
   describe("Role Mapping", () => {

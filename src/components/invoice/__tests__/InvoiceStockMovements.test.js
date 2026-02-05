@@ -9,15 +9,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import InvoiceStockMovements from "../InvoiceStockMovements";
+import sinon from 'sinon';
 
-vi.mock("../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
 // Mock the API service
-vi.mock("../../../services/api", () => ({
+// sinon.stub() // "../../../services/api", () => ({
   default: {
-    get: vi.fn(),
+    get: sinon.stub(),
   },
 }));
 
@@ -28,7 +29,7 @@ describe("InvoiceStockMovements", () => {
   let mockMovements;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
 
     mockMovements = [
       {

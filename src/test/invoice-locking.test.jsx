@@ -14,6 +14,7 @@
  */
 
 import { describe, expect, it, vi } from "vitest";
+import sinon from 'sinon';
 
 // Test the isLocked logic directly
 describe("Invoice Locking Logic - isLocked computation", () => {
@@ -147,7 +148,7 @@ describe("Invoice Service - issueInvoice", () => {
   it("should call POST /invoices/:id/issue endpoint", async () => {
     // Mock the API client
     const mockApiClient = {
-      post: vi.fn().mockResolvedValue({
+      post: sinon.stub().mockResolvedValue({
         id: 1,
         status: "issued",
         isLocked: true,

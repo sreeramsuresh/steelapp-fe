@@ -9,22 +9,23 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import QuotationPreview from "../QuotationPreview";
+import sinon from 'sinon';
 
-vi.mock("../../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../../constants/defaultTemplateSettings", () => ({
+// sinon.stub() // "../../../constants/defaultTemplateSettings", () => ({
   getDocumentTemplateColor: () => "#1e40af",
 }));
 
-vi.mock("../../../utils/invoiceUtils", () => ({
+// sinon.stub() // "../../../utils/invoiceUtils", () => ({
   formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
   toUAEDateProfessional: (_date) => "15 January 2024",
   TIMEZONE_DISCLAIMER: "Times shown in UAE timezone",
 }));
 
-vi.mock("../../../utils/recordUtils", () => ({
+// sinon.stub() // "../../../utils/recordUtils", () => ({
   validateQuotationForDownload: () => ({ isValid: true, warnings: [] }),
 }));
 
@@ -33,8 +34,8 @@ describe("QuotationPreview", () => {
   let mockOnClose;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockOnClose = vi.fn();
+    sinon.restore();
+    mockOnClose = sinon.stub();
 
     defaultProps = {
       quotation: {

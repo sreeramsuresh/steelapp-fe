@@ -10,10 +10,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import { createMockArray, createMockBatch } from "../../../test/mock-factories";
 import StockAvailabilityIndicator from "../StockAvailabilityIndicator";
+import sinon from 'sinon';
 
-vi.mock("../../../services/api", () => ({
+// sinon.stub() // "../../../services/api", () => ({
   default: {
-    get: vi.fn(),
+    get: sinon.stub(),
   },
 }));
 
@@ -24,7 +25,7 @@ describe("StockAvailabilityIndicator", () => {
   let mockBatches;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
 
     mockBatches = createMockArray(createMockBatch, 2, (index) => ({
       quantityAvailable: 100 + index * 50,

@@ -1,23 +1,24 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import WarehouseFormDialog from "../WarehouseFormDialog";
+import sinon from 'sinon';
 
 const mockWarehouseService = {
-  createWarehouse: vi.fn(),
-  updateWarehouse: vi.fn(),
-  getWarehouse: vi.fn(),
-  listWarehouses: vi.fn(),
+  createWarehouse: sinon.stub(),
+  updateWarehouse: sinon.stub(),
+  getWarehouse: sinon.stub(),
+  listWarehouses: sinon.stub(),
 };
 
-vi.mock("../../../services/warehouseService", () => ({
+// sinon.stub() // "../../../services/warehouseService", () => ({
   default: mockWarehouseService,
 }));
 
 describe("WarehouseFormDialog", () => {
   const defaultProps = {
     isOpen: true,
-    onClose: vi.fn(),
-    onSuccess: vi.fn(),
+    onClose: sinon.stub(),
+    onSuccess: sinon.stub(),
   };
 
   const mockWarehouse = {
@@ -33,7 +34,7 @@ describe("WarehouseFormDialog", () => {
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
   });
 
   describe("Rendering", () => {

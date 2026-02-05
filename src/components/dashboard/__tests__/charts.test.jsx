@@ -6,9 +6,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ThemeContext } from "../../../contexts/ThemeContext";
+import sinon from 'sinon';
 
 // Mock recharts to avoid canvas issues in tests
-vi.mock("recharts", () => ({
+// sinon.stub() // "recharts", () => ({
   ResponsiveContainer: ({ children }) => <div data-testid="responsive-container">{children}</div>,
   BarChart: ({ children }) => <div data-testid="bar-chart">{children}</div>,
   LineChart: ({ children }) => <div data-testid="line-chart">{children}</div>,
@@ -32,7 +33,7 @@ vi.mock("recharts", () => ({
 }));
 
 // Mock echarts-for-react
-vi.mock("echarts-for-react", () => ({
+// sinon.stub() // "echarts-for-react", () => ({
   default: ({ option }) => <div data-testid="echarts" data-option={JSON.stringify(option)} />,
 }));
 

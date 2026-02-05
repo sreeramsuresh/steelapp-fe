@@ -10,13 +10,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import { createMockAllocation, createMockArray } from "../../../test/mock-factories";
 import StockDeductionPreview from "../StockDeductionPreview";
+import sinon from 'sinon';
 
 describe("StockDeductionPreview", () => {
   let defaultProps;
   let mockAllocations;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
 
     mockAllocations = createMockArray(createMockAllocation, 3, (index) => ({
       batchId: index + 1,

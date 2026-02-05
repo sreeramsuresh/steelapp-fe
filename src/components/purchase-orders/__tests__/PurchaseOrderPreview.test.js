@@ -2,19 +2,20 @@ import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import PurchaseOrderPreview from "../PurchaseOrderPreview";
+import sinon from 'sinon';
 
 const mockPurchaseOrderService = {
-  getPurchaseOrder: vi.fn(),
-  updatePurchaseOrder: vi.fn(),
-  cancelPurchaseOrder: vi.fn(),
-  approvePurchaseOrder: vi.fn(),
+  getPurchaseOrder: sinon.stub(),
+  updatePurchaseOrder: sinon.stub(),
+  cancelPurchaseOrder: sinon.stub(),
+  approvePurchaseOrder: sinon.stub(),
 };
 
-vi.mock("../../../services/purchaseOrderService", () => ({
+// sinon.stub() // "../../../services/purchaseOrderService", () => ({
   default: mockPurchaseOrderService,
 }));
 
-vi.mock("../../../components/common/Modal", () => ({
+// sinon.stub() // "../../../components/common/Modal", () => ({
   default: ({ isOpen, children, _onClose }) =>
     isOpen ? React.createElement("div", { "data-testid": "modal" }, children) : null,
 }));
@@ -22,7 +23,7 @@ vi.mock("../../../components/common/Modal", () => ({
 describe("PurchaseOrderPreview", () => {
   const defaultProps = {
     poId: "PO-001",
-    onClose: vi.fn(),
+    onClose: sinon.stub(),
   };
 
   const mockPOData = {
@@ -50,7 +51,7 @@ describe("PurchaseOrderPreview", () => {
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
     mockPurchaseOrderService.getPurchaseOrder.mockResolvedValue(mockPOData);
   });
 
@@ -203,7 +204,7 @@ describe("PurchaseOrderPreview", () => {
 
   describe("User Actions", () => {
     it("should call onClose when closing modal", () => {
-      const onCloseMock = vi.fn();
+      const onCloseMock = sinon.stub();
       const { container } = renderWithProviders(<PurchaseOrderPreview {...defaultProps} onClose={onCloseMock} />);
       expect(container).toBeInTheDocument();
     });

@@ -1,21 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import CustomerManagement from "../CustomerManagement";
+import sinon from 'sinon';
 
 const mockCustomerService = {
-  listCustomers: vi.fn(),
-  createCustomer: vi.fn(),
-  updateCustomer: vi.fn(),
-  deleteCustomer: vi.fn(),
+  listCustomers: sinon.stub(),
+  createCustomer: sinon.stub(),
+  updateCustomer: sinon.stub(),
+  deleteCustomer: sinon.stub(),
 };
 
-vi.mock("../../../services/customerService", () => ({
+// sinon.stub() // "../../../services/customerService", () => ({
   default: mockCustomerService,
 }));
 
 describe("CustomerManagement", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
     mockCustomerService.listCustomers.mockResolvedValue([]);
   });
 

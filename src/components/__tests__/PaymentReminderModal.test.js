@@ -16,19 +16,20 @@ import { screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../test/component-setup";
 import PaymentReminderModal from "../PaymentReminderModal";
+import sinon from 'sinon';
 
 // Mock API Service
 const mockApiService = {
-  get: vi.fn(),
-  post: vi.fn(),
-  put: vi.fn(),
-  delete: vi.fn(),
+  get: sinon.stub(),
+  post: sinon.stub(),
+  put: sinon.stub(),
+  delete: sinon.stub(),
 };
 
-vi.mock("../../services/axiosApi", () => ({
+// sinon.stub() // "../../services/axiosApi", () => ({
   apiService: mockApiService,
   tokenUtils: {
-    getUser: vi.fn().mockReturnValue({
+    getUser: sinon.stub().mockReturnValue({
       id: "user-123",
       name: "John Doe",
       email: "john@example.com",
@@ -37,23 +38,23 @@ vi.mock("../../services/axiosApi", () => ({
 }));
 
 // Mock Notification Service
-vi.mock("../../services/notificationService", () => ({
+// sinon.stub() // "../../services/notificationService", () => ({
   notificationService: {
-    success: vi.fn(),
-    error: vi.fn(),
-    warning: vi.fn(),
-    info: vi.fn(),
+    success: sinon.stub(),
+    error: sinon.stub(),
+    warning: sinon.stub(),
+    info: sinon.stub(),
   },
 }));
 
 // Mock Utilities
-vi.mock("../../utils/invoiceUtils", () => ({
+// sinon.stub() // "../../utils/invoiceUtils", () => ({
   formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
   formatDateTime: (date) => new Date(date).toLocaleString(),
 }));
 
 // Mock ConfirmDialog
-vi.mock("../ConfirmDialog", () => ({
+// sinon.stub() // "../ConfirmDialog", () => ({
   default: ({ open, title, message, onConfirm, onCancel }) => {
     if (!open) return null;
     return (
@@ -72,7 +73,7 @@ vi.mock("../ConfirmDialog", () => ({
 }));
 
 // Mock ThemeContext
-vi.mock("../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
@@ -83,10 +84,10 @@ describe("PaymentReminderModal Component", () => {
   let mockReminders;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
 
-    mockOnClose = vi.fn();
-    mockOnSave = vi.fn();
+    mockOnClose = sinon.stub();
+    mockOnSave = sinon.stub();
 
     mockReminders = [
       {

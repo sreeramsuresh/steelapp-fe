@@ -1,4 +1,4 @@
-import sinon from 'sinon';
+import sinon from "sinon";
 /**
  * Integration Tests - Credit Note Full Workflow
  *
@@ -65,7 +65,7 @@ const {
   mockNotificationError,
   mockNotificationWarning,
   mockNotificationInfo,
-} = vi.hoisted(() => ({
+} = // Hoisted: {
   mockGetCreditNote: sinon.stub(),
   mockGetNextCreditNoteNumber: sinon.stub(),
   mockCreateCreditNote: sinon.stub(),
@@ -79,7 +79,7 @@ const {
   mockNotificationInfo: sinon.stub(),
 }));
 
-vi.mock("../services/creditNoteService", () => ({
+// sinon.stub() // "../services/creditNoteService", () => ({
   creditNoteService: {
     getCreditNote: mockGetCreditNote,
     getNextCreditNoteNumber: mockGetNextCreditNoteNumber,
@@ -88,20 +88,20 @@ vi.mock("../services/creditNoteService", () => ({
   },
 }));
 
-vi.mock("../services/invoiceService", () => ({
+// sinon.stub() // "../services/invoiceService", () => ({
   invoiceService: {
     getInvoice: mockGetInvoice,
     searchForCreditNote: mockSearchForCreditNote,
   },
 }));
 
-vi.mock("../services/companyService", () => ({
+// sinon.stub() // "../services/companyService", () => ({
   companyService: {
     getCompany: mockGetCompany,
   },
 }));
 
-vi.mock("../services/notificationService", () => ({
+// sinon.stub() // "../services/notificationService", () => ({
   notificationService: {
     success: mockNotificationSuccess,
     error: mockNotificationError,
@@ -120,7 +120,7 @@ const {
   mockRefreshDrafts,
   mockSetPendingSave,
   mockClearPendingSave,
-} = vi.hoisted(() => ({
+} = // Hoisted: {
   mockCheckConflict: sinon.stub().mockReturnValue({ type: null, existingDraft: null, allDrafts: [] }),
   mockSaveDraft: sinon.stub().mockReturnValue(true),
   mockDeleteDraft: sinon.stub().mockReturnValue(true),
@@ -131,7 +131,7 @@ const {
   mockClearPendingSave: sinon.stub(),
 }));
 
-vi.mock("../hooks/useCreditNoteDrafts", () => ({
+// sinon.stub() // "../hooks/useCreditNoteDrafts", () => ({
   default: () => ({
     // State
     drafts: {},
@@ -160,13 +160,13 @@ vi.mock("../hooks/useCreditNoteDrafts", () => ({
 }));
 
 // Hoist router mocks for use in vi.mock
-const { mockNavigate, mockUseParams, mockUseSearchParams } = vi.hoisted(() => ({
+const { mockNavigate, mockUseParams, mockUseSearchParams } = // Hoisted: {
   mockNavigate: sinon.stub(),
   mockUseParams: vi.fn(() => ({ id: undefined })),
   mockUseSearchParams: vi.fn(() => [new URLSearchParams(), sinon.stub()]),
 }));
 
-vi.mock("react-router-dom", async () => {
+// sinon.stub() // "react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
     ...actual,

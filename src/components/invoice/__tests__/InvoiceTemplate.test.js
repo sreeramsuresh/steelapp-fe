@@ -9,12 +9,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import InvoiceTemplate from "../InvoiceTemplate";
+import sinon from 'sinon';
 
-vi.mock("../InvoiceHeader", () => ({
+// sinon.stub() // "../InvoiceHeader", () => ({
   default: ({ isFirstPage }) => <div data-testid="invoice-header">Header {isFirstPage ? "(First)" : ""}</div>,
 }));
 
-vi.mock("../InvoiceItemsTable", () => ({
+// sinon.stub() // "../InvoiceItemsTable", () => ({
   default: ({ items, isFirstPage, isContinued, startingIndex }) => (
     <div data-testid="invoice-items-table">
       Items {items.length} {isFirstPage ? "(First)" : ""} {isContinued ? "(Continued)" : ""} Start: {startingIndex}
@@ -22,19 +23,19 @@ vi.mock("../InvoiceItemsTable", () => ({
   ),
 }));
 
-vi.mock("../InvoiceTotalsSection", () => ({
+// sinon.stub() // "../InvoiceTotalsSection", () => ({
   default: () => <div data-testid="invoice-totals-section">Totals</div>,
 }));
 
-vi.mock("../InvoiceFooterNotes", () => ({
+// sinon.stub() // "../InvoiceFooterNotes", () => ({
   default: () => <div data-testid="invoice-footer-notes">Notes</div>,
 }));
 
-vi.mock("../InvoiceSignatureSection", () => ({
+// sinon.stub() // "../InvoiceSignatureSection", () => ({
   default: () => <div data-testid="invoice-signature-section">Signature</div>,
 }));
 
-vi.mock("../InvoiceFooter", () => ({
+// sinon.stub() // "../InvoiceFooter", () => ({
   default: ({ pageNumber, totalPages }) => (
     <div data-testid="invoice-footer">
       Footer {pageNumber} of {totalPages}
@@ -42,7 +43,7 @@ vi.mock("../InvoiceFooter", () => ({
   ),
 }));
 
-vi.mock("../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
@@ -52,7 +53,7 @@ describe("InvoiceTemplate", () => {
   let defaultCompany;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
 
     defaultInvoice = {
       id: "INV-001",

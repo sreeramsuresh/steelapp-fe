@@ -13,6 +13,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
+import sinon from 'sinon';
 
 // Mock Modal component for testing
 const Modal = ({ isOpen, onClose, children, className = "", overlayClassName = "" }) => {
@@ -41,7 +42,7 @@ describe("Modal Component", () => {
   let defaultProps;
 
   beforeEach(() => {
-    mockOnClose = vi.fn();
+    mockOnClose = sinon.stub();
     defaultProps = {
       isOpen: true,
       onClose: mockOnClose,
@@ -104,7 +105,7 @@ describe("Modal Component", () => {
     });
 
     it("should prevent backdrop click from propagating", async () => {
-      const handleOuterClick = vi.fn();
+      const handleOuterClick = sinon.stub();
       const { getByTestId } = renderWithProviders(
         // biome-ignore lint/a11y/noStaticElementInteractions: Test wrapper - testing event propagation
         // biome-ignore lint/a11y/useKeyWithClickEvents: Test wrapper - simplified for testing

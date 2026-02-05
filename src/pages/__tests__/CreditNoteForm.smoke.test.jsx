@@ -30,62 +30,63 @@ import { creditNoteService } from "../../services/creditNoteService";
 import { invoiceService } from "../../services/invoiceService";
 import { notificationService } from "../../services/notificationService";
 import CreditNoteForm from "../CreditNoteForm";
+import sinon from 'sinon';
 
 // Mock services - Must return objects matching the exact export structure
-vi.mock("../../services/creditNoteService", () => {
+// sinon.stub() // "../../services/creditNoteService", () => {
   return {
     creditNoteService: {
-      getNextCreditNoteNumber: vi.fn(),
-      getCreditNote: vi.fn(),
-      createCreditNote: vi.fn(),
-      updateCreditNote: vi.fn(),
-      getAllCreditNotes: vi.fn(),
-      deleteCreditNote: vi.fn(),
-      downloadPDF: vi.fn(),
-      getAllowedTransitions: vi.fn().mockResolvedValue({ allowed_transitions: [], allowedTransitions: [] }),
+      getNextCreditNoteNumber: sinon.stub(),
+      getCreditNote: sinon.stub(),
+      createCreditNote: sinon.stub(),
+      updateCreditNote: sinon.stub(),
+      getAllCreditNotes: sinon.stub(),
+      deleteCreditNote: sinon.stub(),
+      downloadPDF: sinon.stub(),
+      getAllowedTransitions: sinon.stub().mockResolvedValue({ allowed_transitions: [], allowedTransitions: [] }),
     },
   };
 });
 
-vi.mock("../../services/invoiceService", () => {
+// sinon.stub() // "../../services/invoiceService", () => {
   return {
     invoiceService: {
-      getInvoice: vi.fn(),
-      searchForCreditNote: vi.fn(),
+      getInvoice: sinon.stub(),
+      searchForCreditNote: sinon.stub(),
     },
   };
 });
 
-vi.mock("../../services/companyService", () => {
+// sinon.stub() // "../../services/companyService", () => {
   return {
     companyService: {
-      getCompany: vi.fn(),
+      getCompany: sinon.stub(),
     },
   };
 });
 
-vi.mock("../../services/notificationService", () => {
+// sinon.stub() // "../../services/notificationService", () => {
   return {
     notificationService: {
-      success: vi.fn(),
-      error: vi.fn(),
-      warning: vi.fn(),
-      info: vi.fn(),
+      success: sinon.stub(),
+      error: sinon.stub(),
+      warning: sinon.stub(),
+      info: sinon.stub(),
     },
   };
 });
-vi.mock("../../hooks/useCreditNoteDrafts", () => ({
+// sinon.stub() // "../../hooks/useCreditNoteDrafts", () => ({
   default: () => ({
-    saveDraft: vi.fn(),
-    getDraft: vi.fn(),
-    deleteDraft: vi.fn(),
-    hasDraftForInvoice: vi.fn().mockReturnValue(false),
-    checkConflict: vi.fn().mockReturnValue({ type: null }),
-    setPendingSave: vi.fn(),
-    clearPendingSave: vi.fn(),
-    refreshDrafts: vi.fn(),
+    saveDraft: sinon.stub(),
+    getDraft: sinon.stub(),
+    deleteDraft: sinon.stub(),
+    hasDraftForInvoice: sinon.stub().mockReturnValue(false),
+    checkConflict: sinon.stub().mockReturnValue({ type: null }),
+    setPendingSave: sinon.stub(),
+    clearPendingSave: sinon.stub(),
+    refreshDrafts: sinon.stub(),
   }),
-  getDraftStatusMessage: vi.fn().mockReturnValue("Draft saved"),
+  getDraftStatusMessage: sinon.stub().mockReturnValue("Draft saved"),
 }));
 
 // Mock data
@@ -194,10 +195,10 @@ const mockCompany = {
 const TestWrapper = ({ children, isDarkMode = false, route = "/credit-notes/new" }) => {
   const mockThemeContext = {
     isDarkMode,
-    toggleDarkMode: vi.fn(),
+    toggleDarkMode: sinon.stub(),
     themeMode: isDarkMode ? "dark" : "light",
-    toggleTheme: vi.fn(),
-    setTheme: vi.fn(),
+    toggleTheme: sinon.stub(),
+    setTheme: sinon.stub(),
   };
 
   return (
@@ -214,7 +215,7 @@ const TestWrapper = ({ children, isDarkMode = false, route = "/credit-notes/new"
 
 describe("CreditNoteForm - Smoke Tests", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
 
     // Default mock implementations
     creditNoteService.getNextCreditNoteNumber.mockResolvedValue({
@@ -230,10 +231,10 @@ describe("CreditNoteForm - Smoke Tests", () => {
 
     companyService.getCompany.mockResolvedValue(mockCompany);
 
-    notificationService.success = vi.fn();
-    notificationService.error = vi.fn();
-    notificationService.warning = vi.fn();
-    notificationService.info = vi.fn();
+    notificationService.success = sinon.stub();
+    notificationService.error = sinon.stub();
+    notificationService.warning = sinon.stub();
+    notificationService.info = sinon.stub();
   });
 
   describe("Header Section", () => {

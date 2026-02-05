@@ -9,8 +9,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import CustomerCreditPanel from "../CustomerCreditPanel";
+import sinon from 'sinon';
 
-vi.mock("../../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../../contexts/ThemeContext", () => ({
   ThemeContext: {
     Provider: ({ children }) => children,
   },
@@ -19,11 +20,11 @@ vi.mock("../../../contexts/ThemeContext", () => ({
   }),
 }));
 
-vi.mock("../../../components/ui/badge", () => ({
+// sinon.stub() // "../../../components/ui/badge", () => ({
   Badge: ({ children, className }) => <span className={className}>{children}</span>,
 }));
 
-vi.mock("../../../components/ui/button", () => ({
+// sinon.stub() // "../../../components/ui/button", () => ({
   Button: ({ children, onClick, disabled, ...props }) => (
     <button onClick={onClick} disabled={disabled} {...props}>
       {children}
@@ -31,7 +32,7 @@ vi.mock("../../../components/ui/button", () => ({
   ),
 }));
 
-vi.mock("../../../components/ui/card", () => ({
+// sinon.stub() // "../../../components/ui/card", () => ({
   Card: ({ children, className }) => <div className={className}>{children}</div>,
   CardHeader: ({ children }) => <div>{children}</div>,
   CardTitle: ({ children }) => <h2>{children}</h2>,
@@ -39,7 +40,7 @@ vi.mock("../../../components/ui/card", () => ({
   CardContent: ({ children }) => <div>{children}</div>,
 }));
 
-vi.mock("../../../components/ui/dialog", () => ({
+// sinon.stub() // "../../../components/ui/dialog", () => ({
   Dialog: ({ open, children, _onOpenChange }) => (open ? <div data-testid="dialog">{children}</div> : null),
   DialogContent: ({ children }) => <div>{children}</div>,
   DialogHeader: ({ children }) => <div>{children}</div>,
@@ -54,10 +55,10 @@ describe("CustomerCreditPanel", () => {
   let mockOnViewPaymentHistory;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockOnUpdateCreditLimit = vi.fn();
-    mockOnViewAging = vi.fn();
-    mockOnViewPaymentHistory = vi.fn();
+    sinon.restore();
+    mockOnUpdateCreditLimit = sinon.stub();
+    mockOnViewAging = sinon.stub();
+    mockOnViewPaymentHistory = sinon.stub();
 
     defaultProps = {
       customer: {

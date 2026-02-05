@@ -10,12 +10,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import { createMockArray, createMockBatch } from "../../../test/mock-factories";
 import ReallocationModal from "../ReallocationModal";
+import sinon from 'sinon';
 
 // Mock the API service
-vi.mock("../../../services/api", () => ({
+// sinon.stub() // "../../../services/api", () => ({
   default: {
-    post: vi.fn(),
-    get: vi.fn(),
+    post: sinon.stub(),
+    get: sinon.stub(),
   },
 }));
 
@@ -29,9 +30,9 @@ describe("ReallocationModal", () => {
   let mockCurrentAllocations;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockOnClose = vi.fn();
-    mockOnSuccess = vi.fn();
+    sinon.restore();
+    mockOnClose = sinon.stub();
+    mockOnSuccess = sinon.stub();
 
     mockBatches = createMockArray(createMockBatch, 3, (index) => ({
       id: index + 1,

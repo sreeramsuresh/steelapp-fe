@@ -1,19 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import CommissionCalculation from "../CommissionCalculation";
+import sinon from 'sinon';
 
 const mockCommissionService = {
-  calculateCommission: vi.fn(),
-  getEligibleSales: vi.fn(),
+  calculateCommission: sinon.stub(),
+  getEligibleSales: sinon.stub(),
 };
 
-vi.mock("../../../services/commissionService", () => ({
+// sinon.stub() // "../../../services/commissionService", () => ({
   default: mockCommissionService,
 }));
 
 describe("CommissionCalculation", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
   });
 
   describe("Rendering", () => {

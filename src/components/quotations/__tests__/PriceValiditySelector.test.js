@@ -9,8 +9,9 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import PriceValiditySelector from "../PriceValiditySelector";
+import sinon from 'sinon';
 
-vi.mock("../../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
@@ -18,8 +19,8 @@ describe("PriceValiditySelector", () => {
   let mockOnChange;
 
   beforeEach(() => {
-    mockOnChange = vi.fn();
-    vi.clearAllMocks();
+    mockOnChange = sinon.stub();
+    sinon.restore();
   });
 
   it("should render price validity selector with label", () => {

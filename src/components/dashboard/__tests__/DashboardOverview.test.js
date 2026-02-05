@@ -1,19 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import DashboardOverview from "../DashboardOverview";
+import sinon from 'sinon';
 
 const mockDashboardService = {
-  getSalesData: vi.fn(),
-  getInventoryData: vi.fn(),
+  getSalesData: sinon.stub(),
+  getInventoryData: sinon.stub(),
 };
 
-vi.mock("../../../services/dashboardService", () => ({
+// sinon.stub() // "../../../services/dashboardService", () => ({
   default: mockDashboardService,
 }));
 
 describe("DashboardOverview", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
     mockDashboardService.getSalesData.mockResolvedValue({});
     mockDashboardService.getInventoryData.mockResolvedValue({});
   });

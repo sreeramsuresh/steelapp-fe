@@ -9,30 +9,31 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import CreditNoteStatusActions from "../CreditNoteStatusActions";
+import sinon from 'sinon';
 
 const mockCreditNoteService = {
-  getAllowedTransitions: vi.fn(),
-  issueCreditNote: vi.fn(),
-  markItemsReceived: vi.fn(),
-  applyCreditNote: vi.fn(),
-  completeCreditNote: vi.fn(),
-  cancelCreditNote: vi.fn(),
+  getAllowedTransitions: sinon.stub(),
+  issueCreditNote: sinon.stub(),
+  markItemsReceived: sinon.stub(),
+  applyCreditNote: sinon.stub(),
+  completeCreditNote: sinon.stub(),
+  cancelCreditNote: sinon.stub(),
 };
 
 const mockNotificationService = {
-  success: vi.fn(),
-  error: vi.fn(),
+  success: sinon.stub(),
+  error: sinon.stub(),
 };
 
-vi.mock("../../../services/creditNoteService", () => ({
+// sinon.stub() // "../../../services/creditNoteService", () => ({
   creditNoteService: mockCreditNoteService,
 }));
 
-vi.mock("../../../services/notificationService", () => ({
+// sinon.stub() // "../../../services/notificationService", () => ({
   notificationService: mockNotificationService,
 }));
 
-vi.mock("../ConfirmDialog", () => ({
+// sinon.stub() // "../ConfirmDialog", () => ({
   default: ({ title, message, onConfirm, onCancel }) => (
     <div data-testid="confirm-dialog">
       <h2>{title}</h2>
@@ -54,10 +55,10 @@ describe("CreditNoteStatusActions", () => {
   let mockOnOpenRefundModal;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockOnStatusChange = vi.fn();
-    mockOnOpenQCModal = vi.fn();
-    mockOnOpenRefundModal = vi.fn();
+    sinon.restore();
+    mockOnStatusChange = sinon.stub();
+    mockOnOpenQCModal = sinon.stub();
+    mockOnOpenRefundModal = sinon.stub();
 
     defaultProps = {
       creditNoteId: "CN-001",

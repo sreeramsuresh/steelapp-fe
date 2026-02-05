@@ -1,29 +1,30 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import StockReceiptForm from "../StockReceiptForm";
+import sinon from 'sinon';
 
 const mockGrnService = {
-  createGrn: vi.fn(),
-  updateGrn: vi.fn(),
+  createGrn: sinon.stub(),
+  updateGrn: sinon.stub(),
 };
 
 const mockStockBatchService = {
-  createBatch: vi.fn(),
+  createBatch: sinon.stub(),
 };
 
-vi.mock("../../../services/grnService", () => ({ default: mockGrnService }));
-vi.mock("../../../services/stockBatchService", () => ({
+// sinon.stub() // "../../../services/grnService", () => ({ default: mockGrnService }));
+// sinon.stub() // "../../../services/stockBatchService", () => ({
   default: mockStockBatchService,
 }));
 
 describe("StockReceiptForm", () => {
   const defaultProps = {
     poId: "PO-001",
-    onSuccess: vi.fn(),
+    onSuccess: sinon.stub(),
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
     mockGrnService.createGrn.mockResolvedValue({ id: "GRN-001" });
     mockStockBatchService.createBatch.mockResolvedValue({ id: "BATCH-001" });
   });

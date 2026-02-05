@@ -1,22 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import TransferForm from "../TransferForm";
+import sinon from 'sinon';
 
 const mockStockMovementService = {
-  createTransfer: vi.fn(),
-  updateTransfer: vi.fn(),
-  listWarehouses: vi.fn(),
-  getStockAvailability: vi.fn(),
+  createTransfer: sinon.stub(),
+  updateTransfer: sinon.stub(),
+  listWarehouses: sinon.stub(),
+  getStockAvailability: sinon.stub(),
 };
 
-vi.mock("../../../services/stockMovementService", () => ({
+// sinon.stub() // "../../../services/stockMovementService", () => ({
   default: mockStockMovementService,
 }));
 
 describe("TransferForm", () => {
   const defaultProps = {
-    onSuccess: vi.fn(),
-    onCancel: vi.fn(),
+    onSuccess: sinon.stub(),
+    onCancel: sinon.stub(),
   };
 
   const mockWarehouses = [
@@ -26,7 +27,7 @@ describe("TransferForm", () => {
   ];
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
     mockStockMovementService.listWarehouses.mockResolvedValue(mockWarehouses);
   });
 

@@ -9,8 +9,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import InvoiceSignatureSection from "../InvoiceSignatureSection";
+import sinon from 'sinon';
 
-vi.mock("../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
@@ -18,7 +19,7 @@ describe("InvoiceSignatureSection", () => {
   let defaultProps;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
 
     defaultProps = {
       authorizedBy: "Ahmad Al-Mansouri",

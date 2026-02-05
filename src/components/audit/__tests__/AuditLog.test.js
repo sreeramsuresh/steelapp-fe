@@ -1,19 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import AuditLog from "../AuditLog";
+import sinon from 'sinon';
 
 const mockAuditService = {
-  listAuditLogs: vi.fn(),
-  filterLogs: vi.fn(),
+  listAuditLogs: sinon.stub(),
+  filterLogs: sinon.stub(),
 };
 
-vi.mock("../../../services/auditService", () => ({
+// sinon.stub() // "../../../services/auditService", () => ({
   default: mockAuditService,
 }));
 
 describe("AuditLog", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
     mockAuditService.listAuditLogs.mockResolvedValue([]);
   });
 

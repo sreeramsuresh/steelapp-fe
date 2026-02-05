@@ -13,29 +13,30 @@ import { useConfirm } from "../../hooks/useConfirm";
 import { purchaseOrderService } from "../../services/purchaseOrderService";
 import { stockMovementService } from "../../services/stockMovementService";
 import StockMovement from "../StockMovement";
+import sinon from 'sinon';
 
-vi.mock("../../services/stockMovementService");
-vi.mock("../../services/purchaseOrderService");
-vi.mock("../../contexts/ThemeContext");
-vi.mock("../../hooks/useConfirm");
+// sinon.stub() // "../../services/stockMovementService");
+// sinon.stub() // "../../services/purchaseOrderService");
+// sinon.stub() // "../../contexts/ThemeContext");
+// sinon.stub() // "../../hooks/useConfirm");
 
 describe("StockMovement", () => {
   let mockConfirm;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
 
     useTheme.mockReturnValue({ isDarkMode: false });
 
-    mockConfirm = vi.fn().mockResolvedValue(true);
+    mockConfirm = sinon.stub().mockResolvedValue(true);
     useConfirm.mockReturnValue({
       confirm: mockConfirm,
       dialogState: { open: false },
-      handleConfirm: vi.fn(),
-      handleCancel: vi.fn(),
+      handleConfirm: sinon.stub(),
+      handleCancel: sinon.stub(),
     });
 
-    stockMovementService.getAllMovements = vi.fn().mockResolvedValue({
+    stockMovementService.getAllMovements = sinon.stub().mockResolvedValue({
       data: [
         {
           id: 1,
@@ -66,7 +67,7 @@ describe("StockMovement", () => {
       ],
     });
 
-    purchaseOrderService.getAll = vi.fn().mockResolvedValue({
+    purchaseOrderService.getAll = sinon.stub().mockResolvedValue({
       data: [
         {
           id: 1,
@@ -108,8 +109,8 @@ describe("StockMovement", () => {
     });
 
     it("should display empty state when no movements", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue({ data: [] });
-      purchaseOrderService.getAll = vi.fn().mockResolvedValue({ data: [] });
+      stockMovementService.getAllMovements = sinon.stub().mockResolvedValue({ data: [] });
+      purchaseOrderService.getAll = sinon.stub().mockResolvedValue({ data: [] });
 
       render(<StockMovement />);
 
@@ -288,9 +289,9 @@ describe("StockMovement", () => {
     });
 
     it("should filter for in-transit purchase orders", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue({ data: [] });
+      stockMovementService.getAllMovements = sinon.stub().mockResolvedValue({ data: [] });
 
-      purchaseOrderService.getAll = vi.fn().mockResolvedValue({
+      purchaseOrderService.getAll = sinon.stub().mockResolvedValue({
         data: [
           {
             id: 1,
@@ -336,7 +337,7 @@ describe("StockMovement", () => {
     });
 
     it("should display pending status if applicable", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue({
+      stockMovementService.getAllMovements = sinon.stub().mockResolvedValue({
         data: [
           {
             id: 1,
@@ -371,7 +372,7 @@ describe("StockMovement", () => {
     });
 
     it("should truncate long notes", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue({
+      stockMovementService.getAllMovements = sinon.stub().mockResolvedValue({
         data: [
           {
             id: 1,
@@ -417,7 +418,7 @@ describe("StockMovement", () => {
 
   describe("Error Handling", () => {
     it("should display error on fetch failure", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockRejectedValue(new Error("API Error"));
+      stockMovementService.getAllMovements = sinon.stub().mockRejectedValue(new Error("API Error"));
 
       render(<StockMovement />);
 
@@ -427,8 +428,8 @@ describe("StockMovement", () => {
     });
 
     it("should handle missing movement data gracefully", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue(null);
-      purchaseOrderService.getAll = vi.fn().mockResolvedValue(null);
+      stockMovementService.getAllMovements = sinon.stub().mockResolvedValue(null);
+      purchaseOrderService.getAll = sinon.stub().mockResolvedValue(null);
 
       render(<StockMovement />);
 
@@ -441,7 +442,7 @@ describe("StockMovement", () => {
 
   describe("Data Sorting", () => {
     it("should display movements in chronological order (newest first)", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue({
+      stockMovementService.getAllMovements = sinon.stub().mockResolvedValue({
         data: [
           {
             id: 1,
@@ -481,7 +482,7 @@ describe("StockMovement", () => {
 
   describe("Quantity Display", () => {
     it("should format quantities with decimals for KG", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue({
+      stockMovementService.getAllMovements = sinon.stub().mockResolvedValue({
         data: [
           {
             id: 1,
@@ -506,7 +507,7 @@ describe("StockMovement", () => {
     });
 
     it("should format integer quantities for PCS", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue({
+      stockMovementService.getAllMovements = sinon.stub().mockResolvedValue({
         data: [
           {
             id: 1,

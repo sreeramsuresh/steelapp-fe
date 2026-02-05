@@ -1,19 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import PricelistManagement from "../PricelistManagement";
+import sinon from 'sinon';
 
 const mockPricelistService = {
-  listPricelists: vi.fn(),
-  createPricelist: vi.fn(),
+  listPricelists: sinon.stub(),
+  createPricelist: sinon.stub(),
 };
 
-vi.mock("../../../services/pricelistService", () => ({
+// sinon.stub() // "../../../services/pricelistService", () => ({
   default: mockPricelistService,
 }));
 
 describe("PricelistManagement", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
     mockPricelistService.listPricelists.mockResolvedValue([]);
   });
 

@@ -9,13 +9,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import SourceTypeSelector from "../SourceTypeSelector";
+import sinon from 'sinon';
 
 describe("SourceTypeSelector", () => {
   let mockOnChange;
   let defaultProps;
 
   beforeEach(() => {
-    mockOnChange = vi.fn();
+    mockOnChange = sinon.stub();
     defaultProps = {
       value: "WAREHOUSE",
       onChange: mockOnChange,

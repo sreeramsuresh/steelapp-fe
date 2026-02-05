@@ -12,6 +12,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
+import sinon from 'sinon';
 
 // Mock Popover component
 const Popover = ({
@@ -74,7 +75,7 @@ describe("Popover Component", () => {
   let defaultProps;
 
   beforeEach(() => {
-    mockOnClose = vi.fn();
+    mockOnClose = sinon.stub();
     defaultProps = {
       isOpen: true,
       onClose: mockOnClose,
@@ -194,7 +195,7 @@ describe("Popover Component", () => {
     });
 
     it("should prevent event propagation from content click", async () => {
-      const handleOuterClick = vi.fn();
+      const handleOuterClick = sinon.stub();
       const { getByTestId } = renderWithProviders(
         // biome-ignore lint/a11y/noStaticElementInteractions: Test wrapper - testing event propagation
         // biome-ignore lint/a11y/useKeyWithClickEvents: Test wrapper - simplified for testing

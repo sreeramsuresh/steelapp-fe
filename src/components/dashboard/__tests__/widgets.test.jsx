@@ -5,14 +5,15 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ThemeContext } from "../../../contexts/ThemeContext";
+import sinon from 'sinon';
 
 const renderWithTheme = (component, isDarkMode = false) => {
   return render(
-    <ThemeContext.Provider value={{ isDarkMode, toggleTheme: vi.fn() }}>{component}</ThemeContext.Provider>
+    <ThemeContext.Provider value={{ isDarkMode, toggleTheme: sinon.stub() }}>{component}</ThemeContext.Provider>
   );
 };
 
-vi.mock("../widgets/BaseWidget", () => ({
+// sinon.stub() // "../widgets/BaseWidget", () => ({
   default: ({ title, children, loading, error, onRefresh }) => (
     <div data-testid="base-widget">
       <h3>{title}</h3>
@@ -31,14 +32,14 @@ vi.mock("../widgets/BaseWidget", () => ({
   WidgetListItem: ({ title }) => <div>{title}</div>,
 }));
 
-vi.mock("../charts/RechartsWrapper", () => ({
+// sinon.stub() // "../charts/RechartsWrapper", () => ({
   BarChartWrapper: () => <div data-testid="bar-chart" />,
   LineChartWrapper: () => <div data-testid="line-chart" />,
   PieChartWrapper: () => <div data-testid="pie-chart" />,
   DonutChartWrapper: () => <div data-testid="donut-chart" />,
 }));
 
-vi.mock("../charts/EChartsWrapper", () => ({
+// sinon.stub() // "../charts/EChartsWrapper", () => ({
   GaugeChartWrapper: () => <div data-testid="gauge-chart" />,
   TreemapChartWrapper: () => <div data-testid="treemap-chart" />,
   FunnelChartWrapper: () => <div data-testid="funnel-chart" />,
@@ -60,7 +61,7 @@ describe("RevenueKPIWidget", () => {
   });
 
   it("handles refresh", () => {
-    const onRefresh = vi.fn();
+    const onRefresh = sinon.stub();
     renderWithTheme(<RevenueKPIWidget onRefresh={onRefresh} />);
     fireEvent.click(screen.getByText("Refresh"));
     expect(onRefresh).toHaveBeenCalled();

@@ -9,8 +9,9 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import DeliveryScheduleModal from "../DeliveryScheduleModal";
+import sinon from 'sinon';
 
-vi.mock("../../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
@@ -19,9 +20,9 @@ describe("DeliveryScheduleModal", () => {
   let mockOnSave;
 
   beforeEach(() => {
-    mockOnClose = vi.fn();
-    mockOnSave = vi.fn();
-    vi.clearAllMocks();
+    mockOnClose = sinon.stub();
+    mockOnSave = sinon.stub();
+    sinon.restore();
   });
 
   it("should not render when isOpen is false", () => {

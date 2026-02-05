@@ -10,11 +10,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import { createMockArray, createMockBatch } from "../../../test/mock-factories";
 import BatchPicker from "../BatchPicker";
+import sinon from 'sinon';
 
 // Mock the API service
-vi.mock("../../../services/api", () => ({
+// sinon.stub() // "../../../services/api", () => ({
   default: {
-    get: vi.fn(),
+    get: sinon.stub(),
   },
 }));
 
@@ -26,8 +27,8 @@ describe("BatchPicker", () => {
   let mockBatches;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockOnSelectAllocations = vi.fn();
+    sinon.restore();
+    mockOnSelectAllocations = sinon.stub();
 
     mockBatches = createMockArray(createMockBatch, 3, (index) => ({
       id: index + 1,

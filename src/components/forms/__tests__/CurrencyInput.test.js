@@ -1,16 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import CurrencyInput from "../CurrencyInput";
+import sinon from 'sinon';
 
 describe("CurrencyInput", () => {
   const defaultProps = {
     value: 1000,
-    onChange: vi.fn(),
+    onChange: sinon.stub(),
     currency: "AED",
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
   });
 
   describe("Rendering", () => {

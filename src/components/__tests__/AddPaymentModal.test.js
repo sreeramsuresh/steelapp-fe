@@ -10,6 +10,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../test/component-setup";
 import { createMockPayment } from "../../test/mock-factories";
 import AddPaymentModal from "../AddPaymentModal";
+import sinon from 'sinon';
 
 describe("AddPaymentModal", () => {
   let mockOnClose;
@@ -17,8 +18,8 @@ describe("AddPaymentModal", () => {
   let defaultProps;
 
   beforeEach(() => {
-    mockOnClose = vi.fn();
-    mockOnSave = vi.fn();
+    mockOnClose = sinon.stub();
+    mockOnSave = sinon.stub();
     defaultProps = {
       isOpen: true,
       onClose: mockOnClose,

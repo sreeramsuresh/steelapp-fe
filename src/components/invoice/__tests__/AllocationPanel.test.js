@@ -10,16 +10,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import { createMockAllocation, createMockArray } from "../../../test/mock-factories";
 import AllocationPanel from "../AllocationPanel";
+import sinon from 'sinon';
 
 // Mock the auth service
-vi.mock("../../../services/axiosAuthService", () => ({
+// sinon.stub() // "../../../services/axiosAuthService", () => ({
   authService: {
-    getUserRole: vi.fn(),
+    getUserRole: sinon.stub(),
   },
 }));
 
 // Mock the reallocation modal
-vi.mock("../ReallocationModal", () => ({
+// sinon.stub() // "../ReallocationModal", () => ({
   default: ({ isOpen }) => (isOpen ? <div>Reallocation Modal</div> : null),
 }));
 
@@ -32,9 +33,9 @@ describe("AllocationPanel", () => {
   let mockAllocations;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockOnAllocationsChange = vi.fn();
-    mockOnReallocationComplete = vi.fn();
+    sinon.restore();
+    mockOnAllocationsChange = sinon.stub();
+    mockOnReallocationComplete = sinon.stub();
 
     mockAllocations = createMockArray(createMockAllocation, 2, (index) => ({
       batchNumber: `BATCH-2024-${String(index + 1).padStart(3, "0")}`,

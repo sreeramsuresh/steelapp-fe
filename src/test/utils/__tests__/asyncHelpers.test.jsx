@@ -11,6 +11,7 @@ import userEvent from "@testing-library/user-event";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import {
+import sinon from 'sinon';
   clickAndWaitForApi,
   createTimer,
   performAsyncButtonClick,
@@ -27,7 +28,7 @@ import {
 describe("asyncHelpers", () => {
   describe("waitForApiCall", () => {
     it("waits for mock function to be called", async () => {
-      const mockApi = vi.fn().mockResolvedValue({ success: true });
+      const mockApi = sinon.stub().mockResolvedValue({ success: true });
 
       setTimeout(() => {
         mockApi();
@@ -38,13 +39,13 @@ describe("asyncHelpers", () => {
     });
 
     it("times out if API call never happens", async () => {
-      const mockApi = vi.fn();
+      const mockApi = sinon.stub();
 
       await expect(waitForApiCall(mockApi, { timeout: 100 })).rejects.toThrow();
     });
 
     it("checks call arguments", async () => {
-      const mockApi = vi.fn().mockResolvedValue({});
+      const mockApi = sinon.stub().mockResolvedValue({});
 
       setTimeout(() => {
         mockApi({ id: 123 });
@@ -57,7 +58,7 @@ describe("asyncHelpers", () => {
 
   describe("waitForDebounce", () => {
     it("waits for debounce delay", async () => {
-      const callback = vi.fn();
+      const callback = sinon.stub();
       const delayMs = 200;
       const timer = createTimer();
 
@@ -77,7 +78,7 @@ describe("asyncHelpers", () => {
 
   describe("performAsyncButtonClick", () => {
     it("clicks button and checks state change", async () => {
-      const stateChecker = vi.fn().mockResolvedValue(true);
+      const stateChecker = sinon.stub().mockResolvedValue(true);
 
       const AsyncComponent = () => {
         const [isLoading, setIsLoading] = React.useState(false);
@@ -105,7 +106,7 @@ describe("asyncHelpers", () => {
     });
 
     it("times out if state never changes", async () => {
-      const stateChecker = vi.fn().mockResolvedValue(false);
+      const stateChecker = sinon.stub().mockResolvedValue(false);
 
       render(<button type="button">Action</button>);
       const button = screen.getByRole("button");
@@ -184,7 +185,7 @@ describe("asyncHelpers", () => {
     });
 
     it("fails if max retries exceeded", async () => {
-      const condition = vi.fn().mockResolvedValue(false);
+      const condition = sinon.stub().mockResolvedValue(false);
 
       await expect(retryUntil(condition, { maxRetries: 2, delayMs: 10 })).rejects.toThrow();
 
@@ -192,7 +193,7 @@ describe("asyncHelpers", () => {
     });
 
     it("stops early on success", async () => {
-      const condition = vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+      const condition = sinon.stub().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
 
       const result = await retryUntil(condition, {
         maxRetries: 5,
@@ -226,7 +227,7 @@ describe("asyncHelpers", () => {
 
   describe("waitForCallback", () => {
     it("waits for callback to be called", async () => {
-      const callback = vi.fn();
+      const callback = sinon.stub();
 
       setTimeout(() => {
         callback("result");
@@ -237,7 +238,7 @@ describe("asyncHelpers", () => {
     });
 
     it("times out if callback never fires", async () => {
-      const callback = vi.fn();
+      const callback = sinon.stub();
 
       await expect(waitForCallback(callback, { timeout: 100 })).rejects.toThrow();
     });
@@ -321,7 +322,7 @@ describe("asyncHelpers", () => {
 
   describe("clickAndWaitForApi", () => {
     it("clicks button and waits for API call", async () => {
-      const mockApi = vi.fn().mockResolvedValue({ success: true });
+      const mockApi = sinon.stub().mockResolvedValue({ success: true });
 
       const AsyncComponent = () => {
         const handleClick = async () => {

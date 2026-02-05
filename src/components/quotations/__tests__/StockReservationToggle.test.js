@@ -9,8 +9,9 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import StockReservationToggle from "../StockReservationToggle";
+import sinon from 'sinon';
 
-vi.mock("../../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
@@ -18,8 +19,8 @@ describe("StockReservationToggle", () => {
   let mockOnToggleReservation;
 
   beforeEach(() => {
-    mockOnToggleReservation = vi.fn();
-    vi.clearAllMocks();
+    mockOnToggleReservation = sinon.stub();
+    sinon.restore();
     vi.useFakeTimers();
   });
 

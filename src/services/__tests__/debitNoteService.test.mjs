@@ -15,7 +15,7 @@ import assert from 'node:assert';
 import sinon from 'sinon';
 
 // Mock API client
-vi.mock("../api.js", () => ({
+// sinon.stub() // "../api.js", () => ({
   apiClient: {
     get: sinon.stub(),
     post: sinon.stub(),

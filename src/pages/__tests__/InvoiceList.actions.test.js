@@ -14,24 +14,25 @@
  */
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import sinon from 'sinon';
 
 // Mock dependencies before imports
-vi.mock("../../services/axiosAuthService", () => ({
+// sinon.stub() // "../../services/axiosAuthService", () => ({
   authService: {
-    hasPermission: vi.fn(),
+    hasPermission: sinon.stub(),
   },
 }));
 
-vi.mock("../../utils/reminderUtils", () => ({
-  getInvoiceReminderInfo: vi.fn(),
-  generatePaymentReminder: vi.fn(),
+// sinon.stub() // "../../utils/reminderUtils", () => ({
+  getInvoiceReminderInfo: sinon.stub(),
+  generatePaymentReminder: sinon.stub(),
 }));
 
-vi.mock("../../services/notificationService", () => ({
+// sinon.stub() // "../../services/notificationService", () => ({
   notificationService: {
-    error: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
+    error: sinon.stub(),
+    success: sinon.stub(),
+    warning: sinon.stub(),
   },
 }));
 
@@ -65,7 +66,7 @@ const validateInvoiceForDownload = (invoice) => {
 
 describe("InvoiceList - Action Icons (Test Matrix TC-001 to TC-006)", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
   });
 
   /**

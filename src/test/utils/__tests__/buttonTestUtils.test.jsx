@@ -9,6 +9,7 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import {
+import sinon from 'sinon';
   assertButtonDisabled,
   assertButtonEnabled,
   clickButton,
@@ -56,7 +57,7 @@ describe("buttonTestUtils", () => {
 
   describe("clickButton", () => {
     it("clicks button successfully", async () => {
-      const mockHandler = vi.fn();
+      const mockHandler = sinon.stub();
       render(
         <button type="button" onClick={mockHandler}>
           Click me
@@ -70,7 +71,7 @@ describe("buttonTestUtils", () => {
     });
 
     it("handles async button click", async () => {
-      const mockHandler = vi.fn().mockResolvedValue({});
+      const mockHandler = sinon.stub().mockResolvedValue({});
       render(
         <button type="button" onClick={mockHandler}>
           Async

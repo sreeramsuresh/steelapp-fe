@@ -13,23 +13,24 @@
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { roleService } from "../../services/roleService";
+import sinon from 'sinon';
 
 // Mock the apiClient
-vi.mock("../../services/api", () => ({
+// sinon.stub() // "../../services/api", () => ({
   apiClient: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
+    get: sinon.stub(),
+    post: sinon.stub(),
+    put: sinon.stub(),
+    delete: sinon.stub(),
   },
 }));
 
 // Mock notification service
-vi.mock("../../services/notificationService", () => ({
+// sinon.stub() // "../../services/notificationService", () => ({
   notificationService: {
-    success: vi.fn(),
-    error: vi.fn(),
-    warning: vi.fn(),
+    success: sinon.stub(),
+    error: sinon.stub(),
+    warning: sinon.stub(),
   },
 }));
 
@@ -82,7 +83,7 @@ const mockSystemRoles = [
 
 describe("Role Endpoints - GET /api/roles", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
   });
 
   test("should return all roles (system + custom)", async () => {
@@ -140,7 +141,7 @@ describe("Role Endpoints - GET /api/roles", () => {
 
 describe("Role Endpoints - POST /api/roles (Create)", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
   });
 
   test("should create custom role successfully", async () => {
@@ -309,7 +310,7 @@ describe("Role Endpoints - POST /api/roles (Create)", () => {
 
 describe("Role Endpoints - PUT /api/roles/:id (Update)", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
   });
 
   test("should update custom role successfully", async () => {
@@ -425,7 +426,7 @@ describe("Role Endpoints - PUT /api/roles/:id (Update)", () => {
 
 describe("Role Endpoints - DELETE /api/roles/:id", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
   });
 
   test("should delete custom role successfully", async () => {
@@ -501,7 +502,7 @@ describe("Role Endpoints - DELETE /api/roles/:id", () => {
 
 describe("Role Endpoints - Multi-tenancy", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
   });
 
   test("should scope roles to company when fetching", async () => {
@@ -594,7 +595,7 @@ describe("Role Endpoints - Multi-tenancy", () => {
 
 describe("Role Endpoints - Permission Keys", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
   });
 
   test("should create role with permission keys", async () => {

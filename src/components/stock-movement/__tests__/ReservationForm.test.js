@@ -9,45 +9,46 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import ReservationForm from "../ReservationForm";
+import sinon from 'sinon';
 
 const mockWarehouseService = {
-  getAll: vi.fn(),
+  getAll: sinon.stub(),
 };
 
 const mockProductService = {
-  getProducts: vi.fn(),
+  getProducts: sinon.stub(),
 };
 
 const mockStockMovementService = {
-  getCurrentStock: vi.fn(),
-  createReservation: vi.fn(),
+  getCurrentStock: sinon.stub(),
+  createReservation: sinon.stub(),
 };
 
 const mockBatchReservationService = {
-  getAvailableBatches: vi.fn(),
+  getAvailableBatches: sinon.stub(),
 };
 
-vi.mock("../../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../../services/warehouseService", () => ({
+// sinon.stub() // "../../../services/warehouseService", () => ({
   warehouseService: mockWarehouseService,
 }));
 
-vi.mock("../../../services/dataService", () => ({
+// sinon.stub() // "../../../services/dataService", () => ({
   productService: mockProductService,
 }));
 
-vi.mock("../../../services/stockMovementService", () => ({
+// sinon.stub() // "../../../services/stockMovementService", () => ({
   stockMovementService: mockStockMovementService,
 }));
 
-vi.mock("../../../services/batchReservationService", () => ({
+// sinon.stub() // "../../../services/batchReservationService", () => ({
   batchReservationService: mockBatchReservationService,
 }));
 
-vi.mock("../../../utils/productSsotValidation", () => ({
+// sinon.stub() // "../../../utils/productSsotValidation", () => ({
   validateSsotPattern: (_name) => ({
     isValid: true,
     pattern: "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
@@ -60,9 +61,9 @@ describe("ReservationForm", () => {
   let mockOnSuccess;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockOnClose = vi.fn();
-    mockOnSuccess = vi.fn();
+    sinon.restore();
+    mockOnClose = sinon.stub();
+    mockOnSuccess = sinon.stub();
 
     defaultProps = {
       open: true,

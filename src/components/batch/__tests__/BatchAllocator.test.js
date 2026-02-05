@@ -1,15 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import BatchAllocator from "../BatchAllocator";
+import sinon from 'sinon';
 
 const mockStockBatchService = {
-  listBatches: vi.fn(),
-  allocateBatch: vi.fn(),
-  unallocateBatch: vi.fn(),
-  getBatchDetails: vi.fn(),
+  listBatches: sinon.stub(),
+  allocateBatch: sinon.stub(),
+  unallocateBatch: sinon.stub(),
+  getBatchDetails: sinon.stub(),
 };
 
-vi.mock("../../../services/stockBatchService", () => ({
+// sinon.stub() // "../../../services/stockBatchService", () => ({
   default: mockStockBatchService,
 }));
 
@@ -17,7 +18,7 @@ describe("BatchAllocator", () => {
   const defaultProps = {
     productId: "PROD-001",
     quantity: 100,
-    onAllocate: vi.fn(),
+    onAllocate: sinon.stub(),
   };
 
   const mockBatches = [
@@ -46,7 +47,7 @@ describe("BatchAllocator", () => {
   ];
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
     mockStockBatchService.listBatches.mockResolvedValue(mockBatches);
   });
 

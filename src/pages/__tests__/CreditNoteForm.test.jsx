@@ -17,6 +17,7 @@ import * as companyService from "../../services/companyService";
 import * as creditNoteService from "../../services/creditNoteService";
 import * as invoiceService from "../../services/invoiceService";
 import CreditNoteForm from "../CreditNoteForm";
+import sinon from 'sinon';
 
 // Mock data
 const _mockCreditNote = {
@@ -110,34 +111,34 @@ const mockCompany = {
 };
 
 // Mock services
-vi.mock("../../services/creditNoteService", () => ({
+// sinon.stub() // "../../services/creditNoteService", () => ({
   creditNoteService: {
-    getCreditNote: vi.fn(),
-    getNextCreditNoteNumber: vi.fn(),
-    createCreditNote: vi.fn(),
-    updateCreditNote: vi.fn(),
+    getCreditNote: sinon.stub(),
+    getNextCreditNoteNumber: sinon.stub(),
+    createCreditNote: sinon.stub(),
+    updateCreditNote: sinon.stub(),
   },
 }));
 
-vi.mock("../../services/invoiceService", () => ({
+// sinon.stub() // "../../services/invoiceService", () => ({
   invoiceService: {
-    getInvoice: vi.fn(),
-    searchForCreditNote: vi.fn(),
+    getInvoice: sinon.stub(),
+    searchForCreditNote: sinon.stub(),
   },
 }));
 
-vi.mock("../../services/companyService", () => ({
+// sinon.stub() // "../../services/companyService", () => ({
   companyService: {
-    getCompany: vi.fn(),
+    getCompany: sinon.stub(),
   },
 }));
 
-vi.mock("../../services/notificationService", () => ({
+// sinon.stub() // "../../services/notificationService", () => ({
   notificationService: {
-    success: vi.fn(),
-    error: vi.fn(),
-    warning: vi.fn(),
-    info: vi.fn(),
+    success: sinon.stub(),
+    error: sinon.stub(),
+    warning: sinon.stub(),
+    info: sinon.stub(),
   },
 }));
 
@@ -146,13 +147,13 @@ vi.mock("../../services/notificationService", () => ({
 // Mocking it prevents conflict detection from working
 
 // Mock router hooks - hoist for vi.mock
-const { mockNavigate, mockUseParams, mockUseSearchParams } = vi.hoisted(() => ({
-  mockNavigate: vi.fn(),
+const { mockNavigate, mockUseParams, mockUseSearchParams } = // Hoisted: {
+  mockNavigate: sinon.stub(),
   mockUseParams: vi.fn(() => ({ id: undefined })),
-  mockUseSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]),
+  mockUseSearchParams: vi.fn(() => [new URLSearchParams(), sinon.stub()]),
 }));
 
-vi.mock("react-router-dom", async () => {
+// sinon.stub() // "react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
     ...actual,
@@ -190,7 +191,7 @@ describe("Credit Note Form - Date Format & Auto-Save Tests", () => {
 
     // Reset router mocks to defaults
     mockUseParams.mockReturnValue({ id: undefined });
-    mockUseSearchParams.mockReturnValue([new URLSearchParams(), vi.fn()]);
+    mockUseSearchParams.mockReturnValue([new URLSearchParams(), sinon.stub()]);
 
     // No need to reset useCreditNoteDrafts mocks - we're using the real implementation
 
@@ -206,7 +207,7 @@ describe("Credit Note Form - Date Format & Auto-Save Tests", () => {
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
     localStorageMock = {};
   });
 
@@ -241,7 +242,7 @@ describe("Credit Note Form - Date Format & Auto-Save Tests", () => {
       localStorageMock.credit_note_drafts = JSON.stringify(draftData);
 
       // Mock search params to load invoice
-      mockUseSearchParams.mockReturnValue([new URLSearchParams("?invoiceId=337"), vi.fn()]);
+      mockUseSearchParams.mockReturnValue([new URLSearchParams("?invoiceId=337"), sinon.stub()]);
 
       invoiceService.invoiceService.getInvoice.mockResolvedValue(mockInvoice);
 
@@ -305,7 +306,7 @@ describe("Credit Note Form - Date Format & Auto-Save Tests", () => {
 
       localStorageMock.credit_note_drafts = JSON.stringify(existingDraft);
 
-      mockUseSearchParams.mockReturnValue([new URLSearchParams("?invoiceId=337"), vi.fn()]);
+      mockUseSearchParams.mockReturnValue([new URLSearchParams("?invoiceId=337"), sinon.stub()]);
 
       invoiceService.invoiceService.getInvoice.mockResolvedValue(mockInvoice);
 

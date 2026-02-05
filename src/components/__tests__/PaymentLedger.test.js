@@ -16,18 +16,19 @@ import { screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../test/component-setup";
 import PaymentLedger from "../PaymentLedger";
+import sinon from 'sinon';
 
 // Mock ThemeContext
-vi.mock("../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
 // Mock utilities
-vi.mock("../../utils/invoiceUtils", () => ({
+// sinon.stub() // "../../utils/invoiceUtils", () => ({
   formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
 }));
 
-vi.mock("../../utils/paymentUtils", () => ({
+// sinon.stub() // "../../utils/paymentUtils", () => ({
   calculateBalanceDue: (total, payments) => {
     const paid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
     return Math.max(0, total - paid);
@@ -44,13 +45,13 @@ vi.mock("../../utils/paymentUtils", () => ({
 }));
 
 // Mock receipt generator
-vi.mock("../../utils/paymentReceiptGenerator", () => ({
-  generatePaymentReceipt: vi.fn().mockResolvedValue({ success: true }),
-  printPaymentReceipt: vi.fn().mockResolvedValue({ success: true }),
+// sinon.stub() // "../../utils/paymentReceiptGenerator", () => ({
+  generatePaymentReceipt: sinon.stub().mockResolvedValue({ success: true }),
+  printPaymentReceipt: sinon.stub().mockResolvedValue({ success: true }),
 }));
 
 // Mock ConfirmDialog
-vi.mock("../ConfirmDialog", () => ({
+// sinon.stub() // "../ConfirmDialog", () => ({
   default: ({ open, title, message, onConfirm, onCancel, variant: _variant }) => {
     if (!open) return null;
     return (
@@ -76,11 +77,11 @@ describe("PaymentLedger Component", () => {
   let mockPayments;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
 
-    mockOnAddPayment = vi.fn();
-    mockOnEditPayment = vi.fn();
-    mockOnDeletePayment = vi.fn();
+    mockOnAddPayment = sinon.stub();
+    mockOnEditPayment = sinon.stub();
+    mockOnDeletePayment = sinon.stub();
 
     mockPayments = [
       {

@@ -9,21 +9,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import DeliveryNotePreview from "../DeliveryNotePreview";
+import sinon from 'sinon';
 
-vi.mock("../../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../../constants/defaultTemplateSettings", () => ({
+// sinon.stub() // "../../../constants/defaultTemplateSettings", () => ({
   getDocumentTemplateColor: () => "#1e40af",
 }));
 
-vi.mock("../../../utils/invoiceUtils", () => ({
+// sinon.stub() // "../../../utils/invoiceUtils", () => ({
   toUAEDateProfessional: (_date) => "15 January 2024",
   TIMEZONE_DISCLAIMER: "Times shown in UAE timezone",
 }));
 
-vi.mock("../../../utils/recordUtils", () => ({
+// sinon.stub() // "../../../utils/recordUtils", () => ({
   validateDeliveryNoteForDownload: () => ({ isValid: true, warnings: [] }),
 }));
 
@@ -32,8 +33,8 @@ describe("DeliveryNotePreview", () => {
   let mockOnClose;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockOnClose = vi.fn();
+    sinon.restore();
+    mockOnClose = sinon.stub();
 
     defaultProps = {
       deliveryNote: {

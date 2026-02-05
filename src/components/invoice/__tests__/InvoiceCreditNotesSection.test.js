@@ -9,12 +9,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import InvoiceCreditNotesSection from "../InvoiceCreditNotesSection";
+import sinon from 'sinon';
 
 // Mock the API service
-vi.mock("../../../services/api", () => ({
+// sinon.stub() // "../../../services/api", () => ({
   default: {
-    post: vi.fn(),
-    get: vi.fn(),
+    post: sinon.stub(),
+    get: sinon.stub(),
   },
 }));
 
@@ -25,7 +26,7 @@ describe("InvoiceCreditNotesSection", () => {
   let mockCreditNotes;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
 
     mockCreditNotes = [
       {
@@ -50,7 +51,7 @@ describe("InvoiceCreditNotesSection", () => {
       invoiceId: 123,
       invoiceAmount: 5000,
       companyId: "company-123",
-      onCreditNoteAdded: vi.fn(),
+      onCreditNoteAdded: sinon.stub(),
     };
 
     api.get.mockResolvedValue({ creditNotes: mockCreditNotes });

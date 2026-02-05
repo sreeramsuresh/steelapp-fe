@@ -1,19 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import AccountStatements from "../AccountStatements";
+import sinon from 'sinon';
 
 const mockAccountService = {
-  getStatement: vi.fn(),
-  listTransactions: vi.fn(),
+  getStatement: sinon.stub(),
+  listTransactions: sinon.stub(),
 };
 
-vi.mock("../../../services/accountService", () => ({
+// sinon.stub() // "../../../services/accountService", () => ({
   default: mockAccountService,
 }));
 
 describe("AccountStatements", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    sinon.restore();
   });
 
   describe("Rendering", () => {

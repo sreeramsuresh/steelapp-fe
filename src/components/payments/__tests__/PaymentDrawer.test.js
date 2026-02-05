@@ -9,8 +9,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import PaymentDrawer from "../PaymentDrawer";
+import sinon from 'sinon';
 
-vi.mock("../AddPaymentForm", () => ({
+// sinon.stub() // "../AddPaymentForm", () => ({
   default: ({ onSave, onCancel: _onCancel }) => (
     <div data-testid="add-payment-form">
       <button type="button" onClick={() => onSave({ amount: 1000 })}>
@@ -23,7 +24,7 @@ vi.mock("../AddPaymentForm", () => ({
   ),
 }));
 
-vi.mock("../../../utils/invoiceUtils", () => ({
+// sinon.stub() // "../../../utils/invoiceUtils", () => ({
   formatCurrency: (value) => `AED ${value?.toFixed(2) || "0.00"}`,
   formatDate: (_date) => "2024-01-15",
 }));
@@ -37,12 +38,12 @@ describe("PaymentDrawer", () => {
   let mockOnVoidPayment;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockOnClose = vi.fn();
-    mockOnAddPayment = vi.fn();
-    mockOnPrintReceipt = vi.fn();
-    mockOnDownloadReceipt = vi.fn();
-    mockOnVoidPayment = vi.fn();
+    sinon.restore();
+    mockOnClose = sinon.stub();
+    mockOnAddPayment = sinon.stub();
+    mockOnPrintReceipt = sinon.stub();
+    mockOnDownloadReceipt = sinon.stub();
+    mockOnVoidPayment = sinon.stub();
 
     defaultProps = {
       invoice: {

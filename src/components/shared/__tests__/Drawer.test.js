@@ -13,6 +13,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
+import sinon from 'sinon';
 
 // Mock Drawer component
 const Drawer = ({
@@ -91,7 +92,7 @@ describe("Drawer Component", () => {
   let defaultProps;
 
   beforeEach(() => {
-    mockOnClose = vi.fn();
+    mockOnClose = sinon.stub();
     defaultProps = {
       isOpen: true,
       onClose: mockOnClose,
@@ -197,7 +198,7 @@ describe("Drawer Component", () => {
 
     it("should prevent event propagation from drawer to overlay", async () => {
       const user = setupUser();
-      const handleOuterClick = vi.fn();
+      const handleOuterClick = sinon.stub();
       const { getByTestId } = renderWithProviders(
         // biome-ignore lint/a11y/useSemanticElements: Test wrapper div - intentional for testing event propagation
         <div

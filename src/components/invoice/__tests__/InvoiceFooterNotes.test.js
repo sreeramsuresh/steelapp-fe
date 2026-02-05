@@ -9,8 +9,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 import InvoiceFooterNotes from "../InvoiceFooterNotes";
+import sinon from 'sinon';
 
-vi.mock("../../contexts/ThemeContext", () => ({
+// sinon.stub() // "../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
@@ -19,8 +20,8 @@ describe("InvoiceFooterNotes", () => {
   let defaultProps;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockOnNotesChange = vi.fn();
+    sinon.restore();
+    mockOnNotesChange = sinon.stub();
 
     defaultProps = {
       notes: "Please remit payment within 30 days of invoice date.",

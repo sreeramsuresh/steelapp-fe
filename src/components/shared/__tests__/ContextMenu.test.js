@@ -14,6 +14,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
+import sinon from 'sinon';
 
 // Mock ContextMenu component
 const ContextMenu = ({ children, items = [], onItemSelect, onShow = null, onHide = null }) => {
@@ -94,9 +95,9 @@ describe("ContextMenu Component", () => {
   let defaultItems;
 
   beforeEach(() => {
-    mockOnItemSelect = vi.fn();
-    mockOnShow = vi.fn();
-    mockOnHide = vi.fn();
+    mockOnItemSelect = sinon.stub();
+    mockOnShow = sinon.stub();
+    mockOnHide = sinon.stub();
     defaultItems = [
       { label: "Copy", icon: "📋" },
       { label: "Paste", icon: "📌" },
