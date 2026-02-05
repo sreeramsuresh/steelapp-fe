@@ -792,7 +792,9 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               path="products"
               element={
                 <ProtectedRoute user={user} requiredPermission="products.read">
-                  <SteelProducts />
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <SteelProducts />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />
@@ -943,7 +945,9 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               path="base-prices"
               element={
                 <ProtectedRoute user={user} requiredPermission="products.update">
-                  <BasePricesPage />
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <BasePricesPage />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />

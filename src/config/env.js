@@ -4,7 +4,7 @@
  */
 
 // In test environments, this will be set by init.mjs
-const envConfig = globalThis.__VITE_ENV__ || (typeof import.meta !== 'undefined' && import.meta?.env) || {}
+const envConfig = globalThis.__VITE_ENV__ || (typeof import.meta !== "undefined" && import.meta?.env) || {};
 
 const env = {
   DEV: envConfig.DEV ?? false,

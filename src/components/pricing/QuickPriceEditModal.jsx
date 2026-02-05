@@ -2,7 +2,7 @@ import { X } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { notificationService } from "../../services/notificationService";
-import { pricelistService } from "../../services/pricelistService";
+import pricelistService from "../../services/pricelistService";
 
 /**
  * QuickPriceEditModal - Dialog to quickly update product base price

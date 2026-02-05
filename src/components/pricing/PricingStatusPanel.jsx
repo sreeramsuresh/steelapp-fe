@@ -1,7 +1,7 @@
 import { AlertTriangle, CheckCircle, DollarSign, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
-import { pricelistService } from "../../services/pricelistService";
+import pricelistService from "../../services/pricelistService";
 
 /**
  * PricingStatusPanel - Visual indicator showing if product has base pricing
