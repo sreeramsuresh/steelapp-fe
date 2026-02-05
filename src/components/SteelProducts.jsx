@@ -1763,7 +1763,7 @@ const SteelProducts = () => {
     selectedProduct?.mill_name,
     selectedProduct?.millName,
     selectedProduct?.regenerateName,
-    selectedProduct.displayName,
+    selectedProduct?.displayName,
     selectedProduct,
   ]);
 
