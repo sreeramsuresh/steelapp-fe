@@ -25,7 +25,7 @@ describe("templateService", () => {
         { id: 2, name: "Delivery Note Default", type: "delivery", status: "active" },
       ];
 
-      apiClient.get.mockResolvedValueOnce(mockTemplates);
+      sinon.stub(apiClient, "get").resolves(mockTemplates);
 
       const result = await templateService.getTemplates();
 
@@ -34,7 +34,7 @@ describe("templateService", () => {
     });
 
     test("should handle empty template list", async () => {
-      apiClient.get.mockResolvedValueOnce([]);
+      sinon.stub(apiClient, "get").resolves([]);
 
       const result = await templateService.getTemplates();
 
@@ -43,7 +43,7 @@ describe("templateService", () => {
 
     test("should handle API errors", async () => {
       const error = new Error("Network error");
-      apiClient.get.mockRejectedValueOnce(error);
+      sinon.stub(apiClient, "get").rejects(error);
 
       await assert.rejects(() => templateService.getTemplates(), Error);
     });
@@ -59,7 +59,7 @@ describe("templateService", () => {
         content: "<html>...</html>",
       };
 
-      apiClient.get.mockResolvedValueOnce(mockTemplate);
+      sinon.stub(apiClient, "get").resolves(mockTemplate);
 
       const result = await templateService.getTemplate(1);
 
@@ -69,7 +69,7 @@ describe("templateService", () => {
 
     test("should handle template not found", async () => {
       const error = new Error("Not found");
-      apiClient.get.mockRejectedValueOnce(error);
+      sinon.stub(apiClient, "get").rejects(error);
 
       await assert.rejects(() => templateService.getTemplate(999), Error);
     });
@@ -85,7 +85,7 @@ describe("templateService", () => {
 
       const mockResponse = { id: 10, ...templateData, status: "active" };
 
-      apiClient.post.mockResolvedValueOnce(mockResponse);
+      sinon.stub(apiClient, "post").resolves(mockResponse);
 
       const result = await templateService.createTemplate(templateData);
 
@@ -95,7 +95,7 @@ describe("templateService", () => {
 
     test("should handle creation errors", async () => {
       const error = new Error("Invalid template");
-      apiClient.post.mockRejectedValueOnce(error);
+      sinon.stub(apiClient, "post").rejects(error);
 
       await assert.rejects(() => templateService.createTemplate({}), Error);
     });
@@ -149,7 +149,7 @@ describe("templateService", () => {
   describe("Error Handling", () => {
     test("should propagate all API errors", async () => {
       const error = new Error("Server error");
-      apiClient.get.mockRejectedValueOnce(error);
+      sinon.stub(apiClient, "get").rejects(error);
 
       await assert.rejects(() => templateService.getTemplates(), Error);
     });
