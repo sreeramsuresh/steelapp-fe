@@ -60,7 +60,7 @@ MetricValue: (
 {
   value;
 }
-</div>, WidgetListItem;
+</div>, WidgetListItem
 : (
 {
   title;

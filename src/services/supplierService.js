@@ -1,4 +1,5 @@
 import { apiClient } from "./api.js";
+import env from "../config/env.js";
 
 /**
  * Transform supplier data from server (snake_case) to frontend (camelCase)
@@ -115,7 +116,7 @@ const ls = {
 export const supplierService = {
   async getSuppliers(params = {}) {
     // Safeguard: some backends don't expose /suppliers. Avoid noisy 404 logs.
-    const enabled = (import.meta.env.VITE_ENABLE_SUPPLIERS || "").toString().toLowerCase() === "true";
+    const enabled = (env.VITE_ENABLE_SUPPLIERS || "").toString().toLowerCase() === "true";
     if (!enabled) {
       // Use local storage cache only
       return { suppliers: ls.all() };

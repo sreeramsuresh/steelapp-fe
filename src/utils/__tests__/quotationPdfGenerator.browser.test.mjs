@@ -89,7 +89,7 @@ describe("generateQuotationPDF (Layer 2 - Browser Tests)", () => {
 
       const result = await generateQuotationPDF(quotation, company);
 
-      expect(result).toBe(true);
+      assert.strictEqual(result,true);
     });
     */
 
@@ -198,7 +198,7 @@ describe("generateQuotationPDF (Layer 2 - Browser Tests)", () => {
 
       const result = await generateQuotationPDF(quotation, company);
 
-      expect(result).toBe(true);
+      assert.strictEqual(result,true);
     });
     */
 
@@ -212,8 +212,8 @@ describe("generateQuotationPDF (Layer 2 - Browser Tests)", () => {
       const result1 = await generateQuotationPDF(q1, {});
       const result2 = await generateQuotationPDF(q2, {});
 
-      expect(result1).toBe(true);
-      expect(result2).toBe(true);
+      assert.strictEqual(result1,true);
+      assert.strictEqual(result2,true);
 
       expect(fs.existsSync("Q-MULTI-001.pdf")).toBe(true);
       expect(fs.existsSync("Q-MULTI-002.pdf")).toBe(true);

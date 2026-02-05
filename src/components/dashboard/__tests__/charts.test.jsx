@@ -28,7 +28,7 @@ LineChart: (
 {
   children;
 }
-</div>, AreaChart;
+</div>, AreaChart
 : (
 {
   children;
@@ -46,7 +46,7 @@ PieChart: (
 {
   children;
 }
-</div>, RadarChart;
+</div>, RadarChart
 : (
 {
   children;
@@ -82,7 +82,7 @@ default: (
 {
   JSON.stringify(option);
 }
-/,;>;
+/,;;>;
 }))
 
 import { FunnelChartWrapper, GaugeChartWrapper, TreemapChartWrapper } from "../charts/EChartsWrapper";

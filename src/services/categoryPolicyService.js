@@ -11,9 +11,10 @@
  */
 
 import { api } from "./api.js";
+import env from "../config/env.js";
 
 // Dev-only warning for deprecated _companyId parameter usage
-const IS_DEV = import.meta.env?.DEV || process.env.NODE_ENV === "development";
+const IS_DEV = env.DEV || process.env.NODE_ENV === "development";
 
 function _warnDeprecatedCompanyId(methodName, companyId) {
   if (IS_DEV && companyId !== undefined && companyId !== null) {

@@ -1,9 +1,9 @@
+import '../../__tests__/init.mjs';
+
 /**
  * Supplier Service Unit Tests
  * ✅ Tests supplier CRUD operations
  * ✅ Tests data transformation (snake_case ↔ camelCase)
-import '../../__tests__/init.mjs';
-
  * ✅ Tests multi-tenancy isolation
  * ✅ Tests localStorage fallback for offline support
  * ✅ 100% coverage target for supplierService.js
@@ -113,7 +113,7 @@ describe("supplierService", () => {
 
       const result = await supplierService.getSupplier(999);
 
-      assert.ok(result).toBeUndefined();
+      assert.strictEqual(result, undefined);
     });
   });
 
@@ -164,7 +164,7 @@ describe("supplierService", () => {
       const result = await supplierService.createSupplier(newSupplier);
 
       assert.ok(result.id !== undefined);
-      assert.ok(result.id).toMatch(/^sup_\d+$/);
+      assert.match(result.id, /^sup_\d+$/);
     });
   });
 
@@ -292,13 +292,13 @@ describe("supplierService", () => {
     test("should return null for null input", () => {
       const result = transformSupplierFromServer(null);
 
-      assert.ok(result).toBeNull();
+      assert.strictEqual(result, null);
     });
 
     test("should return null for undefined input", () => {
       const result = transformSupplierFromServer(undefined);
 
-      assert.ok(result).toBeNull();
+      assert.strictEqual(result, null);
     });
 
     test("should parse financial fields as numbers", () => {
@@ -337,7 +337,7 @@ describe("supplierService", () => {
 
       const result = await supplierService.getSupplier(1);
 
-      assert.ok(result).toBeUndefined();
+      assert.strictEqual(result, undefined);
     });
 
     test("should handle network errors in createSupplier with fallback", async () => {

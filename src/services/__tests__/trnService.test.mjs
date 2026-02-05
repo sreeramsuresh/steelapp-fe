@@ -15,34 +15,34 @@ describe("trnService", () => {
   describe("formatForDisplay", () => {
     test("should format 15-digit TRN with dashes", () => {
       const result = trnService.formatForDisplay("100123456789123");
-      assert.ok(result);
+      assert.strictEqual(result, "100-1234-5678-9123");
     });
 
     test("should handle TRN with spaces and dashes", () => {
       const result = trnService.formatForDisplay("100 1234 5678 9123");
-      assert.ok(result);
+      assert.strictEqual(result, "100-1234-5678-9123");
     });
 
     test("should return original if invalid length", () => {
       const result = trnService.formatForDisplay("12345");
-      assert.ok(result);
+      assert.strictEqual(result, "12345");
     });
 
     test("should handle empty TRN", () => {
       const result = trnService.formatForDisplay("");
-      assert.ok(result);
+      assert.strictEqual(result, "");
     });
   });
 
   describe("normalizeInput", () => {
     test("should remove spaces and dashes", () => {
       const result = trnService.normalizeInput("100-1234-5678-9123");
-      assert.ok(result);
+      assert.strictEqual(result, "100123456789123");
     });
 
     test("should handle empty input", () => {
       const result = trnService.normalizeInput("");
-      assert.ok(result);
+      assert.strictEqual(result, "");
     });
   });
 
@@ -56,7 +56,7 @@ describe("trnService", () => {
 
     test("should limit to 15 digits", () => {
       const result = trnService.handleInput("1001234567891231234");
-      assert.ok(result.value.length).toBeLessThanOrEqual(15);
+      assert.ok(result.value.length <= 15);
     });
   });
 
@@ -69,7 +69,7 @@ describe("trnService", () => {
 
     test("should reject invalid UAE TRN", () => {
       const result = trnService.validateFormat("INVALID", "AE");
-      assert.ok(result.valid);
+      assert.strictEqual(result.valid, false);
       assert.ok(result.error);
     });
 
@@ -85,7 +85,7 @@ describe("trnService", () => {
 
     test("should return error for unknown country", () => {
       const result = trnService.validateFormat("123", "XX");
-      assert.ok(result.valid);
+      assert.strictEqual(result.valid, false);
       assert.ok(result.error);
     });
   });

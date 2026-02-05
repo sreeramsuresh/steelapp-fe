@@ -52,7 +52,7 @@ Table: (
 {
   children;
 }
-</table>, TableHeader;
+</table>, TableHeader
 : (
 {
   children;
@@ -70,7 +70,7 @@ TableBody: (
 {
   children;
 }
-</tbody>, TableRow;
+</tbody>, TableRow
 : (
 {
   children;
@@ -88,7 +88,7 @@ TableHead: (
 {
   children;
 }
-</th>, TableCell;
+</th>, TableCell
 : (
 {
   children;

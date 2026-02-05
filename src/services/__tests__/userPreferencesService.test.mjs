@@ -17,7 +17,7 @@ describe("userPreferencesService", () => {
   describe("getCurrentUser", () => {
     test("should return null when no user in localStorage", () => {
       const user = userPreferencesService.getCurrentUser();
-      assert.ok(user).toBeNull();
+      assert.strictEqual(user, null);
     });
 
     test("should return parsed user from localStorage", () => {
@@ -32,7 +32,7 @@ describe("userPreferencesService", () => {
       localStorage.setItem("currentUser", "invalid-json");
 
       const user = userPreferencesService.getCurrentUser();
-      assert.ok(user).toBeNull();
+      assert.strictEqual(user, null);
     });
   });
 
@@ -105,7 +105,7 @@ describe("userPreferencesService", () => {
   describe("getHomeSectionOrder", () => {
     test("should return null when no saved order", () => {
       const order = userPreferencesService.getHomeSectionOrder();
-      assert.ok(order).toBeNull();
+      assert.strictEqual(order, null);
     });
 
     test("should return parsed order from localStorage", () => {
@@ -120,7 +120,7 @@ describe("userPreferencesService", () => {
       localStorage.setItem("steelapp_home_section_order", "invalid-json");
 
       const order = userPreferencesService.getHomeSectionOrder();
-      assert.ok(order).toBeNull();
+      assert.strictEqual(order, null);
     });
   });
 

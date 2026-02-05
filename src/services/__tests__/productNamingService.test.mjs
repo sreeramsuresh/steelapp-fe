@@ -217,7 +217,7 @@ describe("productNamingService", () => {
         length: "2440mm",
       });
 
-      assert.ok(result.uniqueName).toMatch(/^SS-[A-Z0-9]+-SHEET-[A-Z0-9]+-\d+mm-[\d.]+mm-\d+mm$/);
+      assert.match(result.uniqueName,/^SS-[A-Z0-9]+-SHEET-[A-Z0-9]+-\d+mm-[\d.]+mm-\d+mm$/);
     });
   });
 
@@ -384,7 +384,7 @@ describe("productNamingService", () => {
         length: "2440mm",
       });
 
-      assert.ok(result.uniqueName).toMatch(/\d+mm/);
+      assert.match(result.uniqueName,/\d+mm/);
     });
 
     test("should support imperial dimensions", async () => {

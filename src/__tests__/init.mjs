@@ -28,12 +28,13 @@ globalThis.__VITE_ENV__ = {
 // Also try to set on this module's import.meta
 try {
   Object.defineProperty(import.meta, 'env', {
-    value: globalThis.__VITE_ENV__,
-    writable: true,
+    get() {
+      return globalThis.__VITE_ENV__;
+    },
     configurable: true,
   });
 } catch (e) {
-  // Ignore if can't set
+  // Ignore if can't set - will fallback to globalThis.__VITE_ENV__
 }
 
 // Polyfill global browser objects for Node environment

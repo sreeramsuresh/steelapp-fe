@@ -199,7 +199,7 @@ describe("payablesService", () => {
 
         assert.ok(result.payments !== undefined);
         const stored = localStorage.getItem("payables:inv:payments");
-        assert.ok(stored).toBeTruthy();
+        assert.ok(stored);
       });
 
       test("should handle payment with notes and attachment", async () => {

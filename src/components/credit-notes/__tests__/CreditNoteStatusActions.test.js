@@ -49,7 +49,7 @@ default: (
 {
   message;
 }
-</p>) < button;
+</p>) < button
 type = "button";
 onClick = { onConfirm } > Confirm;
 </button>

@@ -148,7 +148,7 @@ describe("creditNoteService", () => {
       const result = await creditNoteService.getAllCreditNotes();
 
       assert.ok(result.data);
-      assert.ok(result.pagination).toBeNull();
+      assert.strictEqual(result.pagination, null);
     });
 
     test("should transform snake_case to camelCase", async () => {
@@ -221,7 +221,7 @@ describe("creditNoteService", () => {
 
       const result = await creditNoteService.getCreditNote(999);
 
-      assert.ok(result).toBeNull();
+      assert.strictEqual(result, null);
     });
 
     test("should transform returned items", async () => {
@@ -545,7 +545,7 @@ describe("creditNoteService", () => {
 
       const result = await creditNoteService.getCreditNote(1);
 
-      assert.ok(result.customerId).toBeNull();
+      assert.strictEqual(result.customerId, null);
       assert.ok(result.notes);
     });
 

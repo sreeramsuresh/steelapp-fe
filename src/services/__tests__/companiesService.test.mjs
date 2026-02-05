@@ -532,7 +532,7 @@ describe("companiesService", () => {
 
       const result = await companyService.getCompany();
 
-      assert.ok(result).toBeUndefined();
+      assert.strictEqual(result, undefined);
     });
 
     test("should retry failed file uploads", async () => {

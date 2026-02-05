@@ -79,7 +79,7 @@ describe("pricelistService", () => {
 
       const result = await pricelistService.getById(999);
 
-      assert.ok(result).toBeNull();
+      assert.strictEqual(result, null);
     });
   });
 

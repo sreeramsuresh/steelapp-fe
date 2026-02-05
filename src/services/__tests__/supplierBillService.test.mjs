@@ -103,7 +103,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.getAll();
 
       assert.ok(result.data);
-      assert.ok(result.pagination).toBeNull();
+      assert.strictEqual(result.pagination, null);
     });
 
     test("should handle items array response format", async () => {
@@ -171,7 +171,7 @@ describe("supplierBillService", () => {
 
       const result = await supplierBillService.getById(1);
 
-      assert.ok(result).toBeNull();
+      assert.strictEqual(result, null);
     });
   });
 

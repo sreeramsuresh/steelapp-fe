@@ -75,7 +75,7 @@ Card: (
 {
   children;
 }
-</div>, CardHeader;
+</div>, CardHeader
 : (
 {
   children;
@@ -93,7 +93,7 @@ CardTitle: (
 {
   children;
 }
-</h2>, CardDescription;
+</h2>, CardDescription
 : (
 {
   children;
@@ -124,7 +124,7 @@ Dialog: (
   children;
 }
 </div> : null),
-DialogContent;
+DialogContent
 : (
 {
   children;
@@ -142,7 +142,7 @@ DialogHeader: (
 {
   children;
 }
-</div>, DialogTitle;
+</div>, DialogTitle
 : (
 {
   children;

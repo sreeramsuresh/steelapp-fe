@@ -22,6 +22,7 @@
 import { findSnakeCaseKeys, toCamelCaseDeep, toSnakeCaseDeep } from "../utils/caseConverters";
 import { generateRequestId } from "../utils/requestId";
 import api from "./axiosApi";
+import env from "../config/env.js";
 
 /**
  * Import contract validation library
@@ -29,7 +30,7 @@ import api from "./axiosApi";
  * Zero overhead in production
  */
 let contracts = null;
-if (import.meta.env.DEV) {
+if (env.DEV) {
   try {
     contracts = require("@steelapp/contracts");
   } catch (_e) {
@@ -251,7 +252,7 @@ function mapHttpStatusToErrorCode(status) {
  * @param {object} data - Request data
  */
 function devValidateRequest(method, url, data) {
-  if (import.meta.env.PROD || !data) return;
+  if (env.PROD || !data) return;
 
   const snakeCaseKeys = findSnakeCaseKeys(data);
   if (snakeCaseKeys.length > 0) {
@@ -273,7 +274,7 @@ function devValidateRequest(method, url, data) {
  * @returns {Object} { valid: boolean, errors?: Array }
  */
 function validateRequestContract(method, url, data) {
-  if (!contracts || import.meta.env.PROD) return { valid: true };
+  if (!contracts || env.PROD) return { valid: true };
 
   const routeKey = `${method.toUpperCase()} ${url}`;
   const route = contracts.routes?.[routeKey];
@@ -306,7 +307,7 @@ function validateRequestContract(method, url, data) {
  * @returns {Object} { valid: boolean, errors?: Array, leakage?: Array }
  */
 function validateResponseContract(method, url, data) {
-  if (!contracts || import.meta.env.PROD) return { valid: true };
+  if (!contracts || env.PROD) return { valid: true };
 
   const routeKey = `${method.toUpperCase()} ${url}`;
   const route = contracts.routes?.[routeKey];
@@ -358,14 +359,14 @@ export async function apiRequest(method, url, data = null, options = {}) {
   devValidateRequest(method, url, data);
 
   // Contract validation: validate request against schema (camelCase)
-  if (data && import.meta.env.DEV) {
+  if (data && env.DEV) {
     const validation = validateRequestContract(method, url, data);
     if (!validation.valid) {
       const errorMsg = `[Contract Guard] Request validation failed for ${validation.routeKey}: ${validation.errors.map((e) => `${e.path.join(".")} - ${e.message}`).join("; ")}`;
       console.error(errorMsg);
 
       // Throw error if strict mode enabled
-      if (import.meta.env.VITE_CONTRACT_STRICT === "true") {
+      if (env.VITE_CONTRACT_STRICT === "true") {
         throw new ApiError(
           options.requestId || generateRequestId(),
           ERROR_CODES.INVALID_ARGUMENT,
@@ -421,14 +422,14 @@ export async function apiRequest(method, url, data = null, options = {}) {
   }
 
   // Contract validation: validate response against schema (snake_case from server)
-  if (import.meta.env.DEV) {
+  if (env.DEV) {
     const validation = validateResponseContract(method, url, response.data);
     if (!validation.valid) {
       const errorMsg = `[Contract Guard] Response validation failed for ${validation.routeKey}: ${validation.errors.map((e) => `${e.path.join(".")} - ${e.message}`).join("; ")}`;
       console.error(errorMsg);
 
       // Throw error if strict mode enabled
-      if (import.meta.env.VITE_CONTRACT_STRICT === "true") {
+      if (env.VITE_CONTRACT_STRICT === "true") {
         throw new ApiError(
           requestId,
           ERROR_CODES.INVALID_ARGUMENT,

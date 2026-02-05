@@ -429,7 +429,7 @@ describe("financialReportsService", () => {
     test("should format date in AE locale", () => {
       const formatted = financialReportsService.formatDate("2024-01-15");
 
-      assert.ok(formatted).toMatch(/\d{2}\/\d{2}\/\d{4}/);
+      assert.match(formatted,/\d{2}\/\d{2}\/\d{4}/);
     });
 
     test("should handle null/empty date", () => {

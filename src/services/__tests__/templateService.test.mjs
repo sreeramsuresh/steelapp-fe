@@ -110,7 +110,7 @@ describe("templateService", () => {
 
       const mockResponse = { id: 1, ...updateData, status: "active", type: "invoice" };
 
-      apiClient.put.mockResolvedValueOnce(mockResponse);
+      sinon.stub(apiClient, "put").resolves(mockResponse);
 
       const result = await templateService.updateTemplate(1, updateData);
 
@@ -120,7 +120,7 @@ describe("templateService", () => {
 
     test("should handle update errors", async () => {
       const error = new Error("Template in use");
-      apiClient.put.mockRejectedValueOnce(error);
+      sinon.stub(apiClient, "put").rejects(error);
 
       await assert.rejects(() => templateService.updateTemplate(1, {}), Error);
     });
@@ -130,7 +130,7 @@ describe("templateService", () => {
     test("should delete template", async () => {
       const mockResponse = { id: 1, deleted: true };
 
-      apiClient.delete.mockResolvedValueOnce(mockResponse);
+      sinon.stub(apiClient, "delete").resolves(mockResponse);
 
       const result = await templateService.deleteTemplate(1);
 
@@ -140,7 +140,7 @@ describe("templateService", () => {
 
     test("should handle deletion errors", async () => {
       const error = new Error("Cannot delete default template");
-      apiClient.delete.mockRejectedValueOnce(error);
+      sinon.stub(apiClient, "delete").rejects(error);
 
       await assert.rejects(() => templateService.deleteTemplate(1), Error);
     });

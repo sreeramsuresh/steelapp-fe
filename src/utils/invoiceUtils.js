@@ -8,6 +8,7 @@ import {
   toUAEPaymentDateTime,
   toUAETime,
 } from "./timezone.js";
+import env from "../config/env.js";
 
 /**
  * Calculate invoice line item amount based on UAE stainless steel trading conventions.
@@ -668,7 +669,7 @@ export const formatNumber = (value, fractionDigits = 2) => {
  * @returns {Object} { logoUrl, sealUrl }
  */
 export const getCompanyImages = (company) => {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
+  const baseUrl = env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
 
   // Get logo URL - prioritize pdf_logo_url, fallback to logo_url
   let logoUrl = null;
