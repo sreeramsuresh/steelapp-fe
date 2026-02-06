@@ -6,11 +6,11 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleDollarSign,
+  Copy,
   Download,
   Edit,
   Eye,
   Lock,
-  Copy,
   MoreVertical,
   Phone,
   Plus,
@@ -824,7 +824,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const validateInvoiceForDownload = (invoice) => {
     const hasCustomer = invoice.customer?.name && invoice.customer.name.trim() !== "";
     // In list view, items array may be empty but itemCount tells us items exist in DB
-    const hasItems = (invoice.items && invoice.items.length > 0) || (invoice.itemCount > 0);
+    const hasItems = (invoice.items && invoice.items.length > 0) || invoice.itemCount > 0;
     const hasValidItems =
       invoice.items && invoice.items.length > 0
         ? invoice.items.every((item) => item.name && item.name.trim() !== "" && item.quantity > 0 && item.rate > 0)

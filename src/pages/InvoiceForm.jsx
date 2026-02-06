@@ -5390,36 +5390,36 @@ const InvoiceForm = ({ onSave }) => {
                                                 return stockQty > 0 || String(wh.id) === String(invoice.warehouseId);
                                               })
                                               .map((wh) => {
-                                              // Get real stock from productBatchData
-                                              const stockByWarehouse =
-                                                productBatchData[item.productId]?.stockByWarehouse || {};
-                                              // CRITICAL: Normalize wh.id to string to match stockByWarehouse keys
-                                              const stockQty = stockByWarehouse[String(wh.id)] || 0;
-                                              const hasStock = stockQty > 0;
-                                              const isLoading = item.productId && !productBatchData[item.productId];
-                                              return (
-                                                <span
-                                                  key={wh.id}
-                                                  data-testid={`stock-warehouse-${wh.id}`}
-                                                  className={`text-xs font-medium ${
-                                                    hasStock ? "text-gray-700" : "text-red-500"
-                                                  }`}
-                                                >
-                                                  {wh.name || wh.code}{" "}
+                                                // Get real stock from productBatchData
+                                                const stockByWarehouse =
+                                                  productBatchData[item.productId]?.stockByWarehouse || {};
+                                                // CRITICAL: Normalize wh.id to string to match stockByWarehouse keys
+                                                const stockQty = stockByWarehouse[String(wh.id)] || 0;
+                                                const hasStock = stockQty > 0;
+                                                const isLoading = item.productId && !productBatchData[item.productId];
+                                                return (
                                                   <span
-                                                    className={
-                                                      hasStock
-                                                        ? "text-green-600 font-bold"
-                                                        : isLoading
-                                                          ? "text-gray-400 font-bold"
-                                                          : "text-red-500 font-bold"
-                                                    }
+                                                    key={wh.id}
+                                                    data-testid={`stock-warehouse-${wh.id}`}
+                                                    className={`text-xs font-medium ${
+                                                      hasStock ? "text-gray-700" : "text-red-500"
+                                                    }`}
                                                   >
-                                                    {isLoading ? "..." : stockQty}
+                                                    {wh.name || wh.code}{" "}
+                                                    <span
+                                                      className={
+                                                        hasStock
+                                                          ? "text-green-600 font-bold"
+                                                          : isLoading
+                                                            ? "text-gray-400 font-bold"
+                                                            : "text-red-500 font-bold"
+                                                      }
+                                                    >
+                                                      {isLoading ? "..." : stockQty}
+                                                    </span>
                                                   </span>
-                                                </span>
-                                              );
-                                            })}
+                                                );
+                                              })}
                                           </div>
                                         </div>
                                       </div>
