@@ -334,6 +334,7 @@ export function normalizeInvoice(rawInvoice: unknown, source = "unknown"): Invoi
 
       // Items
       items: normalizeItems(rawInvoice.items || []),
+      itemCount: parseNumber(rawInvoice.itemCount || rawInvoice.item_count, 0),
 
       // Sales & Commission
       salesAgentId: rawInvoice.salesAgentId || rawInvoice.salesAgentId || null,

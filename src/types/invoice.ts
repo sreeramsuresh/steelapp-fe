@@ -125,6 +125,7 @@ export interface Invoice {
 
   // Items
   items: InvoiceItem[];
+  itemCount?: number;
 
   // Sales & Commission (Phase 5: Enhanced Commission Management)
   salesAgentId?: number | null;

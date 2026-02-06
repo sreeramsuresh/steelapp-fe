@@ -18,7 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { FormSelect } from "@/components/ui/form-select";
 import { SelectItem } from "@/components/ui/select";
@@ -1403,6 +1403,8 @@ const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange })
 const InvoiceForm = ({ onSave }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const duplicateFromId = searchParams.get("duplicateFrom");
   const { isDarkMode } = useTheme();
 
   // Field refs for scroll-to-field functionality (Option C Hybrid UX)
@@ -1685,18 +1687,17 @@ const InvoiceForm = ({ onSave }) => {
   const [savedConsumptionsByItemId, setSavedConsumptionsByItemId] = useState({});
   const [_consumptionsFetched, setConsumptionsFetched] = useState(false);
 
-  // Mark form as dirty whenever invoice changes (except initial load)
-  const initialLoadRef = useRef(true);
+  // Mark form as dirty when user makes meaningful changes (not during initial load/hydration)
+  // formDirty is set explicitly by user actions: adding items (line ~3089), deleting items (line ~3130),
+  // and via handleFieldChange below. This avoids false positives from state initialization.
+  const initialLoadDoneRef = useRef(false);
   useEffect(() => {
-    if (initialLoadRef.current) {
-      initialLoadRef.current = false;
-      return;
-    }
-    // Only mark dirty for new invoices or if editing and changes were made
-    if (!id || invoice) {
-      setFormDirty(true);
-    }
-  }, [invoice, id]);
+    // Allow 2 renders for initial hydration (data fetch + state setup)
+    const timer = setTimeout(() => {
+      initialLoadDoneRef.current = true;
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Reset dirty flag when invoice is saved successfully
   useEffect(() => {
@@ -1706,9 +1707,12 @@ const InvoiceForm = ({ onSave }) => {
   }, [createdInvoiceId]);
 
   // Warn before browser close/refresh if there are unsaved changes
+  // Only warn if the form has actual content (customer selected or items added)
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      if (formDirty) {
+      const hasCustomer = !!invoice?.customer?.id;
+      const hasItems = invoice?.items?.some((item) => item.name || item.productId);
+      if (formDirty && (hasCustomer || hasItems)) {
         e.preventDefault();
         e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
         return e.returnValue;
@@ -1716,7 +1720,33 @@ const InvoiceForm = ({ onSave }) => {
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [formDirty]);
+  }, [formDirty, invoice?.customer?.id, invoice?.items]);
+
+  // Keyboard shortcuts for common actions
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Don't trigger shortcuts when typing in inputs/textareas
+      const tag = e.target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+        // Allow Ctrl+S even in inputs
+        if (!(e.ctrlKey && e.key === "s")) return;
+      }
+
+      // Ctrl+S / Cmd+S: Save invoice
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        saveButtonRef.current?.click();
+      }
+      // Ctrl+Shift+A / Cmd+Shift+A: Add item
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "A") {
+        e.preventDefault();
+        addItemButtonRef.current?.click();
+      }
+      // Escape: Close drawers (handled by drawer components) or go back
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // UAE VAT COMPLIANCE: Check if invoice is locked
   // Issued invoices can be edited within 24 hours of issuance (creates revision)
@@ -2318,6 +2348,44 @@ const InvoiceForm = ({ onSave }) => {
       setOriginalSavedStatus(savedStatus);
     }
   }, [existingInvoice, id, navigate]);
+
+  // Duplicate invoice: load source invoice and pre-populate as new draft
+  useEffect(() => {
+    if (!duplicateFromId || id) return; // Only for new invoices with duplicateFrom param
+    const loadSourceInvoice = async () => {
+      try {
+        const source = await invoiceService.getInvoice(duplicateFromId);
+        if (source) {
+          setInvoice((prev) => ({
+            ...prev,
+            // Copy customer info
+            customer: source.customer || prev.customer,
+            // Copy items but clear IDs so they're treated as new
+            items: (source.items || []).map((item) => ({
+              ...item,
+              id: undefined,
+              lineItemTempId: `dup-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            })),
+            // Copy financial fields
+            currency: source.currency || prev.currency,
+            notes: source.notes || "",
+            terms: source.terms || "",
+            placeOfSupply: source.placeOfSupply || "",
+            isExport: source.isExport || false,
+            // Reset status to draft for the duplicate
+            status: "draft",
+            // Set fresh dates
+            date: formatDateForInput(new Date()),
+          }));
+          notificationService.success("Invoice duplicated - review and save as new");
+        }
+      } catch (err) {
+        console.warn("Failed to load source invoice for duplication:", err);
+        notificationService.error("Failed to duplicate invoice");
+      }
+    };
+    loadSourceInvoice();
+  }, [duplicateFromId, id]);
 
   // Phase 4: Fetch saved batch consumptions for existing invoices
   // This runs after existingInvoice is loaded and the invoice ID is known
@@ -4183,7 +4251,7 @@ const InvoiceForm = ({ onSave }) => {
                         data-testid="customer-autocomplete"
                         options={(customersData?.customers || []).map((c) => ({
                           id: c.id,
-                          label: `${titleCase(normalizeLLC(c.name))} - ${c.email || "No email"}`,
+                          label: `${c.code ? `[${c.code}] ` : ""}${titleCase(normalizeLLC(c.name))} - ${c.email || "No email"}`,
                           name: c.name,
                           email: c.email,
                           phone: c.phone,
@@ -5313,7 +5381,15 @@ const InvoiceForm = ({ onSave }) => {
                                             className="flex items-center gap-4 ml-2"
                                             data-testid={`allocation-stock-warehouses-${index}`}
                                           >
-                                            {warehouses.map((wh) => {
+                                            {warehouses
+                                              .filter((wh) => {
+                                                const stockByWarehouse =
+                                                  productBatchData[item.productId]?.stockByWarehouse || {};
+                                                const stockQty = stockByWarehouse[String(wh.id)] || 0;
+                                                // Show warehouses with stock, or the selected warehouse
+                                                return stockQty > 0 || String(wh.id) === String(invoice.warehouseId);
+                                              })
+                                              .map((wh) => {
                                               // Get real stock from productBatchData
                                               const stockByWarehouse =
                                                 productBatchData[item.productId]?.stockByWarehouse || {};
@@ -5909,7 +5985,6 @@ const InvoiceForm = ({ onSave }) => {
                 <div className="flex justify-between items-start mb-3">
                   <div>
                     <div className="text-sm font-extrabold">Summary</div>
-                    <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Sticky on desktop</div>
                   </div>
                 </div>
 
@@ -6082,9 +6157,11 @@ const InvoiceForm = ({ onSave }) => {
                 Preview
               </Button>
               <Button
+                ref={saveButtonRef}
                 onClick={handleSave}
                 disabled={savingInvoice || updatingInvoice || isSaving || (id && invoice.status === "issued")}
                 className="flex-1 min-h-[48px]"
+                title="Save invoice (Ctrl+S)"
               >
                 {savingInvoice || updatingInvoice || isSaving ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

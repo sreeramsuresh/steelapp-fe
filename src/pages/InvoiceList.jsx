@@ -10,6 +10,7 @@ import {
   Edit,
   Eye,
   Lock,
+  Copy,
   MoreVertical,
   Phone,
   Plus,
@@ -822,10 +823,12 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   // Validate if invoice is complete enough for PDF download
   const validateInvoiceForDownload = (invoice) => {
     const hasCustomer = invoice.customer?.name && invoice.customer.name.trim() !== "";
-    const hasItems = invoice.items && invoice.items.length > 0;
+    // In list view, items array may be empty but itemCount tells us items exist in DB
+    const hasItems = (invoice.items && invoice.items.length > 0) || (invoice.itemCount > 0);
     const hasValidItems =
-      hasItems &&
-      invoice.items.every((item) => item.name && item.name.trim() !== "" && item.quantity > 0 && item.rate > 0);
+      invoice.items && invoice.items.length > 0
+        ? invoice.items.every((item) => item.name && item.name.trim() !== "" && item.quantity > 0 && item.rate > 0)
+        : invoice.itemCount > 0; // Trust DB items if not loaded
     const hasDate = !!invoice.date;
     const hasDueDate = !!invoice.dueDate;
 
@@ -2447,6 +2450,23 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                                             <span>Phone Notes</span>
                                           </button>
                                         )}
+
+                                        {/* Duplicate Invoice */}
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setOpenDropdownId(null);
+                                            navigate(`/app/invoices/new?duplicateFrom=${invoice.id}`);
+                                          }}
+                                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
+                                            isDarkMode
+                                              ? "text-blue-400 hover:bg-gray-700"
+                                              : "text-blue-600 hover:bg-blue-50"
+                                          }`}
+                                        >
+                                          <Copy size={16} />
+                                          <span>Duplicate</span>
+                                        </button>
 
                                         {/* Delivery Note moved to direct action button - no longer in dropdown */}
 
