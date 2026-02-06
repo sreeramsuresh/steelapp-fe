@@ -28,7 +28,7 @@ let client: ServiceClient | null = null;
  * Initialize API Gateway service client
  * Verifies API Gateway is reachable
  */
-export async function initGrpcClient(): Promise<ServiceClient> {
+export async function initApiClient(): Promise<ServiceClient> {
   try {
     // Test API Gateway health
     const response = await fetch(`${apiBaseUrl}/health`, {
@@ -56,10 +56,10 @@ export async function initGrpcClient(): Promise<ServiceClient> {
 /**
  * Get initialized service client
  */
-export function getGrpcClient(): ServiceClient {
+export function getApiClient(): ServiceClient {
   if (!client) {
     throw new Error(
-      'Service client not initialized. Call initGrpcClient() first.',
+      'Service client not initialized. Call initApiClient() first.',
     );
   }
   return client;
@@ -68,7 +68,7 @@ export function getGrpcClient(): ServiceClient {
 /**
  * Call CreateInvoice via API Gateway (HTTP REST)
  */
-export async function createInvoiceViaGrpc(
+export async function createInvoiceViaApi(
   params: CreateInvoiceParams,
 ): Promise<CreateInvoiceResponse> {
   const response = await fetch(`${apiBaseUrl}/invoices`, {
@@ -96,7 +96,7 @@ export async function createInvoiceViaGrpc(
 /**
  * Call RecordPayment via API Gateway (HTTP REST)
  */
-export async function recordPaymentViaGrpc(
+export async function recordPaymentViaApi(
   params: RecordPaymentParams,
 ): Promise<RecordPaymentResponse> {
   const response = await fetch(
@@ -126,7 +126,7 @@ export async function recordPaymentViaGrpc(
  * Call PostInvoice via API Gateway (finalize and create journals)
  * CRITICAL for SF-6: Must be called before checking journal entries
  */
-export async function postInvoiceViaGrpc(
+export async function postInvoiceViaApi(
   params: PostInvoiceParams,
 ): Promise<PostInvoiceResponse> {
   const response = await fetch(
@@ -153,7 +153,7 @@ export async function postInvoiceViaGrpc(
  * Call CreateSupplierBill via API Gateway
  * Used for FK integrity testing (SF-5)
  */
-export async function createSupplierBillViaGrpc(
+export async function createSupplierBillViaApi(
   params: CreateSupplierBillParams,
 ): Promise<CreateSupplierBillResponse> {
   const response = await fetch(`${apiBaseUrl}/supplier-bills`, {
