@@ -3371,16 +3371,16 @@ const SteelProducts = () => {
                   </summary>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 pt-0">
                     <div>
-                      <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                      <label
+                        className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                      >
                         Current Stock (Auto)
                       </label>
                       <div
                         className={`px-3 py-2 rounded-lg border ${isDarkMode ? "bg-[#263238] border-[#37474F] text-gray-400" : "bg-gray-100 border-gray-200 text-gray-500"}`}
                         title="Stock is managed through GRN approvals and delivery notes"
                       >
-                        {editingProductId
-                          ? (newProduct.currentStock ?? 0)
-                          : 0}
+                        {editingProductId ? (newProduct.currentStock ?? 0) : 0}
                       </div>
                       <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                         Updated via GRN / Delivery Notes
@@ -3416,105 +3416,134 @@ const SteelProducts = () => {
                 {/* Pricing Information */}
                 <div>
                   <h3 className="text-lg font-medium text-teal-600 mb-4">Pricing Information</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="relative">
-                      <div className="flex items-center gap-1">
-                        <Input
-                          label="Standard Cost (Ref)"
-                          type="number"
-                          value={newProduct.costPrice || ""}
-                          onChange={(e) =>
-                            setNewProduct({
-                              ...newProduct,
-                              costPrice: e.target.value === "" ? "" : Number(e.target.value) || "",
-                            })
-                          }
-                          placeholder="Reference cost"
-                          className="pl-12"
-                        />
-                      </div>
-                      <span
-                        className={`absolute left-3 top-8 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                      >
-                        AED
-                      </span>
-                      <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                        For estimation only. Inventory valued from batches.
-                      </p>
-                    </div>
-                    <div className="relative">
-                      <Input
-                        label="Default Selling Price"
-                        type="number"
-                        value={newProduct.sellingPrice || ""}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            sellingPrice: e.target.value === "" ? "" : Number(e.target.value) || "",
-                          })
-                        }
-                        placeholder="Default sell price"
-                        className="pl-12"
-                      />
-                      <span
-                        className={`absolute left-3 top-8 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                      >
-                        AED
-                      </span>
-                      <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                        Actual pricing from pricelists.
-                      </p>
-                    </div>
-                    <Select
-                      label="Pricing Basis"
-                      value={newProduct.pricingBasis || "PER_MT"}
-                      onChange={(e) =>
-                        setNewProduct({
-                          ...newProduct,
-                          pricingBasis: e.target.value,
-                        })
-                      }
-                      options={[
-                        { value: "PER_MT", label: "Per MT (Metric Ton)" },
-                        { value: "PER_KG", label: "Per KG" },
-                        { value: "PER_PCS", label: "Per Piece" },
-                        { value: "PER_METER", label: "Per Meter" },
-                        { value: "PER_LOT", label: "Per Lot" },
-                      ]}
-                    />
-                  </div>
-                  {/* Live Margin Preview */}
-                  {newProduct.costPrice && newProduct.sellingPrice && Number(newProduct.sellingPrice) > 0 && (
-                    <div
-                      className={`mt-2 px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${
-                        (
-                          ((Number(newProduct.sellingPrice) - Number(newProduct.costPrice)) /
-                            Number(newProduct.sellingPrice)) *
-                            100
-                        ) < 0
-                          ? "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
-                          : ((Number(newProduct.sellingPrice) - Number(newProduct.costPrice)) /
-                                Number(newProduct.sellingPrice)) *
-                                100 >
-                              20
-                            ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-                            : "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400"
-                      }`}
-                    >
-                      <span className="font-medium">Margin:</span>
-                      <span className="font-bold">
-                        {(
-                          ((Number(newProduct.sellingPrice) - Number(newProduct.costPrice)) /
-                            Number(newProduct.sellingPrice)) *
-                          100
-                        ).toFixed(1)}
-                        %
-                      </span>
-                      <span className="text-xs opacity-75">
-                        (AED {(Number(newProduct.sellingPrice) - Number(newProduct.costPrice)).toFixed(2)} per unit)
-                      </span>
-                    </div>
-                  )}
+                  {(() => {
+                    const basisLabels = {
+                      PER_MT: "/MT",
+                      PER_KG: "/KG",
+                      PER_PCS: "/PC",
+                      PER_METER: "/M",
+                      PER_LOT: "/LOT",
+                    };
+                    const basisUnit = basisLabels[newProduct.pricingBasis] || "/MT";
+                    const costNum = Number(newProduct.costPrice) || 0;
+                    const sellNum = Number(newProduct.sellingPrice) || 0;
+                    // Range thresholds per pricing basis (AED) for stainless steel
+                    const ranges = {
+                      PER_MT: { low: 500, high: 50000, label: "per MT" },
+                      PER_KG: { low: 0.5, high: 50, label: "per KG" },
+                      PER_PCS: { low: 1, high: 10000, label: "per PC" },
+                      PER_METER: { low: 5, high: 5000, label: "per M" },
+                      PER_LOT: { low: 100, high: 500000, label: "per LOT" },
+                    };
+                    const range = ranges[newProduct.pricingBasis] || ranges.PER_MT;
+                    const costWarning =
+                      costNum > 0 && (costNum < range.low || costNum > range.high)
+                        ? `Unusual for ${range.label} (typical: ${range.low.toLocaleString()}–${range.high.toLocaleString()} AED)`
+                        : null;
+                    const sellWarning =
+                      sellNum > 0 && (sellNum < range.low || sellNum > range.high)
+                        ? `Unusual for ${range.label} (typical: ${range.low.toLocaleString()}–${range.high.toLocaleString()} AED)`
+                        : null;
+                    return (
+                      <>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="relative">
+                            <div className="flex items-center gap-1">
+                              <Input
+                                label={`Standard Cost (Ref) ${basisUnit}`}
+                                type="number"
+                                value={newProduct.costPrice || ""}
+                                onChange={(e) =>
+                                  setNewProduct({
+                                    ...newProduct,
+                                    costPrice: e.target.value === "" ? "" : Number(e.target.value) || "",
+                                  })
+                                }
+                                placeholder={`Cost ${range.label}`}
+                                className="pl-12"
+                              />
+                            </div>
+                            <span
+                              className={`absolute left-3 top-8 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                            >
+                              AED
+                            </span>
+                            {costWarning ? (
+                              <p className="text-xs mt-0.5 text-amber-500">{costWarning}</p>
+                            ) : (
+                              <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                                For estimation only. Inventory valued from batches.
+                              </p>
+                            )}
+                          </div>
+                          <div className="relative">
+                            <Input
+                              label={`Default Selling Price ${basisUnit}`}
+                              type="number"
+                              value={newProduct.sellingPrice || ""}
+                              onChange={(e) =>
+                                setNewProduct({
+                                  ...newProduct,
+                                  sellingPrice: e.target.value === "" ? "" : Number(e.target.value) || "",
+                                })
+                              }
+                              placeholder={`Sell price ${range.label}`}
+                              className="pl-12"
+                            />
+                            <span
+                              className={`absolute left-3 top-8 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                            >
+                              AED
+                            </span>
+                            {sellWarning ? (
+                              <p className="text-xs mt-0.5 text-amber-500">{sellWarning}</p>
+                            ) : (
+                              <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                                Actual pricing from pricelists.
+                              </p>
+                            )}
+                          </div>
+                          <Select
+                            label="Pricing Basis"
+                            value={newProduct.pricingBasis || "PER_MT"}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                pricingBasis: e.target.value,
+                              })
+                            }
+                            options={[
+                              { value: "PER_MT", label: "Per MT (Metric Ton)" },
+                              { value: "PER_KG", label: "Per KG" },
+                              { value: "PER_PCS", label: "Per Piece" },
+                              { value: "PER_METER", label: "Per Meter" },
+                              { value: "PER_LOT", label: "Per Lot" },
+                            ]}
+                          />
+                        </div>
+                        {/* Live Margin Preview */}
+                        {newProduct.costPrice && newProduct.sellingPrice && sellNum > 0 && (
+                          <div
+                            className={`mt-2 px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${
+                              ((sellNum - costNum) / sellNum) * 100 < 0
+                                ? "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
+                                : ((sellNum - costNum) / sellNum) * 100 > 20
+                                  ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                                  : "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400"
+                            }`}
+                          >
+                            <span className="font-medium">Margin:</span>
+                            <span className="font-bold">
+                              {(((sellNum - costNum) / sellNum) * 100).toFixed(1)}%
+                            </span>
+                            <span className="text-xs opacity-75">
+                              (AED {(sellNum - costNum).toFixed(2)} {range.label})
+                            </span>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                   <div className="mt-4">
                     <Input
                       label="Weight Tolerance %"
