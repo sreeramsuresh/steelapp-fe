@@ -10,20 +10,7 @@
  * backwards compatibility during Phase 0 transition.
  */
 
-import env from "../config/env.js";
 import { api } from "./api.js";
-
-// Dev-only warning for deprecated _companyId parameter usage
-const IS_DEV = env.DEV || process.env.NODE_ENV === "development";
-
-function _warnDeprecatedCompanyId(methodName, companyId) {
-  if (IS_DEV && companyId !== undefined && companyId !== null) {
-    console.warn(
-      `[categoryPolicyService.${methodName}] DEPRECATED: _companyId parameter is ignored. ` +
-        `company_id is extracted from auth context. Passed value: ${companyId}`
-    );
-  }
-}
 
 export const categoryPolicyService = {
   /**
@@ -42,7 +29,7 @@ export const categoryPolicyService = {
           active_only: activeOnly,
         },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching category policies:", error);
       throw error;
@@ -61,7 +48,7 @@ export const categoryPolicyService = {
     // warnDeprecatedCompanyId('getCategoryPolicy', _companyId);
     try {
       const response = await api.get(`/category-policies/${category}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error(`Error fetching policy for category ${category}:`, error);
       throw error;
@@ -86,7 +73,7 @@ export const categoryPolicyService = {
       const response = await api.get("/category-policies/subtypes/list", {
         params,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching product subtypes:", error);
       throw error;
@@ -104,7 +91,7 @@ export const categoryPolicyService = {
     // warnDeprecatedCompanyId('getTaxonomyStatus', _companyId);
     try {
       const response = await api.get("/category-policies/taxonomy/status");
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching taxonomy status:", error);
       throw error;

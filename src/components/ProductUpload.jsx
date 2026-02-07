@@ -119,15 +119,25 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
     }
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", selectedFile);
 
     try {
-      // Use synchronous mode to return per-row results immediately
-      const response = await api.post("/products/upload?sync=1", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      // Convert file to base64 to avoid antivirus blocking multipart uploads
+      // Use FileReader instead of spread operator (which crashes on files > 65KB)
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          // reader.result is "data:<mime>;base64,<data>" - extract just the base64 part
+          const result = reader.result;
+          const base64Data = result.split(",")[1];
+          resolve(base64Data);
+        };
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(selectedFile);
+      });
+
+      const response = await api.post("/products/upload?sync=1", {
+        filename: selectedFile.name,
+        data: base64,
       });
 
       setUploadResults(response.data.results);
@@ -236,8 +246,11 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
                   Drag and drop your file here, or{" "}
                   <button
                     type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="text-[#008B8B] hover:text-[#4DB6AC] underline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      fileInputRef.current?.click();
+                    }}
+                    className="text-[#008B8B] hover:text-[#4DB6AC] underline cursor-pointer"
                   >
                     browse
                   </button>

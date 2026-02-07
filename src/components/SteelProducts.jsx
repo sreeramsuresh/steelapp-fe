@@ -5,7 +5,6 @@ import {
   ArrowUpDown,
   CheckCircle,
   ChevronDown,
-  ChevronRight,
   Copy,
   Edit,
   Eye,
@@ -87,7 +86,7 @@ const Button = ({
   );
 };
 
-const Input = ({ label, error, className = "", type = "text", id, ...props }) => {
+const Input = ({ label, error, className = "", type = "text", id, required = false, ...props }) => {
   const { isDarkMode } = useTheme();
   const inputId = id || `input-${label?.toLowerCase().replace(/\s+/g, "-")}`;
 
@@ -99,6 +98,7 @@ const Input = ({ label, error, className = "", type = "text", id, ...props }) =>
           className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
         >
           {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
       <input
@@ -108,15 +108,15 @@ const Input = ({ label, error, className = "", type = "text", id, ...props }) =>
           isDarkMode
             ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
             : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-        } ${error ? "border-red-500" : ""} ${className}`}
+        } ${error ? "!border-red-500 ring-1 ring-red-500" : ""} ${className}`}
         {...props}
       />
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
 };
 
-const Select = ({ label, options, value, onChange, placeholder = "Select...", className = "", id }) => {
+const Select = ({ label, options, value, onChange, placeholder = "Select...", className = "", id, required = false, error = "" }) => {
   const { isDarkMode } = useTheme();
   const selectId = id || `select-${label?.toLowerCase().replace(/\s+/g, "-")}`;
 
@@ -128,6 +128,7 @@ const Select = ({ label, options, value, onChange, placeholder = "Select...", cl
           className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
         >
           {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
       <div className="relative">
@@ -137,7 +138,7 @@ const Select = ({ label, options, value, onChange, placeholder = "Select...", cl
           onChange={onChange}
           className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
             isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-          } ${className}`}
+          } ${error ? "!border-red-500 ring-1 ring-red-500" : ""} ${className}`}
         >
           {placeholder && <option value="">{placeholder}</option>}
           {options.map((option) => (
@@ -150,6 +151,7 @@ const Select = ({ label, options, value, onChange, placeholder = "Select...", cl
           className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
         />
       </div>
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
 };
@@ -178,35 +180,6 @@ const Textarea = ({ label, error, className = "", id, ...props }) => {
         {...props}
       />
       {error && <p className="text-red-500 text-sm">{error}</p>}
-    </div>
-  );
-};
-
-const _StockProgressBar = ({ value, stockStatus }) => {
-  const { isDarkMode } = useTheme();
-
-  const getColor = () => {
-    switch (stockStatus) {
-      case "out_of_stock":
-        return "bg-red-900"; // Dark red for out of stock
-      case "low":
-        return "bg-red-500";
-      case "high":
-        return "bg-green-500";
-      default:
-        return "bg-blue-500";
-    }
-  };
-
-  // For out of stock, show a thin bar to indicate empty state
-  const displayValue = stockStatus === "out_of_stock" ? 3 : Math.min(value, 100);
-
-  return (
-    <div className={`w-full rounded-full h-2 ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}>
-      <div
-        className={`h-2 rounded-full transition-all duration-300 ${getColor()}`}
-        style={{ width: `${displayValue}%` }}
-      />
     </div>
   );
 };
@@ -361,6 +334,20 @@ const ProductNameSegments = ({ productData, focusedField, isDarkMode }) => {
     placeholder: dimensionValue === "___",
   });
 
+  // Thickness segment
+  const thicknessValue = productData.thickness
+    ? `${String(productData.thickness).trim().replace(/mm$/i, "")}mm`
+    : "___";
+  segments.push({
+    key: "thickness",
+    value: thicknessValue,
+    label: "Thickness",
+    color: isDarkMode
+      ? "bg-rose-900/40 text-rose-300 border-rose-700"
+      : "bg-rose-100 text-rose-800 border-rose-300",
+    placeholder: thicknessValue === "___",
+  });
+
   // NOTE: Origin (LOCAL/IMPORTED) is NOT part of product identity per SSOT rules.
   // Origin is stored at batch level, not product level.
   // Same product (e.g., SS-304-Sheet-2B-1219mm-0.8mm) can exist as both local and imported batches.
@@ -444,51 +431,6 @@ const ValidationMessage = ({ type = "info", message, suggestion }) => {
             Did you mean: <span className="underline">{suggestion}</span>?
           </p>
         )}
-      </div>
-    </div>
-  );
-};
-
-// Accordion component for Zoho-style drawer
-const _AccordionSection = ({ title, isOpen, onToggle, children, isEmpty = false }) => {
-  const { isDarkMode } = useTheme();
-
-  // Don't render if section is empty
-  if (isEmpty) return null;
-
-  return (
-    <div className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-      <button
-        type="button"
-        onClick={onToggle}
-        className={`w-full flex items-center justify-between p-4 hover:bg-opacity-50 transition-colors ${
-          isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
-        }`}
-      >
-        <span className={`font-semibold text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}>{title}</span>
-        {isOpen ? (
-          <ChevronDown className={`w-5 h-5 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`} />
-        ) : (
-          <ChevronRight className={`w-5 h-5 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`} />
-        )}
-      </button>
-      {isOpen && <div className={`px-4 pb-4 ${isDarkMode ? "bg-gray-800/30" : "bg-gray-50/50"}`}>{children}</div>}
-    </div>
-  );
-};
-
-// Row component for label-value pairs
-const _SpecRow = ({ label, value, badge, className = "" }) => {
-  const { isDarkMode } = useTheme();
-
-  if (!value && value !== 0) return null;
-
-  return (
-    <div className={`flex justify-between items-center py-2 ${className}`}>
-      <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{label}</span>
-      <div className="flex items-center gap-2">
-        <span className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>{value}</span>
-        {badge}
       </div>
     </div>
   );
@@ -614,17 +556,17 @@ const SteelProducts = () => {
       key: "productName",
       label: "Product Identity",
       required: true,
-      width: "min-w-[280px]",
+      width: "w-[40%]",
     },
-    { key: "stock", label: "Stock", required: true, width: "w-[120px]" },
-    { key: "buyPrice", label: "Buy Price", required: true, width: "w-[100px]" },
+    { key: "stock", label: "Stock", required: true, width: "w-[10%]" },
+    { key: "buyPrice", label: "Buy Price", required: true, width: "w-[12%]" },
     {
       key: "sellPrice",
       label: "Sell Price",
       required: true,
-      width: "w-[100px]",
+      width: "w-[12%]",
     },
-    { key: "margin", label: "Margin", required: true, width: "w-[80px]" },
+    { key: "margin", label: "Margin", required: true, width: "w-[8%]" },
     { key: "supplier", label: "Supplier", required: false, width: "w-[120px]" },
     { key: "location", label: "Location", required: false, width: "w-[120px]" },
     { key: "minStock", label: "Min Stock", required: false, width: "w-[90px]" },
@@ -633,6 +575,7 @@ const SteelProducts = () => {
     { key: "grade", label: "Grade", required: false, width: "w-[80px]" },
     { key: "finish", label: "Finish", required: false, width: "w-[80px]" },
     { key: "origin", label: "Origin", required: false, width: "w-[80px]" },
+    { key: "lastModified", label: "Modified", required: false, width: "w-[100px]" },
   ];
 
   const DEFAULT_VISIBLE_COLUMNS = ["productName", "stock", "buyPrice", "sellPrice", "margin"];
@@ -643,6 +586,7 @@ const SteelProducts = () => {
   });
 
   const [showColumnPicker, setShowColumnPicker] = useState(false);
+  const [selectedProductIds, setSelectedProductIds] = useState(new Set());
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const columnPickerRef = useRef(null);
 
@@ -745,10 +689,12 @@ const SteelProducts = () => {
   }, [showSpeedButtons]);
 
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingProductId, setEditingProductId] = useState(null); // null = add mode, product.id = edit mode
   const [showSpecModal, setShowSpecModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
+  const [customThickness, setCustomThickness] = useState(false);
+  const [saveWarnings, setSaveWarnings] = useState(null); // { warnings: [], onConfirm: fn }
   const [copySearchTerm, setCopySearchTerm] = useState("");
   const [_activeTooltip, _setActiveTooltip] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -765,15 +711,6 @@ const SteelProducts = () => {
 
   // Phase 4: Category policy for UOM validation
   const [categoryPolicy, setCategoryPolicy] = useState(null);
-
-  // Accordion state for spec modal - MUST be at component level, not inside conditional render
-  const [_accordionState, setAccordionState] = useState({
-    classification: true, // Default expanded
-    inventory: true, // Default expanded
-    pricing: true, // Default expanded
-    description: false, // Collapsed if has data
-    technical: false, // Collapsed if has data
-  });
 
   const [newProduct, setNewProduct] = useState({
     displayName: "", // User-facing, editable name
@@ -974,34 +911,6 @@ const SteelProducts = () => {
     return null;
   };
 
-  const _validateDimensions = (category, dimensions) => {
-    if (!dimensions) return null;
-
-    const isPipeOrTube = /pipe|tube/i.test(category);
-
-    if (isPipeOrTube) {
-      // For pipes/tubes, expect inch dimensions
-      const sizeMatch = /^(\d+\.?\d*)"?$/.test(dimensions);
-      if (!sizeMatch && dimensions) {
-        return {
-          type: "warning",
-          message: 'Pipe/Tube sizes are typically specified in inches (e.g., 2", 4").',
-        };
-      }
-    } else {
-      // For sheets/plates, expect mm dimensions
-      const mmMatch = /\d+x?\d*/.test(dimensions);
-      if (!mmMatch && dimensions) {
-        return {
-          type: "warning",
-          message: "Sheet/Plate dimensions are typically in mm (e.g., 1220x2440).",
-        };
-      }
-    }
-
-    return null;
-  };
-
   // Phase 2: Template Selection Handler
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template.id);
@@ -1024,6 +933,7 @@ const SteelProducts = () => {
 
   // Phase 2: Clear Form Handler
   const handleClearForm = () => {
+    setValidationErrors({});
     setNewProduct({
       displayName: "",
       category: "sheet",
@@ -1043,6 +953,7 @@ const SteelProducts = () => {
       sellingPrice: "",
       supplier: "",
       location: "",
+      origin: "UAE",
       hsCode: "",
       millCountry: "",
       millName: "",
@@ -1111,8 +1022,8 @@ const SteelProducts = () => {
 
   // Phase 7: Find Similar Products
   useEffect(() => {
-    if (!showAddModal && !showEditModal) {
-      // Only run when modals are open
+    if (!showAddModal) {
+      // Only run when modal is open
       return;
     }
 
@@ -1132,7 +1043,7 @@ const SteelProducts = () => {
       .slice(0, 5); // Limit to 5 products
 
     setSimilarProducts(similar);
-  }, [newProduct.grade, newProduct.category, newProduct.finish, showAddModal, showEditModal, products]);
+  }, [newProduct.grade, newProduct.category, newProduct.finish, showAddModal, products]);
 
   // Phase 4: Fetch category policy when category changes (for UOM validation)
   useEffect(() => {
@@ -1223,7 +1134,6 @@ const SteelProducts = () => {
     "347H",
     // Ferritic Stainless Steel
     "409",
-    "410",
     "430",
     "434",
     "436",
@@ -1427,7 +1337,7 @@ const SteelProducts = () => {
     const stockStatus = getStockStatus(product);
     switch (columnKey) {
       case "productName":
-        return product.uniqueName || product.unique_name || product.displayName || product.display_name || "N/A";
+        return product.displayName || product.display_name || product.uniqueName || product.unique_name || "N/A";
       case "stock":
         return {
           value: product.currentStock ?? product.current_stock ?? 0,
@@ -1465,6 +1375,12 @@ const SteelProducts = () => {
         return product.millCountry === "AE" || product.mill_country === "AE"
           ? "Local"
           : product.millCountry || product.mill_country || product.origin || "-";
+      case "lastModified": {
+        const dt = product.updatedAt || product.updated_at || product.audit?.updatedAt;
+        if (!dt) return "-";
+        const d = new Date(dt);
+        return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+      }
       default:
         return "-";
     }
@@ -1472,24 +1388,82 @@ const SteelProducts = () => {
 
   const handleAddProduct = async () => {
     try {
-      // Validate required fields
+      // Validate ALL required fields with field-level errors
+      const errors = {};
+      // commodity is always "SS" (read-only badge) - no validation needed
       if (!newProduct.category || newProduct.category.trim().length === 0) {
-        notificationService.error("Category is required");
-        return;
+        errors.category = "Category is required";
+      }
+      if (!newProduct.grade || newProduct.grade.trim().length === 0) {
+        errors.grade = "Grade is required";
+      }
+      if (!newProduct.finish || newProduct.finish.trim().length === 0) {
+        errors.finish = "Surface Finish is required";
+      }
+      if (!newProduct.origin || newProduct.origin.trim().length === 0) {
+        errors.origin = "Origin country is required";
       }
 
       const isPipeOrTube = /pipe|tube/i.test(newProduct.category || "");
       if (isPipeOrTube) {
         if (!newProduct.sizeInch && !newProduct.od && !newProduct.size) {
-          notificationService.error("For Pipe/Tube, Size (inch), OD, and Length are required.");
-          return;
+          errors.dimensions = "For Pipe/Tube, Size (inch) or OD is required";
+        }
+      } else {
+        if (!newProduct.size || newProduct.size.trim().length === 0) {
+          errors.dimensions = "Dimensions are required";
         }
       }
+      if (!newProduct.thickness || newProduct.thickness.trim().length === 0) {
+        errors.thickness = "Thickness is required";
+      }
+
+      if (Object.keys(errors).length > 0) {
+        setValidationErrors(errors);
+        const missingFields = Object.values(errors).join(", ");
+        notificationService.error(`Please fill required fields: ${missingFields}`);
+        return;
+      }
+      // Clear validation errors on successful validation
+      setValidationErrors({});
+
+      // Data correctness checks (warn about suspicious values)
+      const warnings = [];
+      const costVal = Number(newProduct.costPrice);
+      const sellVal = Number(newProduct.sellingPrice);
+      if (costVal > 0 && sellVal > 0 && sellVal < costVal) {
+        warnings.push(`Selling price (AED ${sellVal}) is below cost price (AED ${costVal}) — negative margin`);
+      }
+      if (costVal > 100000 || sellVal > 100000) {
+        warnings.push(`Price seems unusually high (AED ${Math.max(costVal, sellVal).toLocaleString()})`);
+      }
+      if (newProduct.thickness) {
+        const thickNum = Number.parseFloat(newProduct.thickness);
+        if (!Number.isNaN(thickNum) && (thickNum <= 0 || thickNum > 100)) {
+          warnings.push(`Thickness ${thickNum}mm seems unusual (expected 0.1-100mm)`);
+        }
+      }
+      if (similarProducts.length > 0) {
+        warnings.push(`${similarProducts.length} similar product(s) already exist — possible duplicate`);
+      }
+      if (warnings.length > 0) {
+        setSaveWarnings({ warnings, onConfirm: () => { setSaveWarnings(null); doAddProduct(); } });
+        return;
+      }
+      doAddProduct();
+    } catch (error) {
+      console.error("Error in handleAddProduct validation:", error);
+      notificationService.error(`Validation error: ${error.message || "Unknown error"}`);
+    }
+  };
+
+  const doAddProduct = async () => {
+    try {
       // API Gateway auto-converts camelCase → snake_case, so send camelCase
       const productData = {
         displayName: newProduct.displayName,
         category: newProduct.category,
-        commodity: newProduct.commodity || "SS",
+        commodity: "SS",
         grade: newProduct.grade,
         finish: newProduct.finish,
         size: newProduct.size,
@@ -1506,6 +1480,7 @@ const SteelProducts = () => {
         sellingPrice: newProduct.sellingPrice === "" ? 0 : Number(newProduct.sellingPrice), // API Gateway converts to selling_price
         supplier: newProduct.supplier,
         location: newProduct.location,
+        origin: newProduct.origin || "UAE", // Required for unique_name generation
         // Phase 3: Product Master Data (added 2025-12-02)
         hsCode: newProduct.hsCode || undefined, // API Gateway converts to hs_code
         millCountry: newProduct.millCountry || undefined, // API Gateway converts to mill_country
@@ -1618,7 +1593,10 @@ const SteelProducts = () => {
       // For sheets/bars/etc: size and thickness
       if (newProduct.size) parts.push(String(newProduct.size).trim());
     }
-    if (newProduct.thickness) parts.push(`${String(newProduct.thickness).trim()}mm`);
+    if (newProduct.thickness) {
+      const thk = String(newProduct.thickness).trim().replace(/mm$/i, "");
+      if (thk) parts.push(`${thk}mm`);
+    }
 
     // Join with hyphens (matching database trigger pattern)
     const composed = parts.filter((p) => p).join("-");
@@ -1769,51 +1747,91 @@ const SteelProducts = () => {
 
   const handleEditProduct = async () => {
     try {
-      // Validate required fields
-      if (!selectedProduct.category || selectedProduct.category.trim().length === 0) {
-        notificationService.error("Category is required");
-        return;
+      // Use same validation as handleAddProduct but for edit mode (data is in newProduct)
+      const errors = {};
+      if (!newProduct.category || newProduct.category.trim().length === 0) {
+        errors.category = "Category is required";
+      }
+      if (!newProduct.grade || newProduct.grade.trim().length === 0) {
+        errors.grade = "Grade is required";
+      }
+      if (!newProduct.finish || newProduct.finish.trim().length === 0) {
+        errors.finish = "Surface Finish is required";
       }
 
+      if (Object.keys(errors).length > 0) {
+        setValidationErrors(errors);
+        const missingFields = Object.values(errors).join(", ");
+        notificationService.error(`Please fill required fields: ${missingFields}`);
+        return;
+      }
+      setValidationErrors({});
+
+      // Data correctness checks
+      const warnings = [];
+      const costVal = Number(newProduct.costPrice);
+      const sellVal = Number(newProduct.sellingPrice);
+      if (costVal > 0 && sellVal > 0 && sellVal < costVal) {
+        warnings.push(`Selling price (AED ${sellVal}) is below cost price (AED ${costVal}) — negative margin`);
+      }
+      if (costVal > 100000 || sellVal > 100000) {
+        warnings.push(`Price seems unusually high (AED ${Math.max(costVal, sellVal).toLocaleString()})`);
+      }
+      if (newProduct.thickness) {
+        const thickNum = Number.parseFloat(newProduct.thickness);
+        if (!Number.isNaN(thickNum) && (thickNum <= 0 || thickNum > 100)) {
+          warnings.push(`Thickness ${thickNum}mm seems unusual (expected 0.1-100mm)`);
+        }
+      }
+      if (warnings.length > 0) {
+        setSaveWarnings({ warnings, onConfirm: () => { setSaveWarnings(null); doEditProduct(); } });
+        return;
+      }
+      doEditProduct();
+    } catch (error) {
+      console.error("Error in handleEditProduct validation:", error);
+      notificationService.error(`Validation error: ${error.message || "Unknown error"}`);
+    }
+  };
+
+  const doEditProduct = async () => {
+    try {
       // API Gateway auto-converts camelCase → snake_case, so send camelCase
-      // Convert empty strings to appropriate default values
       const productData = {
-        displayName: selectedProduct.displayName, // User-editable product name
-        category: selectedProduct.category,
-        commodity: selectedProduct.commodity || "SS",
-        grade: selectedProduct.grade,
-        finish: selectedProduct.finish,
-        size: selectedProduct.size,
-        sizeInch: selectedProduct.sizeInch || "", // API Gateway converts to size_inch
-        od: selectedProduct.od || "",
-        length: selectedProduct.length || "",
-        thickness: selectedProduct.thickness || selectedProduct.specifications?.thickness || undefined,
-        weight: selectedProduct.weight,
-        unit: selectedProduct.unit,
-        description: selectedProduct.description,
-        currentStock: selectedProduct.currentStock === "" ? 0 : Number(selectedProduct.currentStock), // API Gateway converts to current_stock
-        minStock: selectedProduct.minStock === "" ? 0 : Number(selectedProduct.minStock), // API Gateway converts to min_stock
-        maxStock: selectedProduct.maxStock === "" ? 1000 : Number(selectedProduct.maxStock), // API Gateway converts to max_stock
-        costPrice: selectedProduct.costPrice === "" ? 0 : Number(selectedProduct.costPrice), // API Gateway converts to cost_price
-        sellingPrice: selectedProduct.sellingPrice === "" ? 0 : Number(selectedProduct.sellingPrice), // API Gateway converts to selling_price
-        supplier: selectedProduct.supplier,
-        location: selectedProduct.location,
-        millCountry: selectedProduct.millCountry || undefined, // API Gateway converts to mill_country
-        // Unit of Measure fields (added 2025-12-09)
-        primaryUom: selectedProduct.primaryUom || "PCS",
-        unitWeightKg: selectedProduct.unitWeightKg || undefined,
-        allowDecimalQuantity: selectedProduct.allowDecimalQuantity || false,
-        // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
-        pricingBasis: selectedProduct.pricingBasis || "PER_MT", // API Gateway converts to pricing_basis
+        displayName: newProduct.displayName,
+        category: newProduct.category,
+        commodity: "SS",
+        grade: newProduct.grade,
+        finish: newProduct.finish,
+        size: newProduct.size,
+        sizeInch: newProduct.sizeInch || "",
+        od: newProduct.od || "",
+        length: newProduct.length || "",
+        thickness: newProduct.thickness,
+        weight: newProduct.weight,
+        description: newProduct.description,
+        currentStock: newProduct.currentStock === "" ? 0 : Number(newProduct.currentStock),
+        minStock: newProduct.minStock === "" ? 0 : Number(newProduct.minStock),
+        maxStock: newProduct.maxStock === "" ? 1000 : Number(newProduct.maxStock),
+        costPrice: newProduct.costPrice === "" ? 0 : Number(newProduct.costPrice),
+        sellingPrice: newProduct.sellingPrice === "" ? 0 : Number(newProduct.sellingPrice),
+        supplier: newProduct.supplier,
+        location: newProduct.location,
+        origin: newProduct.origin || "UAE",
+        hsCode: newProduct.hsCode || undefined,
+        millCountry: newProduct.millCountry || undefined,
+        millName: newProduct.millName || undefined,
+        productCategory: newProduct.productCategory || undefined,
+        primaryUom: newProduct.primaryUom || "PCS",
+        unitWeightKg: newProduct.unitWeightKg || undefined,
+        allowDecimalQuantity: newProduct.allowDecimalQuantity || false,
+        pricingBasis: newProduct.pricingBasis || "PER_MT",
         weightTolerancePercent:
-          selectedProduct.weightTolerancePercent !== undefined ? Number(selectedProduct.weightTolerancePercent) : 2.5, // API Gateway converts to weight_tolerance_percent
-        specifications: JSON.stringify({
-          ...(selectedProduct.specifications || {}),
-          thickness: selectedProduct.thickness || selectedProduct.specifications?.thickness || "",
-        }),
+          newProduct.weightTolerancePercent !== undefined ? Number(newProduct.weightTolerancePercent) : 2.5,
+        specifications: newProduct.specifications,
       };
 
-      await updateProduct(selectedProduct.id, productData);
+      await updateProduct(editingProductId, productData);
 
       // Sync inventory cache across modules
       clearInventoryCache();
@@ -1821,7 +1839,8 @@ const SteelProducts = () => {
       await refetchProducts();
 
       notificationService.success("Product updated successfully!");
-      setShowEditModal(false);
+      setShowAddModal(false);
+      setEditingProductId(null);
       setSelectedProduct(null);
     } catch (error) {
       console.error("❌ Error updating product:", error);
@@ -1851,9 +1870,27 @@ const SteelProducts = () => {
     }
   };
 
-  // Toggle accordion sections in spec modal - MUST be at component level
-  const _toggleSection = (section) => {
-    setAccordionState((prev) => ({ ...prev, [section]: !prev[section] }));
+  const handleBulkDelete = async () => {
+    if (selectedProductIds.size === 0) return;
+    const confirmed = await confirm({
+      title: `Delete ${selectedProductIds.size} Product(s)?`,
+      message: `Are you sure you want to delete ${selectedProductIds.size} selected product(s)? This action cannot be undone.`,
+      confirmText: "Delete All",
+      variant: "danger",
+    });
+    if (!confirmed) return;
+    try {
+      for (const id of selectedProductIds) {
+        await deleteProduct(id);
+      }
+      clearInventoryCache();
+      refetchProducts();
+      setSelectedProductIds(new Set());
+      notificationService.success(`${selectedProductIds.size} product(s) deleted`);
+    } catch (error) {
+      console.error("Error in bulk delete:", error);
+      notificationService.error("Some products failed to delete");
+    }
   };
 
   /**
@@ -1888,33 +1925,6 @@ const SteelProducts = () => {
     }
 
     return "normal";
-  };
-
-  const _getStockStatusColor = (status) => {
-    switch (status) {
-      case "out_of_stock":
-        return "#7f1d1d"; // dark red for out of stock
-      case "low":
-        return "#dc2626"; // red
-      case "high":
-        return "#059669"; // green
-      default:
-        return "#2563eb"; // blue for normal
-    }
-  };
-
-  // Helper to get display text for stock status
-  const _getStockStatusLabel = (status) => {
-    switch (status) {
-      case "out_of_stock":
-        return "OUT OF STOCK";
-      case "low":
-        return "LOW";
-      case "high":
-        return "HIGH";
-      default:
-        return "NORMAL";
-    }
   };
 
   const renderCatalog = () => (
@@ -2112,7 +2122,7 @@ const SteelProducts = () => {
               isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
             }`}
           >
-            <option value="all">All Types</option>
+            <option value="all">All Groups</option>
             <option value="COIL">COIL</option>
             <option value="SHEET">SHEET</option>
             <option value="PLATE">PLATE</option>
@@ -2156,7 +2166,7 @@ const SteelProducts = () => {
         </button>
         <button
           type="button"
-          onClick={() => setShowAddModal(true)}
+          onClick={() => { setEditingProductId(null); handleClearForm(); setShowAddModal(true); }}
           className="h-9 px-3 text-sm font-medium rounded-lg inline-flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-500 transition-colors"
         >
           <Plus size={16} />
@@ -2215,12 +2225,42 @@ const SteelProducts = () => {
         </div>
       </div>
 
+      {/* Bulk Actions Bar */}
+      {selectedProductIds.size > 0 && (
+        <div className={`flex items-center gap-3 px-4 py-2 rounded-lg mb-2 ${isDarkMode ? "bg-teal-900/30 border border-teal-700" : "bg-teal-50 border border-teal-200"}`}>
+          <span className={`text-sm font-medium ${isDarkMode ? "text-teal-300" : "text-teal-700"}`}>
+            {selectedProductIds.size} selected
+          </span>
+          <Button variant="secondary" size="sm" onClick={() => setSelectedProductIds(new Set())}>
+            Clear
+          </Button>
+          <Button variant="secondary" size="sm" onClick={handleBulkDelete} className="text-red-600 hover:text-red-700">
+            <Trash2 size={14} />
+            Delete Selected
+          </Button>
+        </div>
+      )}
+
       {/* Table Container */}
       <div className={`overflow-x-auto rounded-lg border ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
         <table className="w-full min-w-[800px] table-fixed">
           {/* Table Header */}
           <thead className={`sticky top-0 z-10 ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}>
             <tr>
+              <th className="px-2 py-2 w-[40px]">
+                <input
+                  type="checkbox"
+                  checked={selectedProductIds.size > 0 && selectedProductIds.size === sortedProducts.length}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedProductIds(new Set(sortedProducts.map((p) => p.id)));
+                    } else {
+                      setSelectedProductIds(new Set());
+                    }
+                  }}
+                  className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                />
+              </th>
               {ALL_COLUMNS.filter((col) => visibleColumns.includes(col.key)).map((col) => (
                 <th
                   key={col.key}
@@ -2264,6 +2304,19 @@ const SteelProducts = () => {
                     isDarkMode ? "bg-gray-900 hover:bg-gray-800" : "bg-white hover:bg-gray-50"
                   }`}
                 >
+                  <td className="px-2 py-2 w-[40px]">
+                    <input
+                      type="checkbox"
+                      checked={selectedProductIds.has(product.id)}
+                      onChange={(e) => {
+                        const next = new Set(selectedProductIds);
+                        if (e.target.checked) next.add(product.id);
+                        else next.delete(product.id);
+                        setSelectedProductIds(next);
+                      }}
+                      className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                    />
+                  </td>
                   {ALL_COLUMNS.filter((col) => visibleColumns.includes(col.key)).map((col) => (
                     <td
                       key={col.key}
@@ -2285,6 +2338,11 @@ const SteelProducts = () => {
                             }`}
                           />
                           <span className="font-medium">{stockData.value}</span>
+                          <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                            {(product.pricingBasis || product.pricing_basis) === "PER_PCS" ? "PCS"
+                              : (product.pricingBasis || product.pricing_basis) === "PER_METER" ? "M"
+                              : "MT"}
+                          </span>
                         </div>
                       ) : col.key === "buyPrice" || col.key === "sellPrice" ? (
                         <span className={col.key === "sellPrice" ? "text-green-600 font-medium" : ""}>
@@ -2312,25 +2370,17 @@ const SteelProducts = () => {
                           )}
                         </div>
                       ) : col.key === "productName" ? (
-                        <div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedProduct(product);
-                              setShowSpecModal(true);
-                            }}
-                            className={`font-mono text-sm text-left hover:underline ${isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"}`}
-                          >
-                            {product.uniqueName || product.unique_name || "N/A"}
-                          </button>
-                          {(product.displayName || product.display_name) &&
-                          (product.displayName || product.display_name) !==
-                            (product.uniqueName || product.unique_name) ? (
-                            <div className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                              {product.displayName || product.display_name}
-                            </div>
-                          ) : null}
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedProduct(product);
+                            setShowSpecModal(true);
+                          }}
+                          className={`font-mono text-sm text-left hover:underline truncate block w-full ${isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"}`}
+                          title={product.displayName || product.display_name || product.uniqueName || product.unique_name || ""}
+                        >
+                          {product.displayName || product.display_name || product.uniqueName || product.unique_name || "N/A"}
+                        </button>
                       ) : (
                         getCellValue(product, col.key)
                       )}
@@ -2342,36 +2392,51 @@ const SteelProducts = () => {
                       <button
                         type="button"
                         onClick={() => {
-                          const formattedProduct = {
-                            ...product,
-                            category: product.category || "",
+                          // Populate newProduct from existing product for unified Add/Edit modal
+                          const thk = product.thickness || "";
+                          setNewProduct({
+                            displayName: product.displayName || product.display_name || "",
+                            category: product.category || "sheet",
                             commodity: product.commodity || "SS",
+                            grade: product.grade || "",
+                            finish: product.finish ? String(product.finish).trim() : "",
+                            size: product.size || "",
                             sizeInch: product.sizeInch || product.size_inch || "",
                             od: product.od || "",
                             length: product.length || "",
-                            thickness: product.thickness || "",
-                            finish: product.finish ? String(product.finish).trim() : "",
-                            currentStock:
-                              product.currentStock !== undefined ? product.currentStock : product.current_stock || "",
+                            weight: product.weight || "",
+                            description: product.description || "",
+                            currentStock: product.currentStock !== undefined ? product.currentStock : product.current_stock || "",
                             minStock: product.minStock ?? product.min_stock ?? "",
                             maxStock: product.maxStock ?? product.max_stock ?? "",
                             costPrice: product.costPrice !== undefined ? product.costPrice : product.cost_price || "",
-                            sellingPrice:
-                              product.sellingPrice !== undefined ? product.sellingPrice : product.selling_price || "",
-                            displayName: product.displayName || product.display_name || "",
-                            uniqueName: product.uniqueName || product.unique_name || "",
-                            // UOM fields (added 2025-12-09)
+                            sellingPrice: product.sellingPrice !== undefined ? product.sellingPrice : product.selling_price || "",
+                            supplier: product.supplier || "",
+                            location: product.location || "",
+                            origin: product.origin || "UAE",
+                            thickness: thk,
+                            hsCode: product.hsCode || product.hs_code || "",
+                            countryOfOrigin: product.countryOfOrigin || product.country_of_origin || "",
+                            millCountry: product.millCountry || product.mill_country || "",
+                            millName: product.millName || product.mill_name || "",
+                            productCategory: product.productCategory || product.product_category || "",
                             primaryUom: product.primaryUom || product.primary_uom || "PCS",
                             unitWeightKg: product.unitWeightKg || product.unit_weight_kg || "",
-                            allowDecimalQuantity:
-                              product.allowDecimalQuantity ?? product.allow_decimal_quantity ?? false,
-                            // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
+                            allowDecimalQuantity: product.allowDecimalQuantity ?? product.allow_decimal_quantity ?? false,
                             pricingBasis: product.pricingBasis || product.pricing_basis || "PER_MT",
-                            weightTolerancePercent:
-                              product.weightTolerancePercent ?? product.weight_tolerance_percent ?? 2.5,
-                          };
-                          setSelectedProduct(formattedProduct);
-                          setShowEditModal(true);
+                            weightTolerancePercent: product.weightTolerancePercent ?? product.weight_tolerance_percent ?? 2.5,
+                            specifications: product.specifications || {
+                              length: "", width: "", thickness: "", diameter: "",
+                              tensileStrength: "", yieldStrength: "", carbonContent: "",
+                              coating: "", standard: "",
+                            },
+                          });
+                          // Check if thickness matches a standard dropdown option
+                          const stdThicknesses = ["0.3mm","0.4mm","0.5mm","0.6mm","0.7mm","0.8mm","0.9mm","1.0mm","1.2mm","1.5mm","1.6mm","2.0mm","2.5mm","3.0mm","4.0mm","5.0mm","6.0mm","8.0mm","10.0mm","12.0mm","14.0mm","16.0mm","20.0mm","25.0mm","30.0mm"];
+                          setCustomThickness(thk !== "" && !stdThicknesses.includes(thk));
+                          setEditingProductId(product.id);
+                          setSelectedProduct(product); // Keep for PricingStatusPanel
+                          setShowAddModal(true);
                         }}
                         className={`p-1.5 rounded transition-colors ${
                           isDarkMode
@@ -2562,7 +2627,10 @@ const SteelProducts = () => {
 
         {/* Add Product Modal */}
         {showAddModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            onKeyDown={(e) => { if (e.ctrlKey && e.key === "Enter") { e.preventDefault(); editingProductId ? handleEditProduct() : handleAddProduct(); } }}
+          >
             <div
               className={`rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto ${
                 isDarkMode ? "bg-[#1E2328]" : "bg-white"
@@ -2574,12 +2642,17 @@ const SteelProducts = () => {
                   isDarkMode ? "border-[#37474F]" : "border-gray-200"
                 }`}
               >
-                <h2 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  Add New Product
-                </h2>
+                <div>
+                  <h2 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    {editingProductId ? "Edit Product" : "Add New Product"}
+                  </h2>
+                  <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                    Fields marked with <span className="text-red-500">*</span> are required
+                  </p>
+                </div>
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => { setShowAddModal(false); setEditingProductId(null); }}
                   className={`p-2 rounded transition-colors bg-transparent ${
                     isDarkMode ? "text-gray-400 hover:text-gray-300" : "hover:bg-gray-100 text-gray-600"
                   }`}
@@ -2590,8 +2663,8 @@ const SteelProducts = () => {
 
               {/* Modal Content */}
               <div className="p-6 space-y-6">
-                {/* Phase 2: Enhanced Quick Start Templates with Dropdown & Clear */}
-                <div
+                {/* Phase 2: Enhanced Quick Start Templates with Dropdown & Clear - hidden in edit mode */}
+                {!editingProductId && <div
                   className={`p-4 rounded-lg border ${isDarkMode ? "bg-gray-800/50 border-gray-700" : "bg-teal-50 border-teal-200"}`}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -2609,29 +2682,6 @@ const SteelProducts = () => {
                   <p className={`text-sm mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                     Select a template to quickly pre-fill common product specifications
                   </p>
-
-                  {/* Template Dropdown Selector */}
-                  <div className="mb-3">
-                    <Select
-                      label="Choose Template"
-                      options={[
-                        { value: "", label: "Start from scratch..." },
-                        ...productTemplates.map((t) => ({
-                          value: t.id,
-                          label: t.name,
-                        })),
-                      ]}
-                      value={selectedTemplate}
-                      onChange={(e) => {
-                        const template = productTemplates.find((t) => t.id === e.target.value);
-                        if (template) {
-                          handleTemplateSelect(template);
-                        } else {
-                          setSelectedTemplate("");
-                        }
-                      }}
-                    />
-                  </div>
 
                   {/* Template Quick Buttons */}
                   <div className="flex gap-2 overflow-x-auto pb-2">
@@ -2660,62 +2710,41 @@ const SteelProducts = () => {
                     ))}
                   </div>
 
-                  {/* Phase 5: Copy from Existing Product Button */}
-                  <div className="mt-3 flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowCopyModal(true)}
-                      className={`px-4 py-2 rounded-lg border transition-all flex items-center gap-2 ${
-                        isDarkMode
-                          ? "border-gray-600 bg-gray-800 hover:bg-gray-700 text-gray-300"
-                          : "border-gray-300 bg-white hover:bg-gray-50 text-gray-700"
-                      }`}
-                    >
-                      <Copy size={16} />
-                      Copy from Existing Product
-                    </button>
-                  </div>
-                </div>
+                  {/* Copy from Existing - inline with templates */}
+                  <button
+                    type="button"
+                    onClick={() => setShowCopyModal(true)}
+                    className={`mt-2 px-3 py-1.5 rounded-lg border text-xs transition-all flex items-center gap-1.5 ${
+                      isDarkMode
+                        ? "border-gray-600 bg-gray-800 hover:bg-gray-700 text-gray-300"
+                        : "border-gray-300 bg-white hover:bg-gray-50 text-gray-700"
+                    }`}
+                  >
+                    <Copy size={12} />
+                    or copy from existing product
+                  </button>
+                </div>}
 
-                {/* Phase 4: Visual Product Name Builder */}
-                <ProductNameSegments productData={newProduct} focusedField={focusedField} isDarkMode={isDarkMode} />
+                {/* Phase 4: Visual Product Name Builder - Sticky for visibility while scrolling */}
+                <div className="sticky top-0 z-10">
+                  <ProductNameSegments productData={newProduct} focusedField={focusedField} isDarkMode={isDarkMode} />
+                </div>
 
                 {/* Basic Information with Tooltips */}
                 <div>
                   <h3 className="text-lg font-medium text-teal-600 mb-4">Basic Information</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Commodity */}
+                    {/* Commodity - Read-only badge (always SS for Stainless Steel) */}
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <label
-                          htmlFor="commodity-input"
-                          className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        >
+                        <label className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
                           Commodity
                         </label>
-                        <Tooltip content="Material type (SS = Stainless Steel, MS = Mild Steel, GI = Galvanized Iron)">
-                          <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
-                        </Tooltip>
                       </div>
-                      <input
-                        id="commodity-input"
-                        type="text"
-                        value={newProduct.commodity}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            commodity: e.target.value,
-                          })
-                        }
-                        onFocus={() => setFocusedField("commodity")}
-                        onBlur={() => setFocusedField(null)}
-                        placeholder="e.g., SS"
-                        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                          isDarkMode
-                            ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-                            : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                        }`}
-                      />
+                      <div className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${isDarkMode ? "bg-gray-800/50 border-gray-600" : "bg-gray-50 border-gray-300"}`}>
+                        <span className="px-2 py-0.5 text-xs font-bold rounded bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300">SS</span>
+                        <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Stainless Steel</span>
+                      </div>
                     </div>
 
                     {/* Category */}
@@ -2725,7 +2754,7 @@ const SteelProducts = () => {
                           htmlFor="category-select"
                           className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         >
-                          Form Type / Category
+                          Form Type / Category<span className="text-red-500 ml-1">*</span>
                         </label>
                         <Tooltip content="Product form: Sheet (flat), Pipe (round hollow), Tube (square/rectangular hollow), Coil (rolled), etc.">
                           <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
@@ -2735,19 +2764,33 @@ const SteelProducts = () => {
                         <select
                           id="category-select"
                           value={newProduct.category}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const cat = e.target.value;
+                            // Auto-map category to customs Product Category
+                            const categoryToProductCategory = {
+                              sheet: "SHEET", coil: "COIL", plate: "PLATE",
+                              round_pipe: "PIPE", seamless_pipe: "PIPE", erw_pipe: "PIPE", welded_pipe: "PIPE",
+                              square_tube: "TUBE", rectangular_tube: "TUBE",
+                              round_bar: "BAR", flat_bar: "FLAT", angle: "BAR",
+                              channel: "BAR", beam: "BAR", wire: "BAR", strip: "FLAT",
+                              circle: "SHEET", blank: "SHEET",
+                            };
                             setNewProduct({
                               ...newProduct,
-                              category: e.target.value,
-                            })
-                          }
+                              category: cat,
+                              productCategory: categoryToProductCategory[cat] || newProduct.productCategory || "",
+                            });
+                            if (validationErrors.category && cat.trim()) {
+                              setValidationErrors((prev) => ({ ...prev, category: undefined }));
+                            }
+                          }}
                           onFocus={() => setFocusedField("category")}
                           onBlur={() => setFocusedField(null)}
                           className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                             isDarkMode
                               ? "bg-gray-800 border-gray-600 text-white"
                               : "bg-white border-gray-300 text-gray-900"
-                          }`}
+                          } ${validationErrors.category ? "!border-red-500 ring-1 ring-red-500" : ""}`}
                         >
                           {categories.map((option) => (
                             <option key={option.value} value={option.value}>
@@ -2759,6 +2802,9 @@ const SteelProducts = () => {
                           className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                         />
                       </div>
+                      {validationErrors.category && (
+                        <p className="text-red-500 text-xs mt-1">{validationErrors.category}</p>
+                      )}
                     </div>
 
                     {/* Grade with Validation */}
@@ -2768,7 +2814,7 @@ const SteelProducts = () => {
                           htmlFor="grade-input"
                           className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         >
-                          Grade
+                          Grade<span className="text-red-500 ml-1">*</span>
                         </label>
                         <Tooltip
                           content={
@@ -2800,7 +2846,7 @@ const SteelProducts = () => {
                             isDarkMode
                               ? "bg-gray-800 border-gray-600 text-white"
                               : "bg-white border-gray-300 text-gray-900"
-                          }`}
+                          } ${validationErrors.grade && typeof validationErrors.grade === "string" ? "!border-red-500 ring-1 ring-red-500" : ""}`}
                         >
                           <option value="">Select grade...</option>
                           {grades.map((grade) => (
@@ -2813,7 +2859,10 @@ const SteelProducts = () => {
                           className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                         />
                       </div>
-                      {validationErrors.grade && (
+                      {validationErrors.grade && typeof validationErrors.grade === "string" && (
+                        <p className="text-red-500 text-xs mt-1">{validationErrors.grade}</p>
+                      )}
+                      {validationErrors.grade && typeof validationErrors.grade === "object" && (
                         <ValidationMessage
                           type={validationErrors.grade.type}
                           message={validationErrors.grade.message}
@@ -2832,7 +2881,7 @@ const SteelProducts = () => {
                           htmlFor="finish-select"
                           className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         >
-                          Surface Finish
+                          Surface Finish<span className="text-red-500 ml-1">*</span>
                         </label>
                         <Tooltip
                           content={
@@ -2847,19 +2896,22 @@ const SteelProducts = () => {
                         <select
                           id="finish-select"
                           value={(newProduct.finish || "").trim()}
-                          onChange={(e) =>
+                          onChange={(e) => {
                             setNewProduct({
                               ...newProduct,
                               finish: e.target.value.trim().toUpperCase(),
-                            })
-                          }
+                            });
+                            if (validationErrors.finish && e.target.value.trim()) {
+                              setValidationErrors((prev) => ({ ...prev, finish: undefined }));
+                            }
+                          }}
                           onFocus={() => setFocusedField("finish")}
                           onBlur={() => setFocusedField(null)}
                           className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                             isDarkMode
                               ? "bg-gray-800 border-gray-600 text-white"
                               : "bg-white border-gray-300 text-gray-900"
-                          }`}
+                          } ${validationErrors.finish ? "!border-red-500 ring-1 ring-red-500" : ""}`}
                         >
                           <option value="">Select finish...</option>
                           {allFinishes.map((finish) => (
@@ -2872,8 +2924,62 @@ const SteelProducts = () => {
                           className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                         />
                       </div>
+                      {validationErrors.finish && (
+                        <p className="text-red-500 text-xs mt-1">{validationErrors.finish}</p>
+                      )}
                     </div>
-                    {/* Origin */}
+                    {/* Origin - REQUIRED by backend for unique_name generation */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <label
+                          htmlFor="origin-select"
+                          className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                        >
+                          Origin Country<span className="text-red-500 ml-1">*</span>
+                        </label>
+                        <Tooltip content="Country of origin for the product. Required for SSOT naming and trade compliance.">
+                          <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                        </Tooltip>
+                      </div>
+                      <div className="relative">
+                        <select
+                          id="origin-select"
+                          value={newProduct.origin || ""}
+                          onChange={(e) => {
+                            const originVal = e.target.value;
+                            setNewProduct({
+                              ...newProduct,
+                              origin: originVal,
+                              // Auto-link: if Mill Country not yet set, sync from Origin
+                              millCountry: newProduct.millCountry || originVal,
+                            });
+                            if (validationErrors.origin && originVal.trim()) {
+                              setValidationErrors((prev) => ({ ...prev, origin: undefined }));
+                            }
+                          }}
+                          onFocus={() => setFocusedField("origin")}
+                          onBlur={() => setFocusedField(null)}
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                            isDarkMode
+                              ? "bg-gray-800 border-gray-600 text-white"
+                              : "bg-white border-gray-300 text-gray-900"
+                          } ${validationErrors.origin ? "!border-red-500 ring-1 ring-red-500" : ""}`}
+                        >
+                          <option value="">Select origin country...</option>
+                          {originOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown
+                          className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                        />
+                      </div>
+                      {validationErrors.origin && (
+                        <p className="text-red-500 text-xs mt-1">{validationErrors.origin}</p>
+                      )}
+                    </div>
 
                     {/* Dimensions - Dynamic based on category */}
                     {/pipe|tube/i.test(newProduct.category || "") ? (
@@ -2885,7 +2991,7 @@ const SteelProducts = () => {
                               htmlFor="size-inch-input"
                               className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                             >
-                              Size (inches)
+                              Size (inches)<span className="text-red-500 ml-1">*</span>
                             </label>
                             <Tooltip content='Nominal pipe size in inches (e.g., 2", 4", 6"). Standard sizes: 1/2", 3/4", 1", 1.5", 2", 3", 4", 6", 8".'>
                               <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
@@ -2983,7 +3089,7 @@ const SteelProducts = () => {
                             htmlFor="dimensions-input"
                             className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                           >
-                            Dimensions (mm)
+                            Dimensions (mm)<span className="text-red-500 ml-1">*</span>
                           </label>
                           <Tooltip content="Dimensions in millimeters. Format: Width x Length (e.g., 1220x2440) or Width x Thickness x Length. Standard sheet: 1220x2440mm (4'x8').">
                             <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
@@ -2993,12 +3099,15 @@ const SteelProducts = () => {
                           id="dimensions-input"
                           type="text"
                           value={newProduct.size}
-                          onChange={(e) =>
+                          onChange={(e) => {
                             setNewProduct({
                               ...newProduct,
                               size: e.target.value,
-                            })
-                          }
+                            });
+                            if (validationErrors.dimensions && e.target.value.trim()) {
+                              setValidationErrors((prev) => ({ ...prev, dimensions: undefined }));
+                            }
+                          }}
                           onFocus={() => setFocusedField("dimensions")}
                           onBlur={() => setFocusedField(null)}
                           placeholder="e.g., 1220x2440 or 50x50"
@@ -3006,43 +3115,122 @@ const SteelProducts = () => {
                             isDarkMode
                               ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                               : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                          }`}
+                          } ${validationErrors.dimensions ? "!border-red-500 ring-1 ring-red-500" : ""}`}
                         />
+                        {validationErrors.dimensions && (
+                          <p className="text-red-500 text-xs mt-1">{validationErrors.dimensions}</p>
+                        )}
                       </div>
                     )}
 
-                    {/* Thickness */}
+                    {/* Thickness - dropdown with standard SS gauges */}
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <label
-                          htmlFor="thickness-input"
+                          htmlFor="thickness-select"
                           className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         >
-                          Thickness
+                          Thickness<span className="text-red-500 ml-1">*</span>
                         </label>
-                        <Tooltip content="Material thickness in mm. Common: 0.5mm, 1.0mm, 1.2mm, 1.5mm, 2.0mm, 3.0mm. Thicker = stronger but heavier.">
+                        <Tooltip content="Select standard gauge thickness. Use 'Custom' for non-standard sizes.">
                           <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
                         </Tooltip>
                       </div>
-                      <input
-                        id="thickness-input"
-                        type="text"
-                        value={newProduct.thickness}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            thickness: e.target.value,
-                          })
-                        }
-                        onFocus={() => setFocusedField("dimensions")}
-                        onBlur={() => setFocusedField(null)}
-                        placeholder="e.g., 1.5mm"
-                        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                          isDarkMode
-                            ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-                            : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                        }`}
-                      />
+                      {customThickness ? (
+                        <div className="flex gap-2">
+                          <input
+                            id="thickness-select"
+                            type="text"
+                            value={newProduct.thickness}
+                            onChange={(e) => {
+                              setNewProduct({ ...newProduct, thickness: e.target.value });
+                              if (validationErrors.thickness && e.target.value.trim()) {
+                                setValidationErrors((prev) => ({ ...prev, thickness: undefined }));
+                              }
+                            }}
+                            onFocus={() => setFocusedField("thickness")}
+                            onBlur={() => setFocusedField(null)}
+                            placeholder="e.g., 1.8mm"
+                            className={`flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                              isDarkMode
+                                ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                                : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                            } ${validationErrors.thickness ? "!border-red-500 ring-1 ring-red-500" : ""}`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => { setCustomThickness(false); setNewProduct({ ...newProduct, thickness: "" }); }}
+                            className={`px-2 py-1 text-xs rounded border ${isDarkMode ? "border-gray-600 text-gray-400 hover:text-white" : "border-gray-300 text-gray-500 hover:text-gray-700"}`}
+                          >
+                            List
+                          </button>
+                        </div>
+                      ) : (
+                        <select
+                          id="thickness-select"
+                          value={newProduct.thickness}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "__custom__") {
+                              setCustomThickness(true);
+                              setNewProduct({ ...newProduct, thickness: "" });
+                              return;
+                            }
+                            setNewProduct({ ...newProduct, thickness: val });
+                            if (validationErrors.thickness && val) {
+                              setValidationErrors((prev) => ({ ...prev, thickness: undefined }));
+                            }
+                          }}
+                          onFocus={() => setFocusedField("thickness")}
+                          onBlur={() => setFocusedField(null)}
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                            isDarkMode
+                              ? "bg-gray-800 border-gray-600 text-white"
+                              : "bg-white border-gray-300 text-gray-900"
+                          } ${validationErrors.thickness ? "!border-red-500 ring-1 ring-red-500" : ""}`}
+                        >
+                          <option value="">Select thickness...</option>
+                          <optgroup label="Thin Gauge (&lt; 1mm)">
+                            <option value="0.3mm">0.3 mm</option>
+                            <option value="0.4mm">0.4 mm</option>
+                            <option value="0.5mm">0.5 mm</option>
+                            <option value="0.6mm">0.6 mm</option>
+                            <option value="0.7mm">0.7 mm</option>
+                            <option value="0.8mm">0.8 mm</option>
+                            <option value="0.9mm">0.9 mm</option>
+                          </optgroup>
+                          <optgroup label="Standard Gauge (1-3mm)">
+                            <option value="1.0mm">1.0 mm</option>
+                            <option value="1.2mm">1.2 mm</option>
+                            <option value="1.5mm">1.5 mm</option>
+                            <option value="1.6mm">1.6 mm</option>
+                            <option value="2.0mm">2.0 mm</option>
+                            <option value="2.5mm">2.5 mm</option>
+                            <option value="3.0mm">3.0 mm</option>
+                          </optgroup>
+                          <optgroup label="Heavy Gauge (4-6mm)">
+                            <option value="4.0mm">4.0 mm</option>
+                            <option value="5.0mm">5.0 mm</option>
+                            <option value="6.0mm">6.0 mm</option>
+                          </optgroup>
+                          <optgroup label="Plate (8mm+)">
+                            <option value="8.0mm">8.0 mm</option>
+                            <option value="10.0mm">10.0 mm</option>
+                            <option value="12.0mm">12.0 mm</option>
+                            <option value="14.0mm">14.0 mm</option>
+                            <option value="16.0mm">16.0 mm</option>
+                            <option value="20.0mm">20.0 mm</option>
+                            <option value="25.0mm">25.0 mm</option>
+                            <option value="30.0mm">30.0 mm</option>
+                          </optgroup>
+                          <optgroup label="Other">
+                            <option value="__custom__">Custom thickness...</option>
+                          </optgroup>
+                        </select>
+                      )}
+                      {validationErrors.thickness && (
+                        <p className="text-red-500 text-xs mt-1">{validationErrors.thickness}</p>
+                      )}
                     </div>
                     <Input
                       label="Weight (kg/pc or kg/m)"
@@ -3061,16 +3249,19 @@ const SteelProducts = () => {
                           })
                         }
                         placeholder="Enter product description"
-                        rows={3}
+                        rows={1}
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Inventory Information */}
-                <div>
-                  <h3 className="text-lg font-medium text-teal-600 mb-4">Inventory Information</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Inventory Information - collapsible (new products start at 0) */}
+                <details className={`group rounded-lg border ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                  <summary className={`flex items-center justify-between cursor-pointer p-4 ${isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}`}>
+                    <h3 className="text-lg font-medium text-teal-600">Inventory Information</h3>
+                    <ChevronDown className="w-5 h-5 text-gray-400 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 pt-0">
                     <Input
                       label="Current Stock"
                       type="number"
@@ -3108,7 +3299,7 @@ const SteelProducts = () => {
                       placeholder="Enter maximum stock level"
                     />
                   </div>
-                </div>
+                </details>
 
                 {/* Pricing Information */}
                 <div>
@@ -3128,8 +3319,8 @@ const SteelProducts = () => {
                         placeholder="Enter cost price"
                         className="pl-12"
                       />
-                      <span className={`absolute left-3 top-8 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                        د.إ
+                      <span className={`absolute left-3 top-8 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                        AED
                       </span>
                     </div>
                     <div className="relative">
@@ -3146,8 +3337,8 @@ const SteelProducts = () => {
                         placeholder="Enter selling price"
                         className="pl-12"
                       />
-                      <span className={`absolute left-3 top-8 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                        د.إ
+                      <span className={`absolute left-3 top-8 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                        AED
                       </span>
                     </div>
                     <Select
@@ -3168,7 +3359,25 @@ const SteelProducts = () => {
                       ]}
                     />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                  {/* Live Margin Preview */}
+                  {newProduct.costPrice && newProduct.sellingPrice && Number(newProduct.sellingPrice) > 0 && (
+                    <div className={`mt-2 px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${
+                      ((Number(newProduct.sellingPrice) - Number(newProduct.costPrice)) / Number(newProduct.sellingPrice) * 100) < 0
+                        ? "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
+                        : ((Number(newProduct.sellingPrice) - Number(newProduct.costPrice)) / Number(newProduct.sellingPrice) * 100) > 20
+                          ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                          : "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400"
+                    }`}>
+                      <span className="font-medium">Margin:</span>
+                      <span className="font-bold">
+                        {((Number(newProduct.sellingPrice) - Number(newProduct.costPrice)) / Number(newProduct.sellingPrice) * 100).toFixed(1)}%
+                      </span>
+                      <span className="text-xs opacity-75">
+                        (AED {(Number(newProduct.sellingPrice) - Number(newProduct.costPrice)).toFixed(2)} per unit)
+                      </span>
+                    </div>
+                  )}
+                  <div className="mt-4">
                     <Input
                       label="Weight Tolerance %"
                       type="number"
@@ -3182,16 +3391,19 @@ const SteelProducts = () => {
                       }
                       placeholder="e.g., 2.5 for sheets"
                     />
-                    <div className={`text-xs mt-6 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                      Typical tolerances: Sheets ±2.5%, Pipes ±5%, Bars ±3%, Coils ±2%
-                    </div>
+                    <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                      Typical: Sheets ±2.5% | Coils ±2% | Bars ±3% | Pipes ±5%
+                    </p>
                   </div>
                 </div>
 
-                {/* Supplier & Location */}
-                <div>
-                  <h3 className="text-lg font-medium text-teal-600 mb-4">Supplier & Location</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Supplier & Location - collapsible */}
+                <details className={`group rounded-lg border ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                  <summary className={`flex items-center justify-between cursor-pointer p-4 ${isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}`}>
+                    <h3 className="text-lg font-medium text-teal-600">Supplier & Location</h3>
+                    <ChevronDown className="w-5 h-5 text-gray-400 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 pt-0">
                     <Input
                       label="Supplier"
                       value={newProduct.supplier}
@@ -3215,54 +3427,15 @@ const SteelProducts = () => {
                       placeholder="Enter storage location"
                     />
                   </div>
-                </div>
+                </details>
 
-                {/* Product Specifications */}
-                <div>
-                  <h3 className="text-lg font-medium text-teal-600 mb-4">Product Specifications</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Input
-                      label="Length"
-                      value={newProduct.specifications.length}
-                      onChange={(e) =>
-                        setNewProduct({
-                          ...newProduct,
-                          specifications: {
-                            ...newProduct.specifications,
-                            length: e.target.value,
-                          },
-                        })
-                      }
-                      placeholder="Enter length"
-                    />
-                    <Input
-                      label="Width"
-                      value={newProduct.specifications.width}
-                      onChange={(e) =>
-                        setNewProduct({
-                          ...newProduct,
-                          specifications: {
-                            ...newProduct.specifications,
-                            width: e.target.value,
-                          },
-                        })
-                      }
-                      placeholder="Enter width"
-                    />
-                    <Input
-                      label="Thickness"
-                      value={newProduct.specifications.thickness}
-                      onChange={(e) =>
-                        setNewProduct({
-                          ...newProduct,
-                          specifications: {
-                            ...newProduct.specifications,
-                            thickness: e.target.value,
-                          },
-                        })
-                      }
-                      placeholder="Enter thickness"
-                    />
+                {/* Product Specifications (advanced material properties) */}
+                <details className={`group rounded-lg border ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                  <summary className={`flex items-center justify-between cursor-pointer p-4 ${isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}`}>
+                    <h3 className="text-lg font-medium text-teal-600">Product Specifications</h3>
+                    <ChevronDown className="w-5 h-5 text-gray-400 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 pt-0">
                     <Input
                       label="Diameter"
                       value={newProduct.specifications.diameter}
@@ -3350,12 +3523,15 @@ const SteelProducts = () => {
                       />
                     </div>
                   </div>
-                </div>
+                </details>
 
-                {/* Phase 3: Product Master Data */}
-                <div>
-                  <h3 className="text-lg font-medium text-teal-600 mb-4">Customs & Trade Compliance (Phase 3)</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Customs & Trade Compliance - collapsible */}
+                <details className={`group rounded-lg border ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                  <summary className={`flex items-center justify-between cursor-pointer p-4 ${isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}`}>
+                    <h3 className="text-lg font-medium text-teal-600">Customs & Trade Compliance</h3>
+                    <ChevronDown className="w-5 h-5 text-gray-400 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 pt-0">
                     <Input
                       label="HS Code (Harmonized System)"
                       value={newProduct.hsCode || ""}
@@ -3375,12 +3551,25 @@ const SteelProducts = () => {
                       }
                       placeholder="Select manufacturing country..."
                     />
-                    <Input
-                      label="Origin Status"
-                      value={newProduct.millCountry === "AE" ? "LOCAL" : newProduct.millCountry ? "IMPORTED" : ""}
-                      readOnly
-                      placeholder="Auto-computed from mill country"
-                    />
+                    {/* Origin Status - computed badge */}
+                    <div>
+                      <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
+                        Origin Status
+                      </label>
+                      {newProduct.millCountry ? (
+                        <span className={`inline-block px-3 py-1.5 text-sm font-medium rounded-lg ${
+                          newProduct.millCountry === "AE"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                            : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                        }`}>
+                          {newProduct.millCountry === "AE" ? "LOCAL" : "IMPORTED"}
+                        </span>
+                      ) : (
+                        <span className={`text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                          Select mill country to determine
+                        </span>
+                      )}
+                    </div>
                     <Input
                       label="Mill Name / Manufacturer"
                       value={newProduct.millName || ""}
@@ -3413,7 +3602,7 @@ const SteelProducts = () => {
                       placeholder="Select category..."
                     />
                   </div>
-                </div>
+                </details>
               </div>
 
               {/* Phase 7: Similar Products Sidebar (Optional) */}
@@ -3509,574 +3698,60 @@ const SteelProducts = () => {
               <div
                 className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
               >
-                <Button variant="secondary" onClick={() => setShowAddModal(false)}>
+                <Button variant="secondary" onClick={() => { setShowAddModal(false); setEditingProductId(null); }}>
                   Cancel
                 </Button>
-                <Button onClick={handleAddProduct} disabled={!newProduct.displayName}>
-                  <Save size={16} />
-                  Add Product
+                <Button
+                  onClick={editingProductId ? handleEditProduct : handleAddProduct}
+                  disabled={editingProductId ? updatingProduct : false}
+                >
+                  {editingProductId && updatingProduct ? <RefreshCw size={16} className="animate-spin" /> : <Save size={16} />}
+                  {editingProductId ? (updatingProduct ? "Saving..." : "Save Changes") : "Add Product"}
                 </Button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Edit Product Modal */}
-        {showEditModal && selectedProduct && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div
-              className={`rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto ${
-                isDarkMode ? "bg-[#1E2328]" : "bg-white"
-              }`}
-            >
-              {/* Modal Header */}
-              <div
-                className={`flex justify-between items-center p-6 border-b ${
-                  isDarkMode ? "border-[#37474F]" : "border-gray-200"
-                }`}
-              >
-                <h2 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Edit Product</h2>
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className={`p-2 rounded transition-colors bg-transparent ${
-                    isDarkMode ? "text-gray-400 hover:text-gray-300" : "hover:bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              {/* Modal Content */}
-              <div className="p-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Product Identity (SSOT) - Read Only */}
-                  <div className="sm:col-span-2">
-                    <Input
-                      label="Product Identity (SSOT)"
-                      value={selectedProduct.uniqueName || selectedProduct.unique_name || ""}
-                      readOnly
-                      className={`${isDarkMode ? "bg-gray-900 text-teal-400" : "bg-gray-50 text-teal-600"} font-medium font-mono text-sm`}
-                      placeholder="Auto-generated from product attributes"
-                    />
-                    <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                      Pattern: SS-{"{Grade}"}-{"{Form}"}-{"{Finish}"}-{"{Dimensions}"} • Auto-generated, cannot be
-                      edited
-                    </p>
-                  </div>
-
-                  {/* Display Name - Editable */}
-                  <div className="sm:col-span-2">
-                    <div className="flex items-end gap-2">
-                      <div className="flex-1">
-                        <Input
-                          label="Display Name (Optional)"
-                          value={selectedProduct.displayName || selectedProduct.display_name || ""}
-                          onChange={(e) =>
-                            setSelectedProduct((prev) => ({
-                              ...prev,
-                              displayName: e.target.value,
-                              display_name: e.target.value,
-                            }))
-                          }
-                          className={`${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"} font-medium`}
-                          placeholder="Custom label for UI display (defaults to identity)"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setSelectedProduct((prev) => ({
-                            ...prev,
-                            displayName: prev.uniqueName || prev.unique_name || "",
-                            display_name: prev.uniqueName || prev.unique_name || "",
-                          }))
-                        }
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
-                          isDarkMode
-                            ? "bg-teal-700 hover:bg-teal-600 text-white"
-                            : "bg-teal-100 hover:bg-teal-200 text-teal-700"
-                        }`}
-                        title="Reset display name to match product identity"
-                      >
-                        <RotateCcw size={14} />
-                        Reset
-                      </button>
-                    </div>
-                    <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                      Friendly label for dropdowns and UI. Leave empty to use Product Identity.
-                    </p>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="sm:col-span-2">
-                    <div className={`border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} my-2`}></div>
-                    <p className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"} mb-2`}>
-                      Product Attributes
-                    </p>
-                  </div>
-
-                  <Select
-                    label="Category"
-                    options={categories}
-                    value={selectedProduct.category}
-                    onChange={(e) =>
-                      setSelectedProduct({
-                        ...selectedProduct,
-                        category: e.target.value,
-                      })
-                    }
-                  />
-                  <Input
-                    label="Commodity"
-                    value={selectedProduct.commodity || "SS"}
-                    onChange={(e) =>
-                      setSelectedProduct({
-                        ...selectedProduct,
-                        commodity: e.target.value,
-                      })
-                    }
-                  />
-                  <div>
-                    <Input
-                      label="Grade (GR)"
-                      value={selectedProduct.grade}
-                      onChange={(e) =>
-                        setSelectedProduct({
-                          ...selectedProduct,
-                          grade: e.target.value,
-                        })
-                      }
-                    />
-                    <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                      Enter grade number only (e.g., 304, 316L)
-                    </p>
-                  </div>
-                  <Select
-                    label="Finish"
-                    options={allFinishes.map((finish) => ({
-                      value: finish,
-                      label: `${finish} Finish`,
-                    }))}
-                    value={(selectedProduct.finish || "").trim()}
-                    onChange={(e) =>
-                      setSelectedProduct({
-                        ...selectedProduct,
-                        finish: e.target.value.trim().toUpperCase(),
-                      })
-                    }
-                  />
-                  {/pipe|tube/i.test(selectedProduct.category || "") ? (
-                    <>
-                      <Input
-                        label={'Size (inch " )'}
-                        value={selectedProduct.sizeInch || ""}
-                        onChange={(e) =>
-                          setSelectedProduct({
-                            ...selectedProduct,
-                            sizeInch: e.target.value,
-                          })
-                        }
-                      />
-                      <Input
-                        label={'OD (")'}
-                        value={selectedProduct.od || ""}
-                        onChange={(e) =>
-                          setSelectedProduct({
-                            ...selectedProduct,
-                            od: e.target.value,
-                          })
-                        }
-                      />
-                      <Input
-                        label={'Length (")'}
-                        value={selectedProduct.length || ""}
-                        onChange={(e) =>
-                          setSelectedProduct({
-                            ...selectedProduct,
-                            length: e.target.value,
-                          })
-                        }
-                      />
-                    </>
-                  ) : (
-                    <Input
-                      label="Size (MM)"
-                      value={selectedProduct.size}
-                      onChange={(e) =>
-                        setSelectedProduct({
-                          ...selectedProduct,
-                          size: e.target.value,
-                        })
-                      }
-                    />
-                  )}
-                  <Input
-                    label="Thickness"
-                    value={selectedProduct.thickness || ""}
-                    onChange={(e) =>
-                      setSelectedProduct({
-                        ...selectedProduct,
-                        thickness: e.target.value,
-                      })
-                    }
-                  />
-                  <Input
-                    label="Current Stock"
-                    type="number"
-                    value={selectedProduct.currentStock || ""}
-                    onChange={(e) =>
-                      setSelectedProduct({
-                        ...selectedProduct,
-                        currentStock: e.target.value === "" ? "" : Number(e.target.value) || "",
-                      })
-                    }
-                  />
-                  <Input
-                    label="Minimum Stock"
-                    type="number"
-                    value={selectedProduct.minStock || ""}
-                    onChange={(e) =>
-                      setSelectedProduct({
-                        ...selectedProduct,
-                        minStock: e.target.value === "" ? "" : Number(e.target.value) || "",
-                      })
-                    }
-                  />
-                  <Input
-                    label="Maximum Stock"
-                    type="number"
-                    value={selectedProduct.maxStock || ""}
-                    onChange={(e) =>
-                      setSelectedProduct({
-                        ...selectedProduct,
-                        maxStock: e.target.value === "" ? "" : Number(e.target.value) || "",
-                      })
-                    }
-                  />
-                  {selectedProduct.maxStock > 0 && selectedProduct.minStock > selectedProduct.maxStock && (
-                    <p className="text-sm text-red-500 mt-1">Minimum stock cannot be greater than maximum stock</p>
-                  )}
-
-                  {/* Unit of Measure Section (added 2025-12-09) */}
-                  <div className="sm:col-span-2 pt-2">
-                    <p className={`text-xs font-semibold ${isDarkMode ? "text-teal-400" : "text-teal-600"} mb-2`}>
-                      Unit of Measure
-                      {/* Phase 4: Show weight requirement warning */}
-                      {categoryPolicy?.requires_weight && (
-                        <span className={`ml-2 text-xs ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}>
-                          (Weight required for this category)
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                  <Select
-                    label="Primary UOM"
-                    options={[
-                      {
-                        value: "PCS",
-                        label: `Pieces (PCS)${!isUomAllowed("PCS") ? " - Not allowed" : ""}`,
-                        disabled: !isUomAllowed("PCS"),
-                      },
-                      {
-                        value: "KG",
-                        label: `Kilograms (KG)${!isUomAllowed("KG") ? " - Not allowed" : ""}`,
-                        disabled: !isUomAllowed("KG"),
-                      },
-                      {
-                        value: "MT",
-                        label: `Metric Tons (MT)${!isUomAllowed("MT") ? " - Not allowed" : ""}`,
-                        disabled: !isUomAllowed("MT"),
-                      },
-                      {
-                        value: "METER",
-                        label: `Meters${!isUomAllowed("METER") ? " - Not allowed" : ""}`,
-                        disabled: !isUomAllowed("METER"),
-                      },
-                      {
-                        value: "SQM",
-                        label: `Square Meters${!isUomAllowed("SQM") ? " - Not allowed" : ""}`,
-                        disabled: !isUomAllowed("SQM"),
-                      },
-                      {
-                        value: "BUNDLE",
-                        label: `Bundles${!isUomAllowed("BUNDLE") ? " - Not allowed" : ""}`,
-                        disabled: !isUomAllowed("BUNDLE"),
-                      },
-                    ].filter((opt) => isUomAllowed(opt.value))}
-                    value={selectedProduct.primaryUom || selectedProduct.primary_uom || "PCS"}
-                    onChange={(e) => {
-                      const uom = e.target.value;
-                      const allowDecimal = ["KG", "MT", "METER", "SQM"].includes(uom);
-                      setSelectedProduct({
-                        ...selectedProduct,
-                        primaryUom: uom,
-                        primary_uom: uom,
-                        allowDecimalQuantity: allowDecimal,
-                        allow_decimal_quantity: allowDecimal,
-                      });
-                    }}
-                  />
-                  <Input
-                    label="Unit Weight (kg/piece)"
-                    type="number"
-                    step="0.001"
-                    value={selectedProduct.unitWeightKg || selectedProduct.unit_weight_kg || ""}
-                    onChange={(e) =>
-                      setSelectedProduct({
-                        ...selectedProduct,
-                        unitWeightKg: e.target.value === "" ? "" : Number(e.target.value) || "",
-                        unit_weight_kg: e.target.value === "" ? "" : Number(e.target.value) || "",
-                      })
-                    }
-                    placeholder="Weight of one piece in kg"
-                    disabled={["KG", "MT"].includes(selectedProduct.primaryUom || selectedProduct.primary_uom || "PCS")}
-                  />
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="allowDecimalQty"
-                      checked={selectedProduct.allowDecimalQuantity || selectedProduct.allow_decimal_quantity || false}
-                      onChange={(e) =>
-                        setSelectedProduct({
-                          ...selectedProduct,
-                          allowDecimalQuantity: e.target.checked,
-                          allow_decimal_quantity: e.target.checked,
-                        })
-                      }
-                      className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
-                    />
-                    <label
-                      htmlFor="allowDecimalQty"
-                      className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                    >
-                      Allow decimal quantities
-                    </label>
-                  </div>
-                  {(selectedProduct.unitWeightKg || selectedProduct.unit_weight_kg) &&
-                    (selectedProduct.currentStock || selectedProduct.current_stock) && (
-                      <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                        Total Weight:{" "}
-                        {(
-                          (selectedProduct.unitWeightKg || selectedProduct.unit_weight_kg || 0) *
-                          (selectedProduct.currentStock || selectedProduct.current_stock || 0)
-                        ).toFixed(2)}{" "}
-                        kg
-                      </div>
-                    )}
-
-                  {/* Divider before pricing */}
-                  <div className="sm:col-span-2 pt-2">
-                    <p className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"} mb-2`}>
-                      Pricing
-                    </p>
-                  </div>
-                  <div className="relative">
-                    <Input
-                      label="Cost Price"
-                      type="number"
-                      value={selectedProduct.costPrice || ""}
-                      onChange={(e) => {
-                        const newValue = e.target.value === "" ? "" : Number(e.target.value) || "";
-                        setSelectedProduct({
-                          ...selectedProduct,
-                          costPrice: newValue,
-                        });
-                      }}
-                      className="pl-12"
-                    />
-                    <span className={`absolute left-3 top-8 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                      د.إ
-                    </span>
-                  </div>
-                  <div className="relative">
-                    <Input
-                      label="Selling Price"
-                      type="number"
-                      value={selectedProduct.sellingPrice || ""}
-                      onChange={(e) => {
-                        const newValue = e.target.value === "" ? "" : Number(e.target.value) || "";
-                        setSelectedProduct({
-                          ...selectedProduct,
-                          sellingPrice: newValue,
-                        });
-                      }}
-                      className="pl-12"
-                    />
-                    <span className={`absolute left-3 top-8 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                      د.إ
-                    </span>
-                  </div>
-                  <Select
-                    label="Pricing Basis"
-                    value={selectedProduct.pricingBasis || selectedProduct.pricing_basis || "PER_MT"}
-                    onChange={(e) =>
-                      setSelectedProduct({
-                        ...selectedProduct,
-                        pricingBasis: e.target.value,
-                      })
-                    }
-                    options={[
-                      { value: "PER_MT", label: "Per MT (Metric Ton)" },
-                      { value: "PER_KG", label: "Per KG" },
-                      { value: "PER_PCS", label: "Per Piece" },
-                      { value: "PER_METER", label: "Per Meter" },
-                      { value: "PER_LOT", label: "Per Lot" },
-                    ]}
-                  />
-                  <Input
-                    label="Weight Tolerance %"
-                    type="number"
-                    step="0.1"
-                    value={selectedProduct.weightTolerancePercent ?? selectedProduct.weight_tolerance_percent ?? 2.5}
-                    onChange={(e) =>
-                      setSelectedProduct({
-                        ...selectedProduct,
-                        weightTolerancePercent: e.target.value === "" ? "" : Number(e.target.value),
-                      })
-                    }
-                    placeholder="e.g., 2.5"
-                  />
-
-                  {/* Phase 3: Pricing Status Panel */}
-                  {selectedProduct.id && defaultPricelistId && (
-                    <div className="sm:col-span-2">
-                      <PricingStatusPanel
-                        productId={selectedProduct.id}
-                        sellingPrice={selectedProduct.sellingPrice || selectedProduct.selling_price}
-                        isDarkMode={isDarkMode}
-                        onQuickEdit={() => setShowPricingEditModal(true)}
-                      />
-                    </div>
-                  )}
-
-                  <Input
-                    label="Supplier"
-                    value={selectedProduct.supplier}
-                    onChange={(e) =>
-                      setSelectedProduct({
-                        ...selectedProduct,
-                        supplier: e.target.value,
-                      })
-                    }
-                  />
-                  <Input
-                    label="Storage Location"
-                    value={selectedProduct.location}
-                    onChange={(e) =>
-                      setSelectedProduct({
-                        ...selectedProduct,
-                        location: e.target.value,
-                      })
-                    }
-                  />
-                  <div className="sm:col-span-2">
-                    <Textarea
-                      label="Description"
-                      value={selectedProduct.description}
-                      onChange={(e) =>
-                        setSelectedProduct({
-                          ...selectedProduct,
-                          description: e.target.value,
-                        })
-                      }
-                      rows={3}
-                    />
-                  </div>
-
-                  {/* Phase 3: Product Master Data */}
-                  <div className="sm:col-span-2 pt-4 border-t border-gray-300 dark:border-gray-600">
-                    <h4 className="text-sm font-semibold text-teal-600 mb-3">Customs & Trade Compliance (Phase 3)</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Input
-                        label="HS Code (Harmonized System)"
-                        value={selectedProduct.hsCode || ""}
-                        onChange={(e) =>
-                          setSelectedProduct({
-                            ...selectedProduct,
-                            hsCode: e.target.value,
-                          })
-                        }
-                        placeholder="e.g., 720299 or 7225403010"
-                        error={
-                          selectedProduct.hsCode && !/^\d{6,10}$/.test(selectedProduct.hsCode)
-                            ? "Must be 6-10 digits"
-                            : ""
-                        }
-                      />
-                      <Select
-                        label="Mill Country"
-                        options={originOptions}
-                        value={selectedProduct.millCountry || ""}
-                        onChange={(e) =>
-                          setSelectedProduct({
-                            ...selectedProduct,
-                            millCountry: e.target.value,
-                          })
-                        }
-                        placeholder="Select manufacturing country..."
-                      />
-                      <Input
-                        label="Origin Status"
-                        value={
-                          selectedProduct.millCountry === "AE" ? "LOCAL" : selectedProduct.millCountry ? "IMPORTED" : ""
-                        }
-                        readOnly
-                        placeholder="Auto-computed from mill country"
-                      />
-                      <Input
-                        label="Mill Name / Manufacturer"
-                        value={selectedProduct.millName || ""}
-                        onChange={(e) =>
-                          setSelectedProduct({
-                            ...selectedProduct,
-                            millName: e.target.value,
-                          })
-                        }
-                        placeholder="e.g., Nippon Steel, Tata Steel"
-                      />
-                      <Select
-                        label="Product Category"
-                        options={[
-                          { value: "COIL", label: "COIL" },
-                          { value: "SHEET", label: "SHEET" },
-                          { value: "PLATE", label: "PLATE" },
-                          { value: "PIPE", label: "PIPE" },
-                          { value: "TUBE", label: "TUBE" },
-                          { value: "BAR", label: "BAR" },
-                          { value: "FLAT", label: "FLAT" },
-                        ]}
-                        value={selectedProduct.productCategory || ""}
-                        onChange={(e) =>
-                          setSelectedProduct({
-                            ...selectedProduct,
-                            productCategory: e.target.value,
-                          })
-                        }
-                        placeholder="Select category..."
-                      />
-                    </div>
-                  </div>
+        {/* Old Edit Product Modal removed - unified with Add Product Modal above */}
+        {/* Save Warnings Confirmation Dialog */}
+        {saveWarnings && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+            <div className={`rounded-xl shadow-2xl max-w-md w-full mx-4 ${isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white"}`}>
+              <div className={`flex items-center gap-3 px-6 py-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40">
+                  <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Review Before Saving</h3>
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Please review the following</p>
                 </div>
               </div>
-
-              {/* Modal Footer */}
-              <div
-                className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
-              >
+              <div className="px-6 py-4">
+                <ul className="space-y-2">
+                  {saveWarnings.warnings.map((w, i) => (
+                    <li key={i} className={`flex items-start gap-2 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                      <span className="mt-0.5 text-amber-500 font-bold">{i + 1}.</span>
+                      <span>{w}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className={`flex justify-end gap-3 px-6 py-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                 <button
                   type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
-                    isDarkMode ? "text-white hover:text-gray-300" : "hover:bg-gray-100 text-gray-800"
-                  }`}
+                  onClick={() => setSaveWarnings(null)}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg border ${isDarkMode ? "border-gray-600 text-gray-300 hover:bg-gray-700" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}
                 >
-                  Cancel
+                  Go Back
                 </button>
-                <Button onClick={handleEditProduct} disabled={updatingProduct}>
-                  {updatingProduct ? <RefreshCw size={16} className="animate-spin" /> : <Save size={16} />}
-                  {updatingProduct ? "Saving..." : "Save Changes"}
-                </Button>
+                <button
+                  type="button"
+                  onClick={saveWarnings.onConfirm}
+                  className="px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700"
+                >
+                  Save Anyway
+                </button>
               </div>
             </div>
           </div>
@@ -4098,40 +3773,7 @@ const SteelProducts = () => {
               return f ? (/\bfinish$/i.test(f) ? f : `${f} Finish`) : "";
             };
 
-            // Get stock status badge
-            const _getStockBadge = () => {
-              const current = selectedProduct.currentStock || 0;
-              const min = selectedProduct.minStock || 0;
-
-              if (current === 0) {
-                return (
-                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-red-500 text-white">
-                    Out of Stock
-                  </span>
-                );
-              } else if (min && current <= min) {
-                return (
-                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-500 text-white">
-                    Low Stock
-                  </span>
-                );
-              } else {
-                return <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-green-500 text-white">OK</span>;
-              }
-            };
-
             // Check if sections have data
-            const specs = selectedProduct.specifications || {};
-            const _hasTechnicalSpecs =
-              specs.thickness ||
-              specs.width ||
-              specs.length ||
-              specs.diameter ||
-              specs.tensileStrength ||
-              specs.yieldStrength ||
-              specs.carbonContent ||
-              specs.coating ||
-              specs.standard;
             const hasDescription = selectedProduct.description?.trim();
 
             // Calculate margin
