@@ -1487,16 +1487,15 @@ const SteelProducts = () => {
         thickness: newProduct.thickness,
         weight: newProduct.weight,
         description: newProduct.description,
-        currentStock: newProduct.currentStock === "" ? 0 : Number(newProduct.currentStock), // API Gateway converts to current_stock
-        minStock: newProduct.minStock === "" ? 10 : Number(newProduct.minStock), // API Gateway converts to min_stock
-        maxStock: newProduct.maxStock === "" ? 1000 : Number(newProduct.maxStock), // API Gateway converts to max_stock
-        costPrice: newProduct.costPrice === "" ? 0 : Number(newProduct.costPrice), // API Gateway converts to cost_price
-        sellingPrice: newProduct.sellingPrice === "" ? 0 : Number(newProduct.sellingPrice), // API Gateway converts to selling_price
+        // currentStock: omitted - computed from inventory_items (GRN approvals / delivery notes)
+        minStock: newProduct.minStock === "" ? 10 : Number(newProduct.minStock),
+        maxStock: newProduct.maxStock === "" ? 1000 : Number(newProduct.maxStock),
+        costPrice: newProduct.costPrice === "" ? 0 : Number(newProduct.costPrice),
+        sellingPrice: newProduct.sellingPrice === "" ? 0 : Number(newProduct.sellingPrice),
         supplier: newProduct.supplier,
         location: newProduct.location,
-        origin: newProduct.origin || "UAE", // Required for unique_name generation
-        // Phase 3: Product Master Data (added 2025-12-02)
-        hsCode: newProduct.hsCode || undefined, // API Gateway converts to hs_code
+        origin: newProduct.origin || "UAE",
+        hsCode: newProduct.hsCode || undefined,
         millCountry: newProduct.millCountry || undefined, // API Gateway converts to mill_country
         millName: newProduct.millName || undefined, // API Gateway converts to mill_name
         productCategory: newProduct.productCategory || undefined, // API Gateway converts to product_category
@@ -1830,7 +1829,7 @@ const SteelProducts = () => {
         thickness: newProduct.thickness,
         weight: newProduct.weight,
         description: newProduct.description,
-        currentStock: newProduct.currentStock === "" ? 0 : Number(newProduct.currentStock),
+        // currentStock: omitted - computed from inventory_items (GRN approvals / delivery notes)
         minStock: newProduct.minStock === "" ? 0 : Number(newProduct.minStock),
         maxStock: newProduct.maxStock === "" ? 1000 : Number(newProduct.maxStock),
         costPrice: newProduct.costPrice === "" ? 0 : Number(newProduct.costPrice),
@@ -3371,18 +3370,22 @@ const SteelProducts = () => {
                     <ChevronDown className="w-5 h-5 text-gray-400 transition-transform group-open:rotate-180" />
                   </summary>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 pt-0">
-                    <Input
-                      label="Current Stock"
-                      type="number"
-                      value={newProduct.currentStock || ""}
-                      onChange={(e) =>
-                        setNewProduct({
-                          ...newProduct,
-                          currentStock: e.target.value === "" ? "" : Number(e.target.value) || "",
-                        })
-                      }
-                      placeholder="Enter current stock"
-                    />
+                    <div>
+                      <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        Current Stock (Auto)
+                      </label>
+                      <div
+                        className={`px-3 py-2 rounded-lg border ${isDarkMode ? "bg-[#263238] border-[#37474F] text-gray-400" : "bg-gray-100 border-gray-200 text-gray-500"}`}
+                        title="Stock is managed through GRN approvals and delivery notes"
+                      >
+                        {editingProductId
+                          ? (newProduct.currentStock ?? 0)
+                          : 0}
+                      </div>
+                      <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                        Updated via GRN / Delivery Notes
+                      </p>
+                    </div>
                     <Input
                       label="Minimum Stock"
                       type="number"
@@ -4038,7 +4041,10 @@ const SteelProducts = () => {
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`} title="Default selling price from pricelists">
+                        <div
+                          className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          title="Default selling price from pricelists"
+                        >
                           Sell (Ref)
                         </div>
                         <div className={`text-base font-bold ${isDarkMode ? "text-emerald-400" : "text-emerald-600"}`}>
@@ -4046,7 +4052,10 @@ const SteelProducts = () => {
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`} title="Standard reference cost for estimation">
+                        <div
+                          className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          title="Standard reference cost for estimation"
+                        >
                           Std Cost (Ref)
                         </div>
                         <div className={`text-base font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -4054,7 +4063,10 @@ const SteelProducts = () => {
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`} title="Auto-updated from latest GRN approval">
+                        <div
+                          className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          title="Auto-updated from latest GRN approval"
+                        >
                           Last Buy
                         </div>
                         <div className={`text-base font-bold ${isDarkMode ? "text-sky-400" : "text-sky-600"}`}>
