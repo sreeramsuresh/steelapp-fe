@@ -116,7 +116,17 @@ const Input = ({ label, error, className = "", type = "text", id, required = fal
   );
 };
 
-const Select = ({ label, options, value, onChange, placeholder = "Select...", className = "", id, required = false, error = "" }) => {
+const Select = ({
+  label,
+  options,
+  value,
+  onChange,
+  placeholder = "Select...",
+  className = "",
+  id,
+  required = false,
+  error = "",
+}) => {
   const { isDarkMode } = useTheme();
   const selectId = id || `select-${label?.toLowerCase().replace(/\s+/g, "-")}`;
 
@@ -342,9 +352,7 @@ const ProductNameSegments = ({ productData, focusedField, isDarkMode }) => {
     key: "thickness",
     value: thicknessValue,
     label: "Thickness",
-    color: isDarkMode
-      ? "bg-rose-900/40 text-rose-300 border-rose-700"
-      : "bg-rose-100 text-rose-800 border-rose-300",
+    color: isDarkMode ? "bg-rose-900/40 text-rose-300 border-rose-700" : "bg-rose-100 text-rose-800 border-rose-300",
     placeholder: thicknessValue === "___",
   });
 
@@ -559,10 +567,10 @@ const SteelProducts = () => {
       width: "w-[40%]",
     },
     { key: "stock", label: "Stock", required: true, width: "w-[10%]" },
-    { key: "buyPrice", label: "Buy Price", required: true, width: "w-[12%]" },
+    { key: "buyPrice", label: "Std Cost (Ref)", required: true, width: "w-[12%]" },
     {
       key: "sellPrice",
-      label: "Sell Price",
+      label: "Sell Price (Ref)",
       required: true,
       width: "w-[12%]",
     },
@@ -1447,7 +1455,13 @@ const SteelProducts = () => {
         warnings.push(`${similarProducts.length} similar product(s) already exist — possible duplicate`);
       }
       if (warnings.length > 0) {
-        setSaveWarnings({ warnings, onConfirm: () => { setSaveWarnings(null); doAddProduct(); } });
+        setSaveWarnings({
+          warnings,
+          onConfirm: () => {
+            setSaveWarnings(null);
+            doAddProduct();
+          },
+        });
         return;
       }
       doAddProduct();
@@ -1784,7 +1798,13 @@ const SteelProducts = () => {
         }
       }
       if (warnings.length > 0) {
-        setSaveWarnings({ warnings, onConfirm: () => { setSaveWarnings(null); doEditProduct(); } });
+        setSaveWarnings({
+          warnings,
+          onConfirm: () => {
+            setSaveWarnings(null);
+            doEditProduct();
+          },
+        });
         return;
       }
       doEditProduct();
@@ -2166,7 +2186,11 @@ const SteelProducts = () => {
         </button>
         <button
           type="button"
-          onClick={() => { setEditingProductId(null); handleClearForm(); setShowAddModal(true); }}
+          onClick={() => {
+            setEditingProductId(null);
+            handleClearForm();
+            setShowAddModal(true);
+          }}
           className="h-9 px-3 text-sm font-medium rounded-lg inline-flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-500 transition-colors"
         >
           <Plus size={16} />
@@ -2227,7 +2251,9 @@ const SteelProducts = () => {
 
       {/* Bulk Actions Bar */}
       {selectedProductIds.size > 0 && (
-        <div className={`flex items-center gap-3 px-4 py-2 rounded-lg mb-2 ${isDarkMode ? "bg-teal-900/30 border border-teal-700" : "bg-teal-50 border border-teal-200"}`}>
+        <div
+          className={`flex items-center gap-3 px-4 py-2 rounded-lg mb-2 ${isDarkMode ? "bg-teal-900/30 border border-teal-700" : "bg-teal-50 border border-teal-200"}`}
+        >
           <span className={`text-sm font-medium ${isDarkMode ? "text-teal-300" : "text-teal-700"}`}>
             {selectedProductIds.size} selected
           </span>
@@ -2339,9 +2365,11 @@ const SteelProducts = () => {
                           />
                           <span className="font-medium">{stockData.value}</span>
                           <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                            {(product.pricingBasis || product.pricing_basis) === "PER_PCS" ? "PCS"
-                              : (product.pricingBasis || product.pricing_basis) === "PER_METER" ? "M"
-                              : "MT"}
+                            {(product.pricingBasis || product.pricing_basis) === "PER_PCS"
+                              ? "PCS"
+                              : (product.pricingBasis || product.pricing_basis) === "PER_METER"
+                                ? "M"
+                                : "MT"}
                           </span>
                         </div>
                       ) : col.key === "buyPrice" || col.key === "sellPrice" ? (
@@ -2377,9 +2405,19 @@ const SteelProducts = () => {
                             setShowSpecModal(true);
                           }}
                           className={`font-mono text-sm text-left hover:underline truncate block w-full ${isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"}`}
-                          title={product.displayName || product.display_name || product.uniqueName || product.unique_name || ""}
+                          title={
+                            product.displayName ||
+                            product.display_name ||
+                            product.uniqueName ||
+                            product.unique_name ||
+                            ""
+                          }
                         >
-                          {product.displayName || product.display_name || product.uniqueName || product.unique_name || "N/A"}
+                          {product.displayName ||
+                            product.display_name ||
+                            product.uniqueName ||
+                            product.unique_name ||
+                            "N/A"}
                         </button>
                       ) : (
                         getCellValue(product, col.key)
@@ -2406,11 +2444,13 @@ const SteelProducts = () => {
                             length: product.length || "",
                             weight: product.weight || "",
                             description: product.description || "",
-                            currentStock: product.currentStock !== undefined ? product.currentStock : product.current_stock || "",
+                            currentStock:
+                              product.currentStock !== undefined ? product.currentStock : product.current_stock || "",
                             minStock: product.minStock ?? product.min_stock ?? "",
                             maxStock: product.maxStock ?? product.max_stock ?? "",
                             costPrice: product.costPrice !== undefined ? product.costPrice : product.cost_price || "",
-                            sellingPrice: product.sellingPrice !== undefined ? product.sellingPrice : product.selling_price || "",
+                            sellingPrice:
+                              product.sellingPrice !== undefined ? product.sellingPrice : product.selling_price || "",
                             supplier: product.supplier || "",
                             location: product.location || "",
                             origin: product.origin || "UAE",
@@ -2422,17 +2462,51 @@ const SteelProducts = () => {
                             productCategory: product.productCategory || product.product_category || "",
                             primaryUom: product.primaryUom || product.primary_uom || "PCS",
                             unitWeightKg: product.unitWeightKg || product.unit_weight_kg || "",
-                            allowDecimalQuantity: product.allowDecimalQuantity ?? product.allow_decimal_quantity ?? false,
+                            allowDecimalQuantity:
+                              product.allowDecimalQuantity ?? product.allow_decimal_quantity ?? false,
                             pricingBasis: product.pricingBasis || product.pricing_basis || "PER_MT",
-                            weightTolerancePercent: product.weightTolerancePercent ?? product.weight_tolerance_percent ?? 2.5,
+                            weightTolerancePercent:
+                              product.weightTolerancePercent ?? product.weight_tolerance_percent ?? 2.5,
                             specifications: product.specifications || {
-                              length: "", width: "", thickness: "", diameter: "",
-                              tensileStrength: "", yieldStrength: "", carbonContent: "",
-                              coating: "", standard: "",
+                              length: "",
+                              width: "",
+                              thickness: "",
+                              diameter: "",
+                              tensileStrength: "",
+                              yieldStrength: "",
+                              carbonContent: "",
+                              coating: "",
+                              standard: "",
                             },
                           });
                           // Check if thickness matches a standard dropdown option
-                          const stdThicknesses = ["0.3mm","0.4mm","0.5mm","0.6mm","0.7mm","0.8mm","0.9mm","1.0mm","1.2mm","1.5mm","1.6mm","2.0mm","2.5mm","3.0mm","4.0mm","5.0mm","6.0mm","8.0mm","10.0mm","12.0mm","14.0mm","16.0mm","20.0mm","25.0mm","30.0mm"];
+                          const stdThicknesses = [
+                            "0.3mm",
+                            "0.4mm",
+                            "0.5mm",
+                            "0.6mm",
+                            "0.7mm",
+                            "0.8mm",
+                            "0.9mm",
+                            "1.0mm",
+                            "1.2mm",
+                            "1.5mm",
+                            "1.6mm",
+                            "2.0mm",
+                            "2.5mm",
+                            "3.0mm",
+                            "4.0mm",
+                            "5.0mm",
+                            "6.0mm",
+                            "8.0mm",
+                            "10.0mm",
+                            "12.0mm",
+                            "14.0mm",
+                            "16.0mm",
+                            "20.0mm",
+                            "25.0mm",
+                            "30.0mm",
+                          ];
                           setCustomThickness(thk !== "" && !stdThicknesses.includes(thk));
                           setEditingProductId(product.id);
                           setSelectedProduct(product); // Keep for PricingStatusPanel
@@ -2629,7 +2703,12 @@ const SteelProducts = () => {
         {showAddModal && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-            onKeyDown={(e) => { if (e.ctrlKey && e.key === "Enter") { e.preventDefault(); editingProductId ? handleEditProduct() : handleAddProduct(); } }}
+            onKeyDown={(e) => {
+              if (e.ctrlKey && e.key === "Enter") {
+                e.preventDefault();
+                editingProductId ? handleEditProduct() : handleAddProduct();
+              }
+            }}
           >
             <div
               className={`rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto ${
@@ -2652,7 +2731,10 @@ const SteelProducts = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => { setShowAddModal(false); setEditingProductId(null); }}
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setEditingProductId(null);
+                  }}
                   className={`p-2 rounded transition-colors bg-transparent ${
                     isDarkMode ? "text-gray-400 hover:text-gray-300" : "hover:bg-gray-100 text-gray-600"
                   }`}
@@ -2664,66 +2746,68 @@ const SteelProducts = () => {
               {/* Modal Content */}
               <div className="p-6 space-y-6">
                 {/* Phase 2: Enhanced Quick Start Templates with Dropdown & Clear - hidden in edit mode */}
-                {!editingProductId && <div
-                  className={`p-4 rounded-lg border ${isDarkMode ? "bg-gray-800/50 border-gray-700" : "bg-teal-50 border-teal-200"}`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-teal-500" />
-                      <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                        Quick Start Templates
-                      </h3>
-                    </div>
-                    <Button onClick={handleClearForm} variant="outline" size="sm" className="flex items-center gap-1">
-                      <RotateCcw size={14} />
-                      Clear Form
-                    </Button>
-                  </div>
-                  <p className={`text-sm mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                    Select a template to quickly pre-fill common product specifications
-                  </p>
-
-                  {/* Template Quick Buttons */}
-                  <div className="flex gap-2 overflow-x-auto pb-2">
-                    {productTemplates.map((template) => (
-                      <button
-                        key={template.id}
-                        type="button"
-                        onClick={() => handleTemplateSelect(template)}
-                        className={`flex-shrink-0 px-3 py-2 rounded-lg border transition-all ${
-                          selectedTemplate === template.id
-                            ? isDarkMode
-                              ? "border-teal-500 bg-teal-900/50 shadow-lg"
-                              : "border-teal-500 bg-teal-100 shadow-md"
-                            : isDarkMode
-                              ? "border-gray-600 bg-gray-800 hover:border-teal-600"
-                              : "border-gray-300 bg-white hover:border-teal-400"
-                        }`}
-                      >
-                        <div className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                          {template.name.split(" ")[0]} {/* Show emoji */}
-                        </div>
-                        <div className={`text-[10px] mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                          {template.grade}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Copy from Existing - inline with templates */}
-                  <button
-                    type="button"
-                    onClick={() => setShowCopyModal(true)}
-                    className={`mt-2 px-3 py-1.5 rounded-lg border text-xs transition-all flex items-center gap-1.5 ${
-                      isDarkMode
-                        ? "border-gray-600 bg-gray-800 hover:bg-gray-700 text-gray-300"
-                        : "border-gray-300 bg-white hover:bg-gray-50 text-gray-700"
-                    }`}
+                {!editingProductId && (
+                  <div
+                    className={`p-4 rounded-lg border ${isDarkMode ? "bg-gray-800/50 border-gray-700" : "bg-teal-50 border-teal-200"}`}
                   >
-                    <Copy size={12} />
-                    or copy from existing product
-                  </button>
-                </div>}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-teal-500" />
+                        <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                          Quick Start Templates
+                        </h3>
+                      </div>
+                      <Button onClick={handleClearForm} variant="outline" size="sm" className="flex items-center gap-1">
+                        <RotateCcw size={14} />
+                        Clear Form
+                      </Button>
+                    </div>
+                    <p className={`text-sm mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                      Select a template to quickly pre-fill common product specifications
+                    </p>
+
+                    {/* Template Quick Buttons */}
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {productTemplates.map((template) => (
+                        <button
+                          key={template.id}
+                          type="button"
+                          onClick={() => handleTemplateSelect(template)}
+                          className={`flex-shrink-0 px-3 py-2 rounded-lg border transition-all ${
+                            selectedTemplate === template.id
+                              ? isDarkMode
+                                ? "border-teal-500 bg-teal-900/50 shadow-lg"
+                                : "border-teal-500 bg-teal-100 shadow-md"
+                              : isDarkMode
+                                ? "border-gray-600 bg-gray-800 hover:border-teal-600"
+                                : "border-gray-300 bg-white hover:border-teal-400"
+                          }`}
+                        >
+                          <div className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                            {template.name.split(" ")[0]} {/* Show emoji */}
+                          </div>
+                          <div className={`text-[10px] mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                            {template.grade}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Copy from Existing - inline with templates */}
+                    <button
+                      type="button"
+                      onClick={() => setShowCopyModal(true)}
+                      className={`mt-2 px-3 py-1.5 rounded-lg border text-xs transition-all flex items-center gap-1.5 ${
+                        isDarkMode
+                          ? "border-gray-600 bg-gray-800 hover:bg-gray-700 text-gray-300"
+                          : "border-gray-300 bg-white hover:bg-gray-50 text-gray-700"
+                      }`}
+                    >
+                      <Copy size={12} />
+                      or copy from existing product
+                    </button>
+                  </div>
+                )}
 
                 {/* Phase 4: Visual Product Name Builder - Sticky for visibility while scrolling */}
                 <div className="sticky top-0 z-10">
@@ -2737,13 +2821,21 @@ const SteelProducts = () => {
                     {/* Commodity - Read-only badge (always SS for Stainless Steel) */}
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <label className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
+                        <label
+                          className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                        >
                           Commodity
                         </label>
                       </div>
-                      <div className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${isDarkMode ? "bg-gray-800/50 border-gray-600" : "bg-gray-50 border-gray-300"}`}>
-                        <span className="px-2 py-0.5 text-xs font-bold rounded bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300">SS</span>
-                        <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Stainless Steel</span>
+                      <div
+                        className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${isDarkMode ? "bg-gray-800/50 border-gray-600" : "bg-gray-50 border-gray-300"}`}
+                      >
+                        <span className="px-2 py-0.5 text-xs font-bold rounded bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300">
+                          SS
+                        </span>
+                        <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                          Stainless Steel
+                        </span>
                       </div>
                     </div>
 
@@ -2768,12 +2860,24 @@ const SteelProducts = () => {
                             const cat = e.target.value;
                             // Auto-map category to customs Product Category
                             const categoryToProductCategory = {
-                              sheet: "SHEET", coil: "COIL", plate: "PLATE",
-                              round_pipe: "PIPE", seamless_pipe: "PIPE", erw_pipe: "PIPE", welded_pipe: "PIPE",
-                              square_tube: "TUBE", rectangular_tube: "TUBE",
-                              round_bar: "BAR", flat_bar: "FLAT", angle: "BAR",
-                              channel: "BAR", beam: "BAR", wire: "BAR", strip: "FLAT",
-                              circle: "SHEET", blank: "SHEET",
+                              sheet: "SHEET",
+                              coil: "COIL",
+                              plate: "PLATE",
+                              round_pipe: "PIPE",
+                              seamless_pipe: "PIPE",
+                              erw_pipe: "PIPE",
+                              welded_pipe: "PIPE",
+                              square_tube: "TUBE",
+                              rectangular_tube: "TUBE",
+                              round_bar: "BAR",
+                              flat_bar: "FLAT",
+                              angle: "BAR",
+                              channel: "BAR",
+                              beam: "BAR",
+                              wire: "BAR",
+                              strip: "FLAT",
+                              circle: "SHEET",
+                              blank: "SHEET",
                             };
                             setNewProduct({
                               ...newProduct,
@@ -3159,7 +3263,10 @@ const SteelProducts = () => {
                           />
                           <button
                             type="button"
-                            onClick={() => { setCustomThickness(false); setNewProduct({ ...newProduct, thickness: "" }); }}
+                            onClick={() => {
+                              setCustomThickness(false);
+                              setNewProduct({ ...newProduct, thickness: "" });
+                            }}
                             className={`px-2 py-1 text-xs rounded border ${isDarkMode ? "border-gray-600 text-gray-400 hover:text-white" : "border-gray-300 text-gray-500 hover:text-gray-700"}`}
                           >
                             List
@@ -3257,7 +3364,9 @@ const SteelProducts = () => {
 
                 {/* Inventory Information - collapsible (new products start at 0) */}
                 <details className={`group rounded-lg border ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-                  <summary className={`flex items-center justify-between cursor-pointer p-4 ${isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}`}>
+                  <summary
+                    className={`flex items-center justify-between cursor-pointer p-4 ${isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}`}
+                  >
                     <h3 className="text-lg font-medium text-teal-600">Inventory Information</h3>
                     <ChevronDown className="w-5 h-5 text-gray-400 transition-transform group-open:rotate-180" />
                   </summary>
@@ -3306,26 +3415,33 @@ const SteelProducts = () => {
                   <h3 className="text-lg font-medium text-teal-600 mb-4">Pricing Information</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="relative">
-                      <Input
-                        label="Cost Price"
-                        type="number"
-                        value={newProduct.costPrice || ""}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            costPrice: e.target.value === "" ? "" : Number(e.target.value) || "",
-                          })
-                        }
-                        placeholder="Enter cost price"
-                        className="pl-12"
-                      />
-                      <span className={`absolute left-3 top-8 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                      <div className="flex items-center gap-1">
+                        <Input
+                          label="Standard Cost (Ref)"
+                          type="number"
+                          value={newProduct.costPrice || ""}
+                          onChange={(e) =>
+                            setNewProduct({
+                              ...newProduct,
+                              costPrice: e.target.value === "" ? "" : Number(e.target.value) || "",
+                            })
+                          }
+                          placeholder="Reference cost"
+                          className="pl-12"
+                        />
+                      </div>
+                      <span
+                        className={`absolute left-3 top-8 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      >
                         AED
                       </span>
+                      <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                        For estimation only. Inventory valued from batches.
+                      </p>
                     </div>
                     <div className="relative">
                       <Input
-                        label="Selling Price"
+                        label="Default Selling Price"
                         type="number"
                         value={newProduct.sellingPrice || ""}
                         onChange={(e) =>
@@ -3334,12 +3450,17 @@ const SteelProducts = () => {
                             sellingPrice: e.target.value === "" ? "" : Number(e.target.value) || "",
                           })
                         }
-                        placeholder="Enter selling price"
+                        placeholder="Default sell price"
                         className="pl-12"
                       />
-                      <span className={`absolute left-3 top-8 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                      <span
+                        className={`absolute left-3 top-8 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                      >
                         AED
                       </span>
+                      <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                        Actual pricing from pricelists.
+                      </p>
                     </div>
                     <Select
                       label="Pricing Basis"
@@ -3361,16 +3482,30 @@ const SteelProducts = () => {
                   </div>
                   {/* Live Margin Preview */}
                   {newProduct.costPrice && newProduct.sellingPrice && Number(newProduct.sellingPrice) > 0 && (
-                    <div className={`mt-2 px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${
-                      ((Number(newProduct.sellingPrice) - Number(newProduct.costPrice)) / Number(newProduct.sellingPrice) * 100) < 0
-                        ? "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
-                        : ((Number(newProduct.sellingPrice) - Number(newProduct.costPrice)) / Number(newProduct.sellingPrice) * 100) > 20
-                          ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-                          : "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400"
-                    }`}>
+                    <div
+                      className={`mt-2 px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${
+                        (
+                          ((Number(newProduct.sellingPrice) - Number(newProduct.costPrice)) /
+                            Number(newProduct.sellingPrice)) *
+                            100
+                        ) < 0
+                          ? "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
+                          : ((Number(newProduct.sellingPrice) - Number(newProduct.costPrice)) /
+                                Number(newProduct.sellingPrice)) *
+                                100 >
+                              20
+                            ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                            : "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400"
+                      }`}
+                    >
                       <span className="font-medium">Margin:</span>
                       <span className="font-bold">
-                        {((Number(newProduct.sellingPrice) - Number(newProduct.costPrice)) / Number(newProduct.sellingPrice) * 100).toFixed(1)}%
+                        {(
+                          ((Number(newProduct.sellingPrice) - Number(newProduct.costPrice)) /
+                            Number(newProduct.sellingPrice)) *
+                          100
+                        ).toFixed(1)}
+                        %
                       </span>
                       <span className="text-xs opacity-75">
                         (AED {(Number(newProduct.sellingPrice) - Number(newProduct.costPrice)).toFixed(2)} per unit)
@@ -3399,7 +3534,9 @@ const SteelProducts = () => {
 
                 {/* Supplier & Location - collapsible */}
                 <details className={`group rounded-lg border ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-                  <summary className={`flex items-center justify-between cursor-pointer p-4 ${isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}`}>
+                  <summary
+                    className={`flex items-center justify-between cursor-pointer p-4 ${isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}`}
+                  >
                     <h3 className="text-lg font-medium text-teal-600">Supplier & Location</h3>
                     <ChevronDown className="w-5 h-5 text-gray-400 transition-transform group-open:rotate-180" />
                   </summary>
@@ -3431,7 +3568,9 @@ const SteelProducts = () => {
 
                 {/* Product Specifications (advanced material properties) */}
                 <details className={`group rounded-lg border ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-                  <summary className={`flex items-center justify-between cursor-pointer p-4 ${isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}`}>
+                  <summary
+                    className={`flex items-center justify-between cursor-pointer p-4 ${isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}`}
+                  >
                     <h3 className="text-lg font-medium text-teal-600">Product Specifications</h3>
                     <ChevronDown className="w-5 h-5 text-gray-400 transition-transform group-open:rotate-180" />
                   </summary>
@@ -3527,7 +3666,9 @@ const SteelProducts = () => {
 
                 {/* Customs & Trade Compliance - collapsible */}
                 <details className={`group rounded-lg border ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-                  <summary className={`flex items-center justify-between cursor-pointer p-4 ${isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}`}>
+                  <summary
+                    className={`flex items-center justify-between cursor-pointer p-4 ${isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}`}
+                  >
                     <h3 className="text-lg font-medium text-teal-600">Customs & Trade Compliance</h3>
                     <ChevronDown className="w-5 h-5 text-gray-400 transition-transform group-open:rotate-180" />
                   </summary>
@@ -3553,15 +3694,19 @@ const SteelProducts = () => {
                     />
                     {/* Origin Status - computed badge */}
                     <div>
-                      <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
+                      <label
+                        className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                      >
                         Origin Status
                       </label>
                       {newProduct.millCountry ? (
-                        <span className={`inline-block px-3 py-1.5 text-sm font-medium rounded-lg ${
-                          newProduct.millCountry === "AE"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                            : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
-                        }`}>
+                        <span
+                          className={`inline-block px-3 py-1.5 text-sm font-medium rounded-lg ${
+                            newProduct.millCountry === "AE"
+                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                              : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                          }`}
+                        >
                           {newProduct.millCountry === "AE" ? "LOCAL" : "IMPORTED"}
                         </span>
                       ) : (
@@ -3698,14 +3843,24 @@ const SteelProducts = () => {
               <div
                 className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
               >
-                <Button variant="secondary" onClick={() => { setShowAddModal(false); setEditingProductId(null); }}>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setEditingProductId(null);
+                  }}
+                >
                   Cancel
                 </Button>
                 <Button
                   onClick={editingProductId ? handleEditProduct : handleAddProduct}
                   disabled={editingProductId ? updatingProduct : false}
                 >
-                  {editingProductId && updatingProduct ? <RefreshCw size={16} className="animate-spin" /> : <Save size={16} />}
+                  {editingProductId && updatingProduct ? (
+                    <RefreshCw size={16} className="animate-spin" />
+                  ) : (
+                    <Save size={16} />
+                  )}
                   {editingProductId ? (updatingProduct ? "Saving..." : "Save Changes") : "Add Product"}
                 </Button>
               </div>
@@ -3717,27 +3872,40 @@ const SteelProducts = () => {
         {/* Save Warnings Confirmation Dialog */}
         {saveWarnings && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-            <div className={`rounded-xl shadow-2xl max-w-md w-full mx-4 ${isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white"}`}>
-              <div className={`flex items-center gap-3 px-6 py-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+            <div
+              className={`rounded-xl shadow-2xl max-w-md w-full mx-4 ${isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white"}`}
+            >
+              <div
+                className={`flex items-center gap-3 px-6 py-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+              >
                 <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40">
                   <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
-                  <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Review Before Saving</h3>
-                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Please review the following</p>
+                  <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    Review Before Saving
+                  </h3>
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    Please review the following
+                  </p>
                 </div>
               </div>
               <div className="px-6 py-4">
                 <ul className="space-y-2">
                   {saveWarnings.warnings.map((w, i) => (
-                    <li key={i} className={`flex items-start gap-2 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                    <li
+                      key={i}
+                      className={`flex items-start gap-2 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                    >
                       <span className="mt-0.5 text-amber-500 font-bold">{i + 1}.</span>
                       <span>{w}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className={`flex justify-end gap-3 px-6 py-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+              <div
+                className={`flex justify-end gap-3 px-6 py-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+              >
                 <button
                   type="button"
                   onClick={() => setSaveWarnings(null)}
@@ -3857,7 +4025,7 @@ const SteelProducts = () => {
 
                     {/* Key Metrics - Compact Row */}
                     <div
-                      className={`grid grid-cols-4 gap-2 p-2 rounded-md mb-3 ${
+                      className={`grid grid-cols-5 gap-2 p-2 rounded-md mb-3 ${
                         isDarkMode ? "bg-[#252b32]" : "bg-gray-100"
                       }`}
                     >
@@ -3870,19 +4038,29 @@ const SteelProducts = () => {
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                          Sell
+                        <div className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`} title="Default selling price from pricelists">
+                          Sell (Ref)
                         </div>
                         <div className={`text-base font-bold ${isDarkMode ? "text-emerald-400" : "text-emerald-600"}`}>
                           {selectedProduct.sellingPrice ? Number(selectedProduct.sellingPrice).toLocaleString() : "—"}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                          Cost
+                        <div className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`} title="Standard reference cost for estimation">
+                          Std Cost (Ref)
                         </div>
                         <div className={`text-base font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                           {selectedProduct.costPrice ? Number(selectedProduct.costPrice).toLocaleString() : "—"}
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`} title="Auto-updated from latest GRN approval">
+                          Last Buy
+                        </div>
+                        <div className={`text-base font-bold ${isDarkMode ? "text-sky-400" : "text-sky-600"}`}>
+                          {selectedProduct.lastPurchaseCost != null && selectedProduct.lastPurchaseCost !== 0
+                            ? Number(selectedProduct.lastPurchaseCost).toLocaleString()
+                            : "N/A"}
                         </div>
                       </div>
                       <div className="text-center">

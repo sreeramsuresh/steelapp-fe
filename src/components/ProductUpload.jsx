@@ -244,22 +244,19 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
                 <FaUpload className={`w-12 h-12 mx-auto mb-4 ${textMuted}`} />
                 <p className={`text-lg ${textPrimary} mb-2`}>
                   Drag and drop your file here, or{" "}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      fileInputRef.current?.click();
-                    }}
+                  <label
+                    htmlFor="product-file-upload"
                     className="text-[#008B8B] hover:text-[#4DB6AC] underline cursor-pointer"
                   >
                     browse
-                  </button>
+                  </label>
                 </p>
                 <p className={`text-sm ${textSecondary}`}>Supports Excel (.xlsx, .xls) and CSV files up to 10MB</p>
                 <input
+                  id="product-file-upload"
                   ref={fileInputRef}
                   type="file"
-                  className="hidden"
+                  className="sr-only"
                   accept=".xlsx,.xls,.csv"
                   onChange={handleFileInputChange}
                 />
