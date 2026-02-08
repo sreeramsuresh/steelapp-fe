@@ -42,41 +42,46 @@ const WarehouseList = () => {
   const [summaryLoading, setSummaryLoading] = useState(true);
 
   // Fetch warehouses and summary
-  const fetchWarehouses = useCallback(async (options = {}) => {
-    try {
-      setLoading(true);
+  const fetchWarehouses = useCallback(
+    async (options = {}) => {
+      try {
+        setLoading(true);
 
-      // Fetch warehouses and summary in parallel
-      const [result, summaryData] = await Promise.all([
-        warehouseService.getAll({
-          search: searchTerm,
-          isActive: filterActive === "all" ? undefined : filterActive === "active",
-        }),
-        warehouseService.getSummary(),
-      ]);
+        // Fetch warehouses and summary in parallel
+        const [result, summaryData] = await Promise.all([
+          warehouseService.getAll({
+            search: searchTerm,
+            isActive: filterActive === "all" ? undefined : filterActive === "active",
+          }),
+          warehouseService.getSummary(),
+        ]);
 
-      if (options.cancelled) return;
+        if (options.cancelled) return;
 
-      const warehouseList = result.data || [];
-      setWarehouses(warehouseList);
+        const warehouseList = result.data || [];
+        setWarehouses(warehouseList);
 
-      // Update summary with fresh data (getSummary already updates cache)
-      setSummary(summaryData);
-      setSummaryLoading(false);
-    } catch (error) {
-      if (options.cancelled) return;
-      console.error("Error fetching warehouses:", error);
-      notificationService.error("Failed to load warehouses");
-      setSummaryLoading(false);
-    } finally {
-      if (!options.cancelled) setLoading(false);
-    }
-  }, [searchTerm, filterActive]);
+        // Update summary with fresh data (getSummary already updates cache)
+        setSummary(summaryData);
+        setSummaryLoading(false);
+      } catch (error) {
+        if (options.cancelled) return;
+        console.error("Error fetching warehouses:", error);
+        notificationService.error("Failed to load warehouses");
+        setSummaryLoading(false);
+      } finally {
+        if (!options.cancelled) setLoading(false);
+      }
+    },
+    [searchTerm, filterActive]
+  );
 
   useEffect(() => {
     const options = { cancelled: false };
     fetchWarehouses(options);
-    return () => { options.cancelled = true; };
+    return () => {
+      options.cancelled = true;
+    };
   }, [fetchWarehouses]);
 
   // Handlers

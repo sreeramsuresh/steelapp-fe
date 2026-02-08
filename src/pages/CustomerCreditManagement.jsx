@@ -268,8 +268,7 @@ export default function CustomerCreditManagement() {
                           {customer.creditLimit?.toFixed(2)}
                         </div>
                         <div className="text-red-600 font-semibold">
-                          +AED{" "}
-                          {(customer.outstandingAmount - customer.creditLimit)?.toFixed(2)}
+                          +AED {(customer.outstandingAmount - customer.creditLimit)?.toFixed(2)}
                         </div>
                       </div>
                     </button>

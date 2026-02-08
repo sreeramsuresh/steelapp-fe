@@ -1855,7 +1855,13 @@ const CompanySettings = () => {
               </h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextField label="VAT REG NO (TRN)" value="104858252000003" readOnly placeholder="VAT Registration Number" helperText="Read-only. Contact admin to update." />
+                <TextField
+                  label="VAT REG NO (TRN)"
+                  value="104858252000003"
+                  readOnly
+                  placeholder="VAT Registration Number"
+                  helperText="Read-only. Contact admin to update."
+                />
               </div>
             </div>
           </SettingsCard>

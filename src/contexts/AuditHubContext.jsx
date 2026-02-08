@@ -30,28 +30,31 @@ export function AuditHubProvider({ children }) {
   const initialLoadDone = useRef(false);
 
   // Load periods
-  const loadPeriods = useCallback(async (options = {}) => {
-    if (!user?.companyId) return;
+  const loadPeriods = useCallback(
+    async (options = {}) => {
+      if (!user?.companyId) return;
 
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await auditHubService.getPeriods(user.companyId, filters);
-      if (!options.cancelled) {
-        setPeriods(data);
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await auditHubService.getPeriods(user.companyId, filters);
+        if (!options.cancelled) {
+          setPeriods(data);
+        }
+      } catch (err) {
+        if (!options.cancelled) {
+          console.warn("[AuditHub] Load periods failed:", err.message || err);
+          setError(err.message);
+          setPeriods([]);
+        }
+      } finally {
+        if (!options.cancelled) {
+          setLoading(false);
+        }
       }
-    } catch (err) {
-      if (!options.cancelled) {
-        console.warn("[AuditHub] Load periods failed:", err.message || err);
-        setError(err.message);
-        setPeriods([]);
-      }
-    } finally {
-      if (!options.cancelled) {
-        setLoading(false);
-      }
-    }
-  }, [user?.companyId, filters]);
+    },
+    [user?.companyId, filters]
+  );
 
   // Guard: Redirect if no company context
   useEffect(() => {
@@ -74,7 +77,9 @@ export function AuditHubProvider({ children }) {
 
     const options = { cancelled: false };
     loadPeriods(options);
-    return () => { options.cancelled = true; };
+    return () => {
+      options.cancelled = true;
+    };
   }, [user?.companyId, loadPeriods]);
 
   // Select period and load its datasets
