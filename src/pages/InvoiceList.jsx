@@ -707,11 +707,13 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     futureDate.setDate(today.getDate() + 7);
 
     let outstandingAmount = 0;
+    let outstandingCount = 0;
     let overdueCount = 0;
     let overdueAmount = 0;
     let dueSoonCount = 0;
     let dueSoonAmount = 0;
     let paidAmount = 0;
+    let paidCount = 0;
 
     invoices.forEach((invoice) => {
       const status = normalizeStatus(invoice.status);
@@ -725,12 +727,14 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       // Paid invoices
       if (paymentStatus === "paid") {
         paidAmount += total;
+        paidCount++;
         return;
       }
 
       // Outstanding (unpaid or partially paid)
       if (paymentStatus === "unpaid" || paymentStatus === "partially_paid") {
         outstandingAmount += outstanding;
+        outstandingCount++;
 
         // Overdue
         if (dueDate < today) {
@@ -747,11 +751,13 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
     return {
       outstandingAmount,
+      outstandingCount,
       overdueCount,
       overdueAmount,
       dueSoonCount,
       dueSoonAmount,
       paidAmount,
+      paidCount,
     };
   }, [invoices, normalizePaymentStatus, normalizeStatus]);
 
@@ -766,11 +772,13 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const effectiveSummary = computedSummary ||
     summaryData || {
       outstandingAmount: 0,
+      outstandingCount: 0,
       overdueCount: 0,
       overdueAmount: 0,
       dueSoonCount: 0,
       dueSoonAmount: 0,
       paidAmount: 0,
+      paidCount: 0,
     };
 
   // Legacy functions now delegate to effectiveSummary for backward compatibility
@@ -1402,7 +1410,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       }
     } else {
       // No DN - navigate to create form with invoice pre-selected
-      navigate("/delivery-notes/new", {
+      navigate("/app/delivery-notes/new", {
         state: { selectedInvoiceId: invoice.id },
       });
     }
@@ -1686,7 +1694,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         <div className="flex justify-between items-start mb-1 sm:mb-6 px-4 sm:px-0 pt-4 sm:pt-0">
           <div>
             <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-              📄 All Invoices
+              All Invoices
             </h1>
             <p className={`${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Manage and track all your invoices</p>
           </div>
@@ -1724,7 +1732,9 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             <div className="py-4 px-3">
               <div className="text-xs uppercase tracking-wide mb-1 text-orange-600 font-semibold">Outstanding</div>
               <div className="text-2xl font-bold text-orange-600">{formatCurrency(getOutstandingAmount())}</div>
-              <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Click to filter</p>
+              <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                {effectiveSummary.outstandingCount} invoice{effectiveSummary.outstandingCount !== 1 ? "s" : ""}
+              </p>
             </div>
           </button>
 
@@ -1802,7 +1812,9 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 Paid
               </div>
               <div className="text-2xl font-bold text-green-600">{formatCurrency(getPaidAmount())}</div>
-              <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Click to filter</p>
+              <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                {effectiveSummary.paidCount} invoice{effectiveSummary.paidCount !== 1 ? "s" : ""}
+              </p>
             </div>
           </button>
         </div>
@@ -2077,7 +2089,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                           statusFilter === "all" &&
                           paymentStatusFilter === "all" && (
                             <Link
-                              to="/invoices/new"
+                              to="/app/invoices/new"
                               className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
                             >
                               <Plus size={16} />
@@ -2542,9 +2554,9 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             }`}
           >
             <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-              Showing {(pagination.currentPage - 1) * pagination.perPage + 1} to{" "}
-              {Math.min(pagination.currentPage * pagination.perPage, pagination.totalItems)} of {pagination.totalItems}{" "}
-              invoices
+              {pagination.totalItems === 0
+                ? "No invoices found"
+                : `Showing ${(pagination.currentPage - 1) * pagination.perPage + 1} to ${Math.min(pagination.currentPage * pagination.perPage, pagination.totalItems)} of ${pagination.totalItems} invoices`}
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -2564,7 +2576,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                 <ChevronLeft size={20} />
               </button>
               <span className={`px-3 py-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                Page {pagination.currentPage} of {pagination.totalPages}
+                Page {pagination.totalPages === 0 ? 0 : pagination.currentPage} of {pagination.totalPages}
               </span>
               <button
                 type="button"

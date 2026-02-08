@@ -245,15 +245,20 @@ const DeliveryNoteList = () => {
 
   return (
     <div className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-          🚚 Delivery Notes
-        </h1>
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <h1 className={`text-2xl font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+            Delivery Notes
+          </h1>
+          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+            Track shipments and deliveries for issued invoices
+          </p>
+        </div>
         {authService.hasPermission("delivery_notes", "create") && (
           <button
             type="button"
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
-            onClick={() => navigate("/delivery-notes/new")}
+            onClick={() => navigate("/app/delivery-notes/new")}
           >
             <AddIcon size={20} />
             Create Delivery Note
@@ -278,7 +283,7 @@ const DeliveryNoteList = () => {
                   ? "bg-blue-800 hover:bg-blue-700 text-blue-200"
                   : "bg-blue-200 hover:bg-blue-300 text-blue-800"
               }`}
-              onClick={() => navigate("/delivery-notes")}
+              onClick={() => navigate("/app/delivery-notes")}
             >
               View All Delivery Notes
             </button>
@@ -298,6 +303,8 @@ const DeliveryNoteList = () => {
               <Search size={20} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
             </div>
             <input
+              id="delivery-note-search"
+              name="search"
               type="text"
               placeholder="Search delivery notes..."
               value={search}
@@ -307,16 +314,20 @@ const DeliveryNoteList = () => {
                   ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
               }`}
+              aria-label="Search delivery notes"
             />
           </div>
 
           <div className="min-w-[150px] relative">
             <select
+              id="delivery-note-status"
+              name="status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
+              aria-label="Filter by status"
             >
               <option value="">All Status</option>
               <option value="pending">Pending</option>
@@ -333,12 +344,15 @@ const DeliveryNoteList = () => {
 
           <div className="min-w-[150px]">
             <input
+              id="delivery-note-date"
+              name="dateFilter"
               type="date"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
+              aria-label="Filter by date"
             />
           </div>
 
@@ -417,8 +431,12 @@ const DeliveryNoteList = () => {
                 </tr>
               ) : deliveryNotes.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className={`px-6 py-8 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                    No delivery notes found
+                  <td colSpan={6} className={`px-6 py-12 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    <div className="flex flex-col items-center gap-2">
+                      <TruckIcon className={`w-10 h-10 ${isDarkMode ? "text-gray-600" : "text-gray-300"}`} />
+                      <p className="font-medium">No delivery notes found</p>
+                      <p className="text-sm">Create a delivery note from an issued invoice to get started.</p>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -560,17 +578,22 @@ const DeliveryNoteList = () => {
           }`}
         >
           <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
-            Showing {page * rowsPerPage + 1} to {Math.min((page + 1) * rowsPerPage, totalCount)} of {totalCount} results
+            {totalCount === 0
+              ? "No results found"
+              : `Showing ${page * rowsPerPage + 1} to ${Math.min((page + 1) * rowsPerPage, totalCount)} of ${totalCount} results`}
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>Rows per page:</span>
               <select
+                id="delivery-note-rows-per-page"
+                name="rowsPerPage"
                 value={rowsPerPage}
                 onChange={handleRowsPerPageChange}
                 className={`px-2 py-1 border rounded transition-colors ${
                   isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
+                aria-label="Rows per page"
               >
                 <option value={10}>10</option>
                 <option value={25}>25</option>
@@ -596,7 +619,7 @@ const DeliveryNoteList = () => {
                 <ChevronLeft size={20} />
               </button>
               <span className={`px-3 py-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                Page {page + 1} of {Math.ceil(totalCount / rowsPerPage)}
+                Page {totalCount === 0 ? 0 : page + 1} of {Math.ceil(totalCount / rowsPerPage)}
               </span>
               <button
                 type="button"

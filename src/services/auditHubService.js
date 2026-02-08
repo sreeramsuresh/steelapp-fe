@@ -3,19 +3,20 @@ import api from "./api.js";
 /**
  * Audit Hub Service - API client for audit hub operations
  * Handles communication with backend audit endpoints
+ *
+ * Note: company_id is extracted from the JWT token by the API Gateway's
+ * multiTenancyGuard middleware. No need to pass X-Company-Id headers.
  */
 
 class AuditHubService {
   // Accounting Periods
-  async getPeriods(companyId, filters = {}) {
+  async getPeriods(_companyId, filters = {}) {
     try {
       const params = new URLSearchParams();
       if (filters.year) params.append("year", filters.year);
       if (filters.status) params.append("status", filters.status);
 
-      const response = await api.get(`/accounting-periods?${params.toString()}`, {
-        headers: { "X-Company-Id": companyId },
-      });
+      const response = await api.get(`/accounting-periods?${params.toString()}`);
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Get periods error:", error);
@@ -23,11 +24,9 @@ class AuditHubService {
     }
   }
 
-  async getPeriodById(companyId, periodId) {
+  async getPeriodById(_companyId, periodId) {
     try {
-      const response = await api.get(`/accounting-periods/${periodId}`, {
-        headers: { "X-Company-Id": companyId },
-      });
+      const response = await api.get(`/accounting-periods/${periodId}`);
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Get period error:", error);
@@ -35,19 +34,13 @@ class AuditHubService {
     }
   }
 
-  async createPeriod(companyId, periodType, year, month) {
+  async createPeriod(_companyId, periodType, year, month) {
     try {
-      const response = await api.post(
-        "/accounting-periods",
-        {
-          periodType,
-          year,
-          month,
-        },
-        {
-          headers: { "X-Company-Id": companyId },
-        }
-      );
+      const response = await api.post("/accounting-periods", {
+        periodType,
+        year,
+        month,
+      });
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Create period error:", error);
@@ -55,13 +48,9 @@ class AuditHubService {
     }
   }
 
-  async closePeriod(companyId, periodId) {
+  async closePeriod(_companyId, periodId) {
     try {
-      const response = await api.post(
-        `/accounting-periods/${periodId}/close`,
-        {},
-        { headers: { "X-Company-Id": companyId } }
-      );
+      const response = await api.post(`/accounting-periods/${periodId}/close`, {});
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Close period error:", error);
@@ -69,13 +58,9 @@ class AuditHubService {
     }
   }
 
-  async lockPeriod(companyId, periodId) {
+  async lockPeriod(_companyId, periodId) {
     try {
-      const response = await api.post(
-        `/accounting-periods/${periodId}/lock`,
-        {},
-        { headers: { "X-Company-Id": companyId } }
-      );
+      const response = await api.post(`/accounting-periods/${periodId}/lock`, {});
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Lock period error:", error);
@@ -84,11 +69,9 @@ class AuditHubService {
   }
 
   // Datasets
-  async getDatasets(companyId, periodId) {
+  async getDatasets(_companyId, periodId) {
     try {
-      const response = await api.get(`/audit-hub/datasets?period_id=${periodId}`, {
-        headers: { "X-Company-Id": companyId },
-      });
+      const response = await api.get(`/audit-hub/datasets?period_id=${periodId}`);
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Get datasets error:", error);
@@ -96,11 +79,9 @@ class AuditHubService {
     }
   }
 
-  async getDatasetById(companyId, datasetId) {
+  async getDatasetById(_companyId, datasetId) {
     try {
-      const response = await api.get(`/audit-hub/datasets/${datasetId}`, {
-        headers: { "X-Company-Id": companyId },
-      });
+      const response = await api.get(`/audit-hub/datasets/${datasetId}`);
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Get dataset error:", error);
@@ -108,16 +89,14 @@ class AuditHubService {
     }
   }
 
-  async getDatasetTransactions(companyId, datasetId, module, pagination = {}) {
+  async getDatasetTransactions(_companyId, datasetId, module, pagination = {}) {
     try {
       const params = new URLSearchParams();
       params.append("module", module);
       if (pagination.page) params.append("page", pagination.page);
       if (pagination.limit) params.append("limit", pagination.limit);
 
-      const response = await api.get(`/audit-hub/datasets/${datasetId}/transactions?${params.toString()}`, {
-        headers: { "X-Company-Id": companyId },
-      });
+      const response = await api.get(`/audit-hub/datasets/${datasetId}/transactions?${params.toString()}`);
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Get transactions error:", error);
@@ -126,13 +105,9 @@ class AuditHubService {
   }
 
   // Exports
-  async generateExcelExport(companyId, datasetId) {
+  async generateExcelExport(_companyId, datasetId) {
     try {
-      const response = await api.post(
-        `/audit-hub/datasets/${datasetId}/export/excel`,
-        {},
-        { headers: { "X-Company-Id": companyId } }
-      );
+      const response = await api.post(`/audit-hub/datasets/${datasetId}/export/excel`, {});
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Generate Excel error:", error);
@@ -140,13 +115,9 @@ class AuditHubService {
     }
   }
 
-  async generatePDFExport(companyId, datasetId) {
+  async generatePDFExport(_companyId, datasetId) {
     try {
-      const response = await api.post(
-        `/audit-hub/datasets/${datasetId}/export/pdf`,
-        {},
-        { headers: { "X-Company-Id": companyId } }
-      );
+      const response = await api.post(`/audit-hub/datasets/${datasetId}/export/pdf`, {});
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Generate PDF error:", error);
@@ -154,13 +125,9 @@ class AuditHubService {
     }
   }
 
-  async generateCSVExport(companyId, datasetId, module) {
+  async generateCSVExport(_companyId, datasetId, module) {
     try {
-      const response = await api.post(
-        `/audit-hub/datasets/${datasetId}/export/csv/${module.toLowerCase()}`,
-        {},
-        { headers: { "X-Company-Id": companyId } }
-      );
+      const response = await api.post(`/audit-hub/datasets/${datasetId}/export/csv/${module.toLowerCase()}`, {});
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Generate CSV error:", error);
@@ -168,11 +135,9 @@ class AuditHubService {
     }
   }
 
-  async getExportStatus(companyId, datasetId) {
+  async getExportStatus(_companyId, datasetId) {
     try {
-      const response = await api.get(`/audit-hub/datasets/${datasetId}/export/status`, {
-        headers: { "X-Company-Id": companyId },
-      });
+      const response = await api.get(`/audit-hub/datasets/${datasetId}/export/status`);
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Get export status error:", error);
@@ -180,12 +145,9 @@ class AuditHubService {
     }
   }
 
-  async downloadExport(companyId, datasetId, exportType) {
+  async downloadExport(_companyId, datasetId, exportType) {
     try {
-      const response = await api.get(`/audit-hub/exports/download/${datasetId}/${exportType.toLowerCase()}`, {
-        headers: { "X-Company-Id": companyId },
-        responseType: "blob",
-      });
+      const response = await api.get(`/audit-hub/exports/download/${datasetId}/${exportType.toLowerCase()}`);
       return response;
     } catch (error) {
       console.error("[AuditHub] Download export error:", error);
@@ -193,13 +155,11 @@ class AuditHubService {
     }
   }
 
-  async verifyExportRegeneration(companyId, datasetId, exportType) {
+  async verifyExportRegeneration(_companyId, datasetId, exportType) {
     try {
-      const response = await api.post(
-        `/audit-hub/datasets/${datasetId}/export/verify`,
-        { export_type: exportType },
-        { headers: { "X-Company-Id": companyId } }
-      );
+      const response = await api.post(`/audit-hub/datasets/${datasetId}/export/verify`, {
+        export_type: exportType,
+      });
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Verify export error:", error);
@@ -208,11 +168,9 @@ class AuditHubService {
   }
 
   // Reconciliations
-  async getReconciliations(companyId, fiscalPeriod) {
+  async getReconciliations(_companyId, fiscalPeriod) {
     try {
-      const response = await api.get(`/reconciliations?fiscal_period=${fiscalPeriod}`, {
-        headers: { "X-Company-Id": companyId },
-      });
+      const response = await api.get(`/reconciliations?fiscal_period=${fiscalPeriod}`);
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Get reconciliations error:", error);
@@ -220,13 +178,9 @@ class AuditHubService {
     }
   }
 
-  async reconcileAR(companyId, fiscalPeriod) {
+  async reconcileAR(_companyId, fiscalPeriod) {
     try {
-      const response = await api.post(
-        "/reconciliations/ar",
-        { fiscal_period: fiscalPeriod },
-        { headers: { "X-Company-Id": companyId } }
-      );
+      const response = await api.post("/reconciliations/ar", { fiscal_period: fiscalPeriod });
       return response.data;
     } catch (error) {
       console.error("[AuditHub] AR reconciliation error:", error);
@@ -234,13 +188,9 @@ class AuditHubService {
     }
   }
 
-  async reconcileAP(companyId, fiscalPeriod) {
+  async reconcileAP(_companyId, fiscalPeriod) {
     try {
-      const response = await api.post(
-        "/reconciliations/ap",
-        { fiscal_period: fiscalPeriod },
-        { headers: { "X-Company-Id": companyId } }
-      );
+      const response = await api.post("/reconciliations/ap", { fiscal_period: fiscalPeriod });
       return response.data;
     } catch (error) {
       console.error("[AuditHub] AP reconciliation error:", error);
@@ -248,13 +198,9 @@ class AuditHubService {
     }
   }
 
-  async reconcileInventory(companyId, fiscalPeriod) {
+  async reconcileInventory(_companyId, fiscalPeriod) {
     try {
-      const response = await api.post(
-        "/reconciliations/inventory",
-        { fiscal_period: fiscalPeriod },
-        { headers: { "X-Company-Id": companyId } }
-      );
+      const response = await api.post("/reconciliations/inventory", { fiscal_period: fiscalPeriod });
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Inventory reconciliation error:", error);
@@ -262,11 +208,9 @@ class AuditHubService {
     }
   }
 
-  async getReconciliationExceptions(companyId, reconciliationId) {
+  async getReconciliationExceptions(_companyId, reconciliationId) {
     try {
-      const response = await api.get(`/reconciliations/${reconciliationId}/exceptions`, {
-        headers: { "X-Company-Id": companyId },
-      });
+      const response = await api.get(`/reconciliations/${reconciliationId}/exceptions`);
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Get exceptions error:", error);
@@ -275,13 +219,9 @@ class AuditHubService {
   }
 
   // Sign-Offs
-  async submitSignOff(companyId, datasetId, signOffType, notes) {
+  async submitSignOff(_companyId, datasetId, signOffType, notes) {
     try {
-      const response = await api.post(
-        "/audit-hub/sign-offs",
-        { datasetId, signOffType, notes },
-        { headers: { "X-Company-Id": companyId } }
-      );
+      const response = await api.post("/audit-hub/sign-offs", { datasetId, signOffType, notes });
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Submit sign-off error:", error);
@@ -289,11 +229,9 @@ class AuditHubService {
     }
   }
 
-  async getSignOffs(companyId, datasetId) {
+  async getSignOffs(_companyId, datasetId) {
     try {
-      const response = await api.get(`/audit-hub/sign-offs/dataset/${datasetId}`, {
-        headers: { "X-Company-Id": companyId },
-      });
+      const response = await api.get(`/audit-hub/sign-offs/dataset/${datasetId}`);
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Get sign-offs error:", error);
@@ -301,11 +239,9 @@ class AuditHubService {
     }
   }
 
-  async getSignOffStatus(companyId, datasetId) {
+  async getSignOffStatus(_companyId, datasetId) {
     try {
-      const response = await api.get(`/audit-hub/sign-offs/dataset/${datasetId}/status`, {
-        headers: { "X-Company-Id": companyId },
-      });
+      const response = await api.get(`/audit-hub/sign-offs/dataset/${datasetId}/status`);
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Get sign-off status error:", error);
@@ -313,13 +249,9 @@ class AuditHubService {
     }
   }
 
-  async approveSignOff(companyId, signOffId, approvalNotes) {
+  async approveSignOff(_companyId, signOffId, approvalNotes) {
     try {
-      const response = await api.post(
-        `/audit-hub/sign-offs/${signOffId}/approve`,
-        { approvalNotes },
-        { headers: { "X-Company-Id": companyId } }
-      );
+      const response = await api.post(`/audit-hub/sign-offs/${signOffId}/approve`, { approvalNotes });
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Approve sign-off error:", error);
@@ -327,13 +259,9 @@ class AuditHubService {
     }
   }
 
-  async rejectSignOff(companyId, signOffId, rejectionReason) {
+  async rejectSignOff(_companyId, signOffId, rejectionReason) {
     try {
-      const response = await api.post(
-        `/audit-hub/sign-offs/${signOffId}/reject`,
-        { rejectionReason },
-        { headers: { "X-Company-Id": companyId } }
-      );
+      const response = await api.post(`/audit-hub/sign-offs/${signOffId}/reject`, { rejectionReason });
       return response.data;
     } catch (error) {
       console.error("[AuditHub] Reject sign-off error:", error);

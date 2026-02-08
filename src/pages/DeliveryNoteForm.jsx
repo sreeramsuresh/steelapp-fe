@@ -574,7 +574,7 @@ const DeliveryNoteForm = () => {
       }
 
       setTimeout(() => {
-        navigate("/delivery-notes");
+        navigate("/app/delivery-notes");
       }, 2000);
     } catch (err) {
       setError(`Failed to save delivery note: ${err.message}`);
@@ -604,7 +604,7 @@ const DeliveryNoteForm = () => {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => navigate("/delivery-notes")}
+              onClick={() => navigate("/app/delivery-notes")}
               className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"}`}
             >
               <ArrowLeft size={20} />

@@ -424,44 +424,62 @@ const QuotationForm = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [customersResponse, productsResponse, warehousesResponse] = await Promise.all([
+        const [customersResponse, productsResponse, warehousesResponse] = await Promise.allSettled([
           customerService.getCustomers({ status: "active", limit: 1000 }),
           productsAPI.getAll({ limit: 1000 }),
           apiClient.get("/warehouses"),
         ]);
 
-        setCustomers(customersResponse.customers || []);
-        setProducts(productsResponse.products || []);
+        if (customersResponse.status === "fulfilled") {
+          setCustomers(customersResponse.value.customers || []);
+        } else {
+          console.error("Failed to load customers:", customersResponse.reason);
+        }
 
-        const warehouseList = warehousesResponse?.warehouses || warehousesResponse?.data?.warehouses || [];
-        const activeWarehouses = warehouseList.filter((w) => w.isActive !== false);
-        // Bug #24 fix: Store full list to allow inactive warehouse pre-population in edit mode
-        // For edit mode, we'll merge in the saved warehouse if not in active list
-        setWarehouses(isEdit ? warehouseList : activeWarehouses);
+        if (productsResponse.status === "fulfilled") {
+          setProducts(productsResponse.value.products || []);
+        } else {
+          console.error("Failed to load products:", productsResponse.reason);
+        }
 
-        // Set default warehouse (Sharjah) for new quotations
-        if (!isEdit && activeWarehouses.length > 0 && !formData.warehouseId) {
-          const sharjahWarehouse = activeWarehouses.find(
-            (w) => w.city?.toLowerCase().includes("sharjah") || w.name?.toLowerCase().includes("sharjah")
-          );
-          const defaultWarehouse = sharjahWarehouse || activeWarehouses[0];
+        if (warehousesResponse.status === "fulfilled") {
+          const res = warehousesResponse.value;
+          const warehouseList = res?.warehouses || res?.data?.warehouses || [];
+          const activeWarehouses = warehouseList.filter((w) => w.isActive !== false);
+          setWarehouses(isEdit ? warehouseList : activeWarehouses);
 
-          setFormData((prev) => ({
-            ...prev,
-            warehouseId: defaultWarehouse.id.toString(),
-            warehouseName: defaultWarehouse.name || "",
-            warehouseCode: defaultWarehouse.code || "",
-            warehouseCity: defaultWarehouse.city || "",
-          }));
+          // Set default warehouse (Sharjah) for new quotations
+          if (!isEdit && activeWarehouses.length > 0) {
+            const sharjahWarehouse = activeWarehouses.find(
+              (w) => w.city?.toLowerCase().includes("sharjah") || w.name?.toLowerCase().includes("sharjah")
+            );
+            const defaultWarehouse = sharjahWarehouse || activeWarehouses[0];
+
+            setFormData((prev) => {
+              if (prev.warehouseId) return prev;
+              return {
+                ...prev,
+                warehouseId: defaultWarehouse.id.toString(),
+                warehouseName: defaultWarehouse.name || "",
+                warehouseCode: defaultWarehouse.code || "",
+                warehouseCity: defaultWarehouse.city || "",
+              };
+            });
+          }
+        } else {
+          console.error("Failed to load warehouses:", warehousesResponse.reason);
         }
 
         if (!isEdit) {
-          // Get next quotation number
-          const nextNumberResponse = await quotationService.getNextNumber();
-          setFormData((prev) => ({
-            ...prev,
-            quotationNumber: nextNumberResponse.nextQuotationNumber,
-          }));
+          try {
+            const nextNumberResponse = await quotationService.getNextNumber();
+            setFormData((prev) => ({
+              ...prev,
+              quotationNumber: nextNumberResponse.nextQuotationNumber,
+            }));
+          } catch (numErr) {
+            console.error("Failed to get next quotation number:", numErr);
+          }
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -470,8 +488,7 @@ const QuotationForm = () => {
     };
 
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, formData.warehouseId]);
+  }, [isEdit]);
 
   // Fetch quotation data for editing
   useEffect(() => {
@@ -1259,18 +1276,6 @@ const QuotationForm = () => {
     });
   }, []);
 
-  // Bug #55 fix: Create a memoized serialization of items to detect deep changes
-  const _itemsSerialized = useMemo(() => {
-    return JSON.stringify(
-      formData.items.map((item) => ({
-        amount: item.amount,
-        quantity: item.quantity,
-        rate: item.rate,
-        discount: item.discount,
-        discountType: item.discountType,
-      }))
-    );
-  }, [formData.items]);
 
   // Capture initial form data once for change detection (Bug #53 fix)
   useEffect(() => {
@@ -1301,10 +1306,10 @@ const QuotationForm = () => {
     if (hasUnsavedChanges()) {
       setUnsavedChangesDialog({
         open: true,
-        pendingPath: "/quotations",
+        pendingPath: "/app/quotations",
       });
     } else {
-      navigate("/quotations");
+      navigate("/app/quotations");
     }
   }, [hasUnsavedChanges, navigate]);
 
@@ -1445,7 +1450,7 @@ const QuotationForm = () => {
 
       // Standardized smooth transition delay (300ms)
       setTimeout(() => {
-        navigate("/quotations");
+        navigate("/app/quotations");
       }, 300);
     } catch (err) {
       console.error("Error saving quotation:", err);
@@ -2240,7 +2245,7 @@ const QuotationForm = () => {
                   {warehouses && warehouses.length > 0
                     ? warehouses.map((wh) => (
                         <SelectItem key={wh.id} value={wh.id.toString()}>
-                          {wh.name} ({wh.city})
+                          {wh.name}{wh.city ? ` (${wh.city})` : ""}
                         </SelectItem>
                       ))
                     : null}

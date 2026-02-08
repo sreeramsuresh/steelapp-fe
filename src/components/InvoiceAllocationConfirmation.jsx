@@ -72,7 +72,7 @@ const InvoiceAllocationConfirmation = () => {
         if (prev <= 1) {
           // Time expired - auto-confirm will happen on backend
           notificationService.info("Time expired. Allocation has been automatically confirmed.");
-          navigate("/invoices");
+          navigate("/app/invoices");
           return 0;
         }
         return prev - 1;
@@ -89,7 +89,7 @@ const InvoiceAllocationConfirmation = () => {
       setIsConfirming(true);
       await invoiceService.confirmInvoiceAllocation(invoiceId);
       notificationService.success("Batch allocation confirmed successfully!");
-      navigate("/invoices");
+      navigate("/app/invoices");
     } catch (err) {
       console.error("Failed to confirm allocation:", err);
       notificationService.error("Failed to confirm allocation. Please try again.");
@@ -143,7 +143,7 @@ const InvoiceAllocationConfirmation = () => {
           <p className="text-red-600 text-lg">{error || "Invoice not found"}</p>
           <button
             type="button"
-            onClick={() => navigate("/invoices")}
+            onClick={() => navigate("/app/invoices")}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Back to Invoices
@@ -161,7 +161,7 @@ const InvoiceAllocationConfirmation = () => {
           <p className="text-gray-600 text-lg">This invoice does not require confirmation.</p>
           <button
             type="button"
-            onClick={() => navigate("/invoices")}
+            onClick={() => navigate("/app/invoices")}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Back to Invoices

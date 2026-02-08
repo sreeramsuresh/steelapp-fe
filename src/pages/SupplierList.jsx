@@ -105,7 +105,7 @@ export function SupplierList() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Suppliers</CardTitle>
-          <Button onClick={() => navigate("/suppliers/new")} className="flex items-center gap-2">
+          <Button onClick={() => navigate("/app/suppliers/new")} className="flex items-center gap-2">
             <Plus size={16} />
             Add Supplier
           </Button>
@@ -116,12 +116,15 @@ export function SupplierList() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-600">Location:</span>
               <select
+                id="supplier-location-filter"
+                name="location"
                 value={filterLocation}
                 onChange={(e) => {
                   setFilterLocation(e.target.value);
                   setPage(1);
                 }}
                 className="px-3 py-1.5 border rounded-md text-sm"
+                aria-label="Filter by location"
               >
                 <option value="ALL">All Locations</option>
                 <option value="UAE_LOCAL">UAE Local</option>
@@ -131,12 +134,15 @@ export function SupplierList() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-600">Type:</span>
               <select
+                id="supplier-type-filter"
+                name="supplierType"
                 value={filterMill}
                 onChange={(e) => {
                   setFilterMill(e.target.value);
                   setPage(1);
                 }}
                 className="px-3 py-1.5 border rounded-md text-sm"
+                aria-label="Filter by supplier type"
               >
                 <option value="ALL">All Types</option>
                 <option value="MILL">Mills Only</option>

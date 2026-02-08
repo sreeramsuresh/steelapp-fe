@@ -84,7 +84,7 @@ const WarehouseDetail = () => {
     } catch (error) {
       console.error("Error fetching warehouse:", error);
       notificationService.error("Failed to load warehouse");
-      navigate("/warehouses");
+      navigate("/app/warehouses");
     } finally {
       setLoading(false);
     }
@@ -160,7 +160,7 @@ const WarehouseDetail = () => {
         <div className="text-center">
           <AlertTriangle className={`w-12 h-12 mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />
           <h2 className={`text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>Warehouse not found</h2>
-          <Link to="/warehouses" className="text-teal-500 hover:underline mt-2 inline-block">
+          <Link to="/app/warehouses" className="text-teal-500 hover:underline mt-2 inline-block">
             Back to Warehouses
           </Link>
         </div>
@@ -179,7 +179,7 @@ const WarehouseDetail = () => {
             <div className="flex items-center gap-4">
               <button
                 type="button"
-                onClick={() => navigate("/warehouses")}
+                onClick={() => navigate("/app/warehouses")}
                 className={`p-2 rounded-lg ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
               >
                 <ArrowLeft className={`w-5 h-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`} />

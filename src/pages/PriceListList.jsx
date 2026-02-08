@@ -1,6 +1,6 @@
 import { CheckCircle, Copy, DollarSign, Edit, Filter, Plus, Search, Star, Tag, Trash2, XCircle } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";
 import { notificationService } from "../services/notificationService";
@@ -123,7 +123,7 @@ export default function PriceListList() {
 
   const handleCopy = (id, e) => {
     e.stopPropagation();
-    navigate(`/pricelists/new?copyFrom=${id}`);
+    navigate(`/app/pricelists/new?copyFrom=${id}`);
   };
 
   // Filtered pricelists
@@ -193,7 +193,7 @@ export default function PriceListList() {
           <div className="flex items-center gap-2 mb-1">
             <Tag size={24} className="text-teal-600" />
             <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-              💰 Price Lists
+              Price Lists
             </h1>
           </div>
           <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
@@ -335,6 +335,8 @@ export default function PriceListList() {
               className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             />
             <input
+              id="pricelist-search"
+              name="search"
               type="text"
               placeholder="Search price lists..."
               value={searchTerm}
@@ -344,9 +346,10 @@ export default function PriceListList() {
                   ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
               }`}
+              aria-label="Search price lists"
             />
           </div>
-          <Button onClick={() => navigate("/pricelists/new")} size="sm">
+          <Button onClick={() => navigate("/app/pricelists/new")} size="sm">
             <Plus size={16} />
             New Price List
           </Button>
@@ -362,7 +365,7 @@ export default function PriceListList() {
             <Tag size={48} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg font-medium mb-2">No price lists found</p>
             <p className="text-sm mb-4">Create your first price list to manage product pricing</p>
-            <Button onClick={() => navigate("/pricelists/new")}>
+            <Button onClick={() => navigate("/app/pricelists/new")}>
               <Plus size={16} />
               Create Price List
             </Button>
@@ -370,11 +373,10 @@ export default function PriceListList() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-stretch">
             {filteredPricelists.map((pricelist) => (
-              <button
-                type="button"
+              <div
                 key={pricelist.id}
-                onClick={() => navigate(`/pricelists/${pricelist.id}`)}
-                className={`rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col w-full text-left ${
+                onClick={() => navigate(`/app/pricelists/${pricelist.id}`)}
+                className={`cursor-pointer rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col w-full text-left ${
                   isDarkMode
                     ? "bg-[#1E2328] border-[#37474F] hover:border-teal-500"
                     : "bg-white border-[#E0E0E0] hover:border-teal-500"
@@ -386,7 +388,13 @@ export default function PriceListList() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                          {pricelist.name}
+                          <Link
+                            to={`/app/pricelists/${pricelist.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="hover:underline"
+                          >
+                            {pricelist.name}
+                          </Link>
                         </h3>
                         {pricelist.isDefault && (
                           <span
@@ -412,7 +420,7 @@ export default function PriceListList() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/pricelists/${pricelist.id}/edit`);
+                          navigate(`/app/pricelists/${pricelist.id}/edit`);
                         }}
                         className={`p-1.5 rounded transition-colors ${
                           isDarkMode
@@ -494,7 +502,7 @@ export default function PriceListList() {
                       <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Date Range</span>
                       <span className={`font-medium text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                         {pricelist.effectiveFrom || pricelist.effectiveTo
-                          ? `${pricelist.effectiveFrom || "—"} to ${pricelist.effectiveTo || "—"}`
+                          ? `${pricelist.effectiveFrom || "—"} to ${pricelist.effectiveTo || "Ongoing"}`
                           : "No date range"}
                       </span>
                     </div>
@@ -520,7 +528,7 @@ export default function PriceListList() {
                     </p>
                   </div>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         )}

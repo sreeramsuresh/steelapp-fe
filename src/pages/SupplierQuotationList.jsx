@@ -155,12 +155,15 @@ export function SupplierQuotationList() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-600">Status:</span>
               <select
+                id="quotation-status-filter"
+                name="status"
                 value={statusFilter}
                 onChange={(e) => {
                   setStatusFilter(e.target.value);
                   setPage(1);
                 }}
                 className="px-3 py-1.5 border rounded-md text-sm"
+                aria-label="Filter by status"
               >
                 <option value="">All Statuses</option>
                 <option value="draft">Draft</option>
@@ -179,7 +182,10 @@ export function SupplierQuotationList() {
               <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
             </div>
           ) : quotations.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">No quotations found</div>
+            <div className="text-center py-12 text-gray-500">
+              <p className="font-medium">No supplier quotations found</p>
+              <p className="text-sm mt-1">Upload or create a supplier quotation to get started.</p>
+            </div>
           ) : (
             <>
               <Table>

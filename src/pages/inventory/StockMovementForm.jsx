@@ -141,7 +141,7 @@ const StockMovementForm = () => {
           });
         } catch (_err) {
           notificationService.error("Failed to load stock movement");
-          navigate("/inventory/stock-movements");
+          navigate("/app/inventory/stock-movements");
         } finally {
           setLoading(false);
         }
@@ -251,7 +251,7 @@ const StockMovementForm = () => {
 
       await stockMovementService.create(movementData);
       notificationService.success("Stock movement created successfully");
-      navigate("/inventory/stock-movements");
+      navigate("/app/inventory/stock-movements");
     } catch (err) {
       const parsedError = parseGrpcError(err);
       if (parsedError.code === "FAILED_PRECONDITION") {
@@ -305,7 +305,7 @@ const StockMovementForm = () => {
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => navigate("/inventory/stock-movements")}
+                  onClick={() => navigate("/app/inventory/stock-movements")}
                   className={`p-2 rounded-xl transition-colors ${
                     isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
                   }`}

@@ -1510,7 +1510,7 @@ const VATRulesHelpPanel = ({ onClose }) => {
       <div
         className={`px-5 py-2 border-t text-xs ${isDarkMode ? "border-gray-700 text-gray-500" : "border-gray-200 text-gray-400"}`}
       >
-        Last Updated: December 2024
+        Last Updated: February 2026
       </div>
     </div>
   );

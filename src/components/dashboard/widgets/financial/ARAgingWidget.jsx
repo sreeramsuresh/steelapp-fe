@@ -133,7 +133,7 @@ export const ARAgingWidget = ({
           <div className="mt-4">
             <button
               type="button"
-              onClick={() => navigate("/dashboards/ar-aging")}
+              onClick={() => navigate("/app/dashboards/ar-aging")}
               className={`w-full px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                 isDarkMode ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-blue-50 hover:bg-blue-100 text-blue-700"
               }`}

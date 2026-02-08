@@ -226,7 +226,7 @@ export default function CommissionApprovalWorkflow() {
               Total Pending Amount
             </div>
             <div className="text-3xl font-bold text-blue-600">
-              $
+              AED{" "}
               {pendingApprovals
                 .reduce((sum, c) => sum + (c.commissionAmount || c.commission_amount || 0), 0)
                 .toFixed(2)}
@@ -373,7 +373,7 @@ export default function CommissionApprovalWorkflow() {
                             className={`grid grid-cols-3 gap-4 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                           >
                             <div>
-                              <span className="font-semibold">Amount:</span> ${commissionAmount?.toFixed(2)}
+                              <span className="font-semibold">Amount:</span> AED {commissionAmount?.toFixed(2)}
                             </div>
                             <div>
                               <span className="font-semibold">Accrued:</span> {new Date().toLocaleDateString()}
@@ -507,7 +507,7 @@ export default function CommissionApprovalWorkflow() {
                         >
                           Commission Amount
                         </div>
-                        <p className="text-2xl font-bold text-blue-600">${(commissionAmount || 0).toFixed(2)}</p>
+                        <p className="text-2xl font-bold text-blue-600">AED {(commissionAmount || 0).toFixed(2)}</p>
                       </div>
                       <div>
                         <div

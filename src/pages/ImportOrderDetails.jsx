@@ -271,7 +271,7 @@ const ImportOrderDetails = () => {
     try {
       await importOrderService.deleteImportOrder(id);
       setSuccess("Import order deleted successfully");
-      setTimeout(() => navigate("/import-orders"), 1500);
+      setTimeout(() => navigate("/app/import-orders"), 1500);
     } catch (err) {
       setError(err.message || "Failed to delete import order");
     }
@@ -345,7 +345,7 @@ const ImportOrderDetails = () => {
         >
           <Package className="w-16 h-16 mx-auto mb-4 text-gray-400" />
           <p className={`text-lg ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Import order not found</p>
-          <Link to="/import-orders" className="mt-4 inline-block text-teal-600 hover:text-teal-700">
+          <Link to="/app/import-orders" className="mt-4 inline-block text-teal-600 hover:text-teal-700">
             Back to Import Orders
           </Link>
         </div>
@@ -404,7 +404,7 @@ const ImportOrderDetails = () => {
         <div className="flex items-center gap-4">
           <button
             type="button"
-            onClick={() => navigate("/import-orders")}
+            onClick={() => navigate("/app/import-orders")}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode
                 ? "text-gray-400 hover:text-gray-300 hover:bg-gray-800"

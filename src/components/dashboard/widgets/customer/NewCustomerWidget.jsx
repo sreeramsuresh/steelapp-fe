@@ -22,7 +22,7 @@ import { useTheme } from "../../../../contexts/ThemeContext";
 
 // Mock new customer data
 const MOCK_NEW_CUSTOMER_DATA = {
-  period: "December 2024",
+  period: new Date().toLocaleString("en-US", { month: "long", year: "numeric" }),
   summary: {
     newCustomersCount: 12,
     previousPeriodCount: 9,

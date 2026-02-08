@@ -120,7 +120,7 @@ const AccountStatementDetails = () => {
           <div className="flex items-center gap-4">
             <button
               type="button"
-              onClick={() => navigate("/account-statements")}
+              onClick={() => navigate("/app/account-statements")}
               className={`p-2 rounded-lg transition-colors ${
                 isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-600"
               }`}

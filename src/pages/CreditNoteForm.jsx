@@ -1026,7 +1026,7 @@ const CreditNoteForm = () => {
         deleteDraft(creditNote.invoiceId);
       }
 
-      navigate("/credit-notes");
+      navigate("/app/credit-notes");
     } catch (error) {
       console.error("Error saving credit note:", error);
       notificationService.error(error?.response?.data?.error || "Failed to save credit note");
@@ -1068,7 +1068,7 @@ const CreditNoteForm = () => {
           <div className="flex items-center gap-4">
             <button
               type="button"
-              onClick={() => navigate("/credit-notes")}
+              onClick={() => navigate("/app/credit-notes")}
               className={`p-2 rounded-lg transition-colors ${
                 isDarkMode ? "hover:bg-gray-800 text-gray-300" : "hover:bg-gray-200 text-gray-700"
               }`}

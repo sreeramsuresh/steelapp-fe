@@ -1168,7 +1168,7 @@ export default function PriceListForm() {
         notificationService.success("Price list created successfully");
       }
 
-      navigate("/pricelists");
+      navigate("/app/pricelists");
     } catch (error) {
       console.error("Error saving pricelist:", error);
       notificationService.error(error.response?.data?.message || "Failed to save price list");
@@ -1201,7 +1201,7 @@ export default function PriceListForm() {
 
       await pricelistService.create(payload);
       notificationService.success("New price list created successfully");
-      navigate("/pricelists");
+      navigate("/app/pricelists");
     } catch (error) {
       console.error("Error creating new pricelist:", error);
       notificationService.error(error.response?.data?.message || "Failed to create price list");
@@ -1375,7 +1375,7 @@ export default function PriceListForm() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => navigate("/pricelists")}
+              onClick={() => navigate("/app/pricelists")}
               className={`p-2 rounded-xl transition-colors ${
                 isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
               }`}
@@ -1434,7 +1434,7 @@ export default function PriceListForm() {
                   : "Draft"}
             </span>
             {/* Header Action Buttons */}
-            <button type="button" onClick={() => navigate("/pricelists")} className={BTN_CLASSES(isDarkMode)}>
+            <button type="button" onClick={() => navigate("/app/pricelists")} className={BTN_CLASSES(isDarkMode)}>
               Cancel
             </button>
             {/* Approval Workflow Buttons (Epic 9 - PRICE-008) */}

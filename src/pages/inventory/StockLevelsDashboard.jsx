@@ -340,7 +340,7 @@ const StockLevelsDashboard = () => {
           </div>
           <div className="flex gap-2">
             <Link
-              to="/inventory/stock-movements"
+              to="/app/inventory/stock-movements"
               className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
                 isDarkMode
                   ? "border-gray-600 text-gray-300 hover:bg-gray-700"

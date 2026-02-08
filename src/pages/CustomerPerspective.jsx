@@ -217,7 +217,7 @@ const CustomerPerspective = () => {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => navigate("/payables")}
+              onClick={() => navigate("/app/payables")}
               className={`p-2 rounded ${isDarkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-600"}`}
             >
               <ArrowLeft size={18} />

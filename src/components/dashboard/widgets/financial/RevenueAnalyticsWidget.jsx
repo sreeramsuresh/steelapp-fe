@@ -96,7 +96,9 @@ const RevenueAnalyticsWidget = ({ data: propData, onRefresh }) => {
         <div
           className={`flex flex-col items-center justify-center h-48 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
         >
+          <BarChart3 className="w-6 h-6 mb-2 opacity-40" />
           <span className="text-sm">No data available</span>
+          <span className="text-xs mt-1 opacity-70">Revenue analytics will appear once invoices are created</span>
         </div>
       </div>
     );

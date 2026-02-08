@@ -182,6 +182,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                     }}
                     className="w-4 h-4 rounded cursor-pointer"
                     disabled={sortedPayments.length === 0}
+                    aria-label="Select all payments"
                   />
                 </th>
                 <th
@@ -255,6 +256,7 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
                         checked={isSelected}
                         onChange={() => handleCheckboxChange(payment.id)}
                         className="w-4 h-4 rounded cursor-pointer"
+                        aria-label={`Select payment ${payment.reference_number || payment.id}`}
                       />
                     </td>
 

@@ -255,7 +255,7 @@ const PurchaseOrderList = () => {
             Create your first purchase order to start tracking procurement
           </p>
           <Link
-            to="/purchase-orders/new"
+            to="/app/purchase-orders/new"
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
           >
             <Plus size={20} />
@@ -287,7 +287,7 @@ const PurchaseOrderList = () => {
           </div>
           {authService.hasPermission("purchase_orders", "create") && (
             <Link
-              to="/purchase-orders/new"
+              to="/app/purchase-orders/new"
               className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
             >
               <Plus size={18} />

@@ -724,6 +724,7 @@ const StockReceiptForm = ({
                               }}
                               onChange={(e) => handleSelectAll(e.target.checked)}
                               className="w-4 h-4 rounded border-gray-400 text-[#4aa3ff] focus:ring-[#4aa3ff]/20"
+                              aria-label="Select all items"
                             />
                           </th>
                           <th className={`p-3 border-b ${tableBorder} text-left ${textMuted} font-medium`}>Product</th>
@@ -800,6 +801,7 @@ const StockReceiptForm = ({
                                   onChange={(e) => handleSelectItem(item.id, e.target.checked)}
                                   disabled={isComplete}
                                   className="w-4 h-4 rounded border-gray-400 text-[#4aa3ff] focus:ring-[#4aa3ff]/20 disabled:opacity-50"
+                                  aria-label={`Select ${item.name || item.productName || "item"}`}
                                 />
                               </td>
                               <td className={`p-3 border-b ${tableBorder}`}>

@@ -319,7 +319,7 @@ const TextField = ({
               error ? "border-red-500" : isDarkMode ? "border-gray-600" : "border-gray-300"
             } ${
               isDarkMode ? "bg-gray-800 text-white placeholder-gray-400" : "bg-white text-gray-900 placeholder-gray-500"
-            } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${readOnly ? "opacity-50 cursor-default" : ""} ${className}`}
+            } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${readOnly ? "bg-gray-100 dark:bg-gray-700/50 cursor-default border-dashed" : ""} ${className}`}
           />
         ) : (
           <input
@@ -334,7 +334,7 @@ const TextField = ({
               error ? "border-red-500" : isDarkMode ? "border-gray-600" : "border-gray-300"
             } ${
               isDarkMode ? "bg-gray-800 text-white placeholder-gray-400" : "bg-white text-gray-900 placeholder-gray-500"
-            } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${readOnly ? "opacity-50 cursor-default" : ""} ${className}`}
+            } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${readOnly ? "bg-gray-100 dark:bg-gray-700/50 cursor-default border-dashed" : ""} ${className}`}
           />
         )}
         {endAdornment && (
@@ -2268,6 +2268,7 @@ const CompanySettings = () => {
                                     }));
                                   }}
                                   className="w-4 h-4 rounded"
+                                  aria-label={`Show logo on ${doc.label}`}
                                 />
                               </td>
                               <td className="text-center py-3 px-4">
@@ -2287,6 +2288,7 @@ const CompanySettings = () => {
                                     }));
                                   }}
                                   className="w-4 h-4 rounded"
+                                  aria-label={`Show seal on ${doc.label}`}
                                 />
                               </td>
                             </tr>
@@ -2631,6 +2633,14 @@ const CompanySettings = () => {
                 className="max-w-md"
               />
             </div>
+
+            {/* User Count */}
+            {filteredUsers.length > 0 && (
+              <div className={`text-sm mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                Showing {filteredUsers.length} of {users.length} user{users.length !== 1 ? "s" : ""}
+                {userSearchTerm && " (filtered)"}
+              </div>
+            )}
 
             {/* User List */}
             <div className="space-y-4">
@@ -3766,6 +3776,7 @@ const CompanySettings = () => {
                                         permission_keys: newKeys,
                                       });
                                     }}
+                                    aria-label={`Select all ${module} permissions`}
                                     onClick={(e) => e.stopPropagation()}
                                     className="mr-3 h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                                   />
@@ -5027,7 +5038,7 @@ const CompanySettings = () => {
       <div className="mb-4">
         <button
           type="button"
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/app/dashboard")}
           className={`p-2 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-800 text-gray-300" : "hover:bg-gray-100 text-gray-600"}`}
           aria-label="Back to dashboard"
           title="Back to dashboard"

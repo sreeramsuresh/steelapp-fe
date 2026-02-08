@@ -527,7 +527,7 @@ const ExportOrderDetails = () => {
     try {
       await exportOrderService.deleteExportOrder(id);
       setSuccess("Export order deleted successfully");
-      setTimeout(() => navigate("/export-orders"), 1500);
+      setTimeout(() => navigate("/app/export-orders"), 1500);
     } catch (err) {
       setError(err.message || "Failed to delete export order");
     }
@@ -680,7 +680,7 @@ const ExportOrderDetails = () => {
           <div className="flex gap-4 justify-center">
             <button
               type="button"
-              onClick={() => navigate("/export-orders")}
+              onClick={() => navigate("/app/export-orders")}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 isDarkMode
                   ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
@@ -722,7 +722,7 @@ const ExportOrderDetails = () => {
           <p className={`text-lg mb-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
             The export order you&apos;re looking for doesn&apos;t exist or has been deleted.
           </p>
-          <Link to="/export-orders" className="inline-flex items-center gap-2 text-teal-600 hover:text-teal-700">
+          <Link to="/app/export-orders" className="inline-flex items-center gap-2 text-teal-600 hover:text-teal-700">
             <ArrowLeft size={18} />
             Back to Export Orders
           </Link>
@@ -758,7 +758,7 @@ const ExportOrderDetails = () => {
         <div className="flex items-center gap-4">
           <button
             type="button"
-            onClick={() => navigate("/export-orders")}
+            onClick={() => navigate("/app/export-orders")}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode
                 ? "text-gray-400 hover:text-gray-300 hover:bg-gray-800"

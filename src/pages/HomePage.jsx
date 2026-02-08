@@ -284,7 +284,7 @@ const HomePage = () => {
       const currentUser = localStorage.getItem("currentUser");
       if (currentUser) {
         const user = JSON.parse(currentUser);
-        return user.name || user.email?.split("@")[0] || "User";
+        return user.full_name || user.fullName || user.name || user.display_name || user.email?.split("@")[0] || "User";
       }
     } catch (error) {
       console.error("Error loading user info:", error);

@@ -32,18 +32,6 @@ import supplierBillService from "../../services/supplierBillService";
 import { supplierService } from "../../services/supplierService";
 import { formatCurrency, formatDate } from "../../utils/invoiceUtils";
 
-// UAE Emirates for place of supply filter
-const _EMIRATES = [
-  { value: "", label: "All Emirates" },
-  { value: "AE-AZ", label: "Abu Dhabi" },
-  { value: "AE-DU", label: "Dubai" },
-  { value: "AE-SH", label: "Sharjah" },
-  { value: "AE-AJ", label: "Ajman" },
-  { value: "AE-UQ", label: "Umm Al Quwain" },
-  { value: "AE-RK", label: "Ras Al Khaimah" },
-  { value: "AE-FU", label: "Fujairah" },
-];
-
 // VAT categories for filtering
 const VAT_CATEGORIES = [
   { value: "", label: "All VAT Categories" },
@@ -664,6 +652,7 @@ const SupplierBillList = () => {
                             onClick={() => navigate(`/app/supplier-bills/${bill.id}`)}
                             className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                             title="View"
+                            aria-label="View bill"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
@@ -674,6 +663,7 @@ const SupplierBillList = () => {
                               onClick={() => navigate(`/app/supplier-bills/${bill.id}/edit`)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                               title="Edit"
+                              aria-label="Edit bill"
                             >
                               <Edit className="h-4 w-4" />
                             </button>
@@ -685,6 +675,7 @@ const SupplierBillList = () => {
                               onClick={() => handleApprove(bill)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-green-900/30 text-green-400" : "hover:bg-green-100 text-green-600"}`}
                               title="Approve"
+                              aria-label="Approve bill"
                             >
                               <Check className="h-4 w-4" />
                             </button>
@@ -696,6 +687,7 @@ const SupplierBillList = () => {
                               onClick={() => handleCancel2(bill)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-amber-900/30 text-amber-400" : "hover:bg-amber-100 text-amber-600"}`}
                               title="Cancel"
+                              aria-label="Cancel bill"
                             >
                               <X className="h-4 w-4" />
                             </button>
@@ -707,6 +699,7 @@ const SupplierBillList = () => {
                               onClick={() => handleDelete(bill)}
                               className="p-2 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-colors"
                               title="Delete"
+                              aria-label="Delete bill"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>

@@ -399,13 +399,6 @@ const Dashboard = () => {
     }).format(safeAmount);
   };
 
-  const _formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-AE", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  };
 
   if (loading) {
     return (
@@ -752,7 +745,7 @@ const Dashboard = () => {
                     size="sm"
                     startIcon={<BarChart3 size={16} />}
                     className="w-full sm:w-auto"
-                    onClick={() => navigate("/trends")}
+                    onClick={() => navigate("/app/trends")}
                   >
                     View Report
                   </Button>
@@ -786,7 +779,7 @@ const Dashboard = () => {
                   Best performing products by revenue
                 </p>
               </div>
-              <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate("/products")}>
+              <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate("/app/products")}>
                 View All Products
               </Button>
             </div>

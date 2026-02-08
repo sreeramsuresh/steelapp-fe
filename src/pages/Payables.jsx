@@ -1,6 +1,6 @@
 import { Banknote, CheckCircle, Download, Printer, RefreshCw, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import AddPaymentForm from "../components/payments/AddPaymentForm";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
@@ -127,6 +127,7 @@ const getVendorName = (r) => r.vendor?.name || r.supplier?.name || r.vendorName 
 
 const POTab = ({ canManage }) => {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
   const [filters, setFilters] = useURLState({
     q: "",
     status: "all",
@@ -467,25 +468,34 @@ const POTab = ({ canManage }) => {
               <SelectItem value="due">Due Date</SelectItem>
             </FormSelect>
             <input
+              id="payables-start-date"
+              name="startDate"
               type="date"
               value={filters.start}
               onChange={(e) => setFilters({ start: e.target.value })}
               className="px-2 py-2 rounded border flex-1 min-w-0"
+              aria-label="Start date"
             />
             <span className="opacity-70 shrink-0">to</span>
             <input
+              id="payables-end-date"
+              name="endDate"
               type="date"
               value={filters.end}
               onChange={(e) => setFilters({ end: e.target.value })}
               className="px-2 py-2 rounded border flex-1 min-w-0"
+              aria-label="End date"
             />
           </div>
           <div className="flex flex-wrap sm:flex-nowrap gap-2">
             <input
+              id="payables-vendor-search"
+              name="vendorSearch"
               placeholder="Vendor"
               value={filters.vendor}
               onChange={(e) => setFilters({ vendor: e.target.value })}
               className="px-3 py-2 rounded border w-full min-w-0"
+              aria-label="Search by vendor name"
             />
           </div>
           <div className="flex flex-wrap sm:flex-nowrap gap-2">
@@ -503,28 +513,37 @@ const POTab = ({ canManage }) => {
           </div>
           <div className="flex flex-wrap sm:flex-nowrap gap-2">
             <input
+              id="payables-po-search"
+              name="poSearch"
               placeholder="PO # or search"
               value={filters.q}
               onChange={(e) => setFilters({ q: e.target.value })}
               className="px-3 py-2 rounded border w-full min-w-0"
+              aria-label="Search by PO number"
             />
           </div>
           <div className="flex flex-wrap sm:flex-nowrap gap-2">
             <input
+              id="payables-min-balance"
+              name="minBalance"
               type="number"
               step="0.01"
               placeholder="Min Balance"
               value={filters.minBal}
               onChange={(e) => setFilters({ minBal: numberInput(e.target.value) })}
               className="px-3 py-2 rounded border w-full min-w-0"
+              aria-label="Minimum balance"
             />
             <input
+              id="payables-max-balance"
+              name="maxBalance"
               type="number"
               step="0.01"
               placeholder="Max Balance"
               value={filters.maxBal}
               onChange={(e) => setFilters({ maxBal: numberInput(e.target.value) })}
               className="px-3 py-2 rounded border w-full min-w-0"
+              aria-label="Maximum balance"
             />
           </div>
           <div className="flex flex-wrap gap-2 items-center justify-end sm:justify-end">
@@ -620,6 +639,15 @@ const POTab = ({ canManage }) => {
                           ? "Try adjusting your filters"
                           : "Create a purchase order to get started"}
                       </p>
+                      {!(filters.q || filters.status !== "all" || filters.start || filters.vendor) && (
+                        <button
+                          type="button"
+                          onClick={() => navigate("/app/purchase-orders/new")}
+                          className="mt-3 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium transition-colors"
+                        >
+                          Create Purchase Order
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -928,7 +956,7 @@ const Payables = () => {
             <Banknote size={20} />
           </div>
           <div>
-            <div className="font-bold text-xl">Payables</div>
+            <h1 className="font-bold text-xl">Payables</h1>
             <div className="text-xs opacity-70">Track vendor payments and purchase orders</div>
           </div>
         </div>

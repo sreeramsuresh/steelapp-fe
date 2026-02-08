@@ -1,4 +1,4 @@
-import { AlertCircle, TrendingUp } from "lucide-react";
+import { AlertCircle, TrendingUp, Users } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { customerCreditService } from "../services/customerCreditService";
@@ -111,7 +111,7 @@ export default function CustomerCreditManagement() {
     <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
       <div className="max-w-7xl mx-auto">
         <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-          💳 Customer Credit Management
+          Customer Credit Management
         </h1>
         <p className={`mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
           Monitor credit utilization, DSO, and customer credit grades
@@ -208,8 +208,8 @@ export default function CustomerCreditManagement() {
                           {customer.creditUtilization}%
                         </div>
                         <div>
-                          <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Limit:</span> $
-                          {customer.creditLimit?.toFixed(2)}
+                          <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Limit:</span>{" "}
+                          AED {customer.creditLimit?.toFixed(2)}
                         </div>
                       </div>
                     </button>
@@ -264,8 +264,8 @@ export default function CustomerCreditManagement() {
                           {customer.outstandingAmount?.toFixed(2)}
                         </div>
                         <div>
-                          <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Limit:</span> $
-                          {customer.creditLimit?.toFixed(2)}
+                          <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Limit:</span>{" "}
+                          AED {customer.creditLimit?.toFixed(2)}
                         </div>
                         <div className="text-red-600 font-semibold">
                           +$
@@ -411,9 +411,11 @@ export default function CustomerCreditManagement() {
               </div>
             ) : (
               <div
-                className={`rounded-lg shadow p-6 text-center ${isDarkMode ? "bg-gray-800 text-gray-400" : "bg-white text-gray-500"}`}
+                className={`rounded-lg shadow p-8 text-center ${isDarkMode ? "bg-gray-800 text-gray-400" : "bg-white text-gray-500"}`}
               >
-                <p>Select a customer to view details</p>
+                <Users className={`w-10 h-10 mx-auto mb-3 ${isDarkMode ? "text-gray-600" : "text-gray-300"}`} />
+                <p className="font-medium mb-1">No customer selected</p>
+                <p className="text-sm">Click on a customer from the list to view their credit details</p>
               </div>
             )}
           </div>

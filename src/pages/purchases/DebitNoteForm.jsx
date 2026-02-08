@@ -1207,6 +1207,9 @@ const DebitNoteForm = () => {
                 </summary>
                 <div className={`p-3 border-t ${cardBorder}`}>
                   <textarea
+                    id="debit-note-notes"
+                    name="notes"
+                    aria-label="Internal notes for debit note"
                     value={debitNote.notes}
                     onChange={(e) =>
                       setDebitNote((prev) => ({

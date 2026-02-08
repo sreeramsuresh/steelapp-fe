@@ -240,9 +240,9 @@ const CustomerManagement = () => {
       case "phone":
         return customer.phone || "-";
       case "creditLimit":
-        return Number(customer.credit_limit) || 0;
+        return Number(customer.creditLimit ?? customer.credit_limit) || 0;
       case "creditUsed":
-        return Number(customer.current_credit) || 0;
+        return Number(customer.currentCredit ?? customer.current_credit) || 0;
       case "status":
         return customer.status || "active";
       default:
@@ -743,8 +743,8 @@ const CustomerManagement = () => {
   const calculateAnalytics = () => {
     const totalCustomers = customers.length;
     const activeCustomers = customers.filter((c) => normalizeStatus(c.status) === "active").length;
-    const totalCreditLimit = customers.reduce((sum, c) => sum + (Number(c.credit_limit) || 0), 0);
-    const totalCreditUsed = customers.reduce((sum, c) => sum + (Number(c.current_credit) || 0), 0);
+    const totalCreditLimit = customers.reduce((sum, c) => sum + (Number(c.creditLimit ?? c.credit_limit) || 0), 0);
+    const totalCreditUsed = customers.reduce((sum, c) => sum + (Number(c.currentCredit ?? c.current_credit) || 0), 0);
     const avgCreditUtilization = totalCreditLimit > 0 ? (totalCreditUsed / totalCreditLimit) * 100 : 0;
 
     return {
@@ -783,6 +783,8 @@ const CustomerManagement = () => {
           <div className="relative flex items-center flex-1 max-w-md">
             <FaSearch className={`absolute left-3 ${textMuted}`} />
             <input
+              id="customer-search"
+              name="search"
               type="text"
               placeholder="Search customers by name, email, or phone..."
               value={searchTerm}
@@ -792,16 +794,20 @@ const CustomerManagement = () => {
                   ? "border-[#37474F] bg-[#1E2328] text-white placeholder-[#78909C]"
                   : "border-[#E0E0E0] bg-white text-[#212121] placeholder-[#BDBDBD]"
               }`}
+              aria-label="Search customers"
             />
           </div>
 
           {/* Status Filter */}
           <select
+            id="customer-status-filter"
+            name="status"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
             className={`px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#008B8B] focus:border-transparent transition-colors duration-300 min-w-[150px] ${
               isDarkMode ? "border-[#37474F] bg-[#1E2328] text-white" : "border-[#E0E0E0] bg-white text-[#212121]"
             }`}
+            aria-label="Filter by status"
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
@@ -815,6 +821,8 @@ const CustomerManagement = () => {
             }`}
           >
             <input
+              id="customer-show-archived"
+              name="showArchived"
               type="checkbox"
               checked={showArchived}
               onChange={(e) => setShowArchived(e.target.checked)}
@@ -937,6 +945,7 @@ const CustomerManagement = () => {
                   checked={sortedCustomers.length > 0 && selectedCustomerIds.size === sortedCustomers.length}
                   onChange={toggleAllCustomers}
                   className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
+                  aria-label="Select all customers"
                 />
               </th>
               {CUSTOMER_COLUMNS.filter((col) => customerVisibleColumns.includes(col.key)).map((col) => (
@@ -1020,6 +1029,7 @@ const CustomerManagement = () => {
                       checked={selectedCustomerIds.has(customer.id)}
                       onChange={() => toggleCustomerSelection(customer.id)}
                       className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
+                      aria-label={`Select ${customer.name || "customer"}`}
                     />
                   </td>
                   {CUSTOMER_COLUMNS.filter((col) => customerVisibleColumns.includes(col.key)).map((col) => (
@@ -1351,7 +1361,7 @@ const CustomerManagement = () => {
                   checked={sortedSuppliers.length > 0 && selectedSupplierIds.size === sortedSuppliers.length}
                   onChange={toggleAllSuppliers}
                   className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
-                  title="Select all suppliers"
+                  aria-label="Select all suppliers"
                 />
               </th>
               {SUPPLIER_COLUMNS.filter((col) => supplierVisibleColumns.includes(col.key)).map((col) => (
@@ -1441,6 +1451,7 @@ const CustomerManagement = () => {
                       checked={selectedSupplierIds.has(supplier.id)}
                       onChange={() => toggleSupplierSelection(supplier.id)}
                       className="rounded border-gray-400 text-teal-600 focus:ring-teal-500"
+                      aria-label={`Select ${supplier.name || "supplier"}`}
                     />
                   </td>
                   {SUPPLIER_COLUMNS.filter((col) => supplierVisibleColumns.includes(col.key)).map((col) => (
@@ -1637,24 +1648,24 @@ const CustomerManagement = () => {
         <h3 className={`text-lg font-semibold mb-2 ${textPrimary}`}>Credit Utilization by Customer</h3>
         <p className={`text-sm mb-6 ${textMuted}`}>Only showing customers with credit limits assigned</p>
         <div className="space-y-4 max-h-96 overflow-y-auto">
-          {customers.filter((c) => (c.credit_limit || c.credit_limit || 0) > 0).length === 0 ? (
+          {customers.filter((c) => (c.creditLimit ?? c.credit_limit ?? 0) > 0).length === 0 ? (
             <div className="text-center py-8">
               <FaCreditCard className={`mx-auto text-3xl mb-3 ${textMuted}`} />
               <p className={`text-sm ${textMuted}`}>No customers have credit limits assigned yet</p>
             </div>
           ) : (
             customers
-              .filter((c) => (c.credit_limit || c.credit_limit || 0) > 0)
+              .filter((c) => (c.creditLimit ?? c.credit_limit ?? 0) > 0)
               .sort((a, b) => {
                 const aUtil =
-                  ((a.current_credit || a.current_credit || 0) / (a.credit_limit || a.credit_limit || 1)) * 100;
+                  ((a.currentCredit ?? a.current_credit ?? 0) / (a.creditLimit ?? a.credit_limit ?? 1)) * 100;
                 const bUtil =
-                  ((b.current_credit || b.current_credit || 0) / (b.credit_limit || b.credit_limit || 1)) * 100;
+                  ((b.currentCredit ?? b.current_credit ?? 0) / (b.creditLimit ?? b.credit_limit ?? 1)) * 100;
                 return bUtil - aUtil; // Sort by utilization descending
               })
               .map((customer) => {
-                const creditLimit = customer.credit_limit || customer.credit_limit || 0;
-                const currentCredit = customer.current_credit || customer.current_credit || 0;
+                const creditLimit = customer.creditLimit ?? customer.credit_limit ?? 0;
+                const currentCredit = customer.currentCredit ?? customer.current_credit ?? 0;
                 const utilization = creditLimit > 0 ? (currentCredit / creditLimit) * 100 : 0;
                 return (
                   <div

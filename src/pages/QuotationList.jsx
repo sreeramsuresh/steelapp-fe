@@ -252,13 +252,13 @@ const QuotationList = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-              📋 Quotations
+              Quotations
             </h1>
             <p className={`mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Manage and track your quotations</p>
           </div>
           {authService.hasPermission("quotations", "create") && (
             <Link
-              to="/quotations/new"
+              to="/app/quotations/new"
               className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-teal-500/25"
             >
               <Plus size={20} />
@@ -306,6 +306,8 @@ const QuotationList = () => {
                 size={20}
               />
               <input
+                id="quotation-search"
+                name="search"
                 type="text"
                 placeholder="Search quotations..."
                 value={searchTerm}
@@ -315,6 +317,7 @@ const QuotationList = () => {
                     ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                 }`}
+                aria-label="Search quotations"
               />
             </div>
           </div>
@@ -322,11 +325,14 @@ const QuotationList = () => {
           {/* Status Filter */}
           <div className="lg:w-48">
             <select
+              id="quotation-status-filter"
+              name="status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
+              aria-label="Filter by status"
             >
               <option value="all">All Status</option>
               <option value="draft">Draft</option>
@@ -341,6 +347,8 @@ const QuotationList = () => {
           {/* Page Size Selector */}
           <div className="lg:w-40">
             <select
+              id="quotation-page-size"
+              name="pageSize"
               value={pageSize}
               onChange={(e) => {
                 setPageSize(parseInt(e.target.value, 10));
@@ -349,6 +357,7 @@ const QuotationList = () => {
               className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
+              aria-label="Items per page"
             >
               <option value={10}>10 per page</option>
               <option value={20}>20 per page</option>

@@ -212,7 +212,7 @@ export function ContainerList() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-              📦 Import Containers
+              Import Containers
             </h1>
             <p className={`mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Manage import containers and landed costs
@@ -258,11 +258,14 @@ export function ContainerList() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
+                id="container-search"
+                name="search"
                 type="text"
                 placeholder="Search by container number..."
                 value={filters.search}
                 onChange={handleSearch}
                 className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
+                aria-label="Search containers"
               />
             </div>
           </div>
@@ -459,8 +462,9 @@ export function ContainerList() {
               {/* Pagination */}
               <div className="flex items-center justify-between mt-4 pt-4 border-t">
                 <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                  Showing {(page - 1) * itemsPerPage + 1} to {Math.min(page * itemsPerPage, totalItems)} of {totalItems}{" "}
-                  containers
+                  {totalItems === 0
+                    ? "No containers found"
+                    : `Showing ${(page - 1) * itemsPerPage + 1} to ${Math.min(page * itemsPerPage, totalItems)} of ${totalItems} containers`}
                 </p>
                 <div className="flex gap-2">
                   <Button

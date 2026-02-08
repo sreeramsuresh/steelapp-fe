@@ -215,7 +215,7 @@ const AdvancePaymentForm = () => {
     } catch (error) {
       console.error("Error loading advance payment:", error);
       notificationService.error("Failed to load advance payment");
-      navigate("/payments/advance");
+      navigate("/app/payments/advance");
     } finally {
       setLoading(false);
     }
@@ -344,7 +344,7 @@ const AdvancePaymentForm = () => {
         }
       }
 
-      navigate("/payments/advance");
+      navigate("/app/payments/advance");
     } catch (error) {
       console.error("Error saving advance payment:", error);
       notificationService.error(error.message || "Failed to save advance payment");
@@ -401,7 +401,7 @@ const AdvancePaymentForm = () => {
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => navigate("/payments/advance")}
+                  onClick={() => navigate("/app/payments/advance")}
                   className={`p-2 rounded-xl transition-colors ${
                     isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
                   }`}

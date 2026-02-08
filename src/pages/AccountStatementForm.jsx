@@ -322,7 +322,7 @@ const AccountStatementForm = () => {
           <div className="flex justify-end gap-4 pt-6">
             <button
               type="button"
-              onClick={() => navigate("/account-statements")}
+              onClick={() => navigate("/app/account-statements")}
               className={`px-6 py-3 border rounded-lg transition-colors duration-200 ${
                 isDarkMode
                   ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"

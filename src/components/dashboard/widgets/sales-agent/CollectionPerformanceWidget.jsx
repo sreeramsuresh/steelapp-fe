@@ -13,7 +13,7 @@ import { useTheme } from "../../../../contexts/ThemeContext";
 const MOCK_COLLECTION_DATA = {
   agentId: 1,
   agentName: "Rajesh Kumar",
-  period: "December 2024",
+  period: new Date().toLocaleString("en-US", { month: "long", year: "numeric" }),
   summary: {
     collectionRate: 87.5,
     previousCollectionRate: 82.3,

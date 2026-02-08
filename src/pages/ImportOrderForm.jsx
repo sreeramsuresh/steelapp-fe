@@ -674,7 +674,7 @@ const ImportOrderForm = () => {
         } catch (error) {
           console.error("Failed to fetch order:", error);
           notificationService.error("Failed to load import order");
-          navigate("/import-export");
+          navigate("/app/import-export");
         } finally {
           setIsLoading(false);
         }
@@ -1131,7 +1131,7 @@ const ImportOrderForm = () => {
         }
 
         // Navigate to import/export dashboard
-        navigate("/import-export");
+        navigate("/app/import-export");
       } catch (error) {
         console.error("Failed to save import order:", error);
         notificationService.error(error.message || "Failed to save import order");
@@ -1196,7 +1196,7 @@ const ImportOrderForm = () => {
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => navigate("/import-export")}
+                onClick={() => navigate("/app/import-export")}
                 className={`p-2 rounded-xl transition-colors ${
                   isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
                 }`}
@@ -1218,7 +1218,7 @@ const ImportOrderForm = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/import-export")}
+                onClick={() => navigate("/app/import-export")}
                 data-testid="cancel-button"
               >
                 Cancel

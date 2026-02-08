@@ -627,7 +627,7 @@ const Receivables = () => {
             <Banknote size={20} />
           </div>
           <div>
-            <div className="font-bold text-xl">Receivables</div>
+            <h1 className="font-bold text-xl">Receivables</h1>
             <div className="text-xs opacity-70">Track customer invoices and receipts</div>
           </div>
         </div>
@@ -649,26 +649,35 @@ const Receivables = () => {
               <SelectItem value="due">Due Date</SelectItem>
             </FormSelect>
             <input
+              id="receivables-start-date"
+              name="startDate"
               type="date"
               value={filters.start}
               onChange={(e) => setFilters({ start: e.target.value, page: "1" })}
               className="px-2 py-2 rounded border flex-1 min-w-0"
+              aria-label="Start date"
             />
             <span className="opacity-70 shrink-0">to</span>
             <input
+              id="receivables-end-date"
+              name="endDate"
               type="date"
               value={filters.end}
               onChange={(e) => setFilters({ end: e.target.value, page: "1" })}
               className="px-2 py-2 rounded border flex-1 min-w-0"
+              aria-label="End date"
             />
           </div>
           <div className="flex flex-wrap sm:flex-nowrap gap-2">
             <input
+              id="receivables-customer-search"
+              name="customerSearch"
               placeholder="Customer (name/email)"
               value={filters.customer}
               onChange={(e) => setFilters({ customer: e.target.value, page: "1" })}
               data-testid="customer-search"
               className="px-3 py-2 rounded border w-full min-w-0"
+              aria-label="Search by customer name or email"
             />
           </div>
           <div className="flex flex-wrap sm:flex-nowrap gap-2">
@@ -687,11 +696,14 @@ const Receivables = () => {
           </div>
           <div className="flex flex-wrap sm:flex-nowrap gap-2">
             <input
+              id="receivables-invoice-search"
+              name="invoiceSearch"
               placeholder="Invoice # or search"
               value={filters.q}
               onChange={(e) => setFilters({ q: e.target.value, page: "1" })}
               data-testid="invoice-search"
               className="px-3 py-2 rounded border w-full min-w-0"
+              aria-label="Search by invoice number"
             />
           </div>
           <div className="flex flex-wrap sm:flex-nowrap gap-2">
@@ -743,7 +755,7 @@ const Receivables = () => {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         <div
           className={`p-3 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
         >
@@ -785,7 +797,7 @@ const Receivables = () => {
             <thead>
               <tr className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                 <th className="px-4 py-3 text-left">
-                  <input type="checkbox" checked={allSelected} onChange={toggleAll} />
+                  <input type="checkbox" checked={allSelected} onChange={toggleAll} aria-label="Select all invoices" />
                 </th>
                 <th className="px-4 py-3 text-left text-xs uppercase">Invoice #</th>
                 <th className="px-4 py-3 text-left text-xs uppercase">Customer</th>
@@ -808,8 +820,11 @@ const Receivables = () => {
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="px-4 py-6 text-center">
-                    No records
+                  <td colSpan={11} className={`px-4 py-12 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="font-medium">No receivable records found</p>
+                      <p className="text-sm">Create an invoice to start tracking receivables.</p>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -821,6 +836,7 @@ const Receivables = () => {
                         checked={selected.has(row.id)}
                         onChange={() => toggleOne(row.id)}
                         onClick={(e) => e.stopPropagation()}
+                        aria-label={`Select invoice ${row.invoice_number || row.id}`}
                       />
                     </td>
                     <td

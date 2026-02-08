@@ -260,7 +260,7 @@ const DeliveryNoteDetails = () => {
         <div className="flex items-center">
           <button
             type="button"
-            onClick={() => navigate("/delivery-notes")}
+            onClick={() => navigate("/app/delivery-notes")}
             className={`p-2 rounded mr-4 transition-colors bg-transparent ${
               isDarkMode ? "text-gray-400 hover:text-gray-300" : "hover:bg-gray-100 text-gray-600"
             }`}

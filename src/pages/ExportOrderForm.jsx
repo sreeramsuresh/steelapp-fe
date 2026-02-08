@@ -1244,7 +1244,7 @@ const ExportOrderForm = () => {
         } catch (error) {
           console.error("Failed to fetch order:", error);
           notificationService.error("Failed to load export order");
-          navigate("/import-export");
+          navigate("/app/import-export");
         } finally {
           setIsLoading(false);
         }
@@ -1849,7 +1849,7 @@ const ExportOrderForm = () => {
         }
 
         // Navigate to import/export dashboard
-        navigate("/import-export");
+        navigate("/app/import-export");
       } catch (error) {
         console.error("Failed to save export order:", error);
         notificationService.error(error.message || "Failed to save export order");
@@ -1928,7 +1928,7 @@ const ExportOrderForm = () => {
             <div className="flex items-center gap-4">
               <button
                 type="button"
-                onClick={() => navigate("/import-export")}
+                onClick={() => navigate("/app/import-export")}
                 className={`p-2 rounded-lg transition-colors ${
                   isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-600"
                 }`}
@@ -1951,7 +1951,7 @@ const ExportOrderForm = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={() => navigate("/import-export")} data-testid="cancel-button">
+              <Button variant="outline" onClick={() => navigate("/app/import-export")} data-testid="cancel-button">
                 Cancel
               </Button>
               <Button
@@ -3370,7 +3370,7 @@ const ExportOrderForm = () => {
         {/* Bottom Action Bar */}
         <div className={`sticky bottom-0 py-4 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
           <div className="flex justify-between items-center">
-            <Button variant="outline" onClick={() => navigate("/import-export")}>
+            <Button variant="outline" onClick={() => navigate("/app/import-export")}>
               <X className="h-4 w-4" />
               Cancel
             </Button>

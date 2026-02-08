@@ -221,6 +221,7 @@ const CreditManagementPanel = ({
                           }
                           setSelectedCustomers(newSelected);
                         }}
+                        aria-label="Select all over-limit customers"
                       />
                     </th>
                     <th
@@ -266,6 +267,7 @@ const CreditManagementPanel = ({
                           type="checkbox"
                           checked={selectedCustomers.has(customer.id)}
                           onChange={() => toggleCustomerSelection(customer.id)}
+                          aria-label={`Select ${customer.name || "customer"}`}
                         />
                       </td>
                       <td className={`py-3 px-4 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>

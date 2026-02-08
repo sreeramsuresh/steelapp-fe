@@ -39,7 +39,7 @@
  */
 
 import { lazy, Suspense, useEffect, useState } from "react";
-import { FaArrowLeft, FaHome, FaSpinner, FaUsers } from "react-icons/fa";
+import { FaArrowLeft, FaEdit, FaHome, FaSpinner, FaUsers } from "react-icons/fa";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import CustomerOverviewTab from "../components/customers/tabs/CustomerOverviewTab";
 import { useTheme } from "../contexts/ThemeContext";
@@ -153,7 +153,7 @@ export default function CustomerDetail() {
           <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>{error}</p>
           <button
             type="button"
-            onClick={() => navigate("/customers")}
+            onClick={() => navigate("/app/customers")}
             className="mt-4 px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
           >
             <FaArrowLeft />
@@ -207,7 +207,7 @@ export default function CustomerDetail() {
         <div className="flex items-center gap-2 text-sm">
           <button
             type="button"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/app")}
             className={`flex items-center gap-1 hover:underline ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
           >
             <FaHome />
@@ -216,7 +216,7 @@ export default function CustomerDetail() {
           <span className={isDarkMode ? "text-gray-500" : "text-gray-400"}>/</span>
           <button
             type="button"
-            onClick={() => navigate("/customers")}
+            onClick={() => navigate("/app/customers")}
             className={`flex items-center gap-1 hover:underline ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
           >
             <FaUsers />
@@ -227,7 +227,7 @@ export default function CustomerDetail() {
         </div>
         <button
           type="button"
-          onClick={() => navigate("/customers")}
+          onClick={() => navigate("/app/customers")}
           className={`mt-3 flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             isDarkMode ? "bg-[#37474F] text-gray-300 hover:bg-[#455A64]" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
@@ -243,19 +243,35 @@ export default function CustomerDetail() {
           isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"
         } border rounded-lg shadow-sm`}
       >
-        <h1 className={`text-3xl font-bold mb-2 ${isDarkMode ? "text-gray-100" : "text-gray-900"}`}>
-          {customerData.name}
-        </h1>
-        <p className={`text-lg ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{customerData.company}</p>
-        <span
-          className={`inline-block mt-3 px-3 py-1 text-sm font-medium uppercase tracking-wider rounded-full ${
-            customerData.status === "active"
-              ? "bg-green-100 text-green-800 border border-green-200"
-              : "bg-gray-100 text-gray-600 border border-gray-200"
-          }`}
-        >
-          {customerData.status}
-        </span>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className={`text-3xl font-bold mb-2 ${isDarkMode ? "text-gray-100" : "text-gray-900"}`}>
+              {customerData.name}
+            </h1>
+            <p className={`text-lg ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{customerData.company}</p>
+            <span
+              className={`inline-block mt-3 px-3 py-1 text-sm font-medium uppercase tracking-wider rounded-full ${
+                customerData.status === "active"
+                  ? "bg-green-100 text-green-800 border border-green-200"
+                  : "bg-gray-100 text-gray-600 border border-gray-200"
+              }`}
+            >
+              {customerData.status}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate(`/app/customers/${customerId}/edit`)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+              isDarkMode
+                ? "bg-teal-600 hover:bg-teal-700 text-white"
+                : "bg-teal-600 hover:bg-teal-700 text-white"
+            }`}
+          >
+            <FaEdit />
+            Edit Customer
+          </button>
+        </div>
       </div>
 
       {/* Tab Navigation */}

@@ -156,7 +156,7 @@ export default function RolesPage() {
       <div className="flex items-center gap-3 mb-6">
         <button
           type="button"
-          onClick={() => navigate("/settings")}
+          onClick={() => navigate("/app/settings")}
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           aria-label="Back to settings"
           title="Back to settings"

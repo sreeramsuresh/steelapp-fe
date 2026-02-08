@@ -34,7 +34,7 @@ const ImportOrderList = () => {
         setLoading(true);
         const params = {
           page,
-          limit: pagination.perPage,
+          limit: pagination.per_page,
           ...filters,
         };
 
@@ -47,7 +47,7 @@ const ImportOrderList = () => {
         setLoading(false);
       }
     },
-    [pagination.perPage, filters]
+    [pagination.per_page, filters]
   );
 
   useEffect(() => {
@@ -72,7 +72,7 @@ const ImportOrderList = () => {
   const _handleStatusUpdate = async (orderId, status) => {
     try {
       await importOrderService.updateStatus(orderId, status);
-      loadOrders(pagination.currentPage);
+      loadOrders(pagination.current_page);
     } catch (err) {
       setError(err.message);
     }
@@ -91,7 +91,7 @@ const ImportOrderList = () => {
 
     try {
       await importOrderService.deleteImportOrder(orderId);
-      loadOrders(pagination.currentPage);
+      loadOrders(pagination.current_page);
     } catch (err) {
       setError(err.message);
     }
@@ -108,7 +108,7 @@ const ImportOrderList = () => {
           <p className="text-gray-500 mt-1">Manage your import orders and track shipments</p>
         </div>
         <Link
-          to="/import-orders/new"
+          to="/app/import-orders/new"
           className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
         >
           <Plus size={20} />
@@ -123,6 +123,8 @@ const ImportOrderList = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
+                id="import-order-search"
+                name="search"
                 type="text"
                 placeholder="Search orders..."
                 value={filters.search}
@@ -130,16 +132,20 @@ const ImportOrderList = () => {
                 className={`w-full pl-10 pr-4 py-2 border rounded-lg ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
                 }`}
+                aria-label="Search import orders"
               />
             </div>
           </div>
 
           <select
+            id="import-order-status"
+            name="status"
             value={filters.status}
             onChange={(e) => handleFilterChange("status", e.target.value)}
             className={`px-3 py-2 border rounded-lg ${
               isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
             }`}
+            aria-label="Filter by status"
           >
             <option value="">All Status</option>
             {statusOptions.map((status) => (
@@ -150,23 +156,27 @@ const ImportOrderList = () => {
           </select>
 
           <input
+            id="import-order-start-date"
+            name="startDate"
             type="date"
-            value={filters.startDate}
+            value={filters.start_date}
             onChange={(e) => handleFilterChange("start_date", e.target.value)}
             className={`px-3 py-2 border rounded-lg ${
               isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
             }`}
-            placeholder="Start Date"
+            aria-label="Start date"
           />
 
           <input
+            id="import-order-end-date"
+            name="endDate"
             type="date"
-            value={filters.endDate}
+            value={filters.end_date}
             onChange={(e) => handleFilterChange("end_date", e.target.value)}
             className={`px-3 py-2 border rounded-lg ${
               isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
             }`}
-            placeholder="End Date"
+            aria-label="End date"
           />
         </form>
       </div>
@@ -184,7 +194,7 @@ const ImportOrderList = () => {
         ) : orders.length === 0 ? (
           <div className="p-8 text-center">
             <p className="text-gray-500">No import orders found</p>
-            <Link to="/import-orders/new" className="text-teal-600 hover:text-teal-700 mt-2 inline-block">
+            <Link to="/app/import-orders/new" className="text-teal-600 hover:text-teal-700 mt-2 inline-block">
               Create your first import order
             </Link>
           </div>
@@ -274,25 +284,25 @@ const ImportOrderList = () => {
         )}
 
         {/* Pagination */}
-        {pagination.totalPages > 1 && (
+        {pagination.total_pages > 1 && (
           <div className="px-6 py-3 flex items-center justify-between border-t border-gray-200">
             <div className="text-sm text-gray-700">
-              Showing {(pagination.currentPage - 1) * pagination.perPage + 1} to{" "}
-              {Math.min(pagination.currentPage * pagination.perPage, pagination.total)} of {pagination.total} results
+              Showing {(pagination.current_page - 1) * pagination.per_page + 1} to{" "}
+              {Math.min(pagination.current_page * pagination.per_page, pagination.total)} of {pagination.total} results
             </div>
             <div className="flex space-x-2">
               <button
                 type="button"
-                onClick={() => loadOrders(pagination.currentPage - 1)}
-                disabled={pagination.currentPage <= 1}
+                onClick={() => loadOrders(pagination.current_page - 1)}
+                disabled={pagination.current_page <= 1}
                 className="px-3 py-1 text-sm border rounded disabled:opacity-50"
               >
                 Previous
               </button>
               <button
                 type="button"
-                onClick={() => loadOrders(pagination.currentPage + 1)}
-                disabled={pagination.currentPage >= pagination.totalPages}
+                onClick={() => loadOrders(pagination.current_page + 1)}
+                disabled={pagination.current_page >= pagination.total_pages}
                 className="px-3 py-1 text-sm border rounded disabled:opacity-50"
               >
                 Next

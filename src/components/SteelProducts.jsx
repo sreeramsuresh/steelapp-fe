@@ -28,7 +28,6 @@ import { useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApi, useApiData } from "../hooks/useApi";
 import { useConfirm } from "../hooks/useConfirm";
-import { categoryPolicyService } from "../services/categoryPolicyService";
 import { productService } from "../services/dataService";
 import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
@@ -649,7 +648,7 @@ const SteelProducts = () => {
   const {
     data: productsData,
     loading: _loadingProducts,
-    error: _productsError,
+    error: productsError,
     refetch: refetchProducts,
   } = useApiData(
     () =>
@@ -717,8 +716,6 @@ const SteelProducts = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const [similarProducts, setSimilarProducts] = useState([]);
 
-  // Phase 4: Category policy for UOM validation
-  const [categoryPolicy, setCategoryPolicy] = useState(null);
 
   const [newProduct, setNewProduct] = useState({
     displayName: "", // User-facing, editable name
@@ -1050,34 +1047,7 @@ const SteelProducts = () => {
     setSimilarProducts(similar);
   }, [newProduct.grade, newProduct.category, newProduct.finish, showAddModal, products]);
 
-  // Phase 4: Fetch category policy when category changes (for UOM validation)
-  useEffect(() => {
-    const category = newProduct.category || selectedProduct?.category;
-    if (!category) {
-      setCategoryPolicy(null);
-      return;
-    }
 
-    const fetchPolicy = async () => {
-      try {
-        const response = await categoryPolicyService.getCategoryPolicy(null, category);
-        setCategoryPolicy(response.policy || null);
-      } catch (error) {
-        console.warn(`No category policy found for ${category}:`, error.message);
-        setCategoryPolicy(null);
-      }
-    };
-
-    fetchPolicy();
-  }, [newProduct.category, selectedProduct?.category]);
-
-  // Phase 4: Helper to check if UOM is allowed for current category
-  const _isUomAllowed = (uom) => {
-    if (!categoryPolicy || !categoryPolicy.allowed_uoms || categoryPolicy.allowed_uoms.length === 0) {
-      return true; // No restrictions = allow all
-    }
-    return categoryPolicy.allowed_uoms.some((u) => u.toUpperCase() === uom.toUpperCase());
-  };
 
   // Dynamic category groups - only show groups that have matching products
   const categoryGroups = useMemo(() => {
@@ -2043,24 +2013,31 @@ const SteelProducts = () => {
           <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>of {pageInfo.totalItems || 0}</span>
         </div>
         <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+          <span className="text-sm font-medium text-gray-500">
+            {products.filter((p) => (Number(p.currentStock) || 0) <= 0).length}
+          </span>
+          <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>out of stock</span>
+        </div>
+        <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
           <span className="text-sm font-medium text-red-500">
             {
               products.filter((p) => {
-                const currentStock = p.currentStock || 0;
+                const currentStock = Number(p.currentStock) || 0;
                 const minStock = p.minStock > 0 ? p.minStock : 5;
                 return currentStock > 0 && currentStock <= minStock;
               }).length
             }
           </span>
-          <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>products with low stock</span>
+          <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>low stock</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
           <span className="text-sm font-medium text-green-500">
-            {products.filter((p) => (p.currentStock || 0) > (p.minStock || 0)).length}
+            {products.filter((p) => (Number(p.currentStock) || 0) > (p.minStock || 0)).length}
           </span>
-          <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>products in stock</span>
+          <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>in stock</span>
         </div>
       </div>
 
@@ -2545,10 +2522,30 @@ const SteelProducts = () => {
           </tbody>
         </table>
 
-        {/* Empty State */}
+        {/* Empty State / Error State */}
         {sortedProducts.length === 0 && (
           <div className={`p-8 text-center ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-            No products found matching your criteria.
+            {productsError ? (
+              <div className="space-y-3">
+                <AlertTriangle className={`w-8 h-8 mx-auto ${isDarkMode ? "text-red-400" : "text-red-500"}`} />
+                <p className={isDarkMode ? "text-red-400" : "text-red-600"}>
+                  Failed to load products. Please check your connection and try again.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => refetchProducts()}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isDarkMode
+                      ? "bg-blue-600 hover:bg-blue-700 text-white"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              "No products found matching your criteria."
+            )}
           </div>
         )}
 

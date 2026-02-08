@@ -119,6 +119,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
               backgroundColor: "transparent",
             }}
             className="md:hidden p-2 rounded-lg transition-colors duration-200 hover:opacity-75"
+            aria-label="Toggle sidebar menu"
           >
             <Menu size={20} />
           </button>
@@ -156,7 +157,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                   if (location.pathname.startsWith("/customers")) {
                     navigate(`/customers?search=${encodeURIComponent(q)}`);
                   } else {
-                    navigate(`/search?q=${encodeURIComponent(q)}`);
+                    navigate(`/app/search?q=${encodeURIComponent(q)}`);
                   }
                 }
               }}
@@ -170,7 +171,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                 if (location.pathname.startsWith("/customers")) {
                   navigate(`/customers?search=${encodeURIComponent(q)}`);
                 } else {
-                  navigate(`/search?q=${encodeURIComponent(q)}`);
+                  navigate(`/app/search?q=${encodeURIComponent(q)}`);
                 }
               }}
               className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
@@ -381,7 +382,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                     type="button"
                     onClick={() => {
                       setShowProfileDropdown(false);
-                      navigate("/my-commissions");
+                      navigate("/app/my-commissions");
                     }}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
                       isDarkMode

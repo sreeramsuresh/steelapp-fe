@@ -2331,7 +2331,7 @@ const InvoiceForm = ({ onSave }) => {
         notificationService.error(
           `This invoice has been deleted and cannot be edited. Reason: ${existingInvoice.deletionReason || "No reason provided"}`
         );
-        navigate("/invoices");
+        navigate("/app/invoices");
         return;
       }
       // Auto-populate date to today if empty (common in Odoo/Zoho)
@@ -3839,7 +3839,7 @@ const InvoiceForm = ({ onSave }) => {
       notificationService.success("Invoice created successfully! PDF downloaded.");
 
       // Navigate after PDF download completes (smooth transition)
-      navigate("/invoices");
+      navigate("/app/invoices");
     }, 300);
   };
 
@@ -3849,7 +3849,7 @@ const InvoiceForm = ({ onSave }) => {
     // Smooth transition delay for modal close animation
     setTimeout(() => {
       notificationService.success("Invoice created successfully!");
-      navigate("/invoices");
+      navigate("/app/invoices");
     }, 300);
   };
 
@@ -4185,6 +4185,7 @@ const InvoiceForm = ({ onSave }) => {
                           if (error.includes("Customer")) fieldName = "customer.name";
                           else if (error.includes("Invoice date")) fieldName = "date";
                           else if (error.includes("Due date")) fieldName = "dueDate";
+                          else if (error.includes("At least one item")) fieldName = "item.0.name";
                           else if (error.match(/Item \d+/)) {
                             const match = error.match(/Item (\d+)/);
                             if (match) {

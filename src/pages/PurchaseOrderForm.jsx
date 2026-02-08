@@ -1716,7 +1716,7 @@ const PurchaseOrderForm = () => {
       const action = id ? "updated" : "created";
       notificationService.success(`Purchase order ${action} successfully!`);
 
-      navigate("/purchase-orders");
+      navigate("/app/purchase-orders");
     } catch (error) {
       // Extract more detailed error message
       let errorMessage = "Unknown error";
@@ -1768,7 +1768,7 @@ const PurchaseOrderForm = () => {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => navigate("/purchase-orders")}
+              onClick={() => navigate("/app/purchase-orders")}
               className={`p-2 rounded-xl transition-colors ${
                 isDarkMode ? "hover:bg-[#1a2129] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
               }`}

@@ -856,7 +856,7 @@ export function SupplierForm() {
         notificationService.success("Supplier created successfully");
       }
 
-      navigate("/suppliers");
+      navigate("/app/suppliers");
     } catch (err) {
       console.error("Failed to save supplier:", err);
       notificationService.error(err.message || "Failed to save supplier");
@@ -889,7 +889,7 @@ export function SupplierForm() {
           <div className="flex items-center gap-4">
             <button
               type="button"
-              onClick={() => navigate("/suppliers")}
+              onClick={() => navigate("/app/suppliers")}
               className={`p-2 rounded-lg transition-colors ${
                 isDarkMode ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-600"
               }`}
@@ -1890,7 +1890,7 @@ export function SupplierForm() {
           <div className="flex justify-end gap-4">
             <button
               type="button"
-              onClick={() => navigate("/suppliers")}
+              onClick={() => navigate("/app/suppliers")}
               className={`px-6 py-3 rounded-lg border transition-colors ${
                 isDarkMode
                   ? "border-gray-600 text-gray-300 hover:bg-gray-700"

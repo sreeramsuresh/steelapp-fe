@@ -338,7 +338,7 @@ const ExportOrderList = () => {
             <span className="hidden sm:inline">Export</span>
           </button>
           <Link
-            to="/export-orders/new"
+            to="/app/export-orders/new"
             className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
           >
             <Plus size={20} />
@@ -535,7 +535,7 @@ const ExportOrderList = () => {
           <div className="p-8 text-center">
             <Globe className={`mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} size={48} />
             <p className={isDarkMode ? "text-gray-400" : "text-gray-500"}>No export orders found</p>
-            <Link to="/export-orders/new" className="text-teal-600 hover:text-teal-700 mt-2 inline-block">
+            <Link to="/app/export-orders/new" className="text-teal-600 hover:text-teal-700 mt-2 inline-block">
               Create your first export order
             </Link>
           </div>

@@ -485,7 +485,7 @@ const CustomerForm = () => {
       }
 
       notificationService.success(customerId ? "Customer updated successfully" : "Customer created successfully");
-      navigate("/payables");
+      navigate("/app/payables");
     } catch (err) {
       console.error("Error saving customer:", err);
       setError(err.message || "Failed to save customer");
@@ -582,7 +582,7 @@ const CustomerForm = () => {
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => navigate("/payables")}
+                  onClick={() => navigate("/app/payables")}
                   className={`p-2 rounded-xl transition-colors ${
                     isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
                   }`}

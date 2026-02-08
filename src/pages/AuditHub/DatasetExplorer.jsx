@@ -133,7 +133,7 @@ export default function DatasetExplorer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <button
             type="button"
-            onClick={() => navigate("/audit-hub")}
+            onClick={() => navigate("/app/audit-hub")}
             className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -160,7 +160,7 @@ export default function DatasetExplorer() {
           <div className="flex items-center justify-between mb-4">
             <button
               type="button"
-              onClick={() => navigate("/audit-hub")}
+              onClick={() => navigate("/app/audit-hub")}
               className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline"
             >
               <ArrowLeft className="w-4 h-4" />
