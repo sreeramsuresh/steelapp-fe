@@ -152,12 +152,11 @@ class WarehouseService {
     try {
       const response = await apiClient.get(`${this.endpoint}/summary`);
       const summary = {
-        totalWarehouses: response?.totalWarehouses || 0,
-        activeWarehouses: response?.activeWarehouses || 0,
-        totalInventoryItems: response?.totalInventoryItems || 0,
-        totalStockValue: response?.totalStockValue || 0,
-        // Ensure lowStockItems is a number (not null/undefined)
-        lowStockItems: response?.lowStockItems ?? 0,
+        totalWarehouses: response?.totalWarehouses ?? response?.total_warehouses ?? 0,
+        activeWarehouses: response?.activeWarehouses ?? response?.active_warehouses ?? 0,
+        totalInventoryItems: response?.totalInventoryItems ?? response?.total_inventory_items ?? 0,
+        totalStockValue: response?.totalStockValue ?? response?.total_stock_value ?? 0,
+        lowStockItems: response?.lowStockItems ?? response?.low_stock_items ?? 0,
       };
 
       return summary;

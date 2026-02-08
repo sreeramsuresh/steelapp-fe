@@ -1465,9 +1465,21 @@ const CompanySettings = () => {
 
   const handleAddVatRate = async () => {
     try {
+      const rateValue = newVatRate.rate === "" ? 0 : Number(newVatRate.rate);
+
+      if (!newVatRate.name || !newVatRate.name.trim()) {
+        notificationService.error("VAT rate name is required");
+        return;
+      }
+
+      if (Number.isNaN(rateValue) || rateValue < 0 || rateValue > 100) {
+        notificationService.error("VAT rate must be between 0 and 100");
+        return;
+      }
+
       const vatRateData = {
         name: newVatRate.name,
-        rate: newVatRate.rate === "" ? 0 : Number(newVatRate.rate),
+        rate: rateValue,
         type: newVatRate.type,
         description: newVatRate.description,
         is_active: newVatRate.active,
@@ -2526,6 +2538,9 @@ const CompanySettings = () => {
                       <Input
                         label="VAT Percentage (%)"
                         type="number"
+                        min="0"
+                        max="100"
+                        step="0.01"
                         value={newVatRate.rate || ""}
                         onChange={(e) =>
                           setNewVatRate({
