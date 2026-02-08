@@ -173,7 +173,11 @@ export default function RolesPage() {
         </Button>
       </div>
 
-      {error && <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">{error}</div>}
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
+          {error}
+        </div>
+      )}
 
       {roles.length === 0 ? (
         <EmptyState
@@ -230,10 +234,14 @@ export default function RolesPage() {
                   <TableCell>
                     <div className="flex gap-1">
                       {role.is_director && (
-                        <span className="px-2 py-1 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded text-sm font-medium">Director</span>
+                        <span className="px-2 py-1 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded text-sm font-medium">
+                          Director
+                        </span>
                       )}
                       {role.is_system && (
-                        <span className="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-sm font-medium">System</span>
+                        <span className="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-sm font-medium">
+                          System
+                        </span>
                       )}
                     </div>
                   </TableCell>
@@ -268,7 +276,9 @@ export default function RolesPage() {
       {openDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-lg shadow-xl">
-            <h2 className="text-lg font-semibold mb-4 dark:text-white">{editingRole ? "Edit Role" : "Create New Role"}</h2>
+            <h2 className="text-lg font-semibold mb-4 dark:text-white">
+              {editingRole ? "Edit Role" : "Create New Role"}
+            </h2>
             <div className="space-y-4 mb-6">
               <div>
                 <label htmlFor="role-name" className="block text-sm font-medium mb-1">
@@ -312,7 +322,9 @@ export default function RolesPage() {
                   placeholder="Brief description of this role's purpose"
                   rows={3}
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Brief description of this role&apos;s purpose</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Brief description of this role&apos;s purpose
+                </p>
               </div>
               <div className="flex items-center gap-2">
                 <input
