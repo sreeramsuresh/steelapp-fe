@@ -377,8 +377,6 @@ export default function PriceListList() {
                 key={pricelist.id}
                 onClick={() => navigate(`/app/pricelists/${pricelist.id}`)}
                 onKeyDown={(e) => e.key === "Enter" && navigate(`/app/pricelists/${pricelist.id}`)}
-                role="link"
-                tabIndex={0}
                 className={`cursor-pointer rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col w-full text-left ${
                   isDarkMode
                     ? "bg-[#1E2328] border-[#37474F] hover:border-teal-500"
