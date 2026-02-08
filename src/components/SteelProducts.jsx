@@ -582,7 +582,7 @@ const SteelProducts = () => {
     { key: "category", label: "Category", required: false, width: "w-[100px]" },
     { key: "grade", label: "Grade", required: false, width: "w-[80px]" },
     { key: "finish", label: "Finish", required: false, width: "w-[80px]" },
-    { key: "origin", label: "Origin", required: false, width: "w-[80px]" },
+    { key: "origin", label: "Country of Origin", required: false, width: "w-[120px]" },
     { key: "lastModified", label: "Modified", required: false, width: "w-[100px]" },
   ];
 
@@ -742,7 +742,6 @@ const SteelProducts = () => {
     origin: "UAE", // Country of origin - default UAE
     // Phase 3: Product Master Data (added 2025-12-02)
     hsCode: "", // Harmonized System code (6-10 digits)
-    countryOfOrigin: "", // Manufacturing country
     millName: "", // Steel mill/manufacturer name
     productCategory: "", // Product category (COIL, SHEET, PLATE, PIPE, TUBE, BAR, FLAT)
     // Unit of Measure fields (added 2025-12-09 - Piece-Based Inventory)
@@ -1008,7 +1007,7 @@ const SteelProducts = () => {
       description: product.description || "",
       supplier: product.supplier || "",
       location: product.location || "",
-      millCountry: product.millCountry || product.mill_country || "",
+      millCountry: product.millCountry || product.mill_country || product.origin || "",
       specifications: product.specifications || {
         length: "",
         width: "",
@@ -1408,10 +1407,6 @@ const SteelProducts = () => {
       if (!newProduct.finish || newProduct.finish.trim().length === 0) {
         errors.finish = "Surface Finish is required";
       }
-      if (!newProduct.origin || newProduct.origin.trim().length === 0) {
-        errors.origin = "Origin country is required";
-      }
-
       const isPipeOrTube = /pipe|tube/i.test(newProduct.category || "");
       if (isPipeOrTube) {
         if (!newProduct.sizeInch && !newProduct.od && !newProduct.size) {
@@ -1494,7 +1489,7 @@ const SteelProducts = () => {
         sellingPrice: newProduct.sellingPrice === "" ? 0 : Number(newProduct.sellingPrice),
         supplier: newProduct.supplier,
         location: newProduct.location,
-        origin: newProduct.origin || "UAE",
+        origin: newProduct.millCountry || undefined,
         hsCode: newProduct.hsCode || undefined,
         millCountry: newProduct.millCountry || undefined, // API Gateway converts to mill_country
         millName: newProduct.millName || undefined, // API Gateway converts to mill_name
@@ -1539,7 +1534,6 @@ const SteelProducts = () => {
         origin: "UAE", // Reset to default
         // Phase 3: Reset Product Master Data fields
         hsCode: "",
-        countryOfOrigin: "",
         millName: "",
         productCategory: "",
         // Unit of Measure (reset to defaults)
@@ -1836,7 +1830,7 @@ const SteelProducts = () => {
         sellingPrice: newProduct.sellingPrice === "" ? 0 : Number(newProduct.sellingPrice),
         supplier: newProduct.supplier,
         location: newProduct.location,
-        origin: newProduct.origin || "UAE",
+        origin: newProduct.millCountry || undefined,
         hsCode: newProduct.hsCode || undefined,
         millCountry: newProduct.millCountry || undefined,
         millName: newProduct.millName || undefined,
@@ -2455,8 +2449,7 @@ const SteelProducts = () => {
                             origin: product.origin || "UAE",
                             thickness: thk,
                             hsCode: product.hsCode || product.hs_code || "",
-                            countryOfOrigin: product.countryOfOrigin || product.country_of_origin || "",
-                            millCountry: product.millCountry || product.mill_country || "",
+                            millCountry: product.millCountry || product.mill_country || product.origin || "",
                             millName: product.millName || product.mill_name || "",
                             productCategory: product.productCategory || product.product_category || "",
                             primaryUom: product.primaryUom || product.primary_uom || "PCS",
@@ -3031,59 +3024,6 @@ const SteelProducts = () => {
                         <p className="text-red-500 text-xs mt-1">{validationErrors.finish}</p>
                       )}
                     </div>
-                    {/* Origin - REQUIRED by backend for unique_name generation */}
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <label
-                          htmlFor="origin-select"
-                          className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        >
-                          Origin Country<span className="text-red-500 ml-1">*</span>
-                        </label>
-                        <Tooltip content="Country of origin for the product. Required for SSOT naming and trade compliance.">
-                          <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
-                        </Tooltip>
-                      </div>
-                      <div className="relative">
-                        <select
-                          id="origin-select"
-                          value={newProduct.origin || ""}
-                          onChange={(e) => {
-                            const originVal = e.target.value;
-                            setNewProduct({
-                              ...newProduct,
-                              origin: originVal,
-                              // Auto-link: if Mill Country not yet set, sync from Origin
-                              millCountry: newProduct.millCountry || originVal,
-                            });
-                            if (validationErrors.origin && originVal.trim()) {
-                              setValidationErrors((prev) => ({ ...prev, origin: undefined }));
-                            }
-                          }}
-                          onFocus={() => setFocusedField("origin")}
-                          onBlur={() => setFocusedField(null)}
-                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
-                            isDarkMode
-                              ? "bg-gray-800 border-gray-600 text-white"
-                              : "bg-white border-gray-300 text-gray-900"
-                          } ${validationErrors.origin ? "!border-red-500 ring-1 ring-red-500" : ""}`}
-                        >
-                          <option value="">Select origin country...</option>
-                          {originOptions.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown
-                          className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                        />
-                      </div>
-                      {validationErrors.origin && (
-                        <p className="text-red-500 text-xs mt-1">{validationErrors.origin}</p>
-                      )}
-                    </div>
-
                     {/* Dimensions - Dynamic based on category */}
                     {/pipe|tube/i.test(newProduct.category || "") ? (
                       <>
@@ -3533,9 +3473,7 @@ const SteelProducts = () => {
                             }`}
                           >
                             <span className="font-medium">Margin:</span>
-                            <span className="font-bold">
-                              {(((sellNum - costNum) / sellNum) * 100).toFixed(1)}%
-                            </span>
+                            <span className="font-bold">{(((sellNum - costNum) / sellNum) * 100).toFixed(1)}%</span>
                             <span className="text-xs opacity-75">
                               (AED {(sellNum - costNum).toFixed(2)} {range.label})
                             </span>
@@ -3713,7 +3651,7 @@ const SteelProducts = () => {
                       error={newProduct.hsCode && !/^\d{6,10}$/.test(newProduct.hsCode) ? "Must be 6-10 digits" : ""}
                     />
                     <Select
-                      label="Mill Country"
+                      label="Country of Origin"
                       options={originOptions}
                       value={newProduct.millCountry || ""}
                       onChange={(e) =>
@@ -3722,7 +3660,7 @@ const SteelProducts = () => {
                           millCountry: e.target.value,
                         })
                       }
-                      placeholder="Select manufacturing country..."
+                      placeholder="Select country of origin..."
                     />
                     {/* Origin Status - computed badge */}
                     <div>
@@ -3743,7 +3681,7 @@ const SteelProducts = () => {
                         </span>
                       ) : (
                         <span className={`text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                          Select mill country to determine
+                          Select country of origin to determine
                         </span>
                       )}
                     </div>
@@ -4383,7 +4321,7 @@ const SteelProducts = () => {
                               commodity: product.commodity || "SS",
                               grade: product.grade || "",
                               finish: product.finish || "",
-                              millCountry: product.millCountry || product.mill_country || "",
+                              millCountry: product.millCountry || product.mill_country || product.origin || "",
                               thickness: product.thickness || "",
                               width: product.width || "",
                               length: product.length || "",
