@@ -287,7 +287,7 @@ const HomePage = () => {
         return user.full_name || user.fullName || user.name || user.display_name || user.email?.split("@")[0] || "User";
       }
     } catch (error) {
-      console.error("Error loading user info:", error);
+      console.warn("Error loading user info:", error);
     }
     return "User";
   });
@@ -376,7 +376,7 @@ const HomePage = () => {
         // Limit to 9 items and set
         setRecentItems(allItems.slice(0, 9));
       } catch (error) {
-        console.error("Error fetching recent items:", error);
+        console.warn("Error fetching recent items:", error);
         setRecentItems([]);
       }
     };

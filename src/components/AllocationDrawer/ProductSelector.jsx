@@ -35,7 +35,7 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
       const productList = response?.data?.products || response?.products || [];
       setProducts(productList.slice(0, 20)); // Limit to 20 results
     } catch (error) {
-      console.error("Failed to search products:", error);
+      console.warn("Failed to search products:", error);
       setProducts([]);
     } finally {
       setLoading(false);

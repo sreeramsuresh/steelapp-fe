@@ -472,7 +472,7 @@ const AllocationDrawer = ({
           });
         }
       } catch (err) {
-        console.error("Failed to fetch product price:", err);
+        console.warn("Failed to fetch product price:", err);
 
         // Only update error if this is the latest request
         if (requestId === priceRequestIdRef.current) {
