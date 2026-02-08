@@ -479,7 +479,9 @@ const AuditLogs = () => {
                         onClick={() => handleRowClick(log)}
                         className={`cursor-pointer ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-50"} transition-colors`}
                       >
-                        <td className={`px-4 py-3 text-sm whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
+                        <td
+                          className={`px-4 py-3 text-sm whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
+                        >
                           {formatDate(log.created_at)}
                         </td>
                         <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
@@ -494,7 +496,9 @@ const AuditLogs = () => {
                           </div>
                         </td>
                         <td className="px-4 py-3 text-sm">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryBadge(log.category)}`}>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryBadge(log.category)}`}
+                          >
                             {log.category?.replace(/_/g, " ")}
                           </span>
                         </td>

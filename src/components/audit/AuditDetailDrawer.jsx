@@ -1,14 +1,4 @@
-import {
-  AlertCircle,
-  ArrowRight,
-  CheckCircle,
-  Clock,
-  ExternalLink,
-  Globe,
-  Monitor,
-  User,
-  X,
-} from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle, Clock, ExternalLink, Globe, Monitor, User, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
 import { toUAETime } from "../../utils/timezone";
@@ -108,7 +98,7 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/40 z-[60]" onClick={onClose} onKeyDown={() => {}} />
+      <div role="presentation" className="fixed inset-0 bg-black/40 z-[60]" onClick={onClose} onKeyDown={() => {}} />
 
       {/* Drawer */}
       <div
@@ -122,9 +112,7 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
             isDarkMode ? "border-gray-700" : "border-gray-200"
           }`}
         >
-          <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-            Audit Entry Detail
-          </h2>
+          <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Audit Entry Detail</h2>
           <button
             type="button"
             onClick={onClose}
@@ -153,9 +141,7 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
           </div>
 
           {/* Details Grid */}
-          <div
-            className={`grid grid-cols-2 gap-3 p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}
-          >
+          <div className={`grid grid-cols-2 gap-3 p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}>
             <div>
               <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>Category</div>
               <div className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
