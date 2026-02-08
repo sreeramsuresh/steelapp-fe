@@ -1,6 +1,7 @@
 import { AlertCircle, AlertOctagon, AlertTriangle, ChevronRight, Clock, ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
+import { getProductDisplayName } from "../../../../utils/fieldAccessors";
 
 const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) => {
   const { isDarkMode } = useTheme();
@@ -197,7 +198,7 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
                   <PriorityIcon size={16} className={priority.color} />
                   <div>
                     <p className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                      {product.displayName || product.display_name || "N/A"}
+                      {getProductDisplayName(product) || "N/A"}
                     </p>
                     <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{product.category}</p>
                   </div>

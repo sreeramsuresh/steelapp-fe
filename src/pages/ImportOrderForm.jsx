@@ -26,6 +26,7 @@ import { importOrderService } from "../services/importOrderService";
 import { notificationService } from "../services/notificationService";
 import { productService } from "../services/productService";
 import { supplierService } from "../services/supplierService";
+import { getProductUniqueName } from "../utils/fieldAccessors";
 import { validateSsotPattern } from "../utils/productSsotValidation";
 
 // ==================== DESIGN TOKENS ====================
@@ -926,8 +927,7 @@ const ImportOrderForm = () => {
     (index, productId) => {
       const product = products.find((p) => p.id === productId || p.id === parseInt(productId, 10));
       if (product) {
-        const uniqueName =
-          product.uniqueName || product.unique_name || product.displayName || product.display_name || "";
+        const uniqueName = getProductUniqueName(product);
 
         // SSOT validation (Epic 5 - IMPO-009)
         // Show warning if product doesn't follow SSOT pattern

@@ -47,6 +47,7 @@ import pricelistService from "../services/pricelistService";
 import { productService } from "../services/productService";
 import { stockBatchService } from "../services/stockBatchService";
 import { createInvoice, createSteelItem, UAE_EMIRATES } from "../types";
+import { getProductDisplayName, getProductUniqueName } from "../utils/fieldAccessors";
 import {
   calculateDiscountedTRN,
   calculateItemAmount,
@@ -2625,7 +2626,7 @@ const InvoiceForm = ({ onSave }) => {
             // Store pending selection and show warning
             pendingProductRef.current = { index, product };
             setDuplicateWarning({
-              productName: product.displayName || product.display_name || "N/A",
+              productName: getProductDisplayName(product) || "N/A",
               existingIndex,
               existingQuantity: invoice.items[existingIndex]?.quantity || 0,
             });
@@ -2715,7 +2716,7 @@ const InvoiceForm = ({ onSave }) => {
             ...newItems[index],
             productId: product.id,
             // Use displayName (without origin) for invoice line items
-            name: product.displayName || product.display_name || product.uniqueName || product.unique_name,
+            name: getProductDisplayName(product),
             category: product.category || "",
             commodity: product.commodity || "SS",
             grade: product.grade || "",
@@ -2812,7 +2813,7 @@ const InvoiceForm = ({ onSave }) => {
 
       pendingProductRef.current = null;
       setDuplicateWarning(null);
-      notificationService.success(`Quantity updated for ${product.displayName || product.display_name || "N/A"}`);
+      notificationService.success(`Quantity updated for ${getProductDisplayName(product) || "N/A"}`);
     }
   }, [duplicateWarning, invoice.items]);
 
@@ -3017,8 +3018,8 @@ const InvoiceForm = ({ onSave }) => {
     const list = productsData?.products || [];
     return list.map((product) => {
       // Handle both camelCase and snake_case field names from API
-      const uniqueName = product.uniqueName || product.unique_name;
-      const displayName = product.displayName || product.display_name;
+      const uniqueName = getProductUniqueName(product);
+      const displayName = getProductDisplayName(product);
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
       // Use uniqueName for dropdown display, displayName for documents
       const label = uniqueName || displayName || "N/A";
@@ -3038,8 +3039,8 @@ const InvoiceForm = ({ onSave }) => {
     const list = searchInputs?.__results || [];
     return list.map((product) => {
       // Handle both camelCase and snake_case field names from API
-      const uniqueName = product.uniqueName || product.unique_name;
-      const displayName = product.displayName || product.display_name;
+      const uniqueName = getProductUniqueName(product);
+      const displayName = getProductDisplayName(product);
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
       // Use uniqueName for dropdown display, displayName for documents
       const label = uniqueName || displayName || "N/A";
@@ -5041,9 +5042,9 @@ const InvoiceForm = ({ onSave }) => {
                                         ? "border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700"
                                         : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
                                   }`}
-                                  title={product.displayName || product.display_name || "N/A"}
+                                  title={getProductDisplayName(product) || "N/A"}
                                 >
-                                  {product.uniqueName || product.unique_name || "N/A"}
+                                  {getProductUniqueName(product) || "N/A"}
                                 </button>
                                 <button
                                   type="button"

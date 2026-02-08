@@ -1,6 +1,7 @@
 import { ArrowDownRight, ArrowUpRight, LineChart, TrendingDown, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
+import { getProductDisplayName } from "../../../../utils/fieldAccessors";
 
 const MiniLineChart = ({ data, width = 120, height = 40, isDarkMode }) => {
   if (!data || data.length === 0) return null;
@@ -151,7 +152,7 @@ const PriceTrendWidget = ({ data, onNavigate, onProductClick }) => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <p className={`text-sm font-medium truncate ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    {product.displayName || product.display_name || "N/A"}
+                    {getProductDisplayName(product) || "N/A"}
                   </p>
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded ${

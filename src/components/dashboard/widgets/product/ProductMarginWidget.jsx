@@ -1,6 +1,7 @@
 import { DollarSign, HelpCircle, Star, Target, TrendingDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
+import { getProductDisplayName } from "../../../../utils/fieldAccessors";
 
 const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
   const { isDarkMode } = useTheme();
@@ -367,7 +368,7 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
             {filteredProducts.slice(0, 3).map((product) => (
               <div key={product.id} className="flex items-center justify-between text-xs">
                 <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>
-                  {product.displayName || product.display_name || "N/A"}
+                  {getProductDisplayName(product) || "N/A"}
                 </span>
                 <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
                   {product.margin.toFixed(1)}% | {product.volume.toFixed(1)} MT

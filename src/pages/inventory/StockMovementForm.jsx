@@ -37,6 +37,7 @@ import {
   stockMovementService,
 } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
+import { getProductDisplayName } from "../../utils/fieldAccessors";
 
 // Available units
 const UNITS = ["KG", "MT", "PCS", "SHEETS", "COILS", "BUNDLES", "METERS"];
@@ -393,7 +394,7 @@ const StockMovementForm = () => {
                           <SelectItem value="none">Select product...</SelectItem>
                           {products.map((p) => (
                             <SelectItem key={p.id} value={String(p.id)}>
-                              {p.displayName || p.display_name || p.uniqueName || p.name}
+                              {getProductDisplayName(p)}
                             </SelectItem>
                           ))}
                         </FormSelect>
@@ -458,9 +459,7 @@ const StockMovementForm = () => {
                                     isDarkMode ? "hover:bg-[#1a2027]" : "hover:bg-gray-50"
                                   }`}
                                 >
-                                  <div className={`text-sm font-medium ${textPrimary}`}>
-                                    {p.displayName || p.display_name || p.uniqueName || p.name}
-                                  </div>
+                                  <div className={`text-sm font-medium ${textPrimary}`}>{getProductDisplayName(p)}</div>
                                   <div className={`text-xs ${textMuted}`}>
                                     {p.origin && `${p.origin} | `}
                                     {p.category} {p.grade && `| ${p.grade}`}

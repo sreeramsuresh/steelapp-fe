@@ -83,6 +83,7 @@ import { pinnedProductsService } from "../services/pinnedProductsService";
 import { purchaseOrderService } from "../services/purchaseOrderService";
 import { supplierService } from "../services/supplierService";
 import { FINISHES, PRODUCT_TYPES } from "../types";
+import { getProductDisplayName, getProductUniqueName } from "../utils/fieldAccessors";
 import { calculateItemAmount, calculateSubtotal, formatCurrency, generatePONumber } from "../utils/invoiceUtils";
 
 const { PAYMENT_MODES } = payablesService;
@@ -738,7 +739,7 @@ const PurchaseOrderForm = () => {
 
   // Quick add item from speed button (matching Invoice form)
   const handleQuickAddItem = useCallback((product) => {
-    const productDisplayName = product.displayName || product.display_name || product.uniqueName || product.unique_name;
+    const productDisplayName = getProductDisplayName(product);
     const newItem = {
       productType: productDisplayName,
       name: productDisplayName,
@@ -901,8 +902,8 @@ const PurchaseOrderForm = () => {
   const productOptions = useMemo(() => {
     return (availableProducts || []).map((product) => {
       // Handle both camelCase and snake_case from API
-      const uniqueName = product.uniqueName || product.unique_name;
-      const displayName = product.displayName || product.display_name;
+      const uniqueName = getProductUniqueName(product);
+      const displayName = getProductDisplayName(product);
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
       // Use uniqueName for dropdown display, displayName for documents
       const label = uniqueName || displayName || "N/A";
@@ -921,8 +922,8 @@ const PurchaseOrderForm = () => {
     const list = searchInputs?.__results || [];
     return list.map((product) => {
       // Handle both camelCase and snake_case from API
-      const uniqueName = product.uniqueName || product.unique_name;
-      const displayName = product.displayName || product.display_name;
+      const uniqueName = getProductUniqueName(product);
+      const displayName = getProductDisplayName(product);
       const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
       // Use uniqueName for dropdown display, displayName for documents
       const label = uniqueName || displayName || "N/A";
@@ -1191,8 +1192,7 @@ const PurchaseOrderForm = () => {
 
       const thickness = product.thickness || product.thick || getThickness(product);
 
-      const productDisplayName =
-        product.displayName || product.display_name || product.uniqueName || product.unique_name;
+      const productDisplayName = getProductDisplayName(product);
 
       // Determine quantityUom from product's primary_uom or fallback to category detection
       const primaryUom = (product.primaryUom || product.primary_uom || "").toUpperCase();

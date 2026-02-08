@@ -1,14 +1,14 @@
 /**
  * Canonical Product Type (camelCase only)
- * This is the NORMALIZED frontend schema after productNormalizer processes API data.
+ * This is the NORMALIZED frontend schema after normalizeProduct (fieldAccessors.js) processes API data.
  *
  * IMPORTANT: Backend/API uses snake_case. Frontend MUST use camelCase.
- * The productNormalizer converts snake_case → camelCase.
+ * normalizeProduct() converts snake_case → camelCase.
  */
 
 /**
  * Main Product interface - CAMELCASE ONLY
- * All fields that exist after productNormalizer processing
+ * All fields that exist after normalizeProduct processing
  */
 export interface Product {
   // Core identifiers

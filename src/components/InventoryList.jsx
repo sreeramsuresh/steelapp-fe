@@ -17,6 +17,7 @@ import { useConfirm } from "../hooks/useConfirm";
 import { inventoryService } from "../services/inventoryService";
 import { productService } from "../services/productService";
 import { createInventoryItem, FINISHES, PRODUCT_TYPES, STEEL_GRADES } from "../types";
+import { getProductDisplayName } from "../utils/fieldAccessors";
 import { clearInventoryCache } from "../utils/inventorySyncUtils";
 import ConfirmDialog from "./ConfirmDialog";
 import InventoryUpload from "./InventoryUpload";
@@ -299,7 +300,7 @@ const InventoryList = () => {
       // Product catalog link
       productId: product.id,
       // Use displayName for user-facing display
-      productName: product.displayName || product.display_name || product.uniqueName || product.unique_name || "N/A",
+      productName: getProductDisplayName(product) || "N/A",
       // Product type from category
       productType: product.category || product.productType || prev.productType,
       // Steel specifications
@@ -999,7 +1000,7 @@ const InventoryList = () => {
                                 className={`w-full text-left px-4 py-2 hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
                               >
                                 <div className={`text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                                  {p.displayName || p.display_name || p.uniqueName || p.unique_name || p.name}
+                                  {getProductDisplayName(p)}
                                 </div>
                                 <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                                   {p.origin ? `${p.origin} • ` : ""}

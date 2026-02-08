@@ -1,6 +1,7 @@
 import { Package, TrendingUp, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
+import { getProductDisplayName } from "../../../../utils/fieldAccessors";
 
 const MiniTrendLine = ({ data, width = 50, height = 20 }) => {
   const max = Math.max(...data);
@@ -168,7 +169,7 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
                       {index + 1}
                     </span>
                     <p className={`text-sm font-medium truncate ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                      {product.displayName || product.display_name || "N/A"}
+                      {getProductDisplayName(product) || "N/A"}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 mt-1 ml-6">

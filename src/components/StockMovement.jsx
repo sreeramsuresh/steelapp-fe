@@ -18,6 +18,7 @@ import { purchaseOrderService } from "../services/purchaseOrderService";
 import { purchaseOrderSyncService } from "../services/purchaseOrderSyncService";
 import { stockMovementService } from "../services/stockMovementService";
 import { createStockMovement, FINISHES, MOVEMENT_TYPES, PRODUCT_TYPES, STEEL_GRADES } from "../types";
+import { getProductDisplayName } from "../utils/fieldAccessors";
 import ConfirmDialog from "./ConfirmDialog";
 
 const StockMovement = () => {
@@ -208,7 +209,7 @@ const StockMovement = () => {
       ...prev,
       productId: product.id,
       // Use displayName for user-facing display
-      productName: product.displayName || product.display_name || product.uniqueName || product.unique_name || "N/A",
+      productName: getProductDisplayName(product) || "N/A",
       // Product type from category
       productType: product.category || product.productType || prev.productType,
       // Steel specifications
@@ -674,7 +675,7 @@ const StockMovement = () => {
                                 className={`w-full text-left px-3 py-2 hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
                               >
                                 <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                                  {p.displayName || p.display_name || p.uniqueName || p.unique_name || p.name}
+                                  {getProductDisplayName(p)}
                                 </div>
                                 <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                                   {p.origin ? `${p.origin} | ` : ""}

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
+import { getProductDisplayName } from "../utils/fieldAccessors";
 
 const PriceCalculator = () => {
   const { isDarkMode } = useTheme();
@@ -446,7 +447,7 @@ const PriceCalculator = () => {
               >
                 {Object.entries(productTypes).map(([key, product]) => (
                   <option key={key} value={key}>
-                    {product.displayName || product.display_name || product.name || "N/A"}
+                    {getProductDisplayName(product) || "N/A"}
                   </option>
                 ))}
               </select>

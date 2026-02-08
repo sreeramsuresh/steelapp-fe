@@ -13,6 +13,7 @@ import { batchReservationService } from "../../services/batchReservationService"
 import { productService } from "../../services/dataService";
 import { stockMovementService } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
+import { getProductUniqueName } from "../../utils/fieldAccessors";
 import { validateSsotPattern } from "../../utils/productSsotValidation";
 
 /**
@@ -234,7 +235,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
 
   // Handle product selection
   const handleProductSelect = useCallback((product) => {
-    const uniqueName = product.uniqueName || product.unique_name || product.name || "";
+    const uniqueName = getProductUniqueName(product);
 
     // SSOT validation (Epic 5 - RESV-002)
     const ssotValidation = validateSsotPattern(uniqueName);
@@ -451,7 +452,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                             : "text-gray-900"
                       }`}
                     >
-                      <div className="font-medium">{product.uniqueName || product.unique_name || product.name}</div>
+                      <div className="font-medium">{getProductUniqueName(product)}</div>
                       <div className="text-sm opacity-75">{product.sku || "No SKU"}</div>
                     </button>
                   ))}

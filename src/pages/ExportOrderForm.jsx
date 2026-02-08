@@ -35,6 +35,7 @@ import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
 import { productService } from "../services/productService";
 import { supplierService } from "../services/supplierService";
+import { getProductUniqueName } from "../utils/fieldAccessors";
 import { validateSsotPattern } from "../utils/productSsotValidation";
 
 // ============================================================
@@ -1569,7 +1570,7 @@ const ExportOrderForm = () => {
           newItems[index] = {
             ...newItems[index],
             product_id: productId,
-            unique_name: product.uniqueName || product.unique_name || product.displayName || product.display_name || "",
+            unique_name: getProductUniqueName(product),
             description: product.description || "",
             grade: product.grade || "",
             finish: product.finish || "",

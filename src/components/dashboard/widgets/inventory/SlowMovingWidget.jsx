@@ -1,6 +1,7 @@
 import { Calendar, DollarSign, Megaphone, Search, Snail, Tag, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
+import { getProductDisplayName } from "../../../../utils/fieldAccessors";
 
 const SlowMovingWidget = ({ data, onNavigate, onProductClick, onAction }) => {
   const { isDarkMode } = useTheme();
@@ -179,7 +180,7 @@ const SlowMovingWidget = ({ data, onNavigate, onProductClick, onAction }) => {
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm font-medium truncate ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    {product.displayName || product.display_name || "N/A"}
+                    {getProductDisplayName(product) || "N/A"}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
                     <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>

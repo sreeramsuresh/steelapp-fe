@@ -16,6 +16,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { analyticsService } from "../services/analyticsService";
+import { getProductDisplayName } from "../utils/fieldAccessors";
 
 // Custom components for consistent theming
 const Button = ({
@@ -831,9 +832,9 @@ const Dashboard = () => {
                           className={`text-sm font-semibold mb-1 truncate ${
                             isDarkMode ? "text-white" : "text-gray-900"
                           }`}
-                          title={product.displayName || product.display_name || "N/A"}
+                          title={getProductDisplayName(product) || "N/A"}
                         >
-                          {product.displayName || product.display_name || "N/A"}
+                          {getProductDisplayName(product) || "N/A"}
                         </p>
                         <p className={`text-xs mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                           {product.category}

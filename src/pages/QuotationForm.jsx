@@ -40,6 +40,7 @@ import { customerService } from "../services/customerService";
 import pricelistService from "../services/pricelistService";
 import { quotationService } from "../services/quotationService";
 import { FINISHES, STEEL_GRADES } from "../types";
+import { getProductDisplayName } from "../utils/fieldAccessors";
 import { calculateItemAmount, formatCurrency } from "../utils/invoiceUtils";
 
 // Helper to unescape product display names (Bug #25 fix)
@@ -878,9 +879,7 @@ const QuotationForm = () => {
   const quickAddItem = async (product) => {
     // Handle both camelCase and snake_case field names
     // Bug #25 fix: Unescape product names with special characters
-    const productDisplayName = unescapeProductName(
-      product.displayName || product.display_name || product.uniqueName || product.unique_name || ""
-    );
+    const productDisplayName = unescapeProductName(getProductDisplayName(product));
 
     // Fetch price from pricelist if available, or use product selling price
     // Bug #5-7 fix: Ensure we fetch prices and don't default to 0
@@ -1091,9 +1090,7 @@ const QuotationForm = () => {
       const product = products.find((p) => p.id === parseInt(value, 10));
       if (product) {
         // Bug #25 fix: Unescape product names with special characters
-        const productDisplayName = unescapeProductName(
-          product.displayName || product.display_name || product.uniqueName || product.unique_name
-        );
+        const productDisplayName = unescapeProductName(getProductDisplayName(product));
 
         // Fetch price from pricelist if available, or use product selling price
         // Bug #5-7 fix: Ensure we fetch prices and don't default to 0

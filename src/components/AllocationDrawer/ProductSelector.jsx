@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { productsAPI } from "../../services/api";
-import { normalizeProduct } from "../../utils/fieldAccessors";
+import { getProductDisplayName, normalizeProduct } from "../../utils/fieldAccessors";
 
 /**
  * ProductSelector Component
@@ -152,12 +152,8 @@ const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProdu
   // Format product display name
   const formatProductDisplay = (product) => {
     // Use display_name or unique_name if available
-    if (product.displayName || product.display_name) {
-      return product.displayName || product.display_name;
-    }
-    if (product.uniqueName || product.unique_name) {
-      return product.uniqueName || product.unique_name;
-    }
+    const name = getProductDisplayName(product);
+    if (name) return name;
     return product.name || "Unknown Product";
   };
 

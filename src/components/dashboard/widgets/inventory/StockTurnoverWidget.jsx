@@ -1,6 +1,7 @@
 import { RefreshCw, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
+import { getProductDisplayName } from "../../../../utils/fieldAccessors";
 
 // Fallback mock data for stock turnover heatmap (used only when no API data is available)
 const generateFallbackData = () => {
@@ -173,9 +174,9 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
                   isDarkMode ? "text-gray-300" : "text-gray-700"
                 } group-hover:text-teal-500`}
                 onClick={() => onProductClick?.(product)}
-                title={product.displayName || product.display_name || "N/A"}
+                title={getProductDisplayName(product) || "N/A"}
               >
-                {product.displayName || product.display_name || "N/A"}
+                {getProductDisplayName(product) || "N/A"}
               </button>
               <div className="flex-1 flex gap-0.5">
                 {product.data.map((value, monthIndex) => (
@@ -188,7 +189,7 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
                     style={{ opacity: getTurnoverOpacity(value) }}
                     onMouseEnter={() =>
                       setHoveredCell({
-                        product: product.displayName || product.display_name || "N/A",
+                        product: getProductDisplayName(product) || "N/A",
                         month: turnoverData.months[monthIndex],
                         value,
                       })
@@ -197,14 +198,14 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         setHoveredCell({
-                          product: product.displayName || product.display_name || "N/A",
+                          product: getProductDisplayName(product) || "N/A",
                           month: turnoverData.months[monthIndex],
                           value,
                         });
                       }
                     }}
-                    title={`${product.displayName || product.display_name || "N/A"} - ${turnoverData.months[monthIndex]}: ${value}x`}
-                    aria-label={`${product.displayName || product.display_name || "N/A"} - ${turnoverData.months[monthIndex]}: ${value}x turnover rate`}
+                    title={`${getProductDisplayName(product) || "N/A"} - ${turnoverData.months[monthIndex]}: ${value}x`}
+                    aria-label={`${getProductDisplayName(product) || "N/A"} - ${turnoverData.months[monthIndex]}: ${value}x turnover rate`}
                   />
                 ))}
               </div>

@@ -1,7 +1,8 @@
-import '../../__tests__/init.mjs';
 /**
  * Field Accessors Tests
  * Tests safe field access with camelCase/snake_case fallbacks
+ *
+ * Run: node --test src/utils/__tests__/fieldAccessors.test.mjs
  */
 
 import { test, describe } from 'node:test';
@@ -10,6 +11,7 @@ import {
   toSnakeCase,
   safeField,
   getProductDisplayName,
+  getProductUniqueName,
   getProductFullName,
   getPrice,
   getStock,
@@ -96,10 +98,16 @@ describe('fieldAccessors', () => {
       assert.strictEqual(result, 'Steel Sheet');
     });
 
-    test('should fallback to fullName', () => {
-      const product = { fullName: 'Steel Sheet Grade 304' };
+    test('should fallback to uniqueName', () => {
+      const product = { uniqueName: 'SS-304-Sheet-2B-1220x2440-1.5mm' };
       const result = getProductDisplayName(product);
-      assert.strictEqual(result, 'Steel Sheet Grade 304');
+      assert.strictEqual(result, 'SS-304-Sheet-2B-1220x2440-1.5mm');
+    });
+
+    test('should fallback to unique_name', () => {
+      const product = { unique_name: 'SS-304-Sheet-2B-1220x2440-1.5mm' };
+      const result = getProductDisplayName(product);
+      assert.strictEqual(result, 'SS-304-Sheet-2B-1220x2440-1.5mm');
     });
 
     test('should fallback to name', () => {
@@ -119,50 +127,100 @@ describe('fieldAccessors', () => {
       assert.strictEqual(result, '');
     });
 
-    test('should use priority order', () => {
+    test('should use priority order: displayName > uniqueName > name', () => {
       const product = {
         name: 'Name',
-        fullName: 'Full Name',
-        display_name: 'Display Name',
+        uniqueName: 'Unique Name',
+        display_name: 'Display Name Snake',
         displayName: 'Display Name Camel',
       };
       const result = getProductDisplayName(product);
       assert.strictEqual(result, 'Display Name Camel');
     });
+
+    test('should prefer uniqueName over name when no displayName', () => {
+      const product = {
+        name: 'Name',
+        uniqueName: 'Unique Name',
+      };
+      const result = getProductDisplayName(product);
+      assert.strictEqual(result, 'Unique Name');
+    });
   });
 
-  describe('getProductFullName()', () => {
-    test('should return fullName if present', () => {
-      const product = { fullName: 'Grade 304 Steel Sheet' };
-      const result = getProductFullName(product);
-      assert.strictEqual(result, 'Grade 304 Steel Sheet');
+  describe('getProductUniqueName()', () => {
+    test('should return uniqueName if present', () => {
+      const product = { uniqueName: 'SS-304-Sheet-2B-1220x2440-1.5mm' };
+      const result = getProductUniqueName(product);
+      assert.strictEqual(result, 'SS-304-Sheet-2B-1220x2440-1.5mm');
+    });
+
+    test('should fallback to unique_name', () => {
+      const product = { unique_name: 'SS-304-Sheet-2B-1220x2440-1.5mm' };
+      const result = getProductUniqueName(product);
+      assert.strictEqual(result, 'SS-304-Sheet-2B-1220x2440-1.5mm');
+    });
+
+    test('should fallback to fullName', () => {
+      const product = { fullName: 'SS-304-Sheet-2B-1220x2440-1.5mm' };
+      const result = getProductUniqueName(product);
+      assert.strictEqual(result, 'SS-304-Sheet-2B-1220x2440-1.5mm');
     });
 
     test('should fallback to full_name', () => {
-      const product = { full_name: 'Grade 304 Steel Sheet' };
-      const result = getProductFullName(product);
-      assert.strictEqual(result, 'Grade 304 Steel Sheet');
+      const product = { full_name: 'SS-304-Sheet-2B-1220x2440-1.5mm' };
+      const result = getProductUniqueName(product);
+      assert.strictEqual(result, 'SS-304-Sheet-2B-1220x2440-1.5mm');
     });
 
-    test('should fallback to displayName', () => {
-      const product = { displayName: 'Steel Sheet' };
-      const result = getProductFullName(product);
-      assert.strictEqual(result, 'Steel Sheet');
+    test('should fallback to name', () => {
+      const product = { name: 'Sheet' };
+      const result = getProductUniqueName(product);
+      assert.strictEqual(result, 'Sheet');
     });
 
     test('should return empty string for empty object', () => {
       const product = {};
-      const result = getProductFullName(product);
+      const result = getProductUniqueName(product);
       assert.strictEqual(result, '');
     });
 
-    test('should prioritize fullName over displayName', () => {
+    test('should return empty string for null', () => {
+      const result = getProductUniqueName(null);
+      assert.strictEqual(result, '');
+    });
+
+    test('should use priority order: uniqueName > fullName > name', () => {
       const product = {
-        displayName: 'Display',
+        name: 'Name',
+        fullName: 'Full Name',
+        uniqueName: 'Unique Name',
+      };
+      const result = getProductUniqueName(product);
+      assert.strictEqual(result, 'Unique Name');
+    });
+
+    test('should prefer fullName over name when no uniqueName', () => {
+      const product = {
+        name: 'Name',
         fullName: 'Full Name',
       };
-      const result = getProductFullName(product);
+      const result = getProductUniqueName(product);
       assert.strictEqual(result, 'Full Name');
+    });
+  });
+
+  describe('getProductFullName() (deprecated alias)', () => {
+    test('should be identical to getProductUniqueName', () => {
+      assert.strictEqual(getProductFullName, getProductUniqueName);
+    });
+
+    test('should return same result as getProductUniqueName', () => {
+      const product = { uniqueName: 'SS-304-Sheet', fullName: 'Different' };
+      assert.strictEqual(
+        getProductFullName(product),
+        getProductUniqueName(product),
+      );
     });
   });
 

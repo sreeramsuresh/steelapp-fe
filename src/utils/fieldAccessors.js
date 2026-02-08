@@ -34,26 +34,57 @@ export const safeField = (obj, camelCase) => {
 };
 
 /**
- * Get product display name with all fallbacks
- * Priority: displayName > display_name > fullName > full_name > name
- * @param {Object} product - Product object
+ * CANONICAL PRODUCT NAME ACCESSORS
+ *
+ * The products table has 4 name columns (unique_name, full_name, display_name, name).
+ * A DB trigger sets all 4 to the same SSOT value (e.g. "SS-304-Sheet-2B-1220x2440-1.5mm").
+ * Today they never diverge, but the accessors below are the SINGLE SOURCE OF TRUTH
+ * for precedence order — so if user-override of display_name is added later,
+ * only this file needs to change.
+ *
+ * Use case mapping:
+ *   UI labels/titles/tooltips → getProductDisplayName()
+ *   System identifiers/sort keys/payloads → getProductUniqueName()
+ *   Legacy callers that used getProductFullName → alias of getProductUniqueName()
+ */
+
+/**
+ * Get product display name for UI rendering (labels, titles, tooltips).
+ *
+ * Precedence (first non-empty wins):
+ *   1. displayName / display_name  — user-facing override (if it ever diverges)
+ *   2. uniqueName  / unique_name   — canonical SSOT identity
+ *   3. name                        — legacy column
+ *
+ * @param {Object} product - Product object (camelCase or snake_case fields)
  * @returns {string} Display name or empty string
  */
 export const getProductDisplayName = (product) => {
   if (!product) return "";
-  return product.displayName || product.display_name || product.fullName || product.full_name || product.name || "";
+  return product.displayName || product.display_name || product.uniqueName || product.unique_name || product.name || "";
 };
 
 /**
- * Get product full name (with origin) with all fallbacks
- * Priority: fullName > full_name > displayName > display_name > name
- * @param {Object} product - Product object
- * @returns {string} Full name or empty string
+ * Get product unique/system name for identifiers, sort keys, and API payloads.
+ *
+ * Precedence (first non-empty wins):
+ *   1. uniqueName / unique_name   — canonical SSOT identity
+ *   2. fullName   / full_name     — always == unique_name (set by DB trigger)
+ *   3. name                       — legacy column
+ *
+ * @param {Object} product - Product object (camelCase or snake_case fields)
+ * @returns {string} Unique name or empty string
  */
-export const getProductFullName = (product) => {
+export const getProductUniqueName = (product) => {
   if (!product) return "";
-  return product.fullName || product.full_name || product.displayName || product.display_name || product.name || "";
+  return product.uniqueName || product.unique_name || product.fullName || product.full_name || product.name || "";
 };
+
+/**
+ * @deprecated Use getProductUniqueName() instead.
+ * Kept for backward compatibility — identical behavior.
+ */
+export const getProductFullName = getProductUniqueName;
 
 /**
  * Get price from product with fallbacks
@@ -242,6 +273,7 @@ export default {
   safeField,
   toSnakeCase,
   getProductDisplayName,
+  getProductUniqueName,
   getProductFullName,
   getPrice,
   getStock,

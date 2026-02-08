@@ -34,6 +34,7 @@ import { productService } from "../services/dataService";
 import exchangeRateService from "../services/exchangeRateService";
 import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
+import { getProductDisplayName, getProductUniqueName } from "../utils/fieldAccessors";
 import { getMarginColor as getMarginColorByChannel, PROCUREMENT_CHANNELS } from "../utils/pricingStrategyMatrix";
 
 // Pricing unit display labels (kept local for UI - DB defines the policy, not labels)
@@ -268,7 +269,7 @@ const CurrencyConversionModal = ({
               </h3>
             </div>
             <p className={`text-xs mt-0.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
-              {product.uniqueName || product.unique_name}
+              {getProductUniqueName(product)}
             </p>
           </div>
           <button
@@ -506,7 +507,7 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
             {/* Product Name */}
             <div className="mb-3">
               <h4 className={`text-base font-bold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
-                {product.displayName || product.display_name || product.name || "N/A"}
+                {getProductDisplayName(product) || "N/A"}
               </h4>
               <p className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
                 {product.sku || product.product_code || `ID: ${product.id}`}
@@ -1843,7 +1844,7 @@ export default function PriceListForm() {
                                     onClick={() => setSelectedProduct(product)}
                                     className={`font-medium text-[13px] text-left hover:text-[#4aa3ff] transition-colors ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
                                   >
-                                    {product.uniqueName || product.unique_name || "N/A"}
+                                    {getProductUniqueName(product) || "N/A"}
                                   </button>
                                   <p className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
                                     {product.isImported || product.is_imported

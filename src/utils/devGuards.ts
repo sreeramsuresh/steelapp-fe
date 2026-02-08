@@ -752,7 +752,7 @@ export function guardProductDev(product: unknown): unknown {
             `❌ WRONG:  product.${propName}\n` +
             `✅ CORRECT: product.${snakeToCamel(propName)}\n` +
             `\n` +
-            `Frontend MUST use camelCase after productNormalizer.\n` +
+            `Frontend MUST use camelCase after normalizeProduct (fieldAccessors.js).\n` +
             `\n` +
             `Fix this immediately in:\n` +
             `${stack?.split("\n")[2] || "Unknown location"}\n` +

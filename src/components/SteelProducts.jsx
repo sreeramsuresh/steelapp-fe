@@ -33,6 +33,7 @@ import { productService } from "../services/dataService";
 import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
 import { FINISHES } from "../types";
+import { getProductDisplayName, getProductUniqueName } from "../utils/fieldAccessors";
 import { clearInventoryCache } from "../utils/inventorySyncUtils";
 import ConfirmDialog from "./ConfirmDialog";
 import ProductUpload from "./ProductUpload";
@@ -1021,9 +1022,7 @@ const SteelProducts = () => {
       // Don't copy stock or pricing - those should be set manually
     });
     setShowCopyModal(false);
-    notificationService.success(
-      `Copied product details from: ${product.displayName || product.display_name || product.uniqueName || "product"}`
-    );
+    notificationService.success(`Copied product details from: ${getProductDisplayName(product) || "product"}`);
   };
 
   // Phase 7: Find Similar Products
@@ -1272,8 +1271,8 @@ const SteelProducts = () => {
 
       switch (sortConfig.key) {
         case "productName":
-          aVal = (a.displayName || a.display_name || a.uniqueName || a.unique_name || "").toLowerCase();
-          bVal = (b.displayName || b.display_name || b.uniqueName || b.unique_name || "").toLowerCase();
+          aVal = getProductDisplayName(a).toLowerCase();
+          bVal = getProductDisplayName(b).toLowerCase();
           break;
         case "stock":
           aVal = Number(a.currentStock ?? a.current_stock ?? 0);
@@ -1343,7 +1342,7 @@ const SteelProducts = () => {
     const stockStatus = getStockStatus(product);
     switch (columnKey) {
       case "productName":
-        return product.displayName || product.display_name || product.uniqueName || product.unique_name || "N/A";
+        return getProductDisplayName(product) || "N/A";
       case "stock":
         return {
           value: product.currentStock ?? product.current_stock ?? 0,
@@ -2425,7 +2424,7 @@ const SteelProducts = () => {
                           // Populate newProduct from existing product for unified Add/Edit modal
                           const thk = product.thickness || "";
                           setNewProduct({
-                            displayName: product.displayName || product.display_name || "",
+                            displayName: getProductDisplayName(product),
                             category: product.category || "sheet",
                             commodity: product.commodity || "SS",
                             grade: product.grade || "",
@@ -2813,9 +2812,7 @@ const SteelProducts = () => {
                     {/* Commodity - Read-only badge (always SS for Stainless Steel) */}
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span
-                          className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        >
+                        <span className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
                           Commodity
                         </span>
                       </div>
@@ -3747,7 +3744,7 @@ const SteelProducts = () => {
                             <div
                               className={`text-sm font-medium truncate mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
                             >
-                              {product.displayName || product.display_name || "N/A"}
+                              {getProductDisplayName(product) || "N/A"}
                             </div>
                             <div className="flex flex-wrap gap-1">
                               {product.grade && (
@@ -3944,7 +3941,7 @@ const SteelProducts = () => {
                   >
                     <div className="flex items-center gap-3">
                       <h2 className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                        {selectedProduct.displayName || selectedProduct.display_name || "Product"}
+                        {getProductDisplayName(selectedProduct) || "Product"}
                       </h2>
                       <div className="flex gap-1.5">
                         {selectedProduct.category && (
@@ -3990,7 +3987,7 @@ const SteelProducts = () => {
                       className={`text-xs font-mono mb-3 px-2 py-1 rounded ${isDarkMode ? "bg-gray-800 text-teal-400" : "bg-gray-100 text-teal-600"}`}
                     >
                       <span className={`${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>ID: </span>
-                      {selectedProduct.uniqueName || selectedProduct.unique_name || "N/A"}
+                      {getProductUniqueName(selectedProduct) || "N/A"}
                     </div>
 
                     {/* Key Metrics - Compact Row */}
@@ -4287,8 +4284,8 @@ const SteelProducts = () => {
                   .filter((p) => {
                     const term = copySearchTerm.toLowerCase();
                     return (
-                      (p.displayName || p.display_name || "").toLowerCase().includes(term) ||
-                      (p.uniqueName || p.unique_name || "").toLowerCase().includes(term) ||
+                      getProductDisplayName(p).toLowerCase().includes(term) ||
+                      getProductUniqueName(p).toLowerCase().includes(term) ||
                       (p.grade || "").toLowerCase().includes(term) ||
                       (p.category || "").toLowerCase().includes(term)
                     );
@@ -4303,10 +4300,10 @@ const SteelProducts = () => {
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <h4 className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                            {product.displayName || product.display_name}
+                            {getProductDisplayName(product)}
                           </h4>
                           <p className={`text-xs font-mono ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                            {product.uniqueName || product.unique_name}
+                            {getProductUniqueName(product)}
                           </p>
                           <p className={`text-sm mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                             {product.grade} • {product.category} • {product.finish}
@@ -4434,8 +4431,8 @@ const SteelProducts = () => {
                       if (!copySearchTerm) return true;
                       const search = copySearchTerm.toLowerCase();
                       return (
-                        (p.displayName || p.display_name || "").toLowerCase().includes(search) ||
-                        (p.uniqueName || p.unique_name || "").toLowerCase().includes(search) ||
+                        getProductDisplayName(p).toLowerCase().includes(search) ||
+                        getProductUniqueName(p).toLowerCase().includes(search) ||
                         (p.grade || "").toLowerCase().includes(search) ||
                         (p.category || "").toLowerCase().includes(search) ||
                         (p.finish || "").toLowerCase().includes(search)
@@ -4453,10 +4450,10 @@ const SteelProducts = () => {
                         }`}
                       >
                         <div className={`font-medium mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                          {product.displayName || product.display_name}
+                          {getProductDisplayName(product)}
                         </div>
                         <div className={`text-xs font-mono mb-2 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
-                          {product.uniqueName || product.unique_name}
+                          {getProductUniqueName(product)}
                         </div>
                         <div className="flex flex-wrap gap-2">
                           <span

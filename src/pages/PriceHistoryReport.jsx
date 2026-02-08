@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import LoadingSpinner from "../components/shared/LoadingSpinner";
 import { productService } from "../services/dataService";
 import pricelistService from "../services/pricelistService";
+import { getProductUniqueName } from "../utils/fieldAccessors";
 import { toUAETime } from "../utils/timezone";
 
 export default function PriceHistoryReport() {
@@ -135,7 +136,7 @@ export default function PriceHistoryReport() {
               <option value="">-- Select Product --</option>
               {products.map((product) => (
                 <option key={product.id} value={product.id}>
-                  {product.uniqueName || product.unique_name || "N/A"}
+                  {getProductUniqueName(product) || "N/A"}
                 </option>
               ))}
             </select>

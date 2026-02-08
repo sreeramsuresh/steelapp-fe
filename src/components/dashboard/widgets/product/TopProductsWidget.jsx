@@ -1,6 +1,7 @@
 import { BarChart3, ChevronRight, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
+import { getProductDisplayName } from "../../../../utils/fieldAccessors";
 
 const TopProductsWidget = ({ data, onNavigate, onProductClick }) => {
   const { isDarkMode } = useTheme();
@@ -179,7 +180,7 @@ const TopProductsWidget = ({ data, onNavigate, onProductClick }) => {
                 </span>
                 <span className={`w-2 h-2 rounded-full ${getCategoryColor(product.category)}`} />
                 <span className={`text-sm font-medium truncate ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  {product.displayName || product.display_name || "N/A"}
+                  {getProductDisplayName(product) || "N/A"}
                 </span>
               </div>
               <div className="flex items-center gap-2">

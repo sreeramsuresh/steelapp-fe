@@ -12,6 +12,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { productService } from "../../services/dataService";
 import { stockMovementService } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
+import { getProductUniqueName } from "../../utils/fieldAccessors";
 import { validateSsotPattern } from "../../utils/productSsotValidation";
 
 /**
@@ -209,7 +210,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   // Handle product select
   const handleProductSelect = useCallback(
     (itemId, product) => {
-      const uniqueName = product.uniqueName || product.unique_name || product.name || "";
+      const uniqueName = getProductUniqueName(product);
 
       // SSOT validation (Epic 5 - TRAN-002)
       const ssotValidation = validateSsotPattern(uniqueName);
@@ -675,9 +676,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                                         : "text-gray-900"
                                   }`}
                                 >
-                                  <div className="font-medium">
-                                    {product.uniqueName || product.unique_name || product.name}
-                                  </div>
+                                  <div className="font-medium">{getProductUniqueName(product)}</div>
                                   <div className="text-xs opacity-75">{product.sku || "No SKU"}</div>
                                 </button>
                               ))}
