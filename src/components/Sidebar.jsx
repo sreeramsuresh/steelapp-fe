@@ -18,6 +18,7 @@ import {
   Quote,
   Scroll,
   Settings,
+  Shield,
   Ship,
   ShoppingCart,
   TrendingDown,
@@ -329,7 +330,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
       ],
     },
 
-    // 9. SETTINGS (1 item) - Company Settings main (includes Audit Logs as internal tab)
+    // 9. SETTINGS & ADMIN
     {
       section: "Settings",
       items: [
@@ -337,7 +338,14 @@ const Sidebar = ({ isOpen, onToggle }) => {
           name: "Company Settings",
           path: "/settings",
           icon: Settings,
-          description: "Configure company details, integrations, and view audit logs",
+          description: "Configure company details and integrations",
+          requiredRole: "admin",
+        },
+        {
+          name: "Audit Trail",
+          path: "/audit-logs",
+          icon: Shield,
+          description: "View all system activity and change history",
           requiredRole: "admin",
         },
       ],

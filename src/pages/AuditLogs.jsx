@@ -13,11 +13,52 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import AuditDetailDrawer from "../components/audit/AuditDetailDrawer";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
 import { useTheme } from "../contexts/ThemeContext";
 import { apiService } from "../services/axiosApi";
 import { toUAEDateForInput, toUAETime } from "../utils/timezone";
+
+const CATEGORIES = [
+  "AUTH",
+  "INVOICE",
+  "PAYMENT",
+  "CUSTOMER",
+  "SUPPLIER",
+  "PRODUCT",
+  "PURCHASE_ORDER",
+  "DELIVERY_NOTE",
+  "CREDIT_NOTE",
+  "QUOTATION",
+  "INVENTORY",
+  "WAREHOUSE",
+  "SETTINGS",
+  "EXPORT",
+  "STATEMENT",
+  "USER",
+  "ROLE",
+];
+
+const CATEGORY_COLORS = {
+  AUTH: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+  INVOICE: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+  PAYMENT: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+  CUSTOMER: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+  SUPPLIER: "bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300",
+  PRODUCT: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300",
+  PURCHASE_ORDER: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+  DELIVERY_NOTE: "bg-lime-100 text-lime-800 dark:bg-lime-900/30 dark:text-lime-300",
+  CREDIT_NOTE: "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300",
+  QUOTATION: "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300",
+  INVENTORY: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
+  WAREHOUSE: "bg-slate-100 text-slate-800 dark:bg-slate-700/50 dark:text-slate-300",
+  SETTINGS: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+  EXPORT: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
+  STATEMENT: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300",
+  USER: "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300",
+  ROLE: "bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-900/30 dark:text-fuchsia-300",
+};
 
 const AuditLogs = () => {
   const { isDarkMode } = useTheme();
@@ -25,6 +66,8 @@ const AuditLogs = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedLog, setSelectedLog] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Filters
   const [filters, setFilters] = useState({
@@ -34,6 +77,7 @@ const AuditLogs = () => {
     startDate: "",
     endDate: "",
     search: "",
+    user_id: "",
   });
 
   // Pagination
@@ -42,9 +86,15 @@ const AuditLogs = () => {
   const [totalLogs, setTotalLogs] = useState(0);
   const itemsPerPage = 50;
 
-  // Categories and actions for filters
-  const categories = ["AUTH", "INVOICE", "PAYMENT", "CUSTOMER", "STATEMENT", "SETTINGS", "EXPORT"];
-  const statuses = ["success", "failed"];
+  // Users list for filter
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    apiService
+      .get("/admin/users")
+      .then((res) => setUsers(res.users || res || []))
+      .catch(() => {});
+  }, []);
 
   const fetchLogs = useCallback(async () => {
     try {
@@ -54,9 +104,9 @@ const AuditLogs = () => {
         limit: itemsPerPage,
         ...(filters.category && { category: filters.category }),
         ...(filters.action && { action: filters.action }),
-        ...(filters.status && { status: filters.status }),
         ...(filters.startDate && { start_date: filters.startDate }),
         ...(filters.endDate && { end_date: filters.endDate }),
+        ...(filters.user_id && { user_id: filters.user_id }),
       };
 
       const response = await apiService.get("/audit-logs", { params });
@@ -89,7 +139,7 @@ const AuditLogs = () => {
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   };
 
   const clearFilters = () => {
@@ -100,23 +150,45 @@ const AuditLogs = () => {
       startDate: "",
       endDate: "",
       search: "",
+      user_id: "",
     });
     setCurrentPage(1);
+  };
+
+  const handleRowClick = async (log) => {
+    try {
+      const fullLog = await apiService.get(`/audit-logs/${log.id}`);
+      setSelectedLog(fullLog);
+    } catch {
+      setSelectedLog(log);
+    }
+    setDrawerOpen(true);
   };
 
   const exportToCSV = () => {
     if (logs.length === 0) return;
 
-    const headers = ["Date/Time (UAE)", "User", "Email", "Category", "Action", "Description", "Status", "IP Address"];
+    const headers = [
+      "Date/Time (UAE)",
+      "User",
+      "Email",
+      "Category",
+      "Action",
+      "Entity",
+      "Description",
+      "Status",
+      "IP Address",
+    ];
     const csvData = logs.map((log) => [
-      toUAETime(log.createdAt, { format: "datetime" }),
+      toUAETime(log.created_at, { format: "datetime" }),
       log.username || "-",
-      log.userEmail || "-",
+      log.user_email || "-",
       log.category,
       log.action,
+      log.entity_name || "-",
       log.description || "-",
       log.status,
-      log.ipAddress || "-",
+      log.ip_address || "-",
     ]);
 
     const csvContent = [headers.join(","), ...csvData.map((row) => row.map((cell) => `"${cell}"`).join(","))].join(
@@ -135,21 +207,12 @@ const AuditLogs = () => {
   };
 
   const formatDate = (dateString) => {
-    // Use UAE timezone for display
     return toUAETime(dateString, { format: "datetime" });
   };
 
-  const getCategoryColor = (category) => {
-    const colors = {
-      AUTH: "blue",
-      INVOICE: "green",
-      PAYMENT: "purple",
-      CUSTOMER: "orange",
-      STATEMENT: "indigo",
-      SETTINGS: "red",
-      EXPORT: "pink",
-    };
-    return colors[category] || "gray";
+  const getCategoryBadge = (category) => {
+    const colorClass = CATEGORY_COLORS[category] || "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+    return colorClass;
   };
 
   const filteredLogs = logs.filter((log) => {
@@ -157,11 +220,15 @@ const AuditLogs = () => {
     const search = filters.search.toLowerCase();
     return (
       log.username?.toLowerCase().includes(search) ||
-      log.userEmail?.toLowerCase().includes(search) ||
+      log.user_email?.toLowerCase().includes(search) ||
       log.description?.toLowerCase().includes(search) ||
-      log.action?.toLowerCase().includes(search)
+      log.action?.toLowerCase().includes(search) ||
+      log.entity_name?.toLowerCase().includes(search)
     );
   });
+
+  const hasActiveFilters =
+    filters.category || filters.status || filters.startDate || filters.endDate || filters.search || filters.user_id;
 
   return (
     <div className={`min-h-screen p-6 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
@@ -172,9 +239,9 @@ const AuditLogs = () => {
             <div className="flex items-center gap-3">
               <FileText className={isDarkMode ? "text-blue-400" : "text-blue-600"} size={32} />
               <div>
-                <h1 className={`text-3xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Audit Logs</h1>
+                <h1 className={`text-3xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Audit Trail</h1>
                 <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                  Track all user activities and system events
+                  Track all user activities and system changes
                 </p>
               </div>
             </div>
@@ -214,7 +281,7 @@ const AuditLogs = () => {
                 <div>
                   <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Failed Actions</p>
                   <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    {stats.categoryStats?.reduce((sum, cat) => sum + parseInt(cat.failedCount || 0, 10), 0) || 0}
+                    {stats.categoryStats?.reduce((sum, cat) => sum + parseInt(cat.failed_count || 0, 10), 0) || 0}
                   </p>
                 </div>
                 <AlertCircle className="text-red-500" size={32} />
@@ -224,7 +291,7 @@ const AuditLogs = () => {
             <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Categories</p>
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Active Categories</p>
                   <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     {stats.categoryStats?.length || 0}
                   </p>
@@ -240,7 +307,7 @@ const AuditLogs = () => {
           <div className="flex items-center gap-2 mb-4">
             <Filter size={20} className={isDarkMode ? "text-gray-400" : "text-gray-600"} />
             <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Filters</h2>
-            {(filters.category || filters.status || filters.startDate || filters.endDate || filters.search) && (
+            {hasActiveFilters && (
               <button
                 type="button"
                 onClick={clearFilters}
@@ -256,7 +323,7 @@ const AuditLogs = () => {
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
             {/* Search */}
             <div>
               <label
@@ -271,7 +338,7 @@ const AuditLogs = () => {
                 type="text"
                 value={filters.search}
                 onChange={(e) => handleFilterChange("search", e.target.value)}
-                placeholder="User, email, action..."
+                placeholder="User, action, entity..."
                 className={`w-full px-3 py-2 rounded-lg border ${
                   isDarkMode
                     ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
@@ -289,26 +356,26 @@ const AuditLogs = () => {
                 showValidation={false}
               >
                 <SelectItem value="none">All Categories</SelectItem>
-                {categories.map((cat) => (
+                {CATEGORIES.map((cat) => (
                   <SelectItem key={cat} value={cat}>
-                    {cat}
+                    {cat.replace(/_/g, " ")}
                   </SelectItem>
                 ))}
               </FormSelect>
             </div>
 
-            {/* Status */}
+            {/* User Filter */}
             <div>
               <FormSelect
-                label="Status"
-                value={filters.status || "none"}
-                onValueChange={(value) => handleFilterChange("status", value === "none" ? "" : value)}
+                label="User"
+                value={filters.user_id || "none"}
+                onValueChange={(value) => handleFilterChange("user_id", value === "none" ? "" : value)}
                 showValidation={false}
               >
-                <SelectItem value="none">All Status</SelectItem>
-                {statuses.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                <SelectItem value="none">All Users</SelectItem>
+                {users.map((u) => (
+                  <SelectItem key={u.id} value={String(u.id)}>
+                    {u.name || u.email}
                   </SelectItem>
                 ))}
               </FormSelect>
@@ -353,6 +420,20 @@ const AuditLogs = () => {
                 }`}
               />
             </div>
+
+            {/* Status */}
+            <div>
+              <FormSelect
+                label="Status"
+                value={filters.status || "none"}
+                onValueChange={(value) => handleFilterChange("status", value === "none" ? "" : value)}
+                showValidation={false}
+              >
+                <SelectItem value="none">All Status</SelectItem>
+                <SelectItem value="success">Success</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
+              </FormSelect>
+            </div>
           </div>
         </div>
 
@@ -360,7 +441,7 @@ const AuditLogs = () => {
         <div className={`rounded-lg shadow overflow-hidden ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
           {loading ? (
             <div className="p-12 text-center">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
               <p className={`mt-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Loading audit logs...</p>
             </div>
           ) : error ? (
@@ -379,65 +460,27 @@ const AuditLogs = () => {
                 <table className="w-full">
                   <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                     <tr>
-                      <th
-                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      >
-                        Date/Time
-                      </th>
-                      <th
-                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      >
-                        User
-                      </th>
-                      <th
-                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      >
-                        Category
-                      </th>
-                      <th
-                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      >
-                        Action
-                      </th>
-                      <th
-                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      >
-                        Description
-                      </th>
-                      <th
-                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      >
-                        Status
-                      </th>
-                      <th
-                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      >
-                        IP Address
-                      </th>
+                      {["Date/Time", "User", "Category", "Action", "Entity", "Description", "Status"].map((h) => (
+                        <th
+                          key={h}
+                          className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                            isDarkMode ? "text-gray-300" : "text-gray-700"
+                          }`}
+                        >
+                          {h}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
                     {filteredLogs.map((log) => (
                       <tr
                         key={log.id}
-                        className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors`}
+                        onClick={() => handleRowClick(log)}
+                        className={`cursor-pointer ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-50"} transition-colors`}
                       >
-                        <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
-                          {formatDate(log.createdAt)}
+                        <td className={`px-4 py-3 text-sm whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
+                          {formatDate(log.created_at)}
                         </td>
                         <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
                           <div className="flex items-center gap-2">
@@ -445,16 +488,14 @@ const AuditLogs = () => {
                             <div>
                               <div className="font-medium">{log.username || "-"}</div>
                               <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
-                                {log.userEmail || "-"}
+                                {log.user_email || "-"}
                               </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-4 py-3 text-sm">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium bg-${getCategoryColor(log.category)}-100 text-${getCategoryColor(log.category)}-800`}
-                          >
-                            {log.category}
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryBadge(log.category)}`}>
+                            {log.category?.replace(/_/g, " ")}
                           </span>
                         </td>
                         <td
@@ -463,6 +504,11 @@ const AuditLogs = () => {
                           {log.action}
                         </td>
                         <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                          {log.entity_name || "-"}
+                        </td>
+                        <td
+                          className={`px-4 py-3 text-sm max-w-xs truncate ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                        >
                           {log.description || "-"}
                         </td>
                         <td className="px-4 py-3 text-sm">
@@ -477,9 +523,6 @@ const AuditLogs = () => {
                               Failed
                             </span>
                           )}
-                        </td>
-                        <td className={`px-4 py-3 text-sm font-mono ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                          {log.ipAddress || "-"}
                         </td>
                       </tr>
                     ))}
@@ -535,6 +578,9 @@ const AuditLogs = () => {
           )}
         </div>
       </div>
+
+      {/* Detail Drawer */}
+      <AuditDetailDrawer log={selectedLog} isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </div>
   );
 };

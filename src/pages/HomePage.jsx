@@ -6,27 +6,32 @@
  */
 
 import {
+  Activity,
   ArrowRight,
   Bell,
+  Edit,
   FileText,
   Package,
   Plus,
   Quote,
   Settings,
   ShoppingCart,
+  Trash2,
   Truck,
   Users,
   Warehouse,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BrandmarkHero from "../components/BrandmarkHero";
 import { useTheme } from "../contexts/ThemeContext";
 import useDragReorder, { DragHandleIcon } from "../hooks/useDragReorder";
 import useHomeSectionOrder from "../hooks/useHomeSectionOrder";
+import { apiService } from "../services/axiosApi";
 import { customerService } from "../services/customerService";
 import { invoiceService } from "../services/invoiceService";
 import { quotationService } from "../services/quotationService";
+import { toUAETime } from "../utils/timezone";
 
 /**
  * Quick Access Section - Displays navigation shortcuts
@@ -140,6 +145,102 @@ const RecentItemsSection = ({ recentItems, handleNavigate, isDarkMode }) => (
 );
 
 /**
+ * Recent Activity Section — Shows last 10 audit log entries
+ */
+const ACTION_ICONS = { CREATE: Plus, INSERT: Plus, UPDATE: Edit, DELETE: Trash2 };
+
+function getActionIcon(action) {
+  if (!action) return Activity;
+  const upper = action.toUpperCase();
+  for (const [key, icon] of Object.entries(ACTION_ICONS)) {
+    if (upper.includes(key)) return icon;
+  }
+  return Activity;
+}
+
+const CATEGORY_COLORS = {
+  AUTH: "text-purple-500",
+  INVOICE: "text-blue-500",
+  PAYMENT: "text-green-500",
+  CUSTOMER: "text-pink-500",
+  SUPPLIER: "text-teal-500",
+  PRODUCT: "text-indigo-500",
+  PURCHASE_ORDER: "text-amber-500",
+  DELIVERY_NOTE: "text-lime-500",
+  CREDIT_NOTE: "text-rose-500",
+  QUOTATION: "text-sky-500",
+  INVENTORY: "text-emerald-500",
+  WAREHOUSE: "text-slate-500",
+  USER: "text-violet-500",
+  ROLE: "text-fuchsia-500",
+};
+
+function getCategoryColor(category) {
+  return CATEGORY_COLORS[category] || "text-gray-500";
+}
+
+const RecentActivitySection = ({ recentActivity, handleNavigate, isDarkMode }) => (
+  <div
+    className={`rounded-xl border transition-all ${
+      isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
+    }`}
+  >
+    {recentActivity.length > 0 ? (
+      <>
+        {recentActivity.map((log, index) => {
+          const IconComponent = getActionIcon(log.action);
+          return (
+            <div
+              key={log.id}
+              className={`flex items-center gap-4 p-4 transition-all ${
+                index !== recentActivity.length - 1
+                  ? isDarkMode
+                    ? "border-b border-[#37474F]"
+                    : "border-b border-[#E0E0E0]"
+                  : ""
+              }`}
+            >
+              <div className={`p-2 rounded-lg ${isDarkMode ? "bg-[#252D38]" : "bg-gray-100"}`}>
+                <IconComponent className={`w-4 h-4 ${getCategoryColor(log.category)}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-medium truncate ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                  {log.description || log.action}
+                </p>
+                <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                  {log.username || "System"} — {toUAETime(log.created_at, { format: "datetime" })}
+                </p>
+              </div>
+              <span
+                className={`text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${
+                  isDarkMode ? "bg-[#252D38] text-gray-400" : "bg-gray-100 text-gray-500"
+                }`}
+              >
+                {log.category || "—"}
+              </span>
+            </div>
+          );
+        })}
+        <button
+          type="button"
+          onClick={() => handleNavigate("/app/audit-logs")}
+          className={`w-full p-3 text-center text-sm font-medium transition-colors ${
+            isDarkMode ? "text-teal-400 hover:bg-[#252D38]" : "text-teal-600 hover:bg-gray-50"
+          }`}
+        >
+          View All Activity →
+        </button>
+      </>
+    ) : (
+      <div className={`p-6 text-center ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+        <Activity className={`w-8 h-8 mx-auto mb-2 ${isDarkMode ? "text-gray-600" : "text-gray-300"}`} />
+        <p>No recent activity</p>
+      </div>
+    )}
+  </div>
+);
+
+/**
  * Section configuration mapping
  */
 const SECTION_CONFIG = {
@@ -158,12 +259,18 @@ const SECTION_CONFIG = {
     title: "Recent Items",
     Component: RecentItemsSection,
   },
+  recentActivity: {
+    id: "recentActivity",
+    title: "Recent Activity",
+    Component: RecentActivitySection,
+  },
 };
 
 const HomePage = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   const [recentItems, setRecentItems] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
   const { sectionOrder, reorderSections } = useHomeSectionOrder();
   const { getDragItemProps, getDragHandleProps, isDropTarget, isDragSource } = useDragReorder({
     items: sectionOrder,
@@ -277,6 +384,22 @@ const HomePage = () => {
     fetchRecentItems();
   }, []);
 
+  // Fetch recent audit activity
+  const fetchRecentActivity = useCallback(async () => {
+    try {
+      const response = await apiService.get("/audit-logs/recent");
+      setRecentActivity(response.logs || []);
+    } catch {
+      setRecentActivity([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRecentActivity();
+    const interval = setInterval(fetchRecentActivity, 60000);
+    return () => clearInterval(interval);
+  }, [fetchRecentActivity]);
+
   const handleNavigate = (path) => {
     navigate(path);
   };
@@ -368,6 +491,7 @@ const HomePage = () => {
                   quickAccessItems={quickAccessItems}
                   createNewItems={createNewItems}
                   recentItems={recentItems}
+                  recentActivity={recentActivity}
                   handleNavigate={handleNavigate}
                   isDarkMode={isDarkMode}
                 />
