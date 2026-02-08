@@ -36,7 +36,6 @@ import { FINISHES } from "../types";
 import { clearInventoryCache } from "../utils/inventorySyncUtils";
 import ConfirmDialog from "./ConfirmDialog";
 import ProductUpload from "./ProductUpload";
-import PricingStatusPanel from "./pricing/PricingStatusPanel";
 import QuickPriceEditModal from "./pricing/QuickPriceEditModal";
 
 // Custom components for consistent theming
@@ -1074,7 +1073,7 @@ const SteelProducts = () => {
   }, [newProduct.category, selectedProduct?.category]);
 
   // Phase 4: Helper to check if UOM is allowed for current category
-  const isUomAllowed = (uom) => {
+  const _isUomAllowed = (uom) => {
     if (!categoryPolicy || !categoryPolicy.allowed_uoms || categoryPolicy.allowed_uoms.length === 0) {
       return true; // No restrictions = allow all
     }
@@ -2501,7 +2500,7 @@ const SteelProducts = () => {
                           ];
                           setCustomThickness(thk !== "" && !stdThicknesses.includes(thk));
                           setEditingProductId(product.id);
-                          setSelectedProduct(product); // Keep for PricingStatusPanel
+                          setSelectedProduct(product);
                           setShowAddModal(true);
                         }}
                         className={`p-1.5 rounded transition-colors ${
@@ -2694,6 +2693,7 @@ const SteelProducts = () => {
         {/* Add Product Modal */}
         {showAddModal && (
           <div
+            role="dialog"
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
             onKeyDown={(e) => {
               if (e.ctrlKey && e.key === "Enter") {
@@ -2813,11 +2813,11 @@ const SteelProducts = () => {
                     {/* Commodity - Read-only badge (always SS for Stainless Steel) */}
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <label
+                        <span
                           className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         >
                           Commodity
-                        </label>
+                        </span>
                       </div>
                       <div
                         className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${isDarkMode ? "bg-gray-800/50 border-gray-600" : "bg-gray-50 border-gray-300"}`}
@@ -3311,11 +3311,11 @@ const SteelProducts = () => {
                   </summary>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 pt-0">
                     <div>
-                      <label
+                      <span
                         className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                       >
                         Current Stock (Auto)
-                      </label>
+                      </span>
                       <div
                         className={`px-3 py-2 rounded-lg border ${isDarkMode ? "bg-[#263238] border-[#37474F] text-gray-400" : "bg-gray-100 border-gray-200 text-gray-500"}`}
                         title="Stock is managed through GRN approvals and delivery notes"
@@ -3664,11 +3664,11 @@ const SteelProducts = () => {
                     />
                     {/* Origin Status - computed badge */}
                     <div>
-                      <label
+                      <span
                         className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                       >
                         Origin Status
-                      </label>
+                      </span>
                       {newProduct.millCountry ? (
                         <span
                           className={`inline-block px-3 py-1.5 text-sm font-medium rounded-lg ${
@@ -3864,7 +3864,7 @@ const SteelProducts = () => {
                 <ul className="space-y-2">
                   {saveWarnings.warnings.map((w, i) => (
                     <li
-                      key={i}
+                      key={w}
                       className={`flex items-start gap-2 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       <span className="mt-0.5 text-amber-500 font-bold">{i + 1}.</span>
