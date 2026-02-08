@@ -1306,7 +1306,7 @@ const ImportOrderForm = () => {
                       const value = e.target.value.replace(/\D/g, "").slice(0, 15);
                       handleFieldChange("importer_trn", value);
                     }}
-                    placeholder="100XXXXXXXXX5 (15 digits)"
+                    placeholder="100234567890003"
                     error={errors.importer_trn}
                   />
                   {order.importer_trn && order.importer_trn.length > 0 && (
@@ -1759,7 +1759,7 @@ const ImportOrderForm = () => {
                             type="text"
                             value={item.hs_code}
                             onChange={(e) => handleItemChange(index, "hs_code", e.target.value)}
-                            placeholder="72XX.XX"
+                            placeholder="7216.10"
                             className={`w-full px-2 py-1 text-xs border rounded ${
                               isDarkMode
                                 ? "border-gray-600 bg-gray-800 text-white"

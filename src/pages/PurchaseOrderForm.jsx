@@ -3078,7 +3078,7 @@ const PurchaseOrderForm = () => {
                   type="tel"
                   value={purchaseOrder.buyerPhone}
                   onChange={(e) => handleInputChange("buyerPhone", e.target.value)}
-                  placeholder="+971 XX XXX XXXX"
+                  placeholder="+971 50 123 4567"
                   className={INPUT_CLASSES(isDarkMode)}
                 />
               </div>

@@ -1924,7 +1924,7 @@ const QuotationForm = () => {
                   name="quotationNumber"
                   label="Quotation Number"
                   type="text"
-                  placeholder="QT-XXXXX"
+                  placeholder="QT-00001"
                   value={formData.quotationNumber || "QT-DRAFT"}
                   onChange={(e) => {
                     setFormData((prev) => ({

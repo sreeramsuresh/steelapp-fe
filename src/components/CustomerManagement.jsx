@@ -1991,7 +1991,7 @@ const CustomerManagement = () => {
                         trn_number: sanitizeTRNInput(e.target.value),
                       })
                     }
-                    placeholder="100XXXXXXXXXXXX"
+                    placeholder="100234567890003"
                     className={inputClasses}
                   />
                   {validateTRN(newCustomer.trn_number) && (
@@ -2258,7 +2258,7 @@ const CustomerManagement = () => {
                   inputMode="numeric"
                   pattern="\\d*"
                   maxLength={15}
-                  placeholder="100XXXXXXXXXXXX"
+                  placeholder="100234567890003"
                   value={newSupplier.trn_number}
                   onChange={(e) =>
                     setNewSupplier({
@@ -2540,7 +2540,7 @@ const CustomerManagement = () => {
                   inputMode="numeric"
                   pattern="\\d*"
                   maxLength={15}
-                  placeholder="100XXXXXXXXXXXX"
+                  placeholder="100234567890003"
                   value={selectedSupplier.trn_number || ""}
                   onChange={(e) =>
                     setSelectedSupplier({
@@ -3004,7 +3004,7 @@ const CustomerManagement = () => {
                         trn_number: sanitizeTRNInput(e.target.value),
                       })
                     }
-                    placeholder="100XXXXXXXXXXXX"
+                    placeholder="100234567890003"
                     className={inputClasses}
                   />
                   {validateTRN(selectedCustomer.trn_number) && (

@@ -172,7 +172,13 @@ export default function CommissionApprovalWorkflow() {
     return pendingApprovals.slice(startIdx, startIdx + pageSize);
   }, [pendingApprovals, currentPage, pageSize]);
 
-  if (loading) return <div className="flex justify-center items-center h-96">Loading approvals...</div>;
+  if (loading)
+    return (
+      <div className={`flex flex-col justify-center items-center h-96 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-500 mb-3" />
+        <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Loading approvals...</span>
+      </div>
+    );
 
   return (
     <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>

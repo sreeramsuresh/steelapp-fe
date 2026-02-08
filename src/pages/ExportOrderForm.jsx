@@ -2027,7 +2027,7 @@ const ExportOrderForm = () => {
                   const value = e.target.value.replace(/\D/g, "").slice(0, 15);
                   handleFieldChange("exporter_trn", value);
                 }}
-                placeholder="100XXXXXXXXXXXX"
+                placeholder="100234567890003"
                 error={errors.exporter_trn}
                 required={order.status !== "draft"}
                 helperText="Your UAE company TRN"
@@ -2151,7 +2151,7 @@ const ExportOrderForm = () => {
                 const value = e.target.value.replace(/\D/g, "").slice(0, 15);
                 handleFieldChange("customer_trn", value);
               }}
-              placeholder="300XXXXXXXXX5 (15 digits)"
+              placeholder="300012345678903"
               error={errors.customer_trn}
               helperText="Required for UAE/GCC customer VAT compliance"
             />
@@ -2970,7 +2970,7 @@ const ExportOrderForm = () => {
                         type="text"
                         value={item.hs_code}
                         onChange={(e) => handleItemChange(index, "hs_code", e.target.value)}
-                        placeholder="72XX.XX.XX"
+                        placeholder="7216.10.00"
                         className={`w-full px-2 py-1 text-xs border rounded ${
                           isDarkMode
                             ? "border-gray-600 bg-gray-800 text-white"
@@ -3273,13 +3273,13 @@ const ExportOrderForm = () => {
               label="Commercial Invoice Number"
               value={order.commercial_invoice_number}
               onChange={(e) => handleFieldChange("commercial_invoice_number", e.target.value)}
-              placeholder="CI-XXXX"
+              placeholder="CI-2024-001"
             />
             <Input
               label="Packing List Number"
               value={order.packing_list_number}
               onChange={(e) => handleFieldChange("packing_list_number", e.target.value)}
-              placeholder="PL-XXXX"
+              placeholder="PL-2024-001"
             />
             <Input
               label="VAT Return Period"

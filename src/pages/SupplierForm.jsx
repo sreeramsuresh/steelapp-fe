@@ -970,7 +970,7 @@ export function SupplierForm() {
                   value={formData.phone}
                   onChange={(e) => handleChange("phone", e.target.value)}
                   className={inputClasses}
-                  placeholder="+971 XX XXX XXXX"
+                  placeholder="+971 50 123 4567"
                 />
               </div>
 
@@ -1145,7 +1145,7 @@ export function SupplierForm() {
                     value={formData.contactPhone}
                     onChange={(e) => handleChange("contactPhone", e.target.value)}
                     className={inputClasses}
-                    placeholder="+971 XX XXX XXXX"
+                    placeholder="+971 50 123 4567"
                   />
                 </div>
               </div>
