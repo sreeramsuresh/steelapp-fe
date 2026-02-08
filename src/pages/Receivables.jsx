@@ -820,7 +820,10 @@ const Receivables = () => {
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className={`px-4 py-12 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <td
+                    colSpan={11}
+                    className={`px-4 py-12 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
                     <div className="flex flex-col items-center gap-2">
                       <p className="font-medium">No receivable records found</p>
                       <p className="text-sm">Create an invoice to start tracking receivables.</p>

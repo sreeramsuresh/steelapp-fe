@@ -399,7 +399,6 @@ const Dashboard = () => {
     }).format(safeAmount);
   };
 
-
   if (loading) {
     return (
       <div className={`p-6 md:p-8 min-h-screen w-full ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
@@ -779,7 +778,12 @@ const Dashboard = () => {
                   Best performing products by revenue
                 </p>
               </div>
-              <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate("/app/products")}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full sm:w-auto"
+                onClick={() => navigate("/app/products")}
+              >
                 View All Products
               </Button>
             </div>

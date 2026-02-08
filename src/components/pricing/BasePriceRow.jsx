@@ -36,7 +36,13 @@ export default function BasePriceRow({
     <tr className={`border-b ${borderColor} transition-colors ${rowBgColor}`}>
       {/* Checkbox */}
       <td className="px-4 py-3">
-        <input type="checkbox" checked={isSelected} onChange={onToggleSelect} className="w-4 h-4 cursor-pointer" aria-label={`Select ${product.name || "product"}`} />
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={onToggleSelect}
+          className="w-4 h-4 cursor-pointer"
+          aria-label={`Select ${product.name || "product"}`}
+        />
       </td>
 
       {/* Product Name */}

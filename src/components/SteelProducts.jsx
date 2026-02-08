@@ -716,7 +716,6 @@ const SteelProducts = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const [similarProducts, setSimilarProducts] = useState([]);
 
-
   const [newProduct, setNewProduct] = useState({
     displayName: "", // User-facing, editable name
     category: "sheet",
@@ -1046,8 +1045,6 @@ const SteelProducts = () => {
 
     setSimilarProducts(similar);
   }, [newProduct.grade, newProduct.category, newProduct.finish, showAddModal, products]);
-
-
 
   // Dynamic category groups - only show groups that have matching products
   const categoryGroups = useMemo(() => {
@@ -2535,9 +2532,7 @@ const SteelProducts = () => {
                   type="button"
                   onClick={() => refetchProducts()}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isDarkMode
-                      ? "bg-blue-600 hover:bg-blue-700 text-white"
-                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                    isDarkMode ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"
                   }`}
                 >
                   Retry

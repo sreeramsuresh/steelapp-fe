@@ -431,7 +431,10 @@ const DeliveryNoteList = () => {
                 </tr>
               ) : deliveryNotes.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className={`px-6 py-12 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <td
+                    colSpan={6}
+                    className={`px-6 py-12 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
                     <div className="flex flex-col items-center gap-2">
                       <TruckIcon className={`w-10 h-10 ${isDarkMode ? "text-gray-600" : "text-gray-300"}`} />
                       <p className="font-medium">No delivery notes found</p>

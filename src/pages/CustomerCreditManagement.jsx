@@ -208,8 +208,8 @@ export default function CustomerCreditManagement() {
                           {customer.creditUtilization}%
                         </div>
                         <div>
-                          <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Limit:</span>{" "}
-                          AED {customer.creditLimit?.toFixed(2)}
+                          <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Limit:</span> AED{" "}
+                          {customer.creditLimit?.toFixed(2)}
                         </div>
                       </div>
                     </button>
@@ -264,8 +264,8 @@ export default function CustomerCreditManagement() {
                           {customer.outstandingAmount?.toFixed(2)}
                         </div>
                         <div>
-                          <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Limit:</span>{" "}
-                          AED {customer.creditLimit?.toFixed(2)}
+                          <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Limit:</span> AED{" "}
+                          {customer.creditLimit?.toFixed(2)}
                         </div>
                         <div className="text-red-600 font-semibold">
                           +$

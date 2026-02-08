@@ -263,9 +263,7 @@ export default function CustomerDetail() {
             type="button"
             onClick={() => navigate(`/app/customers/${customerId}/edit`)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-              isDarkMode
-                ? "bg-teal-600 hover:bg-teal-700 text-white"
-                : "bg-teal-600 hover:bg-teal-700 text-white"
+              isDarkMode ? "bg-teal-600 hover:bg-teal-700 text-white" : "bg-teal-600 hover:bg-teal-700 text-white"
             }`}
           >
             <FaEdit />

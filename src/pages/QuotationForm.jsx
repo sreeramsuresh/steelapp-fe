@@ -1276,7 +1276,6 @@ const QuotationForm = () => {
     });
   }, []);
 
-
   // Capture initial form data once for change detection (Bug #53 fix)
   useEffect(() => {
     if (isEdit && initialFormData === null && formData.quotationNumber !== "QT-DRAFT") {
@@ -2245,7 +2244,8 @@ const QuotationForm = () => {
                   {warehouses && warehouses.length > 0
                     ? warehouses.map((wh) => (
                         <SelectItem key={wh.id} value={wh.id.toString()}>
-                          {wh.name}{wh.city ? ` (${wh.city})` : ""}
+                          {wh.name}
+                          {wh.city ? ` (${wh.city})` : ""}
                         </SelectItem>
                       ))
                     : null}
