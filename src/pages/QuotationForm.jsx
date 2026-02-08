@@ -1318,7 +1318,12 @@ const QuotationForm = () => {
     // Validation
     const errors = [];
     if (!formData.quotationNumber || formData.quotationNumber.trim() === "") {
-      errors.push("Quotation number is required");
+      // Auto-filled with "QT-DRAFT" for new quotations; server assigns final number
+      if (!isEdit) {
+        setFormData((prev) => ({ ...prev, quotationNumber: "QT-DRAFT" }));
+      } else {
+        errors.push("Quotation number is required");
+      }
     }
     if (!formData.customerDetails.name || formData.customerDetails.name.trim() === "") {
       errors.push("Customer name is required");
@@ -2006,6 +2011,7 @@ const QuotationForm = () => {
                   type="number"
                   step="0.0001"
                   min="0.0001"
+                  max="99999"
                   value={formData.exchangeRate || ""}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -2245,7 +2251,7 @@ const QuotationForm = () => {
                     ? warehouses.map((wh) => (
                         <SelectItem key={wh.id} value={wh.id.toString()}>
                           {wh.name}
-                          {wh.city ? ` (${wh.city})` : ""}
+                          {wh.city?.trim() ? ` (${wh.city.trim()})` : ""}
                         </SelectItem>
                       ))
                     : null}

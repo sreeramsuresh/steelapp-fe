@@ -956,7 +956,7 @@ const Payables = () => {
             <Banknote size={20} />
           </div>
           <div>
-            <h1 className="font-bold text-xl">Payables</h1>
+            <h1 className="font-bold text-xl">💳 Payables</h1>
             <div className="text-xs opacity-70">Track vendor payments and purchase orders</div>
           </div>
         </div>

@@ -260,7 +260,7 @@ export default function CustomerCreditManagement() {
                         className={`grid grid-cols-3 gap-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                       >
                         <div>
-                          <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Outstanding:</span> $
+                          <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Outstanding:</span> AED{" "}
                           {customer.outstandingAmount?.toFixed(2)}
                         </div>
                         <div>
@@ -268,7 +268,7 @@ export default function CustomerCreditManagement() {
                           {customer.creditLimit?.toFixed(2)}
                         </div>
                         <div className="text-red-600 font-semibold">
-                          +$
+                          +AED{" "}
                           {(customer.outstandingAmount - customer.creditLimit)?.toFixed(2)}
                         </div>
                       </div>
@@ -298,13 +298,13 @@ export default function CustomerCreditManagement() {
                   <div className="flex justify-between items-center">
                     <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Credit Limit</span>
                     <span className={`font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
-                      ${creditDetails.creditLimit?.toFixed(2)}
+                      AED {creditDetails.creditLimit?.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Outstanding</span>
                     <span className={`font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
-                      ${creditDetails.outstandingAmount?.toFixed(2)}
+                      AED {creditDetails.outstandingAmount?.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -312,7 +312,7 @@ export default function CustomerCreditManagement() {
                     <span
                       className={`font-semibold ${creditDetails.creditLimit - creditDetails.outstandingAmount >= 0 ? "text-green-600" : "text-red-600"}`}
                     >
-                      ${Math.max(0, creditDetails.creditLimit - creditDetails.outstandingAmount)?.toFixed(2)}
+                      AED {Math.max(0, creditDetails.creditLimit - creditDetails.outstandingAmount)?.toFixed(2)}
                     </span>
                   </div>
                   <div
@@ -338,23 +338,23 @@ export default function CustomerCreditManagement() {
                     <div className={`space-y-2 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
                       <div className="flex justify-between">
                         <span>Current</span>
-                        <span className="font-semibold">${agingData.currentAmount?.toFixed(2)}</span>
+                        <span className="font-semibold">AED {agingData.currentAmount?.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>1-30 days</span>
-                        <span className="font-semibold">${agingData.days1_30?.toFixed(2)}</span>
+                        <span className="font-semibold">AED {agingData.days1_30?.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>31-60 days</span>
-                        <span className="font-semibold">${agingData.days31_60?.toFixed(2)}</span>
+                        <span className="font-semibold">AED {agingData.days31_60?.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>61-90 days</span>
-                        <span className="font-semibold">${agingData.days61_90?.toFixed(2)}</span>
+                        <span className="font-semibold">AED {agingData.days61_90?.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>90+ days</span>
-                        <span className="font-semibold text-red-600">${agingData.days90Plus?.toFixed(2)}</span>
+                        <span className="font-semibold text-red-600">AED {agingData.days90Plus?.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>

@@ -81,6 +81,7 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
           className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
         >
           <span className="text-sm">No data available</span>
+          <span className="text-xs mt-1 opacity-70">Fast-moving items will appear as sales transactions are recorded</span>
         </div>
       </div>
     );

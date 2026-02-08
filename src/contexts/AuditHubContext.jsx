@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import auditHubService from "../services/auditHubService";
 import { useAuth } from "./AuthContext";
 
@@ -26,21 +26,30 @@ export function AuditHubProvider({ children }) {
     status: null,
   });
 
+  // Track initial load to avoid StrictMode duplicate calls
+  const initialLoadDone = useRef(false);
+
   // Load periods
-  const loadPeriods = useCallback(async () => {
+  const loadPeriods = useCallback(async (options = {}) => {
     if (!user?.companyId) return;
 
     setLoading(true);
     setError(null);
     try {
       const data = await auditHubService.getPeriods(user.companyId, filters);
-      setPeriods(data);
+      if (!options.cancelled) {
+        setPeriods(data);
+      }
     } catch (err) {
-      console.error("[AuditHub] Load periods error:", err);
-      setError(err.message);
-      setPeriods([]);
+      if (!options.cancelled) {
+        console.warn("[AuditHub] Load periods failed:", err.message || err);
+        setError(err.message);
+        setPeriods([]);
+      }
     } finally {
-      setLoading(false);
+      if (!options.cancelled) {
+        setLoading(false);
+      }
     }
   }, [user?.companyId, filters]);
 
@@ -56,9 +65,16 @@ export function AuditHubProvider({ children }) {
 
   // Load periods whenever company context or filters change
   useEffect(() => {
-    if (user?.companyId) {
-      loadPeriods();
+    if (!user?.companyId) return;
+
+    // Skip StrictMode duplicate mount for initial load
+    if (!initialLoadDone.current) {
+      initialLoadDone.current = true;
     }
+
+    const options = { cancelled: false };
+    loadPeriods(options);
+    return () => { options.cancelled = true; };
   }, [user?.companyId, loadPeriods]);
 
   // Select period and load its datasets

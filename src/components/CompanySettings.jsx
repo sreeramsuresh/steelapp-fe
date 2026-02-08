@@ -319,7 +319,7 @@ const TextField = ({
               error ? "border-red-500" : isDarkMode ? "border-gray-600" : "border-gray-300"
             } ${
               isDarkMode ? "bg-gray-800 text-white placeholder-gray-400" : "bg-white text-gray-900 placeholder-gray-500"
-            } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${readOnly ? "bg-gray-100 dark:bg-gray-700/50 cursor-default border-dashed" : ""} ${className}`}
+            } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${readOnly ? (isDarkMode ? "bg-gray-700/50 cursor-default border-dashed" : "bg-gray-100 cursor-default border-dashed") : ""} ${className}`}
           />
         ) : (
           <input
@@ -334,7 +334,7 @@ const TextField = ({
               error ? "border-red-500" : isDarkMode ? "border-gray-600" : "border-gray-300"
             } ${
               isDarkMode ? "bg-gray-800 text-white placeholder-gray-400" : "bg-white text-gray-900 placeholder-gray-500"
-            } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${readOnly ? "bg-gray-100 dark:bg-gray-700/50 cursor-default border-dashed" : ""} ${className}`}
+            } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${readOnly ? (isDarkMode ? "bg-gray-700/50 cursor-default border-dashed" : "bg-gray-100 cursor-default border-dashed") : ""} ${className}`}
           />
         )}
         {endAdornment && (
@@ -1855,7 +1855,7 @@ const CompanySettings = () => {
               </h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextField label="VAT REG NO" value="104858252000003" readOnly placeholder="VAT Registration Number" />
+                <TextField label="VAT REG NO (TRN)" value="104858252000003" readOnly placeholder="VAT Registration Number" helperText="Read-only. Contact admin to update." />
               </div>
             </div>
           </SettingsCard>

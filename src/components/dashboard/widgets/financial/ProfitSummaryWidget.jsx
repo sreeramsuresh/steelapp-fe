@@ -84,6 +84,7 @@ const ProfitSummaryWidget = ({ data: propData, onRefresh, loading: externalLoadi
           className={`flex flex-col items-center justify-center h-48 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
         >
           <span className="text-sm">No data available</span>
+          <span className="text-xs mt-1 opacity-70">Profit data will appear once invoices are processed</span>
         </div>
       </div>
     );

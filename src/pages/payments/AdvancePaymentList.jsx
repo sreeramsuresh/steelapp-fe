@@ -573,7 +573,7 @@ const AdvancePaymentList = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-              Advance Receipts (Pre-Invoice)
+              💵 Advance Receipts (Pre-Invoice)
             </h1>
             <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               UAE VAT Article 26: Payments received before invoice issuance create an immediate tax point. VAT must be

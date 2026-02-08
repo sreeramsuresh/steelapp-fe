@@ -212,7 +212,7 @@ export function ContainerList() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-              Import Containers
+              📦 Import Containers
             </h1>
             <p className={`mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Manage import containers and landed costs

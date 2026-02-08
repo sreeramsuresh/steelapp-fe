@@ -273,7 +273,7 @@ const DebitNoteList = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Debit Notes</h1>
+            <h1 className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>📝 Debit Notes</h1>
             <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Adjustments to supplier bills (amount increases)
             </p>

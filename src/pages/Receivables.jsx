@@ -627,7 +627,7 @@ const Receivables = () => {
             <Banknote size={20} />
           </div>
           <div>
-            <h1 className="font-bold text-xl">Receivables</h1>
+            <h1 className="font-bold text-xl">💰 Receivables</h1>
             <div className="text-xs opacity-70">Track customer invoices and receipts</div>
           </div>
         </div>

@@ -248,7 +248,7 @@ const DeliveryNoteList = () => {
       <div className="flex justify-between items-start mb-6">
         <div>
           <h1 className={`text-2xl font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-            Delivery Notes
+            🚚 Delivery Notes
           </h1>
           <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
             Track shipments and deliveries for issued invoices

@@ -251,7 +251,7 @@ const QuotationList = () => {
       <div className="mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>Quotations</h1>
+            <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>📋 Quotations</h1>
             <p className={`mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Manage and track your quotations</p>
           </div>
           {authService.hasPermission("quotations", "create") && (

@@ -42,7 +42,7 @@ const WarehouseList = () => {
   const [summaryLoading, setSummaryLoading] = useState(true);
 
   // Fetch warehouses and summary
-  const fetchWarehouses = useCallback(async () => {
+  const fetchWarehouses = useCallback(async (options = {}) => {
     try {
       setLoading(true);
 
@@ -55,6 +55,8 @@ const WarehouseList = () => {
         warehouseService.getSummary(),
       ]);
 
+      if (options.cancelled) return;
+
       const warehouseList = result.data || [];
       setWarehouses(warehouseList);
 
@@ -62,16 +64,19 @@ const WarehouseList = () => {
       setSummary(summaryData);
       setSummaryLoading(false);
     } catch (error) {
+      if (options.cancelled) return;
       console.error("Error fetching warehouses:", error);
       notificationService.error("Failed to load warehouses");
       setSummaryLoading(false);
     } finally {
-      setLoading(false);
+      if (!options.cancelled) setLoading(false);
     }
   }, [searchTerm, filterActive]);
 
   useEffect(() => {
-    fetchWarehouses();
+    const options = { cancelled: false };
+    fetchWarehouses(options);
+    return () => { options.cancelled = true; };
   }, [fetchWarehouses]);
 
   // Handlers

@@ -271,7 +271,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Credit Notes</h1>
+            <h1 className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>🔄 Credit Notes</h1>
             <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Manage customer returns and refunds
             </p>

@@ -71,7 +71,7 @@ const StatsCard = ({ variant = "default", children, className = "" }) => {
 
   return (
     <div
-      className={`rounded-xl border-l-4 border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg min-h-28 flex flex-col ${
+      className={`rounded-xl border-l-4 border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg min-h-28 flex flex-col overflow-hidden min-w-0 ${
         isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
       } ${borderColors[variant]} ${className}`}
     >

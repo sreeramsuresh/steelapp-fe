@@ -503,7 +503,7 @@ export default function PriceListList() {
                       <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Date Range</span>
                       <span className={`font-medium text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                         {pricelist.effectiveFrom || pricelist.effectiveTo
-                          ? `${pricelist.effectiveFrom || "—"} to ${pricelist.effectiveTo || "Ongoing"}`
+                          ? `${pricelist.effectiveFrom ? new Date(pricelist.effectiveFrom).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"} to ${pricelist.effectiveTo ? new Date(pricelist.effectiveTo).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Ongoing"}`
                           : "No date range"}
                       </span>
                     </div>

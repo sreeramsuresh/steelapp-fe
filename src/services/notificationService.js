@@ -52,6 +52,7 @@ class NotificationService {
     return toast.error(message, {
       ...getToastStyle(this.isDarkMode),
       duration: 6000, // Longer duration for errors
+      id: options.id || `error-${message}`, // Deduplicate identical error toasts (prevents StrictMode doubles)
       ...options,
       iconTheme: {
         primary: "#ef4444", // red-500
@@ -63,6 +64,7 @@ class NotificationService {
   warning(message, options = {}) {
     return toast(message, {
       ...getToastStyle(this.isDarkMode),
+      id: options.id || `warn-${message}`, // Deduplicate identical warning toasts
       ...options,
       icon: "⚠️",
       iconTheme: {

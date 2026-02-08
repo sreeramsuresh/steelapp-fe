@@ -1694,7 +1694,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         <div className="flex justify-between items-start mb-1 sm:mb-6 px-4 sm:px-0 pt-4 sm:pt-0">
           <div>
             <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-              All Invoices
+              📄 All Invoices
             </h1>
             <p className={`${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Manage and track all your invoices</p>
           </div>
