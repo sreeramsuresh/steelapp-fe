@@ -75,7 +75,7 @@ const AuditLogs = () => {
     startDate: "",
     endDate: "",
     search: "",
-    user_id: "",
+    userId: "",
   });
 
   // Pagination
@@ -102,9 +102,9 @@ const AuditLogs = () => {
         limit: itemsPerPage,
         ...(filters.category && { category: filters.category }),
         ...(filters.action && { action: filters.action }),
-        ...(filters.startDate && { start_date: filters.startDate }),
-        ...(filters.endDate && { end_date: filters.endDate }),
-        ...(filters.user_id && { user_id: filters.user_id }),
+        ...(filters.startDate && { startDate: filters.startDate }),
+        ...(filters.endDate && { endDate: filters.endDate }),
+        ...(filters.userId && { userId: filters.userId }),
       };
 
       const response = await apiService.get("/audit-logs", { params });
@@ -148,7 +148,7 @@ const AuditLogs = () => {
       startDate: "",
       endDate: "",
       search: "",
-      user_id: "",
+      userId: "",
     });
     setCurrentPage(1);
   };
@@ -178,15 +178,15 @@ const AuditLogs = () => {
       "IP Address",
     ];
     const csvData = logs.map((log) => [
-      toUAETime(log.created_at, { format: "datetime" }),
+      toUAETime(log.createdAt, { format: "datetime" }),
       log.username || "-",
-      log.user_email || "-",
+      log.userEmail || "-",
       log.category,
       log.action,
-      log.entity_name || "-",
+      log.entityName || "-",
       log.description || "-",
       log.status,
-      log.ip_address || "-",
+      log.ipAddress || "-",
     ]);
 
     const csvContent = [headers.join(","), ...csvData.map((row) => row.map((cell) => `"${cell}"`).join(","))].join(
@@ -218,15 +218,15 @@ const AuditLogs = () => {
     const search = filters.search.toLowerCase();
     return (
       log.username?.toLowerCase().includes(search) ||
-      log.user_email?.toLowerCase().includes(search) ||
+      log.userEmail?.toLowerCase().includes(search) ||
       log.description?.toLowerCase().includes(search) ||
       log.action?.toLowerCase().includes(search) ||
-      log.entity_name?.toLowerCase().includes(search)
+      log.entityName?.toLowerCase().includes(search)
     );
   });
 
   const hasActiveFilters =
-    filters.category || filters.status || filters.startDate || filters.endDate || filters.search || filters.user_id;
+    filters.category || filters.status || filters.startDate || filters.endDate || filters.search || filters.userId;
 
   return (
     <div className={`min-h-screen p-6 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
@@ -279,7 +279,7 @@ const AuditLogs = () => {
                 <div>
                   <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Failed Actions</p>
                   <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    {stats.categoryStats?.reduce((sum, cat) => sum + parseInt(cat.failed_count || 0, 10), 0) || 0}
+                    {stats.categoryStats?.reduce((sum, cat) => sum + parseInt(cat.failedCount || 0, 10), 0) || 0}
                   </p>
                 </div>
                 <AlertCircle className="text-red-500" size={32} />
@@ -362,8 +362,8 @@ const AuditLogs = () => {
             {/* User Filter */}
             <FormSelect
               label="User"
-              value={filters.user_id || "none"}
-              onValueChange={(value) => handleFilterChange("user_id", value === "none" ? "" : value)}
+              value={filters.userId || "none"}
+              onValueChange={(value) => handleFilterChange("userId", value === "none" ? "" : value)}
               showValidation={false}
             >
               <SelectItem value="none">All Users</SelectItem>
@@ -471,7 +471,7 @@ const AuditLogs = () => {
                         <td
                           className={`px-4 py-3 text-sm whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
                         >
-                          {formatDate(log.created_at)}
+                          {formatDate(log.createdAt)}
                         </td>
                         <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
                           <div className="flex items-center gap-2">
@@ -479,7 +479,7 @@ const AuditLogs = () => {
                             <div>
                               <div className="font-medium">{log.username || "-"}</div>
                               <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
-                                {log.user_email || "-"}
+                                {log.userEmail || "-"}
                               </div>
                             </div>
                           </div>
@@ -497,7 +497,7 @@ const AuditLogs = () => {
                           {log.action}
                         </td>
                         <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                          {log.entity_name || "-"}
+                          {log.entityName || "-"}
                         </td>
                         <td
                           className={`px-4 py-3 text-sm max-w-xs truncate ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}

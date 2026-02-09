@@ -75,25 +75,25 @@ describe('AuditDetailDrawer', () => {
     });
 
     test('canNavigateToEntity is true when route and id exist', () => {
-      const log = { entity_type: 'customer', entity_id: 5 };
-      const entityRoute = ENTITY_ROUTES[log.entity_type];
-      const canNavigate = !!(entityRoute && log.entity_id);
+      const log = { entityType: 'customer', entityId: 5 };
+      const entityRoute = ENTITY_ROUTES[log.entityType];
+      const canNavigate = !!(entityRoute && log.entityId);
 
       assert.ok(canNavigate);
     });
 
     test('canNavigateToEntity is false for unknown entity type', () => {
-      const log = { entity_type: 'unknown_entity', entity_id: 5 };
-      const entityRoute = ENTITY_ROUTES[log.entity_type];
-      const canNavigate = !!(entityRoute && log.entity_id);
+      const log = { entityType: 'unknown_entity', entityId: 5 };
+      const entityRoute = ENTITY_ROUTES[log.entityType];
+      const canNavigate = !!(entityRoute && log.entityId);
 
       assert.ok(!canNavigate);
     });
 
-    test('canNavigateToEntity is false when entity_id is null', () => {
-      const log = { entity_type: 'customer', entity_id: null };
-      const entityRoute = ENTITY_ROUTES[log.entity_type];
-      const canNavigate = !!(entityRoute && log.entity_id);
+    test('canNavigateToEntity is false when entityId is null', () => {
+      const log = { entityType: 'customer', entityId: null };
+      const entityRoute = ENTITY_ROUTES[log.entityType];
+      const canNavigate = !!(entityRoute && log.entityId);
 
       assert.ok(!canNavigate);
     });

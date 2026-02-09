@@ -208,7 +208,7 @@ const RecentActivitySection = ({ recentActivity, handleNavigate, isDarkMode }) =
                   {log.description || log.action}
                 </p>
                 <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                  {log.username || "System"} — {toUAETime(log.created_at, { format: "datetime" })}
+                  {log.username || "System"} — {toUAETime(log.createdAt, { format: "datetime" })}
                 </p>
               </div>
               <span

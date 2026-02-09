@@ -173,9 +173,9 @@ export default function EntityAuditTimeline({ entityType, entityId }) {
                 )}
               </div>
               <div className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                {log.username || "System"} — {toUAETime(log.created_at, { format: "datetime" })}
+                {log.username || "System"} — {toUAETime(log.createdAt, { format: "datetime" })}
               </div>
-              <ChangeSummary oldValues={log.old_values} newValues={log.new_values} />
+              <ChangeSummary oldValues={log.oldValues} newValues={log.newValues} />
             </div>
           </div>
         );

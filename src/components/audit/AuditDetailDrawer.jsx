@@ -92,8 +92,8 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
 
   if (!isOpen || !log) return null;
 
-  const entityRoute = log.entity_type && ENTITY_ROUTES[log.entity_type];
-  const canNavigateToEntity = entityRoute && log.entity_id;
+  const entityRoute = log.entityType && ENTITY_ROUTES[log.entityType];
+  const canNavigateToEntity = entityRoute && log.entityId;
 
   return (
     <>
@@ -152,7 +152,7 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
               <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>Timestamp</div>
               <div className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
                 <Clock size={12} className="inline mr-1" />
-                {toUAETime(log.created_at, { format: "datetime" })}
+                {toUAETime(log.createdAt, { format: "datetime" })}
               </div>
             </div>
             <div>
@@ -165,14 +165,14 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
             <div>
               <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>Email</div>
               <div className={`text-sm font-medium truncate ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
-                {log.user_email || "-"}
+                {log.userEmail || "-"}
               </div>
             </div>
             <div>
               <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>IP Address</div>
               <div className={`text-sm font-mono ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
                 <Globe size={12} className="inline mr-1" />
-                {log.ip_address || "-"}
+                {log.ipAddress || "-"}
               </div>
             </div>
             <div>
@@ -184,7 +184,7 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
           </div>
 
           {/* User Agent */}
-          {log.user_agent && (
+          {log.userAgent && (
             <div>
               <div className={`text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                 <Monitor size={12} className="inline mr-1" />
@@ -193,7 +193,7 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
               <div
                 className={`text-xs font-mono p-2 rounded ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-50 text-gray-600"}`}
               >
-                {log.user_agent}
+                {log.userAgent}
               </div>
             </div>
           )}
@@ -207,7 +207,7 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
           )}
 
           {/* Entity Link */}
-          {log.entity_name && (
+          {log.entityName && (
             <div
               className={`p-3 rounded-lg flex items-center justify-between ${
                 isDarkMode ? "bg-gray-800" : "bg-gray-50"
@@ -215,10 +215,10 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
             >
               <div>
                 <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                  {log.entity_type || "Entity"}
+                  {log.entityType || "Entity"}
                 </div>
                 <div className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
-                  {log.entity_name}
+                  {log.entityName}
                 </div>
               </div>
               {canNavigateToEntity && (
@@ -226,7 +226,7 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
                   type="button"
                   onClick={() => {
                     onClose();
-                    navigate(`${entityRoute}/${log.entity_id}`);
+                    navigate(`${entityRoute}/${log.entityId}`);
                   }}
                   className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-600"
                 >
@@ -238,23 +238,23 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
           )}
 
           {/* Error Message */}
-          {log.error_message && (
+          {log.errorMessage && (
             <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30">
               <div className="text-xs text-red-600 dark:text-red-400 font-medium mb-1">Error</div>
-              <div className="text-sm text-red-700 dark:text-red-300">{log.error_message}</div>
+              <div className="text-sm text-red-700 dark:text-red-300">{log.errorMessage}</div>
             </div>
           )}
 
           {/* Changes (Before / After) */}
-          {(log.old_values || log.new_values) && (
+          {(log.oldValues || log.newValues) && (
             <div>
               <div className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 <ArrowRight size={12} className="inline mr-1" />
                 Changes
               </div>
               <div className="space-y-3">
-                <JsonDiff label="Before" data={log.old_values} variant="before" />
-                <JsonDiff label="After" data={log.new_values} variant="after" />
+                <JsonDiff label="Before" data={log.oldValues} variant="before" />
+                <JsonDiff label="After" data={log.newValues} variant="after" />
               </div>
             </div>
           )}
