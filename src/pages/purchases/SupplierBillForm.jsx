@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import ProductAutocomplete from "../../components/shared/ProductAutocomplete";
 import { FormSelect } from "../../components/ui/form-select";
 import { SelectItem } from "../../components/ui/select";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -445,6 +446,8 @@ const SupplierBillForm = () => {
     const saved = localStorage.getItem("supplierBillPinnedProducts");
     return saved ? JSON.parse(saved) : [];
   });
+  const [searchInputs, setSearchInputs] = useState({});
+  const searchTimerRef = useRef(null);
 
   // Drawer states
   const [chargesDrawerOpen, setChargesDrawerOpen] = useState(false);
@@ -1049,6 +1052,72 @@ const SupplierBillForm = () => {
       .sort((a, b) => (b.purchaseCount || 0) - (a.purchaseCount || 0));
     return [...pinned, ...unpinned];
   }, [products, pinnedProductIds]);
+
+  // Product autocomplete options (mapped for ProductAutocomplete component)
+  const productOptions = useMemo(() => {
+    return sortedProducts.map((product) => {
+      const displayName =
+        product.displayName || product.display_name || product.uniqueName || product.unique_name || product.name || "N/A";
+      return {
+        ...product,
+        label: displayName,
+        name: displayName,
+        subtitle: `${product.category || ""} ${product.grade ? `• ${product.grade}` : ""} ${product.purchasePrice ? `• د.إ${product.purchasePrice}` : ""}`.trim(),
+      };
+    });
+  }, [sortedProducts]);
+
+  const searchOptions = useMemo(() => {
+    const list = searchInputs?.__results || [];
+    return list.map((product) => {
+      const displayName =
+        product.displayName || product.display_name || product.uniqueName || product.unique_name || product.name || "N/A";
+      return {
+        ...product,
+        label: displayName,
+        name: displayName,
+        subtitle: `${product.category || ""} ${product.grade ? `• ${product.grade}` : ""} ${product.purchasePrice ? `• د.إ${product.purchasePrice}` : ""}`.trim(),
+      };
+    });
+  }, [searchInputs.__results]);
+
+  const handleProductSearchInput = useCallback((index, value) => {
+    setSearchInputs((prev) => ({ ...prev, [index]: value }));
+
+    // Debounced API search
+    clearTimeout(searchTimerRef.current);
+    const term = (value || "").trim();
+    try {
+      searchTimerRef.current = setTimeout(async () => {
+        if (!term) {
+          setSearchInputs((prev) => ({ ...prev, __results: [] }));
+          return;
+        }
+        try {
+          const resp = await productService.getProducts({ search: term, limit: 20 });
+          setSearchInputs((prev) => ({
+            ...prev,
+            __results: resp?.products || [],
+          }));
+        } catch (_err) {
+          setSearchInputs((prev) => ({ ...prev, __results: [] }));
+        }
+      }, 300);
+    } catch (_err) {
+      // Silently ignore search error
+    }
+  }, []);
+
+  const handleProductSelectFromAutocomplete = useCallback(
+    (index, selectedProduct) => {
+      if (!selectedProduct) return;
+      // Use handleItemChange with productId which already handles product field population
+      handleItemChange(index, "productId", selectedProduct.id);
+      // Clear search input for this row
+      setSearchInputs((prev) => ({ ...prev, [index]: "" }));
+    },
+    [handleItemChange],
+  );
 
   // Validate form
   const validateForm = () => {
@@ -2245,25 +2314,42 @@ const SupplierBillForm = () => {
                         >
                           Product / Description
                         </label>
-                        <FormSelect
+                        <ProductAutocomplete
                           id={`item-product-${index}`}
-                          data-testid={`item-product-${index}`}
-                          value={item.productId ? String(item.productId) : "none"}
-                          onValueChange={(value) => handleItemChange(index, "productId", value === "none" ? "" : value)}
-                          showValidation={false}
-                          placeholder="Select or type description..."
-                        >
-                          <SelectItem value="none">Select or type description...</SelectItem>
-                          {products.map((product) => (
-                            <SelectItem key={product.id} value={String(product.id)}>
-                              {product.displayName ||
-                                product.display_name ||
-                                product.uniqueName ||
-                                product.unique_name ||
-                                "N/A"}
-                            </SelectItem>
-                          ))}
-                        </FormSelect>
+                          options={
+                            searchInputs[index]
+                              ? searchOptions.length
+                                ? searchOptions
+                                : productOptions
+                              : productOptions
+                          }
+                          value={item.productId ? productOptions.find((p) => p.id === item.productId) : null}
+                          inputValue={searchInputs[index] || item.description || ""}
+                          onInputChange={(_event, newInputValue) => handleProductSearchInput(index, newInputValue)}
+                          onChange={(_event, newValue) => {
+                            if (newValue) handleProductSelectFromAutocomplete(index, newValue);
+                          }}
+                          placeholder="Search products..."
+                          disabled={loading}
+                          renderOption={(option) => (
+                            <div>
+                              <div className="font-medium">
+                                {option.displayName ||
+                                  option.display_name ||
+                                  option.uniqueName ||
+                                  option.unique_name ||
+                                  option.name ||
+                                  "Product"}
+                              </div>
+                              {option.subtitle && (
+                                <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                                  {option.subtitle}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          noOptionsText="No products found"
+                        />
                         <input
                           type="text"
                           data-testid={`item-description-${index}`}

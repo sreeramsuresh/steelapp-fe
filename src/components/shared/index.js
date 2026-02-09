@@ -12,6 +12,7 @@ export { default as FormFieldWrapper } from "./FormFieldWrapper";
 export { default as IconButton } from "./IconButton";
 export { default as Modal } from "./Modal";
 export { default as NewBadge, isNewRecord } from "./NewBadge";
+export { default as ProductAutocomplete } from "./ProductAutocomplete";
 export { default as RequiredIndicator } from "./RequiredIndicator";
 export { default as ResponsiveTable } from "./ResponsiveTable";
 export { default as Select } from "./Select";

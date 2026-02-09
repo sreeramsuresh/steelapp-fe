@@ -179,7 +179,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(90vh-140px)]">
+        <form onSubmit={handleSubmit} autoComplete="off" className="overflow-y-auto max-h-[calc(90vh-140px)]">
           <div className="px-6 py-4 space-y-6">
             {/* Basic Information */}
             <div>
