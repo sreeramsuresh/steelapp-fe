@@ -76,7 +76,7 @@ export default function CustomerActivityTab({ customerId }) {
       setLoading(true);
       setError(null);
 
-      const response = await api.get(`/api/activities?customerId=${customerId}&entityType=customer`);
+      const response = await api.get(`/activities?customerId=${customerId}&entityType=customer`);
       const activityData = response.data?.activities || response.data || [];
 
       setActivities(activityData);
@@ -243,40 +243,26 @@ export default function CustomerActivityTab({ customerId }) {
   const handleAddActivity = async (e) => {
     e.preventDefault();
 
-    // TODO: Implement API call when backend is ready
-    // try {
-    //   const response = await apiClient.post('/activities', {
-    //     customerId,
-    //     entityType: 'customer',
-    //     type: newActivity.type,
-    //     content: newActivity.content,
-    //     tags: newActivity.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
-    //   });
-    //
-    //   setActivities([response.activity, ...activities]);
-    //   setIsAddingActivity(false);
-    //   setNewActivity({ type: 'note', content: '', tags: '' });
-    // } catch (err) {
-    //   console.error('Failed to create activity:', err);
-    //   alert('Failed to create activity. Please try again.');
-    // }
+    try {
+      const response = await api.post("/activities", {
+        customerId,
+        entityType: "customer",
+        type: newActivity.type,
+        content: newActivity.content,
+        tags: newActivity.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag),
+      });
 
-    // Mock implementation for UI demonstration
-    const mockNewActivity = {
-      id: activities.length + 1,
-      type: newActivity.type,
-      date: new Date().toISOString(),
-      user: "Current User", // TODO: Get from auth context
-      content: newActivity.content,
-      tags: newActivity.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag),
-    };
-
-    setActivities([mockNewActivity, ...activities]);
-    setIsAddingActivity(false);
-    setNewActivity({ type: "note", content: "", tags: "" });
+      const created = response.data?.activity || response.activity;
+      setActivities([created, ...activities]);
+      setIsAddingActivity(false);
+      setNewActivity({ type: "note", content: "", tags: "" });
+    } catch (err) {
+      console.error("Failed to create activity:", err);
+      alert("Failed to create activity. Please try again.");
+    }
   };
 
   // Styling
@@ -339,20 +325,19 @@ export default function CustomerActivityTab({ customerId }) {
         </button>
       </div>
 
-      {/* Backend Integration Notice - shown when no activities loaded */}
+      {/* Empty state notice */}
       {activities.length === 0 && !loading && (
         <div
-          className={`p-4 rounded-lg border ${isDarkMode ? "bg-yellow-900/20 border-yellow-700" : "bg-yellow-50 border-yellow-200"}`}
+          className={`p-4 rounded-lg border ${isDarkMode ? "bg-blue-900/20 border-blue-700" : "bg-blue-50 border-blue-200"}`}
         >
           <div className="flex items-start gap-3">
-            <AlertTriangle size={18} className="text-yellow-500 mt-0.5" />
+            <MessageSquare size={18} className="text-blue-500 mt-0.5" />
             <div>
-              <p className={`text-sm font-medium ${isDarkMode ? "text-yellow-400" : "text-yellow-700"}`}>
-                No Activity Data Available
+              <p className={`text-sm font-medium ${isDarkMode ? "text-blue-400" : "text-blue-700"}`}>
+                No Activities Yet
               </p>
-              <p className={`text-xs ${isDarkMode ? "text-yellow-300" : "text-yellow-600"} mt-1`}>
-                Backend endpoint GET /api/activities is not yet implemented. Activity tracking will be available once
-                the API is deployed.
+              <p className={`text-xs ${isDarkMode ? "text-blue-300" : "text-blue-600"} mt-1`}>
+                Click "Add Activity" below to record a note, call, email, or follow-up for this customer.
               </p>
             </div>
           </div>

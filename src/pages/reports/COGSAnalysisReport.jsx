@@ -65,11 +65,11 @@ export default function COGSAnalysisReport() {
   const loadFilterOptions = useCallback(async () => {
     try {
       // Load customers
-      const customersRes = await api.get("/api/customers");
+      const customersRes = await api.get("/customers");
       setCustomers(customersRes.data || []);
 
       // Load products
-      const productsRes = await api.get("/api/products");
+      const productsRes = await api.get("/products");
       setProducts(productsRes.data || []);
     } catch (error) {
       // Error loading filter options - fail silently
@@ -89,7 +89,7 @@ export default function COGSAnalysisReport() {
       if (selectedCustomer !== "all") params.customerId = selectedCustomer;
       if (selectedProduct !== "all") params.productId = selectedProduct;
 
-      const response = await api.get("/api/cogs/analysis", { params });
+      const response = await api.get("/cogs/analysis", { params });
       const data = response.data || {};
 
       setSummary(data.summary || { totalCOGS: 0, averageMargin: 0, totalRevenue: 0, totalProfit: 0 });
