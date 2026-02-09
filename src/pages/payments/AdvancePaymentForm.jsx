@@ -367,22 +367,22 @@ const AdvancePaymentForm = () => {
   }, [customers, customerSearch]);
 
   // ===================== THEME CLASSES =====================
-  const cardBg = isDarkMode ? "bg-[#141a20]" : "bg-white";
-  const cardBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-200";
-  const inputBg = isDarkMode ? "bg-[#0f151b]" : "bg-white";
-  const inputBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-300";
-  const textPrimary = isDarkMode ? "text-[#e6edf3]" : "text-gray-900";
-  const textMuted = isDarkMode ? "text-[#93a4b4]" : "text-gray-500";
-  const accordionBg = isDarkMode ? "bg-[#0f151b]" : "bg-gray-50";
-  const inputFocus = "focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20";
-  const placeholderCls = isDarkMode ? "placeholder:text-[#93a4b4]" : "placeholder:text-gray-500";
+  const cardBg = isDarkMode ? "bg-gray-800" : "bg-white";
+  const cardBorder = isDarkMode ? "border-gray-700" : "border-gray-200";
+  const inputBg = isDarkMode ? "bg-gray-900" : "bg-white";
+  const inputBorder = isDarkMode ? "border-gray-700" : "border-gray-300";
+  const textPrimary = isDarkMode ? "text-white" : "text-gray-900";
+  const textMuted = isDarkMode ? "text-gray-400" : "text-gray-500";
+  const accordionBg = isDarkMode ? "bg-gray-900" : "bg-gray-50";
+  const inputFocus = "focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20";
+  const placeholderCls = isDarkMode ? "placeholder:text-gray-400" : "placeholder:text-gray-500";
 
   // Loading state
   if (loading) {
     return (
-      <div className={`h-full flex items-center justify-center ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`}>
+      <div className={`h-full flex items-center justify-center ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#4aa3ff] mx-auto mb-3"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-500 mx-auto mb-3"></div>
           <p className={textMuted}>Loading advance payment...</p>
         </div>
       </div>
@@ -390,14 +390,14 @@ const AdvancePaymentForm = () => {
   }
 
   return (
-    <div className={`h-full overflow-auto ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`}>
+    <div className={`h-full overflow-auto ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}>
       {/* App Container */}
       <div className="max-w-6xl mx-auto p-4">
         <div className={`${cardBg} border ${cardBorder} rounded-[18px] overflow-hidden`}>
           {/* Sticky Header */}
           <div
             className={`sticky top-0 z-10 backdrop-blur-md ${
-              isDarkMode ? "bg-[#0f151b]/94 border-b border-[#2a3640]" : "bg-white/94 border-b border-gray-200"
+              isDarkMode ? "bg-gray-900/94 border-b border-gray-700" : "bg-white/94 border-b border-gray-200"
             } px-4 py-3`}
           >
             <div className="flex items-center justify-between">
@@ -406,7 +406,7 @@ const AdvancePaymentForm = () => {
                   type="button"
                   onClick={() => navigate("/app/payments/advance")}
                   className={`p-2 rounded-xl transition-colors ${
-                    isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
+                    isDarkMode ? "hover:bg-gray-800 text-gray-400" : "hover:bg-gray-100 text-gray-600"
                   }`}
                 >
                   <ArrowLeft className="h-5 w-5" />
@@ -424,7 +424,7 @@ const AdvancePaymentForm = () => {
                 <span
                   className={`px-2.5 py-1 rounded-xl text-xs border ${
                     isDarkMode
-                      ? "border-[#4aa3ff]/30 bg-[#4aa3ff]/12 text-[#4aa3ff]"
+                      ? "border-teal-500/30 bg-teal-500/12 text-teal-400"
                       : "border-teal-200 bg-teal-50 text-teal-700"
                   }`}
                 >
@@ -435,9 +435,7 @@ const AdvancePaymentForm = () => {
                   onClick={handleSave}
                   disabled={saving}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
-                    isDarkMode
-                      ? "bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]"
-                      : "bg-teal-600 text-white hover:bg-teal-700"
+                    isDarkMode ? "bg-teal-500 text-white hover:bg-teal-400" : "bg-teal-600 text-white hover:bg-teal-700"
                   } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
                 >
                   {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -512,7 +510,7 @@ const AdvancePaymentForm = () => {
                             type="button"
                             onClick={() => handleCustomerSelect(customer)}
                             className={`w-full px-3 py-2.5 text-left transition-colors border-b last:border-b-0 ${cardBorder} ${
-                              isDarkMode ? "hover:bg-[#1a2027]" : "hover:bg-gray-50"
+                              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
                             }`}
                           >
                             <div className={`text-sm font-medium ${textPrimary}`}>{customer.name}</div>
@@ -528,7 +526,7 @@ const AdvancePaymentForm = () => {
                 ) : (
                   <div
                     className={`p-3 rounded-[14px] border ${
-                      isDarkMode ? "border-[#4aa3ff]/35 bg-[#4aa3ff]/10" : "border-teal-300 bg-teal-50"
+                      isDarkMode ? "border-teal-500/35 bg-teal-500/10" : "border-teal-300 bg-teal-50"
                     }`}
                   >
                     <div className="flex justify-between items-start">
@@ -554,7 +552,7 @@ const AdvancePaymentForm = () => {
                           }}
                           className={`px-2.5 py-1 text-xs rounded-xl border transition-colors ${
                             isDarkMode
-                              ? "border-[#2a3640] bg-[#0f151b] hover:border-[#4aa3ff]"
+                              ? "border-gray-700 bg-gray-900 hover:border-teal-500"
                               : "border-gray-300 bg-white hover:border-teal-500"
                           }`}
                         >
@@ -1369,9 +1367,9 @@ const AdvancePaymentForm = () => {
                             className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-colors ${
                               payment.applyToInvoiceId === invoice.id
                                 ? isDarkMode
-                                  ? "border-[#4aa3ff]/50 bg-[#4aa3ff]/10"
+                                  ? "border-teal-500/50 bg-teal-500/10"
                                   : "border-teal-400 bg-teal-50"
-                                : `${cardBorder} hover:border-[#4aa3ff]/30`
+                                : `${cardBorder} hover:border-teal-500/30`
                             }`}
                           >
                             <div className="flex items-center gap-2.5">
@@ -1385,7 +1383,7 @@ const AdvancePaymentForm = () => {
                                     applyToInvoiceId: invoice.id,
                                   }))
                                 }
-                                className="h-3.5 w-3.5 text-[#4aa3ff] focus:ring-[#4aa3ff]"
+                                className="h-3.5 w-3.5 text-teal-400 focus:ring-teal-500"
                               />
                               <div>
                                 <div className={`text-sm font-medium ${textPrimary}`}>{invoice.invoiceNumber}</div>
@@ -1406,7 +1404,7 @@ const AdvancePaymentForm = () => {
                                 applyToInvoiceId: null,
                               }))
                             }
-                            className={`text-xs ${textMuted} hover:text-[#4aa3ff] transition-colors`}
+                            className={`text-xs ${textMuted} hover:text-teal-400 transition-colors`}
                           >
                             Clear selection
                           </button>
@@ -1441,7 +1439,7 @@ const AdvancePaymentForm = () => {
                       <span className={`font-bold ${textPrimary}`}>Total Received:</span>
                       <span
                         data-testid="total-received"
-                        className={`font-bold font-mono ${isDarkMode ? "text-[#4aa3ff]" : "text-teal-600"}`}
+                        className={`font-bold font-mono ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
                       >
                         {formatCurrency(payment.totalAmount)}
                       </span>
@@ -1452,16 +1450,16 @@ const AdvancePaymentForm = () => {
                 {/* VAT Notice */}
                 <div
                   className={`p-3 rounded-[14px] border ${
-                    isDarkMode ? "bg-[#4aa3ff]/10 border-[#4aa3ff]/30" : "bg-blue-50 border-blue-200"
+                    isDarkMode ? "bg-teal-500/10 border-teal-500/30" : "bg-blue-50 border-blue-200"
                   }`}
                 >
                   <div className="flex items-start gap-2">
-                    <Building2 className={`h-4 w-4 mt-0.5 ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-600"}`} />
+                    <Building2 className={`h-4 w-4 mt-0.5 ${isDarkMode ? "text-teal-400" : "text-blue-600"}`} />
                     <div>
-                      <div className={`text-xs font-bold ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-700"}`}>
+                      <div className={`text-xs font-bold ${isDarkMode ? "text-teal-400" : "text-blue-700"}`}>
                         UAE VAT Article 26
                       </div>
-                      <p className={`text-xs mt-1 ${isDarkMode ? "text-[#93a4b4]" : "text-blue-600"}`}>
+                      <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-blue-600"}`}>
                         Advance payments create an immediate tax point. VAT at 5% must be declared in the period
                         received.
                       </p>
