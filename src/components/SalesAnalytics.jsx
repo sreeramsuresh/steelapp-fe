@@ -1089,7 +1089,7 @@ const SalesAnalytics = () => {
               // Generate detailed CSV report
               const periodLabel = format(selectedPeriod, dateRange === "month" ? "MMMM yyyy" : "QQQ yyyy");
               const rows = [
-                ["Sales Report - " + periodLabel],
+                [`Sales Report - ${periodLabel}`],
                 [`Generated: ${format(new Date(), "yyyy-MM-dd HH:mm")}`],
                 [],
                 ["Revenue Breakdown by Product Category"],

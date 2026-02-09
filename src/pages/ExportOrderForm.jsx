@@ -1173,7 +1173,7 @@ const ExportOrderForm = () => {
   const [batchAllocatorLineIndex, setBatchAllocatorLineIndex] = useState(null);
 
   // Warehouse selection for batch allocation
-  const [warehouses, setWarehouses] = useState([]);
+  const [_warehouses, setWarehouses] = useState([]);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState(null);
 
   // ============================================================

@@ -173,7 +173,7 @@ const OperatingExpenses = () => {
 
   useEffect(() => {
     fetchExpenses(1);
-  }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fetchExpenses]);
 
   // Form handlers
   const openCreateModal = () => {
@@ -539,7 +539,7 @@ const OperatingExpenses = () => {
                     </td>
                     <td className="px-4 py-2 text-sm">{expense.createdByName || "-"}</td>
                     <td className="px-4 py-2 text-right">
-                      <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-1" role="toolbar" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                         {expense.status === "DRAFT" && canCreate && (
                           <>
                             <button
@@ -662,11 +662,12 @@ const OperatingExpenses = () => {
             <div className="px-6 py-4 space-y-4">
               {/* Expense Date */}
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="opex-expense-date" className="block text-sm font-medium mb-1">
                   Expense Date <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
+                  id="opex-expense-date"
                   value={formData.expense_date}
                   onChange={(e) => setFormData((prev) => ({ ...prev, expense_date: e.target.value }))}
                   disabled={modalMode === "view"}
@@ -679,7 +680,7 @@ const OperatingExpenses = () => {
 
               {/* Expense Type */}
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="opex-expense-type" className="block text-sm font-medium mb-1">
                   Expense Type <span className="text-red-500">*</span>
                 </label>
                 {modalMode === "view" ? (
@@ -703,7 +704,7 @@ const OperatingExpenses = () => {
 
               {/* Category Code */}
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="opex-category-code" className="block text-sm font-medium mb-1">
                   Expense Category (GL Account) <span className="text-red-500">*</span>
                 </label>
                 {modalMode === "view" ? (
@@ -714,7 +715,9 @@ const OperatingExpenses = () => {
                   <>
                     <FormSelect
                       value={formData.category_code || "__NONE__"}
-                      onValueChange={(value) => setFormData((prev) => ({ ...prev, category_code: value === "__NONE__" ? "" : value }))}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, category_code: value === "__NONE__" ? "" : value }))
+                      }
                       showValidation={false}
                       placeholder="Select Category..."
                     >
@@ -733,6 +736,7 @@ const OperatingExpenses = () => {
                   <>
                     <input
                       type="text"
+                      id="opex-category-code"
                       value={formData.category_code}
                       onChange={(e) => setFormData((prev) => ({ ...prev, category_code: e.target.value }))}
                       placeholder="e.g., 5010"
@@ -749,11 +753,12 @@ const OperatingExpenses = () => {
 
               {/* Amount */}
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="opex-amount" className="block text-sm font-medium mb-1">
                   Amount ({formData.currency}) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
+                  id="opex-amount"
                   step="0.01"
                   min="0"
                   value={formData.amount}
@@ -769,8 +774,9 @@ const OperatingExpenses = () => {
 
               {/* Narration */}
               <div>
-                <label className="block text-sm font-medium mb-1">Narration / Description</label>
+                <label htmlFor="opex-narration" className="block text-sm font-medium mb-1">Narration / Description</label>
                 <textarea
+                  id="opex-narration"
                   value={formData.narration}
                   onChange={(e) => setFormData((prev) => ({ ...prev, narration: e.target.value }))}
                   disabled={modalMode === "view"}
@@ -784,9 +790,10 @@ const OperatingExpenses = () => {
 
               {/* Reference Number */}
               <div>
-                <label className="block text-sm font-medium mb-1">Reference Number</label>
+                <label htmlFor="opex-reference" className="block text-sm font-medium mb-1">Reference Number</label>
                 <input
                   type="text"
+                  id="opex-reference"
                   value={formData.reference_number}
                   onChange={(e) => setFormData((prev) => ({ ...prev, reference_number: e.target.value }))}
                   disabled={modalMode === "view"}
@@ -799,7 +806,7 @@ const OperatingExpenses = () => {
 
               {/* Payment Method */}
               <div>
-                <label className="block text-sm font-medium mb-1">Payment Method</label>
+                <label htmlFor="opex-payment-method" className="block text-sm font-medium mb-1">Payment Method</label>
                 {modalMode === "view" ? (
                   <div className="px-3 py-2 rounded border dark:border-gray-600 dark:bg-gray-800 opacity-70">
                     {PAYMENT_METHODS.find((m) => m.value === formData.payment_method)?.label ||
@@ -823,9 +830,10 @@ const OperatingExpenses = () => {
 
               {/* Payment Reference */}
               <div>
-                <label className="block text-sm font-medium mb-1">Payment Reference</label>
+                <label htmlFor="opex-payment-ref" className="block text-sm font-medium mb-1">Payment Reference</label>
                 <input
                   type="text"
+                  id="opex-payment-ref"
                   value={formData.payment_reference}
                   onChange={(e) => setFormData((prev) => ({ ...prev, payment_reference: e.target.value }))}
                   disabled={modalMode === "view"}
