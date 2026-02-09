@@ -40,6 +40,19 @@ import { getProductUniqueName } from "../utils/fieldAccessors";
 import { validateSsotPattern } from "../utils/productSsotValidation";
 
 // ============================================================
+// DESIGN SYSTEM HELPERS
+// ============================================================
+
+const CARD_CLASSES = (isDarkMode) =>
+  `${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4`;
+
+const LABEL_CLASSES = (isDarkMode) =>
+  `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
+
+const TH_CLASSES = (isDarkMode) =>
+  `px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`;
+
+// ============================================================
 // CUSTOM UI COMPONENTS
 // ============================================================
 
@@ -109,9 +122,7 @@ const Input = ({ label, error, className = "", required = false, helperText, id,
       {label && (
         <label
           htmlFor={inputId}
-          className={`block text-xs font-medium ${
-            isDarkMode ? "text-gray-400" : "text-gray-700"
-          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
+          className={`${LABEL_CLASSES(isDarkMode)} ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
         >
           {label}
         </label>
@@ -143,9 +154,7 @@ const Textarea = ({ label, error, className = "", required = false, id, ...props
       {label && (
         <label
           htmlFor={textareaId}
-          className={`block text-sm font-medium ${
-            isDarkMode ? "text-gray-400" : "text-gray-700"
-          } ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
+          className={`${LABEL_CLASSES(isDarkMode)} ${required ? 'after:content-["*"] after:ml-1 after:text-red-500' : ""}`}
         >
           {label}
         </label>
@@ -168,28 +177,28 @@ const Card = ({ children, className = "", title, icon: Icon, highlight = false, 
   const { isDarkMode } = useTheme();
 
   const highlightColors = {
-    teal: isDarkMode ? "border-l-teal-500" : "border-l-teal-500",
-    green: isDarkMode ? "border-l-green-500" : "border-l-green-500",
-    blue: isDarkMode ? "border-l-blue-500" : "border-l-blue-500",
-    amber: isDarkMode ? "border-l-amber-500" : "border-l-amber-500",
-    red: isDarkMode ? "border-l-red-500" : "border-l-red-500",
+    teal: "border-l-teal-500",
+    green: "border-l-green-500",
+    blue: "border-l-blue-500",
+    amber: "border-l-amber-500",
+    red: "border-l-red-500",
   };
 
   return (
     <div
-      className={`rounded-xl shadow-sm ${
-        isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"
-      } ${highlight ? `border-l-4 ${highlightColors[highlightColor]}` : ""} ${className}`}
+      className={`${CARD_CLASSES(isDarkMode)} ${highlight ? `border-l-4 ${highlightColors[highlightColor]}` : ""} ${className}`}
     >
       {title && (
-        <div className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+        <div
+          className={`-mx-4 -mt-4 px-4 py-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"} mb-4 rounded-t-2xl`}
+        >
           <div className="flex items-center gap-2">
             {Icon && <Icon className={`h-4 w-4 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />}
             <h3 className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{title}</h3>
           </div>
         </div>
       )}
-      <div className="p-4">{children}</div>
+      {children}
     </div>
   );
 };
@@ -2098,7 +2107,7 @@ const ExportOrderForm = () => {
             <div className="relative">
               <label
                 htmlFor="customer-search"
-                className={`block text-xs font-medium mb-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-700"} after:content-["*"] after:ml-1 after:text-red-500`}
+                className={`${LABEL_CLASSES(isDarkMode)} after:content-["*"] after:ml-1 after:text-red-500`}
               >
                 Customer
               </label>
@@ -2748,22 +2757,46 @@ const ExportOrderForm = () => {
           )}
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1200px]" data-testid="line-items-table">
+            <table className="w-full table-fixed min-w-[1200px]" data-testid="line-items-table">
               <thead>
-                <tr className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                  <th className="text-left pb-2 pr-2 w-8">#</th>
-                  <th className="text-left pb-2 pr-2 min-w-[180px]">Product</th>
-                  <th className="text-left pb-2 pr-2 w-20">Grade</th>
-                  <th className="text-left pb-2 pr-2 w-20">Finish</th>
-                  <th className="text-left pb-2 pr-2 w-28">Dimensions</th>
-                  <th className="text-left pb-2 pr-2 w-32">Shipment</th>
-                  <th className="text-right pb-2 pr-2 w-20">Qty</th>
-                  <th className="text-left pb-2 pr-2 w-16">Unit</th>
-                  <th className="text-right pb-2 pr-2 w-24">Unit Price</th>
-                  <th className="text-left pb-2 pr-2 w-28">HS Code *</th>
-                  <th className="text-left pb-2 pr-2 w-16">Origin</th>
-                  <th className="text-right pb-2 pr-2 w-28">Total</th>
-                  <th className="w-10"></th>
+                <tr className={isDarkMode ? "border-b border-gray-700" : "border-b border-gray-200"}>
+                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "3%" }}>
+                    #
+                  </th>
+                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "16%" }}>
+                    Product
+                  </th>
+                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "7%" }}>
+                    Grade
+                  </th>
+                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "7%" }}>
+                    Finish
+                  </th>
+                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "10%" }}>
+                    Dimensions
+                  </th>
+                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "10%" }}>
+                    Shipment
+                  </th>
+                  <th className={`${TH_CLASSES(isDarkMode)} text-right`} style={{ width: "7%" }}>
+                    Qty
+                  </th>
+                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "6%" }}>
+                    Unit
+                  </th>
+                  <th className={`${TH_CLASSES(isDarkMode)} text-right`} style={{ width: "9%" }}>
+                    Unit Price
+                  </th>
+                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "10%" }}>
+                    HS Code *
+                  </th>
+                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "6%" }}>
+                    Origin
+                  </th>
+                  <th className={`${TH_CLASSES(isDarkMode)} text-right`} style={{ width: "8%" }}>
+                    Total
+                  </th>
+                  <th style={{ width: "3%" }} />
                 </tr>
               </thead>
               <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
