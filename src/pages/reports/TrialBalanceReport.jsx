@@ -24,9 +24,7 @@ export default function TrialBalanceReport() {
   const textPrimary = isDarkMode ? "text-gray-100" : "text-gray-900";
   const textSecondary = isDarkMode ? "text-gray-400" : "text-gray-600";
   const textLabel = isDarkMode ? "text-gray-300" : "text-gray-700";
-  const inputCls = isDarkMode
-    ? "bg-gray-700 border-gray-600 text-gray-100"
-    : "bg-white border-gray-300";
+  const inputCls = isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : "bg-white border-gray-300";
   const theadBg = isDarkMode ? "bg-gray-700" : "bg-gray-50";
   const hoverRow = isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50";
   const totalsBg = isDarkMode ? "bg-gray-700" : "bg-gray-100";
@@ -224,10 +222,7 @@ export default function TrialBalanceReport() {
             </thead>
             <tbody className={`${cardBg} divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
               {data.accounts.map((account, idx) => (
-                <tr
-                  key={account.id || account.name || `account-${idx}`}
-                  className={`${hoverRow} cursor-pointer`}
-                >
+                <tr key={account.id || account.name || `account-${idx}`} className={`${hoverRow} cursor-pointer`}>
                   <td className={`px-6 py-3 text-sm font-medium ${textPrimary}`}>{account.account_code}</td>
                   <td className={`px-6 py-3 text-sm ${textLabel}`}>{account.account_name}</td>
                   <td className={`px-6 py-3 text-sm ${textSecondary}`}>{account.account_category}</td>

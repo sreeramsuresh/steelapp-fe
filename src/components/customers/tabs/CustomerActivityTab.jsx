@@ -39,9 +39,9 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../../contexts/ThemeContext";
-// import { apiClient } from '../../../services/api'; // TODO: Uncomment when backend API is ready
+import api from "../../../services/api";
 import { formatDate } from "../../../utils/invoiceUtils";
 
 export default function CustomerActivityTab({ customerId }) {
@@ -70,10 +70,31 @@ export default function CustomerActivityTab({ customerId }) {
     tags: "",
   });
 
-  // TODO: Replace with actual API call when backend is ready
-  // Mock data structure for UI development
-  const mockActivities = useMemo(
-    () => [
+  // Fetch activities
+  const fetchActivities = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await api.get(`/api/activities?customerId=${customerId}&entityType=customer`);
+      const activityData = response.data?.activities || response.data || [];
+
+      setActivities(activityData);
+      setFilteredActivities(activityData);
+      setCachedData(activityData);
+      setCacheTimestamp(Date.now());
+    } catch (err) {
+      console.warn("Activities API not available:", err.message);
+      setActivities([]);
+      setFilteredActivities([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [customerId]);
+
+  /*
+  // Mock data preserved for reference:
+  const mockActivitiesRef = [
       {
         id: 1,
         type: "note",
@@ -124,43 +145,13 @@ export default function CustomerActivityTab({ customerId }) {
         tags: ["dispute", "quality-issue", "investigation"],
       },
     ],
-    []
-  );
+  */
 
   // Check if cache is valid
   const isCacheValid = useCallback(() => {
     if (!cachedData || !cacheTimestamp) return false;
     return Date.now() - cacheTimestamp < CACHE_DURATION;
   }, [cachedData, cacheTimestamp]);
-
-  // Fetch activities
-  const fetchActivities = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // TODO: Uncomment when backend API is ready
-      // const response = await apiClient.get(`/activities?customerId=${customerId}&entityType=customer`);
-      // const activityData = response.activities || [];
-
-      // Using mock data for now
-      setTimeout(() => {
-        const activityData = mockActivities;
-        setActivities(activityData);
-        setFilteredActivities(activityData);
-
-        // Update cache
-        setCachedData(activityData);
-        setCacheTimestamp(Date.now());
-
-        setLoading(false);
-      }, 500);
-    } catch (err) {
-      console.error("Failed to fetch activities:", err);
-      setError(err.message || "Failed to load activities");
-      setLoading(false);
-    }
-  }, [mockActivities]);
 
   // Manual refresh - clears cache and refetches
   const handleRefresh = () => {

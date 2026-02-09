@@ -82,39 +82,24 @@ export default function ReconciliationReport() {
 
       let reportData;
 
-      // Try to fetch from backend if a warehouse is selected
       if (selectedWarehouse !== "all") {
-        try {
-          const apiResult = await stockMovementService.getReconciliationReport(
-            parseInt(selectedWarehouse, 10),
-            dateRange.endDate
-          );
+        const apiResult = await stockMovementService.getReconciliationReport(
+          parseInt(selectedWarehouse, 10),
+          dateRange.endDate
+        );
 
-          // Transform backend data to component format
-          reportData = transformBackendToReportFormat(
-            apiResult,
-            selectedProduct !== "all" ? parseInt(selectedProduct, 10) : null
-          );
-
-          if (reportData.items.length === 0) {
-            // No real data - use mock
-            reportData = generateMockData();
-          }
-        } catch (apiError) {
-          // API call failed - fall back to mock data
-
-          console.warn("Could not fetch from API, using mock data:", apiError.message);
-          reportData = generateMockData();
-        }
+        // Transform backend data to component format
+        reportData = transformBackendToReportFormat(
+          apiResult,
+          selectedProduct !== "all" ? parseInt(selectedProduct, 10) : null
+        );
       } else {
-        // No warehouse selected - use mock data
-        reportData = generateMockData();
+        // No warehouse selected - show empty state
+        reportData = { items: [], summary: { totalItems: 0, matchedItems: 0, discrepancies: 0, totalVariance: 0 } };
       }
 
       setReconciliationData(reportData.items);
       setSummary(reportData.summary);
-
-      toast.success("Report data loaded successfully");
     } catch (error) {
       console.error("Error fetching reconciliation report:", error);
       toast.error("Failed to load report data");
@@ -122,8 +107,8 @@ export default function ReconciliationReport() {
       setLoading(false);
     }
     // biome-ignore lint/correctness/noInvalidUseBeforeDeclaration: Functions hoisted, safe to use
-    // biome-ignore lint/correctness/useExhaustiveDependencies: generateMockData and transformBackendToReportFormat are stable utilities
-  }, [selectedWarehouse, selectedProduct, dateRange.endDate, generateMockData, transformBackendToReportFormat]);
+    // biome-ignore lint/correctness/useExhaustiveDependencies: transformBackendToReportFormat is a stable utility
+  }, [selectedWarehouse, selectedProduct, dateRange.endDate, transformBackendToReportFormat]);
 
   useEffect(() => {
     loadFilterOptions();
@@ -269,99 +254,6 @@ export default function ReconciliationReport() {
     if (absVariance < 0.5) return <CheckCircle size={16} />;
     if (absVariance < 1) return <AlertTriangle size={16} />;
     return <AlertTriangle size={16} />;
-  };
-
-  // Mock data generator (remove when backend is ready)
-  const generateMockData = () => {
-    const items = [
-      {
-        productId: 1,
-        productName: "SS304 Sheet 1.5mm",
-        productSku: "SS304-SH-1.5",
-        warehouseId: 1,
-        warehouseName: "Main Warehouse - Dubai",
-        openingStock: 1000,
-        received: 500,
-        consumed: 300,
-        adjustments: -10,
-        expectedClosing: 1190,
-        systemStock: 1185,
-        variance: -5,
-        variancePercent: -0.42,
-      },
-      {
-        productId: 2,
-        productName: "SS316 Pipe 50mm",
-        productSku: "SS316-PIPE-50",
-        warehouseId: 1,
-        warehouseName: "Main Warehouse - Dubai",
-        openingStock: 800,
-        received: 200,
-        consumed: 150,
-        adjustments: 0,
-        expectedClosing: 850,
-        systemStock: 835,
-        variance: -15,
-        variancePercent: -1.76,
-      },
-      {
-        productId: 3,
-        productName: "MS Round Bar 12mm",
-        productSku: "MS-RB-12",
-        warehouseId: 2,
-        warehouseName: "Warehouse 2 - Sharjah",
-        openingStock: 1500,
-        received: 300,
-        consumed: 400,
-        adjustments: 5,
-        expectedClosing: 1405,
-        systemStock: 1410,
-        variance: 5,
-        variancePercent: 0.36,
-      },
-      {
-        productId: 1,
-        productName: "SS304 Sheet 1.5mm",
-        productSku: "SS304-SH-1.5",
-        warehouseId: 2,
-        warehouseName: "Warehouse 2 - Sharjah",
-        openingStock: 600,
-        received: 100,
-        consumed: 80,
-        adjustments: 0,
-        expectedClosing: 620,
-        systemStock: 618,
-        variance: -2,
-        variancePercent: -0.32,
-      },
-      {
-        productId: 2,
-        productName: "SS316 Pipe 50mm",
-        productSku: "SS316-PIPE-50",
-        warehouseId: 3,
-        warehouseName: "Warehouse 3 - Abu Dhabi",
-        openingStock: 400,
-        received: 150,
-        consumed: 100,
-        adjustments: -5,
-        expectedClosing: 445,
-        systemStock: 430,
-        variance: -15,
-        variancePercent: -3.37,
-      },
-    ];
-
-    const mockSummary = {
-      totalOpeningStock: items.reduce((sum, item) => sum + item.openingStock, 0),
-      totalReceived: items.reduce((sum, item) => sum + item.received, 0),
-      totalConsumed: items.reduce((sum, item) => sum + item.consumed, 0),
-      totalAdjustments: items.reduce((sum, item) => sum + item.adjustments, 0),
-      totalExpectedClosing: items.reduce((sum, item) => sum + item.expectedClosing, 0),
-      totalSystemStock: items.reduce((sum, item) => sum + item.systemStock, 0),
-      totalVariance: items.reduce((sum, item) => sum + item.variance, 0),
-    };
-
-    return { items, summary: mockSummary };
   };
 
   // Filter data based on selected filters

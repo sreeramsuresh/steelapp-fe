@@ -22,8 +22,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useTheme } from "../contexts/ThemeContext";
 import ConfirmDialog from "../components/ConfirmDialog";
+import { useTheme } from "../contexts/ThemeContext";
 import {
   approveSupplierQuotation,
   convertToPurchaseOrder,
@@ -313,11 +313,15 @@ export function SupplierQuotationDetail() {
             </div>
             {quotation.extractionWarnings?.length > 0 && (
               <div className={`mt-3 p-3 rounded-lg ${isDarkMode ? "bg-yellow-900/30" : "bg-yellow-50"}`}>
-                <p className={`text-sm font-medium flex items-center gap-1 ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}>
+                <p
+                  className={`text-sm font-medium flex items-center gap-1 ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}
+                >
                   <AlertTriangle className="h-4 w-4" />
                   Extraction Warnings
                 </p>
-                <ul className={`mt-1 text-sm list-disc list-inside ${isDarkMode ? "text-yellow-400" : "text-yellow-700"}`}>
+                <ul
+                  className={`mt-1 text-sm list-disc list-inside ${isDarkMode ? "text-yellow-400" : "text-yellow-700"}`}
+                >
                   {quotation.extractionWarnings.map((w, _i) => (
                     <li key={w}>{w}</li>
                   ))}
@@ -390,12 +394,18 @@ export function SupplierQuotationDetail() {
                     <td className="px-4 py-3">
                       <div>
                         <p>{item.description || "-"}</p>
-                        {item.dimensions && <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{item.dimensions}</p>}
+                        {item.dimensions && (
+                          <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                            {item.dimensions}
+                          </p>
+                        )}
                       </div>
                     </td>
                     <td className="px-4 py-3">
                       {item.grade && <span className="font-medium">{item.grade}</span>}
-                      {item.finish && <span className={`ml-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{item.finish}</span>}
+                      {item.finish && (
+                        <span className={`ml-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{item.finish}</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-right">
                       {item.quantity} {item.unit}

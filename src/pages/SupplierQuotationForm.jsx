@@ -369,9 +369,14 @@ export function SupplierQuotationForm() {
           ) : (
             <div className="space-y-4">
               {formData.items.map((item, index) => (
-                <div key={item} className={`border rounded-lg p-4 space-y-3 ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50"}`}>
+                <div
+                  key={item}
+                  className={`border rounded-lg p-4 space-y-3 ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50"}`}
+                >
                   <div className="flex justify-between items-start">
-                    <span className={`text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Item #{index + 1}</span>
+                    <span className={`text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                      Item #{index + 1}
+                    </span>
                     <Button
                       type="button"
                       variant="ghost"
@@ -452,7 +457,11 @@ export function SupplierQuotationForm() {
                     </div>
                     <div>
                       <Label>Amount</Label>
-                      <Input value={formatCurrency(item.amount)} disabled className={isDarkMode ? "bg-gray-600" : "bg-gray-100"} />
+                      <Input
+                        value={formatCurrency(item.amount)}
+                        disabled
+                        className={isDarkMode ? "bg-gray-600" : "bg-gray-100"}
+                      />
                     </div>
                   </div>
                 </div>

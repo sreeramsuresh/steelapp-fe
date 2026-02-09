@@ -85,7 +85,10 @@ const mapApiAgents = (apiAgents) => {
   return apiAgents.map((agent, idx) => ({
     id: agent.id,
     name: agent.name || "Unknown",
-    avatar: (agent.name || "??").split(" ").map((n) => n[0]).join(""),
+    avatar: (agent.name || "??")
+      .split(" ")
+      .map((n) => n[0])
+      .join(""),
     target: agent.target?.amount || 0,
     achieved: agent.target?.achieved || agent.commission?.earned || 0,
     lastPeriodAchieved: 0,

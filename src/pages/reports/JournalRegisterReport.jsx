@@ -26,15 +26,11 @@ export default function JournalRegisterReport() {
   const textPrimary = isDarkMode ? "text-gray-100" : "text-gray-900";
   const textSecondary = isDarkMode ? "text-gray-400" : "text-gray-600";
   const textLabel = isDarkMode ? "text-gray-300" : "text-gray-700";
-  const inputCls = isDarkMode
-    ? "bg-gray-700 border-gray-600 text-gray-100"
-    : "bg-white border-gray-300";
+  const inputCls = isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : "bg-white border-gray-300";
   const theadBg = isDarkMode ? "bg-gray-700" : "bg-gray-50";
   const hoverRow = isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50";
   const badgeBg = isDarkMode ? "bg-blue-900 text-blue-200" : "bg-blue-100 text-blue-800";
-  const emptyBg = isDarkMode
-    ? "bg-gray-800 border-gray-600"
-    : "bg-gray-50 border-gray-300";
+  const emptyBg = isDarkMode ? "bg-gray-800 border-gray-600" : "bg-gray-50 border-gray-300";
   const paginationBtn = isDarkMode
     ? "border-gray-600 text-gray-300 hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-800"
     : "border-gray-300 text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:bg-gray-50";
@@ -108,7 +104,9 @@ export default function JournalRegisterReport() {
       {/* Header */}
       <div>
         <h1 className={`text-3xl font-bold ${textPrimary}`}>Journal Register</h1>
-        <p className={`${textSecondary} mt-2`}>Complete record of all journal entries posted during the selected period</p>
+        <p className={`${textSecondary} mt-2`}>
+          Complete record of all journal entries posted during the selected period
+        </p>
       </div>
 
       {/* Filters */}
@@ -247,7 +245,9 @@ export default function JournalRegisterReport() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className={theadBg}>
               <tr>
-                <th className={`px-4 py-3 text-left text-xs font-medium ${textLabel} uppercase tracking-wider`}>Date</th>
+                <th className={`px-4 py-3 text-left text-xs font-medium ${textLabel} uppercase tracking-wider`}>
+                  Date
+                </th>
                 <th className={`px-4 py-3 text-left text-xs font-medium ${textLabel} uppercase tracking-wider`}>
                   Journal #
                 </th>

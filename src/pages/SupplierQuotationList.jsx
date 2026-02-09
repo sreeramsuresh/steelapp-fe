@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useTheme } from "../contexts/ThemeContext";
 import ConfirmDialog from "../components/ConfirmDialog";
+import { useTheme } from "../contexts/ThemeContext";
 import {
   deleteSupplierQuotation,
   getConfidenceColor,
@@ -282,7 +282,10 @@ export function SupplierQuotationList() {
                 <div className="flex gap-4 items-center">
                   {/* Page Size Selector */}
                   <div className="flex items-center gap-2">
-                    <label htmlFor="page-size-select" className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    <label
+                      htmlFor="page-size-select"
+                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                    >
                       Per page:
                     </label>
                     <select

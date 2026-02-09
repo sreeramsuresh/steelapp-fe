@@ -82,24 +82,32 @@ export default function COGSAnalysisReport() {
     try {
       setLoading(true);
 
-      // TODO: Replace with actual API endpoint when backend is ready
-      // For now, using mock data
-      const mockData = generateMockData();
+      const params = {
+        startDate: dateRange.startDate,
+        endDate: dateRange.endDate,
+      };
+      if (selectedCustomer !== "all") params.customerId = selectedCustomer;
+      if (selectedProduct !== "all") params.productId = selectedProduct;
 
-      setSummary(mockData.summary);
-      setCogsByBatch(mockData.cogsByBatch);
-      setCostComponents(mockData.costComponents);
-      setBatchProfitability(mockData.batchProfitability);
-      setProcurementComparison(mockData.procurementComparison);
+      const response = await api.get("/api/cogs/analysis", { params });
+      const data = response.data || {};
 
-      toast.success("Report data loaded successfully");
+      setSummary(data.summary || { totalCOGS: 0, averageMargin: 0, totalRevenue: 0, totalProfit: 0 });
+      setCogsByBatch(data.cogsByBatch || []);
+      setCostComponents(data.costComponents || []);
+      setBatchProfitability(data.batchProfitability || []);
+      setProcurementComparison(data.procurementComparison || []);
     } catch (error) {
-      console.error("Error fetching COGS report:", error);
-      toast.error("Failed to load report data");
+      console.warn("COGS API not available:", error.message);
+      setSummary({ totalCOGS: 0, averageMargin: 0, totalRevenue: 0, totalProfit: 0 });
+      setCogsByBatch([]);
+      setCostComponents([]);
+      setBatchProfitability([]);
+      setProcurementComparison([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [dateRange.startDate, dateRange.endDate, selectedCustomer, selectedProduct]);
 
   useEffect(() => {
     loadFilterOptions();
@@ -129,75 +137,6 @@ export default function COGSAnalysisReport() {
     return `${(value || 0).toFixed(2)}%`;
   };
 
-  // Mock data generator (remove when backend is ready)
-  const generateMockData = () => {
-    return {
-      summary: {
-        totalCOGS: 2500000,
-        averageMargin: 18.5,
-        totalRevenue: 3050000,
-        totalProfit: 550000,
-      },
-      cogsByBatch: [
-        { batch: "BTH-2024-001", cogs: 450000, revenue: 520000 },
-        { batch: "BTH-2024-002", cogs: 380000, revenue: 440000 },
-        { batch: "BTH-2024-003", cogs: 520000, revenue: 610000 },
-        { batch: "BTH-2024-004", cogs: 420000, revenue: 490000 },
-        { batch: "BTH-2024-005", cogs: 730000, revenue: 990000 },
-      ],
-      costComponents: [
-        { name: "FOB Cost", value: 1500000, percent: 60 },
-        { name: "Freight", value: 500000, percent: 20 },
-        { name: "Customs Duty", value: 375000, percent: 15 },
-        { name: "Handling", value: 125000, percent: 5 },
-      ],
-      batchProfitability: [
-        {
-          batch: "BTH-2024-001",
-          cogs: 450000,
-          revenue: 520000,
-          profit: 70000,
-          margin: 13.46,
-        },
-        {
-          batch: "BTH-2024-002",
-          cogs: 380000,
-          revenue: 440000,
-          profit: 60000,
-          margin: 13.64,
-        },
-        {
-          batch: "BTH-2024-003",
-          cogs: 520000,
-          revenue: 610000,
-          profit: 90000,
-          margin: 14.75,
-        },
-        {
-          batch: "BTH-2024-004",
-          cogs: 420000,
-          revenue: 490000,
-          profit: 70000,
-          margin: 14.29,
-        },
-        {
-          batch: "BTH-2024-005",
-          cogs: 730000,
-          revenue: 990000,
-          profit: 260000,
-          margin: 26.26,
-        },
-      ],
-      procurementComparison: [
-        { month: "Jan", local: 120000, imported: 580000 },
-        { month: "Feb", local: 95000, imported: 620000 },
-        { month: "Mar", local: 110000, imported: 690000 },
-        { month: "Apr", local: 130000, imported: 750000 },
-        { month: "May", local: 85000, imported: 820000 },
-        { month: "Jun", local: 105000, imported: 890000 },
-      ],
-    };
-  };
 
   const CHART_COLORS = ["#14B8A6", "#3B82F6", "#F59E0B", "#EF4444", "#8B5CF6"];
 

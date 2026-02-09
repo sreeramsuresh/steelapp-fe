@@ -3,9 +3,10 @@ import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useTheme } from "../contexts/ThemeContext";
 // Lazy-load chart components for better initial load performance
 import { ChartSkeleton } from "../components/charts";
+import { useTheme } from "../contexts/ThemeContext";
+import { suppliersAPI } from "../services/api";
 
 const LazyLineChart = lazy(() => import("../components/charts/LazyLineChart"));
 /**
@@ -28,66 +29,47 @@ function SupplierPerformanceDashboard() {
   const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true);
-      // Load suppliers from existing API or mock
-      const mockSuppliers = [
-        {
-          id: 1,
-          name: "Premium Steel Inc",
-          onTimeDeliveryPct: 96.5,
-          avgVarianceDays: 1.2,
-          lateDeliveryCount: 2,
-          score: 94,
-          rating: "CERTIFIED",
-        },
-        {
-          id: 2,
-          name: "Global Trading Co",
-          onTimeDeliveryPct: 87.3,
-          avgVarianceDays: 3.8,
-          lateDeliveryCount: 8,
-          score: 82,
-          rating: "PREFERRED",
-        },
-        {
-          id: 3,
-          name: "Standard Metals Ltd",
-          onTimeDeliveryPct: 75.2,
-          avgVarianceDays: 5.6,
-          lateDeliveryCount: 15,
-          score: 72,
-          rating: "ACCEPTABLE",
-        },
-      ];
 
-      const mockTrends = [
-        { week: "Week 1", otd: 92, variance: 2.1 },
-        { week: "Week 2", otd: 93, variance: 2.0 },
-        { week: "Week 3", otd: 94, variance: 1.8 },
-        { week: "Week 4", otd: 95, variance: 1.5 },
-      ];
+      const response = await suppliersAPI.getAll({ limit: 100 });
+      const allSuppliers = response?.suppliers || [];
 
-      const mockAtRisk = [
-        {
-          id: 4,
-          name: "Budget Supplier LLC",
-          score: 58,
-          reason: "Low OTD% and high variance",
-        },
-      ];
+      // Map suppliers to performance format using available fields
+      const supplierData = allSuppliers.map((s) => ({
+        id: s.id,
+        name: s.name,
+        onTimeDeliveryPct: s.onTimeDeliveryPct || 0,
+        avgVarianceDays: s.avgDeliveryVarianceDays || 0,
+        lateDeliveryCount: s.lateDeliveryCount || 0,
+        score: s.supplierScore || 0,
+        rating: s.supplierRating || "UNRATED",
+      }));
 
-      setSuppliers(mockSuppliers);
-      setAtRiskSuppliers(mockAtRisk);
-      setTrends(mockTrends);
+      // Sort by score descending
+      supplierData.sort((a, b) => b.score - a.score);
 
-      const avgScore = mockSuppliers.reduce((sum, s) => sum + s.score, 0) / mockSuppliers.length;
-      setKpis({
-        otdPercent: (mockSuppliers.reduce((sum, s) => sum + s.onTimeDeliveryPct, 0) / mockSuppliers.length).toFixed(1),
-        avgVariance: (mockSuppliers.reduce((sum, s) => sum + s.avgVarianceDays, 0) / mockSuppliers.length).toFixed(1),
-        consistencyScore: Math.round(avgScore),
-        overallRating: "GOOD",
-      });
+      // At-risk = score below 70
+      const atRisk = supplierData
+        .filter((s) => s.score > 0 && s.score < 70)
+        .map((s) => ({ id: s.id, name: s.name, score: s.score, reason: `Score ${s.score} below threshold` }));
+
+      setSuppliers(supplierData);
+      setAtRiskSuppliers(atRisk);
+      setTrends([]); // Trend data requires a dedicated endpoint
+
+      if (supplierData.length > 0) {
+        const scored = supplierData.filter((s) => s.score > 0);
+        if (scored.length > 0) {
+          const avgScore = scored.reduce((sum, s) => sum + s.score, 0) / scored.length;
+          setKpis({
+            otdPercent: (scored.reduce((sum, s) => sum + s.onTimeDeliveryPct, 0) / scored.length).toFixed(1),
+            avgVariance: (scored.reduce((sum, s) => sum + s.avgVarianceDays, 0) / scored.length).toFixed(1),
+            consistencyScore: Math.round(avgScore),
+            overallRating: avgScore >= 85 ? "GOOD" : avgScore >= 70 ? "FAIR" : "POOR",
+          });
+        }
+      }
     } catch (error) {
-      console.error("Error loading dashboard:", error);
+      console.warn("Error loading supplier performance:", error.message);
     } finally {
       setLoading(false);
     }
@@ -113,7 +95,9 @@ function SupplierPerformanceDashboard() {
       <div className="grid grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>On-Time Delivery</CardTitle>
+            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+              On-Time Delivery
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{kpis.otdPercent}%</div>
@@ -123,7 +107,9 @@ function SupplierPerformanceDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Avg Variance</CardTitle>
+            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+              Avg Variance
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{kpis.avgVariance} days</div>
@@ -133,7 +119,9 @@ function SupplierPerformanceDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Consistency Score</CardTitle>
+            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+              Consistency Score
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{kpis.consistencyScore}/100</div>
@@ -143,11 +131,15 @@ function SupplierPerformanceDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Overall Rating</CardTitle>
+            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+              Overall Rating
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Badge className="bg-blue-100 text-blue-800">{kpis.overallRating}</Badge>
-            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} mt-2`}>Supplier portfolio health</p>
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} mt-2`}>
+              Supplier portfolio health
+            </p>
           </CardContent>
         </Card>
       </div>

@@ -1,11 +1,11 @@
 import { Building2, Edit, Factory, Globe, Loader2, Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../contexts/ThemeContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useTheme } from "../contexts/ThemeContext";
 import { suppliersAPI } from "../services/api";
 
 /**
@@ -198,7 +198,9 @@ export function SupplierList() {
                         <TableCell>
                           <div>
                             <div className="font-medium">{supplier.name}</div>
-                            <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{supplier.email}</div>
+                            <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                              {supplier.email}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>{getLocationBadge(location)}</TableCell>
@@ -257,7 +259,9 @@ export function SupplierList() {
               </Table>
 
               {filteredSuppliers.length === 0 && !loading && (
-                <div className={`text-center py-8 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>No suppliers found matching the current filters</div>
+                <div className={`text-center py-8 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  No suppliers found matching the current filters
+                </div>
               )}
             </div>
           )}

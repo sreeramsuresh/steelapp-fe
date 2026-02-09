@@ -23,9 +23,7 @@ export default function CashBookReport() {
   const textPrimary = isDarkMode ? "text-gray-100" : "text-gray-900";
   const textSecondary = isDarkMode ? "text-gray-400" : "text-gray-600";
   const textLabel = isDarkMode ? "text-gray-300" : "text-gray-700";
-  const inputCls = isDarkMode
-    ? "bg-gray-700 border-gray-600 text-gray-100"
-    : "bg-white border-gray-300";
+  const inputCls = isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : "bg-white border-gray-300";
   const theadBg = isDarkMode ? "bg-gray-700" : "bg-gray-50";
   const rowBorder = isDarkMode ? "border-gray-700" : "border-b";
   const hoverRow = isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50";
@@ -117,7 +115,10 @@ export default function CashBookReport() {
             </button>
           </div>
           <div className="flex items-end">
-            <button type="button" className="w-full bg-green-600 hover:bg-green-700 text-white rounded px-4 py-2 text-sm">
+            <button
+              type="button"
+              className="w-full bg-green-600 hover:bg-green-700 text-white rounded px-4 py-2 text-sm"
+            >
               Export
             </button>
           </div>

@@ -16,9 +16,7 @@ export default function BankReconciliationStatement() {
   const textPrimary = isDarkMode ? "text-gray-100" : "text-gray-900";
   const textSecondary = isDarkMode ? "text-gray-400" : "text-gray-600";
   const textLabel = isDarkMode ? "text-gray-300" : "text-gray-700";
-  const inputCls = isDarkMode
-    ? "bg-gray-700 border-gray-600 text-gray-100"
-    : "bg-white border-gray-300";
+  const inputCls = isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : "bg-white border-gray-300";
   const stripeBg = isDarkMode ? "bg-gray-700" : "bg-gray-50";
   const borderColor = isDarkMode ? "border-gray-700" : "border-t";
 
