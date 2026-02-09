@@ -178,11 +178,13 @@ const InvoiceAllocationConfirmation = () => {
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header with countdown */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className={`rounded-lg shadow-md p-6 mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Confirm Batch Allocation</h1>
-            <p className="text-gray-600 mt-1">Invoice: {invoice.invoiceNumber}</p>
+            <h1 className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-800"}`}>
+              Confirm Batch Allocation
+            </h1>
+            <p className={`mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Invoice: {invoice.invoiceNumber}</p>
           </div>
 
           {/* Countdown Timer */}
@@ -194,7 +196,7 @@ const InvoiceAllocationConfirmation = () => {
             >
               {formatTime(timeRemaining)}
             </div>
-            <p className="text-sm text-gray-600 mt-1">Time remaining</p>
+            <p className={`text-sm mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Time remaining</p>
           </div>
         </div>
 
@@ -229,8 +231,10 @@ const InvoiceAllocationConfirmation = () => {
       </div>
 
       {/* Invoice Items with Batch Allocations */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Allocated Batches</h2>
+      <div className={`rounded-lg shadow-md p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+        <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-800"}`}>
+          Allocated Batches
+        </h2>
 
         <div className="space-y-6">
           {invoice.items?.map((item, itemIndex) => {

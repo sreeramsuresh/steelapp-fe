@@ -182,7 +182,9 @@ const ReconciliationDashboard = () => {
       </div>
 
       {/* Tabs */}
-      <div className="rounded-xl border overflow-hidden bg-white border-gray-200 mb-4">
+      <div
+        className={`rounded-xl border overflow-hidden mb-4 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+      >
         <div className="flex border-b border-gray-200">
           <button
             type="button"
@@ -264,15 +266,21 @@ const ReconciliationDashboard = () => {
           <>
             {/* Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="rounded-xl border bg-white border-gray-200 p-4">
+              <div
+                className={`rounded-xl border p-4 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+              >
                 <div className="text-sm text-gray-500 mb-1">Warehouse</div>
                 <div className="text-xl font-semibold text-gray-900">{reconciliationData.warehouseName}</div>
               </div>
-              <div className="rounded-xl border bg-white border-gray-200 p-4">
+              <div
+                className={`rounded-xl border p-4 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+              >
                 <div className="text-sm text-gray-500 mb-1">Total Products</div>
                 <div className="text-xl font-semibold text-gray-900">{reconciliationData.items?.length || 0}</div>
               </div>
-              <div className="rounded-xl border bg-white border-gray-200 p-4">
+              <div
+                className={`rounded-xl border p-4 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+              >
                 <div className="text-sm text-gray-500 mb-1">Total Quantity</div>
                 <div className="text-xl font-semibold text-gray-900">
                   {formatQuantity(reconciliationData.totalSystemValue)}
@@ -307,7 +315,11 @@ const ReconciliationDashboard = () => {
             >
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead
+                    className={
+                      isDarkMode ? "bg-gray-700 border-b border-gray-600" : "bg-gray-50 border-b border-gray-200"
+                    }
+                  >
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Product
@@ -394,7 +406,9 @@ const ReconciliationDashboard = () => {
       {/* Audit Trail Tab */}
       <TabPanel value={activeTab} index={1}>
         {/* Filters */}
-        <div className="rounded-xl border overflow-hidden bg-white border-gray-200 p-4 mb-4">
+        <div
+          className={`rounded-xl border overflow-hidden p-4 mb-4 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+        >
           <div className="flex gap-4 flex-wrap items-center">
             <select
               value={selectedWarehouseId}
@@ -474,7 +488,9 @@ const ReconciliationDashboard = () => {
         >
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead
+                className={isDarkMode ? "bg-gray-700 border-b border-gray-600" : "bg-gray-50 border-b border-gray-200"}
+              >
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Timestamp
@@ -528,7 +544,7 @@ const ReconciliationDashboard = () => {
                     const isIncrease = change > 0 || ["IN", "TRANSFER_IN", "RELEASE"].includes(entry.action);
 
                     return (
-                      <tr key={entry.id} className="hover:bg-gray-50">
+                      <tr key={entry.id} className={isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
                         <td className="px-4 py-3 text-sm text-gray-600">{formatDate(entry.timestamp)}</td>
                         <td className="px-4 py-3 text-sm">
                           <span
@@ -575,7 +591,7 @@ const ReconciliationDashboard = () => {
               <select
                 value={auditRowsPerPage}
                 onChange={handleAuditRowsPerPageChange}
-                className="px-2 py-1 rounded border bg-white border-gray-300 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className={`px-2 py-1 rounded border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
               >
                 <option value={25}>25</option>
                 <option value={50}>50</option>

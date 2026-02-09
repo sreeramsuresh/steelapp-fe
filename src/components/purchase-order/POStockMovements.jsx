@@ -88,7 +88,7 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
   }
 
   return (
-    <div className="mt-2 p-4 bg-white rounded-lg shadow border border-gray-200">
+    <div className={`mt-2 p-4 rounded-lg shadow border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}>
       <button
         type="button"
         className="flex items-center justify-between hover:bg-gray-50 p-2 rounded transition-colors w-full text-left"

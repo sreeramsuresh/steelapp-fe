@@ -262,7 +262,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
       )}
 
       {/* Standardized Filter Bar - Phase 3 Redesign */}
-      <div className="rounded-xl border overflow-hidden bg-white border-gray-200 p-4 mb-4">
+      <div
+        className={`rounded-xl border overflow-hidden p-4 mb-4 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+      >
         <div className="flex gap-4 flex-wrap items-center">
           {/* Search Input */}
           <div className="relative min-w-[220px]">
@@ -354,7 +356,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
       >
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead
+              className={isDarkMode ? "bg-gray-700 border-b border-gray-600" : "bg-gray-50 border-b border-gray-200"}
+            >
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Reservation #
@@ -408,7 +412,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                   const canCancel = ["ACTIVE", "PARTIALLY_FULFILLED"].includes(reservation.status);
 
                   return (
-                    <tr key={reservation.id} className="hover:bg-gray-50">
+                    <tr key={reservation.id} className={isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
                       <td className="px-4 py-3 text-sm font-medium text-gray-900">{reservation.reservationNumber}</td>
                       <td className="px-4 py-3 text-sm">
                         <div className="text-gray-900">{reservation.productName}</div>
@@ -493,7 +497,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             <select
               value={rowsPerPage}
               onChange={handleChangeRowsPerPage}
-              className="px-2 py-1 rounded border bg-white border-gray-300 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className={`px-2 py-1 rounded border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
             >
               <option value={10}>10</option>
               <option value={20}>20</option>
@@ -537,7 +541,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             onClick={() => setFulfillDialog({ open: false, reservation: null })}
             aria-label="Close dialog"
           />
-          <div className="relative bg-white border border-gray-200 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+          <div
+            className={`relative rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+          >
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Fulfill Reservation</h3>
             <div className="space-y-3 mb-6 text-gray-600">
               <p>
@@ -603,7 +609,9 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             onClick={() => setCancelDialog({ open: false, reservation: null })}
             aria-label="Close dialog"
           />
-          <div className="relative bg-white border border-gray-200 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+          <div
+            className={`relative rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+          >
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Cancel Reservation</h3>
             <div className="space-y-3 mb-6">
               <p className="text-gray-600">
