@@ -726,24 +726,22 @@ const Button = ({
 
   const getVariantClasses = () => {
     if (variant === "primary") {
-      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:${
-        isDarkMode ? "bg-gray-600" : "bg-gray-400"
-      } disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-${isDarkMode ? "gray-800" : "white"}`;
+      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 ${
+        isDarkMode ? "disabled:bg-gray-600 focus:ring-offset-gray-800" : "disabled:bg-gray-400 focus:ring-offset-white"
+      } disabled:hover:translate-y-0 shadow-sm hover:shadow-md`;
     } else if (variant === "secondary") {
       return `${
-        isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"
-      } ${isDarkMode ? "text-white" : "text-gray-800"} focus:ring-${isDarkMode ? "gray-500" : "gray-400"} disabled:${
-        isDarkMode ? "bg-gray-800" : "bg-gray-100"
-      } focus:ring-offset-${isDarkMode ? "gray-800" : "white"}`;
+        isDarkMode
+          ? "bg-gray-700 hover:bg-gray-600 text-white focus:ring-gray-500 disabled:bg-gray-800 focus:ring-offset-gray-800"
+          : "bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-400 disabled:bg-gray-100 focus:ring-offset-white"
+      }`;
     } else {
       // outline
       return `border ${
         isDarkMode
-          ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
-          : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
-      } focus:ring-teal-500 disabled:${
-        isDarkMode ? "bg-gray-800" : "bg-gray-50"
-      } focus:ring-offset-${isDarkMode ? "gray-800" : "white"}`;
+          ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700 disabled:bg-gray-800 focus:ring-offset-gray-800"
+          : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50 disabled:bg-gray-50 focus:ring-offset-white"
+      } focus:ring-teal-500`;
     }
   };
 
@@ -3715,7 +3713,7 @@ const InvoiceForm = ({ onSave }) => {
         // NOTE: This is from the old Phase 2 flow - now superseded by Phase 4 finalize
         if (newInvoice.expiresAt) {
           notificationService.success("Invoice created! Please confirm batch allocation within 5 minutes.");
-          navigate(`/invoices/${newInvoice.id}/confirm-allocation`);
+          navigate(`/app/invoices/${newInvoice.id}/confirm-allocation`);
           return;
         }
 
@@ -3859,7 +3857,7 @@ const InvoiceForm = ({ onSave }) => {
 
     // Navigate to invoice list with query param to auto-open payment drawer
     setTimeout(() => {
-      navigate(`/invoices?openPayment=${createdInvoiceId}`);
+      navigate(`/app/invoices?openPayment=${createdInvoiceId}`);
     }, 300);
   };
 
@@ -4155,7 +4153,7 @@ const InvoiceForm = ({ onSave }) => {
                       variant="outline"
                       size="sm"
                       className="mt-3"
-                      onClick={() => navigate(`/credit-notes/new?invoiceId=${invoice.id}`)}
+                      onClick={() => navigate(`/app/credit-notes/new?invoiceId=${invoice.id}`)}
                     >
                       Create Credit Note
                     </Button>
@@ -5147,7 +5145,7 @@ const InvoiceForm = ({ onSave }) => {
                             const hasAllocations = item.allocations && item.allocations.length > 0;
 
                             return [
-                              <tr key={item.id || `item-${index}`} className="hover:bg-gray-50">
+                              <tr key={item.id || `item-${index}`} className={isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
                                 {/* Column 1: Expand button */}
                                 <td className="py-2 px-2 text-center">
                                   {item.productId && (
@@ -5234,7 +5232,7 @@ const InvoiceForm = ({ onSave }) => {
                                         e.target.value === "" ? "" : parseFloat(e.target.value)
                                       )
                                     }
-                                    className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm text-center focus:ring-2 focus:ring-teal-500"
+                                    className={`w-full px-2 py-1.5 border rounded text-sm text-center focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"}`}
                                   />
                                 </td>
                                 {/* Column 4: Unit Wt */}
@@ -5250,20 +5248,20 @@ const InvoiceForm = ({ onSave }) => {
                                         e.target.value === "" ? "" : parseFloat(e.target.value)
                                       )
                                     }
-                                    className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm text-center focus:ring-2 focus:ring-teal-500"
+                                    className={`w-full px-2 py-1.5 border rounded text-sm text-center focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"}`}
                                   />
                                 </td>
 
                                 {/* Column 5: Total Wt (CALCULATED - gray div, NOT input) */}
                                 <td className="px-2 py-2">
-                                  <div className="bg-gray-100 rounded px-2 py-1.5 text-right text-sm font-medium text-gray-700">
+                                  <div className={`rounded px-2 py-1.5 text-right text-sm font-medium ${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"}`}>
                                     {item.theoreticalWeightKg ? item.theoreticalWeightKg.toFixed(2) : "0.00"}
                                   </div>
                                 </td>
 
                                 {/* Column 6: Rate + Basis (COMBINED flex container) */}
                                 <td className="px-2 py-2 w-28">
-                                  <div className="flex border border-gray-300 rounded overflow-hidden focus-within:ring-2 focus-within:ring-teal-500">
+                                  <div className={`flex border rounded overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}>
                                     <input
                                       type="number"
                                       data-testid={`item-rate-${index}`}
@@ -5275,7 +5273,7 @@ const InvoiceForm = ({ onSave }) => {
                                           e.target.value === "" ? "" : parseFloat(e.target.value)
                                         )
                                       }
-                                      className="w-16 px-2 py-1.5 text-right text-sm border-0 outline-none bg-white"
+                                      className={`w-16 px-2 py-1.5 text-right text-sm border-0 outline-none ${isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"}`}
                                     />
                                     <select
                                       data-testid={`item-pricing-basis-${index}`}
@@ -5283,10 +5281,16 @@ const InvoiceForm = ({ onSave }) => {
                                       onChange={(e) => handleItemChange(index, "pricingBasis", e.target.value)}
                                       className={`text-[10px] font-bold px-1.5 cursor-pointer outline-none ${
                                         item.pricingBasis === "PER_KG"
-                                          ? "border-l border-blue-200 bg-blue-100 text-blue-700"
+                                          ? isDarkMode
+                                            ? "border-l border-blue-700 bg-blue-900/40 text-blue-400"
+                                            : "border-l border-blue-200 bg-blue-100 text-blue-700"
                                           : item.pricingBasis === "PER_PCS"
-                                            ? "border-l border-emerald-200 bg-emerald-100 text-emerald-700"
-                                            : "border-l border-gray-200 bg-gray-50 text-gray-600"
+                                            ? isDarkMode
+                                              ? "border-l border-emerald-700 bg-emerald-900/40 text-emerald-400"
+                                              : "border-l border-emerald-200 bg-emerald-100 text-emerald-700"
+                                            : isDarkMode
+                                              ? "border-l border-gray-600 bg-gray-700 text-gray-400"
+                                              : "border-l border-gray-200 bg-gray-50 text-gray-600"
                                       }`}
                                     >
                                       <option value="PER_MT">/MT</option>

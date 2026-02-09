@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import financialReportsService from "../../services/financialReportsService";
@@ -12,6 +13,7 @@ import financialReportsService from "../../services/financialReportsService";
 export default function TrialBalanceReport() {
   const { user: _user } = useAuth();
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
   const [periodId, setPeriodId] = useState(null);
   const [periods, setPeriods] = useState([]);
   const [data, setData] = useState(null);
@@ -76,7 +78,7 @@ export default function TrialBalanceReport() {
   };
 
   const handleDrillDown = (accountCode) => {
-    window.location.href = `/reports/general-ledger/${accountCode}`;
+    navigate(`/app/analytics/bank-ledger?account=${accountCode}`);
   };
 
   return (

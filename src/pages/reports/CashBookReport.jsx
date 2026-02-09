@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import bankReconciliationService from "../../services/bankReconciliationService";
@@ -9,14 +9,15 @@ export default function CashBookReport() {
   const [data, setData] = useState(null);
   const [summary, setSummary] = useState(null);
   const [filters, setFilters] = useState({
-    startDate: null,
-    endDate: null,
+    startDate: "",
+    endDate: "",
     cashAccountCode: "1100",
     page: 1,
     limit: 50,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const hasFetched = useRef(false);
 
   // Theme classes
   const cardBg = isDarkMode ? "bg-gray-800" : "bg-white";
@@ -51,6 +52,7 @@ export default function CashBookReport() {
       ]);
       setData(cashBookResult);
       setSummary(summaryResult);
+      hasFetched.current = true;
     } catch (err) {
       setError(err.message || "Failed to fetch cash book");
       console.error(err);
@@ -58,6 +60,13 @@ export default function CashBookReport() {
       setLoading(false);
     }
   };
+
+  // Re-fetch when pagination page changes (only after initial fetch)
+  useEffect(() => {
+    if (hasFetched.current) {
+      fetchData();
+    }
+  }, [filters.page]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="p-6">

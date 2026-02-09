@@ -942,7 +942,7 @@ const CustomsDocumentList = () => {
                 className={`${isDarkMode ? "bg-gray-800" : "bg-white"} divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}
               >
                 {documents.map((doc) => (
-                  <tr key={doc.id} className={`hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} transition-colors`}>
+                  <tr key={doc.id} className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors`}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium">{doc.document_number || "-"}</div>
                     </td>

@@ -19,7 +19,8 @@ export default function PriceHistoryReport() {
   const fetchProducts = useCallback(async () => {
     try {
       const response = await productService.getProducts();
-      setProducts((response && (response.data || response.items || response)) || []);
+      const raw = response && (response.data || response.items || response);
+      setProducts(Array.isArray(raw) ? raw : []);
     } catch (error) {
       console.error("Error fetching products:", error);
       toast.error("Failed to load products");
@@ -97,7 +98,9 @@ export default function PriceHistoryReport() {
     return { diff, diffPercent };
   };
 
-  const selectedProductData = products.find((p) => p.id === parseInt(selectedProduct, 10));
+  const selectedProductData = Array.isArray(products)
+    ? products.find((p) => p.id === parseInt(selectedProduct, 10))
+    : undefined;
 
   return (
     <div className="p-6">

@@ -108,7 +108,7 @@ const InvoiceAllocationConfirmation = () => {
       setIsReleasing(true);
       await invoiceService.releaseInvoiceReservation(invoiceId);
       notificationService.info("Reservation released. You can now edit the invoice.");
-      navigate(`/edit/${invoiceId}`);
+      navigate(`/app/invoices/${invoiceId}`);
     } catch (err) {
       console.error("Failed to release reservation:", err);
       notificationService.error("Failed to release reservation. Please try again.");

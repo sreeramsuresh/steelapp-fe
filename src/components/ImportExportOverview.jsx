@@ -203,7 +203,7 @@ const ImportExportOverview = () => {
             Track your international trade operations
           </p>
         </div>
-        <Link to="/import-orders" className="text-teal-600 hover:text-teal-700 text-sm font-medium">
+        <Link to="/app/import-export" className="text-teal-600 hover:text-teal-700 text-sm font-medium">
           View All →
         </Link>
       </div>
@@ -215,7 +215,7 @@ const ImportExportOverview = () => {
           value={stats.importOrders.total}
           icon={ArrowDownToLine}
           color="bg-blue-500"
-          link="/import-orders"
+          link="/app/import-export?tab=import-orders"
           sublabel={`${stats.importOrders.active} active`}
         />
         <StatCard
@@ -223,7 +223,7 @@ const ImportExportOverview = () => {
           value={stats.exportOrders.total}
           icon={ArrowUpFromLine}
           color="bg-green-500"
-          link="/export-orders"
+          link="/app/import-export?tab=export-orders"
           sublabel={`${stats.exportOrders.active} active`}
         />
         <StatCard
@@ -231,7 +231,7 @@ const ImportExportOverview = () => {
           value={stats.shipments.inTransit}
           icon={Ship}
           color="bg-orange-500"
-          link="/shipping-documents"
+          link="/app/import-export?tab=shipping"
           sublabel="in transit"
         />
         <StatCard
@@ -239,7 +239,7 @@ const ImportExportOverview = () => {
           value={stats.certificates.pending}
           icon={FileCheck}
           color="bg-purple-500"
-          link="/material-certificates"
+          link="/app/import-export?tab=certificates"
           sublabel="pending verification"
         />
       </div>
@@ -265,7 +265,11 @@ const ImportExportOverview = () => {
             ) : (
               recentActivity.map((activity, index) => (
                 <div key={activity.id || activity.name || `activity-${index}`} className="flex items-center space-x-3">
-                  <div className={`w-2 h-2 bg-${activity.color}-500 rounded-full`}></div>
+                  <div className={`w-2 h-2 rounded-full ${
+                    activity.color === "green" ? "bg-green-500"
+                      : activity.color === "blue" ? "bg-blue-500"
+                        : "bg-orange-500"
+                  }`}></div>
                   <div className="flex-1">
                     <p className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{activity.text}</p>
                     <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>{activity.time}</p>
@@ -288,28 +292,28 @@ const ImportExportOverview = () => {
               title="New Import Order"
               description="Create a new import order"
               icon={ArrowDownToLine}
-              link="/import-orders/new"
+              link="/app/import-orders/new"
               color="bg-blue-500"
             />
             <QuickActionCard
               title="New Export Order"
               description="Create a new export order"
               icon={ArrowUpFromLine}
-              link="/export-orders/new"
+              link="/app/export-orders/new"
               color="bg-green-500"
             />
             <QuickActionCard
               title="Track Shipments"
               description="View shipping documents"
               icon={Ship}
-              link="/shipping-documents"
+              link="/app/import-export?tab=shipping"
               color="bg-orange-500"
             />
             <QuickActionCard
               title="Exchange Rates"
               description="View current rates"
               icon={TrendingUp}
-              link="/exchange-rates"
+              link="/app/import-export?tab=exchange-rates"
               color="bg-purple-500"
             />
           </div>

@@ -116,9 +116,9 @@ export default function CustomerCreditManagement() {
   return (
     <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
       <div className="max-w-7xl mx-auto">
-        <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+        <h2 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
           Customer Credit Management
-        </h1>
+        </h2>
         <p className={`mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
           Monitor credit utilization, DSO, and customer credit grades
         </p>
@@ -147,14 +147,34 @@ export default function CustomerCreditManagement() {
           </div>
           <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Avg DSO</div>
-            <div className="text-3xl font-bold text-blue-600">45</div>
+            <div className="text-3xl font-bold text-blue-600">
+              {(() => {
+                const allCustomers = [...highRiskCustomers, ...overLimitCustomers];
+                const dsoValues = allCustomers.map((c) => Number(c.dso || 0)).filter((d) => d > 0);
+                return dsoValues.length > 0 ? Math.round(dsoValues.reduce((a, b) => a + b, 0) / dsoValues.length) : "N/A";
+              })()}
+            </div>
             <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>Days Sales Outstanding</p>
           </div>
           <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Credit Quality
             </div>
-            <div className="text-lg font-bold text-green-600">Stable</div>
+            <div
+              className={`text-lg font-bold ${
+                highRiskCustomers.length === 0 && overLimitCustomers.length === 0
+                  ? "text-green-600"
+                  : highRiskCustomers.length > 3 || overLimitCustomers.length > 3
+                    ? "text-red-600"
+                    : "text-yellow-600"
+              }`}
+            >
+              {highRiskCustomers.length === 0 && overLimitCustomers.length === 0
+                ? "Good"
+                : highRiskCustomers.length > 3 || overLimitCustomers.length > 3
+                  ? "At Risk"
+                  : "Needs Attention"}
+            </div>
             <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>Portfolio trend</p>
           </div>
         </div>

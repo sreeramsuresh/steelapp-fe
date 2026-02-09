@@ -2727,7 +2727,7 @@ const QuotationForm = () => {
                           <button
                             type="button"
                             onClick={() => removeItem(index)}
-                            className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                            className={`p-1.5 text-red-500 hover:text-red-700 rounded-lg transition-colors ${isDarkMode ? "hover:bg-red-900/30" : "hover:bg-red-50"}`}
                           >
                             <Trash2 size={14} className="md:hidden" />
                             <Trash2 size={16} className="hidden md:block" />

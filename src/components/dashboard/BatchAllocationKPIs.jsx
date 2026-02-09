@@ -71,7 +71,7 @@ const BatchAllocationKPIs = ({ _refreshTrigger = 0 }) => {
 
   // Handle card click - navigate to batch-analytics page with specific tab
   const handleCardClick = (tab) => {
-    navigate(`/batch-analytics?tab=${tab}`);
+    navigate(`/app/batch-analytics?tab=${tab}`);
   };
 
   // KPI card configuration

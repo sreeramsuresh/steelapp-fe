@@ -418,6 +418,9 @@ const AdvancePaymentList = () => {
   const [pagination, setPagination] = useState(null);
 
   // Summary state
+  const [refundModal, setRefundModal] = useState({ open: false, payment: null });
+  const [refundMethod, setRefundMethod] = useState("bank_transfer");
+
   const [summary, setSummary] = useState({
     totalPayments: 0,
     totalAmount: 0,
@@ -441,7 +444,8 @@ const AdvancePaymentList = () => {
           status: "active",
           limit: 1000,
         });
-        setCustomers(response.customers || response || []);
+        const raw = response.customers || response;
+        setCustomers(Array.isArray(raw) ? raw : []);
       } catch (error) {
         console.error("Failed to load customers:", error);
       }
@@ -506,10 +510,14 @@ const AdvancePaymentList = () => {
 
     if (!confirmed) return;
 
-    const refundDate = new Date().toISOString().split("T")[0];
-    const refundMethod = window.prompt("Refund method (bank_transfer, cheque, cash):", "bank_transfer");
-    if (!refundMethod) return;
+    setRefundMethod("bank_transfer");
+    setRefundModal({ open: true, payment });
+  };
 
+  const handleRefundSubmit = async () => {
+    const payment = refundModal.payment;
+    setRefundModal({ open: false, payment: null });
+    const refundDate = new Date().toISOString().split("T")[0];
     try {
       await advancePaymentService.refund(payment.id, {
         amount: payment.amountAvailable,
@@ -572,9 +580,9 @@ const AdvancePaymentList = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+            <h2 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               💵 Advance Receipts (Pre-Invoice)
-            </h1>
+            </h2>
             <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               UAE VAT Article 26: Payments received before invoice issuance create an immediate tax point. VAT must be
               declared in the period received.
@@ -658,6 +666,7 @@ const AdvancePaymentList = () => {
                 <input
                   type="text"
                   placeholder="Search by receipt number or customer..."
+                  aria-label="Search advance payments"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
@@ -673,6 +682,7 @@ const AdvancePaymentList = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label="Filter by status"
               className={`px-4 py-2 rounded-lg border ${
                 isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-teal-500`}
@@ -710,6 +720,8 @@ const AdvancePaymentList = () => {
               type="button"
               onClick={loadPayments}
               disabled={loading}
+              aria-label="Refresh list"
+              title="Refresh list"
               className={`p-2 rounded-lg border transition-colors ${
                 isDarkMode
                   ? "border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600"
@@ -924,7 +936,7 @@ const AdvancePaymentList = () => {
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <td className="px-6 py-4 whitespace-nowrap text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2">
                           {/* View */}
                           <button
@@ -932,6 +944,7 @@ const AdvancePaymentList = () => {
                             onClick={() => navigate(`/app/advance-payments/${payment.id}`)}
                             className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                             title="View"
+                            aria-label="View payment"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
@@ -941,6 +954,7 @@ const AdvancePaymentList = () => {
                             onClick={() => handleDownloadReceipt(payment)}
                             className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                             title="Download Receipt"
+                            aria-label="Download receipt"
                           >
                             <Download className="h-4 w-4" />
                           </button>
@@ -953,6 +967,7 @@ const AdvancePaymentList = () => {
                                 onClick={() => handleApplyToInvoice(payment)}
                                 className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-blue-900/30 text-blue-400" : "hover:bg-blue-100 text-blue-600"}`}
                                 title="Apply to Invoice"
+                                aria-label="Apply to invoice"
                               >
                                 <ArrowRight className="h-4 w-4" />
                               </button>
@@ -966,6 +981,7 @@ const AdvancePaymentList = () => {
                                 onClick={() => handleRefund(payment)}
                                 className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-amber-900/30 text-amber-400" : "hover:bg-amber-100 text-amber-600"}`}
                                 title="Refund"
+                                aria-label="Refund payment"
                               >
                                 <RotateCcw className="h-4 w-4" />
                               </button>
@@ -1035,6 +1051,36 @@ const AdvancePaymentList = () => {
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
+
+      {/* Refund Method Modal */}
+      {refundModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className={`rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}>
+            <h3 className="text-lg font-semibold mb-2">Select Refund Method</h3>
+            <p className={`text-sm mb-3 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+              Choose the refund payment method for {formatCurrency(refundModal.payment?.amountAvailable || 0)}.
+            </p>
+            <select
+              value={refundMethod}
+              onChange={(e) => setRefundMethod(e.target.value)}
+              aria-label="Refund method"
+              className={`w-full p-2 rounded border text-sm mb-4 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"}`}
+            >
+              <option value="bank_transfer">Bank Transfer</option>
+              <option value="cheque">Cheque</option>
+              <option value="cash">Cash</option>
+            </select>
+            <div className="flex justify-end gap-2">
+              <button type="button" className={`px-4 py-2 rounded text-sm ${isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-100 hover:bg-gray-200"}`} onClick={() => setRefundModal({ open: false, payment: null })}>
+                Cancel
+              </button>
+              <button type="button" className="px-4 py-2 rounded text-sm text-white bg-teal-600 hover:bg-teal-700" onClick={handleRefundSubmit}>
+                Process Refund
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

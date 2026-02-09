@@ -66,7 +66,7 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
         color: isDarkMode ? "text-red-400" : "text-red-600",
         bg: isDarkMode ? "bg-red-500/10" : "bg-red-50",
         border: isDarkMode ? "border-red-500/30" : "border-red-200",
-        ringColor: "ring-red-500",
+        hoverRing: "hover:ring-red-500",
       },
       warning: {
         icon: AlertTriangle,
@@ -74,7 +74,7 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
         color: isDarkMode ? "text-amber-400" : "text-amber-600",
         bg: isDarkMode ? "bg-amber-500/10" : "bg-amber-50",
         border: isDarkMode ? "border-amber-500/30" : "border-amber-200",
-        ringColor: "ring-amber-500",
+        hoverRing: "hover:ring-amber-500",
       },
       approaching: {
         icon: AlertCircle,
@@ -82,7 +82,7 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
         color: isDarkMode ? "text-blue-400" : "text-blue-600",
         bg: isDarkMode ? "bg-blue-500/10" : "bg-blue-50",
         border: isDarkMode ? "border-blue-500/30" : "border-blue-200",
-        ringColor: "ring-blue-500",
+        hoverRing: "hover:ring-blue-500",
       },
     };
     return info[priority] || info.approaching;
@@ -191,7 +191,7 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
               key={product.id}
               className={`p-3 rounded-lg border transition-all cursor-pointer w-full text-left ${priority.bg} ${priority.border} ${
                 isDarkMode ? "hover:ring-1" : "hover:ring-2"
-              } hover:${priority.ringColor}`}
+              } ${priority.hoverRing}`}
               onClick={() => onProductClick?.(product)}
             >
               <div className="flex items-start justify-between mb-2">

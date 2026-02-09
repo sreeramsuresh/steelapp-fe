@@ -40,6 +40,7 @@ const QuotationList = () => {
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -106,13 +107,21 @@ const QuotationList = () => {
     );
   };
 
+  // Debounce search - wait 300ms after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   const fetchQuotations = useCallback(async () => {
     setLoading(true);
     setError("");
 
     try {
       const params = { page, limit: pageSize };
-      if (searchTerm) params.search = searchTerm;
+      if (debouncedSearch) params.search = debouncedSearch;
       if (statusFilter !== "all") params.status = statusFilter;
 
       const response = await quotationService.getAll(params);
@@ -131,7 +140,7 @@ const QuotationList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, searchTerm, statusFilter]);
+  }, [page, pageSize, debouncedSearch, statusFilter]);
 
   useEffect(() => {
     fetchQuotations();
@@ -369,6 +378,8 @@ const QuotationList = () => {
           <button
             type="button"
             onClick={fetchQuotations}
+            aria-label="Refresh quotations"
+            title="Refresh"
             className={`px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
                 ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
@@ -458,7 +469,7 @@ const QuotationList = () => {
                 {quotations.map((quotation) => (
                   <tr
                     key={quotation.id}
-                    className={`hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} transition-colors`}
+                    className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors`}
                   >
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div>
@@ -538,7 +549,7 @@ const QuotationList = () => {
                         )}
                         {authService.hasPermission("quotations", "update") && (
                           <Link
-                            to={`/quotations/${quotation.id}/edit`}
+                            to={`/app/quotations/${quotation.id}/edit`}
                             className={`p-2 rounded-lg transition-colors ${
                               isDarkMode
                                 ? "text-gray-400 hover:text-white hover:bg-gray-700"
@@ -597,7 +608,7 @@ const QuotationList = () => {
                                 <button
                                   type="button"
                                   onClick={() => handleStatusUpdate(quotation.id, "sent")}
-                                  className={`w-full px-4 py-2 text-left text-sm hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} ${
+                                  className={`w-full px-4 py-2 text-left text-sm ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} ${
                                     isDarkMode ? "text-white" : "text-gray-900"
                                   }`}
                                 >
@@ -609,7 +620,7 @@ const QuotationList = () => {
                                   <button
                                     type="button"
                                     onClick={() => handleStatusUpdate(quotation.id, "accepted")}
-                                    className={`w-full px-4 py-2 text-left text-sm hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} ${
+                                    className={`w-full px-4 py-2 text-left text-sm ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} ${
                                       isDarkMode ? "text-white" : "text-gray-900"
                                     }`}
                                   >
@@ -618,7 +629,7 @@ const QuotationList = () => {
                                   <button
                                     type="button"
                                     onClick={() => handleStatusUpdate(quotation.id, "rejected")}
-                                    className={`w-full px-4 py-2 text-left text-sm hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} ${
+                                    className={`w-full px-4 py-2 text-left text-sm ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} ${
                                       isDarkMode ? "text-white" : "text-gray-900"
                                     }`}
                                   >
@@ -630,7 +641,7 @@ const QuotationList = () => {
                                 <button
                                   type="button"
                                   onClick={() => handleConvertToInvoice(quotation.id)}
-                                  className={`w-full px-4 py-2 text-left text-sm hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} ${
+                                  className={`w-full px-4 py-2 text-left text-sm ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} ${
                                     isDarkMode ? "text-white" : "text-gray-900"
                                   }`}
                                 >
@@ -645,7 +656,7 @@ const QuotationList = () => {
                           <button
                             type="button"
                             onClick={() => setDeleteConfirm(quotation.id)}
-                            className="p-2 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
+                            className="p-2 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors"
                             title="Delete Quotation"
                           >
                             <Trash2 size={16} />

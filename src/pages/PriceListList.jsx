@@ -375,6 +375,8 @@ export default function PriceListList() {
             {filteredPricelists.map((pricelist) => (
               <div
                 key={pricelist.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => navigate(`/app/pricelists/${pricelist.id}`)}
                 onKeyDown={(e) => e.key === "Enter" && navigate(`/app/pricelists/${pricelist.id}`)}
                 className={`cursor-pointer rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col w-full text-left ${

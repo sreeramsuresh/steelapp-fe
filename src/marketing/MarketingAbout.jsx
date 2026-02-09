@@ -302,7 +302,7 @@ const About = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    window.location.href = "/contact";
+                    window.location.href = "/marketing/contact";
                   }}
                   className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg mr-4"
                 >
@@ -311,7 +311,7 @@ const About = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    window.location.href = "/contact";
+                    window.location.href = "/marketing/contact";
                   }}
                   className="px-8 py-4 border-2 border-white rounded-lg font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
                 >

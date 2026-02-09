@@ -557,7 +557,7 @@ const StockLevelsDashboard = () => {
                 {stockLevels.map((item) => (
                   <tr
                     key={item.id}
-                    className={`hover:${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"} transition-colors ${
+                    className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors ${
                       item.isLowStock || item.isOutOfStock ? (isDarkMode ? "bg-red-900/5" : "bg-red-50/50") : ""
                     }`}
                   >
@@ -618,7 +618,7 @@ const StockLevelsDashboard = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <button
                         type="button"
-                        onClick={() => navigate(`/inventory/stock-movements?product_id=${item.productId}`)}
+                        onClick={() => navigate(`/app/inventory/stock-movements?product_id=${item.productId}`)}
                         className={`p-2 rounded-lg transition-colors ${
                           isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
                         }`}

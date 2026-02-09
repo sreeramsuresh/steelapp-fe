@@ -32,7 +32,8 @@ const ScrapItemsList = ({ creditNoteId = null, showFilters = true }) => {
         response = await creditNoteService.getScrapItems();
       }
 
-      setScrapItems(response.items || response || []);
+      const raw = response.items || response;
+      setScrapItems(Array.isArray(raw) ? raw : []);
     } catch (err) {
       console.error("Error fetching scrap items:", err);
       setError("Failed to load scrap items");

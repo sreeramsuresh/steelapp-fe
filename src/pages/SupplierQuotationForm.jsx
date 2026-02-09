@@ -370,7 +370,7 @@ export function SupplierQuotationForm() {
             <div className="space-y-4">
               {formData.items.map((item, index) => (
                 <div
-                  key={item}
+                  key={item.id || index}
                   className={`border rounded-lg p-4 space-y-3 ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50"}`}
                 >
                   <div className="flex justify-between items-start">

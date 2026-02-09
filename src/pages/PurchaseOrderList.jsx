@@ -37,6 +37,7 @@ const PurchaseOrderList = () => {
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -122,6 +123,14 @@ const PurchaseOrderList = () => {
     );
   };
 
+  // Debounce search - wait 300ms after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   // Fetch purchase orders
   const fetchPurchaseOrders = useCallback(async () => {
     setLoading(true);
@@ -129,7 +138,7 @@ const PurchaseOrderList = () => {
       const params = {
         page,
         limit: 10,
-        search: searchTerm,
+        search: debouncedSearch,
         status: statusFilter !== "all" ? statusFilter : undefined,
       };
 
@@ -164,7 +173,7 @@ const PurchaseOrderList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, searchTerm, statusFilter]);
+  }, [page, debouncedSearch, statusFilter]);
 
   useEffect(() => {
     fetchPurchaseOrders();
@@ -307,6 +316,7 @@ const PurchaseOrderList = () => {
               placeholder="Search purchase orders..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              aria-label="Search purchase orders"
               className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                 isDarkMode
                   ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
@@ -318,6 +328,7 @@ const PurchaseOrderList = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label="Filter by status"
               className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
@@ -386,12 +397,14 @@ const PurchaseOrderList = () => {
               {purchaseOrders.length === 0 ? (
                 <tr>
                   <td colSpan={8} className={`px-6 py-8 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                    No purchase orders found
+                    {debouncedSearch || statusFilter !== "all"
+                      ? "No purchase orders match your filters. Try adjusting your search or status filter."
+                      : "No purchase orders found"}
                   </td>
                 </tr>
               ) : (
                 purchaseOrders.map((po) => (
-                  <tr key={po.id} className={`hover:${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"} transition-colors`}>
+                  <tr key={po.id} className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                         {po.poNumber}
@@ -443,7 +456,7 @@ const PurchaseOrderList = () => {
                             className={`p-2 rounded-lg transition-colors ${
                               isDarkMode ? "hover:bg-gray-700 text-teal-400" : "hover:bg-gray-100 text-teal-600"
                             }`}
-                            onClick={() => navigate(`/purchase-orders/${po.id}/edit`)}
+                            onClick={() => navigate(`/app/purchase-orders/${po.id}/edit`)}
                             title="Edit"
                           >
                             <Edit size={18} />

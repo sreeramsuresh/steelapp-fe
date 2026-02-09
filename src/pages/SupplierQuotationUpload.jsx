@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useTheme } from "../contexts/ThemeContext";
 import { suppliersAPI } from "../services/api";
-import { getConfidenceColor, uploadAndExtractPDF } from "../services/supplierQuotationService";
+import { uploadAndExtractPDF } from "../services/supplierQuotationService";
 
 /**
  * Supplier Quotation Upload Page
@@ -99,7 +99,7 @@ export function SupplierQuotationUpload() {
       if (result.success) {
         toast.success("PDF extracted successfully");
       } else {
-        toast.warning("Extraction completed with warnings");
+        toast("Extraction completed with warnings", { icon: "⚠️" });
       }
     } catch (err) {
       console.error("Upload failed:", err);
@@ -273,7 +273,10 @@ export function SupplierQuotationUpload() {
                 <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Confidence</p>
                 <div className="flex items-center gap-2 mt-1">
                   <div
-                    className={`w-3 h-3 rounded-full bg-${getConfidenceColor(extractionResult.extractionDetails?.confidence)}-500`}
+                    className={`w-3 h-3 rounded-full ${
+                      (extractionResult.extractionDetails?.confidence || 0) >= 80 ? "bg-green-500"
+                        : (extractionResult.extractionDetails?.confidence || 0) >= 50 ? "bg-yellow-500" : "bg-red-500"
+                    }`}
                   />
                   <span className="font-medium text-lg">
                     {Math.round(extractionResult.extractionDetails?.confidence || 0)}%
@@ -404,12 +407,12 @@ export function SupplierQuotationUpload() {
                 <>
                   <Button
                     variant="outline"
-                    onClick={() => navigate(`/supplier-quotations/${extractionResult.quotation.id}/edit`)}
+                    onClick={() => navigate(`/app/supplier-quotations/${extractionResult.quotation.id}/edit`)}
                   >
                     Review & Edit
                   </Button>
                   <Button
-                    onClick={() => navigate(`/supplier-quotations/${extractionResult.quotation.id}`)}
+                    onClick={() => navigate(`/app/supplier-quotations/${extractionResult.quotation.id}`)}
                     className="flex items-center gap-2"
                   >
                     View Quotation

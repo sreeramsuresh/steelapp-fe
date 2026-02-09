@@ -22,6 +22,14 @@ export default function DatasetTabs({ modules, activeModule, onModuleChange, rec
     indigo: "border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400",
   };
 
+  const badgeClasses = {
+    blue: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300",
+    green: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300",
+    purple: "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300",
+    amber: "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300",
+    indigo: "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300",
+  };
+
   return (
     <div className="border-b border-slate-200 dark:border-slate-700">
       <div className="flex overflow-x-auto">
@@ -48,7 +56,7 @@ export default function DatasetTabs({ modules, activeModule, onModuleChange, rec
                 <span
                   className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${
                     isActive
-                      ? `bg-${config.color}-100 dark:bg-${config.color}-900/30 text-${config.color}-700 dark:text-${config.color}-300`
+                      ? badgeClasses[config.color]
                       : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
                   }`}
                 >

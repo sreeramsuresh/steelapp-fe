@@ -455,7 +455,7 @@ export default function ReconciliationReport() {
           <>
             {/* Reconciliation Table */}
             <div className={`overflow-x-auto rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow`}>
-              <table className="min-w-full divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}">
+              <table className={`min-w-full divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
                 <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                   <tr>
                     <th

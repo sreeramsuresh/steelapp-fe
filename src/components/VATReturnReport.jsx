@@ -313,7 +313,7 @@ const VATReturnReport = () => {
   const valueClass = `text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`;
   const headerClass = `text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`;
 
-  const sectionHeaderClass = `flex items-center justify-between cursor-pointer p-2 -mx-2 rounded-lg hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} transition-colors`;
+  const sectionHeaderClass = `flex items-center justify-between cursor-pointer p-2 -mx-2 rounded-lg ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors`;
 
   // Calculate totals from vatReturn data
   const totals = vatReturn?.totals || {};
@@ -1271,7 +1271,7 @@ const VATReturnReport = () => {
 
             <button
               type="button"
-              onClick={() => vatReturn?.id && navigate(`/reports/vat-return/${vatReturn.id}/preview`)}
+              onClick={() => vatReturn?.id && navigate(`/app/reports/vat-return/${vatReturn.id}/preview`)}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               <Eye className="h-4 w-4 mr-2" />
@@ -1308,6 +1308,7 @@ const VATReturnReport = () => {
       {/* Submit VAT Return Confirmation Dialog */}
       {submitConfirm.open && (
         <ConfirmDialog
+          open
           title="Submit VAT Return?"
           message="Are you sure you want to submit this VAT return to FTA? This action cannot be undone."
           variant="warning"

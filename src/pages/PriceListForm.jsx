@@ -675,7 +675,7 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
               type="button"
               onClick={() => {
                 onClose();
-                navigate(`/products/${product.id}`);
+                navigate(`/app/products/${product.id}`);
               }}
               className={`${BTN_CLASSES(isDarkMode)} w-full flex items-center justify-center gap-2`}
             >

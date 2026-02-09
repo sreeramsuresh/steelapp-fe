@@ -285,7 +285,7 @@ const DeliveryNoteDetails = () => {
         <div className="flex gap-3">
           <button
             type="button"
-            onClick={() => navigate(`/delivery-notes/${id}/edit`)}
+            onClick={() => navigate(`/app/delivery-notes/${id}/edit`)}
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
                 ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"

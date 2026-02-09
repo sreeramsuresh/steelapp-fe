@@ -221,7 +221,9 @@ export function SupplierList() {
                         </TableCell>
                         <TableCell className="text-right">{leadTime !== "-" ? `${leadTime} days` : "-"}</TableCell>
                         <TableCell className="text-right">
-                          {supplier.on_time_delivery_pct?.toFixed(1) || "N/A"}%
+                          {supplier.on_time_delivery_pct != null
+                            ? `${supplier.on_time_delivery_pct.toFixed(1)}%`
+                            : "N/A"}
                         </TableCell>
                         <TableCell className="text-right">
                           <span className={getScoreColor(supplier.supplier_score)}>
@@ -238,7 +240,7 @@ export function SupplierList() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => navigate(`/suppliers/${supplier.id}/edit`)}
+                              onClick={() => navigate(`/app/suppliers/${supplier.id}/edit`)}
                               title="Edit supplier"
                             >
                               <Edit size={16} />
@@ -246,7 +248,8 @@ export function SupplierList() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => navigate(`/suppliers/${supplier.id}/scorecard`)}
+                              onClick={() => navigate(`/app/suppliers/${supplier.id}/edit`)}
+                              title="View supplier scorecard"
                             >
                               Scorecard
                             </Button>

@@ -1,5 +1,5 @@
 import { BarChart3, DollarSign, Download, ShoppingCart, TrendingUp } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,7 +11,7 @@ import { toUAEDateForInput } from "../utils/timezone";
 
 export default function ProfitAnalysisReport() {
   const [loading, setLoading] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  const hasErrorRef = useRef(false);
   const [dateRange, setDateRange] = useState(() => {
     // Use UAE timezone for default date range
     const now = new Date();
@@ -33,7 +33,7 @@ export default function ProfitAnalysisReport() {
   const fetchReport = useCallback(async () => {
     try {
       setLoading(true);
-      setHasError(false);
+      hasErrorRef.current = false;
 
       // Get company_id from user context
       const user = tokenUtils.getUser();
@@ -84,14 +84,14 @@ export default function ProfitAnalysisReport() {
       }
     } catch (error) {
       console.error("Error fetching report:", error);
-      if (!hasError) {
-        setHasError(true);
+      if (!hasErrorRef.current) {
+        hasErrorRef.current = true;
         toast.error("Failed to load profit analysis. The analytics endpoint may not be available.");
       }
     } finally {
       setLoading(false);
     }
-  }, [dateRange.startDate, dateRange.endDate, hasError]);
+  }, [dateRange.startDate, dateRange.endDate]);
 
   useEffect(() => {
     fetchReport();

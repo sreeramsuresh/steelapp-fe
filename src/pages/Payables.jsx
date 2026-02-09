@@ -48,12 +48,12 @@ const clearCache = (key) => {
 
 const Pill = ({ color = "gray", children }) => {
   const colors = {
-    gray: "bg-gray-100 text-gray-800 border-gray-300",
-    green: "bg-green-100 text-green-800 border-green-300",
-    red: "bg-red-100 text-red-800 border-red-300",
-    yellow: "bg-yellow-100 text-yellow-800 border-yellow-300",
-    blue: "bg-blue-100 text-blue-800 border-blue-300",
-    teal: "bg-teal-100 text-teal-800 border-teal-300",
+    gray: "bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600",
+    green: "bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-300 dark:border-green-700",
+    red: "bg-red-100 text-red-800 border-red-300 dark:bg-red-900 dark:text-red-300 dark:border-red-700",
+    yellow: "bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-300 dark:border-yellow-700",
+    blue: "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700",
+    teal: "bg-teal-100 text-teal-800 border-teal-300 dark:bg-teal-900 dark:text-teal-300 dark:border-teal-700",
   };
   return (
     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${colors[color] || colors.gray}`}>
@@ -63,15 +63,17 @@ const Pill = ({ color = "gray", children }) => {
 };
 
 const useURLState = (initial) => {
+  // Memoize initial to avoid infinite re-renders when called with inline objects
+  const stableInitial = useMemo(() => initial, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [searchParams, setSearchParams] = useSearchParams();
   const state = useMemo(() => {
-    const obj = { ...initial };
-    for (const key of Object.keys(initial)) {
+    const obj = { ...stableInitial };
+    for (const key of Object.keys(stableInitial)) {
       const v = searchParams.get(key);
       if (v !== null) obj[key] = v;
     }
     return obj;
-  }, [searchParams, initial]);
+  }, [searchParams, stableInitial]);
   const setState = (patch) => {
     const next = {
       ...state,
@@ -161,6 +163,18 @@ const POTab = ({ canManage }) => {
   const [drawer, setDrawer] = useState({ open: false, item: null });
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
   const [printingReceiptId, setPrintingReceiptId] = useState(null);
+  const [confirmAction, setConfirmAction] = useState({ open: false, type: null });
+  const [localSearch, setLocalSearch] = useState(filters.q);
+
+  // Debounce search - wait 300ms after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== filters.q) {
+        setFilters({ q: localSearch, page: "1" });
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [localSearch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Generate cache key based on current filters
   const getCacheKeyWithFilters = useCallback(() => {
@@ -217,6 +231,7 @@ const POTab = ({ canManage }) => {
         setCachedData(cacheKey, { items: fetchedPOs });
       } catch (error) {
         console.error("Failed to fetch payables:", error);
+        notificationService.error("Failed to load payables. Showing cached data if available.");
         // On error, keep showing cached data if available
       } finally {
         setLoading(false);
@@ -288,7 +303,7 @@ const POTab = ({ canManage }) => {
     setItems((prev) => prev.map((i) => (i.id === po.id ? updatedPO : i)));
     try {
       await payablesService.addPOPayment(po.id, apiPayload);
-    } catch (_e) {
+    } catch (e) {
       console.warn("Failed to persist PO payment to backend:", e.message);
     }
   };
@@ -473,7 +488,7 @@ const POTab = ({ canManage }) => {
               type="date"
               value={filters.start}
               onChange={(e) => setFilters({ start: e.target.value })}
-              className="px-2 py-2 rounded border flex-1 min-w-0"
+              className="px-2 py-2 rounded border flex-1 min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               aria-label="Start date"
             />
             <span className="opacity-70 shrink-0">to</span>
@@ -483,7 +498,7 @@ const POTab = ({ canManage }) => {
               type="date"
               value={filters.end}
               onChange={(e) => setFilters({ end: e.target.value })}
-              className="px-2 py-2 rounded border flex-1 min-w-0"
+              className="px-2 py-2 rounded border flex-1 min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               aria-label="End date"
             />
           </div>
@@ -494,7 +509,7 @@ const POTab = ({ canManage }) => {
               placeholder="Vendor"
               value={filters.vendor}
               onChange={(e) => setFilters({ vendor: e.target.value })}
-              className="px-3 py-2 rounded border w-full min-w-0"
+              className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               aria-label="Search by vendor name"
             />
           </div>
@@ -516,9 +531,9 @@ const POTab = ({ canManage }) => {
               id="payables-po-search"
               name="poSearch"
               placeholder="PO # or search"
-              value={filters.q}
-              onChange={(e) => setFilters({ q: e.target.value })}
-              className="px-3 py-2 rounded border w-full min-w-0"
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               aria-label="Search by PO number"
             />
           </div>
@@ -531,7 +546,7 @@ const POTab = ({ canManage }) => {
               placeholder="Min Balance"
               value={filters.minBal}
               onChange={(e) => setFilters({ minBal: numberInput(e.target.value) })}
-              className="px-3 py-2 rounded border w-full min-w-0"
+              className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               aria-label="Minimum balance"
             />
             <input
@@ -542,7 +557,7 @@ const POTab = ({ canManage }) => {
               placeholder="Max Balance"
               value={filters.maxBal}
               onChange={(e) => setFilters({ maxBal: numberInput(e.target.value) })}
-              className="px-3 py-2 rounded border w-full min-w-0"
+              className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               aria-label="Maximum balance"
             />
           </div>
@@ -555,7 +570,7 @@ const POTab = ({ canManage }) => {
               <RefreshCw size={16} />
               Apply
             </button>
-            <button type="button" onClick={exportPOs} className="px-3 py-2 rounded border flex items-center gap-2">
+            <button type="button" onClick={exportPOs} className="px-3 py-2 rounded border flex items-center gap-2 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
               <Download size={16} />
               Export
             </button>
@@ -653,7 +668,7 @@ const POTab = ({ canManage }) => {
                 </tr>
               ) : (
                 items.map((row) => (
-                  <tr key={row.id} className={`hover:${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"} cursor-pointer`}>
+                  <tr key={row.id} className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} cursor-pointer`}>
                     <td
                       className="px-4 py-2 text-teal-600 font-semibold"
                       onClick={() => openDrawer(row)}
@@ -778,7 +793,7 @@ const POTab = ({ canManage }) => {
               </div>
               <div className="flex items-center gap-2">
                 <StatusPill status={drawer.item.status} />
-                <button type="button" onClick={closeDrawer} className="p-2 rounded hover:bg-gray-100">
+                <button type="button" onClick={closeDrawer} className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                   <X size={18} />
                 </button>
               </div>
@@ -874,7 +889,7 @@ const POTab = ({ canManage }) => {
               {canManage && drawer.item.balance > 0 ? (
                 <AddPaymentForm outstanding={drawer.item.balance || 0} onSave={handleAddPayment} entityType="po" />
               ) : drawer.item.balance === 0 ? (
-                <div className="p-3 rounded border border-green-300 bg-green-50 text-green-700 text-sm flex items-center gap-2">
+                <div className="p-3 rounded border border-green-300 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900 dark:text-green-300 text-sm flex items-center gap-2">
                   <CheckCircle size={18} />
                   <span className="font-medium">Purchase Order Fully Paid</span>
                 </div>
@@ -885,11 +900,11 @@ const POTab = ({ canManage }) => {
               {/* Quick Actions */}
               {canManage && drawer.item.balance > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  <button type="button" className="px-3 py-2 rounded border" onClick={handleMarkPaid}>
+                  <button type="button" className="px-3 py-2 rounded border dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" onClick={() => setConfirmAction({ open: true, type: "markPaid" })}>
                     <CheckCircle size={16} className="inline mr-1" />
                     Mark as Fully Paid
                   </button>
-                  <button type="button" className="px-3 py-2 rounded border" onClick={handleVoidLast}>
+                  <button type="button" className="px-3 py-2 rounded border dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" onClick={() => setConfirmAction({ open: true, type: "voidLast" })}>
                     <Trash2 size={16} className="inline mr-1" />
                     Void last
                   </button>
@@ -901,7 +916,7 @@ const POTab = ({ canManage }) => {
                       <>
                         <button
                           type="button"
-                          className="px-3 py-2 rounded border"
+                          className="px-3 py-2 rounded border dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                           onClick={async () => {
                             try {
                               const blob = await payablesService.downloadPOVoucher(drawer.item.id, last.id);
@@ -915,7 +930,7 @@ const POTab = ({ canManage }) => {
                         </button>
                         <button
                           type="button"
-                          className="px-3 py-2 rounded border"
+                          className="px-3 py-2 rounded border dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                           onClick={async () => {
                             try {
                               await payablesService.emailPOVoucher(drawer.item.id, last.id);
@@ -932,6 +947,46 @@ const POTab = ({ canManage }) => {
                   })()}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Dialog for destructive actions */}
+      {confirmAction.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div
+            className={`rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}
+          >
+            <h3 className="text-lg font-semibold mb-2">
+              {confirmAction.type === "voidLast" ? "Void Last Payment?" : "Mark as Fully Paid?"}
+            </h3>
+            <p className={`text-sm mb-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+              {confirmAction.type === "voidLast"
+                ? "This will void the most recent payment on this purchase order. This action cannot be easily undone."
+                : `This will record a payment of ${formatCurrency(drawer.item?.balance || 0)} to mark this PO as fully paid.`}
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                className={`px-4 py-2 rounded text-sm ${isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-100 hover:bg-gray-200"}`}
+                onClick={() => setConfirmAction({ open: false, type: null })}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={`px-4 py-2 rounded text-sm text-white ${
+                  confirmAction.type === "voidLast" ? "bg-red-600 hover:bg-red-700" : "bg-teal-600 hover:bg-teal-700"
+                }`}
+                onClick={() => {
+                  setConfirmAction({ open: false, type: null });
+                  if (confirmAction.type === "voidLast") handleVoidLast();
+                  else handleMarkPaid();
+                }}
+              >
+                {confirmAction.type === "voidLast" ? "Void Payment" : "Confirm Payment"}
+              </button>
             </div>
           </div>
         </div>

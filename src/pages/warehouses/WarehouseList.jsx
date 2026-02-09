@@ -96,7 +96,7 @@ const WarehouseList = () => {
   };
 
   const handleViewWarehouse = (warehouse) => {
-    navigate(`/warehouses/${warehouse.id}`);
+    navigate(`/app/warehouses/${warehouse.id}`);
   };
 
   const handleDeleteWarehouse = async (warehouse) => {

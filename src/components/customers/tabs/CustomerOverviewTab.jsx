@@ -190,7 +190,7 @@ export default function CustomerOverviewTab({ customer }) {
           {customer.email && (
             <a
               href={`mailto:${customer.email}`}
-              className={`flex items-center gap-2 ${secondaryText} hover:${isDarkMode ? "text-teal-400" : "text-teal-600"} transition-colors`}
+              className={`flex items-center gap-2 ${secondaryText} ${isDarkMode ? "hover:text-teal-400" : "hover:text-teal-600"} transition-colors`}
             >
               <Mail className="w-4 h-4" />
               <span className="text-sm">{customer.email}</span>
@@ -200,7 +200,7 @@ export default function CustomerOverviewTab({ customer }) {
           {customer.phone && (
             <a
               href={`tel:${customer.phone}`}
-              className={`flex items-center gap-2 ${secondaryText} hover:${isDarkMode ? "text-teal-400" : "text-teal-600"} transition-colors`}
+              className={`flex items-center gap-2 ${secondaryText} ${isDarkMode ? "hover:text-teal-400" : "hover:text-teal-600"} transition-colors`}
             >
               <Phone className="w-4 h-4" />
               <span className="text-sm">{customer.phone}</span>

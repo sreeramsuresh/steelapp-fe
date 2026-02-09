@@ -79,6 +79,13 @@ const ExportOrderList = () => {
   // Show/hide advanced filters
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
+  // Debounced filters to avoid API call on every keystroke
+  const [debouncedFilters, setDebouncedFilters] = useState(filters);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedFilters(filters), 300);
+    return () => clearTimeout(timer);
+  }, [filters]);
+
   // Status options from service
   const statusOptions = exportOrderService.getStatusOptions();
 
@@ -115,7 +122,7 @@ const ExportOrderList = () => {
           limit: pagination.per_page,
           sort_by: sortConfig.key,
           sort_order: sortConfig.direction,
-          ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "")),
+          ...Object.fromEntries(Object.entries(debouncedFilters).filter(([_, v]) => v !== "")),
         };
 
         const response = await exportOrderService.getExportOrders(params);
@@ -135,7 +142,7 @@ const ExportOrderList = () => {
         setLoading(false);
       }
     },
-    [pagination.per_page, sortConfig.key, sortConfig.direction, filters]
+    [pagination.per_page, sortConfig.key, sortConfig.direction, debouncedFilters]
   );
 
   useEffect(() => {
@@ -356,6 +363,8 @@ const ExportOrderList = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 <input
+                  id="export-order-search"
+                  name="search"
                   type="text"
                   placeholder="Search by order number, customer..."
                   value={filters.search}
@@ -365,16 +374,20 @@ const ExportOrderList = () => {
                       ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                       : "bg-white border-gray-300 placeholder-gray-500"
                   }`}
+                  aria-label="Search export orders"
                 />
               </div>
             </div>
 
             <select
+              id="export-order-status"
+              name="status"
               value={filters.status}
               onChange={(e) => handleFilterChange("status", e.target.value)}
               className={`px-3 py-2 border rounded-lg ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
               }`}
+              aria-label="Filter by status"
             >
               <option value="">All Status</option>
               {statusOptions.map((status) => (
@@ -551,6 +564,7 @@ const ExportOrderList = () => {
                       checked={selectedOrders.length === orders.length && orders.length > 0}
                       onChange={handleSelectAll}
                       className="rounded border-gray-300"
+                      aria-label="Select all orders"
                     />
                   </th>
                   <th
@@ -631,6 +645,7 @@ const ExportOrderList = () => {
                         checked={selectedOrders.includes(order.id)}
                         onChange={() => handleSelectOrder(order.id)}
                         className="rounded border-gray-300"
+                        aria-label={`Select order ${order.exportOrderNumber || order.export_order_number || order.id}`}
                       />
                     </td>
 
@@ -682,8 +697,19 @@ const ExportOrderList = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
                         value={order.status}
-                        onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
+                        onChange={(e) => {
+                          const newStatus = e.target.value;
+                          if (newStatus !== order.status) {
+                            const confirmed = window.confirm(`Change status from "${order.status}" to "${newStatus}"?`);
+                            if (confirmed) {
+                              handleStatusUpdate(order.id, newStatus);
+                            } else {
+                              e.target.value = order.status;
+                            }
+                          }
+                        }}
                         className={`text-xs font-semibold rounded-full px-2 py-1 border-0 cursor-pointer ${getStatusBadgeClass(order.status)}`}
+                        aria-label={`Update status for order ${order.exportOrderNumber || order.export_order_number || order.id}`}
                       >
                         {statusOptions.map((status) => (
                           <option key={status.value} value={status.value}>
@@ -709,14 +735,14 @@ const ExportOrderList = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-2">
                         <Link
-                          to={`/export-orders/${order.id}`}
+                          to={`/app/export-orders/${order.id}`}
                           className="text-teal-600 hover:text-teal-900 p-1"
                           title="View"
                         >
                           <Eye size={16} />
                         </Link>
                         <Link
-                          to={`/export-orders/${order.id}/edit`}
+                          to={`/app/export-orders/${order.id}/edit`}
                           className="text-blue-600 hover:text-blue-900 p-1"
                           title="Edit"
                         >

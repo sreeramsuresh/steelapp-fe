@@ -819,7 +819,10 @@ const PurchaseOrderForm = () => {
     setShowPaymentForm(false);
   };
 
-  const handleVoidPayment = (paymentId) => {
+  const handleVoidPayment = async (paymentId) => {
+    const confirmed = window.confirm("Are you sure you want to void this payment? This action cannot be undone.");
+    if (!confirmed) return;
+
     const updatedPayments = payments.map((p) =>
       p.id === paymentId ? { ...p, voided: true, voided_at: new Date().toISOString() } : p
     );
@@ -2192,7 +2195,7 @@ const PurchaseOrderForm = () => {
                   <tbody className={`divide-y ${isDarkMode ? "divide-[#2a3640]" : "divide-gray-200"}`}>
                     {purchaseOrder.items.map((item, index) => (
                       <tr
-                        key={item}
+                        key={item.id || index}
                         data-item-index={index}
                         data-testid={`item-row-${index}`}
                         className={isDarkMode ? "bg-[#141a20]" : "bg-white"}

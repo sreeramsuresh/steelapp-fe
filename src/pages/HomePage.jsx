@@ -271,6 +271,8 @@ const HomePage = () => {
   const { isDarkMode } = useTheme();
   const [recentItems, setRecentItems] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
   const { sectionOrder, reorderSections } = useHomeSectionOrder();
   const { getDragItemProps, getDragHandleProps, isDropTarget, isDragSource } = useDragReorder({
     items: sectionOrder,
@@ -315,6 +317,8 @@ const HomePage = () => {
   // Fetch recent items from multiple modules (max 9 items)
   useEffect(() => {
     const fetchRecentItems = async () => {
+      setIsLoading(true);
+      setFetchError(null);
       try {
         // Fetch from multiple services in parallel
         const [quotationsRes, invoicesRes, customersRes] = await Promise.all([
@@ -377,7 +381,10 @@ const HomePage = () => {
         setRecentItems(allItems.slice(0, 9));
       } catch (error) {
         console.warn("Error fetching recent items:", error);
+        setFetchError("Failed to load recent items. Please try refreshing.");
         setRecentItems([]);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -426,9 +433,10 @@ const HomePage = () => {
                 : "hover:bg-gray-100 text-gray-600 hover:text-gray-900"
             }`}
             title="Refresh"
+            aria-label="Refresh dashboard"
           >
-            <svg aria-label="icon" className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <title>Icon</title>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <title>Refresh</title>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -441,6 +449,36 @@ const HomePage = () => {
 
         {/* Brandmark Hero Section */}
         <BrandmarkHero />
+
+        {/* Error Banner */}
+        {fetchError && (
+          <div
+            className={`mb-6 p-4 rounded-lg border flex items-center justify-between ${
+              isDarkMode
+                ? "bg-red-900/20 border-red-800 text-red-300"
+                : "bg-red-50 border-red-200 text-red-700"
+            }`}
+          >
+            <span>{fetchError}</span>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className={`text-sm font-medium underline ${isDarkMode ? "text-red-300" : "text-red-700"}`}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* Loading Skeleton */}
+        {isLoading && (
+          <div className="mb-8 flex items-center justify-center py-12">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-500" />
+              <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Loading dashboard...</span>
+            </div>
+          </div>
+        )}
 
         {/* Dynamic Draggable Sections */}
         {sectionOrder.map((sectionId, index) => {

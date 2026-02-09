@@ -556,7 +556,7 @@ const InventoryList = () => {
             </thead>
             <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
               {filteredInventory.map((item) => (
-                <tr key={item.id} className={`hover:${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"} transition-colors`}>
+                <tr key={item.id} className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`text-sm font-medium mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       {item.description || generateDescription(item)}
@@ -997,7 +997,7 @@ const InventoryList = () => {
                                 type="button"
                                 key={p.id}
                                 onClick={() => handleSelectProduct(p)}
-                                className={`w-full text-left px-4 py-2 hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
+                                className={`w-full text-left px-4 py-2 ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
                               >
                                 <div className={`text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                                   {getProductDisplayName(p)}

@@ -465,7 +465,10 @@ const AuditLogs = () => {
                     {filteredLogs.map((log) => (
                       <tr
                         key={log.id}
+                        role="button"
+                        tabIndex={0}
                         onClick={() => handleRowClick(log)}
+                        onKeyDown={(e) => e.key === "Enter" && handleRowClick(log)}
                         className={`cursor-pointer ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-50"} transition-colors`}
                       >
                         <td

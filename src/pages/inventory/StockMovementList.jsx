@@ -459,7 +459,7 @@ const StockMovementList = () => {
               {movements.map((movement) => (
                 <tr
                   key={movement.id}
-                  className={`hover:${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"} transition-colors`}
+                  className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}
                 >
                   <td
                     className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
@@ -514,7 +514,7 @@ const StockMovementList = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <button
                       type="button"
-                      onClick={() => navigate(`/inventory/stock-movements/${movement.id}`)}
+                      onClick={() => navigate(`/app/inventory/stock-movements/${movement.id}`)}
                       className={`p-2 rounded-lg transition-colors ${
                         isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
                       }`}

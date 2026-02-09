@@ -391,6 +391,7 @@ const DebitNoteForm = () => {
   const textMuted = isDarkMode ? "text-[#93a4b4]" : "text-gray-500";
   const accordionBg = isDarkMode ? "bg-[#0f151b]" : "bg-gray-50";
   const inputFocus = "focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20";
+  const placeholderCls = isDarkMode ? "placeholder:text-[#93a4b4]" : "placeholder:text-gray-500";
 
   // Loading state
   if (loading) {
@@ -521,7 +522,7 @@ const DebitNoteForm = () => {
                         placeholder="Search supplier bill by number or vendor name..."
                         value={supplierBillSearch}
                         onChange={(e) => setSupplierBillSearch(e.target.value)}
-                        className={`w-full pl-9 pr-9 py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                        className={`w-full pl-9 pr-9 py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
                       />
                       {supplierBillSearching && (
                         <Loader2
@@ -731,7 +732,7 @@ const DebitNoteForm = () => {
                         }))
                       }
                       placeholder="Describe the reason for this debit note..."
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
                     />
                   </div>
                 </div>
@@ -781,7 +782,7 @@ const DebitNoteForm = () => {
                             value={item.description}
                             onChange={(e) => handleItemChange(index, "description", e.target.value)}
                             placeholder="Item description"
-                            className={`w-full py-2 px-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                            className={`w-full py-2 px-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
                           />
                         </div>
 
@@ -903,7 +904,7 @@ const DebitNoteForm = () => {
                           }))
                         }
                         placeholder="Payment ref #"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
                       />
                     </div>
 
@@ -1034,7 +1035,7 @@ const DebitNoteForm = () => {
                         }
                         rows={2}
                         placeholder="https://example.com/doc1.pdf, https://example.com/doc2.pdf"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
                       />
                     </div>
 
@@ -1100,16 +1101,16 @@ const DebitNoteForm = () => {
                         </label>
                         <FormSelect
                           id="warehouseId"
-                          value={debitNote.warehouseId?.toString() || ""}
+                          value={debitNote.warehouseId?.toString() || "__none__"}
                           onValueChange={(value) =>
                             setDebitNote((prev) => ({
                               ...prev,
-                              warehouseId: value ? parseInt(value, 10) : null,
+                              warehouseId: value && value !== "__none__" ? parseInt(value, 10) : null,
                             }))
                           }
                           showValidation={false}
                         >
-                          <SelectItem value="">Select warehouse...</SelectItem>
+                          <SelectItem value="__none__">Select warehouse...</SelectItem>
                           {warehouses.map((wh) => (
                             <SelectItem key={wh.id} value={wh.id.toString()}>
                               {wh.name}
@@ -1187,7 +1188,7 @@ const DebitNoteForm = () => {
                             ? "Explain what was changed and why..."
                             : "Version 1 - no modification reason required"
                         }
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${
                           debitNote.version === 1 ? "opacity-60 cursor-not-allowed" : ""
                         }`}
                       />
@@ -1219,7 +1220,7 @@ const DebitNoteForm = () => {
                     }
                     rows={3}
                     placeholder="Internal notes about this debit note..."
-                    className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus}`}
+                    className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
                   />
                 </div>
               </details>

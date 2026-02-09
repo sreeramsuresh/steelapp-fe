@@ -30,7 +30,8 @@ const AccountStatementForm = () => {
     const fetchCustomers = async () => {
       try {
         const response = await apiClient.get("/customers", { limit: 100 });
-        setCustomers(response.customers || response || []);
+        const raw = response.customers || response;
+        setCustomers(Array.isArray(raw) ? raw : []);
       } catch (err) {
         console.error("Error fetching customers:", err);
         setError("Failed to load customers");
@@ -58,7 +59,7 @@ const AccountStatementForm = () => {
       setError("");
 
       const response = await accountStatementService.create(formData);
-      navigate(`/account-statements/${response.id}`);
+      navigate(`/app/account-statements/${response.id}`);
     } catch (err) {
       setError("Failed to create account statement");
       console.error(err);

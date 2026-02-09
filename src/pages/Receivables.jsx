@@ -62,12 +62,12 @@ const clearCache = (key) => {
 
 const Pill = ({ color = "gray", children }) => {
   const colors = {
-    gray: "bg-gray-100 text-gray-800 border-gray-300",
-    green: "bg-green-100 text-green-800 border-green-300",
-    red: "bg-red-100 text-red-800 border-red-300",
-    yellow: "bg-yellow-100 text-yellow-800 border-yellow-300",
-    blue: "bg-blue-100 text-blue-800 border-blue-300",
-    teal: "bg-teal-100 text-teal-800 border-teal-300",
+    gray: "bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600",
+    green: "bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-300 dark:border-green-700",
+    red: "bg-red-100 text-red-800 border-red-300 dark:bg-red-900 dark:text-red-300 dark:border-red-700",
+    yellow: "bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-300 dark:border-yellow-700",
+    blue: "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700",
+    teal: "bg-teal-100 text-teal-800 border-teal-300 dark:bg-teal-900 dark:text-teal-300 dark:border-teal-700",
   };
   return (
     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${colors[color] || colors.gray}`}>
@@ -77,15 +77,17 @@ const Pill = ({ color = "gray", children }) => {
 };
 
 const useURLState = (initial) => {
+  // Memoize initial to avoid infinite re-renders when called with inline objects
+  const stableInitial = useMemo(() => initial, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [searchParams, setSearchParams] = useSearchParams();
   const state = useMemo(() => {
-    const obj = { ...initial };
-    for (const key of Object.keys(initial)) {
+    const obj = { ...stableInitial };
+    for (const key of Object.keys(stableInitial)) {
       const v = searchParams.get(key);
       if (v !== null) obj[key] = v;
     }
     return obj;
-  }, [searchParams, initial]);
+  }, [searchParams, stableInitial]);
   const setState = (patch) => {
     const next = {
       ...state,
@@ -164,6 +166,17 @@ const Receivables = () => {
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
   const [printingReceiptId, setPrintingReceiptId] = useState(null);
   const [voidDropdownPaymentId, setVoidDropdownPaymentId] = useState(null);
+  const [localSearch, setLocalSearch] = useState(filters.q);
+
+  // Debounce search - wait 300ms after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== filters.q) {
+        setFilters({ q: localSearch, page: "1" });
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [localSearch]); // eslint-disable-line react-hooks/exhaustive-deps
   const [voidCustomReason, setVoidCustomReason] = useState("");
   const [isVoidingPayment, setIsVoidingPayment] = useState(false);
   const [pageInfo, setPageInfo] = useState({ totalPages: 0, totalCount: 0 });
@@ -262,6 +275,7 @@ const Receivables = () => {
         setCachedData(cacheKey, { items: fetchedItems, pageInfo: paginationInfo });
       } catch (error) {
         console.error("Failed to fetch receivables:", error);
+        notificationService.error("Failed to load receivables. Showing cached data if available.");
         // On error, keep showing cached data if available
       } finally {
         setLoading(false);
@@ -404,7 +418,7 @@ const Receivables = () => {
       const freshInv = { ...freshData, ...freshComputed };
       setDrawer({ open: true, item: freshInv });
       setItems((prev) => prev.map((i) => (i.id === inv.id ? freshInv : i)));
-    } catch (_e) {
+    } catch (e) {
       // Error - show notification and reload fresh data
       console.error("Failed to persist payment to backend:", e);
       const errorMsg = e.response?.data?.message || e.response?.data?.error || e.message || "Failed to record payment";
@@ -654,7 +668,7 @@ const Receivables = () => {
               type="date"
               value={filters.start}
               onChange={(e) => setFilters({ start: e.target.value, page: "1" })}
-              className="px-2 py-2 rounded border flex-1 min-w-0"
+              className="px-2 py-2 rounded border flex-1 min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               aria-label="Start date"
             />
             <span className="opacity-70 shrink-0">to</span>
@@ -664,7 +678,7 @@ const Receivables = () => {
               type="date"
               value={filters.end}
               onChange={(e) => setFilters({ end: e.target.value, page: "1" })}
-              className="px-2 py-2 rounded border flex-1 min-w-0"
+              className="px-2 py-2 rounded border flex-1 min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               aria-label="End date"
             />
           </div>
@@ -676,7 +690,7 @@ const Receivables = () => {
               value={filters.customer}
               onChange={(e) => setFilters({ customer: e.target.value, page: "1" })}
               data-testid="customer-search"
-              className="px-3 py-2 rounded border w-full min-w-0"
+              className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               aria-label="Search by customer name or email"
             />
           </div>
@@ -699,10 +713,10 @@ const Receivables = () => {
               id="receivables-invoice-search"
               name="invoiceSearch"
               placeholder="Invoice # or search"
-              value={filters.q}
-              onChange={(e) => setFilters({ q: e.target.value, page: "1" })}
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
               data-testid="invoice-search"
-              className="px-3 py-2 rounded border w-full min-w-0"
+              className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               aria-label="Search by invoice number"
             />
           </div>
@@ -718,7 +732,7 @@ const Receivables = () => {
                 placeholder="0.00"
                 value={filters.minOut}
                 onChange={(e) => setFilters({ minOut: numberInput(e.target.value), page: "1" })}
-                className="px-3 py-2 rounded border w-full min-w-0"
+                className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               />
             </div>
             <div className="flex-1 min-w-0">
@@ -732,7 +746,7 @@ const Receivables = () => {
                 placeholder="0.00"
                 value={filters.maxOut}
                 onChange={(e) => setFilters({ maxOut: numberInput(e.target.value), page: "1" })}
-                className="px-3 py-2 rounded border w-full min-w-0"
+                className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               />
             </div>
           </div>
@@ -746,7 +760,7 @@ const Receivables = () => {
               <RefreshCw size={16} />
               Apply
             </button>
-            <button type="button" onClick={exportInvoices} className="px-3 py-2 rounded border flex items-center gap-2">
+            <button type="button" onClick={exportInvoices} className="px-3 py-2 rounded border flex items-center gap-2 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
               <Download size={16} />
               Export
             </button>
@@ -832,7 +846,7 @@ const Receivables = () => {
                 </tr>
               ) : (
                 items.map((row) => (
-                  <tr key={row.id} className={`hover:${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"} cursor-pointer`}>
+                  <tr key={row.id} className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} cursor-pointer`}>
                     <td className="px-4 py-2">
                       <input
                         type="checkbox"
@@ -858,10 +872,10 @@ const Receivables = () => {
                             e.stopPropagation();
                             const cid = getCustomerId(row);
                             const name = getCustomerName(row);
-                            if (cid) navigate(`/payables/customer/${cid}?name=${encodeURIComponent(name)}`);
+                            if (cid) navigate(`/app/payables/customer/${cid}?name=${encodeURIComponent(name)}`);
                             else
                               navigate(
-                                `/payables/customer/${encodeURIComponent(name)}?name=${encodeURIComponent(name)}`
+                                `/app/payables/customer/${encodeURIComponent(name)}?name=${encodeURIComponent(name)}`
                               );
                           }}
                         >
@@ -1028,7 +1042,7 @@ const Receivables = () => {
           >
             <div className="text-sm">{selected.size} selected</div>
             <div className="flex gap-2">
-              <button type="button" className="px-3 py-2 rounded border" onClick={() => exportInvoices()}>
+              <button type="button" className="px-3 py-2 rounded border dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" onClick={() => exportInvoices()}>
                 <Download size={16} className="inline mr-1" />
                 Export
               </button>

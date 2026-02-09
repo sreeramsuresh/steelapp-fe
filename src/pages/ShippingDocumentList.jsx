@@ -486,7 +486,8 @@ const ShippingDocumentList = () => {
   const DocTypeIcon = ({ type, size = 16 }) => {
     const config = getDocTypeConfig(type);
     const Icon = config.icon;
-    return <Icon size={size} className={`text-${config.color}-500`} />;
+    const iconColorCls = { blue: "text-blue-500", purple: "text-purple-500", green: "text-green-500", yellow: "text-yellow-500", orange: "text-orange-500" }[config.color] || "text-gray-500";
+    return <Icon size={size} className={iconColorCls} />;
   };
 
   return (
@@ -725,7 +726,7 @@ const ShippingDocumentList = () => {
               </thead>
               <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
                 {documents.map((doc) => (
-                  <tr key={doc.id} className={`hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} transition-colors`}>
+                  <tr key={doc.id} className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors`}>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <DocTypeIcon type={doc.document_type} size={20} />

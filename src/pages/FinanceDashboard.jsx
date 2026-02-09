@@ -9,7 +9,7 @@ import CustomerCreditManagement from "./CustomerCreditManagement";
 
 const FinanceDashboard = () => {
   const { isDarkMode } = useTheme();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Initialize activeTab from URL parameter
   const [activeTab, setActiveTab] = useState(() => {
@@ -93,7 +93,10 @@ const FinanceDashboard = () => {
                 <button
                   type="button"
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setSearchParams({ tab: tab.id }, { replace: true });
+                  }}
                   className={`flex items-center space-x-2 px-4 py-3 rounded-t-lg border-b-2 transition-colors ${
                     isActive
                       ? `border-green-600 ${isDarkMode ? "bg-gray-700 text-green-400" : "bg-gray-50 text-green-600"}`

@@ -28,7 +28,6 @@ import DeleteInvoiceModal from "../components/DeleteInvoiceModal";
 import InvoicePreview from "../components/InvoicePreview";
 import InvoiceStatusColumn from "../components/InvoiceStatusColumn";
 import PaymentReminderModal from "../components/PaymentReminderModal";
-import AddPaymentForm from "../components/payments/AddPaymentForm";
 import PaymentDrawer from "../components/payments/PaymentDrawer";
 import { NewBadge } from "../components/shared";
 import { useTheme } from "../contexts/ThemeContext";
@@ -476,11 +475,9 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   // Reset to page 1 when filters change
   useEffect(() => {
-    if (currentPage !== 1) {
-      setCurrentPage(1);
-    }
+    setCurrentPage(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage]); // currentPage intentionally omitted to avoid infinite loop
+  }, [searchTerm, statusFilter, paymentStatusFilter, showDeleted]);
 
   // Initialize search from URL param
   useEffect(() => {
@@ -1268,20 +1265,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   };
 
   /**
-   * Handle selecting a void reason from the dropdown
-   */
-  const handleSelectVoidReason = (paymentId, reasonValue) => {
-    if (reasonValue === "other") {
-      // Keep dropdown open for custom reason input
-      return;
-    }
-    const reasonObj = VOID_REASONS.find((r) => r.value === reasonValue);
-    if (reasonObj) {
-      handleVoidPayment(paymentId, reasonObj.label);
-    }
-  };
-
-  /**
    * Handle submitting a custom void reason
    */
   const handleSubmitCustomVoidReason = (paymentId) => {
@@ -1403,10 +1386,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     if (actions.deliveryNote.hasNotes) {
       if (actions.deliveryNote.count === 1 && actions.deliveryNote.firstId) {
         // Single DN - navigate directly to it
-        navigate(`/delivery-notes/${actions.deliveryNote.firstId}`);
+        navigate(`/app/delivery-notes/${actions.deliveryNote.firstId}`);
       } else {
         // Multiple DNs - show filtered list
-        navigate(`/delivery-notes?invoiceId=${invoice.id}`);
+        navigate(`/app/delivery-notes?invoiceId=${invoice.id}`);
       }
     } else {
       // No DN - navigate to create form with invoice pre-selected
@@ -1626,7 +1609,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           >
             <button
               type="button"
-              onClick={() => navigate(`/delivery-notes/${dn.id}`)}
+              onClick={() => navigate(`/app/delivery-notes/${dn.id}`)}
               className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-500"
             >
               View Full Details
@@ -1896,6 +1879,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label="Filter by status"
               className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
@@ -1995,6 +1979,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                       }
                     }}
                     onChange={handleSelectAll}
+                    aria-label="Select all invoices"
                     className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 cursor-pointer"
                   />
                 </th>
@@ -2107,7 +2092,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   return (
                     <tr
                       key={invoice.id}
-                      className={`hover:${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"} transition-colors ${
+                      className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors ${
                         isDeleted
                           ? isDarkMode
                             ? "bg-red-900/10 opacity-60"
@@ -2635,405 +2620,6 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         PAYMENT_MODES={PAYMENT_MODES}
         VOID_REASONS={VOID_REASONS}
       />
-
-      {/* Temporary: Keep old drawer structure for reference - to be removed */}
-      {/* eslint-disable-next-line no-constant-binary-expression */}
-      {false && showRecordPaymentDrawer && paymentDrawerInvoice && (
-        <div className="fixed inset-0 z-[1100] flex">
-          {/* Backdrop: absolute overlay on mobile, flex-1 on desktop */}
-          <button
-            type="button"
-            className="absolute inset-0 bg-black/30 sm:relative sm:flex-1"
-            onClick={handleCloseRecordPaymentDrawer}
-            aria-label="Close payment drawer"
-          ></button>
-          {/* Drawer: full width on mobile, max-w-xl on desktop */}
-          <div
-            className={`relative z-10 w-full sm:max-w-xl h-full overflow-auto ${
-              isDarkMode ? "bg-[#1E2328] text-white" : "bg-white text-gray-900"
-            } shadow-xl`}
-          >
-            <div className="p-4 border-b flex items-center justify-between">
-              <div>
-                <div className="font-semibold text-lg">
-                  {paymentDrawerInvoice.invoiceNo || paymentDrawerInvoice.invoiceNumber}
-                </div>
-                <div className="text-sm opacity-70">{paymentDrawerInvoice.customer?.name || ""}</div>
-              </div>
-              <div className="flex items-center gap-2">
-                {/* Normalize payment status to handle API format variations */}
-                {(() => {
-                  const normalizedPaymentStatus = (paymentDrawerInvoice.paymentStatus || "unpaid")
-                    .toLowerCase()
-                    .replace("payment_status_", "");
-                  return (
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
-                        normalizedPaymentStatus === "paid"
-                          ? "bg-green-100 text-green-800 border-green-300"
-                          : normalizedPaymentStatus === "partially_paid"
-                            ? "bg-yellow-100 text-yellow-800 border-yellow-300"
-                            : "bg-red-100 text-red-800 border-red-300"
-                      }`}
-                    >
-                      {normalizedPaymentStatus === "paid"
-                        ? "Paid"
-                        : normalizedPaymentStatus === "partially_paid"
-                          ? "Partially Paid"
-                          : "Unpaid"}
-                    </span>
-                  );
-                })()}
-                <button
-                  type="button"
-                  onClick={handleCloseRecordPaymentDrawer}
-                  className="p-2 rounded hover:bg-gray-100"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            </div>
-            {/* Presence Banner - Shows other users viewing/editing this invoice */}
-            {otherSessions.length > 0 && (
-              <div className="mx-4 mt-3 px-3 py-2 rounded-lg border bg-amber-50 border-amber-200 text-amber-800 text-sm flex items-center gap-2">
-                <span>⚠️</span>
-                <span>
-                  Currently being edited by{" "}
-                  <strong>{[...new Set(otherSessions.map((s) => s.userName))].join(", ")}</strong>. Your changes may
-                  conflict.
-                </span>
-              </div>
-            )}
-            <div className="p-4 space-y-4">
-              {/* Invoice Summary Section */}
-              <div
-                className={`p-4 rounded-lg border-2 ${
-                  isDarkMode
-                    ? "bg-gradient-to-r from-blue-900/30 to-cyan-900/30 border-blue-700"
-                    : "bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-300"
-                }`}
-              >
-                <div
-                  className={`text-sm font-semibold mb-3 flex items-center gap-2 ${
-                    isDarkMode ? "text-blue-100" : "text-blue-900"
-                  }`}
-                >
-                  <CircleDollarSign size={18} />
-                  Invoice Summary
-                </div>
-                <div className="grid grid-cols-3 gap-3 text-sm mb-3">
-                  <div>
-                    <div className={`text-xs mb-1 ${isDarkMode ? "text-blue-300" : "text-blue-700"}`}>Total Amount</div>
-                    <div className={`font-bold text-lg ${isDarkMode ? "text-blue-100" : "text-blue-900"}`}>
-                      {formatCurrency(paymentDrawerInvoice.invoiceAmount || paymentDrawerInvoice.total || 0)}
-                    </div>
-                  </div>
-                  <div>
-                    <div className={`text-xs mb-1 ${isDarkMode ? "text-blue-300" : "text-blue-700"}`}>Paid Amount</div>
-                    <div className={`font-bold text-lg ${isDarkMode ? "text-green-400" : "text-green-600"}`}>
-                      {formatCurrency(paymentDrawerInvoice.received || 0)}
-                    </div>
-                  </div>
-                  <div>
-                    <div className={`text-xs mb-1 ${isDarkMode ? "text-blue-300" : "text-blue-700"}`}>Balance Due</div>
-                    <div className={`font-bold text-lg ${isDarkMode ? "text-red-400" : "text-red-600"}`}>
-                      {formatCurrency(paymentDrawerInvoice.outstanding || 0)}
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className={`pt-3 border-t grid grid-cols-2 gap-2 text-xs ${
-                    isDarkMode ? "border-blue-700 text-blue-300" : "border-blue-300 text-blue-700"
-                  }`}
-                >
-                  <div>
-                    <strong>Invoice Date:</strong> {formatDate(paymentDrawerInvoice.invoiceDate) || "N/A"}
-                  </div>
-                  <div>
-                    <strong>Due Date:</strong> {formatDate(paymentDrawerInvoice.dueDate) || "N/A"}
-                  </div>
-                </div>
-              </div>
-
-              {/* Payments History - Grid Layout */}
-              <div>
-                <div className="font-semibold mb-3">Payment History</div>
-
-                {/* Show "No payments" if no recorded payments */}
-                {(paymentDrawerInvoice.payments || []).length === 0 ? (
-                  <div
-                    className={`text-sm p-4 rounded-lg border ${
-                      isDarkMode
-                        ? "bg-gray-800/50 border-gray-700 text-gray-400"
-                        : "bg-gray-50 border-gray-200 text-gray-500"
-                    }`}
-                  >
-                    No payments recorded yet.
-                  </div>
-                ) : (
-                  <div className={`rounded-lg border ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-                    {/* Header Row */}
-                    <div
-                      className={`grid grid-cols-12 gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide ${
-                        isDarkMode
-                          ? "bg-gray-800 text-gray-400 border-b border-gray-700"
-                          : "bg-gray-100 text-gray-600 border-b border-gray-200"
-                      }`}
-                    >
-                      <div className="col-span-2">Date</div>
-                      <div className="col-span-3">Method</div>
-                      <div className="col-span-2">Ref</div>
-                      <div className="col-span-3 text-right">Amount</div>
-                      <div className="col-span-2 text-center">Action</div>
-                    </div>
-
-                    {/* Payment Rows - Sorted oldest first (ascending by date) */}
-                    <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                      {[...(paymentDrawerInvoice.payments || [])]
-                        .sort((a, b) => {
-                          const dateA = new Date(a.paymentDate || a.payment_date || 0);
-                          const dateB = new Date(b.paymentDate || b.payment_date || 0);
-                          return dateA - dateB; // Oldest first
-                        })
-                        .map((p, idx) => {
-                          // Normalize payment method from various field names and formats
-                          const methodValue = p.paymentMethod || p.payment_method || p.method || "";
-                          // Strip PAYMENT_METHOD_ prefix from proto enum and normalize
-                          const normalizedMethod = String(methodValue)
-                            .replace(/^PAYMENT_METHOD_/i, "")
-                            .toLowerCase()
-                            .trim()
-                            .replace(/\s+/g, "_");
-                          const paymentMode = PAYMENT_MODES[normalizedMethod] || PAYMENT_MODES.other;
-                          const isVoided = p.voided || p.voidedAt || p.voided_at;
-                          const voidReason = p.voidReason || p.void_reason;
-                          const voidedBy = p.voidedBy || p.voided_by;
-                          const voidedAt = p.voidedAt || p.voided_at;
-                          const isDropdownOpen = voidDropdownPaymentId === p.id;
-
-                          return (
-                            <div
-                              key={p.id || idx}
-                              className={`${
-                                isDarkMode ? "bg-gray-900/50" : "bg-white"
-                              } ${isVoided ? "opacity-70" : ""}`}
-                            >
-                              {/* Main Payment Row */}
-                              <div className="grid grid-cols-12 gap-2 px-3 py-3 items-center text-sm">
-                                {/* Date */}
-                                <div className={`col-span-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                                  {formatDate(p.paymentDate || p.payment_date)}
-                                </div>
-
-                                {/* Method with Icon */}
-                                <div
-                                  className={`col-span-3 flex items-center gap-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                                >
-                                  <span>{paymentMode.icon}</span>
-                                  <span className="truncate">{paymentMode.label}</span>
-                                </div>
-
-                                {/* Reference */}
-                                <div
-                                  className={`col-span-2 truncate ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                                >
-                                  {p.referenceNo || p.referenceNumber || p.reference_no || "-"}
-                                </div>
-
-                                {/* Amount */}
-                                <div
-                                  className={`col-span-3 text-right font-medium ${
-                                    isVoided
-                                      ? "line-through text-gray-400"
-                                      : isDarkMode
-                                        ? "text-green-400"
-                                        : "text-green-600"
-                                  }`}
-                                >
-                                  {formatCurrency(p.amount || 0)}
-                                </div>
-
-                                {/* Action Column */}
-                                <div className="col-span-2 flex justify-center relative">
-                                  {isVoided ? (
-                                    <span
-                                      className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded ${
-                                        isDarkMode ? "bg-red-900/50 text-red-400" : "bg-red-100 text-red-700"
-                                      }`}
-                                    >
-                                      VOIDED
-                                    </span>
-                                  ) : (
-                                    <>
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          setVoidDropdownPaymentId(isDropdownOpen ? null : p.id);
-                                          setVoidCustomReason("");
-                                        }}
-                                        disabled={isVoidingPayment}
-                                        className={`p-1.5 rounded transition-colors ${
-                                          isDarkMode
-                                            ? "text-gray-400 hover:text-red-400 hover:bg-red-900/30"
-                                            : "text-gray-400 hover:text-red-600 hover:bg-red-50"
-                                        } ${isVoidingPayment ? "opacity-50 cursor-not-allowed" : ""}`}
-                                        title="Void payment"
-                                      >
-                                        <Trash2 size={16} />
-                                      </button>
-
-                                      {/* Void Reason Dropdown - z-[9999] to appear above drawer (z-[1100]) */}
-                                      {isDropdownOpen && (
-                                        <div
-                                          className={`void-dropdown absolute right-0 top-full mt-1 z-[9999] w-56 rounded-lg shadow-xl border ${
-                                            isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-                                          }`}
-                                          onClick={(e) => e.stopPropagation()}
-                                          onKeyDown={(e) => e.stopPropagation()}
-                                          role="menu"
-                                          tabIndex={0}
-                                        >
-                                          <div
-                                            className={`px-3 py-2 text-xs font-semibold border-b ${
-                                              isDarkMode
-                                                ? "text-gray-400 border-gray-700"
-                                                : "text-gray-500 border-gray-200"
-                                            }`}
-                                          >
-                                            Select void reason
-                                          </div>
-                                          <div className="py-1">
-                                            {VOID_REASONS.map((reason) => (
-                                              <button
-                                                type="button"
-                                                key={reason.value}
-                                                onClick={() => handleSelectVoidReason(p.id, reason.value)}
-                                                disabled={isVoidingPayment}
-                                                className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-                                                  isDarkMode
-                                                    ? "text-gray-300 hover:bg-gray-700"
-                                                    : "text-gray-700 hover:bg-gray-100"
-                                                } ${isVoidingPayment ? "opacity-50" : ""}`}
-                                              >
-                                                {reason.label}
-                                              </button>
-                                            ))}
-                                          </div>
-
-                                          {/* Custom reason input (shown when "Other" would be selected) */}
-                                          <div
-                                            className={`px-3 py-2 border-t ${
-                                              isDarkMode ? "border-gray-700" : "border-gray-200"
-                                            }`}
-                                          >
-                                            <input
-                                              type="text"
-                                              value={voidCustomReason}
-                                              onChange={(e) => setVoidCustomReason(e.target.value)}
-                                              placeholder="Or type custom reason..."
-                                              className={`w-full px-2 py-1.5 text-sm rounded border ${
-                                                isDarkMode
-                                                  ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                                                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
-                                              }`}
-                                              onKeyDown={(e) => {
-                                                if (e.key === "Enter" && voidCustomReason.trim()) {
-                                                  handleSubmitCustomVoidReason(p.id);
-                                                }
-                                              }}
-                                            />
-                                            {voidCustomReason.trim() && (
-                                              <button
-                                                type="button"
-                                                onClick={() => handleSubmitCustomVoidReason(p.id)}
-                                                disabled={isVoidingPayment}
-                                                className={`mt-2 w-full px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-                                                  isDarkMode
-                                                    ? "bg-red-600 text-white hover:bg-red-700"
-                                                    : "bg-red-600 text-white hover:bg-red-700"
-                                                } ${isVoidingPayment ? "opacity-50 cursor-not-allowed" : ""}`}
-                                              >
-                                                {isVoidingPayment ? "Voiding..." : "Void with this reason"}
-                                              </button>
-                                            )}
-                                          </div>
-                                        </div>
-                                      )}
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Notes Row (if present) */}
-                              {(p.notes || p.receiptNumber) && (
-                                <div className={`px-3 pb-2 -mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
-                                  {p.receiptNumber && (
-                                    <div
-                                      className={`text-xs font-semibold ${
-                                        isDarkMode ? "text-teal-400" : "text-teal-600"
-                                      }`}
-                                    >
-                                      Receipt: {p.receiptNumber}
-                                    </div>
-                                  )}
-                                  {p.notes && (
-                                    <div className="text-xs mt-0.5 pl-4 border-l-2 border-gray-300 dark:border-gray-600">
-                                      {p.notes}
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-
-                              {/* Voided Info Row (if voided) */}
-                              {isVoided && (
-                                <div className={`px-3 pb-2 -mt-1`}>
-                                  <div
-                                    className={`text-xs flex items-center gap-1 ${
-                                      isDarkMode ? "text-red-400" : "text-red-600"
-                                    }`}
-                                  >
-                                    <AlertCircle size={12} />
-                                    <span>
-                                      Voided: {voidReason || "No reason provided"}
-                                      {voidedBy && ` (${voidedBy}`}
-                                      {voidedAt && `, ${formatDate(voidedAt)}`}
-                                      {voidedBy && ")"}
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Add Payment Form */}
-              {paymentDrawerInvoice.outstanding > 0 ? (
-                <AddPaymentForm
-                  outstanding={paymentDrawerInvoice.outstanding || 0}
-                  onSave={handleAddPayment}
-                  onCancel={handleCloseRecordPaymentDrawer}
-                  isSaving={isSavingPayment}
-                />
-              ) : (
-                <div
-                  className={`p-3 rounded-lg border flex items-center gap-2 ${
-                    isDarkMode
-                      ? "border-green-700 bg-green-900/30 text-green-400"
-                      : "border-green-300 bg-green-50 text-green-700"
-                  }`}
-                >
-                  <CheckCircle size={18} />
-                  <span className="font-medium">Invoice Fully Paid</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Professional Confirmation Dialog */}
       <ConfirmDialog

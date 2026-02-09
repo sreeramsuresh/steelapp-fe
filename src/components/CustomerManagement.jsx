@@ -443,7 +443,7 @@ const CustomerManagement = () => {
 
   // Navigate to customer detail page
   const handleCustomerClick = (customerId) => {
-    navigate(`/customers/${customerId}?tab=overview`);
+    navigate(`/app/customers/${customerId}?tab=overview`);
   };
 
   const handleAddCustomer = async () => {
@@ -773,6 +773,7 @@ const CustomerManagement = () => {
   const textPrimary = isDarkMode ? "text-white" : "text-[#212121]";
   const textSecondary = isDarkMode ? "text-[#B0BEC5]" : "text-[#757575]";
   const textMuted = isDarkMode ? "text-[#78909C]" : "text-[#BDBDBD]";
+  const hoverTextSecondary = isDarkMode ? "hover:text-[#B0BEC5]" : "hover:text-[#757575]";
 
   const renderProfiles = () => (
     <div className={`${cardClasses} p-6 mb-6`}>
@@ -1822,7 +1823,7 @@ const CustomerManagement = () => {
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className={`${textMuted} hover:${textSecondary}`}
+                className={`${textMuted} ${hoverTextSecondary}`}
               >
                 <FaTimes className="w-5 h-5" />
               </button>
@@ -2182,7 +2183,7 @@ const CustomerManagement = () => {
               <button
                 type="button"
                 onClick={() => setShowAddSupplierModal(false)}
-                className={`${textMuted} hover:${textSecondary}`}
+                className={`${textMuted} ${hoverTextSecondary}`}
               >
                 <FaTimes className="w-5 h-5" />
               </button>
@@ -2438,7 +2439,7 @@ const CustomerManagement = () => {
               <button
                 type="button"
                 onClick={() => setShowEditSupplierModal(false)}
-                className={`${textMuted} hover:${textSecondary}`}
+                className={`${textMuted} ${hoverTextSecondary}`}
               >
                 <FaTimes className="w-5 h-5" />
               </button>
@@ -2729,7 +2730,7 @@ const CustomerManagement = () => {
               <button
                 type="button"
                 onClick={() => setShowEditModal(false)}
-                className={`${textMuted} hover:${textSecondary}`}
+                className={`${textMuted} ${hoverTextSecondary}`}
               >
                 <FaTimes className="w-5 h-5" />
               </button>
@@ -3209,7 +3210,7 @@ const CustomerManagement = () => {
               <button
                 type="button"
                 onClick={() => setShowContactHistory(false)}
-                className={`${textMuted} hover:${textSecondary}`}
+                className={`${textMuted} ${hoverTextSecondary}`}
               >
                 <FaTimes className="w-5 h-5" />
               </button>

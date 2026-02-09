@@ -672,7 +672,7 @@ const StockMovement = () => {
                                 type="button"
                                 key={p.id}
                                 onClick={() => handleSelectProduct(p)}
-                                className={`w-full text-left px-3 py-2 hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
+                                className={`w-full text-left px-3 py-2 ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
                               >
                                 <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                                   {getProductDisplayName(p)}

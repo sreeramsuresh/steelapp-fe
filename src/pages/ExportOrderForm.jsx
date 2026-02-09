@@ -242,7 +242,9 @@ const VatBadge = ({ treatment, form201Box }) => {
       <CheckCircle className={`h-4 w-4 ${config.text}`} />
       <span className={`text-sm font-medium ${config.text}`}>{config.label}</span>
       {form201Box && (
-        <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>(Form 201 {form201Box})</span>
+        <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+          (Form 201 {form201Box.replace("box_", "Box ")})
+        </span>
       )}
     </div>
   );
@@ -1072,7 +1074,7 @@ const createEmptyOrder = () => ({
 
   // Currency & Totals
   currency: "USD",
-  exchange_rate: 1,
+  exchange_rate: 3.6725,
   subtotal: 0,
   freight_cost: 0,
   insurance_cost: 0,

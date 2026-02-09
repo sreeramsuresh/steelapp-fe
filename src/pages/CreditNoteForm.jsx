@@ -479,7 +479,7 @@ const CreditNoteForm = () => {
   const loadNextCreditNoteNumber = useCallback(async () => {
     try {
       const response = await creditNoteService.getNextCreditNoteNumber();
-      const nextNumber = response.nextNumber || response.nextNumber || "CN-0001";
+      const nextNumber = response.nextNumber || response.next_number || "CN-0001";
       setCreditNote((prev) => ({ ...prev, creditNoteNumber: nextNumber }));
     } catch (error) {
       console.error("Error loading next credit note number:", error);

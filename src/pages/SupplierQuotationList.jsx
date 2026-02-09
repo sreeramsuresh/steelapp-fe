@@ -219,7 +219,17 @@ export function SupplierQuotationList() {
                       <TableCell>{formatDate(q.validityDate)}</TableCell>
                       <TableCell className="text-right font-medium">{formatCurrency(q.total, q.currency)}</TableCell>
                       <TableCell>
-                        <Badge className={`bg-${getStatusColor(q.status)}-100 text-${getStatusColor(q.status)}-800`}>
+                        <Badge
+                          className={(() => {
+                            const c = getStatusColor(q.status);
+                            if (c === "green") return "bg-green-100 text-green-800";
+                            if (c === "yellow") return "bg-yellow-100 text-yellow-800";
+                            if (c === "red") return "bg-red-100 text-red-800";
+                            if (c === "orange") return "bg-orange-100 text-orange-800";
+                            if (c === "blue") return "bg-blue-100 text-blue-800";
+                            return "bg-gray-100 text-gray-800";
+                          })()}
+                        >
                           {getStatusText(q.status)}
                         </Badge>
                       </TableCell>
@@ -227,7 +237,13 @@ export function SupplierQuotationList() {
                         {q.extractionConfidence > 0 ? (
                           <div className="flex items-center gap-1">
                             <div
-                              className={`w-2 h-2 rounded-full bg-${getConfidenceColor(q.extractionConfidence)}-500`}
+                              className={`w-2 h-2 rounded-full ${
+                                q.extractionConfidence >= 80
+                                  ? "bg-green-500"
+                                  : q.extractionConfidence >= 50
+                                    ? "bg-yellow-500"
+                                    : "bg-red-500"
+                              }`}
                             />
                             <span className="text-sm">{Math.round(q.extractionConfidence)}%</span>
                           </div>

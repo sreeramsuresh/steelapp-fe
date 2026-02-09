@@ -84,9 +84,9 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
   const hasFetchedRef = useRef(false);
 
   // Load integration data
-  const loadIntegration = useCallback(async () => {
+  const loadIntegration = useCallback(async (force = false) => {
     // Prevent duplicate fetches from React Strict Mode
-    if (hasFetchedRef.current) return;
+    if (!force && hasFetchedRef.current) return;
     hasFetchedRef.current = true;
 
     try {
@@ -160,7 +160,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
 
       setSuccess("Settings saved successfully");
       setHasChanges(false);
-      await loadIntegration();
+      await loadIntegration(true);
 
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
@@ -183,7 +183,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
 
       if (result.success) {
         setSuccess("Connection successful! Settings have been locked.");
-        await loadIntegration(); // Refresh to get locked state
+        await loadIntegration(true); // Refresh to get locked state
       }
 
       setTimeout(() => setSuccess(null), 5000);
@@ -212,7 +212,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
     try {
       setUnlocking(true);
       await integrationService.unlock(INTEGRATION_TYPE);
-      await loadIntegration();
+      await loadIntegration(true);
       setSuccess("Settings unlocked. You can now make changes.");
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
@@ -237,7 +237,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
     try {
       setLoading(true);
       await integrationService.delete(INTEGRATION_TYPE);
-      await loadIntegration();
+      await loadIntegration(true);
       setSuccess("Integration deleted");
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {

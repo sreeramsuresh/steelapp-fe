@@ -453,7 +453,9 @@ const Home = () => {
                         key={area.id || area.name || `area-${index}`}
                         className="flex items-center space-x-3 p-3 bg-white/70 rounded-xl"
                       >
-                        <span className={`w-4 h-4 bg-${area.color}-500 rounded-full flex-shrink-0`} />
+                        <span className={`w-4 h-4 rounded-full flex-shrink-0 ${
+                          { blue: "bg-blue-500", green: "bg-green-500", purple: "bg-purple-500", orange: "bg-orange-500", indigo: "bg-indigo-500", pink: "bg-pink-500" }[area.color] || "bg-gray-500"
+                        }`} />
                         <div>
                           <div className="font-semibold text-gray-900">{area.name}</div>
                           <div className="text-sm text-gray-600">{area.status}</div>

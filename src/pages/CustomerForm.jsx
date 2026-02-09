@@ -552,6 +552,7 @@ const CustomerForm = () => {
   const inputBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-300";
   const textPrimary = isDarkMode ? "text-[#e6edf3]" : "text-gray-900";
   const textMuted = isDarkMode ? "text-[#93a4b4]" : "text-gray-500";
+  const placeholderCls = isDarkMode ? "placeholder:text-[#93a4b4]" : "placeholder:text-gray-500";
   const accordionBg = isDarkMode ? "bg-[#0f151b]" : "bg-gray-50";
   const inputFocus = "focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20";
 
@@ -681,7 +682,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="e.g., ABC Trading Company"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
                       data-testid="customer-name"
                     />
                   </div>
@@ -699,7 +700,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="Legal company name"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
                       data-testid="customer-company"
                     />
                   </div>
@@ -717,7 +718,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="customer@example.com"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
                       data-testid="customer-email"
                     />
                   </div>
@@ -735,7 +736,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="+971 1 234 5678"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
                       data-testid="customer-phone"
                     />
                   </div>
@@ -753,7 +754,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="Unique code"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
                     />
                   </div>
 
@@ -770,7 +771,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="e.g., Net 30"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
                     />
                   </div>
                 </div>
@@ -800,7 +801,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="123456789012345"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
                       data-testid="customer-vat-number"
                     />
                   </div>
@@ -842,7 +843,7 @@ const CustomerForm = () => {
                         onChange={handleInputChange}
                         disabled={!isEditMode}
                         placeholder="Street address"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
                       />
                     </div>
 
@@ -859,7 +860,7 @@ const CustomerForm = () => {
                         onChange={handleInputChange}
                         disabled={!isEditMode}
                         placeholder="City"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
                         data-testid="customer-city"
                       />
                     </div>
@@ -877,7 +878,7 @@ const CustomerForm = () => {
                         onChange={handleInputChange}
                         disabled={!isEditMode}
                         placeholder="State or province"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
                       />
                     </div>
 
@@ -894,7 +895,7 @@ const CustomerForm = () => {
                         onChange={handleInputChange}
                         disabled={!isEditMode}
                         placeholder="Postal code"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
                       />
                     </div>
 
@@ -914,7 +915,7 @@ const CustomerForm = () => {
                         disabled={!isEditMode}
                         placeholder="e.g., AE (UAE), IN (India), CN (China)"
                         maxLength={2}
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} disabled:opacity-50 ${errors.country ? "border-red-500" : ""}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50 ${errors.country ? "border-red-500" : ""}`}
                       />
                       {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country}</p>}
                       {!errors.country && formData.country && (

@@ -69,7 +69,8 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
       try {
         setWarehousesLoading(true);
         const response = await warehouseService.getAll({ isActive: true });
-        setWarehouses(response.data || response.warehouses || response || []);
+        const raw = response.data || response.warehouses || response;
+        setWarehouses(Array.isArray(raw) ? raw : []);
       } catch (error) {
         console.error("Failed to fetch warehouses:", error);
         // Don't block - user can still proceed without warehouse selection

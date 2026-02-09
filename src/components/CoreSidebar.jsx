@@ -319,6 +319,7 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") handleScrollUp(e);
           }}
+          aria-label="Scroll to top"
           className={`absolute top-0 left-0 right-0 h-8 z-10 transition-opacity duration-300 ${
             showTopFade ? "opacity-100 pointer-events-auto cursor-pointer" : "opacity-0 pointer-events-none"
           }`}
@@ -408,6 +409,7 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") handleScrollDown(e);
           }}
+          aria-label="Scroll to bottom"
           className={`absolute bottom-0 left-0 right-0 h-8 z-10 transition-opacity duration-300 ${
             showBottomFade ? "opacity-100 pointer-events-auto cursor-pointer" : "opacity-0 pointer-events-none"
           }`}

@@ -2,7 +2,7 @@ import { ArrowLeft, Lock, Pencil, Plus, Trash2, Users } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import ConfirmDialog from "../components/ConfirmDialog";
 import EmptyState from "../components/shared/EmptyState";
 import LoadingSpinner from "../components/shared/LoadingSpinner";
@@ -193,26 +193,26 @@ export default function RolesPage() {
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
           <Table>
-            <TableHead>
+            <TableHeader>
               <TableRow>
-                <TableCell
+                <TableHead
                   className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 select-none"
                   onClick={() => handleSort("displayName")}
                 >
                   Name {sortField === "displayName" && (sortDirection === "asc" ? "↑" : "↓")}
-                </TableCell>
-                <TableCell
+                </TableHead>
+                <TableHead
                   className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 select-none"
                   onClick={() => handleSort("description")}
                 >
                   Description {sortField === "description" && (sortDirection === "asc" ? "↑" : "↓")}
-                </TableCell>
-                <TableCell>Users</TableCell>
-                <TableCell>Permissions</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                </TableHead>
+                <TableHead>Users</TableHead>
+                <TableHead>Permissions</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            </TableHead>
+            </TableHeader>
             <TableBody>
               {getSortedRoles().map((role) => (
                 <TableRow key={role.id}>
@@ -258,7 +258,7 @@ export default function RolesPage() {
                       <button
                         type="button"
                         onClick={() => handleDelete(role.id)}
-                        className="p-1 text-red-600 hover:text-red-900 hover:bg-red-50 rounded transition-colors"
+                        className="p-1 text-red-600 hover:text-red-900 hover:bg-red-50 dark:hover:bg-red-900/30 dark:hover:text-red-400 rounded transition-colors"
                         title="Delete role"
                       >
                         <Trash2 className="w-4 h-4" />

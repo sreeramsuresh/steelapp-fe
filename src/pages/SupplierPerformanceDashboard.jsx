@@ -93,6 +93,10 @@ function SupplierPerformanceDashboard() {
 
   return (
     <div className="space-y-4">
+      <h1 className={`text-2xl font-bold ${isDarkMode ? "text-gray-100" : "text-gray-900"}`}>
+        Supplier Performance
+      </h1>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-4 gap-4">
         <Card>

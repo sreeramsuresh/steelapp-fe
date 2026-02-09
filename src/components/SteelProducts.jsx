@@ -59,10 +59,18 @@ const Button = ({
         ? `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:bg-gray-600 disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-gray-800`
         : `bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:from-blue-400 hover:to-blue-500 hover:-translate-y-0.5 focus:ring-blue-500 disabled:bg-gray-400 disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-white`;
     } else if (variant === "secondary") {
-      return `${isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"} ${isDarkMode ? "text-white" : "text-gray-800"} focus:ring-${isDarkMode ? "gray-500" : "gray-400"} disabled:${isDarkMode ? "bg-gray-800" : "bg-gray-100"} focus:ring-offset-${isDarkMode ? "gray-800" : "white"}`;
+      return `${
+        isDarkMode
+          ? "bg-gray-700 hover:bg-gray-600 text-white focus:ring-gray-500 disabled:bg-gray-800 focus:ring-offset-gray-800"
+          : "bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-400 disabled:bg-gray-100 focus:ring-offset-white"
+      }`;
     } else {
       // outline
-      return `border ${isDarkMode ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700" : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"} focus:ring-teal-500 disabled:${isDarkMode ? "bg-gray-800" : "bg-gray-50"} focus:ring-offset-${isDarkMode ? "gray-800" : "white"}`;
+      return `border ${
+        isDarkMode
+          ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700 disabled:bg-gray-800 focus:ring-offset-gray-800"
+          : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50 disabled:bg-gray-50 focus:ring-offset-white"
+      } focus:ring-teal-500`;
     }
   };
 

@@ -181,7 +181,7 @@ export default function UserProfile() {
 
           {/* Edit Mode */}
           {editMode && (
-            <div className="space-y-4 border-t pt-6">
+            <div className={`space-y-4 border-t pt-6 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
               <div>
                 <label
                   htmlFor="user-name-input"
@@ -239,7 +239,7 @@ export default function UserProfile() {
 
           {/* View Mode */}
           {!editMode && (
-            <div className="grid grid-cols-2 gap-6 border-t pt-6">
+            <div className={`grid grid-cols-2 gap-6 border-t pt-6 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
               <div>
                 <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Full Name</p>
                 <p className={`text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -276,7 +276,7 @@ export default function UserProfile() {
           </div>
 
           {showPasswordChange && (
-            <div className="space-y-4 border-t pt-6">
+            <div className={`space-y-4 border-t pt-6 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
               <div>
                 <label
                   htmlFor="current-password"

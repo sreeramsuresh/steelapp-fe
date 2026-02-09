@@ -102,7 +102,7 @@ const SearchResults = () => {
                 icon={FileText}
                 title="Invoices"
                 count={invoiceResults.length}
-                toAll={q ? `/invoices?search=${encodeURIComponent(q)}` : undefined}
+                toAll={q ? `/app/invoices?search=${encodeURIComponent(q)}` : undefined}
                 isDarkMode={isDarkMode}
               />
               {invoiceResults.length === 0 ? (
@@ -111,9 +111,9 @@ const SearchResults = () => {
                 <div className="divide-y divide-gray-200 dark:divide-gray-700">
                   {invoiceResults.slice(0, 6).map((inv) => (
                     <Link
-                      to={`/edit/${inv.id}`}
+                      to={`/app/invoices/${inv.id}`}
                       key={inv.id}
-                      className={`flex items-center justify-between py-2 px-1 rounded hover:${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"} transition-colors`}
+                      className={`flex items-center justify-between py-2 px-1 rounded ${isDarkMode ? "hover:bg-gray-700/50" : "hover:bg-gray-50"} transition-colors`}
                     >
                       <div>
                         <div className={`text-sm font-semibold text-teal-600`}>{inv.invoiceNumber}</div>
@@ -138,7 +138,7 @@ const SearchResults = () => {
                 icon={Users}
                 title="Customers"
                 count={customerResults.length}
-                toAll={q ? `/customers?search=${encodeURIComponent(q)}` : undefined}
+                toAll={q ? `/app/customers?search=${encodeURIComponent(q)}` : undefined}
                 isDarkMode={isDarkMode}
               />
               {customerResults.length === 0 ? (
@@ -147,7 +147,7 @@ const SearchResults = () => {
                 <div className="divide-y divide-gray-200 dark:divide-gray-700">
                   {customerResults.slice(0, 6).map((c) => {
                     const term = c.name || c.email || String(c.id || "");
-                    const href = term ? `/customers?search=${encodeURIComponent(term)}` : "/customers";
+                    const href = term ? `/app/customers?search=${encodeURIComponent(term)}` : "/app/customers";
                     return (
                       <Link
                         to={href}

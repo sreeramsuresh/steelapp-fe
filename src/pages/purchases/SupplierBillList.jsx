@@ -103,6 +103,9 @@ const SupplierBillList = () => {
   const [pagination, setPagination] = useState(null);
 
   // VAT Summary state
+  const [cancelModal, setCancelModal] = useState({ open: false, bill: null });
+  const [cancelReason, setCancelReason] = useState("");
+
   const [vatSummary, setVatSummary] = useState({
     totalSubtotal: 0,
     totalVat: 0,
@@ -214,12 +217,17 @@ const SupplierBillList = () => {
     }
   };
 
-  const handleCancel2 = async (bill) => {
-    const reason = window.prompt("Cancellation reason:");
-    if (!reason) return;
+  const handleCancel2 = (bill) => {
+    setCancelReason("");
+    setCancelModal({ open: true, bill });
+  };
 
+  const handleCancelSubmit = async () => {
+    if (!cancelReason.trim()) return;
+    const bill = cancelModal.bill;
+    setCancelModal({ open: false, bill: null });
     try {
-      await supplierBillService.cancel(bill.id, reason);
+      await supplierBillService.cancel(bill.id, cancelReason.trim());
       notificationService.success("Supplier bill cancelled");
       loadBills();
     } catch (error) {
@@ -268,7 +276,7 @@ const SupplierBillList = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>🧾 Supplier Bills</h1>
+            <h2 className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>🧾 Supplier Bills</h2>
             <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Manage purchase invoices and input VAT
             </p>
@@ -365,6 +373,7 @@ const SupplierBillList = () => {
                 <input
                   type="text"
                   placeholder="Search by bill number or vendor..."
+                  aria-label="Search supplier bills"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
@@ -380,6 +389,7 @@ const SupplierBillList = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label="Filter by status"
               className={`px-4 py-2 rounded-lg border ${
                 isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-teal-500`}
@@ -644,7 +654,7 @@ const SupplierBillList = () => {
                         {formatCurrency(bill.total)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(bill.status)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <td className="px-6 py-4 whitespace-nowrap text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2">
                           {/* View */}
                           <button
@@ -769,6 +779,34 @@ const SupplierBillList = () => {
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
+
+      {/* Cancel Reason Modal */}
+      {cancelModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className={`rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}>
+            <h3 className="text-lg font-semibold mb-2">Cancel Supplier Bill</h3>
+            <p className={`text-sm mb-3 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+              Please provide a reason for cancellation.
+            </p>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="Cancellation reason..."
+              className={`w-full p-2 rounded border text-sm mb-4 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"}`}
+              rows={3}
+              autoFocus
+            />
+            <div className="flex justify-end gap-2">
+              <button type="button" className={`px-4 py-2 rounded text-sm ${isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-100 hover:bg-gray-200"}`} onClick={() => setCancelModal({ open: false, bill: null })}>
+                Cancel
+              </button>
+              <button type="button" className="px-4 py-2 rounded text-sm text-white bg-red-600 hover:bg-red-700" disabled={!cancelReason.trim()} onClick={handleCancelSubmit}>
+                Confirm Cancellation
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

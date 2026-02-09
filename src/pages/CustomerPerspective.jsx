@@ -232,7 +232,7 @@ const CustomerPerspective = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <button type="button" onClick={downloadExcel} className="px-3 py-2 rounded border flex items-center gap-2">
+            <button type="button" onClick={downloadExcel} className="px-3 py-2 rounded border flex items-center gap-2 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
               <FileSpreadsheet size={16} />
               Export Excel
             </button>
@@ -260,19 +260,19 @@ const CustomerPerspective = () => {
               type="date"
               value={start}
               onChange={(e) => setStart(e.target.value)}
-              className="px-2 py-2 rounded border"
+              className="px-2 py-2 rounded border dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
             />
             <span className="opacity-70">to</span>
             <input
               type="date"
               value={end}
               onChange={(e) => setEnd(e.target.value)}
-              className="px-2 py-2 rounded border"
+              className="px-2 py-2 rounded border dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
             />
-            <button type="button" onClick={() => applyQuick(10)} className="px-3 py-2 rounded border">
+            <button type="button" onClick={() => applyQuick(10)} className="px-3 py-2 rounded border dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
               Last 10 days
             </button>
-            <button type="button" onClick={clearDates} className="px-3 py-2 rounded border">
+            <button type="button" onClick={clearDates} className="px-3 py-2 rounded border dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
               Clear
             </button>
             <button type="button" onClick={applyFilters} className="px-3 py-2 rounded bg-teal-600 text-white">

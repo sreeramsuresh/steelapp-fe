@@ -27,6 +27,13 @@ const ImportOrderList = () => {
     end_date: "",
   });
 
+  // Debounced search to avoid API call on every keystroke
+  const [debouncedFilters, setDebouncedFilters] = useState(filters);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedFilters(filters), 300);
+    return () => clearTimeout(timer);
+  }, [filters]);
+
   // Load orders
   const loadOrders = useCallback(
     async (page = 1) => {
@@ -35,7 +42,7 @@ const ImportOrderList = () => {
         const params = {
           page,
           limit: pagination.per_page,
-          ...filters,
+          ...debouncedFilters,
         };
 
         const response = await importOrderService.getImportOrders(params);
@@ -47,7 +54,7 @@ const ImportOrderList = () => {
         setLoading(false);
       }
     },
-    [pagination.per_page, filters]
+    [pagination.per_page, debouncedFilters]
   );
 
   useEffect(() => {
@@ -228,7 +235,7 @@ const ImportOrderList = () => {
               </thead>
               <tbody className={`${isDarkMode ? "bg-gray-800 divide-gray-700" : "bg-white divide-gray-200"}`}>
                 {orders.map((order) => (
-                  <tr key={order.id} className={`hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+                  <tr key={order.id} className={isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium">{order.importOrderNumber}</div>
                     </td>
@@ -262,10 +269,10 @@ const ImportOrderList = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <Link to={`/import-orders/${order.id}`} className="text-teal-600 hover:text-teal-900">
+                      <Link to={`/app/import-orders/${order.id}`} className="text-teal-600 hover:text-teal-900">
                         <Eye size={16} className="inline" />
                       </Link>
-                      <Link to={`/import-orders/${order.id}/edit`} className="text-blue-600 hover:text-blue-900">
+                      <Link to={`/app/import-orders/${order.id}/edit`} className="text-blue-600 hover:text-blue-900">
                         <Edit size={16} className="inline" />
                       </Link>
                       <button

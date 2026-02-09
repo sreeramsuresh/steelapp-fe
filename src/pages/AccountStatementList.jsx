@@ -420,7 +420,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                 statements.map((statement) => (
                   <tr
                     key={statement.id}
-                    className={`hover:${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"} transition-colors`}
+                    className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div

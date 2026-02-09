@@ -156,7 +156,7 @@ const StockMovementPage = () => {
               <button
                 type="button"
                 onClick={handleTransferCancel}
-                className="mt-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors"
+                className={`mt-4 px-4 py-2 rounded-lg transition-colors ${isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-200" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}
               >
                 Back to List
               </button>
@@ -281,7 +281,7 @@ const StockMovementPage = () => {
               </div>
 
               {/* Timestamps */}
-              <div className="mt-6 pt-4 border-t border-gray-700 space-y-2">
+              <div className={`mt-6 pt-4 border-t space-y-2 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                 <div className="flex justify-between text-sm">
                   <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Created by:</span>
                   <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>
@@ -315,7 +315,7 @@ const StockMovementPage = () => {
               <button
                 type="button"
                 onClick={handleReservationCancel}
-                className="mt-6 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors"
+                className={`mt-6 px-4 py-2 rounded-lg transition-colors ${isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-200" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}
               >
                 Back to List
               </button>

@@ -71,7 +71,8 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
       setLoading(true);
       setError(null);
       const response = await creditNoteService.getCreditNotesByInvoice(invoiceId);
-      setCreditNotes(response.data || response || []);
+      const raw = response.data || response;
+      setCreditNotes(Array.isArray(raw) ? raw : []);
     } catch (err) {
       console.error("Error loading credit notes:", err);
       setError("Failed to load credit notes");
@@ -130,7 +131,7 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
         {canCreateCreditNote && (
           <button
             type="button"
-            onClick={() => navigate(`/credit-notes/new?invoiceId=${invoiceId}`)}
+            onClick={() => navigate(`/app/credit-notes/new?invoiceId=${invoiceId}`)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
           >
             <Plus className="h-4 w-4" />
@@ -164,7 +165,7 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
                 <button
                   type="button"
                   key={cn.id}
-                  onClick={() => navigate(`/credit-notes/${cn.id}`)}
+                  onClick={() => navigate(`/app/credit-notes/${cn.id}`)}
                   className={`flex items-center justify-between p-3 rounded-lg transition-colors w-full text-left ${
                     isDarkMode ? "bg-gray-700/50 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"
                   }`}

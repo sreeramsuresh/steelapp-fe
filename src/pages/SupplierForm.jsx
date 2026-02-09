@@ -442,7 +442,7 @@ export function SupplierForm() {
     city: "",
     state: "",
     postalCode: "",
-    country: "UAE",
+    country: "AE",
 
     // Contact Person
     contactPerson: "",
@@ -551,7 +551,7 @@ export function SupplierForm() {
               city: "",
               state: "",
               postalCode: "",
-              country: "UAE",
+              country: "AE",
             };
           if (typeof addressData === "string") {
             try {
@@ -562,7 +562,7 @@ export function SupplierForm() {
                 city: "",
                 state: "",
                 postalCode: "",
-                country: "UAE",
+                country: "AE",
               };
             }
           }
@@ -583,7 +583,7 @@ export function SupplierForm() {
           city: supplier.city || addressParsed.city || "",
           state: addressParsed.state || "",
           postalCode: addressParsed.postalCode || "",
-          country: supplier.country || addressParsed.country || "UAE",
+          country: supplier.country || addressParsed.country || "AE",
 
           // Contact Person
           contactPerson: supplier.contactPerson || supplier.contact_person || "",
@@ -603,7 +603,7 @@ export function SupplierForm() {
           // Supplier Classification
           supplierLocation: supplier.supplierLocation || supplier.supplier_location || "UAE_LOCAL",
           isMill: supplier.isMill ?? supplier.is_mill ?? false,
-          primaryCountry: supplier.primaryCountry || supplier.primary_country || "UAE",
+          primaryCountry: supplier.primaryCountry || supplier.primary_country || "AE",
           typicalLeadTimeDays: supplier.typicalLeadTimeDays ?? supplier.typical_lead_time_days ?? 7,
           supplierType: supplier.supplierType || supplier.supplier_type || "",
           category: supplier.category || "",

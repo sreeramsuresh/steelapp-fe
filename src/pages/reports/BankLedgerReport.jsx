@@ -9,8 +9,8 @@ export default function BankLedgerReport() {
   const [data, setData] = useState(null);
   const [filters, setFilters] = useState({
     accountCode: "1100", // Default to Cash
-    startDate: null,
-    endDate: null,
+    startDate: "",
+    endDate: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

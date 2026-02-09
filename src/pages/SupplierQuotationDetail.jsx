@@ -27,7 +27,6 @@ import { useTheme } from "../contexts/ThemeContext";
 import {
   approveSupplierQuotation,
   convertToPurchaseOrder,
-  getConfidenceColor,
   getStatusColor,
   getStatusText,
   getSupplierQuotation,
@@ -119,7 +118,7 @@ export function SupplierQuotationDetail() {
       toast.success("Purchase order created");
       setShowConvertDialog(false);
       if (result.purchaseOrder?.id) {
-        navigate(`/purchase-orders/${result.purchaseOrder.id}`);
+        navigate(`/app/purchase-orders/${result.purchaseOrder.id}`);
       } else {
         loadQuotation();
       }
@@ -203,7 +202,13 @@ export function SupplierQuotationDetail() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge className={`bg-${getStatusColor(quotation.status)}-100 text-${getStatusColor(quotation.status)}-800`}>
+          <Badge className={(() => {
+            const c = getStatusColor(quotation.status);
+            if (c === "green") return "bg-green-100 text-green-800";
+            if (c === "yellow") return "bg-yellow-100 text-yellow-800";
+            if (c === "blue") return "bg-blue-100 text-blue-800";
+            return "bg-gray-100 text-gray-800";
+          })()}>
             {getStatusText(quotation.status)}
           </Badge>
           {canEdit && (
@@ -294,7 +299,10 @@ export function SupplierQuotationDetail() {
           <CardContent>
             <div className="flex items-center gap-6 text-sm">
               <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full bg-${getConfidenceColor(quotation.extractionConfidence)}-500`} />
+                <div className={`w-3 h-3 rounded-full ${
+                  quotation.extractionConfidence >= 80 ? "bg-green-500"
+                    : quotation.extractionConfidence >= 50 ? "bg-yellow-500" : "bg-red-500"
+                }`} />
                 <span>Confidence: {Math.round(quotation.extractionConfidence)}%</span>
               </div>
               <span>Method: {quotation.extractionMethod?.replace("_", " ")}</span>

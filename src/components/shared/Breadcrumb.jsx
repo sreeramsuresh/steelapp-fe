@@ -27,7 +27,7 @@ const Breadcrumb = ({ items = [] }) => {
     >
       <Link
         to="/"
-        className={`flex items-center gap-1 hover:${isDarkMode ? "text-white" : "text-gray-900"} transition-colors`}
+        className={`flex items-center gap-1 ${isDarkMode ? "hover:text-white" : "hover:text-gray-900"} transition-colors`}
       >
         <Home size={16} />
         <span className="sr-only">Home</span>
@@ -41,7 +41,7 @@ const Breadcrumb = ({ items = [] }) => {
               {item.label}
             </span>
           ) : (
-            <Link to={item.href} className={`hover:${isDarkMode ? "text-white" : "text-gray-900"} transition-colors`}>
+            <Link to={item.href} className={`${isDarkMode ? "hover:text-white" : "hover:text-gray-900"} transition-colors`}>
               {item.label}
             </Link>
           )}

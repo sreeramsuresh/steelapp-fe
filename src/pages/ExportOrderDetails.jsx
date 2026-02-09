@@ -543,7 +543,7 @@ const ExportOrderDetails = () => {
   }, []);
 
   const handleGenerateInvoice = useCallback(() => {
-    navigate(`/export-orders/${id}/invoice`);
+    navigate(`/app/export-orders/${id}/invoice`);
   }, [id, navigate]);
 
   // ========================================

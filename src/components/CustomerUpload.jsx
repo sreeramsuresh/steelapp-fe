@@ -21,6 +21,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
   const textPrimary = isDarkMode ? "text-white" : "text-[#212121]";
   const textSecondary = isDarkMode ? "text-[#B0BEC5]" : "text-[#666666]";
   const textMuted = isDarkMode ? "text-[#78909C]" : "text-[#BDBDBD]";
+  const hoverTextSecondary = isDarkMode ? "hover:text-[#B0BEC5]" : "hover:text-[#666666]";
 
   const handleFileSelect = (file) => {
     const allowedTypes = [
@@ -184,7 +185,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
           <button
             type="button"
             onClick={closeModal}
-            className={`${textMuted} hover:${textSecondary} transition-colors`}
+            className={`${textMuted} ${hoverTextSecondary} transition-colors`}
           >
             <FaTimes className="w-5 h-5" />
           </button>
@@ -263,7 +264,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
                   <button
                     type="button"
                     onClick={resetUpload}
-                    className={`${textMuted} hover:${textSecondary} transition-colors`}
+                    className={`${textMuted} ${hoverTextSecondary} transition-colors`}
                   >
                     <FaTimes className="w-5 h-5" />
                   </button>

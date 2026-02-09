@@ -93,7 +93,7 @@ export default function ARAgingReport() {
 
   // Handle row click - navigate to customer detail with AR tab
   const handleRowClick = (customerId) => {
-    navigate(`/customers/${customerId}?tab=ar-aging`);
+    navigate(`/app/customers/${customerId}?tab=ar-aging`);
   };
 
   // Handle sort

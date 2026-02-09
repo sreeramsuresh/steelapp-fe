@@ -9,7 +9,8 @@ import {
   Scroll,
   Ship,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import ImportExportOverview from "../components/ImportExportOverview";
 import { useTheme } from "../contexts/ThemeContext";
 import CountriesList from "./CountriesList";
@@ -22,9 +23,32 @@ import MaterialCertificateList from "./MaterialCertificateList";
 import ShippingDocumentList from "./ShippingDocumentList";
 import TradeFinanceList from "./TradeFinanceList";
 
+const VALID_TABS = ["overview", "import-orders", "export-orders", "shipping", "certificates", "customs", "finance", "rates", "exchange-rates", "countries"];
+
 const ImportExportDashboard = () => {
   const { isDarkMode } = useTheme();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Initialize activeTab from URL parameter
+  const [activeTab, setActiveTab] = useState(() => {
+    const tabParam = searchParams.get("tab");
+    // Support "exchange-rates" as alias for "rates"
+    const normalizedTab = tabParam === "exchange-rates" ? "rates" : tabParam;
+    if (normalizedTab && VALID_TABS.includes(normalizedTab)) {
+      return normalizedTab;
+    }
+    return "overview";
+  });
+
+  // Update tab when URL parameter changes
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    const normalizedTab = tabParam === "exchange-rates" ? "rates" : tabParam;
+    if (normalizedTab && VALID_TABS.includes(normalizedTab)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveTab(normalizedTab);
+    }
+  }, [searchParams]);
 
   const tabs = [
     {
@@ -120,7 +144,10 @@ const ImportExportDashboard = () => {
                 <button
                   type="button"
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setSearchParams({ tab: tab.id }, { replace: true });
+                  }}
                   className={`flex items-center space-x-2 px-4 py-3 rounded-t-lg border-b-2 transition-colors whitespace-nowrap ${
                     isActive
                       ? `border-teal-600 ${isDarkMode ? "bg-gray-700 text-teal-400" : "bg-gray-50 text-teal-600"}`

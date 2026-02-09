@@ -155,7 +155,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                   const q = searchQuery.trim();
                   if (!q) return;
                   if (location.pathname.startsWith("/customers")) {
-                    navigate(`/customers?search=${encodeURIComponent(q)}`);
+                    navigate(`/app/customers?search=${encodeURIComponent(q)}`);
                   } else {
                     navigate(`/app/search?q=${encodeURIComponent(q)}`);
                   }
@@ -169,7 +169,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                 const q = searchQuery.trim();
                 if (!q) return;
                 if (location.pathname.startsWith("/customers")) {
-                  navigate(`/customers?search=${encodeURIComponent(q)}`);
+                  navigate(`/app/customers?search=${encodeURIComponent(q)}`);
                 } else {
                   navigate(`/app/search?q=${encodeURIComponent(q)}`);
                 }
@@ -211,6 +211,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                 backgroundColor: "transparent",
               }}
               className="relative p-2 rounded-lg transition-colors duration-200 hover:opacity-75"
+              aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : "Notifications"}
             >
               <Bell size={18} />
               {unreadCount > 0 && (

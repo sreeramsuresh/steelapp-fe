@@ -78,7 +78,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
   const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
 
   const [creditNotes, setCreditNotes] = useState([]);
-  const [_loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [initialLoading, setInitialLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -94,14 +94,38 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
   const [previewCreditNote, setPreviewCreditNote] = useState(null);
   const [downloadingIds, setDownloadingIds] = useState(new Set());
 
+  // Refund modal state
+  const [refundModalOpen, setRefundModalOpen] = useState(false);
+  const [refundCreditNoteId, setRefundCreditNoteId] = useState(null);
+  const [refundMethod, setRefundMethod] = useState("cash");
+  const [isProcessingRefund, setIsProcessingRefund] = useState(false);
+
   // Company data for preview
   const [company, setCompany] = useState(null);
+
+  // Handle refund submission
+  const handleRefundSubmit = async () => {
+    if (!refundCreditNoteId || !refundMethod) return;
+    setIsProcessingRefund(true);
+    try {
+      await creditNoteService.refundCreditNote(refundCreditNoteId, {
+        refundMethod,
+      });
+      notificationService.success("Refund processed");
+      setRefundModalOpen(false);
+      loadCreditNotes();
+    } catch (err) {
+      notificationService.error(err.message);
+    } finally {
+      setIsProcessingRefund(false);
+    }
+  };
 
   // Draft management
   const { allDrafts, hasDrafts, deleteDraft } = useCreditNoteDrafts();
 
   const handleResumeDraft = (draft) => {
-    navigate(`/credit-notes/new?invoiceId=${draft.invoiceId}`);
+    navigate(`/app/credit-notes/new?invoiceId=${draft.invoiceId}`);
   };
 
   const handleDeleteDraft = async (draft) => {
@@ -134,7 +158,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
   // Auto-navigate to credit note form if invoiceId is provided (from invoice list)
   useEffect(() => {
     if (preSelectedInvoiceId) {
-      navigate(`/credit-notes/new?invoiceId=${preSelectedInvoiceId}`, {
+      navigate(`/app/credit-notes/new?invoiceId=${preSelectedInvoiceId}`, {
         replace: true,
       });
     }
@@ -313,6 +337,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
+                aria-label="Filter by status"
                 className={`w-full px-4 py-2 rounded-lg border ${
                   isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
                 } focus:outline-none focus:ring-2 focus:ring-teal-500`}
@@ -400,7 +425,12 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
         )}
 
         {/* Credit Notes Table */}
-        <div className={`rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+        <div className={`rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm relative`}>
+          {loading && !initialLoading && (
+            <div className="absolute inset-0 bg-black/5 z-10 flex items-center justify-center pointer-events-none">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600" />
+            </div>
+          )}
           {creditNotes.length === 0 ? (
             <div className="p-12 text-center">
               <FileText className={`h-16 w-16 mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />
@@ -470,7 +500,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                         <div className="font-medium flex items-center">
                           <button
                             type="button"
-                            onClick={() => navigate(`/credit-notes/${creditNote.id}`)}
+                            onClick={() => navigate(`/app/credit-notes/${creditNote.id}`)}
                             className="hover:text-teal-600 hover:underline cursor-pointer text-left"
                           >
                             {creditNote.creditNoteNumber}
@@ -525,19 +555,9 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                             setQcModalOpen(true);
                           }}
                           onOpenRefundModal={() => {
-                            // Simple refund - use prompt for now
-                            const method = window.prompt("Refund method (cash, bank_transfer, cheque):");
-                            if (method) {
-                              creditNoteService
-                                .refundCreditNote(creditNote.id, {
-                                  refundMethod: method,
-                                })
-                                .then(() => {
-                                  notificationService.success("Refund processed");
-                                  loadCreditNotes();
-                                })
-                                .catch((err) => notificationService.error(err.message));
-                            }
+                            setRefundCreditNoteId(creditNote.id);
+                            setRefundMethod("cash");
+                            setRefundModalOpen(true);
                           }}
                           compact
                         />
@@ -577,7 +597,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                           {creditNote.status === "draft" && (
                             <button
                               type="button"
-                              onClick={() => navigate(`/credit-notes/${creditNote.id}`)}
+                              onClick={() => navigate(`/app/credit-notes/${creditNote.id}`)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600" : "hover:bg-gray-200"}`}
                               title="Edit"
                             >
@@ -605,7 +625,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
           )}
 
           {/* Pagination */}
-          {pagination && pagination.total > pageSize && (
+          {pagination && creditNotes.length > 0 && (
             <div className={`px-6 py-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
               <div className="flex items-center justify-between">
                 <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
@@ -684,6 +704,57 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
             setPreviewCreditNote(null);
           }}
         />
+      )}
+
+      {/* Refund Method Modal */}
+      {refundModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div
+            className={`w-full max-w-sm rounded-xl shadow-xl p-6 ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+            }`}
+          >
+            <h3 className="text-lg font-semibold mb-4">Process Refund</h3>
+            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+              Refund Method
+            </label>
+            <select
+              value={refundMethod}
+              onChange={(e) => setRefundMethod(e.target.value)}
+              className={`w-full px-3 py-2 rounded-lg border text-sm mb-6 ${
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
+              }`}
+              aria-label="Select refund method"
+            >
+              <option value="cash">Cash</option>
+              <option value="bank_transfer">Bank Transfer</option>
+              <option value="cheque">Cheque</option>
+            </select>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setRefundModalOpen(false)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                  isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-300" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleRefundSubmit}
+                disabled={isProcessingRefund}
+                className={`px-4 py-2 rounded-lg text-sm font-medium text-white ${
+                  isProcessingRefund ? "bg-teal-400 cursor-not-allowed" : "bg-teal-600 hover:bg-teal-700"
+                }`}
+              >
+                {isProcessingRefund ? "Processing..." : "Process Refund"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

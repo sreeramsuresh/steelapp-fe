@@ -96,6 +96,9 @@ const DebitNoteList = () => {
   const [pagination, setPagination] = useState(null);
 
   // Summary state
+  const [cancelModal, setCancelModal] = useState({ open: false, note: null });
+  const [cancelReason, setCancelReason] = useState("");
+
   const [summary, setSummary] = useState({
     totalDebitNotes: 0,
     totalDebit: 0,
@@ -224,12 +227,17 @@ const DebitNoteList = () => {
     }
   };
 
-  const handleCancelNote = async (debitNote) => {
-    const reason = window.prompt("Cancellation reason:");
-    if (!reason) return;
+  const handleCancelNote = (debitNote) => {
+    setCancelReason("");
+    setCancelModal({ open: true, note: debitNote });
+  };
 
+  const handleCancelSubmit = async () => {
+    if (!cancelReason.trim()) return;
+    const note = cancelModal.note;
+    setCancelModal({ open: false, note: null });
     try {
-      await debitNoteService.cancel(debitNote.id, reason);
+      await debitNoteService.cancel(note.id, cancelReason.trim());
       notificationService.success("Debit note cancelled");
       loadDebitNotes();
     } catch (error) {
@@ -273,7 +281,7 @@ const DebitNoteList = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>📝 Debit Notes</h1>
+            <h2 className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>📝 Debit Notes</h2>
             <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Adjustments to supplier bills (amount increases)
             </p>
@@ -343,6 +351,7 @@ const DebitNoteList = () => {
                 <input
                   type="text"
                   placeholder="Search by debit note number or vendor..."
+                  aria-label="Search debit notes"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
@@ -358,6 +367,7 @@ const DebitNoteList = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label="Filter by status"
               className={`px-4 py-2 rounded-lg border ${
                 isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-teal-500`}
@@ -395,6 +405,8 @@ const DebitNoteList = () => {
               type="button"
               onClick={loadDebitNotes}
               disabled={loading}
+              aria-label="Refresh list"
+              title="Refresh list"
               className={`p-2 rounded-lg border transition-colors ${
                 isDarkMode
                   ? "border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600"
@@ -588,7 +600,7 @@ const DebitNoteList = () => {
                         +{formatCurrency(debitNote.totalDebit)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(debitNote.status)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <td className="px-6 py-4 whitespace-nowrap text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2">
                           {/* View */}
                           <button
@@ -596,6 +608,7 @@ const DebitNoteList = () => {
                             onClick={() => navigate(`/app/debit-notes/${debitNote.id}`)}
                             className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                             title="View"
+                            aria-label="View debit note"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
@@ -606,6 +619,7 @@ const DebitNoteList = () => {
                               onClick={() => navigate(`/app/debit-notes/${debitNote.id}/edit`)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                               title="Edit"
+                              aria-label="Edit debit note"
                             >
                               <Edit className="h-4 w-4" />
                             </button>
@@ -617,6 +631,7 @@ const DebitNoteList = () => {
                               onClick={() => handleApprove(debitNote)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-green-900/30 text-green-400" : "hover:bg-green-100 text-green-600"}`}
                               title="Approve"
+                              aria-label="Approve debit note"
                             >
                               <Check className="h-4 w-4" />
                             </button>
@@ -628,6 +643,7 @@ const DebitNoteList = () => {
                               onClick={() => handleApply(debitNote)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-blue-900/30 text-blue-400" : "hover:bg-blue-100 text-blue-600"}`}
                               title="Apply to Account"
+                              aria-label="Apply debit note to account"
                             >
                               <Check className="h-4 w-4" />
                             </button>
@@ -639,6 +655,7 @@ const DebitNoteList = () => {
                               onClick={() => handleCancelNote(debitNote)}
                               className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-amber-900/30 text-amber-400" : "hover:bg-amber-100 text-amber-600"}`}
                               title="Cancel"
+                              aria-label="Cancel debit note"
                             >
                               <X className="h-4 w-4" />
                             </button>
@@ -650,6 +667,7 @@ const DebitNoteList = () => {
                               onClick={() => handleDelete(debitNote)}
                               className="p-2 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-colors"
                               title="Delete"
+                              aria-label="Delete debit note"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -719,6 +737,34 @@ const DebitNoteList = () => {
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
+
+      {/* Cancel Reason Modal */}
+      {cancelModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className={`rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}>
+            <h3 className="text-lg font-semibold mb-2">Cancel Debit Note</h3>
+            <p className={`text-sm mb-3 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+              Please provide a reason for cancellation.
+            </p>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="Cancellation reason..."
+              className={`w-full p-2 rounded border text-sm mb-4 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"}`}
+              rows={3}
+              autoFocus
+            />
+            <div className="flex justify-end gap-2">
+              <button type="button" className={`px-4 py-2 rounded text-sm ${isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-100 hover:bg-gray-200"}`} onClick={() => setCancelModal({ open: false, note: null })}>
+                Cancel
+              </button>
+              <button type="button" className="px-4 py-2 rounded text-sm text-white bg-red-600 hover:bg-red-700" disabled={!cancelReason.trim()} onClick={handleCancelSubmit}>
+                Confirm Cancellation
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

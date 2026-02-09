@@ -24,6 +24,7 @@ import DeliveryNotePreview from "../components/delivery-notes/DeliveryNotePrevie
 import NewBadge from "../components/shared/NewBadge";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
+import { companyService } from "../services/companyService";
 import { deliveryNoteService } from "../services/deliveryNoteService";
 import { validateDeliveryNoteForDownload } from "../utils/recordUtils";
 import { toUAETime } from "../utils/timezone";
@@ -58,6 +59,9 @@ const DeliveryNoteList = () => {
 
   // Preview modal state
   const [previewDeliveryNote, setPreviewDeliveryNote] = useState(null);
+
+  // Company data for preview
+  const [company, setCompany] = useState(null);
 
   // Download validation warning state
   const [downloadWarning, setDownloadWarning] = useState({
@@ -185,6 +189,34 @@ const DeliveryNoteList = () => {
     fetchDeliveryNotes();
   }, [fetchDeliveryNotes]);
 
+  // Fetch company data for preview modal
+  useEffect(() => {
+    const fetchCompany = async () => {
+      try {
+        const data = await companyService.getCompany();
+        setCompany(data);
+      } catch (_err) {
+        // Company data is optional for preview
+      }
+    };
+    fetchCompany();
+  }, []);
+
+  // Auto-dismiss notifications after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
   const handleDownloadPDF = async (deliveryNote) => {
     // Validate before download
     const validation = validateDeliveryNoteForDownload(deliveryNote);
@@ -255,14 +287,17 @@ const DeliveryNoteList = () => {
           </p>
         </div>
         {authService.hasPermission("delivery_notes", "create") && (
-          <button
-            type="button"
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
-            onClick={() => navigate("/app/delivery-notes/new")}
+          <a
+            href="/app/delivery-notes/new"
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md no-underline"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/app/delivery-notes/new");
+            }}
           >
             <AddIcon size={20} />
             Create Delivery Note
-          </button>
+          </a>
         )}
       </div>
 
@@ -408,6 +443,11 @@ const DeliveryNoteList = () => {
                 <th
                   className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                 >
+                  Status
+                </th>
+                <th
+                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                >
                   Vehicle
                 </th>
                 <th
@@ -420,7 +460,7 @@ const DeliveryNoteList = () => {
             <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center">
+                  <td colSpan={7} className="px-6 py-8 text-center">
                     <div className="flex items-center justify-center">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600"></div>
                       <span className={`ml-3 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
@@ -432,7 +472,7 @@ const DeliveryNoteList = () => {
               ) : deliveryNotes.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className={`px-6 py-12 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     <div className="flex flex-col items-center gap-2">
@@ -446,7 +486,7 @@ const DeliveryNoteList = () => {
                 deliveryNotes.map((deliveryNote) => (
                   <tr
                     key={deliveryNote.id}
-                    className={`hover:${isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"} transition-colors`}
+                    className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div
@@ -488,6 +528,9 @@ const DeliveryNoteList = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                      {_getStatusBadge(deliveryNote.status)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                         {deliveryNote.vehicleNumber || "-"}
                       </div>
@@ -505,7 +548,7 @@ const DeliveryNoteList = () => {
                             className={`p-2 rounded transition-colors bg-transparent ${
                               isDarkMode ? "text-purple-400 hover:text-purple-300" : "hover:bg-gray-100 text-purple-600"
                             }`}
-                            onClick={() => navigate(`/delivery-notes/${deliveryNote.id}`)}
+                            onClick={() => navigate(`/app/delivery-notes/${deliveryNote.id}`)}
                             title="View Details & Confirm Delivery"
                           >
                             <DetailsIcon size={16} />
@@ -529,7 +572,7 @@ const DeliveryNoteList = () => {
                             className={`p-2 rounded transition-colors bg-transparent ${
                               isDarkMode ? "text-teal-400 hover:text-teal-300" : "hover:bg-gray-100 text-teal-600"
                             }`}
-                            onClick={() => navigate(`/delivery-notes/${deliveryNote.id}/edit`)}
+                            onClick={() => navigate(`/app/delivery-notes/${deliveryNote.id}/edit`)}
                             title="Edit"
                           >
                             <EditIcon size={16} />
@@ -582,7 +625,7 @@ const DeliveryNoteList = () => {
         >
           <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
             {totalCount === 0
-              ? "No results found"
+              ? ""
               : `Showing ${page * rowsPerPage + 1} to ${Math.min((page + 1) * rowsPerPage, totalCount)} of ${totalCount} results`}
           </div>
           <div className="flex items-center gap-4">
@@ -609,6 +652,7 @@ const DeliveryNoteList = () => {
                 type="button"
                 onClick={(e) => handlePageChange(e, page - 1)}
                 disabled={page === 0}
+                aria-label="Previous page"
                 className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
                   page === 0
                     ? isDarkMode
@@ -621,13 +665,16 @@ const DeliveryNoteList = () => {
               >
                 <ChevronLeft size={20} />
               </button>
-              <span className={`px-3 py-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                Page {totalCount === 0 ? 0 : page + 1} of {Math.ceil(totalCount / rowsPerPage)}
-              </span>
+              {totalCount > 0 && (
+                <span className={`px-3 py-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Page {page + 1} of {Math.ceil(totalCount / rowsPerPage)}
+                </span>
+              )}
               <button
                 type="button"
                 onClick={(e) => handlePageChange(e, page + 1)}
                 disabled={page >= Math.ceil(totalCount / rowsPerPage) - 1}
+                aria-label="Next page"
                 className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
                   page >= Math.ceil(totalCount / rowsPerPage) - 1
                     ? isDarkMode
@@ -688,7 +735,7 @@ const DeliveryNoteList = () => {
       {previewDeliveryNote && (
         <DeliveryNotePreview
           deliveryNote={previewDeliveryNote}
-          company={{}}
+          company={company || {}}
           onClose={() => setPreviewDeliveryNote(null)}
         />
       )}

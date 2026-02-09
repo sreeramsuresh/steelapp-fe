@@ -98,6 +98,7 @@ const StockMovementForm = () => {
   const textMuted = isDarkMode ? "text-[#93a4b4]" : "text-gray-500";
   const accordionBg = isDarkMode ? "bg-[#0f151b]" : "bg-gray-50";
   const inputFocus = "focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20";
+  const placeholderCls = isDarkMode ? "placeholder:text-[#93a4b4]" : "placeholder:text-gray-500";
 
   // Fetch products and warehouses
   useEffect(() => {
@@ -618,7 +619,7 @@ const StockMovementForm = () => {
                         onChange={(e) => handleChange("referenceNumber", e.target.value)}
                         placeholder="INV-001, PO-001..."
                         disabled={isEditing}
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
                       />
                     </div>
 
@@ -732,7 +733,7 @@ const StockMovementForm = () => {
                           onChange={(e) => handleChange("batchNumber", e.target.value)}
                           placeholder="Batch #"
                           disabled={isEditing}
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
                         />
                       </div>
                       <div className="col-span-6 md:col-span-4">
@@ -746,7 +747,7 @@ const StockMovementForm = () => {
                           onChange={(e) => handleChange("coilNumber", e.target.value)}
                           placeholder="Coil #"
                           disabled={isEditing}
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
                         />
                       </div>
                       <div className="col-span-6 md:col-span-4">
@@ -760,7 +761,7 @@ const StockMovementForm = () => {
                           onChange={(e) => handleChange("heatNumber", e.target.value)}
                           placeholder="Heat #"
                           disabled={isEditing}
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
                         />
                       </div>
                     </div>
@@ -783,7 +784,7 @@ const StockMovementForm = () => {
                       rows={3}
                       placeholder="Additional notes..."
                       disabled={isEditing}
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} placeholder:${textMuted} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
                     />
                   </div>
                 </details>

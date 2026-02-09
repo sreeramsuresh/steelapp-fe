@@ -277,7 +277,7 @@ const DeliveryNoteForm = () => {
     }
   }, [id]);
 
-  const loadInvoices = React.useCallback(async () => {
+  const loadInvoices = useCallback(async () => {
     try {
       // Load invoices that can have delivery notes created (issued or paid)
       const response = await invoicesAPI.getAll({
@@ -293,7 +293,7 @@ const DeliveryNoteForm = () => {
     }
   }, []);
 
-  const generateDeliveryNoteNumber = React.useCallback(async () => {
+  const generateDeliveryNoteNumber = useCallback(async () => {
     try {
       const response = await deliveryNoteService.getNextNumber();
       setFormData((prev) => ({
@@ -821,7 +821,7 @@ const DeliveryNoteForm = () => {
                 <div className="space-y-2">
                   {formData.items.map((item, index) => (
                     <div
-                      key={item}
+                      key={item.id || index}
                       className={`rounded-[14px] border ${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"}`}
                     >
                       {/* Item Header - Clickable to expand */}

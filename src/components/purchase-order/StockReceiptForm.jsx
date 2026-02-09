@@ -76,6 +76,8 @@ const StockReceiptForm = ({
   const inputBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-300";
   const textPrimary = isDarkMode ? "text-[#e6edf3]" : "text-gray-900";
   const textMuted = isDarkMode ? "text-[#93a4b4]" : "text-gray-500";
+  const hoverTextPrimary = isDarkMode ? "hover:text-[#e6edf3]" : "hover:text-gray-900";
+  const hoverCardBg = isDarkMode ? "hover:bg-[#0f151b]" : "hover:bg-gray-50";
   const tableBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-200";
   const tableHeaderBg = isDarkMode ? "bg-[#0f151b]" : "bg-gray-50";
   const tableRowHover = isDarkMode ? "hover:bg-[#1a2129]" : "hover:bg-gray-50";
@@ -519,7 +521,7 @@ const StockReceiptForm = ({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className={`p-2 rounded-xl ${cardBg} ${textMuted} hover:${textPrimary} transition-colors disabled:opacity-50`}
+              className={`p-2 rounded-xl ${cardBg} ${textMuted} ${hoverTextPrimary} transition-colors disabled:opacity-50`}
             >
               <X className="w-5 h-5" />
             </button>
@@ -1000,7 +1002,7 @@ const StockReceiptForm = ({
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className={`px-4 py-2.5 rounded-xl border ${cardBorder} ${textPrimary} text-sm font-medium hover:${cardBg} transition-colors disabled:opacity-50`}
+                className={`px-4 py-2.5 rounded-xl border ${cardBorder} ${textPrimary} text-sm font-medium ${hoverCardBg} transition-colors disabled:opacity-50`}
               >
                 Cancel
               </button>

@@ -13,7 +13,7 @@ import { importContainerService } from "../../services/importContainerService";
 import { ContainerForm } from "./ContainerForm";
 
 const CONTAINER_STATUSES = [
-  { value: "", label: "All Statuses" },
+  { value: "__all__", label: "All Statuses" },
   { value: "BOOKED", label: "Booked" },
   { value: "IN_TRANSIT", label: "In Transit" },
   { value: "ARRIVED", label: "Arrived" },
@@ -104,7 +104,8 @@ export function ContainerList() {
   const loadSuppliers = useCallback(async () => {
     try {
       const response = await suppliersAPI.getAll();
-      setSuppliers(response || []);
+      const raw = response?.suppliers || response;
+      setSuppliers(Array.isArray(raw) ? raw : []);
     } catch (err) {
       console.error("Failed to load suppliers:", err);
     }
@@ -151,7 +152,7 @@ export function ContainerList() {
 
   const handleViewContainer = (container) => {
     // Could navigate to detail page or open view modal
-    navigate(`/containers/${container.id}`);
+    navigate(`/app/containers/${container.id}`);
   };
 
   const handleDeleteContainer = async (container) => {
@@ -300,7 +301,7 @@ export function ContainerList() {
                   <label htmlFor="container-status-filter" className="block text-sm font-medium mb-1">
                     Status
                   </label>
-                  <Select value={filters.status} onValueChange={(value) => handleFilterChange("status", value)}>
+                  <Select value={filters.status || "__all__"} onValueChange={(value) => handleFilterChange("status", value === "__all__" ? "" : value)}>
                     <SelectTrigger id="container-status-filter">
                       <SelectValue placeholder="All Statuses" />
                     </SelectTrigger>
@@ -317,12 +318,12 @@ export function ContainerList() {
                   <label htmlFor="container-supplier-filter" className="block text-sm font-medium mb-1">
                     Supplier
                   </label>
-                  <Select value={filters.supplierId} onValueChange={(value) => handleFilterChange("supplierId", value)}>
+                  <Select value={filters.supplierId || "__all__"} onValueChange={(value) => handleFilterChange("supplierId", value === "__all__" ? "" : value)}>
                     <SelectTrigger id="container-supplier-filter">
                       <SelectValue placeholder="All Suppliers" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Suppliers</SelectItem>
+                      <SelectItem value="__all__">All Suppliers</SelectItem>
                       {suppliers.map((supplier) => (
                         <SelectItem key={supplier.id} value={supplier.id.toString()}>
                           {supplier.name}

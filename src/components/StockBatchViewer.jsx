@@ -48,7 +48,8 @@ const StockBatchViewer = ({ productId, companyId, channelFilter, onClose, isModa
           params.procurementChannel = channelFilter;
         }
         const response = await stockBatchService.getBatchesByProduct(productId, params);
-        setBatches(response.batches || response || []);
+        const raw = response.batches || response;
+        setBatches(Array.isArray(raw) ? raw : []);
       } catch (err) {
         console.error("Failed to load batches:", err);
         setError(err.message || "Failed to load stock batches");
