@@ -305,20 +305,11 @@ const SalesAnalytics = () => {
               [],
               ["Top Products"],
               ["Product", "Revenue", "Orders", "Quantity"],
-              ...analytics.topProducts.map((p) => [
-                p.product,
-                formatCurrency(p.revenue),
-                p.orders,
-                p.quantity,
-              ]),
+              ...analytics.topProducts.map((p) => [p.product, formatCurrency(p.revenue), p.orders, p.quantity]),
               [],
               ["Top Customers"],
               ["Customer", "Revenue", "Orders"],
-              ...analytics.topCustomers.map((c) => [
-                c.customer,
-                formatCurrency(c.revenue),
-                c.orders,
-              ]),
+              ...analytics.topCustomers.map((c) => [c.customer, formatCurrency(c.revenue), c.orders]),
             ];
             const csv = rows.map((r) => r.map((v) => `"${v}"`).join(",")).join("\n");
             const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });

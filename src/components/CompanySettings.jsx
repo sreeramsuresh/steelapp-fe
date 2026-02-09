@@ -2017,13 +2017,14 @@ const CompanySettings = () => {
                         )}
                       </LogoContainer>
 
-                      <div className="space-y-2">
+                      <div className="relative space-y-2">
                         <input
                           type="file"
+                          id="logo-upload"
                           ref={logoInputRef}
                           accept="image/*"
                           onChange={handleLogoUpload}
-                          className="hidden"
+                          className="sr-only"
                         />
                         <Button
                           variant="outline"
@@ -2032,7 +2033,13 @@ const CompanySettings = () => {
                             uploadingLogo ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />
                           }
                           disabled={uploadingLogo}
-                          onClick={() => logoInputRef.current?.click()}
+                          onClick={() => {
+                            if (logoInputRef.current) {
+                              logoInputRef.current.value = "";
+                              logoInputRef.current.click();
+                            }
+                          }}
+                          type="button"
                         >
                           {uploadingLogo ? "Uploading..." : "Upload"}
                         </Button>
@@ -2115,13 +2122,14 @@ const CompanySettings = () => {
                         )}
                       </LogoContainer>
 
-                      <div className="space-y-2">
+                      <div className="relative space-y-2">
                         <input
                           type="file"
+                          id="brandmark-upload"
                           ref={brandmarkInputRef}
                           accept="image/*"
                           onChange={handleBrandmarkUpload}
-                          className="hidden"
+                          className="sr-only"
                         />
                         <Button
                           variant="outline"
@@ -2130,7 +2138,13 @@ const CompanySettings = () => {
                             uploadingBrandmark ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />
                           }
                           disabled={uploadingBrandmark}
-                          onClick={() => brandmarkInputRef.current?.click()}
+                          onClick={() => {
+                            if (brandmarkInputRef.current) {
+                              brandmarkInputRef.current.value = "";
+                              brandmarkInputRef.current.click();
+                            }
+                          }}
+                          type="button"
                         >
                           {uploadingBrandmark ? "Uploading..." : "Upload"}
                         </Button>
@@ -2195,13 +2209,14 @@ const CompanySettings = () => {
                         )}
                       </LogoContainer>
 
-                      <div className="space-y-2">
+                      <div className="relative space-y-2">
                         <input
                           type="file"
+                          id="seal-upload"
                           ref={sealInputRef}
                           accept="image/*"
                           onChange={handleSealUpload}
-                          className="hidden"
+                          className="sr-only"
                         />
                         <Button
                           variant="outline"
@@ -2210,7 +2225,13 @@ const CompanySettings = () => {
                             uploadingSeal ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />
                           }
                           disabled={uploadingSeal}
-                          onClick={() => sealInputRef.current?.click()}
+                          onClick={() => {
+                            if (sealInputRef.current) {
+                              sealInputRef.current.value = "";
+                              sealInputRef.current.click();
+                            }
+                          }}
+                          type="button"
                         >
                           {uploadingSeal ? "Uploading..." : "Upload"}
                         </Button>

@@ -31,7 +31,7 @@ const EXPENSE_TYPES = [
 ];
 
 const STATUS_OPTIONS = [
-  { value: "", label: "All Statuses" },
+  { value: "__ALL__", label: "All Statuses" },
   { value: "DRAFT", label: "Draft" },
   { value: "SUBMITTED", label: "Submitted" },
   { value: "APPROVED", label: "Approved" },
@@ -353,11 +353,11 @@ const OperatingExpenses = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <div>
             <FormSelect
-              value={filters.expense_type}
-              onValueChange={(value) => handleFilterChange("expense_type", value)}
+              value={filters.expense_type || "__ALL__"}
+              onValueChange={(value) => handleFilterChange("expense_type", value === "__ALL__" ? "" : value)}
               showValidation={false}
             >
-              <SelectItem value="">All Types</SelectItem>
+              <SelectItem value="__ALL__">All Types</SelectItem>
               {EXPENSE_TYPES.map((t) => (
                 <SelectItem key={t.value} value={t.value}>
                   {t.label}
@@ -367,8 +367,8 @@ const OperatingExpenses = () => {
           </div>
           <div>
             <FormSelect
-              value={filters.status}
-              onValueChange={(value) => handleFilterChange("status", value)}
+              value={filters.status || "__ALL__"}
+              onValueChange={(value) => handleFilterChange("status", value === "__ALL__" ? "" : value)}
               showValidation={false}
             >
               {STATUS_OPTIONS.map((s) => (
@@ -713,11 +713,12 @@ const OperatingExpenses = () => {
                 ) : categories.length > 0 ? (
                   <>
                     <FormSelect
-                      value={formData.category_code}
-                      onValueChange={(value) => setFormData((prev) => ({ ...prev, category_code: value }))}
+                      value={formData.category_code || "__NONE__"}
+                      onValueChange={(value) => setFormData((prev) => ({ ...prev, category_code: value === "__NONE__" ? "" : value }))}
                       showValidation={false}
+                      placeholder="Select Category..."
                     >
-                      <SelectItem value="">Select Category...</SelectItem>
+                      <SelectItem value="__NONE__">Select Category...</SelectItem>
                       {categories.map((cat) => (
                         <SelectItem key={cat.code || cat.id} value={cat.code}>
                           {cat.code} - {cat.name}

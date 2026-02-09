@@ -150,10 +150,7 @@ const CreditManagementPanel = ({
     try {
       setLoading(true);
       // Trigger recalculation for all over-limit and at-risk customers
-      const allCustomerIds = [
-        ...overLimitCustomers.map((c) => c.id),
-        ...atRiskCustomers.map((c) => c.id),
-      ];
+      const allCustomerIds = [...overLimitCustomers.map((c) => c.id), ...atRiskCustomers.map((c) => c.id)];
       await Promise.allSettled(
         allCustomerIds.map((id) => customerCreditService.performCreditReview(id, "Bulk recalculation"))
       );

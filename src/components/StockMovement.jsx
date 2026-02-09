@@ -361,9 +361,14 @@ const StockMovement = () => {
 
           {/* Filter Panel */}
           {showFilters && (
-            <div className={`mt-4 pt-4 border-t flex flex-wrap gap-4 items-end ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+            <div
+              className={`mt-4 pt-4 border-t flex flex-wrap gap-4 items-end ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+            >
               <div>
-                <label htmlFor="filter-movement" className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                <label
+                  htmlFor="filter-movement"
+                  className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                >
                   Movement Type
                 </label>
                 <select
@@ -376,12 +381,17 @@ const StockMovement = () => {
                 >
                   <option value="all">All</option>
                   {MOVEMENT_TYPES.map((t) => (
-                    <option key={t} value={t}>{t}</option>
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label htmlFor="filter-product-type" className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                <label
+                  htmlFor="filter-product-type"
+                  className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                >
                   Product Type
                 </label>
                 <select
@@ -394,12 +404,17 @@ const StockMovement = () => {
                 >
                   <option value="all">All</option>
                   {PRODUCT_TYPES.map((t) => (
-                    <option key={t} value={t}>{t}</option>
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label htmlFor="filter-grade" className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                <label
+                  htmlFor="filter-grade"
+                  className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                >
                   Grade
                 </label>
                 <select
@@ -412,7 +427,9 @@ const StockMovement = () => {
                 >
                   <option value="all">All</option>
                   {STEEL_GRADES.map((g) => (
-                    <option key={g} value={g}>{g}</option>
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -424,7 +441,9 @@ const StockMovement = () => {
                   setFilterGrade("all");
                 }}
                 className={`px-3 py-2 text-sm rounded-lg transition-colors ${
-                  isDarkMode ? "text-gray-400 hover:text-white hover:bg-gray-700" : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  isDarkMode
+                    ? "text-gray-400 hover:text-white hover:bg-gray-700"
+                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 Clear Filters

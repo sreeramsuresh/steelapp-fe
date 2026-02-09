@@ -35,9 +35,9 @@ import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
 import { productService } from "../services/productService";
 import { supplierService } from "../services/supplierService";
+import { warehouseService } from "../services/warehouseService";
 import { getProductUniqueName } from "../utils/fieldAccessors";
 import { validateSsotPattern } from "../utils/productSsotValidation";
-import { warehouseService } from "../services/warehouseService";
 
 // ============================================================
 // CUSTOM UI COMPONENTS
