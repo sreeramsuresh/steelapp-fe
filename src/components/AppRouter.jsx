@@ -94,6 +94,15 @@ const PriceHistoryReport = lazy(() => import("../pages/PriceHistoryReport"));
 const StockMovementReport = lazy(() => import("../pages/StockMovementReport"));
 const VATReturnReport = lazy(() => import("./VATReturnReport"));
 
+// Financial Reports
+const BankLedgerReport = lazy(() => import("../pages/reports/BankLedgerReport"));
+const BankReconciliationStatement = lazy(() => import("../pages/reports/BankReconciliationStatement"));
+const CashBookReport = lazy(() => import("../pages/reports/CashBookReport"));
+const JournalRegisterReport = lazy(() => import("../pages/reports/JournalRegisterReport"));
+const TrialBalanceReport = lazy(() => import("../pages/reports/TrialBalanceReport"));
+const COGSAnalysisReport = lazy(() => import("../pages/reports/COGSAnalysisReport"));
+const ReconciliationReport = lazy(() => import("../pages/reports/ReconciliationReport"));
+
 // Admin Components - Roles & Permissions
 const RolesPage = lazy(() => import("../pages/RolesPage"));
 
@@ -1059,6 +1068,56 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               }
             />
 
+            {/* Financial Reports */}
+            <Route
+              path="bank-ledger"
+              element={
+                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                  <BankLedgerReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="bank-reconciliation"
+              element={
+                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                  <BankReconciliationStatement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="cash-book"
+              element={
+                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                  <CashBookReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="journal-register"
+              element={
+                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                  <JournalRegisterReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="trial-balance"
+              element={
+                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                  <TrialBalanceReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="cogs-analysis"
+              element={
+                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                  <COGSAnalysisReport />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Audit Hub */}
             <Route
               path="audit-hub"
@@ -1107,6 +1166,14 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredPermission="inventory.read">
                   <StockMovementReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="reconciliation"
+              element={
+                <ProtectedRoute user={user} requiredPermission="inventory.read">
+                  <ReconciliationReport />
                 </ProtectedRoute>
               }
             />

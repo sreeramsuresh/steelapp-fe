@@ -7,20 +7,25 @@
 
 import {
   BarChart3,
+  BookOpen,
   Building2,
   ChevronDown,
   ChevronUp,
   Clock,
   Coins,
   DollarSign,
+  FileSpreadsheet,
   FileText,
+  Landmark,
   LineChart,
   Package,
   PieChart,
+  Scale,
   Shield,
   Star,
   TrendingUp,
   Truck,
+  Wallet,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -145,6 +150,48 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
       ],
     },
 
+    // 4b. FINANCIAL REPORTS
+    {
+      section: "Financial Reports",
+      items: [
+        {
+          name: "Bank Ledger",
+          path: "/analytics/bank-ledger",
+          icon: Landmark,
+          description: "Bank account ledger with transaction history",
+          requiredPermission: "analytics.read",
+        },
+        {
+          name: "Bank Reconciliation",
+          path: "/analytics/bank-reconciliation",
+          icon: Scale,
+          description: "Bank statement reconciliation",
+          requiredPermission: "analytics.read",
+        },
+        {
+          name: "Cash Book",
+          path: "/analytics/cash-book",
+          icon: Wallet,
+          description: "Cash receipts and payments register",
+          requiredPermission: "analytics.read",
+        },
+        {
+          name: "Journal Register",
+          path: "/analytics/journal-register",
+          icon: BookOpen,
+          description: "General journal entries register",
+          requiredPermission: "analytics.read",
+        },
+        {
+          name: "Trial Balance",
+          path: "/analytics/trial-balance",
+          icon: FileSpreadsheet,
+          description: "Trial balance report with debit/credit totals",
+          requiredPermission: "analytics.read",
+        },
+      ],
+    },
+
     // 5. INVENTORY ANALYTICS
     {
       section: "Inventory Analytics",
@@ -172,6 +219,13 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
           icon: Package,
           description: "Stock movement history and trends",
           requiredPermission: "analytics.read",
+        },
+        {
+          name: "Reconciliation",
+          path: "/analytics/reconciliation",
+          icon: Scale,
+          description: "Stock reconciliation by warehouse",
+          requiredPermission: "inventory.read",
         },
       ],
     },
@@ -206,6 +260,13 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
           path: "/analytics/reports",
           icon: FileText,
           description: "Sales analytics, revenue trends, and VAT returns",
+          requiredPermission: "analytics.read",
+        },
+        {
+          name: "COGS Analysis",
+          path: "/analytics/cogs-analysis",
+          icon: PieChart,
+          description: "Cost of goods sold breakdown and margin analysis",
           requiredPermission: "analytics.read",
         },
       ],

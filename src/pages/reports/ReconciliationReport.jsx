@@ -76,67 +76,6 @@ export default function ReconciliationReport() {
     }
   }, []);
 
-  const fetchReportData = useCallback(async () => {
-    try {
-      setLoading(true);
-
-      let reportData;
-
-      if (selectedWarehouse !== "all") {
-        const apiResult = await stockMovementService.getReconciliationReport(
-          parseInt(selectedWarehouse, 10),
-          dateRange.endDate
-        );
-
-        // Transform backend data to component format
-        reportData = transformBackendToReportFormat(
-          apiResult,
-          selectedProduct !== "all" ? parseInt(selectedProduct, 10) : null
-        );
-      } else {
-        // No warehouse selected - show empty state
-        reportData = { items: [], summary: { totalItems: 0, matchedItems: 0, discrepancies: 0, totalVariance: 0 } };
-      }
-
-      setReconciliationData(reportData.items);
-      setSummary(reportData.summary);
-    } catch (error) {
-      console.error("Error fetching reconciliation report:", error);
-      toast.error("Failed to load report data");
-    } finally {
-      setLoading(false);
-    }
-    // biome-ignore lint/correctness/noInvalidUseBeforeDeclaration: Functions hoisted, safe to use
-    // biome-ignore lint/correctness/useExhaustiveDependencies: transformBackendToReportFormat is a stable utility
-  }, [selectedWarehouse, selectedProduct, dateRange.endDate, transformBackendToReportFormat]);
-
-  useEffect(() => {
-    loadFilterOptions();
-  }, [loadFilterOptions]);
-
-  useEffect(() => {
-    fetchReportData();
-  }, [fetchReportData]);
-
-  useEffect(() => {
-    // Update date range when period changes
-    const now = new Date();
-    if (period === "this_month") {
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      setDateRange({
-        startDate: toUAEDateForInput(startOfMonth),
-        endDate: toUAEDateForInput(now),
-      });
-    } else if (period === "last_month") {
-      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-      setDateRange({
-        startDate: toUAEDateForInput(startOfLastMonth),
-        endDate: toUAEDateForInput(endOfLastMonth),
-      });
-    }
-  }, [period]);
-
   /**
    * Transform backend reconciliation data to report format
    * Backend provides: productId, productName, systemQuantity, lastPhysicalCount, discrepancy
@@ -184,6 +123,65 @@ export default function ReconciliationReport() {
 
     return { items, summary };
   };
+
+  const fetchReportData = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      let reportData;
+
+      if (selectedWarehouse !== "all") {
+        const apiResult = await stockMovementService.getReconciliationReport(
+          parseInt(selectedWarehouse, 10),
+          dateRange.endDate
+        );
+
+        // Transform backend data to component format
+        reportData = transformBackendToReportFormat(
+          apiResult,
+          selectedProduct !== "all" ? parseInt(selectedProduct, 10) : null
+        );
+      } else {
+        // No warehouse selected - show empty state
+        reportData = { items: [], summary: { totalItems: 0, matchedItems: 0, discrepancies: 0, totalVariance: 0 } };
+      }
+
+      setReconciliationData(reportData.items);
+      setSummary(reportData.summary);
+    } catch (error) {
+      console.error("Error fetching reconciliation report:", error);
+      toast.error("Failed to load report data");
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedWarehouse, selectedProduct, dateRange.endDate, transformBackendToReportFormat]);
+
+  useEffect(() => {
+    loadFilterOptions();
+  }, [loadFilterOptions]);
+
+  useEffect(() => {
+    fetchReportData();
+  }, [fetchReportData]);
+
+  useEffect(() => {
+    // Update date range when period changes
+    const now = new Date();
+    if (period === "this_month") {
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      setDateRange({
+        startDate: toUAEDateForInput(startOfMonth),
+        endDate: toUAEDateForInput(now),
+      });
+    } else if (period === "last_month") {
+      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+      setDateRange({
+        startDate: toUAEDateForInput(startOfLastMonth),
+        endDate: toUAEDateForInput(endOfLastMonth),
+      });
+    }
+  }, [period]);
 
   const handleRefresh = async () => {
     setRefreshing(true);

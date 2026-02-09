@@ -88,6 +88,13 @@ const AnalyticsLayout = () => {
       "/analytics/stock-movement-report": "Stock Movement Report",
       "/analytics/supplier-performance": "Supplier Performance",
       "/analytics/commission-dashboard": "Commission Dashboard",
+      "/analytics/bank-ledger": "Bank Ledger",
+      "/analytics/bank-reconciliation": "Bank Reconciliation",
+      "/analytics/cash-book": "Cash Book",
+      "/analytics/journal-register": "Journal Register",
+      "/analytics/trial-balance": "Trial Balance",
+      "/analytics/cogs-analysis": "COGS Analysis",
+      "/analytics/reconciliation": "Stock Reconciliation",
     };
 
     return titleMap[path] || "Analytics";
