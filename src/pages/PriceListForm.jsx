@@ -46,39 +46,28 @@ const PRICING_UNIT_LABELS = {
 };
 
 // ==================== DESIGN TOKENS ====================
-const COLORS = {
-  bg: "#0b0f14",
-  card: "#141a20",
-  border: "#2a3640",
-  text: "#e6edf3",
-  muted: "#93a4b4",
-  good: "#2ecc71",
-  warn: "#f39c12",
-  bad: "#e74c3c",
-  accent: "#4aa3ff",
-  accentHover: "#5bb2ff",
-  inputBg: "#0f151b",
-};
+// Inline style colors (used in style={{ color }}) — not Tailwind classes
+const COLORS = { good: "#2ecc71", warn: "#f39c12", bad: "#e74c3c" };
 
 // Reusable class generators
 const CARD_CLASSES = (isDarkMode) =>
-  `${isDarkMode ? "bg-[#141a20] border-[#2a3640]" : "bg-white border-gray-200"} border rounded-2xl p-4`;
+  `${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4`;
 
 const INPUT_CLASSES = (isDarkMode) =>
-  `w-full ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"} border rounded-xl py-2.5 px-3 text-[13px] outline-none focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20 transition-colors`;
+  `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-xl py-2.5 px-3 text-[13px] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-colors`;
 
-const LABEL_CLASSES = (isDarkMode) => `block text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"} mb-1.5`;
+const LABEL_CLASSES = (isDarkMode) => `block text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
 
 const BTN_CLASSES = (isDarkMode) =>
-  `${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]" : "bg-white border-gray-300 text-gray-900 hover:border-blue-500"} border rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors`;
+  `${isDarkMode ? "bg-gray-900 border-gray-700 text-white hover:border-teal-500" : "bg-white border-gray-300 text-gray-900 hover:border-blue-500"} border rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors`;
 
 const BTN_PRIMARY =
-  "bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors";
+  "bg-teal-500 border-transparent text-white font-extrabold hover:bg-teal-400 rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors";
 
 const BTN_SMALL = (isDarkMode) =>
-  `${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]" : "bg-white border-gray-300 text-gray-900 hover:border-blue-500"} border rounded-[10px] py-2 px-2.5 text-xs cursor-pointer transition-colors`;
+  `${isDarkMode ? "bg-gray-900 border-gray-700 text-white hover:border-teal-500" : "bg-white border-gray-300 text-gray-900 hover:border-blue-500"} border rounded-[10px] py-2 px-2.5 text-xs cursor-pointer transition-colors`;
 
-const DIVIDER_CLASSES = (isDarkMode) => `h-px ${isDarkMode ? "bg-[#2a3640]" : "bg-gray-200"} my-3`;
+const DIVIDER_CLASSES = (isDarkMode) => `h-px ${isDarkMode ? "bg-gray-700" : "bg-gray-200"} my-3`;
 
 // Custom Button component (currently unused)
 // const Button = ({
@@ -256,26 +245,26 @@ const CurrencyConversionModal = ({
       {/* Modal */}
       <div
         className={`relative z-10 w-full max-w-lg rounded-2xl p-4 ${
-          isDarkMode ? "bg-[#141a20] border border-[#2a3640]" : "bg-white border border-gray-200"
+          isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"
         }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div>
             <div className="flex items-center gap-2">
-              <DollarSign size={18} className="text-[#4aa3ff]" />
-              <h3 className={`text-sm font-extrabold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+              <DollarSign size={18} className="text-teal-400" />
+              <h3 className={`text-sm font-extrabold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                 Currency Conversion Details
               </h3>
             </div>
-            <p className={`text-xs mt-0.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+            <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               {getProductUniqueName(product)}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"}`}
+            className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-gray-900 text-gray-400" : "hover:bg-gray-100 text-gray-600"}`}
           >
             <X size={18} />
           </button>
@@ -285,20 +274,20 @@ const CurrencyConversionModal = ({
         <div className="space-y-3">
           {/* Original Cost */}
           <div
-            className={`rounded-[14px] p-3 ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+            className={`rounded-[14px] p-3 ${isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-gray-50 border border-gray-200"}`}
           >
-            <p className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Original Cost</p>
-            <p className={`text-lg font-extrabold font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+            <p className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Original Cost</p>
+            <p className={`text-lg font-extrabold font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               {conversionData.originalCost?.toFixed(2)} {conversionData.originalCurrency}
             </p>
           </div>
 
           {/* Exchange Rate */}
           <div
-            className={`rounded-[14px] p-3 ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+            className={`rounded-[14px] p-3 ${isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-gray-50 border border-gray-200"}`}
           >
             <div className="flex items-center justify-between mb-2">
-              <p className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Exchange Rate</p>
+              <p className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Exchange Rate</p>
               {isOld && (
                 <span
                   className={`text-[10px] px-2 py-0.5 rounded-full ${
@@ -309,15 +298,15 @@ const CurrencyConversionModal = ({
                 </span>
               )}
             </div>
-            <p className={`text-sm font-extrabold font-mono ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-600"}`}>
+            <p className={`text-sm font-extrabold font-mono ${isDarkMode ? "text-teal-400" : "text-blue-600"}`}>
               1 {conversionData.originalCurrency} = {conversionData.exchangeRate?.toFixed(4)}{" "}
               {conversionData.baseCurrency}
             </p>
             <div className="mt-2 flex items-center justify-between">
-              <p className={`text-[10px] ${isDarkMode ? "text-[#93a4b4]/70" : "text-gray-400"}`}>
+              <p className={`text-[10px] ${isDarkMode ? "text-gray-400/70" : "text-gray-400"}`}>
                 Source: {conversionData.rateSource}
               </p>
-              <p className={`text-[10px] ${isDarkMode ? "text-[#93a4b4]/70" : "text-gray-400"}`}>
+              <p className={`text-[10px] ${isDarkMode ? "text-gray-400/70" : "text-gray-400"}`}>
                 {new Date(conversionData.rateDate).toLocaleDateString()}
               </p>
             </div>
@@ -330,12 +319,12 @@ const CurrencyConversionModal = ({
 
           {/* Converted Cost */}
           <div
-            className={`rounded-[14px] p-3 ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+            className={`rounded-[14px] p-3 ${isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-gray-50 border border-gray-200"}`}
           >
-            <p className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+            <p className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               Converted Cost (Normalized to AED)
             </p>
-            <p className={`text-lg font-extrabold font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+            <p className={`text-lg font-extrabold font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               {conversionData.convertedCost?.toFixed(2)} {conversionData.baseCurrency}
             </p>
           </div>
@@ -343,25 +332,25 @@ const CurrencyConversionModal = ({
           {/* Margin Calculation */}
           {sellingPrice && margin !== null && (
             <div
-              className={`rounded-[14px] p-3 ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+              className={`rounded-[14px] p-3 ${isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-gray-50 border border-gray-200"}`}
             >
-              <p className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <p className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Margin (Normalized to AED)
               </p>
               <div className="flex items-center gap-3 mt-1">
                 <p className="text-sm font-mono">
-                  <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}>Selling:</span>{" "}
-                  <span className={`font-bold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                  <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Selling:</span>{" "}
+                  <span className={`font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     {sellingPrice.toFixed(2)} AED
                   </span>
                 </p>
                 <p
                   className={`text-lg font-extrabold font-mono ${
                     parseFloat(margin) < 5
-                      ? "text-[#e74c3c]"
+                      ? "text-red-500"
                       : parseFloat(margin) < 8
-                        ? "text-[#f39c12]"
-                        : "text-[#2ecc71]"
+                        ? "text-amber-500"
+                        : "text-emerald-500"
                   }`}
                 >
                   {margin}%
@@ -375,7 +364,7 @@ const CurrencyConversionModal = ({
             <button
               type="button"
               onClick={() => setShowOverride(true)}
-              className={`w-full text-xs ${isDarkMode ? "text-[#4aa3ff] hover:text-[#5bb2ff]" : "text-blue-600 hover:text-blue-700"} transition-colors`}
+              className={`w-full text-xs ${isDarkMode ? "text-teal-400 hover:text-teal-400" : "text-blue-600 hover:text-blue-700"} transition-colors`}
             >
               Override Exchange Rate (Manager Only)
             </button>
@@ -397,7 +386,7 @@ const CurrencyConversionModal = ({
                 onChange={(e) => setOverrideRate(e.target.value)}
                 placeholder="Enter new rate"
                 className={`w-full px-3 py-2 text-sm border rounded-xl ${
-                  isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"
+                  isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               />
               <div className="flex gap-2 mt-2">
@@ -409,7 +398,7 @@ const CurrencyConversionModal = ({
                   }}
                   className={`flex-1 px-3 py-2 text-xs rounded-xl ${
                     isDarkMode
-                      ? "bg-[#0f151b] border border-[#2a3640] text-[#e6edf3]"
+                      ? "bg-gray-900 border border-gray-700 text-white"
                       : "bg-white border border-gray-300 text-gray-900"
                   }`}
                 >
@@ -418,7 +407,7 @@ const CurrencyConversionModal = ({
                 <button
                   type="button"
                   onClick={handleApplyOverride}
-                  className="flex-1 px-3 py-2 text-xs rounded-xl bg-[#4aa3ff] text-[#001018] font-bold"
+                  className="flex-1 px-3 py-2 text-xs rounded-xl bg-teal-500 text-white font-bold"
                 >
                   Apply Override
                 </button>
@@ -434,11 +423,11 @@ const CurrencyConversionModal = ({
 // InfoRow Component (extracted to avoid creating components during render)
 const InfoRow = ({ icon: Icon, label, value, valueClassName = "", isDarkMode }) => (
   <div className="flex items-start gap-3 py-2">
-    <Icon size={16} className={`mt-0.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-400"}`} />
+    <Icon size={16} className={`mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-400"}`} />
     <div className="flex-1 min-w-0">
-      <p className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>{label}</p>
+      <p className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{label}</p>
       <p
-        className={`text-[13px] font-medium truncate ${valueClassName || (isDarkMode ? "text-[#e6edf3]" : "text-gray-900")}`}
+        className={`text-[13px] font-medium truncate ${valueClassName || (isDarkMode ? "text-white" : "text-gray-900")}`}
       >
         {value || "-"}
       </p>
@@ -471,7 +460,7 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
       {/* Drawer */}
       <div
         className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] overflow-auto transition-transform duration-300 ease-out ${
-          isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"
+          isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"
         } ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         {/* Inner padding */}
@@ -479,24 +468,24 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
           {/* Sticky Header */}
           <div
             className={`sticky top-0 flex justify-between items-start gap-2.5 p-4 -m-4 mb-3 z-[1] ${
-              isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"
+              isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"
             }`}
           >
             <div>
               <div className="flex items-center gap-2">
-                <Package size={18} className="text-[#4aa3ff]" />
-                <span className={`text-sm font-extrabold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                <Package size={18} className="text-teal-400" />
+                <span className={`text-sm font-extrabold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Product Details
                 </span>
               </div>
-              <p className={`text-xs mt-0.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 View product information
               </p>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"}`}
+              className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-gray-900 text-gray-400" : "hover:bg-gray-100 text-gray-600"}`}
             >
               <X size={18} />
             </button>
@@ -506,10 +495,10 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
           <div className="mt-3">
             {/* Product Name */}
             <div className="mb-3">
-              <h4 className={`text-base font-bold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+              <h4 className={`text-base font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                 {getProductDisplayName(product) || "N/A"}
               </h4>
-              <p className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 {product.sku || product.product_code || `ID: ${product.id}`}
               </p>
             </div>
@@ -519,7 +508,7 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
               {product.category && (
                 <span
                   className={`inline-flex items-center gap-1 px-2 py-1 text-[11px] rounded-full border ${
-                    isDarkMode ? "border-[#4aa3ff]/35 text-[#4aa3ff]" : "border-blue-300 text-blue-700"
+                    isDarkMode ? "border-teal-500/35 text-teal-400" : "border-blue-300 text-blue-700"
                   }`}
                 >
                   <Layers size={12} />
@@ -539,39 +528,39 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
 
             {/* Pricing Section */}
             <div
-              className={`rounded-[14px] p-3 mb-3 ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+              className={`rounded-[14px] p-3 mb-3 ${isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-gray-50 border border-gray-200"}`}
             >
               <h5
-                className={`text-[11px] font-bold uppercase mb-2.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}
+                className={`text-[11px] font-bold uppercase mb-2.5 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
               >
                 Pricing
               </h5>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <p className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Selling Price</p>
-                  <p className="text-sm font-extrabold text-[#4aa3ff] font-mono">
+                  <p className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Selling Price</p>
+                  <p className="text-sm font-extrabold text-teal-400 font-mono">
                     AED {product.sellingPrice?.toFixed(2) || product.selling_price?.toFixed(2) || "0.00"}
                   </p>
                 </div>
                 <div>
-                  <p className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Cost Price</p>
-                  <p className={`text-sm font-bold font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-700"}`}>
+                  <p className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Cost Price</p>
+                  <p className={`text-sm font-bold font-mono ${isDarkMode ? "text-white" : "text-gray-700"}`}>
                     AED {product.costPrice?.toFixed(2) || product.cost_price?.toFixed(2) || "0.00"}
                   </p>
                 </div>
               </div>
               {product.sellingPrice && product.costPrice && (
                 <div
-                  className={`mt-2.5 pt-2.5 border-t border-dashed ${isDarkMode ? "border-[#2a3640]" : "border-gray-300"}`}
+                  className={`mt-2.5 pt-2.5 border-t border-dashed ${isDarkMode ? "border-gray-700" : "border-gray-300"}`}
                 >
-                  <p className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Margin</p>
+                  <p className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Margin</p>
                   <p
                     className={`text-sm font-bold font-mono ${
                       ((product.sellingPrice - product.costPrice) / product.costPrice) * 100 > 8
-                        ? "text-[#2ecc71]"
+                        ? "text-emerald-500"
                         : ((product.sellingPrice - product.costPrice) / product.costPrice) * 100 >= 5
-                          ? "text-[#f39c12]"
-                          : "text-[#e74c3c]"
+                          ? "text-amber-500"
+                          : "text-red-500"
                     }`}
                   >
                     {(((product.sellingPrice - product.costPrice) / product.costPrice) * 100).toFixed(1)}%
@@ -582,10 +571,10 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
 
             {/* Source Section */}
             <div
-              className={`rounded-[14px] p-3 mb-3 ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+              className={`rounded-[14px] p-3 mb-3 ${isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-gray-50 border border-gray-200"}`}
             >
               <h5
-                className={`text-[11px] font-bold uppercase mb-2.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}
+                className={`text-[11px] font-bold uppercase mb-2.5 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
               >
                 Source
               </h5>
@@ -595,7 +584,7 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
                     className={`inline-flex items-center gap-1.5 px-2 py-1 text-[11px] font-medium rounded-full border ${
                       product.isImported || product.is_imported
                         ? isDarkMode
-                          ? "border-[#4aa3ff]/35 text-[#4aa3ff]"
+                          ? "border-teal-500/35 text-teal-400"
                           : "border-blue-300 text-blue-700"
                         : isDarkMode
                           ? "border-green-500/35 text-green-400"
@@ -634,27 +623,27 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
 
             {/* Stock Section */}
             <div
-              className={`rounded-[14px] p-3 ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+              className={`rounded-[14px] p-3 ${isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-gray-50 border border-gray-200"}`}
             >
               <h5
-                className={`text-[11px] font-bold uppercase mb-2.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}
+                className={`text-[11px] font-bold uppercase mb-2.5 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
               >
                 Stock Information
               </h5>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <p className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Available Stock</p>
+                  <p className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Available Stock</p>
                   <p
                     className={`text-sm font-extrabold font-mono ${
-                      (product.stockQuantity || product.stock_quantity || 0) > 0 ? "text-[#2ecc71]" : "text-[#e74c3c]"
+                      (product.stockQuantity || product.stock_quantity || 0) > 0 ? "text-emerald-500" : "text-red-500"
                     }`}
                   >
                     {product.stockQuantity || product.stock_quantity || 0}
                   </p>
                 </div>
                 <div>
-                  <p className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Reserved</p>
-                  <p className={`text-sm font-bold font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-700"}`}>
+                  <p className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Reserved</p>
+                  <p className={`text-sm font-bold font-mono ${isDarkMode ? "text-white" : "text-gray-700"}`}>
                     {product.reservedQuantity || product.reserved_quantity || 0}
                   </p>
                 </div>
@@ -1355,7 +1344,7 @@ export default function PriceListForm() {
 
   if (loading) {
     return (
-      <div className={`p-4 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`p-4 min-h-screen ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}>
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
         </div>
@@ -1364,11 +1353,11 @@ export default function PriceListForm() {
   }
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-[#0b0f14]" : "bg-[#FAFAFA]"}`}>
+    <div className={`min-h-screen ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}>
       {/* Sticky Header with Blur */}
       <div
         className={`sticky top-0 z-10 backdrop-blur-md ${
-          isDarkMode ? "bg-[#0f151b]/94 border-b border-[#2a3640]" : "bg-white/94 border-b border-gray-200"
+          isDarkMode ? "bg-gray-900/94 border-b border-gray-700" : "bg-white/94 border-b border-gray-200"
         } px-4 py-3`}
       >
         <div className="max-w-[1400px] mx-auto flex items-center justify-between">
@@ -1377,16 +1366,16 @@ export default function PriceListForm() {
               type="button"
               onClick={() => navigate("/app/pricelists")}
               className={`p-2 rounded-xl transition-colors ${
-                isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
+                isDarkMode ? "hover:bg-gray-800 text-gray-400" : "hover:bg-gray-100 text-gray-600"
               }`}
             >
               <ArrowLeft size={20} />
             </button>
             <div>
-              <h1 className={`text-lg font-extrabold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+              <h1 className={`text-lg font-extrabold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                 {isEdit ? "Edit Price List" : "New Price List"}
               </h1>
-              <p className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 {isEdit ? "Update pricing for your products" : "Create a new price list to manage product pricing"}
               </p>
             </div>
@@ -1405,7 +1394,7 @@ export default function PriceListForm() {
             {formData.isDefault && (
               <span
                 className={`px-2.5 py-1 text-xs rounded-full border ${
-                  isDarkMode ? "border-[#4aa3ff]/35 text-[#4aa3ff]" : "border-blue-300 text-blue-700 bg-blue-50"
+                  isDarkMode ? "border-teal-500/35 text-teal-400" : "border-blue-300 text-blue-700 bg-blue-50"
                 }`}
               >
                 Default
@@ -1481,13 +1470,13 @@ export default function PriceListForm() {
             <details open className={`${CARD_CLASSES(isDarkMode)} group`}>
               <summary className="list-none cursor-pointer flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Tag size={16} className="text-[#4aa3ff]" />
-                  <span className={`text-sm font-bold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                  <Tag size={16} className="text-teal-400" />
+                  <span className={`text-sm font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     Price List Details
                   </span>
                 </div>
                 <svg
-                  className={`w-4 h-4 transition-transform group-open:rotate-180 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                  className={`w-4 h-4 transition-transform group-open:rotate-180 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -1496,7 +1485,7 @@ export default function PriceListForm() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
-              <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-[#2a3640]" : "border-gray-200"}`}>
+              <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                 <div className="grid grid-cols-12 gap-3">
                   {/* Name - full width */}
                   <div className="col-span-12 sm:col-span-6">
@@ -1612,17 +1601,17 @@ export default function PriceListForm() {
                     <div className="col-span-12">
                       <div
                         className={`rounded-[14px] p-3 flex items-center gap-3 ${
-                          isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-blue-50 border border-blue-200"
+                          isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-blue-50 border border-blue-200"
                         }`}
                       >
-                        <Calendar size={16} className="text-[#4aa3ff]" />
+                        <Calendar size={16} className="text-teal-400" />
                         <div>
-                          <p className={`text-xs font-medium ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                          <p className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                             Price list valid from{" "}
                             <span className="font-bold">{new Date(formData.effectiveFrom).toLocaleDateString()}</span>{" "}
                             to <span className="font-bold">{new Date(formData.effectiveTo).toLocaleDateString()}</span>
                           </p>
-                          <p className={`text-[11px] mt-0.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}>
+                          <p className={`text-[11px] mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                             Duration: {calculateValidityDays(formData.effectiveFrom, formData.effectiveTo)} days
                           </p>
                         </div>
@@ -1670,20 +1659,20 @@ export default function PriceListForm() {
 
                   {/* Audit Trail Section (Epic 9 - PRICE-008) */}
                   <div className="col-span-12">
-                    <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-[#2a3640]" : "border-gray-200"}`}>
+                    <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                       <div className="text-xs font-semibold mb-2 flex items-center gap-2">
-                        <History size={14} className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"} />
-                        <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}>Audit Trail</span>
+                        <History size={14} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
+                        <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Audit Trail</span>
                       </div>
                       <div className="grid grid-cols-2 gap-3 text-xs">
                         {formData.createdBy && (
                           <div>
-                            <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}>Created by:</span>
-                            <span className={`ml-2 font-semibold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                            <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Created by:</span>
+                            <span className={`ml-2 font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                               {formData.createdBy}
                             </span>
                             {formData.createdDate && (
-                              <span className={`ml-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                              <span className={`ml-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                                 on {new Date(formData.createdDate).toLocaleDateString()}
                               </span>
                             )}
@@ -1691,19 +1680,19 @@ export default function PriceListForm() {
                         )}
                         {formData.approvedBy && (
                           <div>
-                            <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}>Approved by:</span>
-                            <span className={`ml-2 font-semibold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                            <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Approved by:</span>
+                            <span className={`ml-2 font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                               {formData.approvedBy}
                             </span>
                             {formData.approvalDate && (
-                              <span className={`ml-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                              <span className={`ml-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                                 on {new Date(formData.approvalDate).toLocaleDateString()}
                               </span>
                             )}
                           </div>
                         )}
                         {!formData.createdBy && !formData.approvedBy && (
-                          <div className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}>
+                          <div className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
                             No audit information available yet
                           </div>
                         )}
@@ -1717,20 +1706,20 @@ export default function PriceListForm() {
             {/* Product Prices Card with Tabs */}
             <div className={CARD_CLASSES(isDarkMode)}>
               {/* Tab Navigation */}
-              <div className={`flex border-b -mx-4 px-4 ${isDarkMode ? "border-[#2a3640]" : "border-gray-200"}`}>
+              <div className={`flex border-b -mx-4 px-4 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                 <button
                   type="button"
                   onClick={() => setActiveTab("prices")}
                   className={`flex items-center gap-2 px-4 py-2.5 text-[13px] font-bold transition-colors border-b-2 -mb-px ${
                     activeTab === "prices"
-                      ? `border-[#4aa3ff] ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-600"}`
-                      : `border-transparent ${isDarkMode ? "text-[#93a4b4] hover:text-[#e6edf3]" : "text-gray-500 hover:text-gray-700"}`
+                      ? `border-teal-500 ${isDarkMode ? "text-teal-400" : "text-blue-600"}`
+                      : `border-transparent ${isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-700"}`
                   }`}
                 >
                   <Package size={16} />
                   Product Prices
                   <span
-                    className={`text-[11px] px-1.5 py-0.5 rounded-full ${isDarkMode ? "bg-[#0f151b]" : "bg-gray-100"}`}
+                    className={`text-[11px] px-1.5 py-0.5 rounded-full ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}
                   >
                     {stats.configuredProducts}
                   </span>
@@ -1741,8 +1730,8 @@ export default function PriceListForm() {
                     onClick={() => setActiveTab("history")}
                     className={`flex items-center gap-2 px-4 py-2.5 text-[13px] font-bold transition-colors border-b-2 -mb-px ${
                       activeTab === "history"
-                        ? `border-[#4aa3ff] ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-600"}`
-                        : `border-transparent ${isDarkMode ? "text-[#93a4b4] hover:text-[#e6edf3]" : "text-gray-500 hover:text-gray-700"}`
+                        ? `border-teal-500 ${isDarkMode ? "text-teal-400" : "text-blue-600"}`
+                        : `border-transparent ${isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-700"}`
                     }`}
                   >
                     <History size={16} />
@@ -1758,7 +1747,7 @@ export default function PriceListForm() {
                     {/* Product Prices Header */}
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <span className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                        <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                           {stats.configuredProducts} of {stats.totalProducts} configured
                         </span>
                       </div>
@@ -1782,7 +1771,7 @@ export default function PriceListForm() {
                     {/* Search */}
                     <div className="relative mb-3">
                       <Search
-                        className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                        className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                       />
                       <input
                         type="text"
@@ -1797,24 +1786,24 @@ export default function PriceListForm() {
                     <div className="overflow-x-auto -mx-4">
                       <table className="w-full">
                         <thead>
-                          <tr className={`border-b ${isDarkMode ? "border-[#2a3640]" : "border-gray-200"}`}>
+                          <tr className={`border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                             <th
-                              className={`text-left py-2.5 px-4 text-xs font-bold ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}
+                              className={`text-left py-2.5 px-4 text-xs font-bold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                             >
                               Product
                             </th>
                             <th
-                              className={`text-right py-2.5 px-3 text-xs font-bold ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}
+                              className={`text-right py-2.5 px-3 text-xs font-bold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                             >
                               Current
                             </th>
                             <th
-                              className={`text-right py-2.5 px-3 text-xs font-bold ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}
+                              className={`text-right py-2.5 px-3 text-xs font-bold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                             >
                               New Price <span className="opacity-60">({getPricingUnitLabel()})</span>
                             </th>
                             <th
-                              className={`text-right py-2.5 px-4 text-xs font-bold ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}
+                              className={`text-right py-2.5 px-4 text-xs font-bold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                             >
                               Change
                             </th>
@@ -1834,7 +1823,7 @@ export default function PriceListForm() {
                                 key={product.id}
                                 className={`border-b transition-colors ${
                                   isDarkMode
-                                    ? "border-[#2a3640] hover:bg-[#0f151b]/50"
+                                    ? "border-gray-700 hover:bg-gray-900/50"
                                     : "border-gray-100 hover:bg-gray-50"
                                 }`}
                               >
@@ -1842,20 +1831,18 @@ export default function PriceListForm() {
                                   <button
                                     type="button"
                                     onClick={() => setSelectedProduct(product)}
-                                    className={`font-medium text-[13px] text-left hover:text-[#4aa3ff] transition-colors ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                                    className={`font-medium text-[13px] text-left hover:text-teal-400 transition-colors ${isDarkMode ? "text-white" : "text-gray-900"}`}
                                   >
                                     {getProductUniqueName(product) || "N/A"}
                                   </button>
-                                  <p className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                                  <p className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                                     {product.isImported || product.is_imported
                                       ? `Imported - ${product.countryOfOrigin || product.country_of_origin || product.origin_country || "Unknown"}`
                                       : "Local"}
                                   </p>
                                   {/* Epic 8 - PRICE-003: Show category and pricing unit */}
                                   {product.category && (
-                                    <p
-                                      className={`text-[10px] mt-1 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-400"}`}
-                                    >
+                                    <p className={`text-[10px] mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-400"}`}>
                                       {product.category} •{" "}
                                       {PRICING_UNIT_LABELS[getPricingUnitForCategory(product.category)] ||
                                         "Weight-based"}
@@ -1864,7 +1851,7 @@ export default function PriceListForm() {
                                 </td>
                                 <td className={`py-2.5 px-3 text-right`}>
                                   <div
-                                    className={`text-[13px] font-mono ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}
+                                    className={`text-[13px] font-mono ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                                   >
                                     {formData.currency} {product.sellingPrice?.toFixed(2) || "0.00"}
                                   </div>
@@ -1876,7 +1863,7 @@ export default function PriceListForm() {
                                     if (!showConversion) {
                                       return (
                                         <div
-                                          className={`text-[11px] font-mono ${isDarkMode ? "text-[#93a4b4]/70" : "text-gray-400"}`}
+                                          className={`text-[11px] font-mono ${isDarkMode ? "text-gray-400/70" : "text-gray-400"}`}
                                         >
                                           Cost: {costPrice?.toFixed(2) || "0.00"} AED
                                         </div>
@@ -1886,14 +1873,14 @@ export default function PriceListForm() {
                                     return (
                                       <div className="mt-1">
                                         <div
-                                          className={`text-[10px] font-mono ${isDarkMode ? "text-[#93a4b4]/70" : "text-gray-400"}`}
+                                          className={`text-[10px] font-mono ${isDarkMode ? "text-gray-400/70" : "text-gray-400"}`}
                                         >
                                           Cost: {costPrice?.toFixed(2)} {costCurrency}
                                         </div>
                                         <button
                                           type="button"
                                           onClick={() => handleShowCurrencyConversion(product)}
-                                          className={`text-[9px] flex items-center justify-end gap-1 ${isDarkMode ? "text-[#4aa3ff] hover:text-[#5bb2ff]" : "text-blue-600 hover:text-blue-700"} transition-colors cursor-pointer`}
+                                          className={`text-[9px] flex items-center justify-end gap-1 ${isDarkMode ? "text-teal-400 hover:text-teal-400" : "text-blue-600 hover:text-blue-700"} transition-colors cursor-pointer`}
                                         >
                                           <DollarSign size={10} />
                                           View conversion
@@ -1904,7 +1891,7 @@ export default function PriceListForm() {
                                 </td>
                                 <td className="py-2.5 px-3">
                                   <div className="flex items-center justify-end gap-1.5">
-                                    <span className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                                    <span className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                                       {formData.currency}
                                     </span>
                                     <input
@@ -1915,11 +1902,11 @@ export default function PriceListForm() {
                                       placeholder="0.00"
                                       className={`w-24 py-1.5 px-2 text-[13px] text-right border rounded-xl focus:outline-none focus:ring-2 font-mono ${
                                         isNegativeMargin
-                                          ? "border-[#e74c3c] focus:ring-[#e74c3c]/20 bg-red-900/10"
-                                          : "focus:ring-[#4aa3ff]/20 focus:border-[#5bb2ff]"
+                                          ? "border-red-500 focus:ring-red-500/20 bg-red-900/10"
+                                          : "focus:ring-teal-500/20 focus:border-teal-500"
                                       } ${
                                         isDarkMode
-                                          ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4]/50"
+                                          ? "bg-gray-900 border-gray-700 text-white placeholder-gray-400/50"
                                           : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
                                       }`}
                                     />
@@ -1992,30 +1979,30 @@ export default function PriceListForm() {
             <div className="lg:sticky lg:top-[72px]">
               {/* Summary Card */}
               <div className={CARD_CLASSES(isDarkMode)}>
-                <div className={`text-sm font-bold mb-3 ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                <div className={`text-sm font-bold mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Price List Summary
                 </div>
 
                 {/* KPI Cards */}
                 <div className="grid grid-cols-2 gap-2.5 mb-3">
                   <div
-                    className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
+                    className={`${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
                   >
-                    <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                    <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                       Total Products
                     </div>
                     <div
-                      className={`text-sm font-extrabold mt-1 font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                      className={`text-sm font-extrabold mt-1 font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
                     >
                       {stats.totalProducts}
                     </div>
                   </div>
                   <div
-                    className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
+                    className={`${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
                   >
-                    <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Configured</div>
+                    <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Configured</div>
                     <div
-                      className={`text-sm font-extrabold mt-1 font-mono ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-600"}`}
+                      className={`text-sm font-extrabold mt-1 font-mono ${isDarkMode ? "text-teal-400" : "text-blue-600"}`}
                     >
                       {stats.configuredProducts}
                     </div>
@@ -2078,25 +2065,25 @@ export default function PriceListForm() {
                     <div className={DIVIDER_CLASSES(isDarkMode)} />
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Name</span>
-                        <span className={`text-xs font-medium ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                        <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Name</span>
+                        <span className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                           {formData.name}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Currency</span>
+                        <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Currency</span>
                         <span
-                          className={`text-xs font-mono font-medium ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                          className={`text-xs font-mono font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                         >
                           {formData.currency}
                         </span>
                       </div>
                       {formData.effectiveFrom && (
                         <div className="flex justify-between items-center">
-                          <span className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                          <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                             Effective From
                           </span>
-                          <span className={`text-xs font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                          <span className={`text-xs font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                             {formData.effectiveFrom}
                           </span>
                         </div>
@@ -2146,26 +2133,26 @@ export default function PriceListForm() {
           {/* Modal */}
           <div
             className={`relative z-10 w-full max-w-md rounded-2xl p-4 ${
-              isDarkMode ? "bg-[#141a20] border border-[#2a3640]" : "bg-white border border-gray-200"
+              isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"
             }`}
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <Percent size={18} className="text-[#4aa3ff]" />
-                  <h3 className={`text-sm font-extrabold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                  <Percent size={18} className="text-teal-400" />
+                  <h3 className={`text-sm font-extrabold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     Bulk Price Adjustment
                   </h3>
                 </div>
-                <p className={`text-xs mt-0.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                   Apply percentage change to all prices
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowBulkDialog(false)}
-                className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"}`}
+                className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-gray-900 text-gray-400" : "hover:bg-gray-100 text-gray-600"}`}
               >
                 <X size={18} />
               </button>
@@ -2222,11 +2209,11 @@ export default function PriceListForm() {
               {/* Preview */}
               {bulkOperation.percentage > 0 && (
                 <div
-                  className={`rounded-[14px] p-3 ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+                  className={`rounded-[14px] p-3 ${isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-gray-50 border border-gray-200"}`}
                 >
-                  <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Preview</div>
+                  <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Preview</div>
                   <div
-                    className={`text-sm font-bold mt-1 ${bulkOperation.type === "increase" ? "text-[#2ecc71]" : "text-[#e74c3c]"}`}
+                    className={`text-sm font-bold mt-1 ${bulkOperation.type === "increase" ? "text-emerald-500" : "text-red-500"}`}
                   >
                     {bulkOperation.type === "increase" ? "+" : "-"}
                     {bulkOperation.percentage}% on {stats.configuredProducts} products
