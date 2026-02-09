@@ -6,8 +6,9 @@
  */
 
 import { ArrowDownRight, ArrowUpRight, Info, RefreshCw, Target, User } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
+import { dashboardService } from "../../../../services/dashboardService";
 
 // Mock data for sales agents
 const MOCK_AGENTS = [
@@ -79,18 +80,62 @@ const PERIODS = [
   { value: "ytd", label: "Year to Date" },
 ];
 
+const mapApiAgents = (apiAgents) => {
+  if (!apiAgents?.length) return null;
+  return apiAgents.map((agent, idx) => ({
+    id: agent.id,
+    name: agent.name || "Unknown",
+    avatar: (agent.name || "??").split(" ").map((n) => n[0]).join(""),
+    target: agent.target?.amount || 0,
+    achieved: agent.target?.achieved || agent.commission?.earned || 0,
+    lastPeriodAchieved: 0,
+    rank: agent.rank || idx + 1,
+    totalAgents: apiAgents.length,
+    deals: agent.invoiceCount || 0,
+    newCustomers: 0,
+  }));
+};
+
 const AgentScorecardWidget = ({ data: propData, onRefresh, onViewDetails, isLoading = false }) => {
   const { isDarkMode } = useTheme();
-  const [selectedAgentId, setSelectedAgentId] = useState(1);
+  const [selectedAgentId, setSelectedAgentId] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState("mtd");
   const [agents, setAgents] = useState(propData || MOCK_AGENTS);
   const [loading, setLoading] = useState(false);
+
+  const fetchAgentData = useCallback(async () => {
+    if (propData) return;
+    setLoading(true);
+    try {
+      const result = await dashboardService.getAgentPerformance();
+      const mapped = mapApiAgents(result?.agents);
+      if (mapped?.length) {
+        setAgents(mapped);
+        if (!selectedAgentId) setSelectedAgentId(mapped[0].id);
+      }
+    } catch {
+      // Keep MOCK_AGENTS fallback
+    } finally {
+      setLoading(false);
+    }
+  }, [propData, selectedAgentId]);
+
+  useEffect(() => {
+    fetchAgentData();
+  }, [fetchAgentData]);
 
   useEffect(() => {
     if (propData) {
       setAgents(propData);
     }
   }, [propData]);
+
+  // Set initial selected agent
+  useEffect(() => {
+    if (!selectedAgentId && agents.length > 0) {
+      setSelectedAgentId(agents[0].id);
+    }
+  }, [agents, selectedAgentId]);
 
   const selectedAgent = agents.find((a) => a.id === selectedAgentId) || agents[0];
 
@@ -108,6 +153,8 @@ const AgentScorecardWidget = ({ data: propData, onRefresh, onViewDetails, isLoad
       if (onRefresh) {
         const freshData = await onRefresh();
         setAgents(freshData || MOCK_AGENTS);
+      } else {
+        await fetchAgentData();
       }
     } finally {
       setLoading(false);

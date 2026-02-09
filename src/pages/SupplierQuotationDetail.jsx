@@ -22,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useTheme } from "../contexts/ThemeContext";
 import ConfirmDialog from "../components/ConfirmDialog";
 import {
   approveSupplierQuotation,
@@ -40,6 +41,7 @@ import {
 export function SupplierQuotationDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
 
   const [quotation, setQuotation] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -195,7 +197,7 @@ export function SupplierQuotationDetail() {
               <FileText className="h-5 w-5" />
               {quotation.internalReference}
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               {quotation.supplierReference && <>Supplier Ref: {quotation.supplierReference}</>}
             </p>
           </div>
@@ -242,7 +244,7 @@ export function SupplierQuotationDetail() {
             <div className="flex items-center gap-3">
               <Building2 className="h-8 w-8 text-blue-600" />
               <div>
-                <p className="text-sm text-gray-500">Supplier</p>
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Supplier</p>
                 <p className="font-medium">{quotation.supplierName || "-"}</p>
               </div>
             </div>
@@ -253,7 +255,7 @@ export function SupplierQuotationDetail() {
             <div className="flex items-center gap-3">
               <Calendar className="h-8 w-8 text-green-600" />
               <div>
-                <p className="text-sm text-gray-500">Quote Date</p>
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Quote Date</p>
                 <p className="font-medium">{formatDate(quotation.quoteDate)}</p>
               </div>
             </div>
@@ -264,7 +266,7 @@ export function SupplierQuotationDetail() {
             <div className="flex items-center gap-3">
               <Calendar className="h-8 w-8 text-orange-600" />
               <div>
-                <p className="text-sm text-gray-500">Valid Until</p>
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Valid Until</p>
                 <p className="font-medium">{formatDate(quotation.validityDate)}</p>
               </div>
             </div>
@@ -275,7 +277,7 @@ export function SupplierQuotationDetail() {
             <div className="flex items-center gap-3">
               <DollarSign className="h-8 w-8 text-purple-600" />
               <div>
-                <p className="text-sm text-gray-500">Total Amount</p>
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Total Amount</p>
                 <p className="font-medium text-lg">{formatCurrency(quotation.total, quotation.currency)}</p>
               </div>
             </div>
@@ -310,12 +312,12 @@ export function SupplierQuotationDetail() {
               )}
             </div>
             {quotation.extractionWarnings?.length > 0 && (
-              <div className="mt-3 p-3 bg-yellow-50 rounded-lg">
-                <p className="text-sm font-medium text-yellow-800 flex items-center gap-1">
+              <div className={`mt-3 p-3 rounded-lg ${isDarkMode ? "bg-yellow-900/30" : "bg-yellow-50"}`}>
+                <p className={`text-sm font-medium flex items-center gap-1 ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}>
                   <AlertTriangle className="h-4 w-4" />
                   Extraction Warnings
                 </p>
-                <ul className="mt-1 text-sm text-yellow-700 list-disc list-inside">
+                <ul className={`mt-1 text-sm list-disc list-inside ${isDarkMode ? "text-yellow-400" : "text-yellow-700"}`}>
                   {quotation.extractionWarnings.map((w, _i) => (
                     <li key={w}>{w}</li>
                   ))}
@@ -334,19 +336,19 @@ export function SupplierQuotationDetail() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-500">Delivery Terms</span>
+              <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Delivery Terms</span>
               <span>{quotation.deliveryTerms || "-"}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Payment Terms</span>
+              <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Payment Terms</span>
               <span>{quotation.paymentTerms || "-"}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Incoterms</span>
+              <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Incoterms</span>
               <span>{quotation.incoterms || "-"}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Currency</span>
+              <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Currency</span>
               <span>{quotation.currency}</span>
             </div>
           </CardContent>
@@ -371,7 +373,7 @@ export function SupplierQuotationDetail() {
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50">
+              <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                 <tr>
                   <th className="px-4 py-3 text-left">#</th>
                   <th className="px-4 py-3 text-left">Description</th>
@@ -384,16 +386,16 @@ export function SupplierQuotationDetail() {
               <tbody>
                 {(quotation.items || []).map((item, idx) => (
                   <tr key={item.id || idx} className="border-t">
-                    <td className="px-4 py-3 text-gray-500">{item.lineNumber}</td>
+                    <td className={`px-4 py-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{item.lineNumber}</td>
                     <td className="px-4 py-3">
                       <div>
                         <p>{item.description || "-"}</p>
-                        {item.dimensions && <p className="text-xs text-gray-500">{item.dimensions}</p>}
+                        {item.dimensions && <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{item.dimensions}</p>}
                       </div>
                     </td>
                     <td className="px-4 py-3">
                       {item.grade && <span className="font-medium">{item.grade}</span>}
-                      {item.finish && <span className="text-gray-500 ml-2">{item.finish}</span>}
+                      {item.finish && <span className={`ml-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{item.finish}</span>}
                     </td>
                     <td className="px-4 py-3 text-right">
                       {item.quantity} {item.unit}
@@ -412,7 +414,7 @@ export function SupplierQuotationDetail() {
           <div className="mt-4 flex justify-end">
             <div className="w-64 space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-500">Subtotal</span>
+                <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Subtotal</span>
                 <span>{formatCurrency(quotation.subtotal, quotation.currency)}</span>
               </div>
               {quotation.discountAmount > 0 && (
@@ -423,18 +425,18 @@ export function SupplierQuotationDetail() {
               )}
               {quotation.shippingCharges > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Shipping</span>
+                  <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Shipping</span>
                   <span>{formatCurrency(quotation.shippingCharges, quotation.currency)}</span>
                 </div>
               )}
               {quotation.freightCharges > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Freight</span>
+                  <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Freight</span>
                   <span>{formatCurrency(quotation.freightCharges, quotation.currency)}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-gray-500">VAT</span>
+                <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>VAT</span>
                 <span>{formatCurrency(quotation.vatAmount, quotation.currency)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg pt-2 border-t">
@@ -482,7 +484,7 @@ export function SupplierQuotationDetail() {
             <DialogTitle>Convert to Purchase Order</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">
+            <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               This will create a new Purchase Order based on this quotation. The quotation will be marked as converted.
             </p>
             <div>

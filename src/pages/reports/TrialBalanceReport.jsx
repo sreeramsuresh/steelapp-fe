@@ -6,10 +6,12 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTheme } from "../../contexts/ThemeContext";
 import financialReportsService from "../../services/financialReportsService";
 
 export default function TrialBalanceReport() {
   const { user: _user } = useAuth();
+  const { isDarkMode } = useTheme();
   const [periodId, setPeriodId] = useState(null);
   const [periods, setPeriods] = useState([]);
   const [data, setData] = useState(null);
@@ -17,22 +19,34 @@ export default function TrialBalanceReport() {
   const [error, setError] = useState(null);
   const [includeZeroBalances, setIncludeZeroBalances] = useState(false);
 
-  // Fetch periods on mount
-  useEffect(() => {
-    const fetchPeriods = async () => {
-      try {
-        // TODO: Replace with actual API call to get accounting periods
-        setPeriods([
-          { id: 1, label: "January 2025", year: 2025, month: 1 },
-          { id: 2, label: "December 2024", year: 2024, month: 12 },
-          { id: 3, label: "November 2024", year: 2024, month: 11 },
-        ]);
-      } catch (err) {
-        console.error("Error fetching periods:", err);
-      }
-    };
+  // Theme classes
+  const cardBg = isDarkMode ? "bg-gray-800" : "bg-white";
+  const textPrimary = isDarkMode ? "text-gray-100" : "text-gray-900";
+  const textSecondary = isDarkMode ? "text-gray-400" : "text-gray-600";
+  const textLabel = isDarkMode ? "text-gray-300" : "text-gray-700";
+  const inputCls = isDarkMode
+    ? "bg-gray-700 border-gray-600 text-gray-100"
+    : "bg-white border-gray-300";
+  const theadBg = isDarkMode ? "bg-gray-700" : "bg-gray-50";
+  const hoverRow = isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50";
+  const totalsBg = isDarkMode ? "bg-gray-700" : "bg-gray-100";
+  const emptyBg = isDarkMode ? "bg-gray-800 border-gray-600" : "bg-gray-50 border-gray-300";
 
-    fetchPeriods();
+  // Generate dynamic period options based on current date
+  useEffect(() => {
+    const now = new Date();
+    const generatedPeriods = [];
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthName = date.toLocaleString("en-US", { month: "long", year: "numeric" });
+      generatedPeriods.push({
+        id: i + 1,
+        label: monthName,
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+      });
+    }
+    setPeriods(generatedPeriods);
   }, []);
 
   const handleGenerateReport = async () => {
@@ -64,7 +78,6 @@ export default function TrialBalanceReport() {
   };
 
   const handleDrillDown = (accountCode) => {
-    // Navigate to General Ledger for this account
     window.location.href = `/reports/general-ledger/${accountCode}`;
   };
 
@@ -72,23 +85,23 @@ export default function TrialBalanceReport() {
     <div className="space-y-6 p-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Trial Balance Report</h1>
-        <p className="text-gray-600 mt-2">Verify that Total Debits = Total Credits for audit purposes</p>
+        <h1 className={`text-3xl font-bold ${textPrimary}`}>Trial Balance Report</h1>
+        <p className={`${textSecondary} mt-2`}>Verify that Total Debits = Total Credits for audit purposes</p>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-6 space-y-4">
+      <div className={`${cardBg} rounded-lg shadow p-6 space-y-4`}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Period Selector */}
           <div>
-            <label htmlFor="trial-balance-period" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="trial-balance-period" className={`block text-sm font-medium ${textLabel} mb-2`}>
               Accounting Period
             </label>
             <select
               id="trial-balance-period"
               value={periodId || ""}
               onChange={(e) => setPeriodId(e.target.value ? parseInt(e.target.value, 10) : null)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputCls}`}
             >
               <option value="">Select Period...</option>
               {periods.map((period) => (
@@ -108,7 +121,7 @@ export default function TrialBalanceReport() {
                 onChange={(e) => setIncludeZeroBalances(e.target.checked)}
                 className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700">Include Zero Balances</span>
+              <span className={`ml-2 text-sm ${textLabel}`}>Include Zero Balances</span>
             </label>
           </div>
 
@@ -128,8 +141,10 @@ export default function TrialBalanceReport() {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">{error}</p>
+        <div
+          className={`${isDarkMode ? "bg-red-900/30 border border-red-700" : "bg-red-50 border border-red-200"} rounded-lg p-4`}
+        >
+          <p className={isDarkMode ? "text-red-300" : "text-red-800"}>{error}</p>
         </div>
       )}
 
@@ -137,15 +152,41 @@ export default function TrialBalanceReport() {
       {data && (
         <div
           className={`rounded-lg p-4 ${
-            data.totals.balanced ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"
+            data.totals.balanced
+              ? isDarkMode
+                ? "bg-green-900/30 border border-green-700"
+                : "bg-green-50 border border-green-200"
+              : isDarkMode
+                ? "bg-red-900/30 border border-red-700"
+                : "bg-red-50 border border-red-200"
           }`}
         >
           <div className="flex items-center justify-between">
             <div>
-              <h3 className={`font-bold text-lg ${data.totals.balanced ? "text-green-800" : "text-red-800"}`}>
-                {data.totals.balanced ? "✓ Trial Balance is Balanced" : "✗ Trial Balance is NOT Balanced"}
+              <h3
+                className={`font-bold text-lg ${
+                  data.totals.balanced
+                    ? isDarkMode
+                      ? "text-green-300"
+                      : "text-green-800"
+                    : isDarkMode
+                      ? "text-red-300"
+                      : "text-red-800"
+                }`}
+              >
+                {data.totals.balanced ? "Trial Balance is Balanced" : "Trial Balance is NOT Balanced"}
               </h3>
-              <p className={`text-sm mt-1 ${data.totals.balanced ? "text-green-700" : "text-red-700"}`}>
+              <p
+                className={`text-sm mt-1 ${
+                  data.totals.balanced
+                    ? isDarkMode
+                      ? "text-green-400"
+                      : "text-green-700"
+                    : isDarkMode
+                      ? "text-red-400"
+                      : "text-red-700"
+                }`}
+              >
                 Total Debit: {financialReportsService.formatCurrency(data.totals.debit)} | Total Credit:{" "}
                 {financialReportsService.formatCurrency(data.totals.credit)} | Variance:{" "}
                 {financialReportsService.formatCurrency(data.totals.variance)}
@@ -157,36 +198,39 @@ export default function TrialBalanceReport() {
 
       {/* Trial Balance Table */}
       {data && (
-        <div className="bg-white rounded-lg shadow overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className={`${cardBg} rounded-lg shadow overflow-x-auto`}>
+          <table className={`min-w-full divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
+            <thead className={theadBg}>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                <th className={`px-6 py-3 text-left text-xs font-medium ${textLabel} uppercase tracking-wider`}>
                   Account Code
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                <th className={`px-6 py-3 text-left text-xs font-medium ${textLabel} uppercase tracking-wider`}>
                   Account Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                <th className={`px-6 py-3 text-left text-xs font-medium ${textLabel} uppercase tracking-wider`}>
                   Category
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">
+                <th className={`px-6 py-3 text-right text-xs font-medium ${textLabel} uppercase tracking-wider`}>
                   Debit
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">
+                <th className={`px-6 py-3 text-right text-xs font-medium ${textLabel} uppercase tracking-wider`}>
                   Credit
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                <th className={`px-6 py-3 text-center text-xs font-medium ${textLabel} uppercase tracking-wider`}>
                   Action
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className={`${cardBg} divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
               {data.accounts.map((account, idx) => (
-                <tr key={account.id || account.name || `account-${idx}`} className="hover:bg-gray-50 cursor-pointer">
-                  <td className="px-6 py-3 text-sm font-medium text-gray-900">{account.account_code}</td>
-                  <td className="px-6 py-3 text-sm text-gray-700">{account.account_name}</td>
-                  <td className="px-6 py-3 text-sm text-gray-600">{account.account_category}</td>
+                <tr
+                  key={account.id || account.name || `account-${idx}`}
+                  className={`${hoverRow} cursor-pointer`}
+                >
+                  <td className={`px-6 py-3 text-sm font-medium ${textPrimary}`}>{account.account_code}</td>
+                  <td className={`px-6 py-3 text-sm ${textLabel}`}>{account.account_name}</td>
+                  <td className={`px-6 py-3 text-sm ${textSecondary}`}>{account.account_category}</td>
                   <td className="px-6 py-3 text-sm text-right font-mono">
                     {account.closing_debit > 0 ? financialReportsService.formatCurrency(account.closing_debit) : "-"}
                   </td>
@@ -205,19 +249,19 @@ export default function TrialBalanceReport() {
                 </tr>
               ))}
               {/* Totals Row */}
-              <tr className="bg-gray-100 font-bold">
-                <td colSpan="3" className="px-6 py-3 text-sm">
+              <tr className={`${totalsBg} font-bold`}>
+                <td colSpan="3" className={`px-6 py-3 text-sm ${textPrimary}`}>
                   TOTALS
                 </td>
-                <td className="px-6 py-3 text-sm text-right font-mono">
+                <td className={`px-6 py-3 text-sm text-right font-mono ${textPrimary}`}>
                   {financialReportsService.formatCurrency(data.totals.debit)}
                 </td>
-                <td className="px-6 py-3 text-sm text-right font-mono">
+                <td className={`px-6 py-3 text-sm text-right font-mono ${textPrimary}`}>
                   {financialReportsService.formatCurrency(data.totals.credit)}
                 </td>
                 <td className="px-6 py-3 text-sm text-center">
-                  <span className={`font-bold ${data.totals.balanced ? "text-green-700" : "text-red-700"}`}>
-                    {data.totals.balanced ? "✓" : "✗"}
+                  <span className={`font-bold ${data.totals.balanced ? "text-green-500" : "text-red-500"}`}>
+                    {data.totals.balanced ? "Balanced" : "Unbalanced"}
                   </span>
                 </td>
               </tr>
@@ -228,15 +272,15 @@ export default function TrialBalanceReport() {
 
       {/* Empty State */}
       {!loading && !data && !error && (
-        <div className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-gray-600">Select an accounting period and click &quot;Generate Report&quot;</p>
+        <div className={`${emptyBg} rounded-lg border-2 border-dashed p-12 text-center`}>
+          <p className={textSecondary}>Select an accounting period and click &quot;Generate Report&quot;</p>
         </div>
       )}
 
       {/* Loading State */}
       {loading && (
-        <div className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-gray-600 animate-pulse">Generating Trial Balance...</p>
+        <div className={`${emptyBg} rounded-lg border-2 border-dashed p-12 text-center`}>
+          <p className={`${textSecondary} animate-pulse`}>Generating Trial Balance...</p>
         </div>
       )}
     </div>

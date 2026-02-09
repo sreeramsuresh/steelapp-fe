@@ -1,6 +1,7 @@
 import { Building2, Edit, Factory, Globe, Loader2, Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../contexts/ThemeContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +15,7 @@ import { suppliersAPI } from "../services/api";
  */
 export function SupplierList() {
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -114,7 +116,7 @@ export function SupplierList() {
           {/* Filters */}
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">Location:</span>
+              <span className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Location:</span>
               <select
                 id="supplier-location-filter"
                 name="location"
@@ -123,7 +125,7 @@ export function SupplierList() {
                   setFilterLocation(e.target.value);
                   setPage(1);
                 }}
-                className="px-3 py-1.5 border rounded-md text-sm"
+                className={`px-3 py-1.5 border rounded-md text-sm ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : ""}`}
                 aria-label="Filter by location"
               >
                 <option value="ALL">All Locations</option>
@@ -132,7 +134,7 @@ export function SupplierList() {
               </select>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">Type:</span>
+              <span className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Type:</span>
               <select
                 id="supplier-type-filter"
                 name="supplierType"
@@ -141,7 +143,7 @@ export function SupplierList() {
                   setFilterMill(e.target.value);
                   setPage(1);
                 }}
-                className="px-3 py-1.5 border rounded-md text-sm"
+                className={`px-3 py-1.5 border rounded-md text-sm ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : ""}`}
                 aria-label="Filter by supplier type"
               >
                 <option value="ALL">All Types</option>
@@ -149,14 +151,14 @@ export function SupplierList() {
                 <option value="TRADER">Traders Only</option>
               </select>
             </div>
-            <div className="text-sm text-gray-500 ml-auto">
+            <div className={`text-sm ml-auto ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               {filteredSuppliers.length} supplier
               {filteredSuppliers.length !== 1 ? "s" : ""} found
             </div>
           </div>
 
           {error && (
-            <div className="mb-4 p-4 bg-red-50 text-red-800 rounded">
+            <div className={`mb-4 p-4 rounded ${isDarkMode ? "bg-red-900/30 text-red-300" : "bg-red-50 text-red-800"}`}>
               {error}
               <Button onClick={loadSuppliers} className="ml-4" variant="outline">
                 Retry
@@ -196,7 +198,7 @@ export function SupplierList() {
                         <TableCell>
                           <div>
                             <div className="font-medium">{supplier.name}</div>
-                            <div className="text-sm text-gray-500">{supplier.email}</div>
+                            <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{supplier.email}</div>
                           </div>
                         </TableCell>
                         <TableCell>{getLocationBadge(location)}</TableCell>
@@ -255,7 +257,7 @@ export function SupplierList() {
               </Table>
 
               {filteredSuppliers.length === 0 && !loading && (
-                <div className="text-center py-8 text-gray-500">No suppliers found matching the current filters</div>
+                <div className={`text-center py-8 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>No suppliers found matching the current filters</div>
               )}
             </div>
           )}
@@ -263,7 +265,7 @@ export function SupplierList() {
           {/* Pagination */}
           {filteredSuppliers.length > itemsPerPage && (
             <div className="flex justify-between items-center mt-4">
-              <span className="text-sm text-gray-600">
+              <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                 Showing {(page - 1) * itemsPerPage + 1} to {Math.min(page * itemsPerPage, filteredSuppliers.length)} of{" "}
                 {filteredSuppliers.length}
               </span>

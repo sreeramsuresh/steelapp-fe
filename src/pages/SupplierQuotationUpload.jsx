@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { useTheme } from "../contexts/ThemeContext";
 import { suppliersAPI } from "../services/api";
 import { getConfidenceColor, uploadAndExtractPDF } from "../services/supplierQuotationService";
 
@@ -14,6 +15,7 @@ import { getConfidenceColor, uploadAndExtractPDF } from "../services/supplierQuo
  */
 export function SupplierQuotationUpload() {
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const fileInputRef = useRef(null);
 
   const [file, setFile] = useState(null);
@@ -143,7 +145,7 @@ export function SupplierQuotationUpload() {
               id="supplier"
               value={supplierId}
               onChange={(e) => setSupplierId(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md"
+              className={`w-full px-3 py-2 border rounded-md ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : ""}`}
               disabled={loadingSuppliers || uploading}
             >
               <option value="">Auto-detect from PDF</option>
@@ -153,7 +155,7 @@ export function SupplierQuotationUpload() {
                 </option>
               ))}
             </select>
-            <p className="text-sm text-gray-500">
+            <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               Select a supplier to use their extraction template, or leave blank for auto-detection
             </p>
           </div>
@@ -163,10 +165,10 @@ export function SupplierQuotationUpload() {
             type="button"
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
               dragActive
-                ? "border-blue-500 bg-blue-50"
+                ? isDarkMode ? "border-blue-400 bg-blue-900/30" : "border-blue-500 bg-blue-50"
                 : file
-                  ? "border-green-500 bg-green-50"
-                  : "border-gray-300 hover:border-gray-400"
+                  ? isDarkMode ? "border-green-400 bg-green-900/30" : "border-green-500 bg-green-50"
+                  : isDarkMode ? "border-gray-600 hover:border-gray-500" : "border-gray-300 hover:border-gray-400"
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -184,7 +186,7 @@ export function SupplierQuotationUpload() {
                 <FileText className="h-12 w-12 text-green-600" />
                 <div className="text-left">
                   <p className="font-medium">{file.name}</p>
-                  <p className="text-sm text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                 </div>
                 <Button variant="ghost" size="sm" onClick={clearFile} className="text-gray-500 hover:text-red-600">
                   <X className="h-4 w-4" />
@@ -193,8 +195,8 @@ export function SupplierQuotationUpload() {
             ) : (
               <div>
                 <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-600 mb-2">Drag and drop a PDF file here, or click to select</p>
-                <p className="text-sm text-gray-400">Maximum file size: 25MB</p>
+                <p className={`mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Drag and drop a PDF file here, or click to select</p>
+                <p className={`text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>Maximum file size: 25MB</p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -211,7 +213,7 @@ export function SupplierQuotationUpload() {
           </button>
 
           {/* Error Display */}
-          {error && <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">{error}</div>}
+          {error && <div className={`p-4 rounded-lg border ${isDarkMode ? "bg-red-900/30 border-red-700 text-red-300" : "bg-red-50 border-red-200 text-red-600"}`}>{error}</div>}
 
           {/* Upload Button */}
           <div className="flex justify-end gap-2">
@@ -251,8 +253,8 @@ export function SupplierQuotationUpload() {
           <CardContent className="space-y-4">
             {/* Confidence & Details */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-500">Confidence</p>
+              <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Confidence</p>
                 <div className="flex items-center gap-2 mt-1">
                   <div
                     className={`w-3 h-3 rounded-full bg-${getConfidenceColor(extractionResult.extractionDetails?.confidence)}-500`}
@@ -262,29 +264,29 @@ export function SupplierQuotationUpload() {
                   </span>
                 </div>
               </div>
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-500">PDF Type</p>
+              <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>PDF Type</p>
                 <p className="font-medium mt-1 capitalize">
                   {extractionResult.extractionDetails?.pdfType || "Unknown"}
                 </p>
               </div>
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-500">Method</p>
+              <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Method</p>
                 <p className="font-medium mt-1 capitalize">
                   {extractionResult.extractionDetails?.extractionMethod?.replace("_", " ") || "N/A"}
                 </p>
               </div>
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-500">Items Extracted</p>
+              <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Items Extracted</p>
                 <p className="font-medium mt-1">{extractionResult.extractionDetails?.itemsExtracted || 0}</p>
               </div>
             </div>
 
             {/* Warnings */}
             {extractionResult.extractionDetails?.warnings?.length > 0 && (
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="font-medium text-yellow-800 mb-2">Warnings</p>
-                <ul className="list-disc list-inside text-sm text-yellow-700">
+              <div className={`p-4 rounded-lg border ${isDarkMode ? "bg-yellow-900/30 border-yellow-700" : "bg-yellow-50 border-yellow-200"}`}>
+                <p className={`font-medium mb-2 ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}>Warnings</p>
+                <ul className={`list-disc list-inside text-sm ${isDarkMode ? "text-yellow-400" : "text-yellow-700"}`}>
                   {extractionResult.extractionDetails.warnings.map((warning, _idx) => (
                     <li key={warning}>{warning}</li>
                   ))}
@@ -298,27 +300,27 @@ export function SupplierQuotationUpload() {
                 <h3 className="font-medium mb-4">Extracted Quotation</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                   <div>
-                    <p className="text-gray-500">Reference</p>
+                    <p className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Reference</p>
                     <p className="font-medium">{extractionResult.quotation.internalReference}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Supplier Reference</p>
+                    <p className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Supplier Reference</p>
                     <p className="font-medium">{extractionResult.quotation.supplierReference || "-"}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Supplier</p>
+                    <p className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Supplier</p>
                     <p className="font-medium">{extractionResult.quotation.supplierName || "Unknown"}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Quote Date</p>
+                    <p className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Quote Date</p>
                     <p className="font-medium">{extractionResult.quotation.quoteDate || "-"}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Validity</p>
+                    <p className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Validity</p>
                     <p className="font-medium">{extractionResult.quotation.validityDate || "-"}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Total</p>
+                    <p className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Total</p>
                     <p className="font-medium text-lg">
                       {formatCurrency(extractionResult.quotation.total, extractionResult.quotation.currency)}
                     </p>
@@ -328,10 +330,10 @@ export function SupplierQuotationUpload() {
                 {/* Line Items Preview */}
                 {extractionResult.quotation.items?.length > 0 && (
                   <div className="mt-4">
-                    <p className="text-sm text-gray-500 mb-2">Line Items ({extractionResult.quotation.items.length})</p>
+                    <p className={`text-sm mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Line Items ({extractionResult.quotation.items.length})</p>
                     <div className="border rounded-lg overflow-hidden">
                       <table className="w-full text-sm">
-                        <thead className="bg-gray-50">
+                        <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                           <tr>
                             <th className="px-3 py-2 text-left">Description</th>
                             <th className="px-3 py-2 text-left">Grade</th>
@@ -356,8 +358,8 @@ export function SupplierQuotationUpload() {
                             </tr>
                           ))}
                           {extractionResult.quotation.items.length > 5 && (
-                            <tr className="border-t bg-gray-50">
-                              <td colSpan="5" className="px-3 py-2 text-center text-gray-500">
+                            <tr className={`border-t ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+                              <td colSpan="5" className={`px-3 py-2 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                                 +{extractionResult.quotation.items.length - 5} more items
                               </td>
                             </tr>

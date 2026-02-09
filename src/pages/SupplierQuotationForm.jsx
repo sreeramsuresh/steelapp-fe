@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useTheme } from "../contexts/ThemeContext";
 import { suppliersAPI } from "../services/api";
 import {
   createSupplierQuotation,
@@ -21,6 +22,7 @@ import {
 export function SupplierQuotationForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const isEdit = Boolean(id);
 
   const [loading, setLoading] = useState(isEdit);
@@ -250,7 +252,7 @@ export function SupplierQuotationForm() {
               <select
                 value={formData.supplierId}
                 onChange={(e) => handleChange("supplierId", e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
+                className={`w-full px-3 py-2 border rounded-md ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : ""}`}
                 required
               >
                 <option value="">Select Supplier</option>
@@ -274,7 +276,7 @@ export function SupplierQuotationForm() {
               <select
                 value={formData.currency}
                 onChange={(e) => handleChange("currency", e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
+                className={`w-full px-3 py-2 border rounded-md ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : ""}`}
               >
                 <option value="AED">AED</option>
                 <option value="USD">USD</option>
@@ -327,7 +329,7 @@ export function SupplierQuotationForm() {
               <select
                 value={formData.incoterms}
                 onChange={(e) => handleChange("incoterms", e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
+                className={`w-full px-3 py-2 border rounded-md ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : ""}`}
               >
                 <option value="">Select</option>
                 <option value="EXW">EXW - Ex Works</option>
@@ -361,15 +363,15 @@ export function SupplierQuotationForm() {
         </CardHeader>
         <CardContent>
           {formData.items.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className={`text-center py-8 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               No items added yet. Click &quot;Add Item&quot; to start.
             </div>
           ) : (
             <div className="space-y-4">
               {formData.items.map((item, index) => (
-                <div key={item} className="border rounded-lg p-4 bg-gray-50 space-y-3">
+                <div key={item} className={`border rounded-lg p-4 space-y-3 ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50"}`}>
                   <div className="flex justify-between items-start">
-                    <span className="text-sm font-medium text-gray-500">Item #{index + 1}</span>
+                    <span className={`text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Item #{index + 1}</span>
                     <Button
                       type="button"
                       variant="ghost"
@@ -429,7 +431,7 @@ export function SupplierQuotationForm() {
                       <select
                         value={item.unit}
                         onChange={(e) => handleItemChange(index, "unit", e.target.value)}
-                        className="w-full px-3 py-2 border rounded-md"
+                        className={`w-full px-3 py-2 border rounded-md ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : ""}`}
                       >
                         <option value="KG">KG</option>
                         <option value="MT">MT</option>
@@ -450,7 +452,7 @@ export function SupplierQuotationForm() {
                     </div>
                     <div>
                       <Label>Amount</Label>
-                      <Input value={formatCurrency(item.amount)} disabled className="bg-gray-100" />
+                      <Input value={formatCurrency(item.amount)} disabled className={isDarkMode ? "bg-gray-600" : "bg-gray-100"} />
                     </div>
                   </div>
                 </div>
@@ -505,9 +507,9 @@ export function SupplierQuotationForm() {
                 />
               </div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+            <div className={`rounded-lg p-4 space-y-2 ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Subtotal</span>
+                <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Subtotal</span>
                 <span>{formatCurrency(totals.subtotal)}</span>
               </div>
               {totals.discount > 0 && (
@@ -518,24 +520,24 @@ export function SupplierQuotationForm() {
               )}
               {totals.shipping > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Shipping</span>
+                  <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Shipping</span>
                   <span>{formatCurrency(totals.shipping)}</span>
                 </div>
               )}
               {totals.freight > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Freight</span>
+                  <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Freight</span>
                   <span>{formatCurrency(totals.freight)}</span>
                 </div>
               )}
               {totals.other > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Other</span>
+                  <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Other</span>
                   <span>{formatCurrency(totals.other)}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">VAT (5%)</span>
+                <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>VAT (5%)</span>
                 <span>{formatCurrency(totals.vat)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg pt-2 border-t">

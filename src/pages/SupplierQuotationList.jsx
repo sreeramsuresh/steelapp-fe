@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useTheme } from "../contexts/ThemeContext";
 import ConfirmDialog from "../components/ConfirmDialog";
 import {
   deleteSupplierQuotation,
@@ -23,6 +24,7 @@ import {
  */
 export function SupplierQuotationList() {
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -153,7 +155,7 @@ export function SupplierQuotationList() {
               />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">Status:</span>
+              <span className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Status:</span>
               <select
                 id="quotation-status-filter"
                 name="status"
@@ -162,7 +164,7 @@ export function SupplierQuotationList() {
                   setStatusFilter(e.target.value);
                   setPage(1);
                 }}
-                className="px-3 py-1.5 border rounded-md text-sm"
+                className={`px-3 py-1.5 border rounded-md text-sm ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : ""}`}
                 aria-label="Filter by status"
               >
                 <option value="">All Statuses</option>
@@ -182,7 +184,7 @@ export function SupplierQuotationList() {
               <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
             </div>
           ) : quotations.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className={`text-center py-12 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               <p className="font-medium">No supplier quotations found</p>
               <p className="text-sm mt-1">Upload or create a supplier quotation to get started.</p>
             </div>
@@ -273,14 +275,14 @@ export function SupplierQuotationList() {
 
               {/* Pagination */}
               <div className="flex items-center justify-between mt-4">
-                <div className="text-sm text-gray-500">
+                <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                   Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, pageInfo.totalCount)} of{" "}
                   {pageInfo.totalCount} quotations
                 </div>
                 <div className="flex gap-4 items-center">
                   {/* Page Size Selector */}
                   <div className="flex items-center gap-2">
-                    <label htmlFor="page-size-select" className="text-sm text-gray-500">
+                    <label htmlFor="page-size-select" className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                       Per page:
                     </label>
                     <select
@@ -290,7 +292,7 @@ export function SupplierQuotationList() {
                         setPageSize(Number(e.target.value));
                         setPage(1); // Reset to first page
                       }}
-                      className="px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`px-2 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : "border-gray-300"}`}
                     >
                       <option value={10}>10</option>
                       <option value={20}>20</option>

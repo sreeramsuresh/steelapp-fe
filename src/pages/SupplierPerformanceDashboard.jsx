@@ -3,6 +3,7 @@ import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useTheme } from "../contexts/ThemeContext";
 // Lazy-load chart components for better initial load performance
 import { ChartSkeleton } from "../components/charts";
 
@@ -12,6 +13,7 @@ const LazyLineChart = lazy(() => import("../components/charts/LazyLineChart"));
  * Shows supplier rankings, OTD%, variance trends, at-risk suppliers
  */
 function SupplierPerformanceDashboard() {
+  const { isDarkMode } = useTheme();
   const [suppliers, setSuppliers] = useState([]);
   const [atRiskSuppliers, setAtRiskSuppliers] = useState([]);
   const [trends, setTrends] = useState([]);
@@ -111,41 +113,41 @@ function SupplierPerformanceDashboard() {
       <div className="grid grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">On-Time Delivery</CardTitle>
+            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>On-Time Delivery</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{kpis.otdPercent}%</div>
-            <p className="text-xs text-gray-500">Average across suppliers</p>
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Average across suppliers</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Avg Variance</CardTitle>
+            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Avg Variance</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{kpis.avgVariance} days</div>
-            <p className="text-xs text-gray-500">Days from expected</p>
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Days from expected</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Consistency Score</CardTitle>
+            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Consistency Score</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{kpis.consistencyScore}/100</div>
-            <p className="text-xs text-gray-500">Supplier reliability</p>
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Supplier reliability</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Overall Rating</CardTitle>
+            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Overall Rating</CardTitle>
           </CardHeader>
           <CardContent>
             <Badge className="bg-blue-100 text-blue-800">{kpis.overallRating}</Badge>
-            <p className="text-xs text-gray-500 mt-2">Supplier portfolio health</p>
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} mt-2`}>Supplier portfolio health</p>
           </CardContent>
         </Card>
       </div>
@@ -243,9 +245,9 @@ function SupplierPerformanceDashboard() {
 
       {/* At-Risk Suppliers Alert */}
       {atRiskSuppliers.length > 0 && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className={isDarkMode ? "border-red-800 bg-red-900/30" : "border-red-200 bg-red-50"}>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-900">
+            <CardTitle className={`flex items-center gap-2 ${isDarkMode ? "text-red-300" : "text-red-900"}`}>
               <AlertCircle className="h-4 w-4" />
               At-Risk Suppliers Alert
             </CardTitle>
@@ -255,16 +257,16 @@ function SupplierPerformanceDashboard() {
               {atRiskSuppliers.map((supplier) => (
                 <div
                   key={supplier.id}
-                  className="flex justify-between items-start p-3 bg-white rounded border border-red-200"
+                  className={`flex justify-between items-start p-3 rounded border ${isDarkMode ? "bg-gray-800 border-red-800" : "bg-white border-red-200"}`}
                 >
                   <div>
-                    <p className="font-medium text-red-900">{supplier.name}</p>
-                    <p className="text-sm text-red-700">{supplier.reason}</p>
+                    <p className={`font-medium ${isDarkMode ? "text-red-300" : "text-red-900"}`}>{supplier.name}</p>
+                    <p className={`text-sm ${isDarkMode ? "text-red-400" : "text-red-700"}`}>{supplier.reason}</p>
                   </div>
                   <Badge className="bg-red-100 text-red-800">Score: {supplier.score}</Badge>
                 </div>
               ))}
-              <p className="text-sm text-red-700 font-medium">
+              <p className={`text-sm font-medium ${isDarkMode ? "text-red-400" : "text-red-700"}`}>
                 ⚠️ Recommendation: Consider finding alternative suppliers or schedule performance review meetings.
               </p>
             </div>

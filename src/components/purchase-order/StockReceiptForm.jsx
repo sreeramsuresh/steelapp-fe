@@ -25,6 +25,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import { stockMovementService } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
@@ -63,6 +64,7 @@ const StockReceiptForm = ({
   onSuccess,
 }) => {
   const { isDarkMode } = useTheme();
+  const { user } = useAuth();
 
   // Theme classes
   const overlayBg = "bg-black/60";
@@ -358,7 +360,7 @@ const StockReceiptForm = ({
   // Handle GRN approval (Epic 3 - RECV-001)
   const handleApproveGRN = () => {
     setGrnStatus("approved");
-    setApprovedBy("Current User"); // TODO: Get from auth context
+    setApprovedBy(user?.name || user?.email || "Unknown User");
     setApprovalDate(new Date().toISOString().split("T")[0]);
   };
 
