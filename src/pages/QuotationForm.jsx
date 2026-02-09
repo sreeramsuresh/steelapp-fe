@@ -43,6 +43,13 @@ import { FINISHES, STEEL_GRADES } from "../types";
 import { getProductDisplayName } from "../utils/fieldAccessors";
 import { calculateItemAmount, formatCurrency } from "../utils/invoiceUtils";
 
+// Design system helpers (matching PO form standard)
+const CARD_CLASSES = (isDarkMode) =>
+  `${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4`;
+
+const LABEL_CLASSES = (isDarkMode) =>
+  `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
+
 // Helper to unescape product display names (Bug #25 fix)
 const unescapeProductName = (name) => {
   if (!name || typeof name !== "string") return name || "";
@@ -181,25 +188,25 @@ const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width 
       />
       <div
         className={`fixed top-0 right-0 h-full ${width} z-[31]
-          ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"}
+          ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"}
           overflow-auto transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="p-4">
           <div
             className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3
-            ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"}
+            ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"}
             z-[1]`}
           >
             <div>
               <div className="text-sm font-extrabold">{title}</div>
               {subtitle && (
-                <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>{subtitle}</div>
+                <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{subtitle}</div>
               )}
             </div>
             <button
               type="button"
               onClick={onClose}
-              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-[#2a3640]" : "hover:bg-gray-100"}`}
+              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
             >
               <X className="h-4 w-4" />
             </button>
@@ -1905,11 +1912,7 @@ const QuotationForm = () => {
           {/* Main Content - 8 columns */}
           <div className="col-span-12 lg:col-span-8 space-y-4">
             {/* Basic Information - Compact */}
-            <div
-              className={`p-3 md:p-6 rounded-xl border ${
-                isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"
-              }`}
-            >
+            <div className={CARD_CLASSES(isDarkMode)}>
               <div className="flex items-center gap-2 mb-3 md:mb-4">
                 <FileText size={18} className="text-teal-600 md:hidden" />
                 <FileText size={20} className="text-teal-600 hidden md:block" />
@@ -2041,11 +2044,7 @@ const QuotationForm = () => {
             </div>
 
             {/* Customer Information - Compact */}
-            <div
-              className={`p-3 md:p-6 rounded-xl border ${
-                isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"
-              }`}
-            >
+            <div className={CARD_CLASSES(isDarkMode)}>
               <div className="flex items-center gap-2 mb-3 md:mb-4">
                 <User size={18} className="text-teal-600 md:hidden" />
                 <User size={20} className="text-teal-600 hidden md:block" />
@@ -2196,11 +2195,7 @@ const QuotationForm = () => {
             </div>
 
             {/* Warehouse & Delivery - New Section */}
-            <div
-              className={`p-3 md:p-6 rounded-xl border ${
-                isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"
-              }`}
-            >
+            <div className={CARD_CLASSES(isDarkMode)}>
               <div className="flex items-center gap-2 mb-3 md:mb-4">
                 <Package size={18} className="text-teal-600 md:hidden" />
                 <Package size={20} className="text-teal-600 hidden md:block" />
@@ -2297,11 +2292,7 @@ const QuotationForm = () => {
             </div>
 
             {/* Items Section with Speed Buttons */}
-            <div
-              className={`p-3 md:p-6 rounded-xl border ${
-                isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"
-              }`}
-            >
+            <div className={CARD_CLASSES(isDarkMode)}>
               <div className="flex items-center justify-between mb-3 md:mb-4">
                 <div className="flex items-center gap-2">
                   <Package size={18} className="text-teal-600 md:hidden" />
@@ -2450,7 +2441,7 @@ const QuotationForm = () => {
                       <div
                         className="flex flex-wrap items-center gap-2 mb-3 border-t border-b py-2 mt-2"
                         style={{
-                          borderColor: isDarkMode ? "#37474F" : "#e5e7eb",
+                          borderColor: isDarkMode ? "#374151" : "#e5e7eb",
                         }}
                       >
                         {/* Stock Reservation */}
@@ -2795,11 +2786,7 @@ const QuotationForm = () => {
           <div className="col-span-12 lg:col-span-4">
             <div className="lg:sticky lg:top-24 space-y-4">
               {/* Summary */}
-              <div
-                className={`p-4 rounded-2xl border ${
-                  isDarkMode ? "bg-[#141a20] border-[#2a3640]" : "bg-white border-gray-200"
-                }`}
-              >
+              <div className={CARD_CLASSES(isDarkMode)}>
                 <div className="flex items-center gap-2 mb-3">
                   <Calculator size={18} className="text-teal-600" />
                   <h3 className={`text-sm font-extrabold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Summary</h3>
@@ -2807,7 +2794,7 @@ const QuotationForm = () => {
 
                 <div className="space-y-2">
                   <div className="flex justify-between text-[13px]">
-                    <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}>Subtotal</span>
+                    <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Subtotal</span>
                     <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`} data-testid="subtotal">
                       {formatCurrency(formData.subtotal)}
                     </span>
@@ -2815,7 +2802,7 @@ const QuotationForm = () => {
 
                   {formData.vatAmount > 0 && (
                     <div className="flex justify-between text-[13px]">
-                      <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}>VAT</span>
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>VAT</span>
                       <span
                         className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
                         data-testid="vat-amount"
@@ -2832,7 +2819,7 @@ const QuotationForm = () => {
                     (parseFloat(formData.otherCharges) || 0) >
                     0 && (
                     <div className="flex justify-between text-[13px]">
-                      <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}>Charges</span>
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Charges</span>
                       <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                         {formatCurrency(
                           (parseFloat(formData.packingCharges) || 0) +
@@ -2855,10 +2842,10 @@ const QuotationForm = () => {
                   </div>
 
                   <div className="flex justify-between text-xs pt-1">
-                    <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}>
+                    <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
                       {formData.items.length} item{formData.items.length === 1 ? "" : "s"}
                     </span>
-                    <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}>
+                    <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
                       Qty: {formData.totalQuantity}
                     </span>
                   </div>
@@ -2866,12 +2853,8 @@ const QuotationForm = () => {
               </div>
 
               {/* Quick Actions */}
-              <div
-                className={`p-4 rounded-2xl border ${
-                  isDarkMode ? "bg-[#141a20] border-[#2a3640]" : "bg-white border-gray-200"
-                }`}
-              >
-                <div className={`text-xs font-medium mb-2 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <div className={CARD_CLASSES(isDarkMode)}>
+                <div className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                   Quick Actions
                 </div>
                 <div className="space-y-1.5">
@@ -2978,7 +2961,7 @@ const QuotationForm = () => {
                   type="button"
                   onClick={handleBackClick}
                   className={`w-full py-2 text-[13px] text-center ${
-                    isDarkMode ? "text-[#93a4b4] hover:text-white" : "text-gray-500 hover:text-gray-700"
+                    isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
                   Cancel
@@ -2999,10 +2982,7 @@ const QuotationForm = () => {
           <div className="space-y-4 mt-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label
-                  htmlFor="quotation-packing-charges"
-                  className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
-                >
+                <label htmlFor="quotation-packing-charges" className={LABEL_CLASSES(isDarkMode)}>
                   Packing Charges
                 </label>
                 <input
@@ -3026,10 +3006,7 @@ const QuotationForm = () => {
                 />
               </div>
               <div>
-                <label
-                  htmlFor="quotation-freight-charges"
-                  className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
-                >
+                <label htmlFor="quotation-freight-charges" className={LABEL_CLASSES(isDarkMode)}>
                   Freight Charges
                 </label>
                 <input
@@ -3053,10 +3030,7 @@ const QuotationForm = () => {
                 />
               </div>
               <div>
-                <label
-                  htmlFor="quotation-insurance-charges"
-                  className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
-                >
+                <label htmlFor="quotation-insurance-charges" className={LABEL_CLASSES(isDarkMode)}>
                   Insurance Charges
                 </label>
                 <input
@@ -3080,10 +3054,7 @@ const QuotationForm = () => {
                 />
               </div>
               <div>
-                <label
-                  htmlFor="quotation-loading-charges"
-                  className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
-                >
+                <label htmlFor="quotation-loading-charges" className={LABEL_CLASSES(isDarkMode)}>
                   Loading Charges
                 </label>
                 <input
@@ -3107,10 +3078,7 @@ const QuotationForm = () => {
                 />
               </div>
               <div className="col-span-2">
-                <label
-                  htmlFor="quotation-other-charges"
-                  className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
-                >
+                <label htmlFor="quotation-other-charges" className={LABEL_CLASSES(isDarkMode)}>
                   Other Charges
                 </label>
                 <input
@@ -3137,7 +3105,7 @@ const QuotationForm = () => {
 
             {/* Discount Section */}
             <div className="space-y-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-              <div className={`block text-xs font-semibold ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}>
+              <div className={`block text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                 Discount
               </div>
 
@@ -3180,10 +3148,7 @@ const QuotationForm = () => {
               <div className="grid grid-cols-2 gap-3">
                 {formData.discountType === "percentage" && (
                   <div>
-                    <label
-                      htmlFor="discountPercentage"
-                      className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
-                    >
+                    <label htmlFor="discountPercentage" className={LABEL_CLASSES(isDarkMode)}>
                       Discount Percentage (%)
                     </label>
                     <input
@@ -3211,10 +3176,7 @@ const QuotationForm = () => {
 
                 {formData.discountType === "fixed" && (
                   <div>
-                    <label
-                      htmlFor="discountAmount"
-                      className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
-                    >
+                    <label htmlFor="discountAmount" className={LABEL_CLASSES(isDarkMode)}>
                       Discount Amount
                     </label>
                     <input
@@ -3242,10 +3204,10 @@ const QuotationForm = () => {
             </div>
 
             <div
-              className={`p-3 rounded-[14px] ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+              className={`p-3 rounded-[14px] ${isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-gray-50 border border-gray-200"}`}
             >
               <div className="flex justify-between items-center">
-                <span className={`text-sm ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Total Charges</span>
+                <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Total Charges</span>
                 <span className="text-sm font-bold font-mono">
                   {formatCurrency(
                     (parseFloat(formData.packingCharges) || 0) +
@@ -3287,10 +3249,7 @@ const QuotationForm = () => {
         >
           <div className="space-y-4 mt-4">
             <div>
-              <label
-                htmlFor="quotation-notes"
-                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
-              >
+              <label htmlFor="quotation-notes" className={LABEL_CLASSES(isDarkMode)}>
                 Notes
               </label>
               <textarea
@@ -3307,10 +3266,7 @@ const QuotationForm = () => {
               />
             </div>
             <div>
-              <label
-                htmlFor="quotation-terms"
-                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
-              >
+              <label htmlFor="quotation-terms" className={LABEL_CLASSES(isDarkMode)}>
                 Terms & Conditions
               </label>
               <textarea
