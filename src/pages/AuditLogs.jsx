@@ -1,14 +1,12 @@
 import {
   Activity,
   AlertCircle,
-  Calendar,
   CheckCircle,
   ChevronLeft,
   ChevronRight,
   Download,
   FileText,
   Filter,
-  Search,
   User,
   X,
 } from "lucide-react";
@@ -323,14 +321,13 @@ const AuditLogs = () => {
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
             {/* Search */}
-            <div>
+            <div className="space-y-0.5">
               <label
                 htmlFor="audit-search"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
               >
-                <Search size={16} className="inline mr-1" />
                 Search
               </label>
               <input
@@ -339,55 +336,50 @@ const AuditLogs = () => {
                 value={filters.search}
                 onChange={(e) => handleFilterChange("search", e.target.value)}
                 placeholder="User, action, entity..."
-                className={`w-full px-3 py-2 rounded-lg border ${
+                className={`w-full h-[38px] px-3 text-sm rounded-md border ${
                   isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                    ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                 }`}
               />
             </div>
 
             {/* Category */}
-            <div>
-              <FormSelect
-                label="Category"
-                value={filters.category || "none"}
-                onValueChange={(value) => handleFilterChange("category", value === "none" ? "" : value)}
-                showValidation={false}
-              >
-                <SelectItem value="none">All Categories</SelectItem>
-                {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat.replace(/_/g, " ")}
-                  </SelectItem>
-                ))}
-              </FormSelect>
-            </div>
+            <FormSelect
+              label="Category"
+              value={filters.category || "none"}
+              onValueChange={(value) => handleFilterChange("category", value === "none" ? "" : value)}
+              showValidation={false}
+            >
+              <SelectItem value="none">All Categories</SelectItem>
+              {CATEGORIES.map((cat) => (
+                <SelectItem key={cat} value={cat}>
+                  {cat.replace(/_/g, " ")}
+                </SelectItem>
+              ))}
+            </FormSelect>
 
             {/* User Filter */}
-            <div>
-              <FormSelect
-                label="User"
-                value={filters.user_id || "none"}
-                onValueChange={(value) => handleFilterChange("user_id", value === "none" ? "" : value)}
-                showValidation={false}
-              >
-                <SelectItem value="none">All Users</SelectItem>
-                {users.map((u) => (
-                  <SelectItem key={u.id} value={String(u.id)}>
-                    {u.name || u.email}
-                  </SelectItem>
-                ))}
-              </FormSelect>
-            </div>
+            <FormSelect
+              label="User"
+              value={filters.user_id || "none"}
+              onValueChange={(value) => handleFilterChange("user_id", value === "none" ? "" : value)}
+              showValidation={false}
+            >
+              <SelectItem value="none">All Users</SelectItem>
+              {users.map((u) => (
+                <SelectItem key={u.id} value={String(u.id)}>
+                  {u.name || u.email}
+                </SelectItem>
+              ))}
+            </FormSelect>
 
             {/* Start Date */}
-            <div>
+            <div className="space-y-0.5">
               <label
                 htmlFor="audit-start-date"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
               >
-                <Calendar size={16} className="inline mr-1" />
                 Start Date
               </label>
               <input
@@ -395,19 +387,18 @@ const AuditLogs = () => {
                 type="date"
                 value={filters.startDate}
                 onChange={(e) => handleFilterChange("startDate", e.target.value)}
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
+                className={`w-full h-[38px] px-3 text-sm rounded-md border ${
+                  isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               />
             </div>
 
             {/* End Date */}
-            <div>
+            <div className="space-y-0.5">
               <label
                 htmlFor="audit-end-date"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                className={`block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
               >
-                <Calendar size={16} className="inline mr-1" />
                 End Date
               </label>
               <input
@@ -415,25 +406,23 @@ const AuditLogs = () => {
                 type="date"
                 value={filters.endDate}
                 onChange={(e) => handleFilterChange("endDate", e.target.value)}
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
+                className={`w-full h-[38px] px-3 text-sm rounded-md border ${
+                  isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               />
             </div>
 
             {/* Status */}
-            <div>
-              <FormSelect
-                label="Status"
-                value={filters.status || "none"}
-                onValueChange={(value) => handleFilterChange("status", value === "none" ? "" : value)}
-                showValidation={false}
-              >
-                <SelectItem value="none">All Status</SelectItem>
-                <SelectItem value="success">Success</SelectItem>
-                <SelectItem value="failed">Failed</SelectItem>
-              </FormSelect>
-            </div>
+            <FormSelect
+              label="Status"
+              value={filters.status || "none"}
+              onValueChange={(value) => handleFilterChange("status", value === "none" ? "" : value)}
+              showValidation={false}
+            >
+              <SelectItem value="none">All Status</SelectItem>
+              <SelectItem value="success">Success</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
+            </FormSelect>
           </div>
         </div>
 
