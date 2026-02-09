@@ -110,7 +110,7 @@ export default function PricingStatusPanel({ productId, sellingPrice, isDarkMode
       <div
         className={`p-3 rounded-lg border ${darkMode ? "bg-gray-800 border-gray-700" : "bg-gray-50 border-gray-300"}`}
       >
-        <div className="flex items-center gap-2 text-sm text-gray-500">
+        <div className={`flex items-center gap-2 text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
           <div className="animate-spin">
             <DollarSign className="w-4 h-4" />
           </div>

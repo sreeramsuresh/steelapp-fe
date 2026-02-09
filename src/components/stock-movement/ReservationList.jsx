@@ -559,21 +559,30 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               Fulfill Reservation
             </h3>
-            <div className="space-y-3 mb-6 text-gray-600">
+            <div className={`space-y-3 mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               <p>
-                Reservation: <strong className="text-gray-900">{fulfillDialog.reservation?.reservationNumber}</strong>
+                Reservation:{" "}
+                <strong className={isDarkMode ? "text-white" : "text-gray-900"}>
+                  {fulfillDialog.reservation?.reservationNumber}
+                </strong>
               </p>
               <p>
-                Product: <strong className="text-gray-900">{fulfillDialog.reservation?.productName}</strong>
+                Product:{" "}
+                <strong className={isDarkMode ? "text-white" : "text-gray-900"}>
+                  {fulfillDialog.reservation?.productName}
+                </strong>
               </p>
               <p>
                 Remaining:{" "}
-                <strong className="text-gray-900">
+                <strong className={isDarkMode ? "text-white" : "text-gray-900"}>
                   {formatQuantity(fulfillDialog.reservation?.quantityRemaining, fulfillDialog.reservation?.unit)}
                 </strong>
               </p>
               <div>
-                <label htmlFor="fulfill-quantity" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="fulfill-quantity"
+                  className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
                   Quantity to Fulfill
                 </label>
                 <input
@@ -630,17 +639,23 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               Cancel Reservation
             </h3>
             <div className="space-y-3 mb-6">
-              <p className="text-gray-600">
+              <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
                 Are you sure you want to cancel reservation{" "}
-                <strong className="text-gray-900">{cancelDialog.reservation?.reservationNumber}</strong>?
+                <strong className={isDarkMode ? "text-white" : "text-gray-900"}>
+                  {cancelDialog.reservation?.reservationNumber}
+                </strong>
+                ?
               </p>
-              <p className="text-gray-500">
+              <p className={isDarkMode ? "text-gray-500" : "text-gray-500"}>
                 This will release{" "}
                 {formatQuantity(cancelDialog.reservation?.quantityRemaining, cancelDialog.reservation?.unit)} of
                 reserved stock.
               </p>
               <div>
-                <label htmlFor="cancel-reason" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="cancel-reason"
+                  className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
                   Cancellation Reason (Optional)
                 </label>
                 <textarea

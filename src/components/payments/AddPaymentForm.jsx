@@ -251,23 +251,31 @@ const AddPaymentForm = ({
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     <div>
-                      <div className="text-gray-600">Credit Limit</div>
-                      <div className="font-bold text-green-900">{formatCurrency(creditLimit)}</div>
+                      <div className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Credit Limit</div>
+                      <div className={`font-bold ${isDarkMode ? "text-green-300" : "text-green-900"}`}>
+                        {formatCurrency(creditLimit)}
+                      </div>
                     </div>
                     <div>
-                      <div className="text-gray-600">Current Usage</div>
-                      <div className="font-bold text-green-900">{formatCurrency(currentUsage)}</div>
+                      <div className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Current Usage</div>
+                      <div className={`font-bold ${isDarkMode ? "text-green-300" : "text-green-900"}`}>
+                        {formatCurrency(currentUsage)}
+                      </div>
                     </div>
                     <div>
-                      <div className="text-gray-600">Available</div>
-                      <div className="font-bold text-green-900">{formatCurrency(availableCredit)}</div>
+                      <div className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Available</div>
+                      <div className={`font-bold ${isDarkMode ? "text-green-300" : "text-green-900"}`}>
+                        {formatCurrency(availableCredit)}
+                      </div>
                     </div>
                   </div>
                   {paymentAmount > 0 && (
-                    <div className="mt-2 pt-2 border-t border-green-200 text-xs">
+                    <div
+                      className={`mt-2 pt-2 border-t text-xs ${isDarkMode ? "border-green-700" : "border-green-200"}`}
+                    >
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">After This Payment:</span>
-                        <span className="font-bold text-green-700">
+                        <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>After This Payment:</span>
+                        <span className={`font-bold ${isDarkMode ? "text-green-300" : "text-green-700"}`}>
                           {formatCurrency(newAvailableCredit)} available ({creditUtilizationAfterPayment}% used)
                         </span>
                       </div>
@@ -437,7 +445,7 @@ const AddPaymentForm = ({
             type="button"
             onClick={onCancel}
             disabled={isSaving}
-            className="px-4 py-2.5 rounded-lg font-semibold transition-all border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`px-4 py-2.5 rounded-lg font-semibold transition-all border disabled:opacity-50 disabled:cursor-not-allowed ${isDarkMode ? "border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600" : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"}`}
           >
             Close
           </button>

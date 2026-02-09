@@ -545,26 +545,32 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             </h3>
 
             {/* Content */}
-            <div className="mb-6 text-gray-600">
+            <div className={`mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               {actionDialog.type === "ship" && (
                 <p>
                   Are you sure you want to ship transfer{" "}
-                  <strong className="text-gray-900">{actionDialog.transfer?.transferNumber}</strong>? This will deduct
-                  stock from the source warehouse.
+                  <strong className={isDarkMode ? "text-white" : "text-gray-900"}>
+                    {actionDialog.transfer?.transferNumber}
+                  </strong>
+                  ? This will deduct stock from the source warehouse.
                 </p>
               )}
               {actionDialog.type === "receive" && (
                 <p>
                   Are you sure you want to receive transfer{" "}
-                  <strong className="text-gray-900">{actionDialog.transfer?.transferNumber}</strong>? This will add
-                  stock to the destination warehouse.
+                  <strong className={isDarkMode ? "text-white" : "text-gray-900"}>
+                    {actionDialog.transfer?.transferNumber}
+                  </strong>
+                  ? This will add stock to the destination warehouse.
                 </p>
               )}
               {actionDialog.type === "cancel" && (
                 <p>
                   Are you sure you want to cancel transfer{" "}
-                  <strong className="text-gray-900">{actionDialog.transfer?.transferNumber}</strong>?
-                  {actionDialog.transfer?.status === "SHIPPED" && " Stock will be restored to the source warehouse."}
+                  <strong className={isDarkMode ? "text-white" : "text-gray-900"}>
+                    {actionDialog.transfer?.transferNumber}
+                  </strong>
+                  ?{actionDialog.transfer?.status === "SHIPPED" && " Stock will be restored to the source warehouse."}
                 </p>
               )}
             </div>
