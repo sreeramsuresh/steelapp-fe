@@ -257,8 +257,8 @@ const POTab = ({ canManage }) => {
     const po = drawer.item;
     if (!po) return;
     const balance = Number(po.balance || 0);
-    if (!(Number(amount) > 0)) return alert("Amount must be > 0");
-    if (Number(amount) > balance) return alert("Amount exceeds balance");
+    if (!(Number(amount) > 0)) return notificationService.error("Amount must be greater than 0");
+    if (Number(amount) > balance) return notificationService.error("Amount exceeds balance");
 
     // Clear cache on mutation to ensure fresh data on next fetch
     clearCache(getCacheKeyWithFilters());
@@ -344,7 +344,7 @@ const POTab = ({ canManage }) => {
   const handleDownloadReceipt = async (payment, paymentIndex) => {
     const po = drawer.item;
     if (!po) {
-      alert("Unable to generate receipt. Missing PO information.");
+      notificationService.error("Unable to generate receipt. Missing PO information.");
       return;
     }
     const companyInfo = JSON.parse(localStorage.getItem("companySettings") || "{}");
@@ -358,11 +358,11 @@ const POTab = ({ canManage }) => {
       };
       const result = await generatePaymentReceipt(payment, poData, companyInfo, paymentIndex);
       if (!result.success) {
-        alert(`Error generating receipt: ${result.error}`);
+        notificationService.error(`Error generating receipt: ${result.error}`);
       }
     } catch (error) {
       console.error("Error downloading receipt:", error);
-      alert("Failed to generate receipt.");
+      notificationService.error("Failed to generate receipt.");
     } finally {
       setDownloadingReceiptId(null);
     }
@@ -371,7 +371,7 @@ const POTab = ({ canManage }) => {
   const handlePrintReceipt = async (payment, paymentIndex) => {
     const po = drawer.item;
     if (!po) {
-      alert("Unable to print receipt. Missing PO information.");
+      notificationService.error("Unable to print receipt. Missing PO information.");
       return;
     }
     const companyInfo = JSON.parse(localStorage.getItem("companySettings") || "{}");
@@ -385,11 +385,11 @@ const POTab = ({ canManage }) => {
       };
       const result = await printPaymentReceipt(payment, poData, companyInfo, paymentIndex);
       if (!result.success) {
-        alert(`Error printing receipt: ${result.error}`);
+        notificationService.error(`Error printing receipt: ${result.error}`);
       }
     } catch (error) {
       console.error("Error printing receipt:", error);
-      alert("Failed to print receipt.");
+      notificationService.error("Failed to print receipt.");
     } finally {
       setPrintingReceiptId(null);
     }

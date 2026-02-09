@@ -105,12 +105,12 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
     const amount = parseFloat(formData.amount);
 
     if (!amount || amount <= 0) {
-      alert("Please enter a valid amount");
+      notificationService.error("Please enter a valid amount");
       return;
     }
 
     if (amount > maxAmount) {
-      alert(`Amount cannot exceed outstanding balance of ${formatCurrency(maxAmount)}`);
+      notificationService.error(`Amount cannot exceed outstanding balance of ${formatCurrency(maxAmount)}`);
       return;
     }
 

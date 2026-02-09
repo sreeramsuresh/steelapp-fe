@@ -1,6 +1,6 @@
 import { AlertCircle, CheckCircle, Clock, DollarSign, Edit2, ThumbsUp } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
-import { DarkModeContext } from "../../context/DarkModeContext";
+import { useEffect, useState } from "react";
+import { useTheme } from "../../contexts/ThemeContext";
 import { notificationService } from "../../services/notificationService";
 import ConfirmDialog from "../ConfirmDialog";
 import { Badge } from "../ui/badge";
@@ -27,7 +27,7 @@ const CommissionPanel = ({
   onViewAuditTrail = () => {},
   readOnly = false,
 }) => {
-  const { isDarkMode } = useContext(DarkModeContext);
+  const { isDarkMode } = useTheme();
   const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
   const [adjustedAmount, setAdjustedAmount] = useState(invoice.commissionAmount || 0);
   const [adjustmentReason, setAdjustmentReason] = useState("");

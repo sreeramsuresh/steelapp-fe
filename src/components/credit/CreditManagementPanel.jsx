@@ -1,6 +1,6 @@
 import { AlertTriangle, Edit3, RefreshCw, TrendingDown } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
-import { DarkModeContext } from "../../context/DarkModeContext";
+import { useEffect, useState } from "react";
+import { useTheme } from "../../contexts/ThemeContext";
 import ConfirmDialog from "../ConfirmDialog";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -21,7 +21,7 @@ const CreditManagementPanel = ({
   onTriggerRecalculation = () => {},
   readOnly = false,
 }) => {
-  const { isDarkMode } = useContext(DarkModeContext);
+  const { isDarkMode } = useTheme();
   const [overLimitCustomers, setOverLimitCustomers] = useState([]);
   const [atRiskCustomers, setAtRiskCustomers] = useState([]);
   const [loading, setLoading] = useState(false);

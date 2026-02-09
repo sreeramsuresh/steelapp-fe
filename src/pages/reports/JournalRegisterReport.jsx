@@ -7,6 +7,7 @@
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import financialReportsService from "../../services/financialReportsService";
+import { notificationService } from "../../services/notificationService";
 
 export default function JournalRegisterReport() {
   const { user: _user } = useAuth();
@@ -80,7 +81,7 @@ export default function JournalRegisterReport() {
 
   const handleExportToExcel = async () => {
     // TODO: Implement Excel export using ExcelJS
-    alert("Excel export will be implemented in the next phase");
+    notificationService.warning("Excel export will be available in the next phase");
   };
 
   return (

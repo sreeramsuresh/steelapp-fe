@@ -343,8 +343,8 @@ const Receivables = () => {
     const outstanding = getOutstanding(inv);
     const invoiceAmount = getInvoiceAmount(inv);
     const currentReceived = getReceived(inv);
-    if (!(Number(amount) > 0)) return alert("Amount must be > 0");
-    if (Number(amount) > outstanding) return alert("Amount exceeds outstanding");
+    if (!(Number(amount) > 0)) return notificationService.error("Amount must be greater than 0");
+    if (Number(amount) > outstanding) return notificationService.error("Amount exceeds outstanding");
 
     setIsSavingPayment(true);
 
@@ -498,7 +498,7 @@ const Receivables = () => {
   const handleDownloadReceipt = async (payment, paymentIndex) => {
     const inv = drawer.item;
     if (!inv) {
-      alert("Unable to generate receipt. Missing invoice information.");
+      notificationService.error("Unable to generate receipt. Missing invoice information.");
       return;
     }
 
@@ -518,11 +518,11 @@ const Receivables = () => {
       };
       const result = await generatePaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
       if (!result.success) {
-        alert(`Error generating receipt: ${result.error}`);
+        notificationService.error(`Error generating receipt: ${result.error}`);
       }
     } catch (error) {
       console.error("Error downloading receipt:", error);
-      alert("Failed to generate receipt. Please try again.");
+      notificationService.error("Failed to generate receipt. Please try again.");
     } finally {
       setDownloadingReceiptId(null);
     }
@@ -531,7 +531,7 @@ const Receivables = () => {
   const handlePrintReceipt = async (payment, paymentIndex) => {
     const inv = drawer.item;
     if (!inv) {
-      alert("Unable to print receipt. Missing invoice information.");
+      notificationService.error("Unable to print receipt. Missing invoice information.");
       return;
     }
 
@@ -551,11 +551,11 @@ const Receivables = () => {
       };
       const result = await printPaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
       if (!result.success) {
-        alert(`Error printing receipt: ${result.error}`);
+        notificationService.error(`Error printing receipt: ${result.error}`);
       }
     } catch (error) {
       console.error("Error printing receipt:", error);
-      alert("Failed to print receipt. Please try again.");
+      notificationService.error("Failed to print receipt. Please try again.");
     } finally {
       setPrintingReceiptId(null);
     }
