@@ -290,7 +290,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                 setSearchQuery(e.target.value);
                 setPage(0);
               }}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+              className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder-gray-400 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
             />
           </div>
 
@@ -300,7 +300,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
               setStatusFilter(e.target.value);
               setPage(0);
             }}
-            className="px-3 py-2 rounded-lg border bg-white border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[130px]"
+            className={`px-3 py-2 rounded-lg border ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"} focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[130px]`}
           >
             <option value="">All Status</option>
             {Object.values(TRANSFER_STATUSES).map((status) => (
@@ -316,7 +316,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
               setSourceWarehouseFilter(e.target.value);
               setPage(0);
             }}
-            className="px-3 py-2 rounded-lg border bg-white border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[160px]"
+            className={`px-3 py-2 rounded-lg border ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"} focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[160px]`}
           >
             <option value="">All Sources</option>
             {warehouses.map((wh) => (
@@ -332,7 +332,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
               setDestWarehouseFilter(e.target.value);
               setPage(0);
             }}
-            className="px-3 py-2 rounded-lg border bg-white border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[160px]"
+            className={`px-3 py-2 rounded-lg border ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"} focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[160px]`}
           >
             <option value="">All Destinations</option>
             {warehouses.map((wh) => (
@@ -524,7 +524,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
             className={`relative rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
           >
             {/* Title */}
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               {actionDialog.type === "ship" && "Ship Transfer"}
               {actionDialog.type === "receive" && "Receive Transfer"}
               {actionDialog.type === "cancel" && "Cancel Transfer"}
