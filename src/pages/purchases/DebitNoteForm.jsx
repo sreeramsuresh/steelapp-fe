@@ -383,22 +383,22 @@ const DebitNoteForm = () => {
   };
 
   // ===================== THEME CLASSES =====================
-  const cardBg = isDarkMode ? "bg-[#141a20]" : "bg-white";
-  const cardBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-200";
-  const inputBg = isDarkMode ? "bg-[#0f151b]" : "bg-white";
-  const inputBorder = isDarkMode ? "border-[#2a3640]" : "border-gray-300";
-  const textPrimary = isDarkMode ? "text-[#e6edf3]" : "text-gray-900";
-  const textMuted = isDarkMode ? "text-[#93a4b4]" : "text-gray-500";
-  const accordionBg = isDarkMode ? "bg-[#0f151b]" : "bg-gray-50";
-  const inputFocus = "focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20";
-  const placeholderCls = isDarkMode ? "placeholder:text-[#93a4b4]" : "placeholder:text-gray-500";
+  const cardBg = isDarkMode ? "bg-gray-800" : "bg-white";
+  const cardBorder = isDarkMode ? "border-gray-700" : "border-gray-200";
+  const inputBg = isDarkMode ? "bg-gray-900" : "bg-white";
+  const inputBorder = isDarkMode ? "border-gray-700" : "border-gray-300";
+  const textPrimary = isDarkMode ? "text-white" : "text-gray-900";
+  const textMuted = isDarkMode ? "text-gray-400" : "text-gray-500";
+  const accordionBg = isDarkMode ? "bg-gray-900" : "bg-gray-50";
+  const inputFocus = "focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20";
+  const placeholderCls = isDarkMode ? "placeholder:text-gray-400" : "placeholder:text-gray-500";
 
   // Loading state
   if (loading) {
     return (
-      <div className={`h-full flex items-center justify-center ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`}>
+      <div className={`h-full flex items-center justify-center ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#4aa3ff] mx-auto mb-3"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-500 mx-auto mb-3"></div>
           <p className={textMuted}>Loading debit note...</p>
         </div>
       </div>
@@ -406,14 +406,14 @@ const DebitNoteForm = () => {
   }
 
   return (
-    <div data-testid="debit-note-form" className={`h-full overflow-auto ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`}>
+    <div data-testid="debit-note-form" className={`h-full overflow-auto ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}>
       {/* App Container */}
       <div className="max-w-6xl mx-auto p-4">
         <div className={`${cardBg} border ${cardBorder} rounded-[18px] overflow-hidden`}>
           {/* Sticky Header */}
           <div
             className={`sticky top-0 z-10 backdrop-blur-md ${
-              isDarkMode ? "bg-[#0f151b]/94 border-b border-[#2a3640]" : "bg-white/94 border-b border-gray-200"
+              isDarkMode ? "bg-gray-900/94 border-b border-gray-700" : "bg-white/94 border-b border-gray-200"
             } px-4 py-3`}
           >
             <div className="flex items-center justify-between">
@@ -422,7 +422,7 @@ const DebitNoteForm = () => {
                   type="button"
                   onClick={() => navigate("/app/debit-notes")}
                   className={`p-2 rounded-xl transition-colors ${
-                    isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
+                    isDarkMode ? "hover:bg-gray-800 text-gray-400" : "hover:bg-gray-100 text-gray-600"
                   }`}
                 >
                   <ArrowLeft className="h-5 w-5" />
@@ -453,7 +453,7 @@ const DebitNoteForm = () => {
                   disabled={saving}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm border transition-colors ${
                     isDarkMode
-                      ? "border-[#2a3640] hover:border-[#4aa3ff] text-[#93a4b4]"
+                      ? "border-gray-700 hover:border-teal-500 text-gray-400"
                       : "border-gray-300 hover:border-teal-500 text-gray-600"
                   } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
                 >
@@ -466,9 +466,7 @@ const DebitNoteForm = () => {
                   onClick={() => handleSave("approved")}
                   disabled={saving}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
-                    isDarkMode
-                      ? "bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]"
-                      : "bg-teal-600 text-white hover:bg-teal-700"
+                    isDarkMode ? "bg-teal-500 text-white hover:bg-teal-400" : "bg-teal-600 text-white hover:bg-teal-700"
                   } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
                 >
                   {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -542,7 +540,7 @@ const DebitNoteForm = () => {
                             type="button"
                             onClick={() => handleSupplierBillSelect(bill)}
                             className={`w-full px-3 py-2.5 text-left transition-colors border-b last:border-b-0 ${cardBorder} ${
-                              isDarkMode ? "hover:bg-[#1a2027]" : "hover:bg-gray-50"
+                              isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
                             }`}
                           >
                             <div className="flex justify-between items-start">
@@ -550,7 +548,7 @@ const DebitNoteForm = () => {
                                 <div className={`text-sm font-medium ${textPrimary}`}>{bill.billNumber}</div>
                                 <div className={`text-xs ${textMuted}`}>{bill.vendorName}</div>
                               </div>
-                              <div className={`text-sm font-mono ${isDarkMode ? "text-[#4aa3ff]" : "text-teal-600"}`}>
+                              <div className={`text-sm font-mono ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}>
                                 {formatCurrency(bill.total)}
                               </div>
                             </div>
@@ -562,7 +560,7 @@ const DebitNoteForm = () => {
                 ) : (
                   <div
                     className={`p-3 rounded-[14px] border ${
-                      isDarkMode ? "border-[#4aa3ff]/35 bg-[#4aa3ff]/10" : "border-teal-300 bg-teal-50"
+                      isDarkMode ? "border-teal-500/35 bg-teal-500/10" : "border-teal-300 bg-teal-50"
                     }`}
                   >
                     <div className="flex justify-between items-start">
@@ -579,7 +577,7 @@ const DebitNoteForm = () => {
                           onClick={handleCopyItemsFromBill}
                           className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-xl border transition-colors ${
                             isDarkMode
-                              ? "border-[#4aa3ff]/50 bg-[#4aa3ff]/20 text-[#4aa3ff] hover:bg-[#4aa3ff]/30"
+                              ? "border-teal-500/50 bg-teal-500/20 text-teal-400 hover:bg-teal-500/30"
                               : "border-teal-400 bg-teal-100 text-teal-700 hover:bg-teal-200"
                           }`}
                         >
@@ -601,7 +599,7 @@ const DebitNoteForm = () => {
                             }}
                             className={`px-2.5 py-1 text-xs rounded-xl border transition-colors ${
                               isDarkMode
-                                ? "border-[#2a3640] bg-[#0f151b] hover:border-[#4aa3ff]"
+                                ? "border-gray-700 bg-gray-900 hover:border-teal-500"
                                 : "border-gray-300 bg-white hover:border-teal-500"
                             }`}
                           >
@@ -754,7 +752,7 @@ const DebitNoteForm = () => {
                     onClick={handleAddItem}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-xl font-bold transition-colors ${
                       isDarkMode
-                        ? "bg-[#4aa3ff] text-[#001018] hover:bg-[#5bb2ff]"
+                        ? "bg-teal-500 text-white hover:bg-teal-400"
                         : "bg-teal-600 text-white hover:bg-teal-700"
                     }`}
                   >
@@ -830,7 +828,7 @@ const DebitNoteForm = () => {
                             disabled
                             className={`w-full py-2 px-2.5 rounded-xl border text-sm font-mono ${
                               isDarkMode
-                                ? "bg-[#0a0f14] border-[#2a3640] text-[#93a4b4]"
+                                ? "bg-gray-950 border-gray-700 text-gray-400"
                                 : "bg-gray-100 border-gray-300 text-gray-500"
                             }`}
                           />
@@ -994,7 +992,7 @@ const DebitNoteForm = () => {
                         disabled
                         className={`w-full py-2.5 px-3 rounded-xl border text-sm font-mono ${
                           isDarkMode
-                            ? "bg-[#0a0f14] border-[#2a3640] text-[#93a4b4]"
+                            ? "bg-gray-950 border-gray-700 text-gray-400"
                             : "bg-gray-100 border-gray-300 text-gray-500"
                         }`}
                       />
@@ -1145,7 +1143,7 @@ const DebitNoteForm = () => {
                         disabled
                         className={`w-full py-2.5 px-3 rounded-xl border text-sm font-mono ${
                           isDarkMode
-                            ? "bg-[#0a0f14] border-[#2a3640] text-[#93a4b4]"
+                            ? "bg-gray-950 border-gray-700 text-gray-400"
                             : "bg-gray-100 border-gray-300 text-gray-500"
                         }`}
                       />
@@ -1162,7 +1160,7 @@ const DebitNoteForm = () => {
                         disabled
                         className={`w-full py-2.5 px-3 rounded-xl border text-sm font-mono ${
                           isDarkMode
-                            ? "bg-[#0a0f14] border-[#2a3640] text-[#93a4b4]"
+                            ? "bg-gray-950 border-gray-700 text-gray-400"
                             : "bg-gray-100 border-gray-300 text-gray-500"
                         }`}
                       />
