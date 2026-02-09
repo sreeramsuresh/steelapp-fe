@@ -177,7 +177,9 @@ const ReconciliationDashboard = () => {
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
           <FileText className="text-teal-600" size={32} />
-          <h1 className="text-2xl font-bold text-gray-900">Stock Reconciliation & Audit</h1>
+          <h1 className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+            Stock Reconciliation & Audit
+          </h1>
         </div>
       </div>
 
@@ -185,14 +187,18 @@ const ReconciliationDashboard = () => {
       <div
         className={`rounded-xl border overflow-hidden mb-4 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
       >
-        <div className="flex border-b border-gray-200">
+        <div className={`flex border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
           <button
             type="button"
             onClick={() => setActiveTab(0)}
             className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
               activeTab === 0
-                ? "text-teal-600 border-b-2 border-teal-600 bg-gray-50"
-                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                ? isDarkMode
+                  ? "text-teal-400 border-b-2 border-teal-400 bg-gray-700"
+                  : "text-teal-600 border-b-2 border-teal-600 bg-gray-50"
+                : isDarkMode
+                  ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
             }`}
           >
             <FileText size={18} />
@@ -203,8 +209,12 @@ const ReconciliationDashboard = () => {
             onClick={() => setActiveTab(1)}
             className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
               activeTab === 1
-                ? "text-teal-600 border-b-2 border-teal-600 bg-gray-50"
-                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                ? isDarkMode
+                  ? "text-teal-400 border-b-2 border-teal-400 bg-gray-700"
+                  : "text-teal-600 border-b-2 border-teal-600 bg-gray-50"
+                : isDarkMode
+                  ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
             }`}
           >
             <History size={18} />
@@ -270,19 +280,23 @@ const ReconciliationDashboard = () => {
                 className={`rounded-xl border p-4 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
               >
                 <div className="text-sm text-gray-500 mb-1">Warehouse</div>
-                <div className="text-xl font-semibold text-gray-900">{reconciliationData.warehouseName}</div>
+                <div className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                  {reconciliationData.warehouseName}
+                </div>
               </div>
               <div
                 className={`rounded-xl border p-4 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
               >
                 <div className="text-sm text-gray-500 mb-1">Total Products</div>
-                <div className="text-xl font-semibold text-gray-900">{reconciliationData.items?.length || 0}</div>
+                <div className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                  {reconciliationData.items?.length || 0}
+                </div>
               </div>
               <div
                 className={`rounded-xl border p-4 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
               >
                 <div className="text-sm text-gray-500 mb-1">Total Quantity</div>
-                <div className="text-xl font-semibold text-gray-900">
+                <div className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   {formatQuantity(reconciliationData.totalSystemValue)}
                 </div>
               </div>
@@ -304,7 +318,9 @@ const ReconciliationDashboard = () => {
                   ) : (
                     <CheckCircle className="text-green-600" size={20} />
                   )}
-                  <div className="text-xl font-semibold text-gray-900">{reconciliationData.discrepancyCount}</div>
+                  <div className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    {reconciliationData.discrepancyCount}
+                  </div>
                 </div>
               </div>
             </div>
@@ -344,10 +360,13 @@ const ReconciliationDashboard = () => {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
                     {(reconciliationData.items || []).length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                        <td
+                          colSpan={7}
+                          className={`px-4 py-8 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                        >
                           No inventory items found
                         </td>
                       </tr>
@@ -359,14 +378,22 @@ const ReconciliationDashboard = () => {
                         return (
                           <tr
                             key={item.id || item.name || `item-${idx}`}
-                            className={`hover:bg-gray-50 ${hasDiscrepancy ? (isDarkMode ? "bg-yellow-900/20" : "bg-yellow-50") : ""}`}
+                            className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} ${hasDiscrepancy ? (isDarkMode ? "bg-yellow-900/20" : "bg-yellow-50") : ""}`}
                           >
-                            <td className="px-4 py-3 text-sm text-gray-900">{item.productName}</td>
-                            <td className="px-4 py-3 text-sm text-gray-600">{item.productSku || "-"}</td>
-                            <td className="px-4 py-3 text-sm text-gray-600 text-right">
+                            <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                              {item.productName}
+                            </td>
+                            <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                              {item.productSku || "-"}
+                            </td>
+                            <td
+                              className={`px-4 py-3 text-sm text-right ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                            >
                               {formatQuantity(item.systemQuantity)}
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-600 text-right">
+                            <td
+                              className={`px-4 py-3 text-sm text-right ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                            >
                               {formatQuantity(item.lastPhysicalCount)}
                             </td>
                             <td className="px-4 py-3 text-sm text-right">
@@ -374,7 +401,9 @@ const ReconciliationDashboard = () => {
                                 {formatQuantity(discrepancy)}
                               </span>
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-600">{formatDate(item.lastCountDate)}</td>
+                            <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                              {formatDate(item.lastCountDate)}
+                            </td>
                             <td className="px-4 py-3 text-sm">
                               <span
                                 className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(

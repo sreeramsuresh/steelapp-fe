@@ -246,15 +246,17 @@ const InvoiceAllocationConfirmation = () => {
                 {/* Item Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold text-gray-800">{item.name}</h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-800"}`}>{item.name}</h3>
+                    <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                       Quantity: {item.quantity} {item.unit}
                     </p>
                   </div>
 
                   {/* Stock Availability Summary */}
                   <div className="flex items-center gap-1">
-                    <span className="text-xs text-gray-500">Stock availability:</span>
+                    <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                      Stock availability:
+                    </span>
                     <div className="flex items-center gap-4 ml-2">
                       {warehouses.map((wh) => {
                         const whAllocations = allocations.filter((a) => a.warehouseId === wh.id);
@@ -279,8 +281,8 @@ const InvoiceAllocationConfirmation = () => {
 
                 {/* Batch Allocation Table */}
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                  <table className={`min-w-full divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
+                    <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                       <tr>
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Batch</th>
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Warehouse</th>
@@ -289,32 +291,48 @@ const InvoiceAllocationConfirmation = () => {
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Origin</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody
+                      className={
+                        isDarkMode ? "bg-gray-800 divide-y divide-gray-700" : "bg-white divide-y divide-gray-200"
+                      }
+                    >
                       {allocations.map((allocation, allocationIndex) => {
                         const warehouse = warehouses.find((w) => w.id === allocation.warehouseId);
                         return (
                           <tr key={allocation.id || allocation.name || `allocation-${allocationIndex}`}>
-                            <td className="px-4 py-2 text-sm text-gray-900">{allocation.batchNumber || "N/A"}</td>
-                            <td className="px-4 py-2 text-sm text-gray-600">
+                            <td className={`px-4 py-2 text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                              {allocation.batchNumber || "N/A"}
+                            </td>
+                            <td className={`px-4 py-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                               {warehouse?.name || warehouse?.code || "N/A"}
                             </td>
                             <td className="px-4 py-2 text-sm">
                               <span
                                 className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                                   allocation.procurementChannel === "IMPORT"
-                                    ? "bg-blue-100 text-blue-800"
+                                    ? isDarkMode
+                                      ? "bg-blue-900/30 text-blue-300"
+                                      : "bg-blue-100 text-blue-800"
                                     : allocation.procurementChannel === "LOCAL"
-                                      ? "bg-green-100 text-green-800"
-                                      : "bg-gray-100 text-gray-800"
+                                      ? isDarkMode
+                                        ? "bg-green-900/30 text-green-300"
+                                        : "bg-green-100 text-green-800"
+                                      : isDarkMode
+                                        ? "bg-gray-700 text-gray-300"
+                                        : "bg-gray-100 text-gray-800"
                                 }`}
                               >
                                 {allocation.procurementChannel || "N/A"}
                               </span>
                             </td>
-                            <td className="px-4 py-2 text-sm text-right font-medium text-gray-900">
+                            <td
+                              className={`px-4 py-2 text-sm text-right font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                            >
                               {allocation.quantity}
                             </td>
-                            <td className="px-4 py-2 text-sm text-gray-600">{allocation.origin || "N/A"}</td>
+                            <td className={`px-4 py-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                              {allocation.origin || "N/A"}
+                            </td>
                           </tr>
                         );
                       })}
@@ -333,7 +351,7 @@ const InvoiceAllocationConfirmation = () => {
           type="button"
           onClick={handleEditInvoice}
           disabled={isReleasing || isExpired}
-          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`px-6 py-2 border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed ${isDarkMode ? "border-gray-600 text-gray-300 hover:bg-gray-700" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}
         >
           {isReleasing ? "Releasing..." : "Edit Invoice"}
         </button>

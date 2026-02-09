@@ -122,11 +122,13 @@ export default function StockDeductionPreview({
   }
 
   return (
-    <div className={`bg-white rounded-lg shadow-lg ${className}`}>
+    <div className={`rounded-lg shadow-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
+      <div className={`px-6 py-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium text-gray-900">Stock Deduction Preview</h3>
+          <h3 className={`text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+            Stock Deduction Preview
+          </h3>
           {onClose && (
             <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-500">
               <svg aria-label="icon" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -137,7 +139,7 @@ export default function StockDeductionPreview({
           )}
         </div>
         {warehouseName && (
-          <p className="mt-1 text-sm text-gray-500">
+          <p className={`mt-1 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
             Warehouse: <span className="font-medium">{warehouseName}</span>
           </p>
         )}
@@ -170,8 +172,12 @@ export default function StockDeductionPreview({
                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
               />
             </svg>
-            <p className="mt-3 text-sm text-gray-500">No inventory-tracked items in this invoice</p>
-            <p className="text-xs text-gray-400 mt-1">Items without a linked product will not affect stock levels</p>
+            <p className={`mt-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+              No inventory-tracked items in this invoice
+            </p>
+            <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+              Items without a linked product will not affect stock levels
+            </p>
           </div>
         ) : (
           <>
@@ -207,9 +213,9 @@ export default function StockDeductionPreview({
             )}
 
             {/* Items Table */}
-            <div className="overflow-hidden border border-gray-200 rounded-lg">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+            <div className={`overflow-hidden border rounded-lg ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+              <table className={`min-w-full divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
+                <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                   <tr>
                     <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
                     <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Current Stock</th>
@@ -218,7 +224,9 @@ export default function StockDeductionPreview({
                     <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody
+                  className={isDarkMode ? "bg-gray-800 divide-y divide-gray-700" : "bg-white divide-y divide-gray-200"}
+                >
                   {inventoryItems.map((item) => {
                     const productId = item.productId || item.product_id;
                     const stock = stockLevels[productId] || {
@@ -230,16 +238,21 @@ export default function StockDeductionPreview({
                     const status = getStockStatus(productId, quantity);
 
                     return (
-                      <tr key={`stock-${productId}-${quantity}`} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm text-gray-900">
+                      <tr
+                        key={`stock-${productId}-${quantity}`}
+                        className={isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}
+                      >
+                        <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                           <div className="font-medium">{item.name}</div>
                           {item.size && (
-                            <div className="text-xs text-gray-500">
+                            <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                               {item.size} {item.thickness ? `x ${item.thickness}mm` : ""}
                             </div>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-sm text-right text-gray-700">
+                        <td
+                          className={`px-4 py-3 text-sm text-right ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                        >
                           {stock.currentStock.toFixed(2)} {stock.unit}
                         </td>
                         <td className="px-4 py-3 text-sm text-right text-red-600 font-medium">
@@ -285,13 +298,15 @@ export default function StockDeductionPreview({
             </div>
 
             {/* Summary */}
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+            <div className={`mt-4 p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Total items to deduct:</span>
-                <span className="font-medium text-gray-900">{inventoryItems.length}</span>
+                <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Total items to deduct:</span>
+                <span className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                  {inventoryItems.length}
+                </span>
               </div>
               <div className="flex justify-between text-sm mt-1">
-                <span className="text-gray-600">Total quantity:</span>
+                <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Total quantity:</span>
                 <span className="font-medium text-red-600">
                   -{inventoryItems.reduce((sum, item) => sum + (parseFloat(item.quantity) || 0), 0).toFixed(2)}
                 </span>
@@ -303,12 +318,14 @@ export default function StockDeductionPreview({
 
       {/* Footer */}
       {onConfirm && (
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end space-x-3">
+        <div
+          className={`px-6 py-4 border-t flex justify-end space-x-3 ${isDarkMode ? "border-gray-700 bg-gray-700" : "border-gray-200 bg-gray-50"}`}
+        >
           {onClose && (
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              className={`px-4 py-2 text-sm font-medium rounded-md ${isDarkMode ? "text-gray-300 bg-gray-600 border border-gray-500 hover:bg-gray-500" : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"}`}
             >
               Cancel
             </button>

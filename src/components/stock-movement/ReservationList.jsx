@@ -389,7 +389,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
               {loading ? (
                 <tr>
                   <td colSpan={9} className="px-4 py-8 text-center">
@@ -400,7 +400,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                 </tr>
               ) : reservations.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={9} className={`px-4 py-8 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                     No reservations found
                   </td>
                 </tr>
@@ -413,20 +413,28 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
 
                   return (
                     <tr key={reservation.id} className={isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900">{reservation.reservationNumber}</td>
+                      <td className={`px-4 py-3 text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                        {reservation.reservationNumber}
+                      </td>
                       <td className="px-4 py-3 text-sm">
-                        <div className="text-gray-900">{reservation.productName}</div>
+                        <div className={isDarkMode ? "text-white" : "text-gray-900"}>{reservation.productName}</div>
                         {reservation.productSku && (
-                          <div className="text-xs text-gray-500">{reservation.productSku}</div>
+                          <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                            {reservation.productSku}
+                          </div>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{reservation.warehouseName || "-"}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600 text-right">
+                      <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        {reservation.warehouseName || "-"}
+                      </td>
+                      <td className={`px-4 py-3 text-sm text-right ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                         {formatQuantity(reservation.quantityReserved, reservation.unit)}
                       </td>
                       <td className="px-4 py-3 text-sm" style={{ minWidth: 150 }}>
                         <div className="flex items-center gap-2 mb-1">
-                          <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                          <div
+                            className={`flex-1 rounded-full h-2 overflow-hidden ${isDarkMode ? "bg-gray-600" : "bg-gray-200"}`}
+                          >
                             <div
                               className={`h-full ${progress === 100 ? "bg-green-500" : "bg-blue-500"}`}
                               style={{ width: `${progress}%` }}
@@ -446,8 +454,12 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                           {statusInfo.label}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{formatDate(reservation.expiryDate)}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{formatDate(reservation.createdAt)}</td>
+                      <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        {formatDate(reservation.expiryDate)}
+                      </td>
+                      <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        {formatDate(reservation.createdAt)}
+                      </td>
                       <td className="px-4 py-3 text-sm text-right">
                         <div className="flex justify-end gap-1">
                           <button
@@ -463,7 +475,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                               type="button"
                               onClick={() => handleOpenFulfillDialog(reservation)}
                               title="Fulfill"
-                              className="p-1.5 rounded hover:bg-green-50 text-green-600 hover:text-green-700"
+                              className={`p-1.5 rounded ${isDarkMode ? "hover:bg-green-900/30 text-green-400 hover:text-green-300" : "hover:bg-green-50 text-green-600 hover:text-green-700"}`}
                             >
                               <CheckCircle size={18} />
                             </button>
@@ -473,7 +485,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                               type="button"
                               onClick={() => handleOpenCancelDialog(reservation)}
                               title="Cancel"
-                              className="p-1.5 rounded hover:bg-red-50 text-red-600 hover:text-red-700"
+                              className={`p-1.5 rounded ${isDarkMode ? "hover:bg-red-900/30 text-red-400 hover:text-red-300" : "hover:bg-red-50 text-red-600 hover:text-red-700"}`}
                             >
                               <X size={18} />
                             </button>

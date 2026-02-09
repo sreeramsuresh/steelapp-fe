@@ -123,7 +123,7 @@ export default function InvoiceStockMovements({
     <div className={`${className}`}>
       {showHeader && (
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium text-gray-900">Stock Movements</h3>
+          <h3 className={`text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>Stock Movements</h3>
           {movements.length === 0 && (
             <button
               type="button"
@@ -146,7 +146,9 @@ export default function InvoiceStockMovements({
       )}
 
       {movements.length === 0 ? (
-        <div className="text-center py-6 bg-gray-50 rounded-lg border border-gray-200">
+        <div
+          className={`text-center py-6 rounded-lg border ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50 border-gray-200"}`}
+        >
           <svg
             aria-label="icon"
             className="mx-auto h-10 w-10 text-gray-400"
@@ -162,8 +164,12 @@ export default function InvoiceStockMovements({
               d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
             />
           </svg>
-          <p className="mt-2 text-sm text-gray-500">No stock movements recorded for this invoice</p>
-          <p className="text-xs text-gray-400 mt-1">Stock is automatically deducted when invoice is issued</p>
+          <p className={`mt-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+            No stock movements recorded for this invoice
+          </p>
+          <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+            Stock is automatically deducted when invoice is issued
+          </p>
         </div>
       ) : (
         <>
@@ -206,9 +212,9 @@ export default function InvoiceStockMovements({
           </div>
 
           {/* Movements Table */}
-          <div className="overflow-hidden border border-gray-200 rounded-lg">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+          <div className={`overflow-hidden border rounded-lg ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+            <table className={`min-w-full divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
+              <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date
@@ -230,15 +236,21 @@ export default function InvoiceStockMovements({
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody
+                className={isDarkMode ? "bg-gray-800 divide-y divide-gray-700" : "bg-white divide-y divide-gray-200"}
+              >
                 {movements.map((movement) => (
-                  <tr key={movement.id} className="hover:bg-gray-50">
+                  <tr key={movement.id} className={isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
                     <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(movement.movementDate)}
                     </td>
-                    <td className="px-4 py-2 text-sm text-gray-900">
+                    <td className={`px-4 py-2 text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       <div className="font-medium">{movement.productName || "Unknown Product"}</div>
-                      {movement.productSku && <div className="text-xs text-gray-500">SKU: {movement.productSku}</div>}
+                      {movement.productSku && (
+                        <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                          SKU: {movement.productSku}
+                        </div>
+                      )}
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap">
                       <span
@@ -275,11 +287,18 @@ export default function InvoiceStockMovements({
           {/* Notes */}
           {movements.some((m) => m.notes) && (
             <div className="mt-4 space-y-2">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Notes</p>
+              <p
+                className={`text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
+                Notes
+              </p>
               {movements
                 .filter((m) => m.notes)
                 .map((m) => (
-                  <div key={m.id} className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                  <div
+                    key={m.id}
+                    className={`text-sm p-2 rounded ${isDarkMode ? "text-gray-400 bg-gray-700" : "text-gray-600 bg-gray-50"}`}
+                  >
                     {m.notes}
                   </div>
                 ))}

@@ -402,7 +402,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
               {loading ? (
                 <tr>
                   <td colSpan={9} className="px-4 py-8 text-center">
@@ -413,7 +413,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                 </tr>
               ) : transfers.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={9} className={`px-4 py-8 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                     No transfers found
                   </td>
                 </tr>
@@ -424,10 +424,18 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
 
                   return (
                     <tr key={transfer.id} className={isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900">{transfer.transferNumber}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{transfer.sourceWarehouseName || "-"}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{transfer.destinationWarehouseName || "-"}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{transfer.items?.length || 0} items</td>
+                      <td className={`px-4 py-3 text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                        {transfer.transferNumber}
+                      </td>
+                      <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        {transfer.sourceWarehouseName || "-"}
+                      </td>
+                      <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        {transfer.destinationWarehouseName || "-"}
+                      </td>
+                      <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        {transfer.items?.length || 0} items
+                      </td>
                       <td className="px-4 py-3 text-sm">
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(statusInfo.color, isDarkMode)}`}
@@ -435,9 +443,15 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                           {statusInfo.label}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{formatDate(transfer.createdAt)}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{formatDate(transfer.shippedDate)}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{formatDate(transfer.receivedDate)}</td>
+                      <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        {formatDate(transfer.createdAt)}
+                      </td>
+                      <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        {formatDate(transfer.shippedDate)}
+                      </td>
+                      <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        {formatDate(transfer.receivedDate)}
+                      </td>
                       <td className="px-4 py-3 text-sm text-right">
                         <div className="flex justify-end gap-1">
                           {actions.map((action) => {
