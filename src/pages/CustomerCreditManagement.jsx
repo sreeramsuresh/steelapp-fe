@@ -151,7 +151,9 @@ export default function CustomerCreditManagement() {
               {(() => {
                 const allCustomers = [...highRiskCustomers, ...overLimitCustomers];
                 const dsoValues = allCustomers.map((c) => Number(c.dso || 0)).filter((d) => d > 0);
-                return dsoValues.length > 0 ? Math.round(dsoValues.reduce((a, b) => a + b, 0) / dsoValues.length) : "N/A";
+                return dsoValues.length > 0
+                  ? Math.round(dsoValues.reduce((a, b) => a + b, 0) / dsoValues.length)
+                  : "N/A";
               })()}
             </div>
             <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>Days Sales Outstanding</p>

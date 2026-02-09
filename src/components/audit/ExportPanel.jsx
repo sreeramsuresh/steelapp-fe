@@ -123,11 +123,13 @@ export default function ExportPanel({ datasetId, onExportGenerated, onVerifyRege
                   className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isGenerating || verifying
                       ? "opacity-50 cursor-not-allowed bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
-                      : ({
-                          emerald: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-900/50",
+                      : {
+                          emerald:
+                            "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-900/50",
                           blue: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50",
-                          amber: "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/50",
-                        }[config.color] || "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300")
+                          amber:
+                            "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/50",
+                        }[config.color] || "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300"
                   }`}
                 >
                   {isGenerating ? (

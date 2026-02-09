@@ -12,7 +12,6 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";
 import {
   deleteSupplierQuotation,
-  getConfidenceColor,
   getStatusColor,
   getStatusText,
   listSupplierQuotations,

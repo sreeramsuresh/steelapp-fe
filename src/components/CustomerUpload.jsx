@@ -182,11 +182,7 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
           className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
         >
           <h2 className={`text-xl font-semibold ${textPrimary}`}>Upload Customers</h2>
-          <button
-            type="button"
-            onClick={closeModal}
-            className={`${textMuted} ${hoverTextSecondary} transition-colors`}
-          >
+          <button type="button" onClick={closeModal} className={`${textMuted} ${hoverTextSecondary} transition-colors`}>
             <FaTimes className="w-5 h-5" />
           </button>
         </div>

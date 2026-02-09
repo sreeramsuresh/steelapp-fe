@@ -301,7 +301,10 @@ export function ContainerList() {
                   <label htmlFor="container-status-filter" className="block text-sm font-medium mb-1">
                     Status
                   </label>
-                  <Select value={filters.status || "__all__"} onValueChange={(value) => handleFilterChange("status", value === "__all__" ? "" : value)}>
+                  <Select
+                    value={filters.status || "__all__"}
+                    onValueChange={(value) => handleFilterChange("status", value === "__all__" ? "" : value)}
+                  >
                     <SelectTrigger id="container-status-filter">
                       <SelectValue placeholder="All Statuses" />
                     </SelectTrigger>
@@ -318,7 +321,10 @@ export function ContainerList() {
                   <label htmlFor="container-supplier-filter" className="block text-sm font-medium mb-1">
                     Supplier
                   </label>
-                  <Select value={filters.supplierId || "__all__"} onValueChange={(value) => handleFilterChange("supplierId", value === "__all__" ? "" : value)}>
+                  <Select
+                    value={filters.supplierId || "__all__"}
+                    onValueChange={(value) => handleFilterChange("supplierId", value === "__all__" ? "" : value)}
+                  >
                     <SelectTrigger id="container-supplier-filter">
                       <SelectValue placeholder="All Suppliers" />
                     </SelectTrigger>

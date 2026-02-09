@@ -265,11 +265,15 @@ const ImportExportOverview = () => {
             ) : (
               recentActivity.map((activity, index) => (
                 <div key={activity.id || activity.name || `activity-${index}`} className="flex items-center space-x-3">
-                  <div className={`w-2 h-2 rounded-full ${
-                    activity.color === "green" ? "bg-green-500"
-                      : activity.color === "blue" ? "bg-blue-500"
-                        : "bg-orange-500"
-                  }`}></div>
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      activity.color === "green"
+                        ? "bg-green-500"
+                        : activity.color === "blue"
+                          ? "bg-blue-500"
+                          : "bg-orange-500"
+                    }`}
+                  ></div>
                   <div className="flex-1">
                     <p className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{activity.text}</p>
                     <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>{activity.time}</p>

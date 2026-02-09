@@ -425,7 +425,13 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {error && <div className={`p-4 rounded-lg border ${isDarkMode ? "bg-red-900/20 text-red-300 border-red-700" : "bg-red-50 text-red-800 border-red-200"}`}>{error}</div>}
+          {error && (
+            <div
+              className={`p-4 rounded-lg border ${isDarkMode ? "bg-red-900/20 text-red-300 border-red-700" : "bg-red-50 text-red-800 border-red-200"}`}
+            >
+              {error}
+            </div>
+          )}
 
           {/* Container Identification */}
           <div className="space-y-4">

@@ -404,7 +404,10 @@ const PurchaseOrderList = () => {
                 </tr>
               ) : (
                 purchaseOrders.map((po) => (
-                  <tr key={po.id} className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}>
+                  <tr
+                    key={po.id}
+                    className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                         {po.poNumber}

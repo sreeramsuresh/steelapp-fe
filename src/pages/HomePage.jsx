@@ -454,9 +454,7 @@ const HomePage = () => {
         {fetchError && (
           <div
             className={`mb-6 p-4 rounded-lg border flex items-center justify-between ${
-              isDarkMode
-                ? "bg-red-900/20 border-red-800 text-red-300"
-                : "bg-red-50 border-red-200 text-red-700"
+              isDarkMode ? "bg-red-900/20 border-red-800 text-red-300" : "bg-red-50 border-red-200 text-red-700"
             }`}
           >
             <span>{fetchError}</span>

@@ -533,7 +533,14 @@ const MaterialCertificateList = () => {
   const CertTypeIcon = ({ type, size = 16 }) => {
     const config = getCertTypeConfig(type);
     const Icon = config.icon;
-    const iconColorCls = { blue: "text-blue-500", green: "text-green-500", purple: "text-purple-500", orange: "text-orange-500", teal: "text-teal-500" }[config.color] || "text-gray-500";
+    const iconColorCls =
+      {
+        blue: "text-blue-500",
+        green: "text-green-500",
+        purple: "text-purple-500",
+        orange: "text-orange-500",
+        teal: "text-teal-500",
+      }[config.color] || "text-gray-500";
     return <Icon size={size} className={iconColorCls} />;
   };
 
@@ -803,7 +810,10 @@ const MaterialCertificateList = () => {
               </thead>
               <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
                 {certificates.map((cert) => (
-                  <tr key={cert.id} className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors`}>
+                  <tr
+                    key={cert.id}
+                    className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors`}
+                  >
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <CertTypeIcon type={cert.certificate_type} size={20} />

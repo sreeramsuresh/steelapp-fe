@@ -615,19 +615,24 @@ export default function StockMovementReport() {
                     </TableCell>
                     <TableCell>
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                          (() => {
-                            const color = getMovementTypeColor(movement.movementType);
-                            if (color === "green") return "bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200";
-                            if (color === "red") return "bg-red-50 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-200";
-                            if (color === "blue") return "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-200";
-                            if (color === "orange") return "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900 dark:text-orange-200";
-                            if (color === "purple") return "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900 dark:text-purple-200";
-                            if (color === "yellow") return "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200";
-                            if (color === "teal") return "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-900 dark:text-teal-200";
-                            return "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200";
-                          })()
-                        }`}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${(() => {
+                          const color = getMovementTypeColor(movement.movementType);
+                          if (color === "green")
+                            return "bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200";
+                          if (color === "red")
+                            return "bg-red-50 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-200";
+                          if (color === "blue")
+                            return "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-200";
+                          if (color === "orange")
+                            return "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900 dark:text-orange-200";
+                          if (color === "purple")
+                            return "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900 dark:text-purple-200";
+                          if (color === "yellow")
+                            return "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200";
+                          if (color === "teal")
+                            return "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-900 dark:text-teal-200";
+                          return "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200";
+                        })()}`}
                       >
                         {getMovementTypeLabel(movement.movementType)}
                       </span>

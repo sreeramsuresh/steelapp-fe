@@ -5145,7 +5145,10 @@ const InvoiceForm = ({ onSave }) => {
                             const hasAllocations = item.allocations && item.allocations.length > 0;
 
                             return [
-                              <tr key={item.id || `item-${index}`} className={isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
+                              <tr
+                                key={item.id || `item-${index}`}
+                                className={isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}
+                              >
                                 {/* Column 1: Expand button */}
                                 <td className="py-2 px-2 text-center">
                                   {item.productId && (
@@ -5254,14 +5257,18 @@ const InvoiceForm = ({ onSave }) => {
 
                                 {/* Column 5: Total Wt (CALCULATED - gray div, NOT input) */}
                                 <td className="px-2 py-2">
-                                  <div className={`rounded px-2 py-1.5 text-right text-sm font-medium ${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"}`}>
+                                  <div
+                                    className={`rounded px-2 py-1.5 text-right text-sm font-medium ${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"}`}
+                                  >
                                     {item.theoreticalWeightKg ? item.theoreticalWeightKg.toFixed(2) : "0.00"}
                                   </div>
                                 </td>
 
                                 {/* Column 6: Rate + Basis (COMBINED flex container) */}
                                 <td className="px-2 py-2 w-28">
-                                  <div className={`flex border rounded overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}>
+                                  <div
+                                    className={`flex border rounded overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
+                                  >
                                     <input
                                       type="number"
                                       data-testid={`item-rate-${index}`}

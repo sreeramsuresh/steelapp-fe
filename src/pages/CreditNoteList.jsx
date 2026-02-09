@@ -722,9 +722,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
               value={refundMethod}
               onChange={(e) => setRefundMethod(e.target.value)}
               className={`w-full px-3 py-2 rounded-lg border text-sm mb-6 ${
-                isDarkMode
-                  ? "bg-gray-700 border-gray-600 text-white"
-                  : "bg-white border-gray-300 text-gray-900"
+                isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
               aria-label="Select refund method"
             >
@@ -737,7 +735,9 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                 type="button"
                 onClick={() => setRefundModalOpen(false)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                  isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-300" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                  isDarkMode
+                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                 }`}
               >
                 Cancel

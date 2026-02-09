@@ -527,9 +527,7 @@ const DeliveryNoteList = () => {
                         {formatDate(deliveryNote.deliveryDate)}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {_getStatusBadge(deliveryNote.status)}
-                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">{_getStatusBadge(deliveryNote.status)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                         {deliveryNote.vehicleNumber || "-"}

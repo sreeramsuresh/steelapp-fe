@@ -318,7 +318,10 @@ const TransitList = () => {
             </thead>
             <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
               {filteredItems.map((item) => (
-                <tr key={item.id} className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}>
+                <tr
+                  key={item.id}
+                  className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}
+                >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-semibold text-teal-600">{item.poNumber}</div>
                   </td>

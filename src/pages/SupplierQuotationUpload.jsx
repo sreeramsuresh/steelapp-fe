@@ -274,8 +274,11 @@ export function SupplierQuotationUpload() {
                 <div className="flex items-center gap-2 mt-1">
                   <div
                     className={`w-3 h-3 rounded-full ${
-                      (extractionResult.extractionDetails?.confidence || 0) >= 80 ? "bg-green-500"
-                        : (extractionResult.extractionDetails?.confidence || 0) >= 50 ? "bg-yellow-500" : "bg-red-500"
+                      (extractionResult.extractionDetails?.confidence || 0) >= 80
+                        ? "bg-green-500"
+                        : (extractionResult.extractionDetails?.confidence || 0) >= 50
+                          ? "bg-yellow-500"
+                          : "bg-red-500"
                     }`}
                   />
                   <span className="font-medium text-lg">

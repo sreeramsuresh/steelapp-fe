@@ -556,7 +556,10 @@ const InventoryList = () => {
             </thead>
             <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
               {filteredInventory.map((item) => (
-                <tr key={item.id} className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}>
+                <tr
+                  key={item.id}
+                  className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}
+                >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`text-sm font-medium mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       {item.description || generateDescription(item)}

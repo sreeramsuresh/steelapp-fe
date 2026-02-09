@@ -41,7 +41,10 @@ const Breadcrumb = ({ items = [] }) => {
               {item.label}
             </span>
           ) : (
-            <Link to={item.href} className={`${isDarkMode ? "hover:text-white" : "hover:text-gray-900"} transition-colors`}>
+            <Link
+              to={item.href}
+              className={`${isDarkMode ? "hover:text-white" : "hover:text-gray-900"} transition-colors`}
+            >
               {item.label}
             </Link>
           )}

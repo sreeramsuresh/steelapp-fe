@@ -23,7 +23,18 @@ import MaterialCertificateList from "./MaterialCertificateList";
 import ShippingDocumentList from "./ShippingDocumentList";
 import TradeFinanceList from "./TradeFinanceList";
 
-const VALID_TABS = ["overview", "import-orders", "export-orders", "shipping", "certificates", "customs", "finance", "rates", "exchange-rates", "countries"];
+const VALID_TABS = [
+  "overview",
+  "import-orders",
+  "export-orders",
+  "shipping",
+  "certificates",
+  "customs",
+  "finance",
+  "rates",
+  "exchange-rates",
+  "countries",
+];
 
 const ImportExportDashboard = () => {
   const { isDarkMode } = useTheme();
