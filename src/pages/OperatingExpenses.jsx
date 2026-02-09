@@ -539,7 +539,12 @@ const OperatingExpenses = () => {
                     </td>
                     <td className="px-4 py-2 text-sm">{expense.createdByName || "-"}</td>
                     <td className="px-4 py-2 text-right">
-                      <div className="flex items-center justify-end gap-1" role="toolbar" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                      <div
+                        className="flex items-center justify-end gap-1"
+                        role="toolbar"
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                      >
                         {expense.status === "DRAFT" && canCreate && (
                           <>
                             <button
@@ -774,7 +779,9 @@ const OperatingExpenses = () => {
 
               {/* Narration */}
               <div>
-                <label htmlFor="opex-narration" className="block text-sm font-medium mb-1">Narration / Description</label>
+                <label htmlFor="opex-narration" className="block text-sm font-medium mb-1">
+                  Narration / Description
+                </label>
                 <textarea
                   id="opex-narration"
                   value={formData.narration}
@@ -790,7 +797,9 @@ const OperatingExpenses = () => {
 
               {/* Reference Number */}
               <div>
-                <label htmlFor="opex-reference" className="block text-sm font-medium mb-1">Reference Number</label>
+                <label htmlFor="opex-reference" className="block text-sm font-medium mb-1">
+                  Reference Number
+                </label>
                 <input
                   type="text"
                   id="opex-reference"
@@ -806,7 +815,9 @@ const OperatingExpenses = () => {
 
               {/* Payment Method */}
               <div>
-                <label htmlFor="opex-payment-method" className="block text-sm font-medium mb-1">Payment Method</label>
+                <label htmlFor="opex-payment-method" className="block text-sm font-medium mb-1">
+                  Payment Method
+                </label>
                 {modalMode === "view" ? (
                   <div className="px-3 py-2 rounded border dark:border-gray-600 dark:bg-gray-800 opacity-70">
                     {PAYMENT_METHODS.find((m) => m.value === formData.payment_method)?.label ||
@@ -830,7 +841,9 @@ const OperatingExpenses = () => {
 
               {/* Payment Reference */}
               <div>
-                <label htmlFor="opex-payment-ref" className="block text-sm font-medium mb-1">Payment Reference</label>
+                <label htmlFor="opex-payment-ref" className="block text-sm font-medium mb-1">
+                  Payment Reference
+                </label>
                 <input
                   type="text"
                   id="opex-payment-ref"
