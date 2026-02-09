@@ -1057,12 +1057,18 @@ const SupplierBillForm = () => {
   const productOptions = useMemo(() => {
     return sortedProducts.map((product) => {
       const displayName =
-        product.displayName || product.display_name || product.uniqueName || product.unique_name || product.name || "N/A";
+        product.displayName ||
+        product.display_name ||
+        product.uniqueName ||
+        product.unique_name ||
+        product.name ||
+        "N/A";
       return {
         ...product,
         label: displayName,
         name: displayName,
-        subtitle: `${product.category || ""} ${product.grade ? `• ${product.grade}` : ""} ${product.purchasePrice ? `• د.إ${product.purchasePrice}` : ""}`.trim(),
+        subtitle:
+          `${product.category || ""} ${product.grade ? `• ${product.grade}` : ""} ${product.purchasePrice ? `• د.إ${product.purchasePrice}` : ""}`.trim(),
       };
     });
   }, [sortedProducts]);
@@ -1071,12 +1077,18 @@ const SupplierBillForm = () => {
     const list = searchInputs?.__results || [];
     return list.map((product) => {
       const displayName =
-        product.displayName || product.display_name || product.uniqueName || product.unique_name || product.name || "N/A";
+        product.displayName ||
+        product.display_name ||
+        product.uniqueName ||
+        product.unique_name ||
+        product.name ||
+        "N/A";
       return {
         ...product,
         label: displayName,
         name: displayName,
-        subtitle: `${product.category || ""} ${product.grade ? `• ${product.grade}` : ""} ${product.purchasePrice ? `• د.إ${product.purchasePrice}` : ""}`.trim(),
+        subtitle:
+          `${product.category || ""} ${product.grade ? `• ${product.grade}` : ""} ${product.purchasePrice ? `• د.إ${product.purchasePrice}` : ""}`.trim(),
       };
     });
   }, [searchInputs.__results]);
@@ -1116,7 +1128,7 @@ const SupplierBillForm = () => {
       // Clear search input for this row
       setSearchInputs((prev) => ({ ...prev, [index]: "" }));
     },
-    [handleItemChange],
+    [handleItemChange]
   );
 
   // Validate form

@@ -64,7 +64,7 @@ const ProductAutocomplete = ({
       }
       return false;
     },
-    [norm, ed1],
+    [norm, ed1]
   );
 
   const fuzzyFilter = useCallback(
@@ -91,7 +91,7 @@ const ProductAutocomplete = ({
       scored.sort((a, b) => a.score - b.score);
       return scored.map((s) => s.o);
     },
-    [norm, tokenMatch],
+    [norm, tokenMatch]
   );
 
   useEffect(() => {
@@ -264,9 +264,7 @@ const ProductAutocomplete = ({
               </div>
             ))
           ) : (
-            <div className={`px-3 py-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-              {noOptionsText}
-            </div>
+            <div className={`px-3 py-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{noOptionsText}</div>
           )}
         </div>
       )}
