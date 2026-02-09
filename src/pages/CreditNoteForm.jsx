@@ -1724,7 +1724,9 @@ const CreditNoteForm = () => {
                               ? "border-gray-600 bg-gray-700 text-gray-500 cursor-not-allowed"
                               : "border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed"
                             : invalidFields.has("creditNoteType")
-                              ? "border-red-500 ring-2 ring-red-500 bg-red-50 dark:bg-red-900/20"
+                              ? isDarkMode
+                                ? "border-red-500 ring-2 ring-red-500 bg-red-900/20"
+                                : "border-red-500 ring-2 ring-red-500 bg-red-50"
                               : isDarkMode
                                 ? "border-gray-600 bg-gray-700 text-white focus:ring-teal-500 focus:border-teal-500"
                                 : "border-gray-300 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500"
@@ -2453,9 +2455,13 @@ const CreditNoteForm = () => {
                             <div
                               className={`px-3 py-2 rounded-lg border font-medium ${
                                 creditNote.rmaStatus === "APPROVED"
-                                  ? "text-green-600 border-green-500 bg-green-50"
+                                  ? isDarkMode
+                                    ? "text-green-300 border-green-700 bg-green-900/20"
+                                    : "text-green-600 border-green-500 bg-green-50"
                                   : creditNote.rmaStatus === "EXPIRED"
-                                    ? "text-red-600 border-red-500 bg-red-50"
+                                    ? isDarkMode
+                                      ? "text-red-300 border-red-700 bg-red-900/20"
+                                      : "text-red-600 border-red-500 bg-red-50"
                                     : isDarkMode
                                       ? "border-gray-600 bg-gray-700 text-white"
                                       : "border-gray-300 bg-gray-100 text-gray-900"

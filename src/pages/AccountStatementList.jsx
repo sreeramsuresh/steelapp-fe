@@ -259,7 +259,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
       >
         {/* Success/Error Messages */}
         {success && (
-          <div className={`mb-4 flex items-center gap-3 p-4 rounded-lg border ${isDarkMode ? "bg-green-900/20 border-green-700 text-green-300" : "bg-green-50 border-green-200 text-green-800"}`}>
+          <div
+            className={`mb-4 flex items-center gap-3 p-4 rounded-lg border ${isDarkMode ? "bg-green-900/20 border-green-700 text-green-300" : "bg-green-50 border-green-200 text-green-800"}`}
+          >
             <CheckCircle className="h-5 w-5 flex-shrink-0" />
             <span className="text-sm">{success}</span>
             <button type="button" onClick={() => setSuccess("")} className="ml-auto">
@@ -268,7 +270,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
           </div>
         )}
         {error && (
-          <div className={`mb-4 flex items-center gap-3 p-4 rounded-lg border ${isDarkMode ? "bg-red-900/20 border-red-700 text-red-300" : "bg-red-50 border-red-200 text-red-800"}`}>
+          <div
+            className={`mb-4 flex items-center gap-3 p-4 rounded-lg border ${isDarkMode ? "bg-red-900/20 border-red-700 text-red-300" : "bg-red-50 border-red-200 text-red-800"}`}
+          >
             <AlertCircle className="h-5 w-5 flex-shrink-0" />
             <span className="text-sm">{error}</span>
             <button type="button" onClick={() => setError("")} className="ml-auto">

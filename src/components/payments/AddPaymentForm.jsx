@@ -1,5 +1,6 @@
 import { AlertTriangle, Banknote, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTheme } from "../../contexts/ThemeContext";
 import { customerCreditService } from "../../services/customerCreditService";
 import { PAYMENT_MODES } from "../../services/dataService";
 import { formatCurrency } from "../../utils/invoiceUtils";
@@ -34,6 +35,7 @@ const AddPaymentForm = ({
   customerId = null,
   invoiceVatAmount: _invoiceVatAmount = null,
 }) => {
+  const { isDarkMode } = useTheme();
   // Initialize with today's date in UAE timezone
   const [date, setDate] = useState(() => toUAEDateForInput(new Date()));
   const [amount, setAmount] = useState("");
@@ -234,8 +236,12 @@ const AddPaymentForm = ({
                   <span>{creditError}</span>
                 </div>
               ) : creditSummary ? (
-                <div className="px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="text-xs font-semibold text-green-900 mb-2 flex items-center gap-1">
+                <div
+                  className={`px-3 py-2 rounded-lg border ${isDarkMode ? "bg-green-900/20 border-green-700" : "bg-green-50 border-green-200"}`}
+                >
+                  <div
+                    className={`text-xs font-semibold mb-2 flex items-center gap-1 ${isDarkMode ? "text-green-300" : "text-green-900"}`}
+                  >
                     <CheckCircle size={14} />
                     Customer Credit Status
                   </div>
@@ -293,12 +299,16 @@ const AddPaymentForm = ({
 
       {/* Validation Errors Display */}
       {showValidationErrors && validationErrors.length > 0 && (
-        <div className="mb-3 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
-          <div className="text-xs font-semibold text-red-900 mb-1 flex items-center gap-1">
+        <div
+          className={`mb-3 px-3 py-2 rounded-lg border ${isDarkMode ? "bg-red-900/20 border-red-700" : "bg-red-50 border-red-200"}`}
+        >
+          <div
+            className={`text-xs font-semibold mb-1 flex items-center gap-1 ${isDarkMode ? "text-red-300" : "text-red-900"}`}
+          >
             <AlertTriangle size={14} />
             Please fix the following errors:
           </div>
-          <ul className="list-disc list-inside text-xs text-red-800 space-y-0.5">
+          <ul className={`list-disc list-inside text-xs space-y-0.5 ${isDarkMode ? "text-red-400" : "text-red-800"}`}>
             {validationErrors.map((error, _idx) => (
               <li key={error}>{error}</li>
             ))}

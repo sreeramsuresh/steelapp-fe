@@ -81,9 +81,11 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
             )}
 
             {error && (
-              <div className="flex items-center gap-2 p-4 mb-4 bg-red-50 border border-red-200 rounded-lg">
-                <AlertCircle className="h-5 w-5 text-red-600" />
-                <p className="text-sm text-red-800">{error}</p>
+              <div
+                className={`flex items-center gap-2 p-4 mb-4 rounded-lg border ${isDarkMode ? "bg-red-900/20 border-red-700" : "bg-red-50 border-red-200"}`}
+              >
+                <AlertCircle className={`h-5 w-5 ${isDarkMode ? "text-red-400" : "text-red-600"}`} />
+                <p className={`text-sm ${isDarkMode ? "text-red-300" : "text-red-800"}`}>{error}</p>
               </div>
             )}
 

@@ -9,6 +9,7 @@
 import { ChevronDown, ChevronUp, Package, Truck } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useTheme } from "../../contexts/ThemeContext";
 import { MOVEMENT_TYPES, stockMovementService } from "../../services/stockMovementService";
 
 /**
@@ -43,6 +44,7 @@ const getMovementTypeDisplay = (type) => {
 };
 
 const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpanded = true }) => {
+  const { isDarkMode } = useTheme();
   const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -97,7 +99,9 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
           <h3 className="font-semibold text-base">
             Stock Movements
             {movements.length > 0 && (
-              <span className="ml-2 inline-flex items-center px-2 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">
+              <span
+                className={`ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? "bg-green-900/20 text-green-300" : "bg-green-50 text-green-700"}`}
+              >
                 {movements.length} movement{movements.length !== 1 ? "s" : ""}
               </span>
             )}
@@ -116,7 +120,11 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
             </div>
           ) : error ? (
-            <div className="mt-2 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">{error}</div>
+            <div
+              className={`mt-2 p-3 rounded-lg border ${isDarkMode ? "bg-red-900/20 border-red-700 text-red-300" : "bg-red-50 border-red-200 text-red-700"}`}
+            >
+              {error}
+            </div>
           ) : movements.length === 0 ? (
             <div className="mt-2 p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg flex items-start gap-2">
               <Truck className="w-5 h-5 mt-0.5 flex-shrink-0" />
@@ -162,7 +170,7 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
                           </TableCell>
                           <TableCell>
                             <span
-                              className={`inline-flex px-2 py-1 rounded text-xs font-medium border ${typeDisplay.color === "green" ? "bg-green-50 text-green-700 border-green-200" : "bg-gray-50 text-gray-700 border-gray-200"}`}
+                              className={`inline-flex px-2 py-1 rounded text-xs font-medium border ${typeDisplay.color === "green" ? (isDarkMode ? "bg-green-900/20 text-green-300 border-green-700" : "bg-green-50 text-green-700 border-green-200") : isDarkMode ? "bg-gray-700 text-gray-300 border-gray-600" : "bg-gray-50 text-gray-700 border-gray-200"}`}
                             >
                               {typeDisplay.label}
                             </span>

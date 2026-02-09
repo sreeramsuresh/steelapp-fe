@@ -12,6 +12,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import { useTheme } from "../../contexts/ThemeContext";
 import { apiClient } from "../../services/api";
 
 export default function StockDeductionPreview({
@@ -22,6 +23,7 @@ export default function StockDeductionPreview({
   onConfirm,
   className = "",
 }) {
+  const { isDarkMode } = useTheme();
   const [stockLevels, setStockLevels] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -81,19 +83,19 @@ export default function StockDeductionPreview({
       return {
         status: "negative",
         message: `Will go negative (${afterDeduction.toFixed(2)})`,
-        color: "text-red-600 bg-red-50",
+        color: isDarkMode ? "text-red-300 bg-red-900/20" : "text-red-600 bg-red-50",
       };
     } else if (afterDeduction < stock.currentStock * 0.1) {
       return {
         status: "low",
         message: `Low stock warning`,
-        color: "text-yellow-600 bg-yellow-50",
+        color: isDarkMode ? "text-yellow-300 bg-yellow-900/20" : "text-yellow-600 bg-yellow-50",
       };
     } else {
       return {
         status: "ok",
         message: "Sufficient stock",
-        color: "text-green-600 bg-green-50",
+        color: isDarkMode ? "text-green-300 bg-green-900/20" : "text-green-600 bg-green-50",
       };
     }
   };
@@ -144,8 +146,10 @@ export default function StockDeductionPreview({
       {/* Content */}
       <div className="px-6 py-4">
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-700">{error}</p>
+          <div
+            className={`mb-4 p-3 rounded-md border ${isDarkMode ? "bg-red-900/20 border-red-700" : "bg-red-50 border-red-200"}`}
+          >
+            <p className={`text-sm ${isDarkMode ? "text-red-300" : "text-red-700"}`}>{error}</p>
           </div>
         )}
 
@@ -173,9 +177,16 @@ export default function StockDeductionPreview({
           <>
             {/* Warning Banner */}
             {hasNegativeStock && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <div
+                className={`mb-4 p-3 rounded-md border ${isDarkMode ? "bg-red-900/20 border-red-700" : "bg-red-50 border-red-200"}`}
+              >
                 <div className="flex">
-                  <svg aria-label="icon" className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    aria-label="icon"
+                    className={`h-5 w-5 ${isDarkMode ? "text-red-400" : "text-red-400"}`}
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
                     <title>Icon</title>
                     <path
                       fillRule="evenodd"
@@ -184,8 +195,10 @@ export default function StockDeductionPreview({
                     />
                   </svg>
                   <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800">Insufficient Stock Warning</h3>
-                    <p className="mt-1 text-sm text-red-700">
+                    <h3 className={`text-sm font-medium ${isDarkMode ? "text-red-300" : "text-red-800"}`}>
+                      Insufficient Stock Warning
+                    </h3>
+                    <p className={`mt-1 text-sm ${isDarkMode ? "text-red-400" : "text-red-700"}`}>
                       Some items will result in negative stock. You can still proceed (backorder), but please verify.
                     </p>
                   </div>

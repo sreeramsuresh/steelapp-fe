@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTheme } from "../contexts/ThemeContext";
 import { invoiceService } from "../services/invoiceService";
 import notificationService from "../services/notificationService";
 import { warehouseService } from "../services/warehouseService";
@@ -18,6 +19,7 @@ import ConfirmDialog from "./ConfirmDialog";
  * - Auto-confirms after 5 minutes to prevent orphaned reservations
  */
 const InvoiceAllocationConfirmation = () => {
+  const { isDarkMode } = useTheme();
   const { invoiceId } = useParams();
   const navigate = useNavigate();
 
@@ -198,9 +200,16 @@ const InvoiceAllocationConfirmation = () => {
 
         {/* Warning banner */}
         {!isExpired && (
-          <div className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+          <div
+            className={`mt-4 p-4 border-l-4 rounded ${isDarkMode ? "bg-yellow-900/20 border-yellow-700 text-yellow-300" : "bg-yellow-50 border-yellow-400 text-yellow-800"}`}
+          >
             <div className="flex items-start">
-              <svg aria-label="icon" className="w-5 h-5 text-yellow-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <svg
+                aria-label="icon"
+                className={`w-5 h-5 mt-0.5 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <title>Icon</title>
                 <path
                   fillRule="evenodd"
@@ -209,7 +218,7 @@ const InvoiceAllocationConfirmation = () => {
                 />
               </svg>
               <div className="ml-3">
-                <p className="text-sm text-yellow-800">
+                <p className={`text-sm ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}>
                   <strong>Action Required:</strong> Please review the batch allocation below and confirm within{" "}
                   {formatTime(timeRemaining)}. If no action is taken, the allocation will be automatically confirmed.
                 </p>

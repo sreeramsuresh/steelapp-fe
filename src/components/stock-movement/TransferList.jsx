@@ -8,6 +8,7 @@
 
 import { Eye, Loader2, Package, Plus, RotateCcw, Search, Truck, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useTheme } from "../../contexts/ThemeContext";
 import { stockMovementService, TRANSFER_STATUSES } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
 
@@ -39,19 +40,29 @@ const getStatusChip = (status) => {
 /**
  * Map MUI colors to Tailwind badge colors (Light theme)
  */
-const getStatusBadgeClasses = (color) => {
-  const colorMap = {
-    default: "bg-gray-100 text-gray-700 border-gray-300",
-    primary: "bg-blue-50 text-blue-700 border-blue-200",
-    success: "bg-green-50 text-green-700 border-green-200",
-    warning: "bg-yellow-50 text-yellow-700 border-yellow-200",
-    error: "bg-red-50 text-red-700 border-red-200",
-    info: "bg-teal-50 text-teal-700 border-teal-200",
-  };
+const getStatusBadgeClasses = (color, isDarkMode) => {
+  const colorMap = isDarkMode
+    ? {
+        default: "bg-gray-700 text-gray-300 border-gray-600",
+        primary: "bg-blue-900/20 text-blue-300 border-blue-700",
+        success: "bg-green-900/20 text-green-300 border-green-700",
+        warning: "bg-yellow-900/20 text-yellow-300 border-yellow-700",
+        error: "bg-red-900/20 text-red-300 border-red-700",
+        info: "bg-teal-900/20 text-teal-300 border-teal-700",
+      }
+    : {
+        default: "bg-gray-100 text-gray-700 border-gray-300",
+        primary: "bg-blue-50 text-blue-700 border-blue-200",
+        success: "bg-green-50 text-green-700 border-green-200",
+        warning: "bg-yellow-50 text-yellow-700 border-yellow-200",
+        error: "bg-red-50 text-red-700 border-red-200",
+        info: "bg-teal-50 text-teal-700 border-teal-200",
+      };
   return colorMap[color] || colorMap.default;
 };
 
 const TransferList = ({ onCreateNew, onViewTransfer }) => {
+  const { isDarkMode } = useTheme();
   const [transfers, setTransfers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -233,9 +244,15 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
     <div>
       {/* Error Alert */}
       {error && (
-        <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700">
+        <div
+          className={`mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg border ${isDarkMode ? "bg-red-900/20 border-red-700 text-red-300" : "bg-red-50 border-red-200 text-red-700"}`}
+        >
           <span>{error}</span>
-          <button type="button" onClick={() => setError(null)} className="text-red-600 hover:text-red-800">
+          <button
+            type="button"
+            onClick={() => setError(null)}
+            className={isDarkMode ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-800"}
+          >
             <X size={18} />
           </button>
         </div>
@@ -243,7 +260,9 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
 
       {/* Warehouse Loading Error (Bug #67 fix) */}
       {warehouseError && (
-        <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-700">
+        <div
+          className={`mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg border ${isDarkMode ? "bg-yellow-900/20 border-yellow-700 text-yellow-300" : "bg-yellow-50 border-yellow-200 text-yellow-700"}`}
+        >
           <span>{warehouseError}</span>
           <button
             type="button"
@@ -405,7 +424,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                       <td className="px-4 py-3 text-sm text-gray-600">{transfer.items?.length || 0} items</td>
                       <td className="px-4 py-3 text-sm">
                         <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(statusInfo.color)}`}
+                          className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(statusInfo.color, isDarkMode)}`}
                         >
                           {statusInfo.label}
                         </span>

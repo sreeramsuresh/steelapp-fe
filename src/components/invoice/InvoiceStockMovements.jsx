@@ -11,6 +11,7 @@
 
 import { format } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
+import { useTheme } from "../../contexts/ThemeContext";
 import { invoiceService } from "../../services/invoiceService";
 
 const movementTypeColors = {
@@ -38,6 +39,7 @@ export default function InvoiceStockMovements({
   className = "",
   onStockDeducted = null,
 }) {
+  const { isDarkMode } = useTheme();
   const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -136,8 +138,10 @@ export default function InvoiceStockMovements({
       )}
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-sm text-red-700">{error}</p>
+        <div
+          className={`mb-4 p-3 rounded-md border ${isDarkMode ? "bg-red-900/20 border-red-700" : "bg-red-50 border-red-200"}`}
+        >
+          <p className={`text-sm ${isDarkMode ? "text-red-300" : "text-red-700"}`}>{error}</p>
         </div>
       )}
 
@@ -165,23 +169,39 @@ export default function InvoiceStockMovements({
         <>
           {/* Summary */}
           <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="p-3 bg-red-50 rounded-lg border border-red-100">
-              <p className="text-xs font-medium text-red-600 uppercase tracking-wide">Stock Deducted</p>
-              <p className="mt-1 text-lg font-semibold text-red-700">
+            <div
+              className={`p-3 rounded-lg border ${isDarkMode ? "bg-red-900/20 border-red-700" : "bg-red-50 border-red-100"}`}
+            >
+              <p
+                className={`text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+              >
+                Stock Deducted
+              </p>
+              <p className={`mt-1 text-lg font-semibold ${isDarkMode ? "text-red-300" : "text-red-700"}`}>
                 {totalOut.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                 })}
               </p>
-              <p className="text-xs text-red-500">{outMovements.length} movement(s)</p>
+              <p className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-500"}`}>
+                {outMovements.length} movement(s)
+              </p>
             </div>
-            <div className="p-3 bg-green-50 rounded-lg border border-green-100">
-              <p className="text-xs font-medium text-green-600 uppercase tracking-wide">Stock Returned</p>
-              <p className="mt-1 text-lg font-semibold text-green-700">
+            <div
+              className={`p-3 rounded-lg border ${isDarkMode ? "bg-green-900/20 border-green-700" : "bg-green-50 border-green-100"}`}
+            >
+              <p
+                className={`text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-green-400" : "text-green-600"}`}
+              >
+                Stock Returned
+              </p>
+              <p className={`mt-1 text-lg font-semibold ${isDarkMode ? "text-green-300" : "text-green-700"}`}>
                 {totalIn.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                 })}
               </p>
-              <p className="text-xs text-green-500">{inMovements.length} movement(s)</p>
+              <p className={`text-xs ${isDarkMode ? "text-green-400" : "text-green-500"}`}>
+                {inMovements.length} movement(s)
+              </p>
             </div>
           </div>
 

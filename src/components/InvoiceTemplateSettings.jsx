@@ -51,9 +51,9 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-6 rounded-lg bg-red-50 border border-red-200">
-          <h2 className="text-xl font-bold text-red-800 mb-2">Something went wrong</h2>
-          <p className="text-red-600 mb-4">
+        <div className="p-6 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700">
+          <h2 className="text-xl font-bold text-red-800 dark:text-red-300 mb-2">Something went wrong</h2>
+          <p className="text-red-600 dark:text-red-400 mb-4">
             Failed to load invoice template settings. Please refresh the page or contact support.
           </p>
           <button

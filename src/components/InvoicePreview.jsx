@@ -194,9 +194,13 @@ const InvoicePreview = ({
 
         {/* Validation Warning */}
         {!canSave && (
-          <div className="px-6 py-3 bg-yellow-50 border-t border-yellow-200">
-            <p className="text-sm text-yellow-800 font-medium">⚠️ Please fill in all required fields before saving:</p>
-            <ul className="text-sm text-yellow-700 mt-1 ml-4 list-disc">
+          <div
+            className={`px-6 py-3 border-t ${isDarkMode ? "bg-yellow-900/20 border-yellow-700" : "bg-yellow-50 border-yellow-200"}`}
+          >
+            <p className={`text-sm font-medium ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}>
+              ⚠️ Please fill in all required fields before saving:
+            </p>
+            <ul className={`text-sm mt-1 ml-4 list-disc ${isDarkMode ? "text-yellow-400" : "text-yellow-700"}`}>
               <li>Customer name</li>
               <li>At least one item (with name, quantity, and rate)</li>
               <li>Invoice Date</li>

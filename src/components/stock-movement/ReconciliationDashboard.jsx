@@ -7,6 +7,7 @@
 
 import { AlertTriangle, CheckCircle, FileText, History, Loader2, RotateCcw, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useTheme } from "../../contexts/ThemeContext";
 import { stockMovementService } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
 
@@ -47,16 +48,23 @@ const TabPanel = ({ children, value, index, ...other }) => (
 /**
  * Map MUI chip colors to Tailwind badge classes (Light theme)
  */
-const getStatusBadgeClasses = (color) => {
-  const colorMap = {
-    success: "bg-green-50 text-green-700 border-green-200",
-    warning: "bg-yellow-50 text-yellow-700 border-yellow-200",
-    error: "bg-red-50 text-red-700 border-red-200",
-  };
+const getStatusBadgeClasses = (color, isDarkMode) => {
+  const colorMap = isDarkMode
+    ? {
+        success: "bg-green-900/20 text-green-300 border-green-700",
+        warning: "bg-yellow-900/20 text-yellow-300 border-yellow-700",
+        error: "bg-red-900/20 text-red-300 border-red-700",
+      }
+    : {
+        success: "bg-green-50 text-green-700 border-green-200",
+        warning: "bg-yellow-50 text-yellow-700 border-yellow-200",
+        error: "bg-red-50 text-red-700 border-red-200",
+      };
   return colorMap[color] || colorMap.success;
 };
 
 const ReconciliationDashboard = () => {
+  const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState(0);
   const [warehouses, setWarehouses] = useState([]);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState("");
@@ -233,7 +241,9 @@ const ReconciliationDashboard = () => {
 
         {/* Error Alert */}
         {reconciliationError && (
-          <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700">
+          <div
+            className={`mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg border ${isDarkMode ? "bg-red-900/20 border-red-700 text-red-300" : "bg-red-50 border-red-200 text-red-700"}`}
+          >
             <span>{reconciliationError}</span>
             <button
               type="button"
@@ -271,8 +281,12 @@ const ReconciliationDashboard = () => {
               <div
                 className={`rounded-xl border p-4 ${
                   reconciliationData.discrepancyCount > 0
-                    ? "bg-yellow-50 border-yellow-200"
-                    : "bg-green-50 border-green-200"
+                    ? isDarkMode
+                      ? "bg-yellow-900/20 border-yellow-700"
+                      : "bg-yellow-50 border-yellow-200"
+                    : isDarkMode
+                      ? "bg-green-900/20 border-green-700"
+                      : "bg-green-50 border-green-200"
                 }`}
               >
                 <div className="text-sm text-gray-500 mb-1">Discrepancies</div>
@@ -331,7 +345,7 @@ const ReconciliationDashboard = () => {
                         return (
                           <tr
                             key={item.id || item.name || `item-${idx}`}
-                            className={`hover:bg-gray-50 ${hasDiscrepancy ? "bg-yellow-50" : ""}`}
+                            className={`hover:bg-gray-50 ${hasDiscrepancy ? (isDarkMode ? "bg-yellow-900/20" : "bg-yellow-50") : ""}`}
                           >
                             <td className="px-4 py-3 text-sm text-gray-900">{item.productName}</td>
                             <td className="px-4 py-3 text-sm text-gray-600">{item.productSku || "-"}</td>
@@ -350,7 +364,8 @@ const ReconciliationDashboard = () => {
                             <td className="px-4 py-3 text-sm">
                               <span
                                 className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(
-                                  hasDiscrepancy ? "warning" : "success"
+                                  hasDiscrepancy ? "warning" : "success",
+                                  isDarkMode
                                 )}`}
                               >
                                 {hasDiscrepancy ? "Discrepancy" : "OK"}
@@ -439,7 +454,9 @@ const ReconciliationDashboard = () => {
 
         {/* Error Alert */}
         {auditError && (
-          <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700">
+          <div
+            className={`mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-lg border ${isDarkMode ? "bg-red-900/20 border-red-700 text-red-300" : "bg-red-50 border-red-200 text-red-700"}`}
+          >
             <span>{auditError}</span>
             <button type="button" onClick={() => setAuditError(null)} className="text-red-600 hover:text-red-800">
               <X size={18} />
@@ -510,7 +527,8 @@ const ReconciliationDashboard = () => {
                         <td className="px-4 py-3 text-sm">
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(
-                              isIncrease ? "success" : "error"
+                              isIncrease ? "success" : "error",
+                              isDarkMode
                             )}`}
                           >
                             {entry.action}

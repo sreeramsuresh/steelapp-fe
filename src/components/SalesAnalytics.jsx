@@ -732,15 +732,27 @@ const SalesAnalytics = () => {
                   const currentRev = analytics.currentRevenue || 0;
                   const percentage = currentRev > 0 ? ((topThreeRevenue / currentRev) * 100).toFixed(1) : 0;
                   return (
-                    <div className="flex items-start gap-3 p-3 rounded-lg bg-green-50 border border-green-200">
-                      <CheckCircle size={16} className="text-green-600 mt-0.5" />
-                      <p className="text-sm text-green-800">Top 3 customers generate {percentage}% of total revenue</p>
+                    <div
+                      className={`flex items-start gap-3 p-3 rounded-lg border ${isDarkMode ? "bg-green-900/20 border-green-700" : "bg-green-50 border-green-200"}`}
+                    >
+                      <CheckCircle
+                        size={16}
+                        className={isDarkMode ? "text-green-400 mt-0.5" : "text-green-600 mt-0.5"}
+                      />
+                      <p className={`text-sm ${isDarkMode ? "text-green-300" : "text-green-800"}`}>
+                        Top 3 customers generate {percentage}% of total revenue
+                      </p>
                     </div>
                   );
                 })()}
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
-                  <AlertTriangle size={16} className="text-yellow-600 mt-0.5" />
-                  <p className="text-sm text-yellow-800">
+                <div
+                  className={`flex items-start gap-3 p-3 rounded-lg border ${isDarkMode ? "bg-yellow-900/20 border-yellow-700" : "bg-yellow-50 border-yellow-200"}`}
+                >
+                  <AlertTriangle
+                    size={16}
+                    className={isDarkMode ? "text-yellow-400 mt-0.5" : "text-yellow-600 mt-0.5"}
+                  />
+                  <p className={`text-sm ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}>
                     Customer concentration risk: Consider diversifying customer base
                   </p>
                 </div>
@@ -836,9 +848,13 @@ const SalesAnalytics = () => {
                           title={`Prev: ${formatCurrency(product.prevRevenue || 0)} • Current: ${formatCurrency(product.revenue || 0)}`}
                           className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${
                             product.revenueGrowth > 0
-                              ? "border-green-300 bg-green-50 text-green-700"
+                              ? isDarkMode
+                                ? "border-green-700 bg-green-900/20 text-green-300"
+                                : "border-green-300 bg-green-50 text-green-700"
                               : product.revenueGrowth < 0
-                                ? "border-red-300 bg-red-50 text-red-700"
+                                ? isDarkMode
+                                  ? "border-red-700 bg-red-900/20 text-red-300"
+                                  : "border-red-300 bg-red-50 text-red-700"
                                 : isDarkMode
                                   ? "border-gray-600 bg-gray-800 text-gray-300"
                                   : "border-gray-300 bg-gray-50 text-gray-700"
@@ -861,9 +877,13 @@ const SalesAnalytics = () => {
                           title={`Prev: ${(product.prevQuantity || 0).toLocaleString()} • Current: ${(product.quantity || 0).toLocaleString()}`}
                           className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${
                             product.quantityGrowth > 0
-                              ? "border-green-300 bg-green-50 text-green-700"
+                              ? isDarkMode
+                                ? "border-green-700 bg-green-900/20 text-green-300"
+                                : "border-green-300 bg-green-50 text-green-700"
                               : product.quantityGrowth < 0
-                                ? "border-red-300 bg-red-50 text-red-700"
+                                ? isDarkMode
+                                  ? "border-red-700 bg-red-900/20 text-red-300"
+                                  : "border-red-300 bg-red-50 text-red-700"
                                 : isDarkMode
                                   ? "border-gray-600 bg-gray-800 text-gray-300"
                                   : "border-gray-300 bg-gray-50 text-gray-700"
@@ -886,9 +906,13 @@ const SalesAnalytics = () => {
                           title={`Prev: ${product.prevOrders || 0} • Current: ${product.orders || 0}`}
                           className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${
                             product.ordersGrowth > 0
-                              ? "border-green-300 bg-green-50 text-green-700"
+                              ? isDarkMode
+                                ? "border-green-700 bg-green-900/20 text-green-300"
+                                : "border-green-300 bg-green-50 text-green-700"
                               : product.ordersGrowth < 0
-                                ? "border-red-300 bg-red-50 text-red-700"
+                                ? isDarkMode
+                                  ? "border-red-700 bg-red-900/20 text-red-300"
+                                  : "border-red-300 bg-red-50 text-red-700"
                                 : isDarkMode
                                   ? "border-gray-600 bg-gray-800 text-gray-300"
                                   : "border-gray-300 bg-gray-50 text-gray-700"
@@ -1278,9 +1302,13 @@ const SalesAnalytics = () => {
                               <span
                                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${
                                   growth > 0
-                                    ? "border-green-300 bg-green-50 text-green-700"
+                                    ? isDarkMode
+                                      ? "border-green-700 bg-green-900/20 text-green-300"
+                                      : "border-green-300 bg-green-50 text-green-700"
                                     : growth < 0
-                                      ? "border-red-300 bg-red-50 text-red-700"
+                                      ? isDarkMode
+                                        ? "border-red-700 bg-red-900/20 text-red-300"
+                                        : "border-red-300 bg-red-50 text-red-700"
                                       : isDarkMode
                                         ? "border-gray-600 bg-gray-800 text-gray-300"
                                         : "border-gray-300 bg-gray-50 text-gray-700"
