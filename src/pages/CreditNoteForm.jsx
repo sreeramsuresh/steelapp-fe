@@ -16,18 +16,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { normalizeUom } from "../utils/fieldAccessors";
 
-// Design system colors
-const COLORS = {
-  bg: "#0b0f14",
-  card: "#141a20",
-  border: "#2a3640",
-  text: "#e6edf3",
-  muted: "#93a4b4",
-  good: "#2ecc71",
-  warn: "#f39c12",
-  bad: "#e74c3c",
-  accent: "#4aa3ff",
-};
+// Design system helpers (matching PO form standard)
+const CARD_CLASSES = (isDarkMode) =>
+  `${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4`;
+
+const LABEL_CLASSES = (isDarkMode) =>
+  `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
 
 // Reusable Drawer component
 const Drawer = ({ isOpen, onClose, title, description, children, isDarkMode }) => {
@@ -53,21 +47,15 @@ const Drawer = ({ isOpen, onClose, title, description, children, isDarkMode }) =
       {/* Drawer panel */}
       <div
         className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-50
-          ${isDarkMode ? `bg-[${COLORS.card}] border-l border-[${COLORS.border}]` : "bg-white border-l border-gray-200"}
+          ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"}
           p-4 overflow-auto transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
-        style={{ backgroundColor: isDarkMode ? COLORS.card : undefined }}
       >
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           <div>
             <div className={`text-base font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{title}</div>
             {description && (
-              <div
-                className={`text-xs mt-1 ${isDarkMode ? `text-[${COLORS.muted}]` : "text-gray-500"}`}
-                style={{ color: isDarkMode ? COLORS.muted : undefined }}
-              >
-                {description}
-              </div>
+              <div className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{description}</div>
             )}
           </div>
           <button
@@ -1243,16 +1231,13 @@ const CreditNoteForm = () => {
           <div className="col-span-12 lg:col-span-8 space-y-4">
             {/* Invoice Selection */}
             {showInvoiceSelect && !id && (
-              <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+              <div className={CARD_CLASSES(isDarkMode)}>
                 <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   <FileText className="inline h-5 w-5 mr-2" />
                   Select Invoice
                 </h2>
                 <div>
-                  <label
-                    htmlFor="invoice-search-input"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
+                  <label htmlFor="invoice-search-input" className={LABEL_CLASSES(isDarkMode)}>
                     Invoice Number <span className="text-red-500 font-bold">*</span>
                   </label>
                   <div className="relative">
@@ -1446,7 +1431,7 @@ const CreditNoteForm = () => {
 
             {/* Selected Invoice Info */}
             {selectedInvoice && (
-              <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+              <div className={CARD_CLASSES(isDarkMode)}>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     Invoice: {selectedInvoice.invoiceNumber}
@@ -1489,11 +1474,7 @@ const CreditNoteForm = () => {
 
             {/* Items to Return */}
             {selectedInvoice && creditNote.items.length > 0 && (
-              <div
-                className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm ${
-                  invalidFields.has("items") ? "ring-2 ring-red-500" : ""
-                }`}
-              >
+              <div className={`${CARD_CLASSES(isDarkMode)} ${invalidFields.has("items") ? "ring-2 ring-red-500" : ""}`}>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     <Package className="inline h-5 w-5 mr-2" />
@@ -1664,16 +1645,13 @@ const CreditNoteForm = () => {
           <div className="col-span-12 lg:col-span-4">
             <div className="lg:sticky lg:top-24 space-y-4">
               {/* Credit Note Details */}
-              <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+              <div className={CARD_CLASSES(isDarkMode)}>
                 <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Credit Note Details
                 </h2>
                 <div className="space-y-4">
                   <div>
-                    <label
-                      htmlFor="credit-note-number"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                    >
+                    <label htmlFor="credit-note-number" className={LABEL_CLASSES(isDarkMode)}>
                       Credit Note Number
                     </label>
                     <input
@@ -1690,10 +1668,7 @@ const CreditNoteForm = () => {
                     />
                   </div>
                   <div>
-                    <label
-                      htmlFor="credit-note-type"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                    >
+                    <label htmlFor="credit-note-type" className={LABEL_CLASSES(isDarkMode)}>
                       Credit Note Type <span className="text-red-500 font-bold">*</span>
                     </label>
                     <Select
@@ -1754,10 +1729,7 @@ const CreditNoteForm = () => {
                     )}
                   </div>
                   <div>
-                    <label
-                      htmlFor="credit-note-date"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                    >
+                    <label htmlFor="credit-note-date" className={LABEL_CLASSES(isDarkMode)}>
                       Date <span className="text-red-500 font-bold">*</span>
                     </label>
                     <input
@@ -1803,10 +1775,7 @@ const CreditNoteForm = () => {
                   {/* Status - Read-only display, not editable by user */}
                   {id && (
                     <div>
-                      <label
-                        htmlFor="credit-note-status"
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                      >
+                      <label htmlFor="credit-note-status" className={LABEL_CLASSES(isDarkMode)}>
                         Status
                       </label>
                       <div
@@ -1825,10 +1794,7 @@ const CreditNoteForm = () => {
                     </div>
                   )}
                   <div>
-                    <label
-                      htmlFor="reason-for-return"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                    >
+                    <label htmlFor="reason-for-return" className={LABEL_CLASSES(isDarkMode)}>
                       Reason for Return <span className="text-red-500 font-bold">*</span>
                     </label>
                     <Select
@@ -1900,10 +1866,7 @@ const CreditNoteForm = () => {
                     )}
                   </div>
                   <div>
-                    <label
-                      htmlFor="credit-note-notes"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                    >
+                    <label htmlFor="credit-note-notes" className={LABEL_CLASSES(isDarkMode)}>
                       Notes
                     </label>
                     <textarea
@@ -1932,7 +1895,7 @@ const CreditNoteForm = () => {
 
               {/* Steel Return Specifics - Show for RETURN_WITH_QC type */}
               {creditNote.creditNoteType === "RETURN_WITH_QC" && (
-                <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+                <div className={CARD_CLASSES(isDarkMode)}>
                   <h2 className={`text-lg font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     Steel Return Classification
                   </h2>
@@ -1942,10 +1905,7 @@ const CreditNoteForm = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Return Reason Category */}
                     <div>
-                      <label
-                        htmlFor="return-reason-category"
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                      >
+                      <label htmlFor="return-reason-category" className={LABEL_CLASSES(isDarkMode)}>
                         Return Reason Category <span className="text-red-500 font-bold">*</span>
                       </label>
                       <Select
@@ -1985,10 +1945,7 @@ const CreditNoteForm = () => {
 
                     {/* Disposition Decision */}
                     <div>
-                      <label
-                        htmlFor="disposition-decision"
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                      >
+                      <label htmlFor="disposition-decision" className={LABEL_CLASSES(isDarkMode)}>
                         Disposition Decision <span className="text-red-500 font-bold">*</span>
                       </label>
                       <Select
@@ -2026,11 +1983,7 @@ const CreditNoteForm = () => {
 
                     {/* Heat Number Match */}
                     <div className="md:col-span-2">
-                      <div
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                      >
-                        Heat Number Verification
-                      </div>
+                      <div className={LABEL_CLASSES(isDarkMode)}>Heat Number Verification</div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <input
                           type="text"
@@ -2117,11 +2070,7 @@ const CreditNoteForm = () => {
 
                     {/* Grade Verification - PMI Test */}
                     <div className="md:col-span-2">
-                      <div
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                      >
-                        Grade Verification (PMI Test)
-                      </div>
+                      <div className={LABEL_CLASSES(isDarkMode)}>Grade Verification (PMI Test)</div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div className="flex items-center gap-2">
                           <input
@@ -2200,11 +2149,7 @@ const CreditNoteForm = () => {
                     {(creditNote.returnReasonCategory === "MATERIAL_DEFECT" ||
                       creditNote.returnReasonCategory === "WRONG_GRADE") && (
                       <div className="md:col-span-2 border-t pt-4 mt-2">
-                        <div
-                          className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                        >
-                          Quality Failure Details
-                        </div>
+                        <div className={LABEL_CLASSES(isDarkMode)}>Quality Failure Details</div>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                           <input
                             type="text"
@@ -2301,11 +2246,7 @@ const CreditNoteForm = () => {
                     {(creditNote.returnReasonCategory === "MATERIAL_DEFECT" ||
                       creditNote.returnReasonCategory === "WRONG_DELIVERY") && (
                       <div className="md:col-span-2 border-t pt-4 mt-2">
-                        <div
-                          className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                        >
-                          Vendor Claim Tracking
-                        </div>
+                        <div className={LABEL_CLASSES(isDarkMode)}>Vendor Claim Tracking</div>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                           <Select
                             value={creditNote.vendorClaim.status}
@@ -2412,11 +2353,7 @@ const CreditNoteForm = () => {
                     {/* RMA Information - Auto-generated, display only */}
                     {creditNote.rmaNumber && (
                       <div className="md:col-span-2 border-t pt-4 mt-2">
-                        <div
-                          className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                        >
-                          RMA (Return Material Authorization)
-                        </div>
+                        <div className={LABEL_CLASSES(isDarkMode)}>RMA (Return Material Authorization)</div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           <div>
                             <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
@@ -2515,7 +2452,7 @@ const CreditNoteForm = () => {
                 creditNote.manualCreditAmount > 0 &&
                 ["draft", "issued"].includes(creditNote.status)) ||
                 ["refunded", "completed"].includes(creditNote.status)) && (
-                <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+                <div className={CARD_CLASSES(isDarkMode)}>
                   <h2 className={`text-lg font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     Settlement Method
                     {creditNote.manualCreditAmount > 0 && <span className="text-red-500 ml-1">*</span>}
@@ -2525,10 +2462,7 @@ const CreditNoteForm = () => {
                   </p>
                   <div className="space-y-4">
                     <div>
-                      <label
-                        htmlFor="settlement-method"
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                      >
+                      <label htmlFor="settlement-method" className={LABEL_CLASSES(isDarkMode)}>
                         Settlement Method {creditNote.manualCreditAmount > 0 && <span className="text-red-500">*</span>}
                       </label>
                       <Select
@@ -2576,10 +2510,7 @@ const CreditNoteForm = () => {
                       </p>
                     </div>
                     <div>
-                      <label
-                        htmlFor="settlement-date"
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                      >
+                      <label htmlFor="settlement-date" className={LABEL_CLASSES(isDarkMode)}>
                         Settlement Date
                       </label>
                       <input
@@ -2600,10 +2531,7 @@ const CreditNoteForm = () => {
                       />
                     </div>
                     <div>
-                      <label
-                        htmlFor="settlement-reference"
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                      >
+                      <label htmlFor="settlement-reference" className={LABEL_CLASSES(isDarkMode)}>
                         Reference / Transaction ID
                         {creditNote.refundMethod && METHODS_REQUIRING_REFERENCE.includes(creditNote.refundMethod) && (
                           <span className="text-red-500 ml-1">*</span>
@@ -2654,17 +2582,14 @@ const CreditNoteForm = () => {
               {/* QC Information - shown for RETURN_WITH_QC type after inspection */}
               {creditNote.creditNoteType === "RETURN_WITH_QC" &&
                 ["items_inspected", "applied", "refunded", "completed"].includes(creditNote.status) && (
-                  <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+                  <div className={CARD_CLASSES(isDarkMode)}>
                     <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       QC Inspection Results
                     </h2>
                     <div className="space-y-4">
                       <div className="flex items-center gap-4">
                         <div className="flex-1">
-                          <label
-                            htmlFor="qc-result"
-                            className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                          >
+                          <label htmlFor="qc-result" className={LABEL_CLASSES(isDarkMode)}>
                             QC Result
                           </label>
                           <div
@@ -2688,10 +2613,7 @@ const CreditNoteForm = () => {
                         </div>
                         {creditNote.qcInspectedAt && (
                           <div className="flex-1">
-                            <label
-                              htmlFor="qc-inspected-at"
-                              className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                            >
+                            <label htmlFor="qc-inspected-at" className={LABEL_CLASSES(isDarkMode)}>
                               Inspected At
                             </label>
                             <div
@@ -2709,10 +2631,7 @@ const CreditNoteForm = () => {
                       </div>
                       {creditNote.qcNotes && (
                         <div>
-                          <label
-                            htmlFor="qc-notes"
-                            className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                          >
+                          <label htmlFor="qc-notes" className={LABEL_CLASSES(isDarkMode)}>
                             QC Notes
                           </label>
                           <div
@@ -2733,7 +2652,7 @@ const CreditNoteForm = () => {
 
               {/* Quick Actions - Only show for physical returns */}
               {showLogisticsSection && (
-                <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+                <div className={CARD_CLASSES(isDarkMode)}>
                   <h3 className={`text-sm font-semibold mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     Quick Actions
                   </h3>
@@ -2770,9 +2689,7 @@ const CreditNoteForm = () => {
               {/* Manual Credit Amount - Only show for ACCOUNTING_ONLY when no items selected */}
               {!isPhysicalReturn && (
                 <div
-                  className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm ${
-                    invalidFields.has("manualCreditAmount") ? "ring-2 ring-red-500" : ""
-                  }`}
+                  className={`${CARD_CLASSES(isDarkMode)} ${invalidFields.has("manualCreditAmount") ? "ring-2 ring-red-500" : ""}`}
                 >
                   <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     Manual Credit Amount
@@ -2783,10 +2700,7 @@ const CreditNoteForm = () => {
                   </p>
                   <div className="space-y-4">
                     <div>
-                      <label
-                        htmlFor="manual-credit-amount"
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                      >
+                      <label htmlFor="manual-credit-amount" className={LABEL_CLASSES(isDarkMode)}>
                         Credit Amount (AED) {!hasSelectedItems && <span className="text-red-500 font-bold">*</span>}
                       </label>
                       <input
@@ -2838,7 +2752,7 @@ const CreditNoteForm = () => {
 
               {/* Credit Summary */}
               {(creditNote.items.some((item) => item.selected) || creditNote.manualCreditAmount > 0) && (
-                <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+                <div className={CARD_CLASSES(isDarkMode)}>
                   <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     Credit Summary
                   </h2>
@@ -2973,10 +2887,7 @@ const CreditNoteForm = () => {
       >
         <div className="space-y-4">
           <div>
-            <label
-              htmlFor="drawer-expected-return-date"
-              className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-            >
+            <label htmlFor="drawer-expected-return-date" className={LABEL_CLASSES(isDarkMode)}>
               Expected Return Date <span className="text-red-500 font-bold">*</span>
             </label>
             <input
@@ -3013,10 +2924,7 @@ const CreditNoteForm = () => {
             )}
           </div>
           <div>
-            <label
-              htmlFor="drawer-return-shipping-cost"
-              className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-            >
+            <label htmlFor="drawer-return-shipping-cost" className={LABEL_CLASSES(isDarkMode)}>
               Return Shipping Cost (AED)
             </label>
             <input
@@ -3041,10 +2949,7 @@ const CreditNoteForm = () => {
             />
           </div>
           <div>
-            <label
-              htmlFor="drawer-restocking-fee"
-              className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-            >
+            <label htmlFor="drawer-restocking-fee" className={LABEL_CLASSES(isDarkMode)}>
               Restocking Fee (AED)
             </label>
             <input
@@ -3077,10 +2982,10 @@ const CreditNoteForm = () => {
         <div
           className="sticky bottom-0 pt-4 mt-6 border-t"
           style={{
-            borderColor: isDarkMode ? COLORS.border : "#e5e7eb",
+            borderColor: isDarkMode ? "#374151" : "#e5e7eb",
             background: isDarkMode
-              ? `linear-gradient(to top, ${COLORS.card}, ${COLORS.card}ee)`
-              : "linear-gradient(to top, white, rgba(255,255,255,0.95))",
+              ? "linear-gradient(to top, rgba(17,24,39,1) 70%, rgba(17,24,39,0))"
+              : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
           }}
         >
           <div className="flex justify-end gap-2">
