@@ -85,6 +85,8 @@ function SupplierPerformanceDashboard() {
       PREFERRED: "bg-emerald-100 text-emerald-800",
       ACCEPTABLE: "bg-yellow-100 text-yellow-800",
       AT_RISK: "bg-red-100 text-red-800",
+      PENDING: "bg-gray-100 text-gray-800",
+      UNRATED: "bg-gray-100 text-gray-800",
     };
     return colors[rating] || "bg-gray-100 text-gray-800";
   };

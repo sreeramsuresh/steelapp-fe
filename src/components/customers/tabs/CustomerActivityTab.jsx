@@ -339,23 +339,25 @@ export default function CustomerActivityTab({ customerId }) {
         </button>
       </div>
 
-      {/* TODO: Backend Integration Notice */}
-      <div
-        className={`p-4 rounded-lg border ${isDarkMode ? "bg-yellow-900/20 border-yellow-700" : "bg-yellow-50 border-yellow-200"}`}
-      >
-        <div className="flex items-start gap-3">
-          <AlertTriangle size={18} className="text-yellow-500 mt-0.5" />
-          <div>
-            <p className={`text-sm font-medium ${isDarkMode ? "text-yellow-400" : "text-yellow-700"}`}>
-              Development Mode - Mock Data
-            </p>
-            <p className={`text-xs ${isDarkMode ? "text-yellow-300" : "text-yellow-600"} mt-1`}>
-              This tab is using mock data. Backend API integration needed at GET /api/activities and POST
-              /api/activities
-            </p>
+      {/* Backend Integration Notice - shown when no activities loaded */}
+      {activities.length === 0 && !loading && (
+        <div
+          className={`p-4 rounded-lg border ${isDarkMode ? "bg-yellow-900/20 border-yellow-700" : "bg-yellow-50 border-yellow-200"}`}
+        >
+          <div className="flex items-start gap-3">
+            <AlertTriangle size={18} className="text-yellow-500 mt-0.5" />
+            <div>
+              <p className={`text-sm font-medium ${isDarkMode ? "text-yellow-400" : "text-yellow-700"}`}>
+                No Activity Data Available
+              </p>
+              <p className={`text-xs ${isDarkMode ? "text-yellow-300" : "text-yellow-600"} mt-1`}>
+                Backend endpoint GET /api/activities is not yet implemented. Activity tracking will be available once
+                the API is deployed.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Filters and Add Button */}
       <div className={`${cardBg} border ${borderColor} rounded-lg p-4`}>

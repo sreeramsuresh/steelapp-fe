@@ -137,7 +137,6 @@ export default function COGSAnalysisReport() {
     return `${(value || 0).toFixed(2)}%`;
   };
 
-
   const CHART_COLORS = ["#14B8A6", "#3B82F6", "#F59E0B", "#EF4444", "#8B5CF6"];
 
   return (
