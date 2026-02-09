@@ -77,12 +77,10 @@ const AccountStatementForm = () => {
   };
 
   return (
-    <div
-      className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
-    >
+    <div className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}>
       <div
         className={`p-6 mx-0 sm:mx-auto max-w-2xl rounded-none sm:rounded-2xl border ${
-          isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
+          isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
         }`}
       >
         <div className="mb-6">
