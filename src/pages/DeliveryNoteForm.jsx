@@ -39,23 +39,23 @@ import { calculateWeightVariance, formatDateForInput, validateWeightTolerance } 
 
 // Layout classes (use with isDarkMode ternary)
 const CARD_CLASSES = (isDarkMode) =>
-  `${isDarkMode ? "bg-[#141a20] border-[#2a3640]" : "bg-white border-gray-200"} border rounded-2xl p-4`;
+  `${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4`;
 
 const INPUT_CLASSES = (isDarkMode) =>
-  `w-full ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"} border rounded-xl py-2.5 px-3 text-[13px] outline-none focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20`;
+  `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-xl py-2.5 px-3 text-[13px] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20`;
 
-const LABEL_CLASSES = (isDarkMode) => `block text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"} mb-1.5`;
+const LABEL_CLASSES = (isDarkMode) => `block text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
 
 const BTN_CLASSES = (isDarkMode) =>
-  `${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]" : "bg-white border-gray-300 text-gray-900 hover:border-blue-500"} border rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors`;
+  `${isDarkMode ? "bg-gray-900 border-gray-700 text-white hover:border-teal-500" : "bg-white border-gray-300 text-gray-900 hover:border-blue-500"} border rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors`;
 
 const BTN_PRIMARY =
-  "bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer";
+  "bg-teal-500 border-transparent text-white font-extrabold hover:bg-teal-400 rounded-xl py-2.5 px-3 text-[13px] cursor-pointer";
 
 const QUICK_LINK_CLASSES = (isDarkMode) =>
-  `flex items-center gap-2 py-2 px-2.5 ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-gray-50 border-gray-200 text-gray-900"} border rounded-[10px] cursor-pointer text-[13px] transition-colors hover:border-[#4aa3ff] hover:text-[#4aa3ff]`;
+  `flex items-center gap-2 py-2 px-2.5 ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-gray-50 border-gray-200 text-gray-900"} border rounded-[10px] cursor-pointer text-[13px] transition-colors hover:border-teal-500 hover:text-teal-400`;
 
-const DIVIDER_CLASSES = (isDarkMode) => `h-px ${isDarkMode ? "bg-[#2a3640]" : "bg-gray-200"} my-3`;
+const DIVIDER_CLASSES = (isDarkMode) => `h-px ${isDarkMode ? "bg-gray-700" : "bg-gray-200"} my-3`;
 
 // ==================== COMPONENT ====================
 const DeliveryNoteForm = () => {
@@ -436,7 +436,7 @@ const DeliveryNoteForm = () => {
 
     return (
       <span
-        className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[11px] border ${isDarkMode ? "border-[#2a3640] text-[#93a4b4]" : "border-gray-300 text-gray-500"}`}
+        className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[11px] border ${isDarkMode ? "border-gray-700 text-gray-400" : "border-gray-300 text-gray-500"}`}
       >
         <span className="w-1.5 h-1.5 rounded-full bg-current" />
         Not Delivered
@@ -595,28 +595,28 @@ const DeliveryNoteForm = () => {
   const totalOrderedQty = formData.items.reduce((sum, item) => sum + (item.orderedQuantity || 0), 0);
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-[#0b0f14]" : "bg-[#FAFAFA]"}`} data-testid="delivery-note-form">
+    <div className={`min-h-screen ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`} data-testid="delivery-note-form">
       {/* ==================== STICKY HEADER ==================== */}
       <div
-        className={`sticky top-0 z-10 backdrop-blur-md ${isDarkMode ? "bg-[#0f151b]/94 border-b border-[#2a3640]" : "bg-white/94 border-b border-gray-200"} px-4 py-3`}
+        className={`sticky top-0 z-10 backdrop-blur-md ${isDarkMode ? "bg-gray-900/94 border-b border-gray-700" : "bg-white/94 border-b border-gray-200"} px-4 py-3`}
       >
         <div className="max-w-[1400px] mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => navigate("/app/delivery-notes")}
-              className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-[#141a20] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"}`}
+              className={`p-2 rounded-xl transition-colors ${isDarkMode ? "hover:bg-gray-800 text-gray-400" : "hover:bg-gray-100 text-gray-600"}`}
             >
               <ArrowLeft size={20} />
             </button>
             <div>
               <h1
-                className={`text-lg font-extrabold flex items-center gap-2 ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                className={`text-lg font-extrabold flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
               >
                 <Truck size={24} className="text-teal-500" />
                 {isEdit ? "Edit Delivery Note" : "Create Delivery Note"}
               </h1>
-              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 {formData.deliveryNoteNumber || "New"}{" "}
                 {selectedInvoice && `| Invoice: ${selectedInvoice.invoiceNumber}`}
               </div>
@@ -754,15 +754,15 @@ const DeliveryNoteForm = () => {
               {/* Delivery Variance Display (if applicable) */}
               {selectedInvoice?.expectedDeliveryDate && (
                 <div
-                  className={`mt-3 p-3 rounded-[14px] ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-blue-50 border border-blue-200"}`}
+                  className={`mt-3 p-3 rounded-[14px] ${isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-blue-50 border border-blue-200"}`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                      <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                         Delivery Variance
                       </div>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className={`text-lg font-extrabold ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-600"}`}>
+                        <span className={`text-lg font-extrabold ${isDarkMode ? "text-teal-400" : "text-blue-600"}`}>
                           {formData.goodsReceiptDate && selectedInvoice.expectedDeliveryDate
                             ? Math.ceil(
                                 (new Date(formData.goodsReceiptDate) - new Date(selectedInvoice.expectedDeliveryDate)) /
@@ -796,10 +796,10 @@ const DeliveryNoteForm = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                      <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                         Expected: {selectedInvoice.expectedDeliveryDate}
                       </div>
-                      <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                      <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                         Received: {formData.goodsReceiptDate}
                       </div>
                     </div>
@@ -813,7 +813,7 @@ const DeliveryNoteForm = () => {
               <div className={CARD_CLASSES(isDarkMode)}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="text-sm font-extrabold">Items for Delivery</div>
-                  <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                  <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                     {totalItems} item{totalItems !== 1 ? "s" : ""}
                   </div>
                 </div>
@@ -822,12 +822,12 @@ const DeliveryNoteForm = () => {
                   {formData.items.map((item, index) => (
                     <div
                       key={item.id || index}
-                      className={`rounded-[14px] border ${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"}`}
+                      className={`rounded-[14px] border ${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"}`}
                     >
                       {/* Item Header - Clickable to expand */}
                       <button
                         type="button"
-                        className={`w-full p-3 cursor-pointer transition-colors border-0 bg-transparent text-left ${isDarkMode ? "hover:bg-[#141a20]" : "hover:bg-gray-100"}`}
+                        className={`w-full p-3 cursor-pointer transition-colors border-0 bg-transparent text-left ${isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-100"}`}
                         onClick={() => toggleItemExpansion(index)}
                         aria-expanded={expandedItems.has(index)}
                         aria-label={`Toggle details for ${item.name}`}
@@ -838,17 +838,15 @@ const DeliveryNoteForm = () => {
                               <Package size={16} className="text-teal-500 mt-0.5 flex-shrink-0" />
                               <div className="flex-1 min-w-0">
                                 <p
-                                  className={`text-[13px] font-medium truncate ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                                  className={`text-[13px] font-medium truncate ${isDarkMode ? "text-white" : "text-gray-900"}`}
                                 >
                                   {item.name}
                                 </p>
-                                <p
-                                  className={`text-[11px] truncate ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
-                                >
+                                <p className={`text-[11px] truncate ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                                   {item.specification || "No specification"}
                                 </p>
                                 {item.warehouseName && (
-                                  <p className={`text-[11px] ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-600"}`}>
+                                  <p className={`text-[11px] ${isDarkMode ? "text-teal-400" : "text-blue-600"}`}>
                                     {item.warehouseName}
                                   </p>
                                 )}
@@ -857,27 +855,25 @@ const DeliveryNoteForm = () => {
                           </div>
 
                           <div className="col-span-1 text-center">
-                            <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Unit</div>
-                            <div
-                              className={`text-[13px] font-medium ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
-                            >
+                            <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Unit</div>
+                            <div className={`text-[13px] font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                               {item.unit}
                             </div>
                           </div>
 
                           <div className="col-span-2 text-right">
-                            <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                            <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                               Ordered
                             </div>
                             <div
-                              className={`text-[13px] font-medium font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                              className={`text-[13px] font-medium font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
                             >
                               {item.orderedQuantity}
                             </div>
                           </div>
 
                           <div className="col-span-2">
-                            <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                            <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                               Deliver
                             </div>
                             <input
@@ -892,12 +888,12 @@ const DeliveryNoteForm = () => {
                               min={0}
                               max={item.orderedQuantity}
                               step={0.01}
-                              className={`w-full px-2 py-1.5 border rounded-[10px] text-right text-[13px] font-mono ${isDarkMode ? "bg-[#141a20] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"} focus:border-[#5bb2ff] focus:ring-1 focus:ring-[#4aa3ff]/20 outline-none`}
+                              className={`w-full px-2 py-1.5 border rounded-[10px] text-right text-[13px] font-mono ${isDarkMode ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} focus:border-teal-500 focus:ring-1 focus:ring-teal-500/20 outline-none`}
                             />
                           </div>
 
                           <div className="col-span-2 text-right">
-                            <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                            <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                               Remaining
                             </div>
                             <div
@@ -911,32 +907,30 @@ const DeliveryNoteForm = () => {
 
                       {/* Allocation Details - Expandable */}
                       {expandedItems.has(index) && (
-                        <div
-                          className={`p-3 border-t ${isDarkMode ? "border-[#2a3640]" : "border-gray-200"} space-y-3`}
-                        >
+                        <div className={`p-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} space-y-3`}>
                           {/* Weight Tracking Section */}
                           {item.theoreticalWeightKg > 0 && (
                             <div
-                              className={`p-3 rounded-[12px] ${isDarkMode ? "bg-[#141a20] border border-[#2a3640]" : "bg-blue-50 border border-blue-200"}`}
+                              className={`p-3 rounded-[12px] ${isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-blue-50 border border-blue-200"}`}
                             >
                               <div
-                                className={`text-xs font-bold mb-2 ${isDarkMode ? "text-[#4aa3ff]" : "text-blue-700"}`}
+                                className={`text-xs font-bold mb-2 ${isDarkMode ? "text-teal-400" : "text-blue-700"}`}
                               >
                                 Weight Verification
                               </div>
                               <div className="grid grid-cols-4 gap-3">
                                 <div>
-                                  <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                                  <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                                     Theoretical
                                   </div>
                                   <div
-                                    className={`text-[13px] font-medium font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                                    className={`text-[13px] font-medium font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
                                   >
                                     {item.theoreticalWeightKg?.toFixed(2)} kg
                                   </div>
                                 </div>
                                 <div>
-                                  <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                                  <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                                     Actual Weight
                                   </div>
                                   <input
@@ -947,11 +941,11 @@ const DeliveryNoteForm = () => {
                                     min={0}
                                     step={0.01}
                                     placeholder="Enter"
-                                    className={`w-full px-2 py-1.5 border rounded-[10px] text-right text-[13px] font-mono ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"} focus:border-[#5bb2ff] outline-none`}
+                                    className={`w-full px-2 py-1.5 border rounded-[10px] text-right text-[13px] font-mono ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} focus:border-teal-500 outline-none`}
                                   />
                                 </div>
                                 <div>
-                                  <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                                  <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                                     Variance
                                   </div>
                                   {item.actualWeightKg ? (
@@ -966,13 +960,13 @@ const DeliveryNoteForm = () => {
                                       </span>
                                     </div>
                                   ) : (
-                                    <div className={`text-[13px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-400"}`}>
+                                    <div className={`text-[13px] ${isDarkMode ? "text-gray-400" : "text-gray-400"}`}>
                                       -
                                     </div>
                                   )}
                                 </div>
                                 <div>
-                                  <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                                  <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                                     Status
                                   </div>
                                   {(() => {
@@ -982,7 +976,7 @@ const DeliveryNoteForm = () => {
                                       caution: "text-yellow-400",
                                       warning: "text-orange-400",
                                       error: "text-red-400",
-                                      none: isDarkMode ? "text-[#93a4b4]" : "text-gray-400",
+                                      none: isDarkMode ? "text-gray-400" : "text-gray-400",
                                     };
                                     return (
                                       <div
@@ -1011,7 +1005,7 @@ const DeliveryNoteForm = () => {
                             />
                           ) : (
                             <div
-                              className={`p-3 rounded-[12px] border text-center ${isDarkMode ? "bg-[#141a20] border-[#2a3640] text-[#93a4b4]" : "bg-gray-50 border-gray-200 text-gray-500"}`}
+                              className={`p-3 rounded-[12px] border text-center ${isDarkMode ? "bg-gray-800 border-gray-700 text-gray-400" : "bg-gray-50 border-gray-200 text-gray-500"}`}
                             >
                               <p className="text-xs">
                                 {formData.stockDeducted
@@ -1072,21 +1066,21 @@ const DeliveryNoteForm = () => {
                 {/* Summary Stats */}
                 <div className="grid grid-cols-3 gap-2.5 mb-3">
                   <div
-                    className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
+                    className={`${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
                   >
-                    <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Items</div>
+                    <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Items</div>
                     <div className="text-sm font-extrabold mt-1 font-mono">{totalItems}</div>
                   </div>
                   <div
-                    className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
+                    className={`${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
                   >
-                    <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Ordered</div>
+                    <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Ordered</div>
                     <div className="text-sm font-extrabold mt-1 font-mono">{totalOrderedQty.toFixed(2)}</div>
                   </div>
                   <div
-                    className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
+                    className={`${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
                   >
-                    <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Delivering</div>
+                    <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Delivering</div>
                     <div
                       className={`text-sm font-extrabold mt-1 font-mono ${totalDeliveredQty === totalOrderedQty ? "text-green-400" : "text-yellow-400"}`}
                     >
@@ -1100,12 +1094,12 @@ const DeliveryNoteForm = () => {
                 {/* Customer Info */}
                 {selectedInvoice?.customerDetails && (
                   <div className="mb-3">
-                    <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Customer</div>
-                    <div className={`text-[13px] font-medium ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                    <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Customer</div>
+                    <div className={`text-[13px] font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       {selectedInvoice.customerDetails.name}
                     </div>
                     {selectedInvoice.customerDetails.trn && (
-                      <div className={`text-[11px] font-mono ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                      <div className={`text-[11px] font-mono ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                         TRN: {selectedInvoice.customerDetails.trn}
                       </div>
                     )}
@@ -1115,8 +1109,8 @@ const DeliveryNoteForm = () => {
                 {/* Quick Delivery Address Preview */}
                 {hasDeliveryAddress && (
                   <div className="mb-3">
-                    <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Delivery To</div>
-                    <div className={`text-[13px] ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                    <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Delivery To</div>
+                    <div className={`text-[13px] ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       {formData.deliveryAddress.street && <span>{formData.deliveryAddress.street}</span>}
                       {formData.deliveryAddress.city && <span>, {formData.deliveryAddress.city}</span>}
                     </div>
@@ -1126,8 +1120,8 @@ const DeliveryNoteForm = () => {
                 {/* Quick Transport Preview */}
                 {hasTransportDetails && (
                   <div className="mb-3">
-                    <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Transport</div>
-                    <div className={`text-[13px] ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                    <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Transport</div>
+                    <div className={`text-[13px] ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       {formData.vehicleNumber && <span>{formData.vehicleNumber}</span>}
                       {formData.driverName && <span> | {formData.driverName}</span>}
                     </div>
@@ -1137,7 +1131,7 @@ const DeliveryNoteForm = () => {
 
               {/* Quick Actions Card */}
               <div className={CARD_CLASSES(isDarkMode)}>
-                <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"} mb-2`}>Quick Actions</div>
+                <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-2`}>Quick Actions</div>
                 <div className="space-y-1.5">
                   <button
                     type="button"
@@ -1191,24 +1185,24 @@ const DeliveryNoteForm = () => {
         aria-label="Close delivery address drawer"
       />
       <div
-        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showDeliveryAddressDrawer ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showDeliveryAddressDrawer ? "translate-x-0" : "translate-x-full"}`}
         data-testid="delivery-address-drawer"
       >
         <div className="p-4">
           {/* Drawer Header */}
           <div
-            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"} z-[1]`}
+            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"} z-[1]`}
           >
             <div>
               <div className="text-sm font-extrabold">Delivery Address</div>
-              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Where should goods be delivered?
               </div>
             </div>
             <button
               type="button"
               onClick={() => setShowDeliveryAddressDrawer(false)}
-              className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
+              className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-gray-900 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
             >
               <X size={18} />
             </button>
@@ -1292,24 +1286,24 @@ const DeliveryNoteForm = () => {
         aria-label="Close transport details drawer"
       />
       <div
-        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showTransportDrawer ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showTransportDrawer ? "translate-x-0" : "translate-x-full"}`}
         data-testid="transport-drawer"
       >
         <div className="p-4">
           {/* Drawer Header */}
           <div
-            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"} z-[1]`}
+            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"} z-[1]`}
           >
             <div>
               <div className="text-sm font-extrabold">Transport Details</div>
-              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Vehicle and driver information
               </div>
             </div>
             <button
               type="button"
               onClick={() => setShowTransportDrawer(false)}
-              className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
+              className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-gray-900 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
             >
               <X size={18} />
             </button>
@@ -1387,24 +1381,24 @@ const DeliveryNoteForm = () => {
         aria-label="Close notes drawer"
       />
       <div
-        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showNotesDrawer ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showNotesDrawer ? "translate-x-0" : "translate-x-full"}`}
         data-testid="notes-drawer"
       >
         <div className="p-4">
           {/* Drawer Header */}
           <div
-            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"} z-[1]`}
+            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"} z-[1]`}
           >
             <div>
               <div className="text-sm font-extrabold">Notes</div>
-              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Special instructions and handling notes
               </div>
             </div>
             <button
               type="button"
               onClick={() => setShowNotesDrawer(false)}
-              className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
+              className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-gray-900 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
             >
               <X size={18} />
             </button>
@@ -1448,23 +1442,23 @@ const DeliveryNoteForm = () => {
       {showInvoiceDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55" data-testid="invoice-modal">
           <div
-            className={`${isDarkMode ? "bg-[#141a20] border-[#2a3640]" : "bg-white border-gray-200"} border rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col`}
+            className={`${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col`}
           >
             <div
-              className={`flex items-center justify-between p-4 border-b ${isDarkMode ? "border-[#2a3640]" : "border-gray-200"}`}
+              className={`flex items-center justify-between p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
             >
               <div className="text-sm font-extrabold">Select Invoice</div>
               <button
                 type="button"
                 onClick={() => setShowInvoiceDialog(false)}
-                className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-[#0f151b] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-500"}`}
+                className={`p-1.5 rounded-lg ${isDarkMode ? "hover:bg-gray-900 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
               >
                 <X size={18} />
               </button>
             </div>
             <div className="p-4 overflow-y-auto flex-1">
               {invoices.length === 0 ? (
-                <p className={`text-center py-4 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                <p className={`text-center py-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                   No invoices available for delivery
                 </p>
               ) : (
@@ -1475,20 +1469,20 @@ const DeliveryNoteForm = () => {
                       type="button"
                       onClick={() => handleInvoiceSelect(invoice)}
                       data-testid={`invoice-option-${index}`}
-                      className={`w-full p-3 text-left border rounded-[14px] transition-colors ${isDarkMode ? "border-[#2a3640] hover:bg-[#0f151b] hover:border-[#4aa3ff]" : "border-gray-200 hover:bg-gray-50 hover:border-blue-500"}`}
+                      className={`w-full p-3 text-left border rounded-[14px] transition-colors ${isDarkMode ? "border-gray-700 hover:bg-gray-900 hover:border-teal-500" : "border-gray-200 hover:bg-gray-50 hover:border-blue-500"}`}
                     >
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className={`text-[13px] font-medium ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                          <p className={`text-[13px] font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                             {invoice.invoiceNumber || invoice.invoice_number}
                           </p>
-                          <p className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                          <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                             {invoice.customerDetails?.name || invoice.customer_name || "Unknown Customer"}
                           </p>
                         </div>
                         <div className="text-right">
                           <p
-                            className={`text-[13px] font-medium font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                            className={`text-[13px] font-medium font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
                           >
                             {new Intl.NumberFormat("en-AE", {
                               style: "currency",
