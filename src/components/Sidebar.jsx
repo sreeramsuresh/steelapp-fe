@@ -16,6 +16,7 @@ import {
   Package,
   PieChart,
   Quote,
+  Receipt,
   Scroll,
   Settings,
   Shield,
@@ -190,7 +191,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
       ],
     },
 
-    // 4. FINANCE (4 items) - Dashboard with tabs + Commission Approvals + Credit Management + AR Aging
+    // 4. FINANCE (5 items) - Dashboard with tabs + Operating Expenses + Commission Approvals + Credit Management + AR Aging
     {
       section: "Finance",
       items: [
@@ -199,6 +200,13 @@ const Sidebar = ({ isOpen, onToggle }) => {
           path: "/finance",
           icon: Banknote,
           description: "Receivables, payables, statements, and commissions",
+          requiredPermission: "payables.read",
+        },
+        {
+          name: "Operating Expenses",
+          path: "/operating-expenses",
+          icon: Receipt,
+          description: "Manage rent, utilities, salaries, and operational costs",
           requiredPermission: "payables.read",
         },
         {

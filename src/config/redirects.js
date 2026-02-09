@@ -31,6 +31,7 @@ export const REDIRECTS = {
   "/advance-payments": "/app/advance-payments",
 
   // Finance (operational → /app)
+  "/operating-expenses": "/app/operating-expenses",
   "/finance": "/app/finance",
   "/dashboards/commission-approvals": "/app/finance", // Now a tab in Finance
   "/dashboards/customer-credit": "/app/finance", // Now a tab in Finance

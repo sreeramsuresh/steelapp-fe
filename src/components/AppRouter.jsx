@@ -67,6 +67,7 @@ const ContainerForm = lazy(() => import("../pages/containers").then((m) => ({ de
 const FinanceDashboard = lazy(() => import("../pages/FinanceDashboard"));
 const Receivables = lazy(() => import("../pages/Receivables"));
 const Payables = lazy(() => import("../pages/Payables"));
+const OperatingExpenses = lazy(() => import("../pages/OperatingExpenses"));
 
 // Purchases Dashboard
 const PurchasesDashboard = lazy(() => import("../pages/PurchasesDashboard"));
@@ -252,6 +253,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           <Route path="/purchase-orders/*" element={<LegacyRedirect />} />
 
           {/* Finance */}
+          <Route path="/operating-expenses" element={<LegacyRedirect />} />
           <Route path="/finance" element={<LegacyRedirect />} />
           <Route path="/dashboards/*" element={<LegacyRedirect />} />
           <Route path="/account-statements/*" element={<LegacyRedirect />} />
@@ -586,6 +588,14 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredPermission="payables.read">
                   <Payables />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="operating-expenses"
+              element={
+                <ProtectedRoute user={user} requiredPermission="payables.read">
+                  <OperatingExpenses />
                 </ProtectedRoute>
               }
             />

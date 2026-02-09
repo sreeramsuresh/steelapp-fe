@@ -27,7 +27,6 @@ import {
   Mail,
   MapPin,
   Pencil,
-  Phone,
   Plus,
   Printer,
   Receipt,
@@ -64,6 +63,7 @@ import InvoiceTemplateSettings from "./InvoiceTemplateSettings";
 import ProductNamingHelpPanel from "./ProductNamingHelpPanel";
 import RolesHelpPanel from "./RolesHelpPanel";
 import VATRulesHelpPanel from "./VATRulesHelpPanel";
+import PhoneInput from "./shared/PhoneInput";
 
 // Custom Tailwind Components
 const Button = ({
@@ -1106,9 +1106,9 @@ const CompanySettings = () => {
       let newLogoUrl = logoUrl;
       if (logoUrl.includes("localhost:5000")) {
         const baseUrl = import.meta.env.VITE_API_BASE_URL.replace("/api", "");
-        newLogoUrl = logoUrl.replace("http://localhost:5000", baseUrl);
+        newLogoUrl = logoUrl.replace("http://localhost:3000", baseUrl);
       }
-      setCompanyProfile((prev) => ({ ...prev, logo_url: newLogoUrl }));
+      setCompanyProfile((prev) => ({ ...prev, logoUrl: newLogoUrl }));
 
       // Save to database
       const logoUpdateData = {
@@ -1159,12 +1159,12 @@ const CompanySettings = () => {
       // Extract filename from URL
       const filename = companyProfile.logoUrl.split("/").pop();
 
-      if (filename?.startsWith("company-logo-")) {
+      if (filename) {
         await deleteLogo(filename);
       }
 
       // Update company profile
-      setCompanyProfile((prev) => ({ ...prev, logo_url: null }));
+      setCompanyProfile((prev) => ({ ...prev, logoUrl: null }));
 
       // Save to database
       const logoDeleteData = {
@@ -1238,7 +1238,7 @@ const CompanySettings = () => {
       // Update company profile immediately with relative path
       setCompanyProfile((prev) => ({
         ...prev,
-        brandmark_url: relativeBrandmarkUrl,
+        brandmarkUrl: relativeBrandmarkUrl,
       }));
 
       // Save to database (store relative path only)
@@ -1290,12 +1290,12 @@ const CompanySettings = () => {
       // Extract filename from URL
       const filename = companyProfile.brandmarkUrl.split("/").pop();
 
-      if (filename?.startsWith("company-logo-")) {
+      if (filename) {
         await deleteBrandmark(filename);
       }
 
       // Update company profile
-      setCompanyProfile((prev) => ({ ...prev, brandmark_url: null }));
+      setCompanyProfile((prev) => ({ ...prev, brandmarkUrl: null }));
 
       // Save to database
       const brandmarkDeleteData = {
@@ -1371,7 +1371,7 @@ const CompanySettings = () => {
       // console.log('[Seal Upload] Relative path for database:', relativeSealUrl);
 
       // Update company profile immediately with relative path
-      setCompanyProfile((prev) => ({ ...prev, pdf_seal_url: relativeSealUrl }));
+      setCompanyProfile((prev) => ({ ...prev, pdfSealUrl: relativeSealUrl }));
 
       // Save to database (store relative path only)
       const sealUpdateData = {
@@ -1431,12 +1431,12 @@ const CompanySettings = () => {
       // Extract filename from URL
       const filename = companyProfile.pdfSealUrl.split("/").pop();
 
-      if (filename?.startsWith("company-logo-")) {
+      if (filename) {
         await deleteSeal(filename);
       }
 
       // Update company profile
-      setCompanyProfile((prev) => ({ ...prev, pdf_seal_url: null }));
+      setCompanyProfile((prev) => ({ ...prev, pdfSealUrl: null }));
 
       // Save to database
       const sealDeleteData = {
@@ -1776,18 +1776,16 @@ const CompanySettings = () => {
                   placeholder="Enter email address"
                   startAdornment={<Mail size={20} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />}
                 />
-                <TextField
-                  label="Phone Numbers"
-                  type="tel"
+                <PhoneInput
+                  label="Phone / Mobile Number"
                   value={companyProfile.phone || ""}
-                  onChange={(e) =>
+                  onChange={(phone) =>
                     setCompanyProfile({
                       ...companyProfile,
-                      phone: e.target.value,
+                      phone,
                     })
                   }
-                  placeholder="Enter phone numbers (comma-separated): +971506061680, +971506067680"
-                  startAdornment={<Phone size={20} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />}
+                  disabled={false}
                 />
                 <TextField
                   label="Website"
@@ -1976,22 +1974,18 @@ const CompanySettings = () => {
                           <div className="relative w-full h-full">
                             {/* {console.log('Rendering logo with URL:', companyProfile.logoUrl)} */}
                             <img
-                              src={`${companyProfile.logoUrl}?t=${Date.now()}`}
+                              src={`${companyProfile.logoUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000") + companyProfile.logoUrl : companyProfile.logoUrl}?t=${Date.now()}`}
                               alt="Company Logo"
                               className="w-full h-full object-contain rounded-lg"
                               crossOrigin="anonymous"
-                              onLoad={() => {
-                                /* console.log('Logo loaded successfully:', companyProfile.logoUrl) */
-                              }}
                               onError={(e) => {
-                                console.error("Logo failed to load:", companyProfile.logoUrl, e);
-                                console.error("Image load error details:", e.type, e.target?.src);
-                                // Try to reload without cache-busting query first
                                 if (e.target.src.includes("?t=")) {
-                                  // console.log('Retrying without cache-busting query...');
-                                  e.target.src = companyProfile.logoUrl;
+                                  const baseUrl =
+                                    import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
+                                  e.target.src = companyProfile.logoUrl.startsWith("/")
+                                    ? baseUrl + companyProfile.logoUrl
+                                    : companyProfile.logoUrl;
                                 } else {
-                                  // If that also fails, show upload option
                                   setCompanyProfile((prev) => ({
                                     ...prev,
                                     logoUrl: null,
@@ -2080,21 +2074,21 @@ const CompanySettings = () => {
                         ) : companyProfile.brandmarkUrl ? (
                           <div className="relative w-full h-full">
                             <img
-                              src={`${companyProfile.brandmarkUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:5000") + companyProfile.brandmarkUrl : companyProfile.brandmarkUrl}?t=${Date.now()}`}
+                              src={`${companyProfile.brandmarkUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000") + companyProfile.brandmarkUrl : companyProfile.brandmarkUrl}?t=${Date.now()}`}
                               alt="Company Brandmark"
                               className="w-full h-full object-contain rounded-lg"
                               crossOrigin="anonymous"
                               onError={(e) => {
                                 if (e.target.src.includes("?t=")) {
                                   const baseUrl =
-                                    import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:5000";
+                                    import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
                                   e.target.src = companyProfile.brandmarkUrl.startsWith("/")
                                     ? baseUrl + companyProfile.brandmarkUrl
                                     : companyProfile.brandmarkUrl;
                                 } else {
                                   setCompanyProfile((prev) => ({
                                     ...prev,
-                                    brandmark_url: null,
+                                    brandmarkUrl: null,
                                   }));
                                 }
                               }}
@@ -2162,21 +2156,21 @@ const CompanySettings = () => {
                         ) : companyProfile.pdfSealUrl ? (
                           <div className="relative w-full h-full">
                             <img
-                              src={`${companyProfile.pdfSealUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:5000") + companyProfile.pdfSealUrl : companyProfile.pdfSealUrl}?t=${Date.now()}`}
+                              src={`${companyProfile.pdfSealUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000") + companyProfile.pdfSealUrl : companyProfile.pdfSealUrl}?t=${Date.now()}`}
                               alt="Company Seal"
                               className="w-full h-full object-contain rounded-lg"
                               crossOrigin="anonymous"
                               onError={(e) => {
                                 if (e.target.src.includes("?t=")) {
                                   const baseUrl =
-                                    import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:5000";
+                                    import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
                                   e.target.src = companyProfile.pdfSealUrl.startsWith("/")
                                     ? baseUrl + companyProfile.pdfSealUrl
                                     : companyProfile.pdfSealUrl;
                                 } else {
                                   setCompanyProfile((prev) => ({
                                     ...prev,
-                                    pdf_seal_url: null,
+                                    pdfSealUrl: null,
                                   }));
                                 }
                               }}
@@ -5145,6 +5139,7 @@ const CompanySettings = () => {
       {/* Delete Confirmation Dialog */}
       {deleteConfirm.open && (
         <ConfirmDialog
+          open={deleteConfirm.open}
           title={`Delete ${deleteConfirm.itemName}?`}
           message={`Are you sure you want to delete this ${deleteConfirm.itemName}? This action cannot be undone.`}
           variant="danger"

@@ -1,13 +1,14 @@
-import env from "../config/env.js";
 import { apiClient } from "./api.js";
 import { tokenUtils } from "./axiosApi.js";
+
+const API_BASE_URL = import.meta?.env?.VITE_API_BASE_URL ?? "http://localhost:3000/api";
 
 // Simple, direct upload function like Google uses for profile pictures
 const uploadFile = async (endpoint, fieldName, file) => {
   const formData = new FormData();
   formData.append(fieldName, file);
 
-  const baseURL = env.VITE_API_BASE_URL || "/api";
+  const baseURL = API_BASE_URL;
   const token = tokenUtils.getToken();
 
   const response = await fetch(`${baseURL}${endpoint}`, {
