@@ -81,7 +81,7 @@ export default function ReconciliationReport() {
    * Backend provides: productId, productName, systemQuantity, lastPhysicalCount, discrepancy
    * Component needs: openingStock, received, consumed, adjustments, expectedClosing, systemStock, variance
    */
-  const transformBackendToReportFormat = (apiResult, filterProductId = null) => {
+  const transformBackendToReportFormat = useCallback((apiResult, filterProductId = null) => {
     let items = (apiResult.items || []).map((item) => {
       // Backend provides system quantity and discrepancy (difference from batch quantity)
       const systemStock = parseFloat(item.systemQuantity) || 0;
@@ -122,7 +122,7 @@ export default function ReconciliationReport() {
     };
 
     return { items, summary };
-  };
+  }, []);
 
   const fetchReportData = useCallback(async () => {
     try {
