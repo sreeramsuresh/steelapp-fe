@@ -5327,7 +5327,9 @@ const InvoiceForm = ({ onSave }) => {
 
                                 {/* Column 8: Amount (CALCULATED - gray div, NOT input) */}
                                 <td className="px-2 py-2 w-36">
-                                  <div className="bg-gray-100 rounded px-2 py-1.5 text-right text-sm font-semibold text-gray-900">
+                                  <div
+                                    className={`rounded px-2 py-1.5 text-right text-sm font-semibold ${isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-900"}`}
+                                  >
                                     {formatCurrency(item.amount)}
                                   </div>
                                 </td>
@@ -5337,7 +5339,7 @@ const InvoiceForm = ({ onSave }) => {
                                   <button
                                     type="button"
                                     onClick={() => removeItem(index)}
-                                    className="text-gray-400 hover:text-red-500 p-1"
+                                    className={`p-1 ${isDarkMode ? "text-gray-500 hover:text-red-400" : "text-gray-400 hover:text-red-500"}`}
                                   >
                                     <svg
                                       aria-label="icon"
@@ -5360,12 +5362,17 @@ const InvoiceForm = ({ onSave }) => {
                               // Expandable Allocation Panel Row
                               isExpanded && item.productId && (
                                 <tr key={`${item.id}-allocation`}>
-                                  <td colSpan="9" className="bg-gray-50 px-4 py-3 border-l-4 border-teal-500">
+                                  <td
+                                    colSpan="9"
+                                    className={`px-4 py-3 border-l-4 border-teal-500 ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}
+                                  >
                                     <div className="space-y-3">
                                       {/* Header with Source Type Selector and stock status */}
                                       <div className="flex items-center justify-between gap-4">
                                         <div className="flex items-center gap-3">
-                                          <h4 className="text-sm font-semibold text-gray-700">
+                                          <h4
+                                            className={`text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                                          >
                                             Stock Allocation Details
                                           </h4>
                                           {/* P0: Source Type Selector with auto-selection */}
@@ -5389,7 +5396,9 @@ const InvoiceForm = ({ onSave }) => {
                                         </div>
                                         {/* Stock availability display - all warehouses */}
                                         <div className="flex items-center gap-1">
-                                          <span className="text-xs text-gray-500">Stock availability:</span>
+                                          <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                                            Stock availability:
+                                          </span>
                                           <div
                                             className="flex items-center gap-4 ml-2"
                                             data-testid={`allocation-stock-warehouses-${index}`}
@@ -5415,7 +5424,11 @@ const InvoiceForm = ({ onSave }) => {
                                                     key={wh.id}
                                                     data-testid={`stock-warehouse-${wh.id}`}
                                                     className={`text-xs font-medium ${
-                                                      hasStock ? "text-gray-700" : "text-red-500"
+                                                      hasStock
+                                                        ? isDarkMode
+                                                          ? "text-gray-300"
+                                                          : "text-gray-700"
+                                                        : "text-red-500"
                                                     }`}
                                                   >
                                                     {wh.name || wh.code}{" "}
@@ -5451,11 +5464,15 @@ const InvoiceForm = ({ onSave }) => {
 
                                           return (
                                             <div
-                                              className="border border-gray-200 rounded-lg overflow-hidden"
+                                              className={`rounded-lg overflow-hidden border ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
                                               data-testid={`allocation-panel-${index}`}
                                             >
-                                              <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b">
-                                                <span className="text-xs font-semibold text-gray-600">
+                                              <div
+                                                className={`px-3 py-2 flex justify-between items-center border-b ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-100 border-gray-200"}`}
+                                              >
+                                                <span
+                                                  className={`text-xs font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                                                >
                                                   Batch Allocation
                                                   {hasSavedConsumptions && (
                                                     <span className="ml-2 text-green-600" title="Saved to database">
@@ -5474,14 +5491,18 @@ const InvoiceForm = ({ onSave }) => {
                                                   const requiredQty = item.quantity || 0;
 
                                                   return (
-                                                    <span className="text-xs text-gray-500">
+                                                    <span
+                                                      className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                                    >
                                                       {hasSavedConsumptions ? "Consumed" : "Allocated"}:{" "}
                                                       <strong className="text-teal-600">{allocatedQty}</strong> /
                                                       Required: {requiredQty}
                                                       {hasSavedConsumptions &&
                                                         savedConsumption.totalCogs &&
                                                         parseFloat(savedConsumption.totalCogs) > 0 && (
-                                                          <span className="ml-2 text-gray-400">
+                                                          <span
+                                                            className={`ml-2 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                                          >
                                                             COGS:{" "}
                                                             {formatCurrency(parseFloat(savedConsumption.totalCogs))}
                                                           </span>
@@ -5494,51 +5515,73 @@ const InvoiceForm = ({ onSave }) => {
                                                 className="min-w-full text-xs"
                                                 data-testid={`batch-allocation-table-${index}`}
                                               >
-                                                <thead className="bg-gray-50">
+                                                <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                                                   <tr>
-                                                    <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                                    <th
+                                                      className={`px-3 py-2 text-left font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                                    >
                                                       Batch #
                                                     </th>
-                                                    <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                                    <th
+                                                      className={`px-3 py-2 text-left font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                                    >
                                                       {hasSavedConsumptions ? "Warehouse" : "GRN Date"}
                                                     </th>
-                                                    <th className="px-3 py-2 text-left font-medium text-gray-500">
+                                                    <th
+                                                      className={`px-3 py-2 text-left font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                                    >
                                                       Channel
                                                     </th>
                                                     {!hasSavedConsumptions && (
-                                                      <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                      <th
+                                                        className={`px-3 py-2 text-right font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                                      >
                                                         Available
                                                       </th>
                                                     )}
-                                                    <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                    <th
+                                                      className={`px-3 py-2 text-right font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                                    >
                                                       {hasSavedConsumptions ? "Consumed" : "Allocated"}
                                                     </th>
-                                                    <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                    <th
+                                                      className={`px-3 py-2 text-right font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                                    >
                                                       Cost/PCS
                                                     </th>
                                                     {hasSavedConsumptions && (
-                                                      <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                      <th
+                                                        className={`px-3 py-2 text-right font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                                      >
                                                         Total COGS
                                                       </th>
                                                     )}
                                                     {!isReadOnly && (
-                                                      <th className="px-3 py-2 text-right font-medium text-gray-500">
+                                                      <th
+                                                        className={`px-3 py-2 text-right font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                                      >
                                                         Actions
                                                       </th>
                                                     )}
                                                   </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-gray-100 bg-white">
+                                                <tbody
+                                                  className={`divide-y ${isDarkMode ? "divide-gray-700 bg-gray-800" : "divide-gray-100 bg-white"}`}
+                                                >
                                                   {displayAllocations.map((allocation, allocIndex) => (
                                                     <tr
                                                       key={
                                                         allocation.id || allocation.name || `allocation-${allocIndex}`
                                                       }
                                                     >
-                                                      <td className="px-3 py-2 font-mono text-gray-700">
+                                                      <td
+                                                        className={`px-3 py-2 font-mono ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                                                      >
                                                         {allocation.batchNumber || "N/A"}
                                                       </td>
-                                                      <td className="px-3 py-2 text-gray-600">
+                                                      <td
+                                                        className={`px-3 py-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                                                      >
                                                         {hasSavedConsumptions
                                                           ? allocation.warehouseName || "N/A"
                                                           : allocation.grnDate || "N/A"}
@@ -5547,23 +5590,37 @@ const InvoiceForm = ({ onSave }) => {
                                                         <span
                                                           className={`px-2 py-0.5 rounded text-xs font-medium ${
                                                             (allocation.procurementChannel || "LOCAL") === "LOCAL"
-                                                              ? "bg-green-100 text-green-800"
+                                                              ? isDarkMode
+                                                                ? "bg-green-900/30 text-green-300"
+                                                                : "bg-green-100 text-green-800"
                                                               : allocation.procurementChannel === "DROP_SHIP"
-                                                                ? "bg-purple-100 text-purple-800"
-                                                                : "bg-blue-100 text-blue-800"
+                                                                ? (
+                                                                    isDarkMode
+                                                                      ? "bg-purple-900/30 text-purple-300"
+                                                                      : "bg-purple-100 text-purple-800"
+                                                                  )
+                                                                : (
+                                                                    isDarkMode
+                                                                      ? "bg-blue-900/30 text-blue-300"
+                                                                      : "bg-blue-100 text-blue-800"
+                                                                  )
                                                           }`}
                                                         >
                                                           {allocation.procurementChannel || "LOCAL"}
                                                         </span>
                                                       </td>
                                                       {!hasSavedConsumptions && (
-                                                        <td className="px-3 py-2 text-right text-gray-700">
+                                                        <td
+                                                          className={`px-3 py-2 text-right ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                                                        >
                                                           {allocation.availableQty || 0}
                                                         </td>
                                                       )}
                                                       <td className="px-3 py-2 text-right">
                                                         {isReadOnly ? (
-                                                          <span className="font-medium text-gray-700">
+                                                          <span
+                                                            className={`font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                                                          >
                                                             {parseFloat(
                                                               allocation.quantityConsumed || allocation.quantity || 0
                                                             ).toFixed(3)}
@@ -5580,11 +5637,13 @@ const InvoiceForm = ({ onSave }) => {
                                                               };
                                                               handleItemChange(index, "allocations", newAllocations);
                                                             }}
-                                                            className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-xs"
+                                                            className={`w-16 px-2 py-1 border rounded text-center text-xs ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                                                           />
                                                         )}
                                                       </td>
-                                                      <td className="px-3 py-2 text-right text-gray-600">
+                                                      <td
+                                                        className={`px-3 py-2 text-right ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                                                      >
                                                         <div>
                                                           {parseFloat(allocation.unitCost || 0).toLocaleString(
                                                             "en-AE",
@@ -5594,7 +5653,9 @@ const InvoiceForm = ({ onSave }) => {
                                                           )}
                                                         </div>
                                                         {parseFloat(allocation.weightPerPieceKg || 0) > 0 && (
-                                                          <div className="text-xs text-gray-400">
+                                                          <div
+                                                            className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                                          >
                                                             (
                                                             {(
                                                               parseFloat(allocation.unitCost || 0) /
@@ -5605,7 +5666,9 @@ const InvoiceForm = ({ onSave }) => {
                                                         )}
                                                       </td>
                                                       {hasSavedConsumptions && (
-                                                        <td className="px-3 py-2 text-right text-gray-600 font-medium">
+                                                        <td
+                                                          className={`px-3 py-2 text-right font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                                                        >
                                                           {formatCurrency(parseFloat(allocation.totalCogs || 0))}
                                                         </td>
                                                       )}
