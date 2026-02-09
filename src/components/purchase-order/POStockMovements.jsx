@@ -126,7 +126,9 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
               {error}
             </div>
           ) : movements.length === 0 ? (
-            <div className="mt-2 p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg flex items-start gap-2">
+            <div
+              className={`mt-2 p-3 rounded-lg flex items-start gap-2 border ${isDarkMode ? "bg-blue-900/20 border-blue-700 text-blue-300" : "bg-blue-50 border-blue-200 text-blue-700"}`}
+            >
               <Truck className="w-5 h-5 mt-0.5 flex-shrink-0" />
               <div>
                 <p>No stock has been received for this purchase order yet.</p>

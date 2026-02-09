@@ -227,11 +227,15 @@ const AddPaymentForm = ({
           {customerId && (
             <div className="mb-3">
               {loadingCredit ? (
-                <div className="px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-600">
+                <div
+                  className={`px-3 py-2 rounded-lg border text-sm ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-300" : "bg-gray-100 border-gray-200 text-gray-600"}`}
+                >
                   Loading credit information...
                 </div>
               ) : creditError ? (
-                <div className="px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 flex items-center gap-2">
+                <div
+                  className={`px-3 py-2 rounded-lg border text-sm flex items-center gap-2 ${isDarkMode ? "bg-amber-900/20 border-amber-700 text-amber-300" : "bg-amber-50 border-amber-200 text-amber-800"}`}
+                >
                   <AlertTriangle size={16} />
                   <span>{creditError}</span>
                 </div>

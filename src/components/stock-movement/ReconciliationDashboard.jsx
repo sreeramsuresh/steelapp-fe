@@ -232,7 +232,7 @@ const ReconciliationDashboard = () => {
             type="button"
             onClick={loadReconciliation}
             disabled={loadingReconciliation || !selectedWarehouseId}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed ${isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-300 hover:bg-gray-100 text-gray-700"}`}
           >
             <RotateCcw size={18} />
             Refresh
@@ -302,7 +302,9 @@ const ReconciliationDashboard = () => {
             </div>
 
             {/* Items Table */}
-            <div className="rounded-xl border overflow-hidden bg-white border-gray-200">
+            <div
+              className={`rounded-xl border overflow-hidden ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+            >
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-200">
@@ -381,7 +383,9 @@ const ReconciliationDashboard = () => {
             </div>
           </>
         ) : (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-700">
+          <div
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${isDarkMode ? "bg-blue-900/20 border-blue-700 text-blue-300" : "bg-blue-50 border-blue-200 text-blue-700"}`}
+          >
             Please select a warehouse to view the reconciliation report.
           </div>
         )}
@@ -444,7 +448,7 @@ const ReconciliationDashboard = () => {
               type="button"
               onClick={loadAuditTrail}
               disabled={loadingAudit}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed ${isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-300 hover:bg-gray-100 text-gray-700"}`}
             >
               <RotateCcw size={18} />
               Refresh
@@ -465,7 +469,9 @@ const ReconciliationDashboard = () => {
         )}
 
         {/* Audit Trail Table */}
-        <div className="rounded-xl border overflow-hidden bg-white border-gray-200">
+        <div
+          className={`rounded-xl border overflow-hidden ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+        >
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
@@ -561,7 +567,9 @@ const ReconciliationDashboard = () => {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-gray-50">
+          <div
+            className={`flex items-center justify-between px-4 py-3 border-t ${isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-gray-50"}`}
+          >
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-500">Rows per page:</span>
               <select
@@ -584,7 +592,7 @@ const ReconciliationDashboard = () => {
                   type="button"
                   onClick={(e) => handleAuditPageChange(e, auditPage - 1)}
                   disabled={auditPage === 0}
-                  className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"
+                  className={`px-3 py-1 rounded border disabled:opacity-50 disabled:cursor-not-allowed text-sm ${isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-300 hover:bg-gray-100 text-gray-700"}`}
                 >
                   Previous
                 </button>
@@ -592,7 +600,7 @@ const ReconciliationDashboard = () => {
                   type="button"
                   onClick={(e) => handleAuditPageChange(e, auditPage + 1)}
                   disabled={auditPage >= Math.ceil(auditTotalCount / auditRowsPerPage) - 1}
-                  className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 text-sm"
+                  className={`px-3 py-1 rounded border disabled:opacity-50 disabled:cursor-not-allowed text-sm ${isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-300 hover:bg-gray-100 text-gray-700"}`}
                 >
                   Next
                 </button>
