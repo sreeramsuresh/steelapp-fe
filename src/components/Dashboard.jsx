@@ -133,7 +133,9 @@ const ARAgingWidget = ({ data, isDarkMode, formatCurrency }) => {
           AR Aging
           <span className="relative group">
             <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
-            <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+            <span
+              className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs ${isDarkMode ? "text-yellow-200 bg-yellow-900/90 border border-yellow-700" : "text-gray-800 bg-yellow-100 border border-yellow-300"} rounded shadow-md whitespace-nowrap normal-case`}
+            >
               Receivables grouped by days overdue
             </span>
           </span>
@@ -460,7 +462,9 @@ const Dashboard = () => {
                   Total Revenue
                   <span className="relative group">
                     <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
-                    <span className="hidden group-hover:block absolute z-50 top-1/2 left-full -translate-y-1/2 ml-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                    <span
+                      className={`hidden group-hover:block absolute z-50 top-1/2 left-full -translate-y-1/2 ml-1 px-2 py-1 text-xs ${isDarkMode ? "text-yellow-200 bg-yellow-900/90 border border-yellow-700" : "text-gray-800 bg-yellow-100 border border-yellow-300"} rounded shadow-md whitespace-nowrap normal-case`}
+                    >
                       Sum of all invoice amounts, excluding cancelled and draft invoices
                     </span>
                   </span>
@@ -497,7 +501,9 @@ const Dashboard = () => {
                   Total Customers
                   <span className="relative group">
                     <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
-                    <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                    <span
+                      className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs ${isDarkMode ? "text-yellow-200 bg-yellow-900/90 border border-yellow-700" : "text-gray-800 bg-yellow-100 border border-yellow-300"} rounded shadow-md whitespace-nowrap normal-case`}
+                    >
                       Number of unique customers with at least one invoice
                     </span>
                   </span>
@@ -534,7 +540,9 @@ const Dashboard = () => {
                   Total Products
                   <span className="relative group">
                     <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
-                    <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                    <span
+                      className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs ${isDarkMode ? "text-yellow-200 bg-yellow-900/90 border border-yellow-700" : "text-gray-800 bg-yellow-100 border border-yellow-300"} rounded shadow-md whitespace-nowrap normal-case`}
+                    >
                       Number of active products in your catalog
                     </span>
                   </span>
@@ -571,7 +579,9 @@ const Dashboard = () => {
                   Total Invoices
                   <span className="relative group">
                     <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
-                    <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                    <span
+                      className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs ${isDarkMode ? "text-yellow-200 bg-yellow-900/90 border border-yellow-700" : "text-gray-800 bg-yellow-100 border border-yellow-300"} rounded shadow-md whitespace-nowrap normal-case`}
+                    >
                       Count of all invoices, excluding drafts and cancelled
                     </span>
                   </span>
@@ -611,7 +621,9 @@ const Dashboard = () => {
                   Gross Margin
                   <span className="relative group">
                     <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
-                    <span className="hidden group-hover:block absolute z-50 top-1/2 left-full -translate-y-1/2 ml-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                    <span
+                      className={`hidden group-hover:block absolute z-50 top-1/2 left-full -translate-y-1/2 ml-1 px-2 py-1 text-xs ${isDarkMode ? "text-yellow-200 bg-yellow-900/90 border border-yellow-700" : "text-gray-800 bg-yellow-100 border border-yellow-300"} rounded shadow-md whitespace-nowrap normal-case`}
+                    >
                       Percentage of revenue remaining after deducting cost of goods sold
                     </span>
                   </span>
@@ -647,7 +659,9 @@ const Dashboard = () => {
                   DSO
                   <span className="relative group">
                     <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
-                    <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                    <span
+                      className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs ${isDarkMode ? "text-yellow-200 bg-yellow-900/90 border border-yellow-700" : "text-gray-800 bg-yellow-100 border border-yellow-300"} rounded shadow-md whitespace-nowrap normal-case`}
+                    >
                       Days Sales Outstanding - average days to collect payment
                     </span>
                   </span>
@@ -685,7 +699,9 @@ const Dashboard = () => {
                   Credit Utilization
                   <span className="relative group">
                     <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
-                    <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                    <span
+                      className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs ${isDarkMode ? "text-yellow-200 bg-yellow-900/90 border border-yellow-700" : "text-gray-800 bg-yellow-100 border border-yellow-300"} rounded shadow-md whitespace-nowrap normal-case`}
+                    >
                       Percentage of customer credit limits currently being used
                     </span>
                   </span>
@@ -735,7 +751,9 @@ const Dashboard = () => {
                     Revenue Trend
                     <span className="relative group">
                       <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
-                      <span className="hidden group-hover:block absolute z-50 top-1/2 left-full -translate-y-1/2 ml-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                      <span
+                        className={`hidden group-hover:block absolute z-50 top-1/2 left-full -translate-y-1/2 ml-1 px-2 py-1 text-xs ${isDarkMode ? "text-yellow-200 bg-yellow-900/90 border border-yellow-700" : "text-gray-800 bg-yellow-100 border border-yellow-300"} rounded shadow-md whitespace-nowrap normal-case`}
+                      >
                         Monthly revenue over the last 12 months
                       </span>
                     </span>

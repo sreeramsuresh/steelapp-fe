@@ -80,7 +80,9 @@ const CashFlowWidget = ({ data: propData, onRefresh, loading: externalLoading })
               Cash Flow
               <span className="relative group">
                 <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
-                <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                <span
+                  className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs ${isDarkMode ? "text-yellow-200 bg-yellow-900/90 border border-yellow-700" : "text-gray-800 bg-yellow-100 border border-yellow-300"} rounded shadow-md whitespace-nowrap normal-case`}
+                >
                   Cash inflows vs outflows over time
                 </span>
               </span>
@@ -133,7 +135,9 @@ const CashFlowWidget = ({ data: propData, onRefresh, loading: externalLoading })
             Cash Flow
             <span className="relative group">
               <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
-              <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+              <span
+                className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs ${isDarkMode ? "text-yellow-200 bg-yellow-900/90 border border-yellow-700" : "text-gray-800 bg-yellow-100 border border-yellow-300"} rounded shadow-md whitespace-nowrap normal-case`}
+              >
                 Cash inflows vs outflows over time
               </span>
             </span>
