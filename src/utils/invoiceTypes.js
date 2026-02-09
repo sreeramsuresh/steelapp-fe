@@ -17,7 +17,7 @@
  * - sent: Invoice has been sent to customer (treated similar to issued)
  * - issued: Invoice has been finalized and issued
  * - cancelled: Invoice was cancelled and recreated
- * - unspecified: Proto enum default (STATUS_UNSPECIFIED = 0), treated as draft
+ * - unspecified: Default value (STATUS_UNSPECIFIED = 0), treated as draft
  */
 
 /**
@@ -32,7 +32,7 @@
 
 /**
  * Valid invoice status values
- * Note: 'unspecified' is the proto enum default (STATUS_UNSPECIFIED = 0), treated as 'draft'
+ * Note: 'unspecified' is the default enum value (STATUS_UNSPECIFIED = 0), treated as 'draft'
  */
 export const VALID_INVOICE_STATUSES = ["draft", "pending", "proforma", "issued", "sent", "cancelled", "unspecified"];
 

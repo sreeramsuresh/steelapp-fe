@@ -1,8 +1,12 @@
 /**
- * UAE VAT Return Service - Enhanced for Full VAT Compliance
+ * UAE VAT Return Service - Full VAT Compliance
  *
- * Frontend service for interacting with VAT Return API endpoints.
- * Supports Form 201 generation, filing, and audit trail.
+ * Primary frontend service for all VAT operations including:
+ * - VAT Return CRUD (Form 201 generation, filing, audit trail)
+ * - VAT Adjustments (create, approve, reject)
+ * - VAT Return Amendments (create, submit, penalty calculation)
+ * - Blocked VAT tracking
+ * - Dashboard metrics
  *
  * UAE VAT Return Boxes (Form 201):
  * Box 1: Standard rated supplies in UAE
@@ -16,9 +20,6 @@
  * Box 9: Supplies subject to reverse charge
  * Box 10: Recoverable input tax (calculated)
  * Box 11: Net VAT due (Box 7 - Box 10)
- *
- * Architecture:
- * Frontend (camelCase) -> API Gateway (auto-converts) -> gRPC Backend (snake_case)
  */
 
 import { apiClient } from "./api.js";
@@ -582,6 +583,251 @@ const vatReturnService = {
       return transformVatReturnFromServer(response);
     } catch (error) {
       console.error("[VATReturnService] recalculate failed:", error);
+      throw error;
+    }
+  },
+
+  // ============================================================================
+  // VAT Adjustments
+  // ============================================================================
+
+  async getVATAdjustments(params = {}) {
+    try {
+      const response = await apiClient.get("/vat-return/adjustments", params);
+      return response;
+    } catch (error) {
+      console.error("[VATReturnService] getVATAdjustments failed:", error);
+      throw error;
+    }
+  },
+
+  async getVATAdjustment(id) {
+    try {
+      const response = await apiClient.get(`/vat-return/adjustments/${id}`);
+      return response;
+    } catch (error) {
+      console.error("[VATReturnService] getVATAdjustment failed:", error);
+      throw error;
+    }
+  },
+
+  async createVATAdjustment(data) {
+    try {
+      const response = await apiClient.post("/vat-return/adjustments", data);
+      return response;
+    } catch (error) {
+      console.error("[VATReturnService] createVATAdjustment failed:", error);
+      throw error;
+    }
+  },
+
+  async updateVATAdjustment(id, data) {
+    try {
+      const response = await apiClient.put(`/vat-return/adjustments/${id}`, data);
+      return response;
+    } catch (error) {
+      console.error("[VATReturnService] updateVATAdjustment failed:", error);
+      throw error;
+    }
+  },
+
+  async approveVATAdjustment(id, data = {}) {
+    try {
+      const response = await apiClient.post(`/vat-return/adjustments/${id}/approve`, data);
+      return response;
+    } catch (error) {
+      console.error("[VATReturnService] approveVATAdjustment failed:", error);
+      throw error;
+    }
+  },
+
+  async rejectVATAdjustment(id, data) {
+    try {
+      const response = await apiClient.post(`/vat-return/adjustments/${id}/reject`, data);
+      return response;
+    } catch (error) {
+      console.error("[VATReturnService] rejectVATAdjustment failed:", error);
+      throw error;
+    }
+  },
+
+  // ============================================================================
+  // VAT Return Amendments
+  // ============================================================================
+
+  async getVATAmendments(params = {}) {
+    try {
+      const response = await apiClient.get("/vat-return/amendments", params);
+      return response;
+    } catch (error) {
+      console.error("[VATReturnService] getVATAmendments failed:", error);
+      throw error;
+    }
+  },
+
+  async getVATAmendment(id) {
+    try {
+      const response = await apiClient.get(`/vat-return/amendments/${id}`);
+      return response;
+    } catch (error) {
+      console.error("[VATReturnService] getVATAmendment failed:", error);
+      throw error;
+    }
+  },
+
+  async createVATAmendment(data) {
+    try {
+      const response = await apiClient.post("/vat-return/amendments", data);
+      return response;
+    } catch (error) {
+      console.error("[VATReturnService] createVATAmendment failed:", error);
+      throw error;
+    }
+  },
+
+  async submitVATAmendment(id) {
+    try {
+      const response = await apiClient.post(`/vat-return/amendments/${id}/submit`);
+      return response;
+    } catch (error) {
+      console.error("[VATReturnService] submitVATAmendment failed:", error);
+      throw error;
+    }
+  },
+
+  async calculateAmendmentPenalty(id, params = {}) {
+    try {
+      const response = await apiClient.get(`/vat-return/amendments/${id}/penalty`, params);
+      return response;
+    } catch (error) {
+      console.error("[VATReturnService] calculateAmendmentPenalty failed:", error);
+      throw error;
+    }
+  },
+
+  // ============================================================================
+  // Blocked VAT (record new entries)
+  // ============================================================================
+
+  async recordBlockedVAT(data) {
+    try {
+      const response = await apiClient.post("/vat-return/blocked-vat/record", data);
+      return response;
+    } catch (error) {
+      console.error("[VATReturnService] recordBlockedVAT failed:", error);
+      throw error;
+    }
+  },
+
+  // ============================================================================
+  // Dashboard Metrics
+  // ============================================================================
+
+  /**
+   * Get VAT dashboard metrics for the current quarter
+   * Aggregates data from multiple endpoints for dashboard display
+   */
+  async getVATDashboardMetrics() {
+    const currentDate = new Date();
+    const currentQuarter = Math.ceil((currentDate.getMonth() + 1) / 3);
+    const currentYear = currentDate.getFullYear();
+    const quarterStart = new Date(currentYear, (currentQuarter - 1) * 3, 1);
+    const quarterEnd = new Date(currentYear, currentQuarter * 3, 0);
+
+    try {
+      const [returnsData, blockedCategories] = await Promise.all([
+        this.getAll({
+          year: currentYear,
+          limit: 4,
+        }).catch(() => ({ data: [] })),
+        this.getBlockedVATCategories().catch(() => ({
+          categories: [],
+          total_blocked_vat: 0,
+        })),
+      ]);
+
+      const currentReturn = (returnsData.data || []).find((r) => {
+        const returnStart = new Date(r.periodStart || r.period_start);
+        return returnStart >= quarterStart && returnStart <= quarterEnd;
+      });
+
+      const metrics = {
+        currentPeriod: {
+          quarter: `Q${currentQuarter}`,
+          year: currentYear,
+          startDate: quarterStart.toISOString(),
+          endDate: quarterEnd.toISOString(),
+        },
+        collection: {
+          outputVAT: 0,
+          inputVAT: 0,
+          netPayable: 0,
+          adjustments: 0,
+        },
+        returnStatus: {
+          status: currentReturn?.status || "pending",
+          dueDate: new Date(currentYear, currentQuarter * 3 + 1, 28).toISOString(),
+          daysRemaining: Math.max(
+            0,
+            Math.ceil((new Date(currentYear, currentQuarter * 3 + 1, 28) - currentDate) / (1000 * 60 * 60 * 24))
+          ),
+          filedDate: currentReturn?.filedAt || currentReturn?.filed_at || null,
+        },
+        compliance: {
+          invoicesWithVAT: 0,
+          invoicesWithoutVAT: 0,
+          zeroRatedSales: 0,
+          exemptSales: 0,
+        },
+        blockedVAT: {
+          total: parseFloat(blockedCategories.total_blocked_vat) || 0,
+          categories: blockedCategories.categories || [],
+        },
+        alerts: [],
+        history: (returnsData.data || []).slice(0, 4).map((r) => ({
+          quarter: r.quarter || `Q${Math.ceil((new Date(r.periodStart || r.period_start).getMonth() + 1) / 3)}`,
+          year: new Date(r.periodStart || r.period_start).getFullYear(),
+          outputVAT: parseFloat(r.form201?.box8TotalOutputVat || r.form_201?.box_8_total_output_vat) || 0,
+          inputVAT: parseFloat(r.form201?.box12TotalInputVat || r.form_201?.box_12_total_input_vat) || 0,
+          netPaid: parseFloat(r.form201?.box15NetVatDue || r.form_201?.box_15_net_vat_due) || 0,
+          status: r.status || "unknown",
+        })),
+        isMockData: false,
+        fetchedAt: new Date().toISOString(),
+      };
+
+      if (currentReturn?.form201 || currentReturn?.form_201) {
+        const form = currentReturn.form201 || currentReturn.form_201;
+        metrics.collection = {
+          outputVAT: parseFloat(form.box8TotalOutputVat || form.box_8_total_output_vat) || 0,
+          inputVAT: parseFloat(form.box12TotalInputVat || form.box_12_total_input_vat) || 0,
+          netPayable: parseFloat(form.box15NetVatDue || form.box_15_net_vat_due) || 0,
+          adjustments:
+            (parseFloat(form.box7OutputAdjustments || form.box_7_output_adjustments) || 0) +
+            (parseFloat(form.box11InputAdjustments || form.box_11_input_adjustments) || 0),
+        };
+      }
+
+      const daysUntilDue = metrics.returnStatus.daysRemaining;
+      if (daysUntilDue <= 15 && daysUntilDue > 0 && metrics.returnStatus.status !== "filed") {
+        metrics.alerts.push({
+          type: "warning",
+          message: `VAT return due in ${daysUntilDue} days`,
+          severity: daysUntilDue <= 7 ? "high" : "medium",
+        });
+      }
+
+      if (metrics.blockedVAT.total > 0) {
+        metrics.alerts.push({
+          type: "info",
+          message: `AED ${metrics.blockedVAT.total.toLocaleString()} in blocked VAT this quarter`,
+          severity: "low",
+        });
+      }
+
+      return metrics;
+    } catch (error) {
+      console.error("[VATReturnService] Error fetching VAT dashboard metrics:", error);
       throw error;
     }
   },

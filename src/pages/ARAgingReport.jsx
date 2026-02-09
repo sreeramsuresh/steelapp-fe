@@ -170,7 +170,59 @@ export default function ARAgingReport() {
                 isDarkMode ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
               onClick={() => {
-                // TODO: Implement export functionality
+                // Export AR Aging data to CSV
+                const headers = [
+                  "Customer",
+                  "Credit Grade",
+                  "Total AR",
+                  "Current",
+                  "1-30 Days",
+                  "31-60 Days",
+                  "61-90 Days",
+                  "90+ Days",
+                  "DSO",
+                ];
+                const csvRows = [
+                  headers.join(","),
+                  ...sortedData.map((row) =>
+                    [
+                      `"${row.customerName || row.name || ""}"`,
+                      row.creditGrade || row.grade || "",
+                      safeToFixed(row.totalAr),
+                      safeToFixed(row.current),
+                      safeToFixed(row.days1to30 || row["1_30"]),
+                      safeToFixed(row.days31to60 || row["31_60"]),
+                      safeToFixed(row.days61to90 || row["61_90"]),
+                      safeToFixed(row.days90plus || row["90_plus"]),
+                      safeToFixed(row.dso, 0),
+                    ].join(",")
+                  ),
+                ];
+                if (totals) {
+                  csvRows.push(
+                    [
+                      '"TOTALS"',
+                      "",
+                      safeToFixed(totals.totalAr),
+                      safeToFixed(totals.current),
+                      safeToFixed(totals.days1to30 || totals["1_30"]),
+                      safeToFixed(totals.days31to60 || totals["31_60"]),
+                      safeToFixed(totals.days61to90 || totals["61_90"]),
+                      safeToFixed(totals.days90plus || totals["90_plus"]),
+                      "",
+                    ].join(",")
+                  );
+                }
+                const csv = csvRows.join("\n");
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `ar-aging-report-${new Date().toISOString().split("T")[0]}.csv`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
               }}
             >
               <Download size={16} />

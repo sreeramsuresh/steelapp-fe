@@ -37,6 +37,7 @@ import { productService } from "../services/productService";
 import { supplierService } from "../services/supplierService";
 import { getProductUniqueName } from "../utils/fieldAccessors";
 import { validateSsotPattern } from "../utils/productSsotValidation";
+import { warehouseService } from "../services/warehouseService";
 
 // ============================================================
 // CUSTOM UI COMPONENTS
@@ -1171,6 +1172,10 @@ const ExportOrderForm = () => {
   const [batchAllocatorOpen, setBatchAllocatorOpen] = useState(false);
   const [batchAllocatorLineIndex, setBatchAllocatorLineIndex] = useState(null);
 
+  // Warehouse selection for batch allocation
+  const [warehouses, setWarehouses] = useState([]);
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState(null);
+
   // ============================================================
   // DATA FETCHING
   // ============================================================
@@ -1194,6 +1199,27 @@ const ExportOrderForm = () => {
       }
     };
     fetchCustomers();
+  }, []);
+
+  // Fetch warehouses for batch allocation
+  useEffect(() => {
+    const fetchWarehouses = async () => {
+      try {
+        const result = await warehouseService.getAll({ isActive: true });
+        const warehouseList = result?.data || [];
+        setWarehouses(warehouseList);
+        // Auto-select default warehouse if available
+        const defaultWh = warehouseList.find((w) => w.isDefault);
+        if (defaultWh) {
+          setSelectedWarehouseId(defaultWh.id);
+        } else if (warehouseList.length > 0) {
+          setSelectedWarehouseId(warehouseList[0].id);
+        }
+      } catch (error) {
+        console.error("Failed to fetch warehouses:", error);
+      }
+    };
+    fetchWarehouses();
   }, []);
 
   // Fetch products
@@ -3411,7 +3437,7 @@ const ExportOrderForm = () => {
             setBatchAllocatorLineIndex(null);
           }}
           productId={order.items[batchAllocatorLineIndex]?.product_id}
-          warehouseId={null} // TODO: Add warehouse selection if needed
+          warehouseId={selectedWarehouseId}
           requiredQuantity={order.items[batchAllocatorLineIndex]?.quantity || 0}
           currentAllocations={order.items[batchAllocatorLineIndex]?.batchAllocations || []}
           onAllocate={handleBatchAllocation}

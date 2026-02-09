@@ -21,7 +21,7 @@ describe('recordUtils', () => {
       assert.strictEqual(result, false);
     });
 
-    test('should handle proto Timestamp format', () => {
+    test('should handle Timestamp object format', () => {
       const now = Math.floor(Date.now() / 1000);
       const recentTimestamp = { seconds: now - 300 }; // 5 mins ago
       const result = isNewRecord(recentTimestamp, 2);

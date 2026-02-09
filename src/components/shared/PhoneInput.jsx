@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import FormError from "./FormError";
 import RequiredIndicator from "./RequiredIndicator";
 
@@ -296,7 +296,7 @@ const PhoneInput = ({
         onChange(`${country.dial}${digits}`);
       }
     },
-    [onChange],
+    [onChange]
   );
 
   const handleCountrySelect = (country) => {

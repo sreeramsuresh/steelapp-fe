@@ -17,15 +17,15 @@ const MAX_VALID_SECONDS = 4102444800; // 2100-01-01
 
 /**
  * Parse any date input into a JavaScript Date object
- * Handles: Date objects, ISO strings, proto Timestamps, numbers
- * CRITICAL: Auto-detects if proto Timestamp seconds are actually milliseconds
+ * Handles: Date objects, ISO strings, Timestamp objects, numbers
+ * CRITICAL: Auto-detects if Timestamp seconds are actually milliseconds
  * @param {string|Date|number|object} input - Date input
  * @returns {Date|null} JavaScript Date or null if invalid
  */
 const parseToDate = (input) => {
   if (!input) return null;
 
-  // Handle proto Timestamp objects { seconds: number, nanos?: number }
+  // Handle Timestamp objects { seconds: number, nanos?: number }
   if (typeof input === "object" && input.seconds !== undefined) {
     const seconds = parseInt(input.seconds, 10) || 0;
 
@@ -43,7 +43,7 @@ const parseToDate = (input) => {
 
 /**
  * Convert UTC date to UAE timezone for display
- * @param {string|Date|number|object} utcDate - UTC date (string, Date, timestamp seconds, or proto Timestamp object)
+ * @param {string|Date|number|object} utcDate - UTC date (string, Date, timestamp seconds, or Timestamp object)
  * @param {object} options - Formatting options
  * @param {string} options.format - Output format: 'date', 'time', 'datetime', 'short', 'long', 'input'
  * @param {boolean} options.showTimezone - Whether to append "(UAE)" to output
@@ -216,11 +216,11 @@ export const toUTC = (uaeDateString, type = "date") => {
 };
 
 /**
- * Convert a date to proto Timestamp format
+ * Convert a date to Timestamp format { seconds, nanos }
  * @param {string|Date} date - Date to convert
- * @returns {object} Proto Timestamp { seconds: number, nanos: 0 }
+ * @returns {object} Timestamp { seconds: number, nanos: 0 }
  */
-export const toProtoTimestamp = (date) => {
+export const toTimestamp = (date) => {
   if (!date) return null;
   const d = new Date(date);
   if (Number.isNaN(d.getTime())) return null;
@@ -329,7 +329,7 @@ export const TIMEZONE_CONFIG = {
  *
  * Use for: Invoice Date, Due Date, Order Date, Delivery Date
  *
- * @param {string|Date|object} utcDate - UTC date (string, Date, timestamp, or proto Timestamp)
+ * @param {string|Date|object} utcDate - UTC date (string, Date, timestamp, or Timestamp)
  * @returns {string} Formatted date like "26 November 2025"
  */
 export const toUAEDateProfessional = (utcDate) => {
@@ -350,7 +350,7 @@ export const toUAEDateProfessional = (utcDate) => {
  *
  * Use for: Created timestamps, Updated timestamps, Payment timestamps
  *
- * @param {string|Date|object} utcDate - UTC date (string, Date, timestamp, or proto Timestamp)
+ * @param {string|Date|object} utcDate - UTC date (string, Date, timestamp, or Timestamp)
  * @returns {string} Formatted datetime like "26 November 2025, 10:14 AM GST (UTC+4)"
  */
 export const toUAEDateTimeProfessional = (utcDate) => {
@@ -441,7 +441,7 @@ export default {
   toUAETime,
   toUAEDateForInput,
   toUTC,
-  toProtoTimestamp,
+  toTimestamp,
   nowUAE,
   nowUTC,
   isOverdue,

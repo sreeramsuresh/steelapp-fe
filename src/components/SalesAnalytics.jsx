@@ -289,11 +289,47 @@ const SalesAnalytics = () => {
             />
           </div>
         </div>
-        {/* eslint-disable-next-line local-rules/no-dead-button */}
         <button
           type="button"
           onClick={() => {
-            // TODO: Implement export report functionality
+            // Build CSV from analytics data
+            const rows = [
+              ["Sales Analytics Report"],
+              [`Period: ${format(selectedPeriod, dateRange === "month" ? "MMMM yyyy" : "QQQ yyyy")}`],
+              [],
+              ["Metric", "Value"],
+              ["Total Revenue", formatCurrency(analytics.currentRevenue)],
+              ["Total Orders", analytics.currentOrders],
+              ["Active Customers", analytics.uniqueCustomers],
+              ["Avg Order Value", formatCurrency(analytics.avgOrderValue)],
+              [],
+              ["Top Products"],
+              ["Product", "Revenue", "Orders", "Quantity"],
+              ...analytics.topProducts.map((p) => [
+                p.product,
+                formatCurrency(p.revenue),
+                p.orders,
+                p.quantity,
+              ]),
+              [],
+              ["Top Customers"],
+              ["Customer", "Revenue", "Orders"],
+              ...analytics.topCustomers.map((c) => [
+                c.customer,
+                formatCurrency(c.revenue),
+                c.orders,
+              ]),
+            ];
+            const csv = rows.map((r) => r.map((v) => `"${v}"`).join(",")).join("\n");
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `sales-analytics-${format(selectedPeriod, "yyyy-MM")}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
           }}
           className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
             isDarkMode
@@ -1041,11 +1077,11 @@ const SalesAnalytics = () => {
           Monthly & Quarterly Reports
         </h3>
         <div className="flex gap-3">
-          {/* eslint-disable-next-line local-rules/no-dead-button */}
           <button
             type="button"
             onClick={() => {
-              // TODO: Implement refresh data functionality
+              // Force re-fetch by updating selectedPeriod to trigger useApiData
+              setSelectedPeriod(new Date(selectedPeriod));
             }}
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               isDarkMode
@@ -1056,11 +1092,41 @@ const SalesAnalytics = () => {
             <RefreshCw size={16} />
             Refresh Data
           </button>
-          {/* eslint-disable-next-line local-rules/no-dead-button */}
           <button
             type="button"
             onClick={() => {
-              // TODO: Implement generate report functionality
+              // Generate detailed CSV report
+              const periodLabel = format(selectedPeriod, dateRange === "month" ? "MMMM yyyy" : "QQQ yyyy");
+              const rows = [
+                ["Sales Report - " + periodLabel],
+                [`Generated: ${format(new Date(), "yyyy-MM-dd HH:mm")}`],
+                [],
+                ["Revenue Breakdown by Product Category"],
+                ["Category", "Revenue", "Orders", "Avg Order Value", "Market Share"],
+                ...Object.entries(analytics.categoryPerformance)
+                  .sort(([, a], [, b]) => b.revenue - a.revenue)
+                  .map(([cat, d]) => [
+                    cat,
+                    d.revenue.toFixed(2),
+                    d.orders,
+                    (d.revenue / d.orders).toFixed(2),
+                    `${((d.revenue / analytics.currentRevenue) * 100).toFixed(1)}%`,
+                  ]),
+                [],
+                ["Monthly Trend Analysis"],
+                ["Month", "Revenue", "Orders", "Customers"],
+                ...analytics.monthlyTrend.map((m) => [m.month, m.revenue.toFixed(2), m.orders, m.customers]),
+              ];
+              const csv = rows.map((r) => r.map((v) => `"${v}"`).join(",")).join("\n");
+              const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = `sales-report-${format(selectedPeriod, "yyyy-MM")}.csv`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
             }}
             className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
           >

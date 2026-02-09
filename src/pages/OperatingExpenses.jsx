@@ -50,13 +50,11 @@ const StatusPill = ({ status }) => {
   const map = {
     DRAFT: {
       label: "Draft",
-      classes:
-        "bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600",
+      classes: "bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600",
     },
     SUBMITTED: {
       label: "Submitted",
-      classes:
-        "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700",
+      classes: "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700",
     },
     APPROVED: {
       label: "Approved",
@@ -65,8 +63,7 @@ const StatusPill = ({ status }) => {
     },
     POSTED: {
       label: "Posted",
-      classes:
-        "bg-teal-100 text-teal-800 border-teal-300 dark:bg-teal-900 dark:text-teal-300 dark:border-teal-700",
+      classes: "bg-teal-100 text-teal-800 border-teal-300 dark:bg-teal-900 dark:text-teal-300 dark:border-teal-700",
     },
   };
   const cfg = map[status] || map.DRAFT;
@@ -98,8 +95,7 @@ const OperatingExpenses = () => {
     authService.hasPermission("payables", "write") ||
     authService.hasRole(["admin", "finance", "finance_manager", "accountant"]);
   const canApprove =
-    authService.hasPermission("payables", "approve") ||
-    authService.hasRole(["admin", "finance_manager", "director"]);
+    authService.hasPermission("payables", "approve") || authService.hasRole(["admin", "finance_manager", "director"]);
 
   // List state
   const [expenses, setExpenses] = useState([]);
@@ -172,7 +168,7 @@ const OperatingExpenses = () => {
         setLoading(false);
       }
     },
-    [filters, pagination.limit, pagination.page],
+    [filters, pagination.limit, pagination.page]
   );
 
   useEffect(() => {
@@ -531,9 +527,7 @@ const OperatingExpenses = () => {
                     </td>
                     <td className="px-4 py-2 text-sm">
                       <div>{expense.categoryName || expense.categoryCode}</div>
-                      {expense.categoryName && (
-                        <div className="text-xs opacity-60">{expense.categoryCode}</div>
-                      )}
+                      {expense.categoryName && <div className="text-xs opacity-60">{expense.categoryCode}</div>}
                     </td>
                     <td className="px-4 py-2 text-sm max-w-[200px] truncate">{expense.narration || "-"}</td>
                     <td className="px-4 py-2 text-sm">{expense.referenceNumber || "-"}</td>
@@ -614,9 +608,7 @@ const OperatingExpenses = () => {
               onClick={() => fetchExpenses(pagination.page - 1)}
               disabled={pagination.page <= 1}
               className={`p-2 rounded transition-colors ${
-                pagination.page <= 1
-                  ? "opacity-40 cursor-not-allowed"
-                  : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                pagination.page <= 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-gray-100 dark:hover:bg-gray-700"
               }`}
             >
               <ChevronLeft size={18} />
@@ -649,7 +641,9 @@ const OperatingExpenses = () => {
             }`}
           >
             {/* Modal Header */}
-            <div className={`px-6 py-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"} flex items-center justify-between`}>
+            <div
+              className={`px-6 py-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"} flex items-center justify-between`}
+            >
               <h2 className="text-lg font-semibold">
                 {modalMode === "create" && "New Operating Expense"}
                 {modalMode === "edit" && "Edit Operating Expense"}
@@ -680,9 +674,7 @@ const OperatingExpenses = () => {
                     formErrors.expense_date ? "border-red-500" : "dark:border-gray-600"
                   } dark:bg-gray-800 dark:text-gray-200 ${modalMode === "view" ? "opacity-70 cursor-not-allowed" : ""}`}
                 />
-                {formErrors.expense_date && (
-                  <p className="text-xs text-red-500 mt-1">{formErrors.expense_date}</p>
-                )}
+                {formErrors.expense_date && <p className="text-xs text-red-500 mt-1">{formErrors.expense_date}</p>}
               </div>
 
               {/* Expense Type */}
@@ -895,9 +887,7 @@ const OperatingExpenses = () => {
                 "This will approve the expense and post it to the General Ledger. This action cannot be reversed."}
             </p>
             {confirmDialog.expense && (
-              <div
-                className={`p-3 rounded mb-4 text-sm ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
-              >
+              <div className={`p-3 rounded mb-4 text-sm ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
                 <div className="flex justify-between">
                   <span className="opacity-70">Type:</span>
                   <span className="font-medium">{getExpenseTypeLabel(confirmDialog.expense.expenseType)}</span>

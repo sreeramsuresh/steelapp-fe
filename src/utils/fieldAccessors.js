@@ -242,7 +242,7 @@ export const normalizeProduct = (product) => {
 };
 
 /**
- * Normalize unit of measure from proto enum format to display value
+ * Normalize unit of measure from prefixed enum format to display value
  * Handles: UNIT_OF_MEASURE_PCS -> PCS, UNIT_OF_MEASURE_KG -> KG, etc.
  * @param {Object|string} itemOrUnit - Item object with unit fields or raw unit string
  * @returns {string} Normalized UoM (e.g., 'PCS', 'KG', 'MT')

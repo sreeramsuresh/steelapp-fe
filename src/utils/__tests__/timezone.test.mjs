@@ -10,7 +10,7 @@ import {
   toUAETime,
   toUAEDateForInput,
   toUTC,
-  toProtoTimestamp,
+  toTimestamp,
   nowUAE,
   nowUTC,
   isOverdue,
@@ -90,16 +90,16 @@ describe('timezone', () => {
       assert.ok(result.length > 0);
     });
 
-    test('should handle proto Timestamp object', () => {
-      const protoTimestamp = { seconds: 1736948400, nanos: 0 };
-      const result = toUAETime(protoTimestamp, { format: 'date' });
+    test('should handle Timestamp object', () => {
+      const timestamp = { seconds: 1736948400, nanos: 0 };
+      const result = toUAETime(timestamp, { format: 'date' });
       assert.ok(result.length > 0);
     });
 
-    test('should handle proto Timestamp with milliseconds in seconds field', () => {
+    test('should handle Timestamp with milliseconds in seconds field', () => {
       const milliseconds = Date.now();
-      const protoTimestamp = { seconds: milliseconds, nanos: 0 };
-      const result = toUAETime(protoTimestamp, { format: 'datetime' });
+      const timestamp = { seconds: milliseconds, nanos: 0 };
+      const result = toUAETime(timestamp, { format: 'datetime' });
       assert.ok(result.length > 0);
     });
   });
@@ -151,23 +151,23 @@ describe('timezone', () => {
     });
   });
 
-  describe('toProtoTimestamp()', () => {
-    test('should convert Date to proto Timestamp', () => {
+  describe('toTimestamp()', () => {
+    test('should convert Date to Timestamp', () => {
       const date = new Date('2025-01-15T10:30:00Z');
-      const result = toProtoTimestamp(date);
+      const result = toTimestamp(date);
       assert.ok(typeof result.seconds === 'number');
       assert.strictEqual(result.nanos, 0);
     });
 
     test('should return null for invalid input', () => {
-      assert.strictEqual(toProtoTimestamp(null), null);
-      assert.strictEqual(toProtoTimestamp(undefined), null);
-      assert.strictEqual(toProtoTimestamp('invalid'), null);
+      assert.strictEqual(toTimestamp(null), null);
+      assert.strictEqual(toTimestamp(undefined), null);
+      assert.strictEqual(toTimestamp('invalid'), null);
     });
 
     test('should generate positive seconds value', () => {
       const date = new Date();
-      const result = toProtoTimestamp(date);
+      const result = toTimestamp(date);
       assert.ok(result.seconds > 0);
     });
   });

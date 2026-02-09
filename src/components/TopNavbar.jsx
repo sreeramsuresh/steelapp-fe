@@ -283,11 +283,11 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
 
                 <div className={`p-4 border-t text-center ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
                   {/* Bug #30 fix: Add total notification count to button label */}
-                  {/* eslint-disable-next-line local-rules/no-dead-button */}
                   <button
                     type="button"
                     onClick={() => {
-                      // TODO: Implement view all notifications functionality
+                      setShowNotificationDropdown(false);
+                      navigate("/app/notifications");
                     }}
                     className={`text-sm font-medium transition-colors duration-200 hover:underline ${
                       isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"

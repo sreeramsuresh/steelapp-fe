@@ -31,6 +31,10 @@ const StockMovement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
   const [formData, setFormData] = useState(createStockMovement());
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterMovementType, setFilterMovementType] = useState("all");
+  const [filterProductType, setFilterProductType] = useState("all");
+  const [filterGrade, setFilterGrade] = useState("all");
 
   // Product catalog search state
   const [productQuery, setProductQuery] = useState("");
@@ -239,9 +243,19 @@ const StockMovement = () => {
     setFormData((prev) => ({ ...prev, productId: null, productName: "" }));
   };
 
-  const filteredMovements = movements.filter((movement) =>
-    Object.values(movement).some((value) => value?.toString().toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredMovements = movements.filter((movement) => {
+    // Text search
+    const matchesSearch =
+      !searchTerm ||
+      Object.values(movement).some((value) => value?.toString().toLowerCase().includes(searchTerm.toLowerCase()));
+    // Movement type filter
+    const matchesMovementType = filterMovementType === "all" || movement.movement === filterMovementType;
+    // Product type filter
+    const matchesProductType = filterProductType === "all" || movement.productType === filterProductType;
+    // Grade filter
+    const matchesGrade = filterGrade === "all" || movement.grade === filterGrade;
+    return matchesSearch && matchesMovementType && matchesProductType && matchesGrade;
+  });
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-AE");
@@ -316,20 +330,24 @@ const StockMovement = () => {
                 }`}
               />
             </div>
-            {/* eslint-disable-next-line local-rules/no-dead-button */}
             <button
               type="button"
-              onClick={() => {
-                // TODO: Implement filter functionality
-              }}
+              onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
-                isDarkMode
-                  ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
-                  : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
+                showFilters
+                  ? isDarkMode
+                    ? "border-teal-500 bg-teal-900/20 text-teal-400"
+                    : "border-teal-500 bg-teal-50 text-teal-700"
+                  : isDarkMode
+                    ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+                    : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
               }`}
             >
               <Filter size={16} />
               Filter
+              {(filterMovementType !== "all" || filterProductType !== "all" || filterGrade !== "all") && (
+                <span className="w-2 h-2 bg-teal-500 rounded-full" />
+              )}
             </button>
             <button
               type="button"
@@ -340,6 +358,79 @@ const StockMovement = () => {
               Add Movement
             </button>
           </div>
+
+          {/* Filter Panel */}
+          {showFilters && (
+            <div className={`mt-4 pt-4 border-t flex flex-wrap gap-4 items-end ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+              <div>
+                <label htmlFor="filter-movement" className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  Movement Type
+                </label>
+                <select
+                  id="filter-movement"
+                  value={filterMovementType}
+                  onChange={(e) => setFilterMovementType(e.target.value)}
+                  className={`px-3 py-2 border rounded-lg text-sm ${
+                    isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
+                  }`}
+                >
+                  <option value="all">All</option>
+                  {MOVEMENT_TYPES.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="filter-product-type" className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  Product Type
+                </label>
+                <select
+                  id="filter-product-type"
+                  value={filterProductType}
+                  onChange={(e) => setFilterProductType(e.target.value)}
+                  className={`px-3 py-2 border rounded-lg text-sm ${
+                    isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
+                  }`}
+                >
+                  <option value="all">All</option>
+                  {PRODUCT_TYPES.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="filter-grade" className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  Grade
+                </label>
+                <select
+                  id="filter-grade"
+                  value={filterGrade}
+                  onChange={(e) => setFilterGrade(e.target.value)}
+                  className={`px-3 py-2 border rounded-lg text-sm ${
+                    isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
+                  }`}
+                >
+                  <option value="all">All</option>
+                  {STEEL_GRADES.map((g) => (
+                    <option key={g} value={g}>{g}</option>
+                  ))}
+                </select>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterMovementType("all");
+                  setFilterProductType("all");
+                  setFilterGrade("all");
+                }}
+                className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+                  isDarkMode ? "text-gray-400 hover:text-white hover:bg-gray-700" : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                Clear Filters
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

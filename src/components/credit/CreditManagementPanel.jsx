@@ -1,6 +1,7 @@
 import { AlertTriangle, Edit3, RefreshCw, TrendingDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { customerCreditService } from "../../services/customerCreditService";
 import ConfirmDialog from "../ConfirmDialog";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -36,54 +37,45 @@ const CreditManagementPanel = ({
   const loadCreditIssues = useCallback(async () => {
     try {
       setLoading(true);
-      // TODO: Call backend service
-      // const overLimit = await creditService.getOverLimitCustomers();
-      // const atRisk = await creditService.getHighRiskCustomers();
-
-      // Mock data for now
-      setOverLimitCustomers([
-        {
-          id: 1,
-          name: "ABC Trading",
-          creditLimit: 50000,
-          creditUsed: 65000,
-          overage: 15000,
-          grade: "D",
-          dso: 95,
-        },
-        {
-          id: 2,
-          name: "XYZ Imports",
-          creditLimit: 100000,
-          creditUsed: 125000,
-          overage: 25000,
-          grade: "E",
-          dso: 120,
-        },
+      const [overLimitResult, atRiskResult] = await Promise.allSettled([
+        customerCreditService.getOverLimitCustomers(),
+        customerCreditService.getHighRiskCustomers(),
       ]);
 
-      setAtRiskCustomers([
-        {
-          id: 3,
-          name: "Global Steel",
-          creditLimit: 75000,
-          creditUsed: 55000,
-          utilizationPct: 73,
-          grade: "D",
-          dso: 85,
-          lastPayment: "2025-11-15",
-        },
-        {
-          id: 4,
-          name: "Premium Metals",
-          creditLimit: 150000,
-          creditUsed: 140000,
-          utilizationPct: 93,
-          grade: "C",
-          dso: 68,
-          lastPayment: "2025-11-20",
-        },
-      ]);
+      if (overLimitResult.status === "fulfilled") {
+        const overLimitData = overLimitResult.value?.customers || overLimitResult.value || [];
+        setOverLimitCustomers(
+          Array.isArray(overLimitData)
+            ? overLimitData.map((c) => ({
+                id: c.id,
+                name: c.name || c.companyName || c.company_name || "Unknown",
+                creditLimit: parseFloat(c.creditLimit || c.credit_limit || 0),
+                creditUsed: parseFloat(c.creditUsed || c.credit_used || c.currentCredit || c.current_credit || 0),
+                overage: parseFloat(c.overage || 0),
+                grade: c.creditGrade || c.credit_grade || c.grade || "C",
+                dso: parseInt(c.dso || c.daysSalesOutstanding || 0, 10),
+              }))
+            : []
+        );
+      }
+
+      if (atRiskResult.status === "fulfilled") {
+        const atRiskData = atRiskResult.value?.customers || atRiskResult.value || [];
+        setAtRiskCustomers(
+          Array.isArray(atRiskData)
+            ? atRiskData.map((c) => ({
+                id: c.id,
+                name: c.name || c.companyName || c.company_name || "Unknown",
+                creditLimit: parseFloat(c.creditLimit || c.credit_limit || 0),
+                creditUsed: parseFloat(c.creditUsed || c.credit_used || c.currentCredit || c.current_credit || 0),
+                utilizationPct: parseFloat(c.utilizationPct || c.utilization_pct || 0),
+                grade: c.creditGrade || c.credit_grade || c.grade || "C",
+                dso: parseInt(c.dso || c.daysSalesOutstanding || 0, 10),
+                lastPayment: c.lastPayment || c.last_payment || c.lastPaymentDate || "",
+              }))
+            : []
+        );
+      }
     } catch (error) {
       console.error("Failed to load credit issues:", error);
     } finally {
@@ -125,12 +117,12 @@ const CreditManagementPanel = ({
 
     try {
       setLoading(true);
-      // TODO: Call backend service
-      // await creditService.batchUpdateCreditLimits(
-      //   Array.from(selectedCustomers),
-      //   parseFloat(newCreditLimit),
-      //   updateReason
-      // );
+      // Update each customer's credit limit via the backend
+      const customerIds = Array.from(selectedCustomers);
+      const limit = parseFloat(newCreditLimit);
+      await Promise.allSettled(
+        customerIds.map((id) => customerCreditService.updateCreditLimit(id, limit, updateReason))
+      );
 
       onUpdateCreditLimits({
         customerIds: Array.from(selectedCustomers),
@@ -157,8 +149,14 @@ const CreditManagementPanel = ({
   const confirmRecalculate = async () => {
     try {
       setLoading(true);
-      // TODO: Call backend service
-      // await creditService.batchUpdateAllCustomerCredit();
+      // Trigger recalculation for all over-limit and at-risk customers
+      const allCustomerIds = [
+        ...overLimitCustomers.map((c) => c.id),
+        ...atRiskCustomers.map((c) => c.id),
+      ];
+      await Promise.allSettled(
+        allCustomerIds.map((id) => customerCreditService.performCreditReview(id, "Bulk recalculation"))
+      );
 
       onTriggerRecalculation();
       loadCreditIssues();

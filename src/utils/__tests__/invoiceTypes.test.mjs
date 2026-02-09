@@ -43,7 +43,7 @@ describe('invoiceTypes', () => {
       assert.ok(VALID_INVOICE_STATUSES.includes('cancelled'));
     });
 
-    test('should contain unspecified status for proto enum default', () => {
+    test('should contain unspecified status for enum default', () => {
       assert.ok(VALID_INVOICE_STATUSES.includes('unspecified'));
     });
 
@@ -369,7 +369,7 @@ describe('invoiceTypes', () => {
     });
 
     test('should map all invoice statuses to labels', () => {
-      // Skip 'unspecified' as it's a proto enum default that may not be explicitly handled
+      // Skip 'unspecified' as it's the default enum value that may not be explicitly handled
       const statusesToCheck = VALID_INVOICE_STATUSES.filter(s => s !== 'unspecified');
       for (const status of statusesToCheck) {
         const label = getInvoiceStatusLabel(status);

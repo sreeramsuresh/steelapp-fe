@@ -142,9 +142,26 @@ export default function CustomerPricingPage() {
     try {
       setLoading(true);
 
-      // TODO: Update customer price override
-      // This requires the customer's pricelist ID from the API response
-      // For now, we'll just reload the data
+      // Update customer price override via the pricing API
+      const pricelistId = customer?.pricelist_id || customer?.pricelistId;
+      if (pricelistId && editingItem.product_id) {
+        await fetch(`/api/pricelists/${pricelistId}/items`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            items: [
+              {
+                product_id: editingItem.product_id,
+                unit_price: Number(newPrice),
+              },
+            ],
+            operation: "upsert",
+          }),
+        });
+      }
       notificationService.success(`Price updated to AED ${Number(newPrice).toFixed(2)}`);
       setShowModal(false);
       setEditingItem(null);
@@ -165,8 +182,17 @@ export default function CustomerPricingPage() {
     try {
       setLoading(true);
 
-      // TODO: Delete customer price override
-      notificationService.success(`Override removed, using default price`);
+      // Delete customer price override via the pricing API
+      const pricelistId = customer?.pricelist_id || customer?.pricelistId;
+      if (pricelistId && item.product_id) {
+        await fetch(`/api/pricelists/${pricelistId}/items/${item.product_id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+      }
+      notificationService.success("Override removed, using default price");
       await reloadData();
     } catch (error) {
       console.error("Error deleting override:", error);

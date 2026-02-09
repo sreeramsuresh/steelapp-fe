@@ -46,7 +46,7 @@ import {
   Warehouse,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApi, useApiData } from "../hooks/useApi";
@@ -62,8 +62,8 @@ import ConfirmDialog from "./ConfirmDialog";
 import InvoiceTemplateSettings from "./InvoiceTemplateSettings";
 import ProductNamingHelpPanel from "./ProductNamingHelpPanel";
 import RolesHelpPanel from "./RolesHelpPanel";
-import VATRulesHelpPanel from "./VATRulesHelpPanel";
 import PhoneInput from "./shared/PhoneInput";
+import VATRulesHelpPanel from "./VATRulesHelpPanel";
 
 // Custom Tailwind Components
 const Button = ({
@@ -444,6 +444,10 @@ const CompanySettings = () => {
   // Upload functions called directly, not through useApi hook
   const [uploadingBrandmark, setUploadingBrandmark] = useState(false);
   const [uploadingSeal, setUploadingSeal] = useState(false);
+
+  const logoInputRef = useRef(null);
+  const brandmarkInputRef = useRef(null);
+  const sealInputRef = useRef(null);
 
   const [companyProfile, setCompanyProfile] = useState({
     name: "",
@@ -2016,24 +2020,22 @@ const CompanySettings = () => {
                       <div className="space-y-2">
                         <input
                           type="file"
-                          id="logo-upload"
+                          ref={logoInputRef}
                           accept="image/*"
                           onChange={handleLogoUpload}
                           className="hidden"
                         />
-                        <label htmlFor="logo-upload" className="cursor-pointer">
-                          <Button
-                            as="span"
-                            variant="outline"
-                            size="sm"
-                            startIcon={
-                              uploadingLogo ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />
-                            }
-                            disabled={uploadingLogo}
-                          >
-                            {uploadingLogo ? "Uploading..." : "Upload"}
-                          </Button>
-                        </label>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          startIcon={
+                            uploadingLogo ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />
+                          }
+                          disabled={uploadingLogo}
+                          onClick={() => logoInputRef.current?.click()}
+                        >
+                          {uploadingLogo ? "Uploading..." : "Upload"}
+                        </Button>
                         <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Max: 50KB</p>
                         <label className="flex items-center">
                           <input
@@ -2116,24 +2118,22 @@ const CompanySettings = () => {
                       <div className="space-y-2">
                         <input
                           type="file"
-                          id="brandmark-upload"
+                          ref={brandmarkInputRef}
                           accept="image/*"
                           onChange={handleBrandmarkUpload}
                           className="hidden"
                         />
-                        <label htmlFor="brandmark-upload" className="cursor-pointer">
-                          <Button
-                            as="span"
-                            variant="outline"
-                            size="sm"
-                            startIcon={
-                              uploadingBrandmark ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />
-                            }
-                            disabled={uploadingBrandmark}
-                          >
-                            {uploadingBrandmark ? "Uploading..." : "Upload"}
-                          </Button>
-                        </label>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          startIcon={
+                            uploadingBrandmark ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />
+                          }
+                          disabled={uploadingBrandmark}
+                          onClick={() => brandmarkInputRef.current?.click()}
+                        >
+                          {uploadingBrandmark ? "Uploading..." : "Upload"}
+                        </Button>
                         <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Max: 50KB</p>
                       </div>
                     </div>
@@ -2198,24 +2198,22 @@ const CompanySettings = () => {
                       <div className="space-y-2">
                         <input
                           type="file"
-                          id="seal-upload"
+                          ref={sealInputRef}
                           accept="image/*"
                           onChange={handleSealUpload}
                           className="hidden"
                         />
-                        <label htmlFor="seal-upload" className="cursor-pointer">
-                          <Button
-                            as="span"
-                            variant="outline"
-                            size="sm"
-                            startIcon={
-                              uploadingSeal ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />
-                            }
-                            disabled={uploadingSeal}
-                          >
-                            {uploadingSeal ? "Uploading..." : "Upload"}
-                          </Button>
-                        </label>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          startIcon={
+                            uploadingSeal ? <Upload size={14} className="animate-spin" /> : <Upload size={14} />
+                          }
+                          disabled={uploadingSeal}
+                          onClick={() => sealInputRef.current?.click()}
+                        >
+                          {uploadingSeal ? "Uploading..." : "Upload"}
+                        </Button>
                         <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Max: 50KB</p>
                         <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>For PDFs</p>
                       </div>

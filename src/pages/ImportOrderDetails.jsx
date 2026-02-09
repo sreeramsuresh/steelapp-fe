@@ -1080,7 +1080,12 @@ const ImportOrderDetails = () => {
                           }`}
                           title="View"
                           onClick={() => {
-                            // TODO: Implement document view
+                            const url = doc.url || doc.fileUrl || doc.file_url;
+                            if (url) {
+                              window.open(url, "_blank", "noopener,noreferrer");
+                            } else {
+                              alert("Document preview is not available. Try downloading instead.");
+                            }
                           }}
                         >
                           <Eye size={16} />
@@ -1093,7 +1098,19 @@ const ImportOrderDetails = () => {
                           }`}
                           title="Download"
                           onClick={() => {
-                            // TODO: Implement document download
+                            const url = doc.url || doc.fileUrl || doc.file_url;
+                            const fileName = doc.name || doc.fileName || doc.file_name || "document";
+                            if (url) {
+                              const link = document.createElement("a");
+                              link.href = url;
+                              link.download = fileName;
+                              link.target = "_blank";
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                            } else {
+                              alert("Download link is not available for this document.");
+                            }
                           }}
                         >
                           <Download size={16} />

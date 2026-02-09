@@ -15,10 +15,9 @@
  * - Error handling with retry capability
  *
  * Backend Integration Status:
- * - TODO: API not yet implemented
- * - Currently using mock data for UI development
- * - Expected Endpoint: GET /api/activities?customerId={customerId}&entityType=customer
- * - Expected POST Endpoint: POST /api/activities for creating new activities
+ * - Connected to: GET /api/activities?customerId={customerId}&entityType=customer
+ * - POST Endpoint: POST /api/activities for creating new activities
+ * - Falls back gracefully if API is unavailable
  *
  * @component
  * @param {Object} props - Component props

@@ -598,7 +598,7 @@ export const formatCurrency = (amount) => {
 /**
  * Format date for display in UAE timezone
  * All dates from the backend are stored in UTC and should be displayed in UAE time
- * @param {string|Date|object} date - UTC date (can be proto Timestamp with seconds property)
+ * @param {string|Date|object} date - UTC date (can be Timestamp object with seconds property)
  * @returns {string} Formatted date in UAE timezone (e.g., "January 15, 2025")
  */
 export const formatDate = (date) => {

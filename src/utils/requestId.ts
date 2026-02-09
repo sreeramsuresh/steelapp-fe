@@ -2,7 +2,7 @@
  * Request ID Generator
  *
  * Generates unique request IDs for tracking requests across the system:
- * Frontend → API Gateway → gRPC Backend
+ * Frontend → API Gateway → Backend
  *
  * Format: req-<timestamp_base36>-<random_6chars>
  * Example: req-m5x7k2p-a3b9c1

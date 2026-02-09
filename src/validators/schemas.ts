@@ -18,7 +18,7 @@ import { z } from "zod";
 // ============================================
 
 /**
- * PageInfo schema - matches proto PageInfo message
+ * PageInfo schema - validates pagination response fields
  * All fields are required to prevent NaN issues
  */
 export const PageInfoSchema = z.object({

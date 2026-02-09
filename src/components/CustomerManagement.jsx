@@ -491,7 +491,14 @@ const CustomerManagement = () => {
       delete customerData.current_credit;
 
       await createCustomer(customerData);
-      // TODO: Implement proper cache utility
+      // Invalidate any cached customer data in localStorage
+      try {
+        Object.keys(localStorage)
+          .filter((key) => key.startsWith("customers_") || key.startsWith("customer_"))
+          .forEach((key) => localStorage.removeItem(key));
+      } catch (_e) {
+        // Cache clear is best-effort
+      }
       setNewCustomer({
         name: "",
         email: "",
@@ -552,7 +559,14 @@ const CustomerManagement = () => {
       delete customerData.current_credit;
 
       await updateCustomer(selectedCustomer.id, customerData);
-      // TODO: Implement proper cache utility
+      // Invalidate any cached customer data in localStorage
+      try {
+        Object.keys(localStorage)
+          .filter((key) => key.startsWith("customers_") || key.startsWith("customer_"))
+          .forEach((key) => localStorage.removeItem(key));
+      } catch (_e) {
+        // Cache clear is best-effort
+      }
       setShowEditModal(false);
       setSelectedCustomer(null);
       refetchCustomers();
@@ -575,7 +589,14 @@ const CustomerManagement = () => {
 
     try {
       await archiveCustomer(customerId);
-      // TODO: Implement proper cache utility
+      // Invalidate any cached customer data in localStorage
+      try {
+        Object.keys(localStorage)
+          .filter((key) => key.startsWith("customers_") || key.startsWith("customer_"))
+          .forEach((key) => localStorage.removeItem(key));
+      } catch (_e) {
+        // Cache clear is best-effort
+      }
       refetchCustomers();
       notificationService.success("Customer archived successfully");
     } catch (error) {

@@ -129,7 +129,7 @@ const formatDaysMessage = (days, type = "reminder") => {
 function getInvoiceStatusBadge(invoice) {
   let status = invoice.status || "draft";
 
-  // Handle proto enum default value (STATUS_UNSPECIFIED = 0 -> 'unspecified')
+  // Handle default enum value (STATUS_UNSPECIFIED = 0 -> 'unspecified')
   if (status === "unspecified") {
     status = "draft";
   }

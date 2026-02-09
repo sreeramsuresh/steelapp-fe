@@ -18,38 +18,36 @@
  * @property {boolean} hasAnyTabAccess - True if user can access at least one tab
  */
 
-// TODO: Replace with actual auth context once implemented
-// For now, using mock permissions for development
-const useMockAuth = () => {
-  // Mock user with full permissions for development
-  // In production, replace with: const { user } = useAuth();
-  return {
-    user: {
-      id: 1,
-      name: "Developer",
-      permissions: [
-        "customers.read",
-        "finance.view",
-        "invoices.read",
-        "payments.read",
-        "credit_notes.read",
-        "activity.read",
-      ],
-    },
-  };
-};
+import { useAuth } from "../contexts/AuthContext";
+import { authService } from "../services/axiosAuthService";
 
 export function useCustomerTabPermissions() {
-  const { user } = useMockAuth();
+  const { user } = useAuth();
 
   /**
-   * Helper to check if user has a specific permission
-   * @param {string} permission - Permission string to check
+   * Helper to check if user has a specific permission.
+   * Uses authService.hasPermission for role-based checks,
+   * falling back to user.permissions array if available.
+   * @param {string} permission - Permission string (e.g. "customers.read")
    * @returns {boolean} True if user has permission
    */
   const hasPermission = (permission) => {
-    if (!user || !user.permissions) return false;
-    return user.permissions.includes(permission);
+    if (!user) return false;
+    // Parse "resource.action" format for authService check
+    const [resource, action] = permission.split(".");
+    if (resource && action) {
+      try {
+        return authService.hasPermission(resource, action) || authService.hasRole("admin");
+      } catch {
+        // authService not available, fall back to permissions array
+      }
+    }
+    // Fallback: check user.permissions array directly
+    if (user.permissions && Array.isArray(user.permissions)) {
+      return user.permissions.includes(permission);
+    }
+    // Default: admin role has all permissions
+    return user.role === "admin" || user.role === "Administrator";
   };
 
   /**

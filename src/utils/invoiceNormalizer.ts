@@ -7,8 +7,8 @@
 import type { CustomerDetails, DeliveryStatus, Invoice, InvoiceItem, PaymentRecord } from "../types/invoice";
 
 /**
- * Normalize invoice status from gRPC enum to frontend string
- * Maps Protocol Buffer enum constants to lowercase frontend values
+ * Normalize invoice status from uppercase enum to frontend string
+ * Maps uppercase enum constants to lowercase frontend values
  * @param rawStatus - Raw status from API (e.g., "STATUS_DRAFT", "STATUS_ISSUED")
  * @returns Normalized status: 'draft' | 'proforma' | 'issued' | 'sent' | 'cancelled'
  */
@@ -27,7 +27,7 @@ function normalizeInvoiceStatus(rawStatus: unknown): string {
     return rawStatus;
   }
 
-  // Map gRPC enum constants to frontend strings
+  // Map uppercase enum constants to frontend strings
   const statusMap: Record<string, string> = {
     STATUS_DRAFT: "draft",
     STATUS_UNSPECIFIED: "draft", // Treat unspecified as draft
@@ -44,7 +44,7 @@ function normalizeInvoiceStatus(rawStatus: unknown): string {
     if (process.env.NODE_ENV !== "production") {
       console.error("SCHEMA_MISMATCH[INVOICE_STATUS_NORMALIZER]: Unknown raw invoice status", {
         receivedStatus: rawStatus,
-        knownGrpcEnums: Object.keys(statusMap),
+        knownEnums: Object.keys(statusMap),
         defaultingTo: "draft",
         timestamp: new Date().toISOString(),
       });
@@ -56,8 +56,8 @@ function normalizeInvoiceStatus(rawStatus: unknown): string {
 }
 
 /**
- * Normalize payment status from gRPC enum to frontend string
- * Maps Protocol Buffer enum constants to lowercase frontend values
+ * Normalize payment status from uppercase enum to frontend string
+ * Maps uppercase enum constants to lowercase frontend values
  * @param rawStatus - Raw payment status from API (e.g., "PAYMENT_STATUS_UNPAID")
  * @returns Normalized payment status: 'unpaid' | 'partially_paid' | 'paid' | 'fully_paid'
  */
@@ -76,7 +76,7 @@ function normalizePaymentStatus(rawStatus: unknown): string {
     return rawStatus;
   }
 
-  // Map gRPC enum constants to frontend strings
+  // Map uppercase enum constants to frontend strings
   const paymentStatusMap: Record<string, string> = {
     PAYMENT_STATUS_UNPAID: "unpaid",
     PAYMENT_STATUS_UNSPECIFIED: "unpaid", // Treat unspecified as unpaid
@@ -92,7 +92,7 @@ function normalizePaymentStatus(rawStatus: unknown): string {
     if (process.env.NODE_ENV !== "production") {
       console.error("SCHEMA_MISMATCH[PAYMENT_STATUS_NORMALIZER]: Unknown raw payment status", {
         receivedStatus: rawStatus,
-        knownGrpcEnums: Object.keys(paymentStatusMap),
+        knownEnums: Object.keys(paymentStatusMap),
         defaultingTo: "unpaid",
         timestamp: new Date().toISOString(),
       });
@@ -328,7 +328,7 @@ export function normalizeInvoice(rawInvoice: unknown, source = "unknown"): Invoi
       advancePaymentId: rawInvoice.advancePaymentId || rawInvoice.advance_payment_id || undefined,
       advanceTaxInvoiceNumber: rawInvoice.advanceTaxInvoiceNumber || rawInvoice.advance_tax_invoice_number || undefined,
 
-      // Status (normalized from gRPC enums)
+      // Status (normalized from uppercase enums)
       status: normalizeInvoiceStatus(rawInvoice.status),
       paymentStatus: normalizePaymentStatus(rawInvoice.paymentStatus || rawInvoice.paymentStatus),
 
