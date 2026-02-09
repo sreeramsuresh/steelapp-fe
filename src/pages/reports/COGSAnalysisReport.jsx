@@ -50,8 +50,8 @@ export default function COGSAnalysisReport() {
 
   // Data
   const [summary, setSummary] = useState({
-    totalCOGS: 0,
-    averageMargin: 0,
+    totalCogs: 0,
+    marginPercent: 0,
     totalRevenue: 0,
     totalProfit: 0,
   });
@@ -92,14 +92,14 @@ export default function COGSAnalysisReport() {
       const response = await api.get("/cogs/analysis", { params });
       const data = response.data || {};
 
-      setSummary(data.summary || { totalCOGS: 0, averageMargin: 0, totalRevenue: 0, totalProfit: 0 });
+      setSummary(data.summary || { totalCogs: 0, marginPercent: 0, totalRevenue: 0, totalProfit: 0 });
       setCogsByBatch(data.cogsByBatch || []);
       setCostComponents(data.costComponents || []);
       setBatchProfitability(data.batchProfitability || []);
       setProcurementComparison(data.procurementComparison || []);
     } catch (error) {
       console.warn("COGS API not available:", error.message);
-      setSummary({ totalCOGS: 0, averageMargin: 0, totalRevenue: 0, totalProfit: 0 });
+      setSummary({ totalCogs: 0, marginPercent: 0, totalRevenue: 0, totalProfit: 0 });
       setCogsByBatch([]);
       setCostComponents([]);
       setBatchProfitability([]);
@@ -296,7 +296,7 @@ export default function COGSAnalysisReport() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <SummaryCard
             title="Total COGS"
-            value={formatCurrency(summary.totalCOGS)}
+            value={formatCurrency(summary.totalCogs)}
             icon={Package}
             color="from-red-600 to-red-700"
             isDarkMode={isDarkMode}
@@ -317,7 +317,7 @@ export default function COGSAnalysisReport() {
           />
           <SummaryCard
             title="Average Margin %"
-            value={formatPercent(summary.averageMargin)}
+            value={formatPercent(summary.marginPercent)}
             icon={TrendingUp}
             color="from-teal-600 to-teal-700"
             isDarkMode={isDarkMode}
