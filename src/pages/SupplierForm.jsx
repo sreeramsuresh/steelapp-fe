@@ -882,7 +882,7 @@ export function SupplierForm() {
   }
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-[#161A1D]" : "bg-gray-50"}`}>
+    <div className={`min-h-screen ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}>
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -906,7 +906,7 @@ export function SupplierForm() {
           {/* SECTION 1: Basic Information - Always Expanded */}
           <div
             className={`p-6 rounded-xl border ${
-              isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"
+              isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
             }`}
           >
             <h2
@@ -1083,7 +1083,7 @@ export function SupplierForm() {
 
           {/* SECTION 2: Contact Person - Collapsible */}
           <div
-            className={`rounded-xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+            className={`rounded-xl border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
           >
             <button
               type="button"
@@ -1154,7 +1154,7 @@ export function SupplierForm() {
 
           {/* SECTION 3: Tax & Compliance - Expanded by Default */}
           <div
-            className={`rounded-xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+            className={`rounded-xl border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
           >
             <button
               type="button"
@@ -1318,7 +1318,7 @@ export function SupplierForm() {
 
           {/* SECTION 4: Supplier Classification - Expanded by Default */}
           <div
-            className={`rounded-xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+            className={`rounded-xl border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
           >
             <button
               type="button"
@@ -1490,7 +1490,7 @@ export function SupplierForm() {
 
           {/* SECTION 5: Stainless Steel Specifications - Collapsible */}
           <div
-            className={`rounded-xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+            className={`rounded-xl border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
           >
             <button
               type="button"
@@ -1688,7 +1688,7 @@ export function SupplierForm() {
 
           {/* SECTION 6: Financial Terms - Collapsible */}
           <div
-            className={`rounded-xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+            className={`rounded-xl border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
           >
             <button
               type="button"
@@ -1850,7 +1850,7 @@ export function SupplierForm() {
           {/* SECTION 7: Additional Information */}
           <div
             className={`p-6 rounded-xl border ${
-              isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"
+              isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
             }`}
           >
             <h2
