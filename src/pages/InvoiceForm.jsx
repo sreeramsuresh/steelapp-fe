@@ -39,15 +39,15 @@ import useInvoiceTemplates from "../hooks/useInvoiceTemplates";
 import useKeyboardShortcuts, { getShortcutDisplayString, INVOICE_SHORTCUTS } from "../hooks/useKeyboardShortcuts";
 import { commissionService, companyService, invoiceService } from "../services";
 import { invoicesAPI } from "../services/api";
-import { purchaseOrderService } from "../services/purchaseOrderService";
-import { supplierService } from "../services/supplierService";
 import { batchReservationService } from "../services/batchReservationService";
 import { customerService } from "../services/customerService";
 import { notificationService } from "../services/notificationService";
 import { pinnedProductsService } from "../services/pinnedProductsService";
 import pricelistService from "../services/pricelistService";
 import { productService } from "../services/productService";
+import { purchaseOrderService } from "../services/purchaseOrderService";
 import { stockBatchService } from "../services/stockBatchService";
+import { supplierService } from "../services/supplierService";
 import { createInvoice, createSteelItem, UAE_EMIRATES } from "../types";
 import { getProductDisplayName, getProductUniqueName } from "../utils/fieldAccessors";
 import {
@@ -3888,19 +3888,16 @@ const InvoiceForm = ({ onSave }) => {
   // ============================================================
   // DROPSHIP PO CREATION
   // ============================================================
-  const handleOpenDropshipPOModal = useCallback(
-    async (itemIndex) => {
-      setDropshipPOModal({ open: true, itemIndex });
-      setDropshipSelectedSupplier(null);
-      try {
-        const result = await supplierService.getSuppliers({ limit: 200 });
-        setDropshipSuppliers(result.suppliers || []);
-      } catch {
-        setDropshipSuppliers([]);
-      }
-    },
-    []
-  );
+  const handleOpenDropshipPOModal = useCallback(async (itemIndex) => {
+    setDropshipPOModal({ open: true, itemIndex });
+    setDropshipSelectedSupplier(null);
+    try {
+      const result = await supplierService.getSuppliers({ limit: 200 });
+      setDropshipSuppliers(result.suppliers || []);
+    } catch {
+      setDropshipSuppliers([]);
+    }
+  }, []);
 
   const handleCreateDropshipPO = useCallback(async () => {
     const { itemIndex } = dropshipPOModal;
@@ -3925,21 +3922,15 @@ const InvoiceForm = ({ onSave }) => {
         setInvoice((prev) => ({
           ...prev,
           items: prev.items.map((it, idx) =>
-            idx === itemIndex
-              ? { ...it, linkedPoItemId: poItem.id, _linkedPONumber: result.po_number }
-              : it
+            idx === itemIndex ? { ...it, linkedPoItemId: poItem.id, _linkedPONumber: result.po_number } : it
           ),
         }));
       }
 
-      notificationService.success(
-        `Dropship PO ${result.po_number} created for "${item.name}"`
-      );
+      notificationService.success(`Dropship PO ${result.po_number} created for "${item.name}"`);
       setDropshipPOModal({ open: false, itemIndex: null });
     } catch (err) {
-      notificationService.error(
-        err.message || "Failed to create dropship PO"
-      );
+      notificationService.error(err.message || "Failed to create dropship PO");
     } finally {
       setCreatingDropshipPO(false);
     }
@@ -6578,9 +6569,7 @@ const InvoiceForm = ({ onSave }) => {
               </label>
               <select
                 className={`w-full px-3 py-2 rounded border text-sm ${
-                  isDarkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
+                  isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
                 value={dropshipSelectedSupplier?.id || ""}
                 onChange={(e) => {
@@ -6601,7 +6590,9 @@ const InvoiceForm = ({ onSave }) => {
               <button
                 type="button"
                 className={`px-4 py-2 text-sm rounded ${
-                  isDarkMode ? "bg-gray-600 hover:bg-gray-500 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                  isDarkMode
+                    ? "bg-gray-600 hover:bg-gray-500 text-white"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
                 }`}
                 onClick={() => setDropshipPOModal({ open: false, itemIndex: null })}
               >

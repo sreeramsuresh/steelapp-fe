@@ -83,7 +83,9 @@ const StockMovementList = ({ embedded = false }) => {
         )}
         {config.label}
         {isDropshipAudit(type) && (
-          <span className={`ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded ${isDarkMode ? "bg-gray-700 text-gray-400" : "bg-gray-200 text-gray-500"}`}>
+          <span
+            className={`ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded ${isDarkMode ? "bg-gray-700 text-gray-400" : "bg-gray-200 text-gray-500"}`}
+          >
             AUDIT
           </span>
         )}
@@ -487,7 +489,9 @@ const StockMovementList = ({ embedded = false }) => {
                   <div className="flex items-center gap-2">
                     <Warehouse size={14} className="opacity-50" />
                     {isDropshipAudit(movement.movementType) ? (
-                      <span className={isDarkMode ? "text-gray-500 italic" : "text-gray-400 italic"}>N/A (Dropship)</span>
+                      <span className={isDarkMode ? "text-gray-500 italic" : "text-gray-400 italic"}>
+                        N/A (Dropship)
+                      </span>
                     ) : (
                       movement.warehouseName || "-"
                     )}

@@ -596,14 +596,14 @@ const PurchaseOrderForm = () => {
   };
 
   // Dropship helpers
-  const hasDropshipItems = useMemo(
-    () => purchaseOrder.items.some((item) => item.isDropship),
-    [purchaseOrder.items],
-  );
+  const hasDropshipItems = useMemo(() => purchaseOrder.items.some((item) => item.isDropship), [purchaseOrder.items]);
 
   const canReceiveToWarehouse = useMemo(
-    () => id && hasDropshipItems && (purchaseOrder.stockStatus === "received" || purchaseOrder.stockStatus === "in_warehouse"),
-    [id, hasDropshipItems, purchaseOrder.stockStatus],
+    () =>
+      id &&
+      hasDropshipItems &&
+      (purchaseOrder.stockStatus === "received" || purchaseOrder.stockStatus === "in_warehouse"),
+    [id, hasDropshipItems, purchaseOrder.stockStatus]
   );
 
   const openReceiveToWarehouse = useCallback(() => {
@@ -643,7 +643,9 @@ const PurchaseOrderForm = () => {
     // Quantity guard
     const overReceive = rtwItems.find((item) => item.quantity > item.maxQuantity);
     if (overReceive) {
-      notificationService.error(`Quantity for "${overReceive.name}" exceeds maximum receivable (${overReceive.maxQuantity})`);
+      notificationService.error(
+        `Quantity for "${overReceive.name}" exceeds maximum receivable (${overReceive.maxQuantity})`
+      );
       return;
     }
 
@@ -660,7 +662,11 @@ const PurchaseOrderForm = () => {
       // Reload PO to reflect updated status
       window.location.reload();
     } catch (error) {
-      const msg = error?.response?.data?.error || error?.response?.data?.message || error.message || "Failed to receive to warehouse";
+      const msg =
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error.message ||
+        "Failed to receive to warehouse";
       notificationService.error(msg);
     } finally {
       setRtwSaving(false);
@@ -3291,11 +3297,7 @@ const PurchaseOrderForm = () => {
                 <Warehouse size={20} className="text-amber-500" />
                 Receive to Warehouse
               </h3>
-              <button
-                type="button"
-                onClick={() => setReceiveToWarehouseOpen(false)}
-                className={BTN_SMALL(isDarkMode)}
-              >
+              <button type="button" onClick={() => setReceiveToWarehouseOpen(false)} className={BTN_SMALL(isDarkMode)}>
                 <X size={16} />
               </button>
             </div>
@@ -3323,7 +3325,9 @@ const PurchaseOrderForm = () => {
             {/* Per-item quantity inputs */}
             <div className="mb-4">
               <label className={LABEL_CLASSES(isDarkMode)}>Items to Receive</label>
-              <div className={`rounded-lg border ${isDarkMode ? "border-gray-700" : "border-gray-200"} overflow-hidden`}>
+              <div
+                className={`rounded-lg border ${isDarkMode ? "border-gray-700" : "border-gray-200"} overflow-hidden`}
+              >
                 {rtwItems.map((item, index) => (
                   <div
                     key={item.itemId}
@@ -3347,9 +3351,7 @@ const PurchaseOrderForm = () => {
                         value={item.quantity}
                         onChange={(e) => {
                           const val = Math.max(0, Math.min(item.maxQuantity, parseFloat(e.target.value) || 0));
-                          setRtwItems((prev) =>
-                            prev.map((it, i) => (i === index ? { ...it, quantity: val } : it)),
-                          );
+                          setRtwItems((prev) => prev.map((it, i) => (i === index ? { ...it, quantity: val } : it)));
                         }}
                         className={`${INPUT_CLASSES(isDarkMode)} text-center`}
                       />
