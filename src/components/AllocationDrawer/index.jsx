@@ -953,8 +953,12 @@ const AllocationDrawer = ({
   const handleAddToInvoice = useCallback(() => {
     if (!isValid) return;
 
-    // GUARDRAIL: If PCS conversion involved, require unitWeightKg
-    if (drawerState.unit === "PCS" && (!drawerState.unitWeightKg || drawerState.unitWeightKg <= 0)) {
+    // GUARDRAIL: If PCS conversion involved, require unitWeightKg (skip for dropship - manual pricing)
+    if (
+      drawerState.unit === "PCS" &&
+      (!drawerState.unitWeightKg || drawerState.unitWeightKg <= 0) &&
+      drawerState.sourceType === "WAREHOUSE"
+    ) {
       setDrawerState((prev) => ({
         ...prev,
         error: "Unit weight (kg/pcs) required for PCS pricing. Contact admin.",

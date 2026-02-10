@@ -21,6 +21,18 @@ export const MOVEMENT_TYPES = {
   ADJUSTMENT: { value: "ADJUSTMENT", label: "Adjustment", color: "purple" },
   RESERVATION: { value: "RESERVATION", label: "Reserved", color: "yellow" },
   RELEASE: { value: "RELEASE", label: "Released", color: "teal" },
+  DROP_SHIP_LOCAL: {
+    value: "DROP_SHIP_LOCAL",
+    label: "Dropship Delivery (Audit)",
+    color: "gray",
+    isAudit: true,
+  },
+  DROP_SHIP_IMPORT: {
+    value: "DROP_SHIP_IMPORT",
+    label: "Dropship Import (Audit)",
+    color: "gray",
+    isAudit: true,
+  },
 };
 
 // Reference Types
@@ -32,6 +44,7 @@ export const REFERENCE_TYPES = {
   RETURN: { value: "RETURN", label: "Return" },
   CREDIT_NOTE: { value: "CREDIT_NOTE", label: "Credit Note" },
   INITIAL: { value: "INITIAL", label: "Initial Stock" },
+  CUSTOMER_REJECTION: { value: "CUSTOMER_REJECTION", label: "Customer Rejection" },
 };
 
 /**

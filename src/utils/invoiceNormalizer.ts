@@ -365,6 +365,11 @@ export function normalizeInvoice(rawInvoice: unknown, source = "unknown"): Invoi
       // Delivery
       deliveryStatus: normalizeDeliveryStatus(rawInvoice.deliveryStatus || rawInvoice.deliveryStatus),
 
+      // Dropship PO tracking
+      dropshipItemCount: parseNumber(rawInvoice.dropshipItemCount || rawInvoice.dropship_item_count, 0),
+      dropshipItemsNeedingPO: parseNumber(rawInvoice.dropshipItemsNeedingPO || rawInvoice.dropship_items_needing_po, 0),
+      dropshipPOs: rawInvoice.dropshipPOs || rawInvoice.dropship_pos || [],
+
       // Soft delete & recreation
       deletionReason:
         rawInvoice.audit?.deletionReason ??

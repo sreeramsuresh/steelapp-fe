@@ -44,6 +44,9 @@ const StockMovementList = ({ embedded = false }) => {
   const [pagination, setPagination] = useState({});
   const [showFilters, setShowFilters] = useState(false);
 
+  // Check if movement type is a dropship audit type
+  const isDropshipAudit = (type) => type === "DROP_SHIP_LOCAL" || type === "DROP_SHIP_IMPORT";
+
   // Get movement type badge
   const getMovementTypeBadge = (type) => {
     const config = MOVEMENT_TYPES[type] || { label: type, color: "gray" };
@@ -79,12 +82,22 @@ const StockMovementList = ({ embedded = false }) => {
           <RefreshCcw size={12} />
         )}
         {config.label}
+        {isDropshipAudit(type) && (
+          <span className={`ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded ${isDarkMode ? "bg-gray-700 text-gray-400" : "bg-gray-200 text-gray-500"}`}>
+            AUDIT
+          </span>
+        )}
       </span>
     );
   };
 
   // Format quantity with sign
   const formatQuantityWithSign = (movement) => {
+    // Dropship audit movements have qty=0 — show the noted quantity from notes if available
+    if (isDropshipAudit(movement.movementType)) {
+      return "0 (audit)";
+    }
+
     const qty = parseFloat(movement.quantity) || 0;
     const isInbound = ["IN", "TRANSFER_IN", "RELEASE"].includes(movement.movementType);
     const isAdjustment = movement.movementType === "ADJUSTMENT";
@@ -98,6 +111,11 @@ const StockMovementList = ({ embedded = false }) => {
 
   // Get quantity color class
   const getQuantityColorClass = (movement) => {
+    // Dropship audit movements — muted color
+    if (isDropshipAudit(movement.movementType)) {
+      return isDarkMode ? "text-gray-500" : "text-gray-400";
+    }
+
     const isInbound = ["IN", "TRANSFER_IN", "RELEASE"].includes(movement.movementType);
     const isAdjustment = movement.movementType === "ADJUSTMENT";
     const qty = parseFloat(movement.quantity) || 0;
@@ -468,7 +486,11 @@ const StockMovementList = ({ embedded = false }) => {
                 <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                   <div className="flex items-center gap-2">
                     <Warehouse size={14} className="opacity-50" />
-                    {movement.warehouseName || "-"}
+                    {isDropshipAudit(movement.movementType) ? (
+                      <span className={isDarkMode ? "text-gray-500 italic" : "text-gray-400 italic"}>N/A (Dropship)</span>
+                    ) : (
+                      movement.warehouseName || "-"
+                    )}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">{getMovementTypeBadge(movement.movementType)}</td>

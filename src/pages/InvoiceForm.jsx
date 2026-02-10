@@ -39,6 +39,8 @@ import useInvoiceTemplates from "../hooks/useInvoiceTemplates";
 import useKeyboardShortcuts, { getShortcutDisplayString, INVOICE_SHORTCUTS } from "../hooks/useKeyboardShortcuts";
 import { commissionService, companyService, invoiceService } from "../services";
 import { invoicesAPI } from "../services/api";
+import { purchaseOrderService } from "../services/purchaseOrderService";
+import { supplierService } from "../services/supplierService";
 import { batchReservationService } from "../services/batchReservationService";
 import { customerService } from "../services/customerService";
 import { notificationService } from "../services/notificationService";
@@ -1506,6 +1508,12 @@ const InvoiceForm = ({ onSave }) => {
     itemName: null,
     tempId: null,
   });
+
+  // Dropship PO creation state
+  const [dropshipPOModal, setDropshipPOModal] = useState({ open: false, itemIndex: null });
+  const [dropshipSuppliers, setDropshipSuppliers] = useState([]);
+  const [dropshipSelectedSupplier, setDropshipSelectedSupplier] = useState(null);
+  const [creatingDropshipPO, setCreatingDropshipPO] = useState(false);
 
   const [formPreferences, setFormPreferences] = useState(() => {
     const saved = localStorage.getItem("invoiceFormPreferences");
@@ -3877,6 +3885,66 @@ const InvoiceForm = ({ onSave }) => {
 
   // Phase 4: Removed drop-ship popup handlers - now using inline SourceTypeSelector dropdown
 
+  // ============================================================
+  // DROPSHIP PO CREATION
+  // ============================================================
+  const handleOpenDropshipPOModal = useCallback(
+    async (itemIndex) => {
+      setDropshipPOModal({ open: true, itemIndex });
+      setDropshipSelectedSupplier(null);
+      try {
+        const result = await supplierService.getSuppliers({ limit: 200 });
+        setDropshipSuppliers(result.suppliers || []);
+      } catch {
+        setDropshipSuppliers([]);
+      }
+    },
+    []
+  );
+
+  const handleCreateDropshipPO = useCallback(async () => {
+    const { itemIndex } = dropshipPOModal;
+    const item = invoice.items[itemIndex];
+    if (!item || !dropshipSelectedSupplier) return;
+
+    setCreatingDropshipPO(true);
+    try {
+      const result = await purchaseOrderService.createDropshipPO({
+        invoiceId: parseInt(id, 10),
+        itemIds: [item.id],
+        supplierId: dropshipSelectedSupplier.id,
+        supplierDetails: {
+          id: dropshipSelectedSupplier.id,
+          name: dropshipSelectedSupplier.name || dropshipSelectedSupplier.company,
+        },
+      });
+
+      // Update the local invoice item with the linked PO item ID
+      const poItem = result.items?.find((pi) => pi.linked_invoice_item_id === item.id);
+      if (poItem) {
+        setInvoice((prev) => ({
+          ...prev,
+          items: prev.items.map((it, idx) =>
+            idx === itemIndex
+              ? { ...it, linkedPoItemId: poItem.id, _linkedPONumber: result.po_number }
+              : it
+          ),
+        }));
+      }
+
+      notificationService.success(
+        `Dropship PO ${result.po_number} created for "${item.name}"`
+      );
+      setDropshipPOModal({ open: false, itemIndex: null });
+    } catch (err) {
+      notificationService.error(
+        err.message || "Failed to create dropship PO"
+      );
+    } finally {
+      setCreatingDropshipPO(false);
+    }
+  }, [dropshipPOModal, invoice.items, dropshipSelectedSupplier, id]);
+
   // Handle ESC key to close success modal (only for Draft/Proforma, not Final Tax Invoice)
   useEffect(() => {
     const handleEscKey = (event) => {
@@ -4903,10 +4971,25 @@ const InvoiceForm = ({ onSave }) => {
                                         })()}
                                       {(item.sourceType === "LOCAL_DROP_SHIP" ||
                                         item.sourceType === "IMPORT_DROP_SHIP") && (
-                                        <div className="text-xs text-blue-500 mt-0.5">
-                                          {item.sourceType === "LOCAL_DROP_SHIP"
-                                            ? "Local Drop-Ship"
-                                            : "Import Drop-Ship"}
+                                        <div className="text-xs text-blue-500 mt-0.5 flex items-center gap-1.5">
+                                          <span>
+                                            {item.sourceType === "LOCAL_DROP_SHIP"
+                                              ? "Local Drop-Ship"
+                                              : "Import Drop-Ship"}
+                                          </span>
+                                          {item.linkedPoItemId || item._linkedPONumber ? (
+                                            <span className="text-green-600 font-medium" title="Linked to supplier PO">
+                                              PO Linked
+                                            </span>
+                                          ) : id ? (
+                                            <button
+                                              type="button"
+                                              className="text-blue-700 underline hover:text-blue-900 font-medium"
+                                              onClick={() => handleOpenDropshipPOModal(index)}
+                                            >
+                                              Create PO
+                                            </button>
+                                          ) : null}
                                         </div>
                                       )}
                                     </div>
@@ -5766,6 +5849,24 @@ const InvoiceForm = ({ onSave }) => {
                                             Goods will be shipped directly from supplier to customer. No warehouse
                                             allocation needed.
                                           </p>
+                                          {/* Dropship PO linkage */}
+                                          {item.linkedPoItemId || item._linkedPONumber ? (
+                                            <div className="mt-2 ml-7 flex items-center gap-2">
+                                              <span className="text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded">
+                                                Supplier PO: {item._linkedPONumber || `PO Item #${item.linkedPoItemId}`}
+                                              </span>
+                                            </div>
+                                          ) : id && item.id ? (
+                                            <div className="mt-2 ml-7">
+                                              <button
+                                                type="button"
+                                                className="text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded transition-colors"
+                                                onClick={() => handleOpenDropshipPOModal(index)}
+                                              >
+                                                Create Supplier PO (Dropship)
+                                              </button>
+                                            </div>
+                                          ) : null}
                                         </div>
                                       )}
                                     </div>
@@ -6441,6 +6542,83 @@ const InvoiceForm = ({ onSave }) => {
         })()}
 
       {/* Phase 4: Removed drop-ship popup modals - now using inline SourceTypeSelector dropdown */}
+
+      {/* Dropship PO Creation Modal */}
+      {dropshipPOModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div
+            className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+            }`}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold">Create Dropship PO</h3>
+              <button
+                type="button"
+                onClick={() => setDropshipPOModal({ open: false, itemIndex: null })}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {dropshipPOModal.itemIndex !== null && invoice.items[dropshipPOModal.itemIndex] && (
+              <div className={`text-sm mb-4 p-3 rounded ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+                <div className="font-medium">{invoice.items[dropshipPOModal.itemIndex].name}</div>
+                <div className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  Qty: {invoice.items[dropshipPOModal.itemIndex].quantity} | Rate:{" "}
+                  {formatCurrency(invoice.items[dropshipPOModal.itemIndex].rate)}
+                </div>
+              </div>
+            )}
+
+            <div className="mb-4">
+              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                Select Supplier
+              </label>
+              <select
+                className={`w-full px-3 py-2 rounded border text-sm ${
+                  isDarkMode
+                    ? "bg-gray-700 border-gray-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
+                value={dropshipSelectedSupplier?.id || ""}
+                onChange={(e) => {
+                  const supplier = dropshipSuppliers.find((s) => s.id === parseInt(e.target.value, 10));
+                  setDropshipSelectedSupplier(supplier || null);
+                }}
+              >
+                <option value="">-- Select a supplier --</option>
+                {dropshipSuppliers.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name || s.company || `Supplier #${s.id}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                className={`px-4 py-2 text-sm rounded ${
+                  isDarkMode ? "bg-gray-600 hover:bg-gray-500 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                }`}
+                onClick={() => setDropshipPOModal({ open: false, itemIndex: null })}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 text-sm rounded bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+                disabled={!dropshipSelectedSupplier || creatingDropshipPO}
+                onClick={handleCreateDropshipPO}
+              >
+                {creatingDropshipPO ? "Creating..." : "Create Dropship PO"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Duplicate Product Warning Dialog */}
       {duplicateWarning && (

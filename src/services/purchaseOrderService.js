@@ -61,6 +61,21 @@ export const purchaseOrderService = {
     return apiClient.post("/warehouses/seed");
   },
 
+  // Create dropship PO from invoice items
+  createDropshipPO: ({ invoiceId, itemIds, supplierId, supplierDetails }) => {
+    return apiClient.post("/purchase-orders/from-invoice", {
+      invoiceId,
+      itemIds,
+      supplierId,
+      supplierDetails,
+    });
+  },
+
+  // Receive dropship goods to warehouse after customer rejection
+  receiveToWarehouse: (id, data) => {
+    return apiClient.post(`/purchase-orders/${id}/receive-to-warehouse`, data);
+  },
+
   // Generate and download PDF
   downloadPDF: async (id) => {
     const blob = await apiService.request({

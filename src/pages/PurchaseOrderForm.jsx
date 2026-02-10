@@ -14,6 +14,7 @@ import {
   Trash2,
   Truck,
   User,
+  Warehouse,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -434,6 +435,14 @@ const PurchaseOrderForm = () => {
   const [buyerDrawerOpen, setBuyerDrawerOpen] = useState(false);
   const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
 
+  // Receive to Warehouse modal state (dropship customer rejection)
+  const [receiveToWarehouseOpen, setReceiveToWarehouseOpen] = useState(false);
+  const [rtwSaving, setRtwSaving] = useState(false);
+  const [rtwWarehouseId, setRtwWarehouseId] = useState("");
+  const [rtwReason, setRtwReason] = useState("");
+  const [rtwNotes, setRtwNotes] = useState("");
+  const [rtwItems, setRtwItems] = useState([]);
+
   // Validation state - MANDATORY for all forms
   const [validationErrors, setValidationErrors] = useState([]);
   const [invalidFields, setInvalidFields] = useState(new Set());
@@ -584,6 +593,78 @@ const PurchaseOrderForm = () => {
     );
     setPayments(updatedPayments);
     updatePaymentStatus(updatedPayments, purchaseOrder.total);
+  };
+
+  // Dropship helpers
+  const hasDropshipItems = useMemo(
+    () => purchaseOrder.items.some((item) => item.isDropship),
+    [purchaseOrder.items],
+  );
+
+  const canReceiveToWarehouse = useMemo(
+    () => id && hasDropshipItems && (purchaseOrder.stockStatus === "received" || purchaseOrder.stockStatus === "in_warehouse"),
+    [id, hasDropshipItems, purchaseOrder.stockStatus],
+  );
+
+  const openReceiveToWarehouse = useCallback(() => {
+    const dropshipItems = purchaseOrder.items
+      .filter((item) => item.isDropship && item.id)
+      .map((item) => ({
+        itemId: item.id,
+        name: item.name || item.productType,
+        maxQuantity: item.quantity || 0,
+        quantity: item.quantity || 0,
+      }));
+    setRtwItems(dropshipItems);
+    setRtwWarehouseId("");
+    setRtwReason("");
+    setRtwNotes("");
+    setReceiveToWarehouseOpen(true);
+  }, [purchaseOrder.items]);
+
+  const handleReceiveToWarehouse = async () => {
+    if (!rtwWarehouseId) {
+      notificationService.error("Please select a warehouse");
+      return;
+    }
+    if (!rtwReason.trim()) {
+      notificationService.error("Reason is required");
+      return;
+    }
+    const itemsToSend = rtwItems
+      .filter((item) => item.quantity > 0)
+      .map((item) => ({ item_id: item.itemId, quantity: item.quantity }));
+
+    if (itemsToSend.length === 0) {
+      notificationService.error("Please specify quantities for at least one item");
+      return;
+    }
+
+    // Quantity guard
+    const overReceive = rtwItems.find((item) => item.quantity > item.maxQuantity);
+    if (overReceive) {
+      notificationService.error(`Quantity for "${overReceive.name}" exceeds maximum receivable (${overReceive.maxQuantity})`);
+      return;
+    }
+
+    setRtwSaving(true);
+    try {
+      await purchaseOrderService.receiveToWarehouse(id, {
+        items: itemsToSend,
+        warehouse_id: parseInt(rtwWarehouseId, 10),
+        reason: rtwReason.trim(),
+        notes: rtwNotes.trim() || undefined,
+      });
+      notificationService.success("Goods received to warehouse successfully");
+      setReceiveToWarehouseOpen(false);
+      // Reload PO to reflect updated status
+      window.location.reload();
+    } catch (error) {
+      const msg = error?.response?.data?.error || error?.response?.data?.message || error.message || "Failed to receive to warehouse";
+      notificationService.error(msg);
+    } finally {
+      setRtwSaving(false);
+    }
   };
 
   const calculateDueDate = useCallback((poDate, terms) => {
@@ -750,6 +831,8 @@ const PurchaseOrderForm = () => {
           exchangeRate: data.exchangeRate || data.exchange_rate || null,
           items: Array.isArray(data.items)
             ? data.items.map((it) => ({
+                id: it.id,
+                productId: it.product_id || it.productId,
                 productType: it.name || "",
                 name: it.name || "",
                 grade: "",
@@ -762,6 +845,8 @@ const PurchaseOrderForm = () => {
                 amount: it.amount || 0,
                 vatRate: it.vat_rate || it.vatRate || 0,
                 vatAmount: it.vat_amount || it.vatAmount || 0,
+                isDropship: it.is_dropship || it.isDropship || false,
+                linkedInvoiceItemId: it.linked_invoice_item_id || it.linkedInvoiceItemId || null,
                 // Phase 4: Stock-In Enhancement fields
                 lineStockStatus: it.lineStockStatus || it.line_stock_status || "PENDING",
                 expectedWeightKg: it.expectedWeightKg || it.expected_weight_kg || null,
@@ -1589,6 +1674,11 @@ const PurchaseOrderForm = () => {
             >
               {purchaseOrder.status?.toUpperCase() || "DRAFT"}
             </span>
+            {hasDropshipItems && (
+              <span className="px-2.5 py-1.5 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400">
+                DROPSHIP
+              </span>
+            )}
 
             <button
               type="button"
@@ -1618,6 +1708,17 @@ const PurchaseOrderForm = () => {
               <Eye size={16} className="inline mr-1.5" />
               Preview
             </button>
+            {canReceiveToWarehouse && (
+              <button
+                type="button"
+                onClick={openReceiveToWarehouse}
+                className="bg-amber-600 border-transparent text-white font-bold hover:bg-amber-500 rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors"
+                title="Receive dropship goods to warehouse after customer rejection"
+              >
+                <Warehouse size={16} className="inline mr-1.5" />
+                Receive to Warehouse
+              </button>
+            )}
             <button
               type="button"
               onClick={() => handleSubmit("draft")}
@@ -1808,7 +1909,14 @@ const PurchaseOrderForm = () => {
                   >
                     <SelectItem value="retain">Retain (To be received)</SelectItem>
                     <SelectItem value="transit">In Transit</SelectItem>
-                    <SelectItem value="received">Received</SelectItem>
+                    {hasDropshipItems ? (
+                      <>
+                        <SelectItem value="received">Delivered to Customer (Dropship)</SelectItem>
+                        <SelectItem value="in_warehouse">Received to Warehouse (Rejection)</SelectItem>
+                      </>
+                    ) : (
+                      <SelectItem value="received">Received at Warehouse</SelectItem>
+                    )}
                   </FormSelect>
                 </div>
                 <div className="col-span-6 sm:col-span-3">
@@ -2459,6 +2567,16 @@ const PurchaseOrderForm = () => {
                     <ClipboardCheck size={16} className="opacity-60" />
                     Approval Workflow
                   </button>
+                  {canReceiveToWarehouse && (
+                    <button
+                      type="button"
+                      onClick={openReceiveToWarehouse}
+                      className="flex items-center gap-2 py-2 px-2.5 bg-amber-600 hover:bg-amber-500 text-white border border-amber-500 rounded-md cursor-pointer text-xs font-semibold transition-colors w-full"
+                    >
+                      <Warehouse size={16} />
+                      Receive to Warehouse (Rejection)
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -2688,7 +2806,14 @@ const PurchaseOrderForm = () => {
               >
                 <SelectItem value="retain">Retain (To be received)</SelectItem>
                 <SelectItem value="transit">In Transit</SelectItem>
-                <SelectItem value="received">Received (Add to Inventory)</SelectItem>
+                {hasDropshipItems ? (
+                  <>
+                    <SelectItem value="received">Delivered to Customer (Dropship)</SelectItem>
+                    <SelectItem value="in_warehouse">Received to Warehouse (Rejection)</SelectItem>
+                  </>
+                ) : (
+                  <SelectItem value="received">Received (Add to Inventory)</SelectItem>
+                )}
               </FormSelect>
             </div>
           </div>
@@ -3151,6 +3276,140 @@ const PurchaseOrderForm = () => {
       {/* Preview Modal - keep existing */}
       {showPreview && (
         <PurchaseOrderPreview purchaseOrder={purchaseOrder} company={{}} onClose={() => setShowPreview(false)} />
+      )}
+
+      {/* Receive to Warehouse Modal (Dropship Customer Rejection) */}
+      {receiveToWarehouseOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div
+            className={`w-full max-w-lg p-6 rounded-xl shadow-xl ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+            }`}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Warehouse size={20} className="text-amber-500" />
+                Receive to Warehouse
+              </h3>
+              <button
+                type="button"
+                onClick={() => setReceiveToWarehouseOpen(false)}
+                className={BTN_SMALL(isDarkMode)}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p className={`text-xs mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+              Receive dropship goods into warehouse after customer rejection. This creates real Stock IN movements.
+            </p>
+
+            {/* Warehouse Selector */}
+            <div className="mb-4">
+              <FormSelect
+                label="Target Warehouse *"
+                value={rtwWarehouseId || "none"}
+                onValueChange={(value) => setRtwWarehouseId(value === "none" ? "" : value)}
+              >
+                <SelectItem value="none">Select Warehouse</SelectItem>
+                {warehouses.map((warehouse) => (
+                  <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
+                    {warehouse.name} {warehouse.city ? `- ${warehouse.city}` : ""}
+                  </SelectItem>
+                ))}
+              </FormSelect>
+            </div>
+
+            {/* Per-item quantity inputs */}
+            <div className="mb-4">
+              <label className={LABEL_CLASSES(isDarkMode)}>Items to Receive</label>
+              <div className={`rounded-lg border ${isDarkMode ? "border-gray-700" : "border-gray-200"} overflow-hidden`}>
+                {rtwItems.map((item, index) => (
+                  <div
+                    key={item.itemId}
+                    className={`flex items-center justify-between px-3 py-2 ${
+                      index > 0 ? `border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}` : ""
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0 mr-3">
+                      <div className={`text-sm font-medium truncate ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
+                        {item.name}
+                      </div>
+                      <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                        Max: {item.maxQuantity}
+                      </div>
+                    </div>
+                    <div className="w-24">
+                      <input
+                        type="number"
+                        min="0"
+                        max={item.maxQuantity}
+                        value={item.quantity}
+                        onChange={(e) => {
+                          const val = Math.max(0, Math.min(item.maxQuantity, parseFloat(e.target.value) || 0));
+                          setRtwItems((prev) =>
+                            prev.map((it, i) => (i === index ? { ...it, quantity: val } : it)),
+                          );
+                        }}
+                        className={`${INPUT_CLASSES(isDarkMode)} text-center`}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Reason (required) */}
+            <div className="mb-3">
+              <label htmlFor="rtwReason" className={LABEL_CLASSES(isDarkMode)}>
+                Reason *
+              </label>
+              <input
+                id="rtwReason"
+                type="text"
+                value={rtwReason}
+                onChange={(e) => setRtwReason(e.target.value)}
+                placeholder="e.g. Customer rejected goods — quality issue"
+                className={INPUT_CLASSES(isDarkMode)}
+              />
+            </div>
+
+            {/* Notes (optional) */}
+            <div className="mb-4">
+              <label htmlFor="rtwNotes" className={LABEL_CLASSES(isDarkMode)}>
+                Notes (optional)
+              </label>
+              <textarea
+                id="rtwNotes"
+                rows={2}
+                value={rtwNotes}
+                onChange={(e) => setRtwNotes(e.target.value)}
+                placeholder="Additional notes..."
+                className={`${INPUT_CLASSES(isDarkMode)} min-h-[60px]`}
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setReceiveToWarehouseOpen(false)}
+                className={BTN_CLASSES(isDarkMode)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleReceiveToWarehouse}
+                disabled={rtwSaving}
+                className={`${BTN_PRIMARY} ${rtwSaving ? "opacity-60 cursor-not-allowed" : ""}`}
+              >
+                {rtwSaving ? <Loader2 className="h-4 w-4 animate-spin inline mr-1" /> : null}
+                Receive to Warehouse
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

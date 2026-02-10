@@ -9,9 +9,11 @@ import {
   Copy,
   Download,
   Edit,
+  ExternalLink,
   Eye,
   Lock,
   MoreVertical,
+  Package,
   Phone,
   Plus,
   ReceiptText,
@@ -29,7 +31,7 @@ import InvoicePreview from "../components/InvoicePreview";
 import InvoiceStatusColumn from "../components/InvoiceStatusColumn";
 import PaymentReminderModal from "../components/PaymentReminderModal";
 import PaymentDrawer from "../components/payments/PaymentDrawer";
-import { NewBadge } from "../components/shared";
+import { isNewRecord } from "../components/shared/NewBadge";
 import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
 import { useInvoicePresence } from "../hooks/useInvoicePresence";
@@ -38,6 +40,8 @@ import { authService } from "../services/axiosAuthService";
 import { commissionService } from "../services/commissionService";
 import { invoiceService } from "../services/dataService";
 import { notificationService } from "../services/notificationService";
+import { purchaseOrderService } from "../services/purchaseOrderService";
+import { supplierService } from "../services/supplierService";
 import { guardInvoicesDev } from "../utils/devGuards";
 import { normalizeInvoices } from "../utils/invoiceNormalizer";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
@@ -325,6 +329,16 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const [paymentDrawerInvoice, setPaymentDrawerInvoice] = useState(null);
   const [isSavingPayment, setIsSavingPayment] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState(null);
+
+  // Dropship PO chip state
+  const [dropshipPOPopover, setDropshipPOPopover] = useState(null); // invoice id with open popover
+  const [dropshipPOModal, setDropshipPOModal] = useState({ open: false, invoiceId: null, invoiceNumber: "" });
+  const [dropshipModalItems, setDropshipModalItems] = useState([]);
+  const [dropshipSuppliers, setDropshipSuppliers] = useState([]);
+  const [dropshipSelectedSupplier, setDropshipSelectedSupplier] = useState(null);
+  const [creatingDropshipPO, setCreatingDropshipPO] = useState(false);
+  const [loadingDropshipItems, setLoadingDropshipItems] = useState(false);
+  const dropshipPopoverRef = useRef(null);
 
   // Void payment dropdown state
   const [voidDropdownPaymentId, setVoidDropdownPaymentId] = useState(null);
@@ -1498,6 +1512,192 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     return actions;
   };
 
+  // --- Dropship PO Chip handlers ---
+
+  // Close popover when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropshipPopoverRef.current && !dropshipPopoverRef.current.contains(e.target)) {
+        setDropshipPOPopover(null);
+      }
+    };
+    if (dropshipPOPopover) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [dropshipPOPopover]);
+
+  const handleOpenDropshipPOModal = async (invoice) => {
+    setDropshipPOModal({ open: true, invoiceId: invoice.id, invoiceNumber: invoice.invoiceNumber });
+    setDropshipSelectedSupplier(null);
+    setLoadingDropshipItems(true);
+    try {
+      // Fetch full invoice to get item details
+      const [fullInvoice, suppliersResult] = await Promise.all([
+        invoiceService.getInvoice(invoice.id),
+        supplierService.getSuppliers({ limit: 200 }),
+      ]);
+      // Filter to dropship items without linked PO
+      const unlinkedItems = (fullInvoice.items || []).filter(
+        (item) =>
+          (item.sourceType === "LOCAL_DROP_SHIP" || item.sourceType === "IMPORT_DROP_SHIP") && !item.linkedPoItemId
+      );
+      setDropshipModalItems(unlinkedItems);
+      setDropshipSuppliers(suppliersResult.suppliers || []);
+    } catch {
+      setDropshipModalItems([]);
+      setDropshipSuppliers([]);
+      notificationService.error("Failed to load dropship items");
+    } finally {
+      setLoadingDropshipItems(false);
+    }
+  };
+
+  const handleCreateDropshipPOFromList = async () => {
+    if (!dropshipSelectedSupplier || dropshipModalItems.length === 0) return;
+    setCreatingDropshipPO(true);
+    try {
+      const result = await purchaseOrderService.createDropshipPO({
+        invoiceId: dropshipPOModal.invoiceId,
+        itemIds: dropshipModalItems.map((item) => item.id),
+        supplierId: dropshipSelectedSupplier.id,
+        supplierDetails: {
+          id: dropshipSelectedSupplier.id,
+          name: dropshipSelectedSupplier.name || dropshipSelectedSupplier.company,
+        },
+      });
+      notificationService.success(`Dropship PO ${result.po_number || result.poNumber} created successfully`);
+      setDropshipPOModal({ open: false, invoiceId: null, invoiceNumber: "" });
+      // Refresh invoice list to update PO chips
+      fetchInvoices(currentPage, pageSize, searchTerm, statusFilter, showDeleted);
+    } catch (err) {
+      notificationService.error(err.message || "Failed to create dropship PO");
+    } finally {
+      setCreatingDropshipPO(false);
+    }
+  };
+
+  const handleDropshipChipClick = (e, invoice) => {
+    e.stopPropagation();
+    const hasPOs = invoice.dropshipPOs && invoice.dropshipPOs.length > 0;
+    const needsPO = invoice.dropshipItemsNeedingPO > 0;
+
+    if (!hasPOs && needsPO) {
+      // No POs yet — open create modal
+      handleOpenDropshipPOModal(invoice);
+    } else if (hasPOs && invoice.dropshipPOs.length === 1 && !needsPO) {
+      // Single PO, all linked — navigate directly
+      navigate(`/app/purchase-orders/${invoice.dropshipPOs[0].id}/edit`);
+    } else {
+      // Multiple POs or partial — toggle popover
+      setDropshipPOPopover(dropshipPOPopover === invoice.id ? null : invoice.id);
+    }
+  };
+
+  // Render the PO chip for an invoice row
+  const renderDropshipPOChip = (invoice) => {
+    const itemCount = invoice.dropshipItemCount || 0;
+    if (itemCount === 0) return null; // No dropship items — no chip
+
+    const pos = invoice.dropshipPOs || [];
+    const needsPO = invoice.dropshipItemsNeedingPO || 0;
+    const poCount = pos.length;
+    const isPartial = poCount > 0 && needsPO > 0;
+    const allLinked = poCount > 0 && needsPO === 0;
+    const noneLinked = poCount === 0 && needsPO > 0;
+
+    // Chip colors
+    const chipClass = allLinked
+      ? isDarkMode
+        ? "bg-purple-900/50 text-purple-300 border-purple-700"
+        : "bg-purple-50 text-purple-700 border-purple-200"
+      : isDarkMode
+        ? "bg-orange-900/50 text-orange-300 border-orange-700"
+        : "bg-orange-50 text-orange-700 border-orange-200";
+
+    const iconColor = allLinked ? "text-purple-500" : "text-orange-500";
+
+    return (
+      <span className="relative inline-flex items-center">
+        <button
+          type="button"
+          onClick={(e) => handleDropshipChipClick(e, invoice)}
+          className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-semibold rounded border cursor-pointer hover:opacity-80 transition-opacity ${chipClass}`}
+          title={
+            noneLinked
+              ? `${needsPO} dropship item(s) need PO — Click to create`
+              : isPartial
+                ? `${poCount} PO(s) linked, ${needsPO} item(s) still need PO`
+                : poCount === 1
+                  ? `View ${pos[0].poNumber}`
+                  : `${poCount} Dropship POs linked`
+          }
+        >
+          <Package className={`w-3 h-3 ${iconColor}`} />
+          <span>PO</span>
+          {poCount > 1 && <span className="font-bold">{poCount}</span>}
+          {(noneLinked || isPartial) && <span className="text-orange-500 font-bold">!</span>}
+        </button>
+
+        {/* Popover for multiple POs or partial state */}
+        {dropshipPOPopover === invoice.id && (
+          <div
+            ref={dropshipPopoverRef}
+            role="menu"
+            className={`absolute left-0 top-full mt-1 z-50 w-64 rounded-lg shadow-lg border p-3 ${
+              isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-200"
+            }`}
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.key === "Escape" && setDropshipPOPopover(null)}
+          >
+            <div className={`text-xs font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+              Linked Purchase Orders
+            </div>
+            {pos.map((po) => (
+              <Link
+                key={po.id}
+                to={`/app/purchase-orders/${po.id}/edit`}
+                className={`flex items-center justify-between px-2 py-1.5 rounded text-sm hover:bg-opacity-80 transition-colors ${
+                  isDarkMode ? "hover:bg-gray-700 text-gray-200" : "hover:bg-gray-50 text-gray-800"
+                }`}
+                onClick={() => setDropshipPOPopover(null)}
+              >
+                <span className="font-medium">{po.poNumber}</span>
+                <span className="flex items-center gap-1">
+                  <span
+                    className={`px-1.5 py-0.5 text-[10px] rounded ${
+                      po.status === "confirmed" || po.status === "approved"
+                        ? "bg-green-100 text-green-700"
+                        : po.status === "draft"
+                          ? "bg-gray-100 text-gray-600"
+                          : "bg-blue-100 text-blue-700"
+                    }`}
+                  >
+                    {po.status}
+                  </span>
+                  <ExternalLink className="w-3 h-3 opacity-50" />
+                </span>
+              </Link>
+            ))}
+            {needsPO > 0 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDropshipPOPopover(null);
+                  handleOpenDropshipPOModal(invoice);
+                }}
+                className="mt-2 w-full text-xs text-center py-1.5 rounded bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium"
+              >
+                Create PO for {needsPO} remaining item(s)
+              </button>
+            )}
+          </div>
+        )}
+      </span>
+    );
+  };
+
   const handleViewInvoice = async (invoice) => {
     try {
       // Fetch complete invoice details including items
@@ -1664,6 +1864,126 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         onConfirm={handleConfirmDelete}
         invoice={invoiceToDelete}
       />
+
+      {/* Dropship PO Creation Modal */}
+      {dropshipPOModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div
+            className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+            }`}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold">Create Dropship PO</h3>
+              <button
+                type="button"
+                onClick={() => setDropshipPOModal({ open: false, invoiceId: null, invoiceNumber: "" })}
+                className={`p-1 rounded hover:bg-opacity-80 ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className={`text-sm mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+              Invoice: <span className="font-medium text-teal-600">{dropshipPOModal.invoiceNumber}</span>
+            </div>
+
+            {loadingDropshipItems ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600"></div>
+                <span className={`ml-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  Loading items...
+                </span>
+              </div>
+            ) : dropshipModalItems.length === 0 ? (
+              <div className={`text-sm text-center py-6 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                No unlinked dropship items found.
+              </div>
+            ) : (
+              <>
+                {/* Items list */}
+                <div className={`text-xs font-semibold mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  Items ({dropshipModalItems.length})
+                </div>
+                <div
+                  className={`mb-4 max-h-40 overflow-y-auto rounded border ${
+                    isDarkMode ? "border-gray-600" : "border-gray-200"
+                  }`}
+                >
+                  {dropshipModalItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className={`px-3 py-2 text-sm border-b last:border-b-0 ${
+                        isDarkMode ? "border-gray-600 bg-gray-700" : "border-gray-100 bg-gray-50"
+                      }`}
+                    >
+                      <div className="font-medium truncate">{item.name || item.productName}</div>
+                      <div className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                        Qty: {item.quantity} {item.unit || "PCS"} | Rate: {formatCurrency(item.rate || item.unitPrice)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Supplier dropdown */}
+                <div className="mb-4">
+                  <label
+                    htmlFor="dropship-supplier-select"
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
+                    Select Supplier
+                  </label>
+                  <select
+                    id="dropship-supplier-select"
+                    className={`w-full px-3 py-2 rounded border text-sm ${
+                      isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
+                    }`}
+                    value={dropshipSelectedSupplier?.id || ""}
+                    onChange={(e) => {
+                      const supplier = dropshipSuppliers.find((s) => s.id === parseInt(e.target.value, 10));
+                      setDropshipSelectedSupplier(supplier || null);
+                    }}
+                  >
+                    <option value="">-- Select a supplier --</option>
+                    {dropshipSuppliers.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name || s.company || `Supplier #${s.id}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDropshipPOModal({ open: false, invoiceId: null, invoiceNumber: "" })}
+                    className={`px-4 py-2 text-sm rounded border ${
+                      isDarkMode
+                        ? "border-gray-600 text-gray-300 hover:bg-gray-700"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!dropshipSelectedSupplier || creatingDropshipPO}
+                    onClick={handleCreateDropshipPOFromList}
+                    className={`px-4 py-2 text-sm rounded font-medium text-white ${
+                      !dropshipSelectedSupplier || creatingDropshipPO
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-teal-600 hover:bg-teal-700"
+                    }`}
+                  >
+                    {creatingDropshipPO ? "Creating..." : "Create Dropship PO"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Delivery Note Modal */}
       <DeliveryNoteModal />
@@ -2114,22 +2434,31 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div
-                          className={`flex items-center gap-2 text-sm font-semibold ${isDeleted ? "line-through" : ""} text-teal-600`}
-                        >
-                          {invoice.invoiceNumber}
-                          <NewBadge createdAt={invoice.createdAt} hoursThreshold={2} />
-                          {/* Credit Note Badge */}
-                          {(invoice.creditNotesCount > 0 || invoice.hasCreditNotes) && (
-                            <span
-                              className={`ml-1 px-1.5 py-0.5 text-xs font-medium rounded ${
-                                isDarkMode ? "bg-purple-900/50 text-purple-300" : "bg-purple-100 text-purple-700"
-                              }`}
-                              title={`${invoice.creditNotesCount || 1} Credit Note(s)`}
-                            >
-                              CN
-                            </span>
-                          )}
+                        <div className="flex items-center gap-3">
+                          {/* Invoice number + star + CN badge — fixed width for PO chip alignment */}
+                          <span
+                            className={`inline-flex items-center min-w-[145px] text-sm font-semibold ${isDeleted ? "line-through" : ""} text-teal-600`}
+                          >
+                            {invoice.invoiceNumber}
+                            {isNewRecord(invoice.createdAt, 2) && (
+                              <span className="text-yellow-500 text-[9px] -mt-2 ml-0.5" title="Recently created">
+                                ★
+                              </span>
+                            )}
+                            {/* Credit Note Badge */}
+                            {(invoice.creditNotesCount > 0 || invoice.hasCreditNotes) && (
+                              <span
+                                className={`ml-1.5 px-1.5 py-0.5 text-xs font-medium rounded ${
+                                  isDarkMode ? "bg-purple-900/50 text-purple-300" : "bg-purple-100 text-purple-700"
+                                }`}
+                                title={`${invoice.creditNotesCount || 1} Credit Note(s)`}
+                              >
+                                CN
+                              </span>
+                            )}
+                          </span>
+                          {/* Dropship PO Chip — fixed position after invoice number */}
+                          {renderDropshipPOChip(invoice)}
                         </div>
                         {isDeleted && (
                           <div
