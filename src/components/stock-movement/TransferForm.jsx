@@ -14,7 +14,6 @@ import { stockMovementService } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
 import { getProductUniqueName } from "../../utils/fieldAccessors";
 
-
 /**
  * Format quantity with unit
  */
