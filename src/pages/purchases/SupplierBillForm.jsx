@@ -8,12 +8,17 @@
 import {
   AlertTriangle,
   ArrowLeft,
-  Building2,
+  ChevronDown,
+  ChevronRight,
+  ClipboardCheck,
+  DollarSign,
+  FileSearch,
   FileText,
   Layers,
   Link2,
   Loader2,
   Package,
+  Percent,
   Pin,
   Plus,
   Save,
@@ -23,7 +28,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ProductAutocomplete from "../../components/shared/ProductAutocomplete";
 import { FormSelect } from "../../components/ui/form-select";
@@ -37,12 +42,6 @@ import { productService } from "../../services/productService";
 import supplierBillService from "../../services/supplierBillService";
 import { supplierService } from "../../services/supplierService";
 import { calculateItemAmount, formatCurrency, formatDateForInput } from "../../utils/invoiceUtils";
-
-// Procurement channels
-const PROCUREMENT_CHANNELS = [
-  { value: "LOCAL", label: "Local Purchase" },
-  { value: "IMPORTED", label: "Import Purchase" },
-];
 
 // UAE Emirates for place of supply
 const EMIRATES = [
@@ -182,7 +181,7 @@ const Button = ({
       // outline
       return `border ${
         isDarkMode
-          ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700 disabled:bg-gray-800 focus:ring-offset-gray-800"
+          ? "border-gray-700 bg-gray-800 text-white hover:bg-gray-700 disabled:bg-gray-800 focus:ring-offset-gray-800"
           : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50 disabled:bg-gray-50 focus:ring-offset-white"
       } focus:ring-teal-500`;
     }
@@ -224,7 +223,7 @@ const _Input = ({
 
   const getValidationClasses = () => {
     if (!showValidation) {
-      return isDarkMode ? "border-gray-600 bg-gray-800" : "border-gray-300 bg-white";
+      return isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-300 bg-white";
     }
 
     if (error || validationState === "invalid") {
@@ -236,7 +235,7 @@ const _Input = ({
     if (required && validationState === null) {
       return isDarkMode ? "border-yellow-600/50 bg-yellow-900/5" : "border-yellow-400/50 bg-yellow-50/30";
     }
-    return isDarkMode ? "border-gray-600 bg-gray-800" : "border-gray-300 bg-white";
+    return isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-300 bg-white";
   };
 
   return (
@@ -265,20 +264,6 @@ const _Input = ({
   );
 };
 
-const Card = ({ children, className = "" }) => {
-  const { isDarkMode } = useTheme();
-
-  return (
-    <div
-      className={`rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ${
-        isDarkMode ? "bg-gray-800 border border-gray-600" : "bg-white border border-gray-200"
-      } ${className}`}
-    >
-      {children}
-    </div>
-  );
-};
-
 // Toggle Switch Component (extracted to avoid creating components during render)
 const ToggleSwitch = ({ enabled, onChange, label, description, isDarkMode }) => (
   <div className="flex items-start justify-between py-3">
@@ -289,7 +274,7 @@ const ToggleSwitch = ({ enabled, onChange, label, description, isDarkMode }) => 
     <button
       type="button"
       onClick={onChange}
-      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 focus:ring-offset-2 ${
         enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
       }`}
     >
@@ -313,10 +298,10 @@ const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange })
     <div
       ref={panelRef}
       className={`absolute right-0 top-12 w-80 rounded-lg shadow-lg border z-50 ${
-        isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-200"
+        isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
       }`}
     >
-      <div className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}>
+      <div className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
         <div className="flex items-center justify-between">
           <h3 className={`text-sm font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>Form Settings</h3>
           <button
@@ -397,26 +382,26 @@ const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width 
       {/* Drawer Panel */}
       <div
         className={`fixed top-0 right-0 h-full ${width} z-[31]
-          ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"}
+          ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"}
           overflow-auto transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="p-4">
           {/* Header */}
           <div
             className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3
-            ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"}
+            ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"}
             z-[1]`}
           >
             <div>
-              <div className="text-sm font-extrabold">{title}</div>
+              <div className="text-sm font-bold">{title}</div>
               {subtitle && (
-                <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>{subtitle}</div>
+                <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{subtitle}</div>
               )}
             </div>
             <button
               type="button"
               onClick={onClose}
-              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-[#2a3640]" : "hover:bg-gray-100"}`}
+              className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
             >
               <X className="h-4 w-4" />
             </button>
@@ -428,6 +413,22 @@ const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width 
     </>
   );
 };
+
+// ==================== DESIGN TOKENS (Matched to PO Form) ====================
+const CARD_CLASSES = (isDarkMode) =>
+  `${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4`;
+
+const INPUT_CLASSES = (isDarkMode) =>
+  `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-md py-2 px-3 text-sm outline-none shadow-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-[38px]`;
+
+const LABEL_CLASSES = (isDarkMode) =>
+  `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
+
+const QUICK_LINK_CLASSES = (isDarkMode) =>
+  `flex items-center gap-2 py-2 px-2.5 ${isDarkMode ? "bg-gray-900 border-gray-700 text-gray-200" : "bg-gray-50 border-gray-200 text-gray-900"} border rounded-md cursor-pointer text-xs transition-colors hover:border-teal-500 hover:text-teal-400 w-full`;
+
+const TH_CLASSES = (isDarkMode) =>
+  `px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`;
 
 const SupplierBillForm = () => {
   const { id } = useParams();
@@ -452,6 +453,15 @@ const SupplierBillForm = () => {
   // Drawer states
   const [chargesDrawerOpen, setChargesDrawerOpen] = useState(false);
   const [notesDrawerOpen, setNotesDrawerOpen] = useState(false);
+  const [documentsDrawerOpen, setDocumentsDrawerOpen] = useState(false);
+  const [approvalDrawerOpen, setApprovalDrawerOpen] = useState(false);
+  const [accountingDrawerOpen, setAccountingDrawerOpen] = useState(false);
+  const [importDrawerOpen, setImportDrawerOpen] = useState(false);
+  const [inspectionDrawerOpen, setInspectionDrawerOpen] = useState(false);
+  const [retentionDrawerOpen, setRetentionDrawerOpen] = useState(false);
+
+  // Stock detail sub-row expand state (keyed by item index)
+  const [expandedStockRows, setExpandedStockRows] = useState({});
 
   // Form preferences
   const [formPreferences, setFormPreferences] = useState(() => {
@@ -742,23 +752,6 @@ const SupplierBillForm = () => {
     notificationService.success(`Linked to GRN ${grn.grnNumber}`);
   };
 
-  // Handle procurement channel change (affects VAT treatment)
-  const handleProcurementChannelChange = (channel) => {
-    const isImported = channel === "IMPORTED";
-    const vatCategory = isImported ? "REVERSE_CHARGE" : "STANDARD";
-
-    setBill((prev) => ({
-      ...prev,
-      procurementChannel: channel,
-      vatCategory,
-      isReverseCharge: isImported,
-    }));
-
-    // Update VAT rate on all items
-    const newVatRate = isImported ? 5 : 5; // Both are 5%, but reverse charge treatment differs
-    recalculateAllItems(newVatRate);
-  };
-
   // Calculate landed cost
   const calculateLandedCost = useCallback(() => {
     const additionalCharges =
@@ -829,9 +822,8 @@ const SupplierBillForm = () => {
     }
   };
 
-  // Handle VAT category change
+  // Handle VAT category change — sets default for NEW items only
   const handleVatCategoryChange = (category) => {
-    const vatConfig = VAT_CATEGORIES.find((c) => c.value === category);
     const isReverseCharge = category === "REVERSE_CHARGE";
     setBill((prev) => ({
       ...prev,
@@ -839,15 +831,22 @@ const SupplierBillForm = () => {
       isReverseCharge,
       blockedVatReason: category === "BLOCKED" ? prev.blockedVatReason : "",
     }));
-    // Update all items with new VAT rate
-    recalculateAllItems(vatConfig?.rate || 5);
   };
 
-  // Add new line item
+  // Add new line item — inherits bill-level defaults for VAT
   const handleAddItem = () => {
+    const vatConfig = VAT_CATEGORIES.find((c) => c.value === bill.vatCategory);
     setBill((prev) => ({
       ...prev,
-      items: [...prev.items, createEmptyItem()],
+      items: [
+        ...prev.items,
+        {
+          ...createEmptyItem(),
+          vatRate: vatConfig?.rate || 5,
+          vatCategory: prev.vatCategory || "STANDARD",
+          procurementChannel: prev.procurementChannel === "IMPORTED" ? "IMPORTED" : "LOCAL",
+        },
+      ],
     }));
   };
 
@@ -902,12 +901,20 @@ const SupplierBillForm = () => {
           quantityUom === "PCS" &&
           !item.unitWeightKg;
       }
+    } else if (field === "procurementChannel") {
+      item.procurementChannel = value;
+      const isImported = value === "IMPORTED";
+      item.vatCategory = isImported ? "REVERSE_CHARGE" : "STANDARD";
+      item.vatRate = 5; // 5% for both; category determines VAT return treatment
     } else {
       item[field] = value;
     }
 
     // Recalculate item amounts when pricing fields change
-    if (["quantity", "unitPrice", "vatRate", "unitWeightKg", "pricingBasis"].includes(field) || field === "productId") {
+    if (
+      ["quantity", "unitPrice", "vatRate", "unitWeightKg", "pricingBasis", "procurementChannel"].includes(field) ||
+      field === "productId"
+    ) {
       const qty = parseFloat(item.quantity) || 0;
       const price = parseFloat(item.unitPrice) || 0;
       const vatRate = parseFloat(item.vatRate) || 0;
@@ -943,26 +950,13 @@ const SupplierBillForm = () => {
   };
 
   // Recalculate all items with new VAT rate
-  const recalculateAllItems = (newVatRate) => {
-    const updatedItems = bill.items.map((item) => {
-      const qty = parseFloat(item.quantity) || 0;
-      const price = parseFloat(item.unitPrice) || 0;
-      const pricingBasis = item.pricingBasis || "PER_MT";
-      const unitWeightKg = item.unitWeightKg;
-      const quantityUom = item.quantityUom || "PCS";
-
-      const amount = calculateItemAmount(qty, price, pricingBasis, unitWeightKg, quantityUom);
-      const vatAmount = (amount * newVatRate) / 100;
-      return { ...item, vatRate: newVatRate, amount, vatAmount };
-    });
-    setBill((prev) => ({ ...prev, items: updatedItems }));
-    recalculateTotals(updatedItems);
-  };
-
-  // Recalculate totals
+  // Recalculate totals — supports mixed reverse charge per-item
   const recalculateTotals = useCallback((items) => {
     const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
     const vatAmount = items.reduce((sum, item) => sum + (parseFloat(item.vatAmount) || 0), 0);
+    const reverseChargeAmount = items
+      .filter((item) => item.vatCategory === "REVERSE_CHARGE")
+      .reduce((sum, item) => sum + (parseFloat(item.vatAmount) || 0), 0);
 
     setBill((prev) => {
       const allCharges =
@@ -974,19 +968,30 @@ const SupplierBillForm = () => {
 
       const total = subtotal + vatAmount + allCharges;
 
+      // Derive bill-level procurement from items
+      const channels = items.map((i) => i.procurementChannel || "LOCAL");
+      const allImported = channels.every((c) => c === "IMPORTED");
+      const hasImported = channels.some((c) => c === "IMPORTED");
+
       return {
         ...prev,
         subtotal,
         vatAmount,
         total,
-        reverseChargeAmount: prev.isReverseCharge ? vatAmount : 0,
+        reverseChargeAmount,
+        procurementChannel: allImported ? "IMPORTED" : "LOCAL",
+        isReverseCharge: hasImported,
       };
     });
   }, []);
 
-  // Quick add product handler
+  // Quick add product handler — inherits bill-level defaults
   const handleQuickAddProduct = useCallback(
     (product) => {
+      const procChannel = bill.procurementChannel === "IMPORTED" ? "IMPORTED" : "LOCAL";
+      const vatCat = procChannel === "IMPORTED" ? "REVERSE_CHARGE" : bill.vatCategory || "STANDARD";
+      const vatRate = 5; // UAE standard
+
       const newItem = {
         ...createEmptyItem(),
         productId: product.id,
@@ -1001,13 +1006,16 @@ const SupplierBillForm = () => {
         pricingBasis: product.pricingBasis || product.pricing_basis || "PER_MT",
         unitWeightKg: product.unitWeightKg || product.unit_weight_kg || null,
         quantityUom: product.primaryUom || product.primary_uom || "PCS",
+        procurementChannel: procChannel,
+        vatCategory: vatCat,
+        vatRate,
       };
 
       // Calculate amount and VAT
       const qty = 1;
       const price = newItem.unitPrice;
       newItem.amount = calculateItemAmount(qty, price, newItem.pricingBasis, newItem.unitWeightKg, newItem.quantityUom);
-      newItem.vatAmount = (newItem.amount * 5) / 100;
+      newItem.vatAmount = (newItem.amount * vatRate) / 100;
 
       setBill((prev) => ({
         ...prev,
@@ -1015,7 +1023,7 @@ const SupplierBillForm = () => {
       }));
       recalculateTotals([...bill.items, newItem]);
     },
-    [bill.items, recalculateTotals]
+    [bill.items, bill.procurementChannel, bill.vatCategory, recalculateTotals]
   );
 
   // Toggle pin product
@@ -1092,6 +1100,22 @@ const SupplierBillForm = () => {
       };
     });
   }, [searchInputs.__results]);
+
+  // Derived procurement channel from items (for display)
+  const derivedProcurement = useMemo(() => {
+    const channels = bill.items.map((i) => i.procurementChannel || "LOCAL");
+    const allLocal = channels.every((c) => c === "LOCAL");
+    const allImported = channels.every((c) => c === "IMPORTED");
+    if (allLocal) return "LOCAL";
+    if (allImported) return "IMPORTED";
+    return "MIXED";
+  }, [bill.items]);
+
+  // Whether any item is imported (for showing Import Details section)
+  const hasImportedItems = useMemo(
+    () => bill.items.some((item) => item.procurementChannel === "IMPORTED"),
+    [bill.items]
+  );
 
   const handleProductSearchInput = useCallback((index, value) => {
     setSearchInputs((prev) => ({ ...prev, [index]: value }));
@@ -1227,11 +1251,11 @@ const SupplierBillForm = () => {
     >
       {/* Sticky Header */}
       <header
-        className={`sticky top-0 z-20 border-b shadow-sm ${
-          isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+        className={`sticky top-0 z-20 shrink-0 backdrop-blur-md border-b ${
+          isDarkMode ? "bg-gray-900/92 border-gray-700" : "bg-white/92 border-gray-200"
         }`}
       >
-        <div className="max-w-[1600px] mx-auto px-4 py-3 md:py-4">
+        <div className="max-w-[1400px] mx-auto px-4 py-3 md:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
@@ -1331,7 +1355,7 @@ const SupplierBillForm = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto p-6">
+      <main className="max-w-[1400px] mx-auto px-4 py-4">
         {/* Validation Errors */}
         {validationErrors.length > 0 && (
           <div
@@ -1356,17 +1380,88 @@ const SupplierBillForm = () => {
         <div className="grid grid-cols-12 gap-4">
           {/* Main Content - 8 columns */}
           <div className="col-span-12 lg:col-span-8 space-y-4">
-            {/* Vendor & Bill Info */}
-            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+            {/* Compact Document Details Header */}
+            <div className={CARD_CLASSES(isDarkMode)}>
               <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
               >
-                <Building2 className="h-5 w-5" />
-                Supplier Information
+                Document Details
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Vendor Selection */}
-                <div>
+              {/* Row 1: Bill Number | Bill Date | Due Date | Procurement Channel badge */}
+              <div className="grid grid-cols-12 gap-3">
+                <div className="col-span-6 md:col-span-3">
+                  <label htmlFor="bill-number" className={LABEL_CLASSES(isDarkMode)}>
+                    Bill Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="bill-number"
+                    type="text"
+                    value={bill.billNumber}
+                    onChange={(e) => setBill((prev) => ({ ...prev, billNumber: e.target.value }))}
+                    className={INPUT_CLASSES(isDarkMode)}
+                  />
+                </div>
+                <div className="col-span-6 md:col-span-3">
+                  <label htmlFor="bill-date" className={LABEL_CLASSES(isDarkMode)}>
+                    Bill Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="bill-date"
+                    data-testid="bill-date"
+                    type="date"
+                    value={bill.billDate}
+                    onChange={(e) => setBill((prev) => ({ ...prev, billDate: e.target.value }))}
+                    className={INPUT_CLASSES(isDarkMode)}
+                  />
+                </div>
+                <div className="col-span-6 md:col-span-3">
+                  <label htmlFor="due-date" className={LABEL_CLASSES(isDarkMode)}>
+                    Due Date
+                  </label>
+                  <input
+                    id="due-date"
+                    data-testid="due-date"
+                    type="date"
+                    value={bill.dueDate}
+                    onChange={(e) => setBill((prev) => ({ ...prev, dueDate: e.target.value }))}
+                    className={INPUT_CLASSES(isDarkMode)}
+                  />
+                </div>
+                <div className="col-span-6 md:col-span-3">
+                  <label htmlFor="header-procurement" className={LABEL_CLASSES(isDarkMode)}>
+                    Procurement
+                  </label>
+                  <div
+                    id="header-procurement"
+                    className={`px-3 py-2 text-sm rounded-md border h-[38px] flex items-center ${isDarkMode ? "border-gray-700 bg-gray-900" : "border-gray-200 bg-gray-50"}`}
+                  >
+                    <span
+                      className={`px-2 py-0.5 rounded text-xs font-medium ${
+                        derivedProcurement === "IMPORTED"
+                          ? isDarkMode
+                            ? "bg-blue-900/50 text-blue-300"
+                            : "bg-blue-100 text-blue-700"
+                          : derivedProcurement === "MIXED"
+                            ? isDarkMode
+                              ? "bg-amber-900/50 text-amber-300"
+                              : "bg-amber-100 text-amber-700"
+                            : isDarkMode
+                              ? "bg-green-900/50 text-green-300"
+                              : "bg-green-100 text-green-700"
+                      }`}
+                    >
+                      {derivedProcurement === "IMPORTED"
+                        ? "Import"
+                        : derivedProcurement === "MIXED"
+                          ? "Mixed"
+                          : "Local"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {/* Row 2: Supplier | Supplier Invoice # | Payment Terms */}
+              <div className="grid grid-cols-12 gap-3 mt-3">
+                <div className="col-span-12 md:col-span-6">
                   <FormSelect
                     label="Supplier"
                     data-testid="supplier-select"
@@ -1384,90 +1479,25 @@ const SupplierBillForm = () => {
                     ))}
                   </FormSelect>
                 </div>
-
-                {/* Bill Number */}
-                <div>
-                  <label
-                    htmlFor="bill-number"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    Bill Number <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="bill-number"
-                    type="text"
-                    value={bill.billNumber}
-                    onChange={(e) =>
-                      setBill((prev) => ({
-                        ...prev,
-                        billNumber: e.target.value,
-                      }))
-                    }
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  />
-                </div>
-
-                {/* Vendor Invoice Number */}
-                <div>
-                  <label
-                    htmlFor="supplier-invoice-number"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    Supplier Invoice # (Reference)
+                <div className="col-span-6 md:col-span-3">
+                  <label htmlFor="supplier-invoice-number" className={LABEL_CLASSES(isDarkMode)}>
+                    Supplier Invoice #
                   </label>
                   <input
                     id="supplier-invoice-number"
                     data-testid="supplier-invoice-number"
                     type="text"
                     value={bill.supplierInvoiceNumber}
-                    onChange={(e) =>
-                      setBill((prev) => ({
-                        ...prev,
-                        supplierInvoiceNumber: e.target.value,
-                      }))
-                    }
-                    placeholder="Supplier's invoice number"
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
-                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    onChange={(e) => setBill((prev) => ({ ...prev, supplierInvoiceNumber: e.target.value }))}
+                    placeholder="Reference"
+                    className={INPUT_CLASSES(isDarkMode)}
                   />
                 </div>
-
-                {/* Bill Date */}
-                <div>
-                  <label
-                    htmlFor="bill-date"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    Bill Date <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="bill-date"
-                    data-testid="bill-date"
-                    type="date"
-                    value={bill.billDate}
-                    onChange={(e) => setBill((prev) => ({ ...prev, billDate: e.target.value }))}
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  />
-                </div>
-
-                {/* Payment Terms */}
-                <div>
+                <div className="col-span-6 md:col-span-3">
                   <FormSelect
                     label="Payment Terms"
                     value={bill.paymentTerms}
-                    onValueChange={(value) =>
-                      setBill((prev) => ({
-                        ...prev,
-                        paymentTerms: value,
-                      }))
-                    }
+                    onValueChange={(value) => setBill((prev) => ({ ...prev, paymentTerms: value }))}
                     showValidation={false}
                   >
                     {PAYMENT_TERMS.map((term) => (
@@ -1477,9 +1507,10 @@ const SupplierBillForm = () => {
                     ))}
                   </FormSelect>
                 </div>
-
-                {/* Currency */}
-                <div data-testid="currency">
+              </div>
+              {/* Row 3: Currency | Exchange Rate | Default VAT Category | Place of Supply */}
+              <div className="grid grid-cols-12 gap-3 mt-3">
+                <div className="col-span-6 md:col-span-3" data-testid="currency">
                   <FormSelect
                     label="Currency"
                     value={bill.currency}
@@ -1501,15 +1532,10 @@ const SupplierBillForm = () => {
                     ))}
                   </FormSelect>
                 </div>
-
-                {/* Exchange Rate (editable for manual override) */}
                 {bill.currency !== "AED" && (
-                  <div>
-                    <label
-                      htmlFor="exchange-rate"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                    >
-                      Exchange Rate (1 {bill.currency} = X AED)
+                  <div className="col-span-6 md:col-span-3">
+                    <label htmlFor="exchange-rate" className={LABEL_CLASSES(isDarkMode)}>
+                      Exchange Rate
                     </label>
                     <input
                       id="exchange-rate"
@@ -1520,104 +1546,15 @@ const SupplierBillForm = () => {
                       value={bill.exchangeRate}
                       onChange={(e) => {
                         const rate = parseFloat(e.target.value) || 1;
-                        setBill((prev) => ({
-                          ...prev,
-                          exchangeRate: rate,
-                          totalAed: prev.total * rate,
-                        }));
+                        setBill((prev) => ({ ...prev, exchangeRate: rate, totalAed: prev.total * rate }));
                       }}
-                      className={`w-full px-4 py-2 rounded-lg border ${
-                        isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
-                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                      className={INPUT_CLASSES(isDarkMode)}
                     />
-                    <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                      Total in AED: {formatCurrency(bill.total * bill.exchangeRate)}
-                    </p>
                   </div>
                 )}
-
-                {/* Due Date */}
-                <div>
-                  <label
-                    htmlFor="due-date"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    Due Date
-                  </label>
-                  <input
-                    id="due-date"
-                    data-testid="due-date"
-                    type="date"
-                    value={bill.dueDate}
-                    onChange={(e) => setBill((prev) => ({ ...prev, dueDate: e.target.value }))}
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  />
-                </div>
-
-                {/* Procurement Channel */}
-                <div>
+                <div className={`col-span-6 ${bill.currency !== "AED" ? "md:col-span-3" : "md:col-span-3"}`}>
                   <FormSelect
-                    label="Procurement Channel"
-                    value={bill.procurementChannel}
-                    onValueChange={(value) => handleProcurementChannelChange(value)}
-                    showValidation={false}
-                  >
-                    {PROCUREMENT_CHANNELS.map((channel) => (
-                      <SelectItem key={channel.value} value={channel.value}>
-                        {channel.label}
-                      </SelectItem>
-                    ))}
-                  </FormSelect>
-                  <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                    {bill.procurementChannel === "IMPORTED" ? "Reverse charge VAT applies" : "Standard input VAT"}
-                  </p>
-                </div>
-
-                {/* Import Container (shown for import purchases) */}
-                {bill.procurementChannel === "IMPORTED" && (
-                  <div>
-                    <FormSelect
-                      label="Import Container"
-                      value={bill.importContainerId ? String(bill.importContainerId) : "none"}
-                      onValueChange={(value) => {
-                        const parsedValue = value === "none" ? null : parseInt(value, 10);
-                        const container = availableContainers.find((c) => c.id === parsedValue);
-                        setBill((prev) => ({
-                          ...prev,
-                          importContainerId: parsedValue,
-                          importContainerNumber: container?.containerNumber || "",
-                        }));
-                      }}
-                      showValidation={false}
-                      placeholder="Select Container..."
-                    >
-                      <SelectItem value="none">Select Container...</SelectItem>
-                      {availableContainers.map((container) => (
-                        <SelectItem key={container.id} value={String(container.id)}>
-                          {container.containerNumber} - {container.status}
-                        </SelectItem>
-                      ))}
-                    </FormSelect>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* VAT Details */}
-            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
-              <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
-              >
-                <FileText className="h-5 w-5" />
-                VAT Details
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* VAT Category */}
-                <div>
-                  <FormSelect
-                    label="VAT Category"
+                    label="Default VAT Category"
                     value={bill.vatCategory}
                     onValueChange={(value) => handleVatCategoryChange(value)}
                     required={true}
@@ -1631,18 +1568,11 @@ const SupplierBillForm = () => {
                     ))}
                   </FormSelect>
                 </div>
-
-                {/* Place of Supply */}
-                <div>
+                <div className={`col-span-6 ${bill.currency !== "AED" ? "md:col-span-3" : "md:col-span-3"}`}>
                   <FormSelect
                     label="Place of Supply"
                     value={bill.placeOfSupply}
-                    onValueChange={(value) =>
-                      setBill((prev) => ({
-                        ...prev,
-                        placeOfSupply: value,
-                      }))
-                    }
+                    onValueChange={(value) => setBill((prev) => ({ ...prev, placeOfSupply: value }))}
                     showValidation={false}
                   >
                     {EMIRATES.map((emirate) => (
@@ -1652,600 +1582,49 @@ const SupplierBillForm = () => {
                     ))}
                   </FormSelect>
                 </div>
-
-                {/* Blocked VAT Reason - only shown for BLOCKED category */}
-                {bill.vatCategory === "BLOCKED" && (
-                  <div className="md:col-span-2">
-                    <FormSelect
-                      label="Blocked VAT Reason"
-                      value={bill.blockedVatReason || "none"}
-                      onValueChange={(value) =>
-                        setBill((prev) => ({
-                          ...prev,
-                          blockedVatReason: value === "none" ? "" : value,
-                        }))
-                      }
-                      required={true}
-                      showValidation={false}
-                      placeholder="Select reason..."
-                      data-testid="blocked-vat-reason"
-                    >
-                      <SelectItem value="none">Select reason...</SelectItem>
-                      {BLOCKED_VAT_REASONS.map((reason) => (
-                        <SelectItem key={reason.value} value={reason.value}>
-                          {reason.label}
-                        </SelectItem>
-                      ))}
-                    </FormSelect>
-                    <p className={`mt-1 text-xs ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}>
-                      Blocked VAT cannot be recovered per UAE FTA Article 53
-                    </p>
-                  </div>
-                )}
-
-                {/* Reverse Charge Notice */}
-                {bill.isReverseCharge && (
-                  <div
-                    className={`md:col-span-2 p-3 rounded-lg ${isDarkMode ? "bg-blue-900/20 border border-blue-600" : "bg-blue-50 border border-blue-200"}`}
-                  >
-                    <p className={`text-sm ${isDarkMode ? "text-blue-300" : "text-blue-700"}`}>
-                      <strong>Reverse Charge:</strong> You will account for VAT of {formatCurrency(bill.vatAmount)} on
-                      this purchase. This will be shown as both input and output VAT on your VAT return.
-                    </p>
-                  </div>
-                )}
               </div>
-            </div>
-
-            {/* Document Management (Phase 2c) */}
-            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
-              <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
-              >
-                <FileText className="h-5 w-5" />
-                Document Management
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Document Type */}
-                <div>
+              {/* Blocked VAT Reason - only shown for BLOCKED category */}
+              {bill.vatCategory === "BLOCKED" && (
+                <div className="mt-3">
                   <FormSelect
-                    label="Document Type"
-                    value={bill.documentType}
+                    label="Blocked VAT Reason"
+                    value={bill.blockedVatReason || "none"}
                     onValueChange={(value) =>
-                      setBill((prev) => ({
-                        ...prev,
-                        documentType: value,
-                      }))
+                      setBill((prev) => ({ ...prev, blockedVatReason: value === "none" ? "" : value }))
                     }
+                    required={true}
                     showValidation={false}
+                    placeholder="Select reason..."
+                    data-testid="blocked-vat-reason"
                   >
-                    {DOCUMENT_TYPES.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
+                    <SelectItem value="none">Select reason...</SelectItem>
+                    {BLOCKED_VAT_REASONS.map((reason) => (
+                      <SelectItem key={reason.value} value={reason.value}>
+                        {reason.label}
                       </SelectItem>
                     ))}
                   </FormSelect>
-                </div>
-
-                {/* Supplier Invoice Date */}
-                <div>
-                  <label
-                    htmlFor="supplier-invoice-date"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    Supplier Invoice Date
-                  </label>
-                  <input
-                    id="supplier-invoice-date"
-                    type="date"
-                    value={bill.supplierInvoiceDate}
-                    onChange={(e) =>
-                      setBill((prev) => ({
-                        ...prev,
-                        supplierInvoiceDate: e.target.value,
-                      }))
-                    }
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  />
-                  <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                    Date on the supplier&apos;s original invoice
+                  <p className={`mt-1 text-xs ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}>
+                    Blocked VAT cannot be recovered per UAE FTA Article 53
                   </p>
                 </div>
-
-                {/* Attachment URLs - For now as text input */}
-                <div className="md:col-span-2">
-                  <label
-                    htmlFor="attachment-urls"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    Attachment URLs
-                  </label>
-                  <input
-                    id="attachment-urls"
-                    type="text"
-                    value={bill.attachmentUrls.join(", ")}
-                    onChange={(e) =>
-                      setBill((prev) => ({
-                        ...prev,
-                        attachmentUrls: e.target.value
-                          .split(",")
-                          .map((url) => url.trim())
-                          .filter(Boolean),
-                      }))
-                    }
-                    placeholder="Enter URLs separated by commas"
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
-                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  />
-                  <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                    Upload feature coming soon
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Approval Workflow (Phase 2c) */}
-            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
-              <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
-              >
-                <Settings className="h-5 w-5" />
-                Approval & Status
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Approval Status */}
-                <div>
-                  <FormSelect
-                    label="Approval Status"
-                    value={bill.approvalStatus}
-                    onValueChange={(value) =>
-                      setBill((prev) => ({
-                        ...prev,
-                        approvalStatus: value,
-                      }))
-                    }
-                    showValidation={false}
-                  >
-                    {APPROVAL_STATUSES.map((status) => (
-                      <SelectItem key={status.value} value={status.value}>
-                        {status.label}
-                      </SelectItem>
-                    ))}
-                  </FormSelect>
-                </div>
-
-                {/* Rejection Reason - shown when rejected */}
-                {bill.approvalStatus === "REJECTED" && (
-                  <div className="md:col-span-2">
-                    <label
-                      htmlFor="rejection-reason"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                    >
-                      Rejection Reason
-                    </label>
-                    <textarea
-                      id="rejection-reason"
-                      rows={3}
-                      value={bill.rejectionReason}
-                      onChange={(e) =>
-                        setBill((prev) => ({
-                          ...prev,
-                          rejectionReason: e.target.value,
-                        }))
-                      }
-                      placeholder="Enter reason for rejection..."
-                      className={`w-full px-4 py-2 rounded-lg border ${
-                        isDarkMode
-                          ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
-                          : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                    />
-                  </div>
-                )}
-
-                {/* Approved By and At - read-only display */}
-                {bill.approvedBy && (
-                  <>
-                    <div>
-                      <label
-                        htmlFor="approved-by-display"
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                      >
-                        Approved By
-                      </label>
-                      <div
-                        id="approved-by-display"
-                        className={`px-4 py-2 rounded-lg border ${isDarkMode ? "border-gray-600 bg-gray-900 text-gray-400" : "border-gray-200 bg-gray-50 text-gray-600"}`}
-                      >
-                        User ID: {bill.approvedBy}
-                      </div>
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="approved-at-display"
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                      >
-                        Approved At
-                      </label>
-                      <div
-                        id="approved-at-display"
-                        className={`px-4 py-2 rounded-lg border ${isDarkMode ? "border-gray-600 bg-gray-900 text-gray-400" : "border-gray-200 bg-gray-50 text-gray-600"}`}
-                      >
-                        {bill.approvedAt ? new Date(bill.approvedAt).toLocaleString() : "—"}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Accounting Details (Phase 2c) */}
-            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
-              <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
-              >
-                <Building2 className="h-5 w-5" />
-                Accounting
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Cost Center */}
-                <div>
-                  <label
-                    htmlFor="cost-center"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    Cost Center
-                  </label>
-                  <input
-                    id="cost-center"
-                    type="text"
-                    value={bill.costCenter}
-                    onChange={(e) =>
-                      setBill((prev) => ({
-                        ...prev,
-                        costCenter: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g., CC-001"
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
-                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  />
-                </div>
-
-                {/* Department */}
-                <div>
-                  <label
-                    htmlFor="department"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    Department
-                  </label>
-                  <input
-                    id="department"
-                    type="text"
-                    value={bill.department}
-                    onChange={(e) =>
-                      setBill((prev) => ({
-                        ...prev,
-                        department: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g., Purchasing"
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
-                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  />
-                </div>
-
-                {/* Project Code */}
-                <div>
-                  <label
-                    htmlFor="project-code"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    Project Code
-                  </label>
-                  <input
-                    id="project-code"
-                    type="text"
-                    value={bill.projectCode}
-                    onChange={(e) =>
-                      setBill((prev) => ({
-                        ...prev,
-                        projectCode: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g., PRJ-2024-001"
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
-                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Import Details - shown only for imported goods (Phase 2c) */}
-            {bill.procurementChannel === "IMPORTED" && (
-              <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
-                <h2
-                  className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+              )}
+              {/* Reverse Charge Notice - inline below header */}
+              {bill.isReverseCharge && (
+                <div
+                  className={`mt-3 p-3 rounded-lg ${isDarkMode ? "bg-blue-900/20 border border-blue-600" : "bg-blue-50 border border-blue-200"}`}
                 >
-                  <Ship className="h-5 w-5" />
-                  Import Details
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Port of Entry */}
-                  <div>
-                    <label
-                      htmlFor="port-of-entry"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                    >
-                      Port of Entry
-                    </label>
-                    <input
-                      id="port-of-entry"
-                      type="text"
-                      value={bill.portOfEntry}
-                      onChange={(e) =>
-                        setBill((prev) => ({
-                          ...prev,
-                          portOfEntry: e.target.value,
-                        }))
-                      }
-                      placeholder="e.g., Jebel Ali, Dubai"
-                      className={`w-full px-4 py-2 rounded-lg border ${
-                        isDarkMode
-                          ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
-                          : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                    />
-                  </div>
-
-                  {/* Arrival Date */}
-                  <div>
-                    <label
-                      htmlFor="arrival-date"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                    >
-                      Arrival Date
-                    </label>
-                    <input
-                      id="arrival-date"
-                      type="date"
-                      value={bill.arrivalDate || ""}
-                      onChange={(e) =>
-                        setBill((prev) => ({
-                          ...prev,
-                          arrivalDate: e.target.value || null,
-                        }))
-                      }
-                      className={`w-full px-4 py-2 rounded-lg border ${
-                        isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
-                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                    />
-                  </div>
-
-                  {/* Bill of Lading */}
-                  <div>
-                    <label
-                      htmlFor="bill-of-lading"
-                      className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                    >
-                      Bill of Lading
-                    </label>
-                    <input
-                      id="bill-of-lading"
-                      type="text"
-                      value={bill.billOfLading}
-                      onChange={(e) =>
-                        setBill((prev) => ({
-                          ...prev,
-                          billOfLading: e.target.value,
-                        }))
-                      }
-                      placeholder="B/L number"
-                      className={`w-full px-4 py-2 rounded-lg border ${
-                        isDarkMode
-                          ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
-                          : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Quality Inspection (Phase 2c) */}
-            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
-              <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
-              >
-                <Package className="h-5 w-5" />
-                Quality Inspection
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Inspection Required Checkbox */}
-                <div className="flex items-center gap-3 md:col-span-3">
-                  <input
-                    id="inspection-required"
-                    type="checkbox"
-                    checked={bill.inspectionRequired}
-                    onChange={(e) =>
-                      setBill((prev) => ({
-                        ...prev,
-                        inspectionRequired: e.target.checked,
-                      }))
-                    }
-                    className={`w-5 h-5 rounded border ${
-                      isDarkMode
-                        ? "border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500"
-                        : "border-gray-300 bg-white text-teal-600 focus:ring-teal-500"
-                    } focus:ring-2`}
-                  />
-                  <label
-                    htmlFor="inspection-required"
-                    className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    Quality inspection required
-                  </label>
-                </div>
-
-                {/* Inspection fields - shown when inspection required */}
-                {bill.inspectionRequired && (
-                  <>
-                    {/* Inspection Date */}
-                    <div>
-                      <label
-                        htmlFor="inspection-date"
-                        className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                      >
-                        Inspection Date
-                      </label>
-                      <input
-                        id="inspection-date"
-                        type="date"
-                        value={bill.inspectionDate || ""}
-                        onChange={(e) =>
-                          setBill((prev) => ({
-                            ...prev,
-                            inspectionDate: e.target.value || null,
-                          }))
-                        }
-                        className={`w-full px-4 py-2 rounded-lg border ${
-                          isDarkMode
-                            ? "border-gray-600 bg-gray-700 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
-                        } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                      />
-                    </div>
-
-                    {/* Inspection Status */}
-                    <div>
-                      <FormSelect
-                        label="Inspection Status"
-                        value={bill.inspectionStatus || "none"}
-                        onValueChange={(value) =>
-                          setBill((prev) => ({
-                            ...prev,
-                            inspectionStatus: value === "none" ? null : value,
-                          }))
-                        }
-                        showValidation={false}
-                        placeholder="Select status..."
-                      >
-                        <SelectItem value="none">Select status...</SelectItem>
-                        {INSPECTION_STATUSES.map((status) => (
-                          <SelectItem key={status.value} value={status.value}>
-                            {status.label}
-                          </SelectItem>
-                        ))}
-                      </FormSelect>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Retention (Phase 2c) */}
-            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
-              <h2
-                className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
-              >
-                <Scale className="h-5 w-5" />
-                Retention
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Retention Percentage */}
-                <div>
-                  <label
-                    htmlFor="retention-percentage"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    Retention %
-                  </label>
-                  <input
-                    id="retention-percentage"
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    value={bill.retentionPercentage}
-                    onChange={(e) =>
-                      setBill((prev) => ({
-                        ...prev,
-                        retentionPercentage: parseFloat(e.target.value) || 0,
-                      }))
-                    }
-                    placeholder="e.g., 5.00"
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
-                        : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  />
-                  <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                    Percentage withheld
+                  <p className={`text-sm ${isDarkMode ? "text-blue-300" : "text-blue-700"}`}>
+                    <strong>Reverse Charge:</strong> You will account for VAT of {formatCurrency(bill.vatAmount)} on
+                    this purchase. This will be shown as both input and output VAT on your VAT return.
                   </p>
                 </div>
-
-                {/* Retention Release Date */}
-                <div>
-                  <label
-                    htmlFor="retention-release-date"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    Release Date
-                  </label>
-                  <input
-                    id="retention-release-date"
-                    type="date"
-                    value={bill.retentionReleaseDate || ""}
-                    onChange={(e) =>
-                      setBill((prev) => ({
-                        ...prev,
-                        retentionReleaseDate: e.target.value || null,
-                      }))
-                    }
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                  />
-                </div>
-
-                {/* Retention Amount - read-only, auto-calculated by trigger */}
-                <div>
-                  <label
-                    htmlFor="retention-amount-display"
-                    className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    Retention Amount
-                  </label>
-                  <div
-                    id="retention-amount-display"
-                    className={`px-4 py-2 rounded-lg border ${isDarkMode ? "border-gray-600 bg-gray-900 text-gray-400" : "border-gray-200 bg-gray-50 text-gray-600"}`}
-                  >
-                    {formatCurrency(bill.retentionAmount)}
-                  </div>
-                  <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Auto-calculated</p>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Quick Add Speed Buttons */}
             {formPreferences.showSpeedButtons && sortedProducts.length > 0 && (
-              <Card className="p-3 md:p-4 mb-6">
+              <div className={CARD_CLASSES(isDarkMode)}>
                 <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                   Quick Add (Pinned & Top Products)
                 </p>
@@ -2259,7 +1638,7 @@ const SupplierBillForm = () => {
                           onClick={() => handleQuickAddProduct(product)}
                           className={`w-full text-left px-3 py-2 text-xs rounded-lg border transition-all ${
                             isDarkMode
-                              ? "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white"
+                              ? "bg-gray-800 border-gray-700 hover:bg-gray-700 text-white"
                               : "bg-white border-gray-300 hover:bg-gray-50 text-gray-900"
                           }`}
                         >
@@ -2288,17 +1667,16 @@ const SupplierBillForm = () => {
                     );
                   })}
                 </div>
-              </Card>
+              </div>
             )}
 
-            {/* Line Items */}
-            <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
-              <div className="flex items-center justify-between mb-4">
+            {/* Line Items — HTML Table */}
+            <div className={CARD_CLASSES(isDarkMode)}>
+              <div className="flex items-center justify-between mb-3">
                 <h2
-                  className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-xs font-semibold uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
-                  <Package className="h-5 w-5" />
-                  Line Items
+                  Line Items ({bill.items.length})
                 </h2>
                 <button
                   type="button"
@@ -2311,443 +1689,413 @@ const SupplierBillForm = () => {
                 </button>
               </div>
 
-              <div className="space-y-4">
-                {bill.items.map((item, index) => (
-                  <div
-                    key={item.id}
-                    className={`p-4 rounded-lg border ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
-                  >
-                    <div className="grid grid-cols-12 gap-4">
-                      {/* Product/Description */}
-                      <div className="col-span-12 md:col-span-4">
-                        <label
-                          htmlFor={`item-product-${index}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                        >
-                          Product / Description
-                        </label>
-                        <ProductAutocomplete
-                          id={`item-product-${index}`}
-                          options={
-                            searchInputs[index]
-                              ? searchOptions.length
-                                ? searchOptions
-                                : productOptions
-                              : productOptions
-                          }
-                          value={item.productId ? productOptions.find((p) => p.id === item.productId) : null}
-                          inputValue={searchInputs[index] || item.description || ""}
-                          onInputChange={(_event, newInputValue) => handleProductSearchInput(index, newInputValue)}
-                          onChange={(_event, newValue) => {
-                            if (newValue) handleProductSelectFromAutocomplete(index, newValue);
-                          }}
-                          placeholder="Search products..."
-                          disabled={loading}
-                          renderOption={(option) => (
-                            <div>
-                              <div className="font-medium">
-                                {option.displayName ||
-                                  option.display_name ||
-                                  option.uniqueName ||
-                                  option.unique_name ||
-                                  option.name ||
-                                  "Product"}
-                              </div>
-                              {option.subtitle && (
-                                <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                                  {option.subtitle}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                          noOptionsText="No products found"
-                        />
-                        <input
-                          type="text"
-                          data-testid={`item-description-${index}`}
-                          value={item.description}
-                          onChange={(e) => handleItemChange(index, "description", e.target.value)}
-                          placeholder="Description"
-                          className={`w-full mt-2 px-3 py-2 rounded border text-sm ${
-                            isDarkMode
-                              ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
-                              : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                        />
-                      </div>
+              {/* Mobile placeholder */}
+              <div className="md:hidden">
+                <p className={`text-xs text-center py-6 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                  Line items table is best viewed on desktop. Rotate your device or use a wider screen.
+                </p>
+              </div>
 
-                      {/* Quantity */}
-                      <div className="col-span-3 md:col-span-1">
-                        <label
-                          htmlFor={`item-quantity-${index}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                        >
-                          Qty ({item.quantityUom || "PCS"})
-                        </label>
-                        <input
-                          id={`item-quantity-${index}`}
-                          data-testid={`item-quantity-${index}`}
-                          type="number"
-                          min="0"
-                          step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
-                          value={item.quantity}
-                          onChange={(e) => {
-                            const allowDecimal = item.quantityUom === "MT" || item.quantityUom === "KG";
-                            const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
-                            handleItemChange(index, "quantity", Number.isNaN(val) ? "" : val);
-                          }}
-                          className={`w-full px-3 py-2 rounded border text-sm ${
-                            isDarkMode
-                              ? "border-gray-600 bg-gray-700 text-white"
-                              : "border-gray-300 bg-white text-gray-900"
-                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                        />
-                      </div>
-
-                      {/* Unit Weight */}
-                      <div className="col-span-3 md:col-span-1">
-                        <label
-                          htmlFor={`item-unit-weight-${index}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                        >
-                          Unit Wt (kg)
-                        </label>
-                        <input
-                          id={`item-unit-weight-${index}`}
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          placeholder="0.00"
-                          value={item.unitWeightKg || ""}
-                          onChange={(e) =>
-                            handleItemChange(
-                              index,
-                              "unitWeightKg",
-                              e.target.value === "" ? null : parseFloat(e.target.value)
-                            )
-                          }
-                          className={`w-full px-3 py-2 rounded border text-sm ${
-                            isDarkMode
-                              ? "border-gray-600 bg-gray-700 text-white"
-                              : "border-gray-300 bg-white text-gray-900"
-                          } ${item.missingWeightWarning ? "border-red-500" : ""} focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                        />
-                      </div>
-
-                      {/* Total Weight */}
-                      <div className="col-span-3 md:col-span-1">
-                        <div className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                          Total Wt
-                        </div>
-                        <div
-                          className={`px-3 py-2 rounded border text-sm ${
-                            isDarkMode
-                              ? "border-gray-600 bg-gray-700/50 text-gray-300"
-                              : "border-gray-300 bg-gray-100 text-gray-600"
-                          }`}
-                        >
-                          {(() => {
-                            const totalWt = item.theoreticalWeightKg || item.quantity * (item.unitWeightKg || 0);
-                            return totalWt ? totalWt.toFixed(2) : "-";
-                          })()}
-                        </div>
-                      </div>
-
-                      {/* Unit Price with Pricing Basis */}
-                      <div className="col-span-3 md:col-span-2">
-                        <label
-                          htmlFor={`item-unit-price-${index}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                        >
-                          Unit Price
-                        </label>
-                        <div
-                          className={`flex rounded overflow-hidden border ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
-                        >
-                          <input
-                            id={`item-unit-price-${index}`}
-                            data-testid={`item-unit-price-${index}`}
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={item.unitPrice}
-                            onChange={(e) => handleItemChange(index, "unitPrice", parseFloat(e.target.value) || 0)}
-                            className={`flex-1 px-3 py-2 text-sm border-0 outline-none ${
-                              isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"
-                            }`}
-                          />
-                          <select
-                            value={item.pricingBasis || "PER_MT"}
-                            onChange={(e) => handleItemChange(index, "pricingBasis", e.target.value)}
-                            className={`text-xs font-bold px-1.5 border-l cursor-pointer outline-none ${
-                              item.pricingBasis === "PER_KG"
-                                ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
-                                : item.pricingBasis === "PER_PCS"
-                                  ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700"
-                                  : "bg-gray-50 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
-                            }`}
-                          >
-                            <option value="PER_MT">/MT</option>
-                            <option value="PER_KG">/kg</option>
-                            <option value="PER_PCS">/pc</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      {/* VAT Rate */}
-                      <div className="col-span-4 md:col-span-1">
-                        <label
-                          htmlFor={`item-vat-rate-${index}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                        >
-                          VAT %
-                        </label>
-                        <input
-                          id={`item-vat-rate-${index}`}
-                          type="number"
-                          value={item.vatRate}
-                          disabled
-                          className={`w-full px-3 py-2 rounded border text-sm ${
-                            isDarkMode
-                              ? "border-gray-600 bg-gray-700 text-gray-500"
-                              : "border-gray-300 bg-gray-100 text-gray-500"
-                          }`}
-                        />
-                      </div>
-
-                      {/* VAT Amount */}
-                      <div className="col-span-6 md:col-span-1">
-                        <label
-                          htmlFor={`item-vat-amount-${index}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                        >
-                          VAT
-                        </label>
-                        <input
-                          id={`item-vat-amount-${index}`}
-                          type="text"
-                          value={formatCurrency(item.vatAmount)}
-                          disabled
-                          className={`w-full px-3 py-2 rounded border text-sm ${
-                            isDarkMode
-                              ? "border-gray-600 bg-gray-700 text-gray-500"
-                              : "border-gray-300 bg-gray-100 text-gray-500"
-                          }`}
-                        />
-                      </div>
-
-                      {/* Amount */}
-                      <div className="col-span-6 md:col-span-1">
-                        <label
-                          htmlFor={`item-amount-${index}`}
-                          className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                        >
-                          Amount
-                        </label>
-                        <input
-                          id={`item-amount-${index}`}
-                          type="text"
-                          value={formatCurrency(item.amount)}
-                          disabled
-                          className={`w-full px-3 py-2 rounded border text-sm ${
-                            isDarkMode
-                              ? "border-gray-600 bg-gray-700 text-gray-500"
-                              : "border-gray-300 bg-gray-100 text-gray-500"
-                          }`}
-                        />
-                      </div>
-
-                      {/* Delete Button */}
-                      <div className="col-span-12 md:col-span-1 flex items-end justify-end">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveItem(index)}
-                          className="p-2 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-colors"
-                          title="Remove item"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-
-                      {/* Missing Weight Warning */}
-                      {item.missingWeightWarning && (
-                        <div
-                          className={`col-span-12 p-2 rounded-md border ${isDarkMode ? "bg-amber-900/30 border-amber-600" : "bg-amber-50 border-amber-200"}`}
-                        >
-                          <p className={`text-xs ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}>
-                            <AlertTriangle className="inline h-3 w-3 mr-1" />
-                            Unit weight missing for weight-based pricing ({item.pricingBasis}). Contact admin to update
-                            product master.
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Stock-In Fields Row (Phase 5) */}
-                      <div
-                        className={`col-span-12 mt-2 pt-2 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
-                      >
-                        <div className="grid grid-cols-12 gap-3">
-                          {/* Line Procurement Channel */}
-                          <div className="col-span-6 md:col-span-2">
-                            <label
-                              htmlFor={`item-procurement-channel-${index}`}
-                              className={`block text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
-                            >
-                              <Ship className="inline h-3 w-3 mr-1" />
-                              Source
-                            </label>
-                            <FormSelect
-                              id={`item-procurement-channel-${index}`}
-                              value={item.procurementChannel || bill.procurementChannel || "LOCAL"}
-                              onValueChange={(value) => handleItemChange(index, "procurementChannel", value)}
-                              showValidation={false}
-                            >
-                              <SelectItem value="LOCAL">Local</SelectItem>
-                              <SelectItem value="IMPORTED">Import</SelectItem>
-                            </FormSelect>
-                          </div>
-
-                          {/* PO Weight */}
-                          <div className="col-span-6 md:col-span-2">
-                            <label
-                              htmlFor={`item-po-weight-${index}`}
-                              className={`block text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
-                            >
-                              <Scale className="inline h-3 w-3 mr-1" />
-                              PO Wt (kg)
-                            </label>
-                            <input
-                              id={`item-po-weight-${index}`}
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              placeholder="-"
-                              value={item.poWeightKg || ""}
-                              onChange={(e) => {
-                                const poWt = e.target.value === "" ? null : parseFloat(e.target.value);
-                                const recvWt = item.receivedWeightKg || 0;
-                                const variance = poWt && recvWt ? recvWt - poWt : null;
-                                const variancePercent = poWt && variance ? (variance / poWt) * 100 : null;
-                                handleItemChange(index, "poWeightKg", poWt);
-                                if (variance !== null) {
-                                  handleItemChange(index, "weightVarianceKg", variance);
-                                  handleItemChange(index, "weightVariancePercent", variancePercent);
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table
+                  className={`min-w-full table-fixed ${isDarkMode ? "divide-gray-600" : "divide-gray-200"}`}
+                  data-testid="line-items-table"
+                >
+                  <thead className={isDarkMode ? "bg-gray-900" : "bg-gray-50"}>
+                    <tr>
+                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "20%" }}>
+                        Product
+                      </th>
+                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "6%" }}>
+                        Qty
+                      </th>
+                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "6%" }}>
+                        Unit Wt
+                      </th>
+                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "6%" }}>
+                        Tot Wt
+                      </th>
+                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "10%" }}>
+                        Rate
+                      </th>
+                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "8%" }}>
+                        Source
+                      </th>
+                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "5%" }}>
+                        VAT %
+                      </th>
+                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "9%" }}>
+                        Amount
+                      </th>
+                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "3%" }}></th>
+                    </tr>
+                  </thead>
+                  <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
+                    {bill.items.map((item, index) => {
+                      const totalWt = item.theoreticalWeightKg || item.quantity * (item.unitWeightKg || 0);
+                      const isStockExpanded = expandedStockRows[index];
+                      return (
+                        <React.Fragment key={item.id}>
+                          {/* Main item row */}
+                          <tr className={isDarkMode ? "bg-gray-800" : "bg-white"} data-testid={`item-row-${index}`}>
+                            {/* Product */}
+                            <td className="px-2 py-2 align-middle">
+                              <ProductAutocomplete
+                                id={`item-product-${index}`}
+                                options={
+                                  searchInputs[index]
+                                    ? searchOptions.length
+                                      ? searchOptions
+                                      : productOptions
+                                    : productOptions
                                 }
-                              }}
-                              className={`w-full px-2 py-1.5 rounded border text-xs ${
-                                isDarkMode
-                                  ? "border-gray-600 bg-gray-700 text-white"
-                                  : "border-gray-300 bg-white text-gray-900"
-                              } focus:outline-none focus:ring-1 focus:ring-teal-500`}
-                            />
-                          </div>
-
-                          {/* Received Weight */}
-                          <div className="col-span-6 md:col-span-2">
-                            <label
-                              htmlFor={`item-received-weight-${index}`}
-                              className={`block text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
-                            >
-                              Recv Wt (kg)
-                            </label>
-                            <input
-                              id={`item-received-weight-${index}`}
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              placeholder="-"
-                              value={item.receivedWeightKg || ""}
-                              onChange={(e) => {
-                                const recvWt = e.target.value === "" ? null : parseFloat(e.target.value);
-                                const poWt = item.poWeightKg || 0;
-                                const variance = poWt && recvWt ? recvWt - poWt : null;
-                                const variancePercent = poWt && variance ? (variance / poWt) * 100 : null;
-                                handleItemChange(index, "receivedWeightKg", recvWt);
-                                if (variance !== null) {
-                                  handleItemChange(index, "weightVarianceKg", variance);
-                                  handleItemChange(index, "weightVariancePercent", variancePercent);
+                                value={item.productId ? productOptions.find((p) => p.id === item.productId) : null}
+                                inputValue={searchInputs[index] || item.description || ""}
+                                onInputChange={(_event, newInputValue) =>
+                                  handleProductSearchInput(index, newInputValue)
                                 }
-                              }}
-                              className={`w-full px-2 py-1.5 rounded border text-xs ${
-                                isDarkMode
-                                  ? "border-gray-600 bg-gray-700 text-white"
-                                  : "border-gray-300 bg-white text-gray-900"
-                              } focus:outline-none focus:ring-1 focus:ring-teal-500`}
-                            />
-                          </div>
-
-                          {/* Weight Variance */}
-                          <div className="col-span-6 md:col-span-2">
-                            <div className={`block text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
-                              Variance
-                            </div>
-                            <div
-                              className={`px-2 py-1.5 rounded border text-xs ${
-                                item.weightVarianceKg
-                                  ? item.weightVarianceKg > 0
-                                    ? isDarkMode
-                                      ? "border-green-600 bg-green-900/20 text-green-400"
-                                      : "border-green-300 bg-green-50 text-green-700"
-                                    : item.weightVarianceKg < 0
-                                      ? isDarkMode
-                                        ? "border-red-600 bg-red-900/20 text-red-400"
-                                        : "border-red-300 bg-red-50 text-red-700"
-                                      : isDarkMode
-                                        ? "border-gray-600 bg-gray-700/50 text-gray-400"
-                                        : "border-gray-300 bg-gray-100 text-gray-500"
-                                  : isDarkMode
-                                    ? "border-gray-600 bg-gray-700/50 text-gray-400"
-                                    : "border-gray-300 bg-gray-100 text-gray-500"
-                              }`}
-                            >
-                              {item.weightVarianceKg
-                                ? `${item.weightVarianceKg > 0 ? "+" : ""}${item.weightVarianceKg.toFixed(2)} kg (${item.weightVariancePercent?.toFixed(1) || 0}%)`
-                                : "-"}
-                            </div>
-                          </div>
-
-                          {/* Batch Number */}
-                          <div className="col-span-6 md:col-span-2">
-                            <label
-                              htmlFor={`item-batch-number-${index}`}
-                              className={`block text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
-                            >
-                              <Layers className="inline h-3 w-3 mr-1" />
-                              Batch #
-                            </label>
-                            <input
-                              id={`item-batch-number-${index}`}
-                              type="text"
-                              placeholder="Auto"
-                              value={item.batchNumber || ""}
-                              onChange={(e) => handleItemChange(index, "batchNumber", e.target.value)}
-                              className={`w-full px-2 py-1.5 rounded border text-xs ${
-                                isDarkMode
-                                  ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
-                                  : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-                              } focus:outline-none focus:ring-1 focus:ring-teal-500`}
-                            />
-                          </div>
-
-                          {/* Create Batch Toggle */}
-                          <div className="col-span-6 md:col-span-2 flex items-end">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={item.createBatch !== false}
-                                onChange={(e) => handleItemChange(index, "createBatch", e.target.checked)}
-                                className="w-3.5 h-3.5 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                                onChange={(_event, newValue) => {
+                                  if (newValue) handleProductSelectFromAutocomplete(index, newValue);
+                                }}
+                                placeholder="Search products..."
+                                disabled={loading}
+                                renderOption={(option) => (
+                                  <div>
+                                    <div className="font-medium">
+                                      {option.displayName ||
+                                        option.display_name ||
+                                        option.uniqueName ||
+                                        option.unique_name ||
+                                        option.name ||
+                                        "Product"}
+                                    </div>
+                                    {option.subtitle && (
+                                      <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                                        {option.subtitle}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                                noOptionsText="No products found"
                               />
-                              <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                                Create Batch
-                              </span>
-                            </label>
-                          </div>
-                        </div>
-                      </div>
+                            </td>
+                            {/* Qty */}
+                            <td className="px-2 py-2 align-middle">
+                              <input
+                                id={`item-quantity-${index}`}
+                                data-testid={`item-quantity-${index}`}
+                                type="number"
+                                min="0"
+                                step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
+                                value={item.quantity}
+                                onChange={(e) => {
+                                  const allowDecimal = item.quantityUom === "MT" || item.quantityUom === "KG";
+                                  const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
+                                  handleItemChange(index, "quantity", Number.isNaN(val) ? "" : val);
+                                }}
+                                style={{ MozAppearance: "textfield" }}
+                                className={`w-full px-2 py-1.5 text-xs border rounded-md text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                              />
+                            </td>
+                            {/* Unit Wt */}
+                            <td className="px-2 py-2 align-middle">
+                              <input
+                                id={`item-unit-weight-${index}`}
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                placeholder="0.00"
+                                value={item.unitWeightKg || ""}
+                                onChange={(e) =>
+                                  handleItemChange(
+                                    index,
+                                    "unitWeightKg",
+                                    e.target.value === "" ? null : parseFloat(e.target.value)
+                                  )
+                                }
+                                style={{ MozAppearance: "textfield" }}
+                                className={`w-full px-2 py-1.5 text-xs border rounded-md text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} ${item.missingWeightWarning ? "border-red-500" : ""}`}
+                              />
+                            </td>
+                            {/* Tot Wt */}
+                            <td className="px-2 py-2 align-middle">
+                              <div
+                                className={`px-2 py-1.5 text-xs rounded-md text-right truncate ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                                title={totalWt ? totalWt.toFixed(2) : "-"}
+                              >
+                                {totalWt ? totalWt.toFixed(2) : "-"}
+                              </div>
+                            </td>
+                            {/* Rate */}
+                            <td className="px-1 py-2 align-middle">
+                              <div
+                                className={`flex rounded-md overflow-hidden border ${isDarkMode ? "border-gray-700" : "border-gray-300"}`}
+                              >
+                                <input
+                                  id={`item-unit-price-${index}`}
+                                  data-testid={`item-unit-price-${index}`}
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  value={item.unitPrice}
+                                  onChange={(e) =>
+                                    handleItemChange(index, "unitPrice", parseFloat(e.target.value) || 0)
+                                  }
+                                  style={{ MozAppearance: "textfield" }}
+                                  className={`min-w-0 w-0 flex-1 px-2 py-1.5 text-xs border-0 outline-none text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}
+                                />
+                                <select
+                                  value={item.pricingBasis || "PER_MT"}
+                                  onChange={(e) => handleItemChange(index, "pricingBasis", e.target.value)}
+                                  className={`flex-shrink-0 text-[10px] font-bold px-1 border-l cursor-pointer outline-none ${
+                                    item.pricingBasis === "PER_KG"
+                                      ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
+                                      : item.pricingBasis === "PER_PCS"
+                                        ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700"
+                                        : "bg-gray-50 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700"
+                                  }`}
+                                >
+                                  <option value="PER_MT">/MT</option>
+                                  <option value="PER_KG">/kg</option>
+                                  <option value="PER_PCS">/pc</option>
+                                </select>
+                              </div>
+                            </td>
+                            {/* Source */}
+                            <td className="px-2 py-2 align-middle">
+                              <FormSelect
+                                id={`item-procurement-channel-${index}`}
+                                value={item.procurementChannel || bill.procurementChannel || "LOCAL"}
+                                onValueChange={(value) => handleItemChange(index, "procurementChannel", value)}
+                                showValidation={false}
+                              >
+                                <SelectItem value="LOCAL">Local</SelectItem>
+                                <SelectItem value="IMPORTED">Import</SelectItem>
+                              </FormSelect>
+                            </td>
+                            {/* VAT % */}
+                            <td className="px-2 py-2 align-middle">
+                              <input
+                                id={`item-vat-rate-${index}`}
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.01"
+                                value={item.vatRate}
+                                onChange={(e) => handleItemChange(index, "vatRate", parseFloat(e.target.value) || 0)}
+                                style={{ MozAppearance: "textfield" }}
+                                className={`w-full px-2 py-1.5 text-xs border rounded-md text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                              />
+                            </td>
+                            {/* Amount */}
+                            <td className="px-2 py-2 align-middle">
+                              <div
+                                className={`px-2 py-1.5 text-xs font-medium text-right truncate ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+                                title={formatCurrency(item.amount)}
+                              >
+                                {(parseFloat(item.amount) || 0).toFixed(2)}
+                              </div>
+                            </td>
+                            {/* Delete + Expand */}
+                            <td className="px-2 py-2 align-middle text-center">
+                              <div className="flex items-center gap-0.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedStockRows((prev) => ({ ...prev, [index]: !prev[index] }))}
+                                  className={`p-1 rounded transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
+                                  title="Stock details"
+                                >
+                                  {isStockExpanded ? (
+                                    <ChevronDown className="h-3.5 w-3.5" />
+                                  ) : (
+                                    <ChevronRight className="h-3.5 w-3.5" />
+                                  )}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveItem(index)}
+                                  className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-colors"
+                                  title="Remove item"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          {/* Missing Weight Warning row */}
+                          {item.missingWeightWarning && (
+                            <tr>
+                              <td
+                                colSpan={9}
+                                className={`px-3 py-1.5 ${isDarkMode ? "bg-amber-900/20" : "bg-amber-50"}`}
+                              >
+                                <p className={`text-xs ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}>
+                                  <AlertTriangle className="inline h-3 w-3 mr-1" />
+                                  Unit weight missing for weight-based pricing ({item.pricingBasis}). Contact admin to
+                                  update product master.
+                                </p>
+                              </td>
+                            </tr>
+                          )}
+                          {/* Stock Details sub-row (collapsible) */}
+                          {isStockExpanded && (
+                            <tr className={isDarkMode ? "bg-gray-900/50" : "bg-gray-50/50"}>
+                              <td colSpan={9} className="px-3 py-2">
+                                <div className="grid grid-cols-6 gap-3">
+                                  <div>
+                                    <label
+                                      htmlFor={`item-po-weight-${index}`}
+                                      className={`block text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
+                                    >
+                                      <Scale className="inline h-3 w-3 mr-1" />
+                                      PO Wt (kg)
+                                    </label>
+                                    <input
+                                      id={`item-po-weight-${index}`}
+                                      type="number"
+                                      min="0"
+                                      step="0.01"
+                                      placeholder="-"
+                                      value={item.poWeightKg || ""}
+                                      onChange={(e) => {
+                                        const poWt = e.target.value === "" ? null : parseFloat(e.target.value);
+                                        const recvWt = item.receivedWeightKg || 0;
+                                        const variance = poWt && recvWt ? recvWt - poWt : null;
+                                        const variancePercent = poWt && variance ? (variance / poWt) * 100 : null;
+                                        handleItemChange(index, "poWeightKg", poWt);
+                                        if (variance !== null) {
+                                          handleItemChange(index, "weightVarianceKg", variance);
+                                          handleItemChange(index, "weightVariancePercent", variancePercent);
+                                        }
+                                      }}
+                                      className={`w-full px-2 py-1.5 rounded border text-xs ${isDarkMode ? "border-gray-700 bg-gray-900 text-white" : "border-gray-300 bg-white text-gray-900"} focus:outline-none focus:ring-1 focus:ring-teal-500`}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label
+                                      htmlFor={`item-received-weight-${index}`}
+                                      className={`block text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
+                                    >
+                                      Recv Wt (kg)
+                                    </label>
+                                    <input
+                                      id={`item-received-weight-${index}`}
+                                      type="number"
+                                      min="0"
+                                      step="0.01"
+                                      placeholder="-"
+                                      value={item.receivedWeightKg || ""}
+                                      onChange={(e) => {
+                                        const recvWt = e.target.value === "" ? null : parseFloat(e.target.value);
+                                        const poWt = item.poWeightKg || 0;
+                                        const variance = poWt && recvWt ? recvWt - poWt : null;
+                                        const variancePercent = poWt && variance ? (variance / poWt) * 100 : null;
+                                        handleItemChange(index, "receivedWeightKg", recvWt);
+                                        if (variance !== null) {
+                                          handleItemChange(index, "weightVarianceKg", variance);
+                                          handleItemChange(index, "weightVariancePercent", variancePercent);
+                                        }
+                                      }}
+                                      className={`w-full px-2 py-1.5 rounded border text-xs ${isDarkMode ? "border-gray-700 bg-gray-900 text-white" : "border-gray-300 bg-white text-gray-900"} focus:outline-none focus:ring-1 focus:ring-teal-500`}
+                                    />
+                                  </div>
+                                  <div>
+                                    <div
+                                      className={`block text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
+                                    >
+                                      Variance
+                                    </div>
+                                    <div
+                                      className={`px-2 py-1.5 rounded border text-xs ${
+                                        item.weightVarianceKg
+                                          ? item.weightVarianceKg > 0
+                                            ? isDarkMode
+                                              ? "border-green-600 bg-green-900/20 text-green-400"
+                                              : "border-green-300 bg-green-50 text-green-700"
+                                            : item.weightVarianceKg < 0
+                                              ? isDarkMode
+                                                ? "border-red-600 bg-red-900/20 text-red-400"
+                                                : "border-red-300 bg-red-50 text-red-700"
+                                              : isDarkMode
+                                                ? "border-gray-700 bg-gray-700/50 text-gray-400"
+                                                : "border-gray-300 bg-gray-100 text-gray-500"
+                                          : isDarkMode
+                                            ? "border-gray-700 bg-gray-700/50 text-gray-400"
+                                            : "border-gray-300 bg-gray-100 text-gray-500"
+                                      }`}
+                                    >
+                                      {item.weightVarianceKg
+                                        ? `${item.weightVarianceKg > 0 ? "+" : ""}${item.weightVarianceKg.toFixed(2)} kg (${item.weightVariancePercent?.toFixed(1) || 0}%)`
+                                        : "-"}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <label
+                                      htmlFor={`item-batch-number-${index}`}
+                                      className={`block text-xs mb-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
+                                    >
+                                      <Layers className="inline h-3 w-3 mr-1" />
+                                      Batch #
+                                    </label>
+                                    <input
+                                      id={`item-batch-number-${index}`}
+                                      type="text"
+                                      placeholder="Auto"
+                                      value={item.batchNumber || ""}
+                                      onChange={(e) => handleItemChange(index, "batchNumber", e.target.value)}
+                                      className={`w-full px-2 py-1.5 rounded border text-xs ${isDarkMode ? "border-gray-700 bg-gray-900 text-white placeholder-gray-500" : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"} focus:outline-none focus:ring-1 focus:ring-teal-500`}
+                                    />
+                                  </div>
+                                  <div className="flex items-end">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={item.createBatch !== false}
+                                        onChange={(e) => handleItemChange(index, "createBatch", e.target.checked)}
+                                        className="w-3.5 h-3.5 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                                      />
+                                      <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                                        Create Batch
+                                      </span>
+                                    </label>
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Inline Totals at bottom of table */}
+              <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                <div className="flex justify-end">
+                  <div className="w-56 space-y-1.5">
+                    <div className="flex justify-between text-sm">
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Subtotal:</span>
+                      <span className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                        {(bill.subtotal || 0).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+                        VAT ({VAT_CATEGORIES.find((c) => c.value === bill.vatCategory)?.rate || 5}%):
+                      </span>
+                      <span className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                        {(bill.vatAmount || 0).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className={`h-px ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`} />
+                    <div className="flex justify-between text-sm font-bold">
+                      <span className={isDarkMode ? "text-white" : "text-gray-900"}>Total:</span>
+                      <span className="text-teal-600">{formatCurrency(bill.total)}</span>
                     </div>
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </div>
@@ -2756,8 +2104,14 @@ const SupplierBillForm = () => {
           <div className="col-span-12 lg:col-span-4">
             <div className="lg:sticky lg:top-24 space-y-4">
               {/* Totals */}
-              <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
-                <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>Summary</h2>
+              <div
+                className={`p-4 rounded-2xl border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+              >
+                <h2
+                  className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                >
+                  Summary
+                </h2>
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>Subtotal:</span>
@@ -2838,21 +2192,104 @@ const SupplierBillForm = () => {
               </div>
 
               {/* Quick Actions */}
-              <div
-                className={`p-4 rounded-2xl ${isDarkMode ? "bg-[#141a20] border border-[#2a3640]" : "bg-white border border-gray-200"}`}
-              >
-                <div className={`text-xs font-medium mb-2 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <div className={CARD_CLASSES(isDarkMode)}>
+                <div className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                   Quick Actions
                 </div>
                 <div className="space-y-1.5">
+                  {/* Documents */}
+                  <button
+                    type="button"
+                    onClick={() => setDocumentsDrawerOpen(true)}
+                    className={QUICK_LINK_CLASSES(isDarkMode)}
+                  >
+                    <FileText className="h-4 w-4 opacity-60" />
+                    Edit Documents
+                    {(bill.supplierInvoiceDate || bill.attachmentUrls?.length > 0) && (
+                      <span className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? "bg-teal-400" : "bg-teal-500"}`} />
+                    )}
+                  </button>
+                  {/* Approval */}
+                  <button
+                    type="button"
+                    onClick={() => setApprovalDrawerOpen(true)}
+                    className={QUICK_LINK_CLASSES(isDarkMode)}
+                  >
+                    <ClipboardCheck className="h-4 w-4 opacity-60" />
+                    Approval Status
+                    {bill.approvalStatus !== "PENDING" && (
+                      <span
+                        className={`ml-auto text-[10px] px-1.5 py-0.5 rounded-full ${
+                          bill.approvalStatus === "APPROVED"
+                            ? isDarkMode
+                              ? "bg-green-900/50 text-green-300"
+                              : "bg-green-100 text-green-700"
+                            : isDarkMode
+                              ? "bg-red-900/50 text-red-300"
+                              : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {bill.approvalStatus}
+                      </span>
+                    )}
+                  </button>
+                  {/* Accounting */}
+                  <button
+                    type="button"
+                    onClick={() => setAccountingDrawerOpen(true)}
+                    className={QUICK_LINK_CLASSES(isDarkMode)}
+                  >
+                    <DollarSign className="h-4 w-4 opacity-60" />
+                    Accounting Details
+                    {(bill.costCenter || bill.department || bill.projectCode) && (
+                      <span className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? "bg-teal-400" : "bg-teal-500"}`} />
+                    )}
+                  </button>
+                  {/* Import Details */}
+                  <button
+                    type="button"
+                    onClick={() => setImportDrawerOpen(true)}
+                    className={QUICK_LINK_CLASSES(isDarkMode)}
+                  >
+                    <Ship className="h-4 w-4 opacity-60" />
+                    Import Details
+                    {(bill.portOfEntry || bill.billOfLading || bill.importContainerId) && (
+                      <span className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? "bg-teal-400" : "bg-teal-500"}`} />
+                    )}
+                  </button>
+                  {/* Quality Inspection */}
+                  <button
+                    type="button"
+                    onClick={() => setInspectionDrawerOpen(true)}
+                    className={QUICK_LINK_CLASSES(isDarkMode)}
+                  >
+                    <FileSearch className="h-4 w-4 opacity-60" />
+                    Quality Inspection
+                    {bill.inspectionRequired && (
+                      <span className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? "bg-teal-400" : "bg-teal-500"}`} />
+                    )}
+                  </button>
+                  {/* Retention */}
+                  <button
+                    type="button"
+                    onClick={() => setRetentionDrawerOpen(true)}
+                    className={QUICK_LINK_CLASSES(isDarkMode)}
+                  >
+                    <Percent className="h-4 w-4 opacity-60" />
+                    Retention
+                    {bill.retentionPercentage > 0 && (
+                      <span
+                        className={`ml-auto text-[10px] px-1.5 py-0.5 rounded-full ${isDarkMode ? "bg-teal-900/50 text-teal-300" : "bg-teal-100 text-teal-700"}`}
+                      >
+                        {bill.retentionPercentage}%
+                      </span>
+                    )}
+                  </button>
+                  {/* Charges & Duty (existing) */}
                   <button
                     type="button"
                     onClick={() => setChargesDrawerOpen(true)}
-                    className={`w-full flex items-center gap-2 py-2 px-2.5 text-[13px] rounded-[10px] border transition-colors ${
-                      isDarkMode
-                        ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]"
-                        : "bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600"
-                    }`}
+                    className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <Scale className="h-4 w-4 opacity-60" />
                     Edit Charges & Duty
@@ -2862,7 +2299,7 @@ const SupplierBillForm = () => {
                       bill.handlingCharges > 0 ||
                       bill.otherCharges > 0) && (
                       <span
-                        className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${isDarkMode ? "bg-teal-900/50 text-teal-300" : "bg-teal-100 text-teal-700"}`}
+                        className={`ml-auto text-[10px] px-1.5 py-0.5 rounded-full ${isDarkMode ? "bg-teal-900/50 text-teal-300" : "bg-teal-100 text-teal-700"}`}
                       >
                         {formatCurrency(
                           (parseFloat(bill.freightCharges) || 0) +
@@ -2874,14 +2311,11 @@ const SupplierBillForm = () => {
                       </span>
                     )}
                   </button>
+                  {/* Notes & Terms (existing) */}
                   <button
                     type="button"
                     onClick={() => setNotesDrawerOpen(true)}
-                    className={`w-full flex items-center gap-2 py-2 px-2.5 text-[13px] rounded-[10px] border transition-colors ${
-                      isDarkMode
-                        ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff] hover:text-[#4aa3ff]"
-                        : "bg-gray-50 border-gray-200 text-gray-900 hover:border-blue-500 hover:text-blue-600"
-                    }`}
+                    className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <FileText className="h-4 w-4 opacity-60" />
                     Notes & Terms
@@ -2893,29 +2327,38 @@ const SupplierBillForm = () => {
               </div>
 
               {/* Stock-In Information */}
-              <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+              <div
+                className={`p-4 rounded-2xl border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+              >
                 <h2
-                  className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                  className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
-                  <Layers className="h-5 w-5" />
                   Stock-In Details
                 </h2>
                 <div className={`space-y-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                  {/* Procurement Channel */}
+                  {/* Procurement Channel — derived from items */}
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Procurement:</span>
                     <span
                       className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        bill.procurementChannel === "IMPORTED"
+                        derivedProcurement === "IMPORTED"
                           ? isDarkMode
                             ? "bg-blue-900/50 text-blue-300"
                             : "bg-blue-100 text-blue-700"
-                          : isDarkMode
-                            ? "bg-green-900/50 text-green-300"
-                            : "bg-green-100 text-green-700"
+                          : derivedProcurement === "MIXED"
+                            ? isDarkMode
+                              ? "bg-amber-900/50 text-amber-300"
+                              : "bg-amber-100 text-amber-700"
+                            : isDarkMode
+                              ? "bg-green-900/50 text-green-300"
+                              : "bg-green-100 text-green-700"
                       }`}
                     >
-                      {bill.procurementChannel === "IMPORTED" ? "Import" : "Local"}
+                      {derivedProcurement === "IMPORTED"
+                        ? "Import"
+                        : derivedProcurement === "MIXED"
+                          ? "Mixed"
+                          : "Local"}
                     </span>
                   </div>
 
@@ -2961,20 +2404,22 @@ const SupplierBillForm = () => {
                     </>
                   )}
 
-                  {/* Batch Creation Flag */}
+                  {/* Batch Creation — Select All shortcut */}
                   <div className="flex justify-between items-center pt-2">
                     <span className="font-medium">Create Batches:</span>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <span className="sr-only">Toggle batch creation</span>
+                      <span className="sr-only">Toggle all batch creation</span>
                       <input
                         type="checkbox"
-                        checked={bill.triggerBatchCreation}
-                        onChange={(e) =>
+                        checked={bill.items.every((item) => item.createBatch !== false)}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
                           setBill((prev) => ({
                             ...prev,
-                            triggerBatchCreation: e.target.checked,
-                          }))
-                        }
+                            triggerBatchCreation: checked,
+                            items: prev.items.map((item) => ({ ...item, createBatch: checked })),
+                          }));
+                        }}
                         className="sr-only peer"
                       />
                       <div
@@ -2985,7 +2430,7 @@ const SupplierBillForm = () => {
                     </label>
                   </div>
                   <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                    When approved, creates inventory batches for each line item
+                    Toggle all items. Override individual items in line items table.
                   </p>
                 </div>
               </div>
@@ -2995,7 +2440,7 @@ const SupplierBillForm = () => {
           {/* End sidebar column */}
         </div>
         {/* End 12-col grid */}
-      </div>
+      </main>
 
       {/* Charges & Duty Drawer */}
       <Drawer
@@ -3010,7 +2455,7 @@ const SupplierBillForm = () => {
             <div>
               <label
                 htmlFor="freight-charges"
-                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
               >
                 Freight Charges
               </label>
@@ -3026,17 +2471,17 @@ const SupplierBillForm = () => {
                   setBill((prev) => ({ ...prev, freightCharges: amount }));
                   recalculateTotals(bill.items);
                 }}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                    ? "bg-gray-900 border-gray-700 text-white focus:border-teal-500"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                } focus:ring-1 focus:ring-teal-500`}
               />
             </div>
             <div>
               <label
                 htmlFor="customs-duty"
-                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
               >
                 Customs Duty
               </label>
@@ -3052,17 +2497,17 @@ const SupplierBillForm = () => {
                   setBill((prev) => ({ ...prev, customsDuty: amount }));
                   recalculateTotals(bill.items);
                 }}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                    ? "bg-gray-900 border-gray-700 text-white focus:border-teal-500"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                } focus:ring-1 focus:ring-teal-500`}
               />
             </div>
             <div>
               <label
                 htmlFor="insurance-charges"
-                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
               >
                 Insurance Charges
               </label>
@@ -3078,17 +2523,17 @@ const SupplierBillForm = () => {
                   setBill((prev) => ({ ...prev, insuranceCharges: amount }));
                   recalculateTotals(bill.items);
                 }}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                    ? "bg-gray-900 border-gray-700 text-white focus:border-teal-500"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                } focus:ring-1 focus:ring-teal-500`}
               />
             </div>
             <div>
               <label
                 htmlFor="handling-charges"
-                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
               >
                 Handling Charges
               </label>
@@ -3104,17 +2549,17 @@ const SupplierBillForm = () => {
                   setBill((prev) => ({ ...prev, handlingCharges: amount }));
                   recalculateTotals(bill.items);
                 }}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                    ? "bg-gray-900 border-gray-700 text-white focus:border-teal-500"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                } focus:ring-1 focus:ring-teal-500`}
               />
             </div>
             <div className="col-span-2">
               <label
                 htmlFor="other-charges"
-                className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                className={`block text-xs mb-1.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
               >
                 Other Charges
               </label>
@@ -3130,21 +2575,21 @@ const SupplierBillForm = () => {
                   setBill((prev) => ({ ...prev, otherCharges: amount }));
                   recalculateTotals(bill.items);
                 }}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none ${
                   isDarkMode
-                    ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] focus:border-[#5bb2ff]"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-blue-500"
-                } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                    ? "bg-gray-900 border-gray-700 text-white focus:border-teal-500"
+                    : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                } focus:ring-1 focus:ring-teal-500`}
               />
             </div>
           </div>
 
           {/* Summary */}
           <div
-            className={`p-3 rounded-[14px] ${isDarkMode ? "bg-[#0f151b] border border-[#2a3640]" : "bg-gray-50 border border-gray-200"}`}
+            className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-gray-50 border border-gray-200"}`}
           >
             <div className="flex justify-between items-center">
-              <span className={`text-sm ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Total Charges</span>
+              <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Total Charges</span>
               <span className="text-sm font-bold font-mono">
                 {formatCurrency(
                   (parseFloat(bill.freightCharges) || 0) +
@@ -3163,14 +2608,14 @@ const SupplierBillForm = () => {
           className="sticky bottom-0 pt-4 mt-6"
           style={{
             background: isDarkMode
-              ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
+              ? "linear-gradient(to top, rgba(17,24,39,1) 70%, rgba(17,24,39,0))"
               : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
           }}
         >
           <button
             type="button"
             onClick={() => setChargesDrawerOpen(false)}
-            className="w-full bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer"
+            className="w-full bg-teal-600 text-white font-bold hover:bg-teal-500 rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors"
           >
             Done
           </button>
@@ -3189,7 +2634,7 @@ const SupplierBillForm = () => {
           <div>
             <label
               htmlFor="bill-notes"
-              className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+              className={`block text-xs mb-1.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             >
               Bill Notes
             </label>
@@ -3199,17 +2644,17 @@ const SupplierBillForm = () => {
               onChange={(e) => setBill((prev) => ({ ...prev, notes: e.target.value }))}
               placeholder="Add any notes about this supplier bill..."
               rows={4}
-              className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
+              className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none resize-none ${
                 isDarkMode
-                  ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]"
-                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500"
-              } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                  ? "bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-teal-500"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
+              } focus:ring-1 focus:ring-teal-500`}
             />
           </div>
           <div>
             <label
               htmlFor="payment-terms"
-              className={`block text-xs mb-1.5 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+              className={`block text-xs mb-1.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             >
               Payment Terms
             </label>
@@ -3219,11 +2664,11 @@ const SupplierBillForm = () => {
               onChange={(e) => setBill((prev) => ({ ...prev, terms: e.target.value }))}
               placeholder="Enter payment terms..."
               rows={4}
-              className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
+              className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none resize-none ${
                 isDarkMode
-                  ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-[#93a4b4] focus:border-[#5bb2ff]"
-                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500"
-              } focus:ring-2 focus:ring-[#4aa3ff]/20`}
+                  ? "bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-teal-500"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
+              } focus:ring-1 focus:ring-teal-500`}
             />
           </div>
         </div>
@@ -3233,14 +2678,494 @@ const SupplierBillForm = () => {
           className="sticky bottom-0 pt-4 mt-6"
           style={{
             background: isDarkMode
-              ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
+              ? "linear-gradient(to top, rgba(17,24,39,1) 70%, rgba(17,24,39,0))"
               : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
           }}
         >
           <button
             type="button"
             onClick={() => setNotesDrawerOpen(false)}
-            className="w-full bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer"
+            className="w-full bg-teal-600 text-white font-bold hover:bg-teal-500 rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors"
+          >
+            Done
+          </button>
+        </div>
+      </Drawer>
+
+      {/* Documents Drawer */}
+      <Drawer
+        isOpen={documentsDrawerOpen}
+        onClose={() => setDocumentsDrawerOpen(false)}
+        title="Document Management"
+        subtitle="Document type, supplier invoice date, and attachments"
+        isDarkMode={isDarkMode}
+      >
+        <div className="space-y-4 mt-4">
+          <div>
+            <label htmlFor="drawer-doc-type" className={LABEL_CLASSES(isDarkMode)}>
+              Document Type
+            </label>
+            <select
+              id="drawer-doc-type"
+              value={bill.documentType || "INVOICE"}
+              onChange={(e) => setBill((prev) => ({ ...prev, documentType: e.target.value }))}
+              className={INPUT_CLASSES(isDarkMode)}
+            >
+              {DOCUMENT_TYPES.map((dt) => (
+                <option key={dt.value} value={dt.value}>
+                  {dt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="drawer-supplier-inv-date" className={LABEL_CLASSES(isDarkMode)}>
+              Supplier Invoice Date
+            </label>
+            <input
+              id="drawer-supplier-inv-date"
+              type="date"
+              value={bill.supplierInvoiceDate ? formatDateForInput(bill.supplierInvoiceDate) : ""}
+              onChange={(e) => setBill((prev) => ({ ...prev, supplierInvoiceDate: e.target.value }))}
+              className={INPUT_CLASSES(isDarkMode)}
+            />
+          </div>
+          <div>
+            <label htmlFor="drawer-attachment-urls" className={LABEL_CLASSES(isDarkMode)}>
+              Attachment URLs
+            </label>
+            <textarea
+              id="drawer-attachment-urls"
+              value={(bill.attachmentUrls || []).join("\n")}
+              onChange={(e) =>
+                setBill((prev) => ({
+                  ...prev,
+                  attachmentUrls: e.target.value.split("\n").filter((u) => u.trim()),
+                }))
+              }
+              placeholder="Enter one URL per line..."
+              rows={3}
+              className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none resize-none ${
+                isDarkMode
+                  ? "bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-teal-500"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
+              } focus:ring-1 focus:ring-teal-500`}
+            />
+          </div>
+        </div>
+        <div
+          className="sticky bottom-0 pt-4 mt-6"
+          style={{
+            background: isDarkMode
+              ? "linear-gradient(to top, rgba(17,24,39,1) 70%, rgba(17,24,39,0))"
+              : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setDocumentsDrawerOpen(false)}
+            className="w-full bg-teal-600 text-white font-bold hover:bg-teal-500 rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors"
+          >
+            Done
+          </button>
+        </div>
+      </Drawer>
+
+      {/* Approval & Status Drawer */}
+      <Drawer
+        isOpen={approvalDrawerOpen}
+        onClose={() => setApprovalDrawerOpen(false)}
+        title="Approval & Status"
+        subtitle="Approval workflow status and rejection details"
+        isDarkMode={isDarkMode}
+      >
+        <div className="space-y-4 mt-4">
+          <div>
+            <label htmlFor="drawer-approval-status" className={LABEL_CLASSES(isDarkMode)}>
+              Approval Status
+            </label>
+            <select
+              id="drawer-approval-status"
+              value={bill.approvalStatus || "PENDING"}
+              onChange={(e) => setBill((prev) => ({ ...prev, approvalStatus: e.target.value }))}
+              className={INPUT_CLASSES(isDarkMode)}
+            >
+              {APPROVAL_STATUSES.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          {bill.approvalStatus === "REJECTED" && (
+            <div>
+              <label htmlFor="drawer-rejection-reason" className={LABEL_CLASSES(isDarkMode)}>
+                Rejection Reason
+              </label>
+              <textarea
+                id="drawer-rejection-reason"
+                value={bill.rejectionReason || ""}
+                onChange={(e) => setBill((prev) => ({ ...prev, rejectionReason: e.target.value }))}
+                placeholder="Reason for rejection..."
+                rows={3}
+                className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none resize-none ${
+                  isDarkMode
+                    ? "bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-teal-500"
+                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
+                } focus:ring-1 focus:ring-teal-500`}
+              />
+            </div>
+          )}
+          {bill.approvedBy && (
+            <div>
+              <label htmlFor="drawer-approved-by" className={LABEL_CLASSES(isDarkMode)}>
+                Approved By
+              </label>
+              <input
+                id="drawer-approved-by"
+                type="text"
+                value={bill.approvedBy || ""}
+                readOnly
+                className={`${INPUT_CLASSES(isDarkMode)} opacity-60 cursor-not-allowed`}
+              />
+            </div>
+          )}
+          {bill.approvedAt && (
+            <div>
+              <label htmlFor="drawer-approved-at" className={LABEL_CLASSES(isDarkMode)}>
+                Approved At
+              </label>
+              <input
+                id="drawer-approved-at"
+                type="text"
+                value={bill.approvedAt ? new Date(bill.approvedAt).toLocaleString() : ""}
+                readOnly
+                className={`${INPUT_CLASSES(isDarkMode)} opacity-60 cursor-not-allowed`}
+              />
+            </div>
+          )}
+        </div>
+        <div
+          className="sticky bottom-0 pt-4 mt-6"
+          style={{
+            background: isDarkMode
+              ? "linear-gradient(to top, rgba(17,24,39,1) 70%, rgba(17,24,39,0))"
+              : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setApprovalDrawerOpen(false)}
+            className="w-full bg-teal-600 text-white font-bold hover:bg-teal-500 rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors"
+          >
+            Done
+          </button>
+        </div>
+      </Drawer>
+
+      {/* Accounting Details Drawer */}
+      <Drawer
+        isOpen={accountingDrawerOpen}
+        onClose={() => setAccountingDrawerOpen(false)}
+        title="Accounting Details"
+        subtitle="Cost center, department, and project code"
+        isDarkMode={isDarkMode}
+      >
+        <div className="space-y-4 mt-4">
+          <div>
+            <label htmlFor="drawer-cost-center" className={LABEL_CLASSES(isDarkMode)}>
+              Cost Center
+            </label>
+            <input
+              id="drawer-cost-center"
+              type="text"
+              value={bill.costCenter || ""}
+              onChange={(e) => setBill((prev) => ({ ...prev, costCenter: e.target.value }))}
+              placeholder="Enter cost center..."
+              className={INPUT_CLASSES(isDarkMode)}
+            />
+          </div>
+          <div>
+            <label htmlFor="drawer-department" className={LABEL_CLASSES(isDarkMode)}>
+              Department
+            </label>
+            <input
+              id="drawer-department"
+              type="text"
+              value={bill.department || ""}
+              onChange={(e) => setBill((prev) => ({ ...prev, department: e.target.value }))}
+              placeholder="Enter department..."
+              className={INPUT_CLASSES(isDarkMode)}
+            />
+          </div>
+          <div>
+            <label htmlFor="drawer-project-code" className={LABEL_CLASSES(isDarkMode)}>
+              Project Code
+            </label>
+            <input
+              id="drawer-project-code"
+              type="text"
+              value={bill.projectCode || ""}
+              onChange={(e) => setBill((prev) => ({ ...prev, projectCode: e.target.value }))}
+              placeholder="Enter project code..."
+              className={INPUT_CLASSES(isDarkMode)}
+            />
+          </div>
+        </div>
+        <div
+          className="sticky bottom-0 pt-4 mt-6"
+          style={{
+            background: isDarkMode
+              ? "linear-gradient(to top, rgba(17,24,39,1) 70%, rgba(17,24,39,0))"
+              : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setAccountingDrawerOpen(false)}
+            className="w-full bg-teal-600 text-white font-bold hover:bg-teal-500 rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors"
+          >
+            Done
+          </button>
+        </div>
+      </Drawer>
+
+      {/* Import Details Drawer */}
+      <Drawer
+        isOpen={importDrawerOpen}
+        onClose={() => setImportDrawerOpen(false)}
+        title="Import Details"
+        subtitle="Import container, port of entry, and shipping details"
+        isDarkMode={isDarkMode}
+      >
+        <div className="space-y-4 mt-4">
+          {hasImportedItems && availableContainers.length > 0 && (
+            <div>
+              <label htmlFor="drawer-import-container" className={LABEL_CLASSES(isDarkMode)}>
+                Import Container
+              </label>
+              <select
+                id="drawer-import-container"
+                value={bill.importContainerId || ""}
+                onChange={(e) => {
+                  const container = availableContainers.find((c) => c.id === e.target.value);
+                  setBill((prev) => ({
+                    ...prev,
+                    importContainerId: e.target.value || null,
+                    importContainerNumber: container ? container.containerNumber : "",
+                  }));
+                }}
+                className={INPUT_CLASSES(isDarkMode)}
+              >
+                <option value="">No container linked</option>
+                {availableContainers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.containerNumber} — {c.status}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div>
+            <label htmlFor="drawer-port-of-entry" className={LABEL_CLASSES(isDarkMode)}>
+              Port of Entry
+            </label>
+            <input
+              id="drawer-port-of-entry"
+              type="text"
+              value={bill.portOfEntry || ""}
+              onChange={(e) => setBill((prev) => ({ ...prev, portOfEntry: e.target.value }))}
+              placeholder="e.g. Jebel Ali, Khalifa Port..."
+              className={INPUT_CLASSES(isDarkMode)}
+            />
+          </div>
+          <div>
+            <label htmlFor="drawer-arrival-date" className={LABEL_CLASSES(isDarkMode)}>
+              Arrival Date
+            </label>
+            <input
+              id="drawer-arrival-date"
+              type="date"
+              value={bill.arrivalDate ? formatDateForInput(bill.arrivalDate) : ""}
+              onChange={(e) => setBill((prev) => ({ ...prev, arrivalDate: e.target.value }))}
+              className={INPUT_CLASSES(isDarkMode)}
+            />
+          </div>
+          <div>
+            <label htmlFor="drawer-bill-of-lading" className={LABEL_CLASSES(isDarkMode)}>
+              Bill of Lading
+            </label>
+            <input
+              id="drawer-bill-of-lading"
+              type="text"
+              value={bill.billOfLading || ""}
+              onChange={(e) => setBill((prev) => ({ ...prev, billOfLading: e.target.value }))}
+              placeholder="B/L number..."
+              className={INPUT_CLASSES(isDarkMode)}
+            />
+          </div>
+        </div>
+        <div
+          className="sticky bottom-0 pt-4 mt-6"
+          style={{
+            background: isDarkMode
+              ? "linear-gradient(to top, rgba(17,24,39,1) 70%, rgba(17,24,39,0))"
+              : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setImportDrawerOpen(false)}
+            className="w-full bg-teal-600 text-white font-bold hover:bg-teal-500 rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors"
+          >
+            Done
+          </button>
+        </div>
+      </Drawer>
+
+      {/* Quality Inspection Drawer */}
+      <Drawer
+        isOpen={inspectionDrawerOpen}
+        onClose={() => setInspectionDrawerOpen(false)}
+        title="Quality Inspection"
+        subtitle="Inspection requirements and status"
+        isDarkMode={isDarkMode}
+      >
+        <div className="space-y-4 mt-4">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="inspectionRequired"
+              checked={bill.inspectionRequired || false}
+              onChange={(e) => setBill((prev) => ({ ...prev, inspectionRequired: e.target.checked }))}
+              className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+            />
+            <label htmlFor="inspectionRequired" className={`text-sm ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
+              Inspection Required
+            </label>
+          </div>
+          {bill.inspectionRequired && (
+            <>
+              <div>
+                <label htmlFor="drawer-inspection-date" className={LABEL_CLASSES(isDarkMode)}>
+                  Inspection Date
+                </label>
+                <input
+                  id="drawer-inspection-date"
+                  type="date"
+                  value={bill.inspectionDate ? formatDateForInput(bill.inspectionDate) : ""}
+                  onChange={(e) => setBill((prev) => ({ ...prev, inspectionDate: e.target.value }))}
+                  className={INPUT_CLASSES(isDarkMode)}
+                />
+              </div>
+              <div>
+                <label htmlFor="drawer-inspection-status" className={LABEL_CLASSES(isDarkMode)}>
+                  Inspection Status
+                </label>
+                <select
+                  id="drawer-inspection-status"
+                  value={bill.inspectionStatus || ""}
+                  onChange={(e) => setBill((prev) => ({ ...prev, inspectionStatus: e.target.value || null }))}
+                  className={INPUT_CLASSES(isDarkMode)}
+                >
+                  <option value="">Select status...</option>
+                  {INSPECTION_STATUSES.map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
+        </div>
+        <div
+          className="sticky bottom-0 pt-4 mt-6"
+          style={{
+            background: isDarkMode
+              ? "linear-gradient(to top, rgba(17,24,39,1) 70%, rgba(17,24,39,0))"
+              : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setInspectionDrawerOpen(false)}
+            className="w-full bg-teal-600 text-white font-bold hover:bg-teal-500 rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors"
+          >
+            Done
+          </button>
+        </div>
+      </Drawer>
+
+      {/* Retention Drawer */}
+      <Drawer
+        isOpen={retentionDrawerOpen}
+        onClose={() => setRetentionDrawerOpen(false)}
+        title="Retention"
+        subtitle="Retention percentage, release date, and calculated amount"
+        isDarkMode={isDarkMode}
+      >
+        <div className="space-y-4 mt-4">
+          <div>
+            <label htmlFor="drawer-retention-pct" className={LABEL_CLASSES(isDarkMode)}>
+              Retention Percentage (%)
+            </label>
+            <input
+              id="drawer-retention-pct"
+              type="number"
+              min="0"
+              max="100"
+              step="0.5"
+              value={bill.retentionPercentage || 0}
+              onChange={(e) =>
+                setBill((prev) => ({
+                  ...prev,
+                  retentionPercentage: Number.parseFloat(e.target.value) || 0,
+                }))
+              }
+              className={INPUT_CLASSES(isDarkMode)}
+            />
+          </div>
+          <div>
+            <label htmlFor="drawer-retention-release" className={LABEL_CLASSES(isDarkMode)}>
+              Release Date
+            </label>
+            <input
+              id="drawer-retention-release"
+              type="date"
+              value={bill.retentionReleaseDate ? formatDateForInput(bill.retentionReleaseDate) : ""}
+              onChange={(e) => setBill((prev) => ({ ...prev, retentionReleaseDate: e.target.value }))}
+              className={INPUT_CLASSES(isDarkMode)}
+            />
+          </div>
+          <div>
+            <label htmlFor="drawer-retention-amount" className={LABEL_CLASSES(isDarkMode)}>
+              Retention Amount
+            </label>
+            <input
+              id="drawer-retention-amount"
+              type="text"
+              value={formatCurrency(bill.retentionAmount || 0)}
+              readOnly
+              className={`${INPUT_CLASSES(isDarkMode)} opacity-60 cursor-not-allowed`}
+            />
+            <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+              Auto-calculated from retention % and bill total
+            </p>
+          </div>
+        </div>
+        <div
+          className="sticky bottom-0 pt-4 mt-6"
+          style={{
+            background: isDarkMode
+              ? "linear-gradient(to top, rgba(17,24,39,1) 70%, rgba(17,24,39,0))"
+              : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setRetentionDrawerOpen(false)}
+            className="w-full bg-teal-600 text-white font-bold hover:bg-teal-500 rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors"
           >
             Done
           </button>
@@ -3295,7 +3220,7 @@ const SupplierBillForm = () => {
                       onClick={() => handleGRNSelect(grn)}
                       className={`w-full text-left p-4 rounded-lg border transition-all ${
                         isDarkMode
-                          ? "border-gray-600 hover:border-teal-500 hover:bg-gray-700/50"
+                          ? "border-gray-700 hover:border-teal-500 hover:bg-gray-700/50"
                           : "border-gray-200 hover:border-teal-500 hover:bg-teal-50/50"
                       }`}
                     >

@@ -50,6 +50,16 @@ const CARD_CLASSES = (isDarkMode) =>
 const LABEL_CLASSES = (isDarkMode) =>
   `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
 
+const QUICK_LINK_CLASSES = (isDarkMode) =>
+  `flex items-center gap-2 py-2 px-2.5 ${isDarkMode ? "bg-gray-900 border-gray-700 text-gray-200" : "bg-gray-50 border-gray-200 text-gray-900"} border rounded-md cursor-pointer text-xs transition-colors hover:border-teal-500 hover:text-teal-400 w-full`;
+
+const DIVIDER_CLASSES = (isDarkMode) => `h-px ${isDarkMode ? "bg-gray-700" : "bg-gray-200"} my-3`;
+
+const DRAWER_FOOTER_GRADIENT = (isDarkMode) =>
+  isDarkMode
+    ? "linear-gradient(to top, rgba(31,41,55,1) 70%, rgba(31,41,55,0))"
+    : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))";
+
 // Helper to unescape product display names (Bug #25 fix)
 const unescapeProductName = (name) => {
   if (!name || typeof name !== "string") return name || "";
@@ -227,6 +237,7 @@ const QuotationForm = () => {
   // Drawer states
   const [chargesDrawerOpen, setChargesDrawerOpen] = useState(false);
   const [notesDrawerOpen, setNotesDrawerOpen] = useState(false);
+  const [customerDetailsDrawerOpen, setCustomerDetailsDrawerOpen] = useState(false);
 
   // Steel industry feature states (STEEL-FORMS-PHASE1 Priority 2)
   const [batchesModalOpen, setBatchesModalOpen] = useState(false);
@@ -1485,7 +1496,7 @@ const QuotationForm = () => {
 
   if (loading && isEdit) {
     return (
-      <div className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`min-h-screen ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}>
         <div className="flex items-center justify-center min-h-96">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
         </div>
@@ -1823,337 +1834,1453 @@ const QuotationForm = () => {
         onCancel={() => setUnsavedChangesDialog({ open: false, pendingPath: null })}
       />
 
-      <div
-        className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"} p-2 md:p-4`}
-        data-testid="quotation-form"
-      >
-        {/* Header - Compact on mobile */}
-        <div className="mb-4 md:mb-6">
-          <div className="flex items-center gap-2 md:gap-4 mb-2 md:mb-4">
-            <button
-              type="button"
-              onClick={handleBackClick}
-              className={`p-1.5 md:p-2 rounded-lg border transition-colors ${
-                isDarkMode
-                  ? "border-gray-600 text-gray-300 hover:bg-gray-700"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              <ArrowLeft size={18} className="md:hidden" />
-              <ArrowLeft size={20} className="hidden md:block" />
-            </button>
-            <div className="flex-1">
-              <h1 className={`text-lg md:text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                {isEdit ? "Edit Quotation" : "New Quotation"}
-              </h1>
-              <p className={`text-xs md:text-sm mt-0.5 md:mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                {isEdit ? "Update quotation details" : "Create a new quotation for your customer"}
-              </p>
-            </div>
-            <div className="relative">
+      <div className={`min-h-screen ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`} data-testid="quotation-form">
+        {/* ==================== STICKY HEADER ==================== */}
+        <header
+          className={`sticky top-0 z-20 shrink-0 backdrop-blur-md border-b ${
+            isDarkMode ? "bg-gray-950/92 border-gray-700" : "bg-white/92 border-gray-200"
+          }`}
+        >
+          <div className="max-w-[1400px] mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
+            <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => setShowFormSettings(!showFormSettings)}
-                className={`p-1.5 md:p-2 rounded-lg border transition-colors ${
-                  isDarkMode
-                    ? "border-gray-600 text-gray-300 hover:bg-gray-700"
-                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                onClick={handleBackClick}
+                className={`p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${
+                  isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
                 }`}
-                title="Form Settings"
+                aria-label="Back to quotations"
               >
-                <Settings size={18} className="md:hidden" />
-                <Settings size={20} className="hidden md:block" />
+                <ArrowLeft className="h-5 w-5" />
               </button>
-
-              <FormSettingsPanel
-                isOpen={showFormSettings}
-                onClose={() => setShowFormSettings(false)}
-                preferences={formPreferences}
-                onPreferenceChange={(key, value) => {
-                  setFormPreferences((prev) => ({ ...prev, [key]: value }));
-                }}
-              />
+              <div>
+                <h1 className={`text-lg md:text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                  {isEdit ? "Edit Quotation" : "New Quotation"}
+                </h1>
+                <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  {formData.quotationNumber || "QT-DRAFT"}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+            <div className="flex items-center gap-2">
+              {/* Status Pill */}
+              <span
+                className={`px-3 py-1.5 rounded-full text-xs font-medium ${
+                  formData.status === "accepted"
+                    ? "bg-green-500/20 text-green-400"
+                    : formData.status === "sent"
+                      ? "bg-blue-500/20 text-blue-400"
+                      : formData.status === "expired"
+                        ? "bg-red-500/20 text-red-400"
+                        : "bg-gray-500/20 text-gray-400"
+                }`}
+              >
+                {(formData.status || "draft").toUpperCase()}
+              </span>
 
-        {/* Alert Messages */}
-        {error && (
-          <div className="mb-4 md:mb-6 p-3 md:p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-2 text-sm">
-            <AlertCircle size={18} className="flex-shrink-0" />
-            <div className="flex-1 whitespace-pre-line">{error}</div>
-            <div className="flex gap-2">
-              {isEdit && (error.includes("not found") || error.includes("permission")) && (
+              <div className="relative">
                 <button
                   type="button"
-                  onClick={() => {
-                    window.location.reload();
-                  }}
-                  className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-medium"
+                  onClick={() => setShowFormSettings(!showFormSettings)}
+                  className={`p-2 rounded-lg border transition-colors ${
+                    isDarkMode
+                      ? "border-gray-700 text-gray-300 hover:bg-gray-700"
+                      : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                  }`}
+                  aria-label="Form settings"
+                  title="Form Settings"
                 >
-                  Retry
+                  <Settings className="h-4 w-4" />
                 </button>
-              )}
-              <button type="button" onClick={() => setError("")} className="text-red-500 hover:text-red-700">
-                <X size={16} />
-              </button>
+
+                <FormSettingsPanel
+                  isOpen={showFormSettings}
+                  onClose={() => setShowFormSettings(false)}
+                  preferences={formPreferences}
+                  onPreferenceChange={(key, value) => {
+                    setFormPreferences((prev) => ({ ...prev, [key]: value }));
+                  }}
+                />
+              </div>
             </div>
           </div>
-        )}
+        </header>
 
-        {success && (
-          <div className="mb-4 md:mb-6 p-3 md:p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center gap-2 text-sm">
-            <CheckCircle size={18} />
-            {success}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-          {/* Main Content - 8 columns */}
-          <div className="col-span-12 lg:col-span-8 space-y-4">
-            {/* Basic Information - Compact */}
-            <div className={CARD_CLASSES(isDarkMode)}>
-              <div className="flex items-center gap-2 mb-3 md:mb-4">
-                <FileText size={18} className="text-teal-600 md:hidden" />
-                <FileText size={20} className="text-teal-600 hidden md:block" />
-                <h2 className={`text-base md:text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  Basic Information
-                </h2>
+        <div className="p-2 md:p-4">
+          {/* Alert Messages */}
+          {error && (
+            <div className="mb-4 md:mb-6 p-3 md:p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-2 text-sm">
+              <AlertCircle size={18} className="flex-shrink-0" />
+              <div className="flex-1 whitespace-pre-line">{error}</div>
+              <div className="flex gap-2">
+                {isEdit && (error.includes("not found") || error.includes("permission")) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      window.location.reload();
+                    }}
+                    className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-medium"
+                  >
+                    Retry
+                  </button>
+                )}
+                <button type="button" onClick={() => setError("")} className="text-red-500 hover:text-red-700">
+                  <X size={16} />
+                </button>
               </div>
+            </div>
+          )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-                <Input
-                  data-testid="quotation-number"
-                  name="quotationNumber"
-                  label="Quotation Number"
-                  type="text"
-                  placeholder="QT-00001"
-                  value={formData.quotationNumber || "QT-DRAFT"}
-                  onChange={(e) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      quotationNumber: e.target.value,
-                    }));
-                    validateField("quotationNumber", e.target.value);
-                  }}
-                  readOnly={true}
-                  required
-                  validationState={fieldValidation.quotationNumber}
-                  showValidation={formPreferences.showValidationHighlighting}
-                  helperText="Generated automatically"
-                />
+          {success && (
+            <div className="mb-4 md:mb-6 p-3 md:p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center gap-2 text-sm">
+              <CheckCircle size={18} />
+              {success}
+            </div>
+          )}
 
-                <Input
-                  data-testid="quotation-date"
-                  name="quotationDate"
-                  label="Quotation Date"
-                  type="date"
-                  value={formData.quotationDate}
-                  onChange={(e) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      quotationDate: e.target.value,
-                    }));
-                    validateField("quotationDate", e.target.value);
-                  }}
-                  placeholder="DD/MM/YYYY"
-                  required
-                  validationState={fieldValidation.quotationDate}
-                  showValidation={formPreferences.showValidationHighlighting}
-                />
-
-                <Input
-                  data-testid="valid-until"
-                  label="Valid Until"
-                  type="date"
-                  value={formData.validUntil}
-                  onChange={(e) => {
-                    const newDate = e.target.value;
-                    // Validate: Valid Until should be after Quotation Date
-                    if (newDate && formData.quotationDate) {
-                      if (newDate < formData.quotationDate) {
-                        setError("Valid Until date must be after Quotation Date");
-                        return;
-                      }
-                    }
-                    setFormData((prev) => ({
-                      ...prev,
-                      validUntil: newDate,
-                    }));
-                    setError("");
-                  }}
-                  placeholder="DD/MM/YYYY"
-                  helperText={
-                    formData.validUntil && new Date(formData.validUntil) < new Date() ? "This date is in the past" : ""
-                  }
-                />
-
-                <FormSelect
-                  label="Currency"
-                  value={formData.currency || "AED"}
-                  onValueChange={(value) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      currency: value,
-                    }));
-                    validateField("currency", value);
-                  }}
-                  required
-                  validationState={fieldValidation.currency}
-                  showValidation={formPreferences.showValidationHighlighting}
-                >
-                  <SelectItem value="AED">AED (UAE Dirham)</SelectItem>
-                  <SelectItem value="USD">USD (US Dollar)</SelectItem>
-                  <SelectItem value="EUR">EUR (Euro)</SelectItem>
-                  <SelectItem value="GBP">GBP (British Pound)</SelectItem>
-                  <SelectItem value="INR">INR (Indian Rupee)</SelectItem>
-                </FormSelect>
-
-                <Input
-                  label="Exchange Rate"
-                  type="number"
-                  step="0.0001"
-                  min="0.0001"
-                  max="99999"
-                  value={formData.exchangeRate || ""}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    const numValue = parseFloat(value);
-                    // Validate: must be a positive number if provided
-                    if (value === "" || (numValue > 0 && !Number.isNaN(numValue))) {
+          <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
+            {/* Main Content - 8 columns */}
+            <div className="col-span-12 lg:col-span-8 space-y-4">
+              {/* Compact Header Card — All key fields in one card */}
+              <div className={CARD_CLASSES(isDarkMode)}>
+                {/* Row 1: QT Number, Date, Valid Until, Currency */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <Input
+                    data-testid="quotation-number"
+                    name="quotationNumber"
+                    label="Quotation Number"
+                    type="text"
+                    placeholder="QT-00001"
+                    value={formData.quotationNumber || "QT-DRAFT"}
+                    onChange={(e) => {
                       setFormData((prev) => ({
                         ...prev,
-                        exchangeRate: value === "" ? 1 : numValue,
+                        quotationNumber: e.target.value,
                       }));
+                      validateField("quotationNumber", e.target.value);
+                    }}
+                    readOnly={true}
+                    required
+                    validationState={fieldValidation.quotationNumber}
+                    showValidation={formPreferences.showValidationHighlighting}
+                    helperText="Generated automatically"
+                  />
+
+                  <Input
+                    data-testid="quotation-date"
+                    name="quotationDate"
+                    label="Quotation Date"
+                    type="date"
+                    value={formData.quotationDate}
+                    onChange={(e) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        quotationDate: e.target.value,
+                      }));
+                      validateField("quotationDate", e.target.value);
+                    }}
+                    placeholder="DD/MM/YYYY"
+                    required
+                    validationState={fieldValidation.quotationDate}
+                    showValidation={formPreferences.showValidationHighlighting}
+                  />
+
+                  <Input
+                    data-testid="valid-until"
+                    label="Valid Until"
+                    type="date"
+                    value={formData.validUntil}
+                    onChange={(e) => {
+                      const newDate = e.target.value;
+                      if (newDate && formData.quotationDate) {
+                        if (newDate < formData.quotationDate) {
+                          setError("Valid Until date must be after Quotation Date");
+                          return;
+                        }
+                      }
+                      setFormData((prev) => ({
+                        ...prev,
+                        validUntil: newDate,
+                      }));
+                      setError("");
+                    }}
+                    placeholder="DD/MM/YYYY"
+                    helperText={
+                      formData.validUntil && new Date(formData.validUntil) < new Date()
+                        ? "This date is in the past"
+                        : ""
                     }
-                  }}
-                  placeholder="1.0000"
-                  required={formData.currency !== "AED"}
-                  validationState={
-                    formData.currency !== "AED" && (!formData.exchangeRate || formData.exchangeRate <= 0)
-                      ? "invalid"
-                      : null
+                  />
+
+                  <FormSelect
+                    label="Currency"
+                    value={formData.currency || "AED"}
+                    onValueChange={(value) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        currency: value,
+                      }));
+                      validateField("currency", value);
+                    }}
+                    required
+                    validationState={fieldValidation.currency}
+                    showValidation={formPreferences.showValidationHighlighting}
+                  >
+                    <SelectItem value="AED">AED (UAE Dirham)</SelectItem>
+                    <SelectItem value="USD">USD (US Dollar)</SelectItem>
+                    <SelectItem value="EUR">EUR (Euro)</SelectItem>
+                    <SelectItem value="GBP">GBP (British Pound)</SelectItem>
+                    <SelectItem value="INR">INR (Indian Rupee)</SelectItem>
+                  </FormSelect>
+                </div>
+
+                <div className={DIVIDER_CLASSES(isDarkMode)} />
+
+                {/* Row 2: Customer, Name, Company */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <Autocomplete
+                    label="Select Customer"
+                    placeholder="Search or enter manually"
+                    options={customers.map((c) => ({
+                      id: c.id,
+                      label: c.name,
+                      name: c.name,
+                      company: c.company,
+                      email: c.email,
+                      phone: c.phone,
+                      address: c.address,
+                      vatNumber: c.vatNumber,
+                      pricelistId: c.pricelistId,
+                      pricelist_id: c.pricelist_id,
+                    }))}
+                    value={
+                      formData.customerId ? customers.find((c) => String(c.id) === String(formData.customerId)) : null
+                    }
+                    inputValue={customerInputValue}
+                    onInputChange={(_e, newValue) => {
+                      setCustomerInputValue(newValue || "");
+                    }}
+                    onChange={(_e, selected) => {
+                      if (selected) {
+                        handleCustomerChange(selected.id, selected);
+                      } else {
+                        handleCustomerChange("");
+                        setCustomerInputValue("");
+                      }
+                    }}
+                    noOptionsText="No customers found"
+                    data-testid="customer-autocomplete"
+                  />
+
+                  <Input
+                    label="Customer Name"
+                    type="text"
+                    value={formData.customerDetails.name}
+                    onChange={(e) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        customerDetails: {
+                          ...prev.customerDetails,
+                          name: e.target.value,
+                        },
+                      }));
+                      validateField("customerName", e.target.value);
+                    }}
+                    required
+                    validationState={fieldValidation.customerName}
+                    showValidation={formPreferences.showValidationHighlighting}
+                  />
+
+                  <Input
+                    label="Company"
+                    type="text"
+                    value={formData.customerDetails.company}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        customerDetails: {
+                          ...prev.customerDetails,
+                          company: e.target.value,
+                        },
+                      }))
+                    }
+                  />
+                </div>
+
+                <div className={DIVIDER_CLASSES(isDarkMode)} />
+
+                {/* Row 3: Warehouse, Delivery Terms, Payment Terms, Price Validity */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <FormSelect
+                    label="Warehouse"
+                    value={formData.warehouseId || "none"}
+                    onValueChange={(warehouseId) => {
+                      if (warehouseId === "none") {
+                        setFormData((prev) => ({
+                          ...prev,
+                          warehouseId: "",
+                          warehouseName: "",
+                          warehouseCode: "",
+                          warehouseCity: "",
+                        }));
+                        validateField("warehouse", "");
+                      } else {
+                        const w = warehouses.find((wh) => wh.id.toString() === warehouseId);
+                        setFormData((prev) => ({
+                          ...prev,
+                          warehouseId,
+                          warehouseName: w ? w.name : "",
+                          warehouseCode: w ? w.code : "",
+                          warehouseCity: w ? w.city : "",
+                        }));
+                        validateField("warehouse", warehouseId);
+                      }
+                    }}
+                    required={formData.status !== "draft"}
+                    validationState={fieldValidation.warehouse}
+                    showValidation={formPreferences.showValidationHighlighting}
+                    disabled={loading || warehouses.length === 0}
+                  >
+                    <SelectItem value="none">
+                      {loading
+                        ? "Loading warehouses..."
+                        : warehouses.length === 0
+                          ? "No warehouses available"
+                          : "Select warehouse"}
+                    </SelectItem>
+                    {warehouses && warehouses.length > 0
+                      ? warehouses.map((wh) => (
+                          <SelectItem key={wh.id} value={wh.id.toString()}>
+                            {wh.name}
+                            {wh.city?.trim() ? ` (${wh.city.trim()})` : ""}
+                          </SelectItem>
+                        ))
+                      : null}
+                  </FormSelect>
+
+                  <Input
+                    label="Delivery Terms"
+                    type="text"
+                    value={formData.deliveryTerms}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        deliveryTerms: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., FOB Destination"
+                  />
+
+                  <Input
+                    label="Payment Terms"
+                    type="text"
+                    value={formData.paymentTerms}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        paymentTerms: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., 30 days from invoice"
+                  />
+
+                  {/* Price Validity Condition (STEEL-FORMS-PHASE1 Priority 2) */}
+                  <PriceValiditySelector
+                    value={formData.priceValidityCondition}
+                    onChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        priceValidityCondition: value,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Items Section with Speed Buttons */}
+              <div className={CARD_CLASSES(isDarkMode)}>
+                <div className="flex items-center justify-between mb-3 md:mb-4">
+                  <div className="flex items-center gap-2">
+                    <Package size={18} className="text-teal-600 md:hidden" />
+                    <Package size={20} className="text-teal-600 hidden md:block" />
+                    <h2 className={`text-base md:text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                      Items ({formData.items.length})
+                    </h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addItem}
+                    className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm"
+                    data-testid="add-item"
+                  >
+                    <Plus size={14} className="md:hidden" />
+                    <Plus size={16} className="hidden md:block" />
+                    <span className="hidden sm:inline">Add Item</span>
+                    <span className="sm:hidden">Add</span>
+                  </button>
+                </div>
+
+                {/* Speed Buttons */}
+                {formPreferences.showSpeedButtons && sortedProducts.length > 0 && (
+                  <div className="mb-4">
+                    <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                      Quick Add (Pinned & Top Products)
+                    </p>
+                    <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
+                      {sortedProducts.map((product) => {
+                        const isPinned = pinnedProductIds.includes(product.id);
+                        return (
+                          <div key={product.id} className="relative group flex-shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => quickAddItem(product)}
+                              className={`px-2 md:px-3 py-1.5 md:py-2 pr-6 md:pr-8 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-105 whitespace-nowrap ${
+                                isPinned
+                                  ? isDarkMode
+                                    ? "border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60 shadow-md hover:shadow-lg"
+                                    : "border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200 shadow-md hover:shadow-lg"
+                                  : isDarkMode
+                                    ? "border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md"
+                                    : "border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md"
+                              }`}
+                            >
+                              {unescapeProductName(
+                                product.displayName ||
+                                  product.display_name ||
+                                  product.uniqueName ||
+                                  product.unique_name ||
+                                  "N/A"
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => handleTogglePin(e, product.id)}
+                              className={`absolute right-0.5 md:right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
+                                isPinned
+                                  ? isDarkMode
+                                    ? "text-teal-300 hover:text-teal-200"
+                                    : "text-teal-700 hover:text-teal-800"
+                                  : isDarkMode
+                                    ? "text-gray-400 hover:text-teal-400"
+                                    : "text-gray-500 hover:text-teal-600"
+                              }`}
+                              title={isPinned ? "Unpin product" : "Pin product"}
+                            >
+                              {isPinned ? (
+                                <Pin size={12} fill="currentColor" className="md:hidden" />
+                              ) : (
+                                <Pin size={12} className="md:hidden" />
+                              )}
+                              {isPinned ? (
+                                <Pin size={14} fill="currentColor" className="hidden md:block" />
+                              ) : (
+                                <Pin size={14} className="hidden md:block" />
+                              )}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {formData.items.length === 0 ? (
+                  <div className="text-center py-8 md:py-12">
+                    <Package
+                      size={40}
+                      className={`mx-auto mb-3 md:mb-4 md:hidden ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
+                    />
+                    <Package
+                      size={48}
+                      className={`mx-auto mb-3 md:mb-4 hidden md:block ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
+                    />
+                    <p
+                      className={`text-sm md:text-lg font-medium mb-1 md:mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    >
+                      No items added yet
+                    </p>
+                    <p className={`text-xs md:text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                      Click &quot;Add Item&quot; or use Quick Add buttons
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 md:space-y-4">
+                    {formData.items.map((item, index) => (
+                      <div
+                        key={item.id || item.name || `item-${index}`}
+                        className={`p-3 md:p-4 border rounded-lg ${
+                          isDarkMode ? "border-gray-600 bg-gray-800/50" : "border-gray-200 bg-gray-50"
+                        }`}
+                      >
+                        {/* Stock Availability & Source Type Row */}
+                        <div className="flex items-center gap-3 mb-3">
+                          {/* Stock Availability Indicator - icon-only compact mode */}
+                          {item.productId && formData.warehouseId && (
+                            <div className="flex items-center gap-2">
+                              <span className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                                Stock:
+                              </span>
+                              <StockAvailabilityIndicator
+                                productId={item.productId}
+                                warehouseId={formData.warehouseId}
+                                requiredQty={item.quantity || 0}
+                                compact
+                                iconOnly
+                              />
+                            </div>
+                          )}
+
+                          {/* Source Type Selector */}
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                              Source:
+                            </span>
+                            <SourceTypeSelector
+                              value={item.sourceType || "WAREHOUSE"}
+                              onChange={(value) => updateItem(index, "sourceType", value)}
+                              id={`source-type-${index}`}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Steel Industry Action Buttons (STEEL-FORMS-PHASE1 Priority 2) */}
+                        <div
+                          className="flex flex-wrap items-center gap-2 mb-3 border-t border-b py-2 mt-2"
+                          style={{
+                            borderColor: isDarkMode ? "rgb(55, 65, 81)" : "rgb(229, 231, 235)",
+                          }}
+                        >
+                          {/* Stock Reservation */}
+                          <StockReservationToggle
+                            item={item}
+                            index={index}
+                            onToggleReservation={handleToggleStockReservation}
+                          />
+
+                          {/* View Batches */}
+                          {item.productId && (
+                            <button
+                              type="button"
+                              onClick={() => handleViewBatches(index)}
+                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                                isDarkMode
+                                  ? "bg-teal-900/30 text-teal-300 hover:bg-teal-900/50"
+                                  : "bg-teal-50 text-teal-700 hover:bg-teal-100"
+                              }`}
+                            >
+                              <Package className="h-4 w-4" />
+                              Batches
+                            </button>
+                          )}
+
+                          {/* Delivery Schedule */}
+                          <button
+                            type="button"
+                            onClick={() => handleOpenDeliverySchedule(index)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                              isDarkMode
+                                ? "bg-teal-900/30 text-teal-300 hover:bg-teal-900/50"
+                                : "bg-teal-50 text-teal-700 hover:bg-teal-100"
+                            }`}
+                          >
+                            <Calendar className="h-4 w-4" />
+                            Schedule {item.deliverySchedule?.length > 0 && `(${item.deliverySchedule.length})`}
+                          </button>
+
+                          {/* Alternative Products */}
+                          <button
+                            type="button"
+                            onClick={() => handleOpenAlternativeProducts(index)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border ${
+                              isDarkMode
+                                ? "bg-gray-800 text-gray-300 border-gray-600 hover:border-teal-500 hover:text-teal-400"
+                                : "bg-white text-gray-700 border-gray-300 hover:border-teal-500 hover:text-teal-600"
+                            }`}
+                          >
+                            <Layers className="h-4 w-4" />
+                            Alternatives{" "}
+                            {item.alternativeProducts?.length > 0 && `(${item.alternativeProducts.length})`}
+                          </button>
+
+                          {/* Lead Time Input */}
+                          <LeadTimeInput item={item} index={index} onUpdate={updateItem} />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
+                          <div className="sm:col-span-2">
+                            <FormSelect
+                              label="Product"
+                              value={item.productId || "none"}
+                              onValueChange={(value) => updateItem(index, "productId", value === "none" ? "" : value)}
+                            >
+                              <SelectItem value="none">Select or enter manually</SelectItem>
+                              {products.map((product) => (
+                                <SelectItem key={product.id} value={product.id.toString()}>
+                                  {unescapeProductName(
+                                    product.displayName ||
+                                      product.display_name ||
+                                      product.uniqueName ||
+                                      product.unique_name ||
+                                      "N/A"
+                                  )}
+                                </SelectItem>
+                              ))}
+                            </FormSelect>
+                            <Input
+                              placeholder="Item name"
+                              value={item.name}
+                              onChange={(e) => updateItem(index, "name", e.target.value)}
+                              required
+                              className="mt-2"
+                            />
+                          </div>
+
+                          <FormSelect
+                            label="Grade"
+                            value={item.grade || "none"}
+                            onValueChange={(value) => updateItem(index, "grade", value === "none" ? "" : value)}
+                          >
+                            <SelectItem value="none">Select Grade</SelectItem>
+                            {STEEL_GRADES.map((g) => (
+                              <SelectItem key={g} value={g}>
+                                {g}
+                              </SelectItem>
+                            ))}
+                          </FormSelect>
+
+                          <FormSelect
+                            label="Finish"
+                            value={item.finish || "none"}
+                            onValueChange={(value) => updateItem(index, "finish", value === "none" ? "" : value)}
+                          >
+                            <SelectItem value="none">Select Finish</SelectItem>
+                            {FINISHES.map((f) => (
+                              <SelectItem key={f} value={f}>
+                                {f}
+                              </SelectItem>
+                            ))}
+                          </FormSelect>
+
+                          <Input
+                            label="Size"
+                            type="text"
+                            value={item.size || ""}
+                            onChange={(e) => updateItem(index, "size", e.target.value)}
+                            placeholder="e.g., 1220x2440"
+                          />
+
+                          <Input
+                            label="Thickness"
+                            type="text"
+                            value={item.thickness || ""}
+                            onChange={(e) => updateItem(index, "thickness", e.target.value)}
+                            placeholder="e.g., 1.2mm"
+                          />
+
+                          <div>
+                            <label
+                              htmlFor={`item-quantity-${index}`}
+                              className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                            >
+                              Quantity ({item.quantityUom || "PCS"})
+                            </label>
+                            <input
+                              id={`item-quantity-${index}`}
+                              type="number"
+                              value={item.quantity}
+                              onChange={(e) => {
+                                const allowDecimal = item.quantityUom === "MT" || item.quantityUom === "KG";
+                                const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
+                                updateItem(index, "quantity", Number.isNaN(val) ? "" : val);
+                              }}
+                              min="0"
+                              step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
+                              className={`w-full px-3 py-2 text-sm border rounded-md ${
+                                isDarkMode
+                                  ? "bg-gray-700 border-gray-600 text-white"
+                                  : "bg-white border-gray-300 text-gray-900"
+                              }`}
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor={`item-unit-weight-${index}`}
+                              className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                            >
+                              Unit Wt (kg)
+                            </label>
+                            <input
+                              id={`item-unit-weight-${index}`}
+                              type="number"
+                              value={item.unitWeightKg || ""}
+                              onChange={(e) =>
+                                updateItem(
+                                  index,
+                                  "unitWeightKg",
+                                  e.target.value === "" ? null : parseFloat(e.target.value)
+                                )
+                              }
+                              min="0"
+                              step="0.01"
+                              placeholder="0.00"
+                              className={`w-full px-3 py-2 text-sm border rounded-md ${
+                                isDarkMode
+                                  ? "bg-gray-700 border-gray-600 text-white"
+                                  : "bg-white border-gray-300 text-gray-900"
+                              } ${item.missingWeightWarning ? "border-red-500" : ""}`}
+                            />
+                          </div>
+
+                          <div>
+                            <div
+                              className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                            >
+                              Total Wt (kg)
+                            </div>
+                            <div
+                              className={`px-3 py-2 text-sm border rounded-md ${
+                                isDarkMode
+                                  ? "bg-gray-700/50 border-gray-600 text-gray-300"
+                                  : "bg-gray-100 border-gray-300 text-gray-600"
+                              }`}
+                            >
+                              {(() => {
+                                const totalWt = item.theoreticalWeightKg || item.quantity * (item.unitWeightKg || 0);
+                                return totalWt ? totalWt.toFixed(2) : "-";
+                              })()}
+                            </div>
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor={`item-rate-${index}`}
+                              className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                            >
+                              Rate ({formData.currency})
+                            </label>
+                            <div
+                              className={`flex rounded-md overflow-hidden border ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
+                            >
+                              <input
+                                id={`item-rate-${index}`}
+                                type="number"
+                                value={item.rate}
+                                onChange={(e) => updateItem(index, "rate", parseFloat(e.target.value) || 0)}
+                                min="0"
+                                step="0.01"
+                                className={`flex-1 px-3 py-2 text-sm border-0 ${
+                                  isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"
+                                }`}
+                                required
+                              />
+                              <select
+                                value={item.pricingBasis || "PER_MT"}
+                                onChange={(e) => updateItem(index, "pricingBasis", e.target.value)}
+                                className={`text-[10px] font-bold px-1.5 border-l cursor-pointer outline-none ${
+                                  item.pricingBasis === "PER_KG"
+                                    ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
+                                    : item.pricingBasis === "PER_PCS"
+                                      ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700"
+                                      : "bg-gray-50 text-gray-600 border-gray-300"
+                                }`}
+                              >
+                                <option value="PER_MT">/MT</option>
+                                <option value="PER_KG">/kg</option>
+                                <option value="PER_PCS">/pc</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <Input
+                            label="VAT (%)"
+                            type="number"
+                            value={item.vatRate}
+                            onChange={(e) => updateItem(index, "vatRate", e.target.value)}
+                            min="0"
+                            max="100"
+                            step="0.01"
+                          />
+
+                          <div className="flex items-end gap-2">
+                            <div className="flex-1">
+                              <div
+                                className={`block text-xs font-medium mb-1 ${
+                                  isDarkMode ? "text-gray-400" : "text-gray-700"
+                                }`}
+                              >
+                                Total
+                              </div>
+                              <div
+                                className={`px-2 py-1.5 text-sm border rounded-md ${
+                                  isDarkMode
+                                    ? "bg-gray-700 border-gray-600 text-gray-300"
+                                    : "bg-gray-100 border-gray-300 text-gray-600"
+                                }`}
+                              >
+                                {formatCurrency(item.netAmount)}
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeItem(index)}
+                              className={`p-1.5 text-red-500 hover:text-red-700 rounded-lg transition-colors ${isDarkMode ? "hover:bg-red-900/30" : "hover:bg-red-50"}`}
+                            >
+                              <Trash2 size={14} className="md:hidden" />
+                              <Trash2 size={16} className="hidden md:block" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Missing Weight Warning */}
+                        {item.missingWeightWarning && (
+                          <div
+                            className={`mt-2 p-2 rounded-md border ${isDarkMode ? "bg-amber-900/30 border-amber-600" : "bg-amber-50 border-amber-200"}`}
+                          >
+                            <p className={`text-xs ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}>
+                              <AlertCircle className="inline h-3 w-3 mr-1" />
+                              Unit weight missing for weight-based pricing ({item.pricingBasis}). Contact admin to
+                              update product master.
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Additional fields - collapsible on mobile */}
+                        <details className="mt-2 md:mt-3">
+                          <summary
+                            className={`text-xs cursor-pointer ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          >
+                            More details
+                          </summary>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 mt-2">
+                            <Input
+                              label="Specification"
+                              type="text"
+                              value={item.specification}
+                              onChange={(e) => updateItem(index, "specification", e.target.value)}
+                            />
+
+                            <FormSelect
+                              label="Unit"
+                              value={item.unit || "pcs"}
+                              onValueChange={(value) => updateItem(index, "unit", value)}
+                            >
+                              <SelectItem value="pcs">Pieces</SelectItem>
+                              <SelectItem value="kg">Kilograms</SelectItem>
+                              <SelectItem value="tons">Tons</SelectItem>
+                              <SelectItem value="meters">Meters</SelectItem>
+                              <SelectItem value="sqm">Square Meters</SelectItem>
+                              <SelectItem value="feet">Feet</SelectItem>
+                              <SelectItem value="sqft">Square Feet</SelectItem>
+                            </FormSelect>
+
+                            <Input
+                              label="HSN Code"
+                              type="text"
+                              value={item.hsnCode}
+                              onChange={(e) => updateItem(index, "hsnCode", e.target.value)}
+                            />
+                          </div>
+                        </details>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            {/* End Main Content 8 columns */}
+
+            {/* Sidebar - 4 columns, sticky */}
+            <div className="col-span-12 lg:col-span-4">
+              <div className="lg:sticky lg:top-[72px] space-y-4">
+                {/* Summary */}
+                <div className={CARD_CLASSES(isDarkMode)}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Calculator size={18} className="text-teal-600" />
+                    <h3 className={`text-sm font-extrabold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Summary</h3>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-[13px]">
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Subtotal</span>
+                      <span
+                        className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                        data-testid="subtotal"
+                      >
+                        {formatCurrency(formData.subtotal)}
+                      </span>
+                    </div>
+
+                    {formData.vatAmount > 0 && (
+                      <div className="flex justify-between text-[13px]">
+                        <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>VAT</span>
+                        <span
+                          className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                          data-testid="vat-amount"
+                        >
+                          {formatCurrency(formData.vatAmount)}
+                        </span>
+                      </div>
+                    )}
+
+                    {(parseFloat(formData.packingCharges) || 0) +
+                      (parseFloat(formData.freightCharges) || 0) +
+                      (parseFloat(formData.insuranceCharges) || 0) +
+                      (parseFloat(formData.loadingCharges) || 0) +
+                      (parseFloat(formData.otherCharges) || 0) >
+                      0 && (
+                      <div className="flex justify-between text-[13px]">
+                        <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Charges</span>
+                        <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                          {formatCurrency(
+                            (parseFloat(formData.packingCharges) || 0) +
+                              (parseFloat(formData.freightCharges) || 0) +
+                              (parseFloat(formData.insuranceCharges) || 0) +
+                              (parseFloat(formData.loadingCharges) || 0) +
+                              (parseFloat(formData.otherCharges) || 0)
+                          )}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className={DIVIDER_CLASSES(isDarkMode)} />
+
+                    <div className="flex justify-between items-center">
+                      <span className={`text-sm font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Total</span>
+                      <span className="text-lg font-extrabold text-teal-600 font-mono" data-testid="total">
+                        {formatCurrency(formData.total)}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between text-xs pt-1">
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
+                        {formData.items.length} item{formData.items.length === 1 ? "" : "s"}
+                      </span>
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
+                        Qty: {formData.totalQuantity}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className={CARD_CLASSES(isDarkMode)}>
+                  <div className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    Quick Actions
+                  </div>
+                  <div className="space-y-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setCustomerDetailsDrawerOpen(true)}
+                      className={QUICK_LINK_CLASSES(isDarkMode)}
+                    >
+                      <User size={16} className="opacity-60" />
+                      Customer & Document Details
+                      {(formData.customerDetails.email || formData.customerDetails.phone) && (
+                        <span
+                          className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? "bg-teal-400" : "bg-teal-500"}`}
+                        />
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setChargesDrawerOpen(true)}
+                      className={QUICK_LINK_CLASSES(isDarkMode)}
+                    >
+                      <Package size={16} className="opacity-60" />
+                      Edit Charges
+                      {(parseFloat(formData.packingCharges) || 0) +
+                        (parseFloat(formData.freightCharges) || 0) +
+                        (parseFloat(formData.insuranceCharges) || 0) +
+                        (parseFloat(formData.loadingCharges) || 0) +
+                        (parseFloat(formData.otherCharges) || 0) >
+                        0 && (
+                        <span
+                          className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${isDarkMode ? "bg-teal-900/50 text-teal-300" : "bg-teal-100 text-teal-700"}`}
+                        >
+                          {formatCurrency(
+                            (parseFloat(formData.packingCharges) || 0) +
+                              (parseFloat(formData.freightCharges) || 0) +
+                              (parseFloat(formData.insuranceCharges) || 0) +
+                              (parseFloat(formData.loadingCharges) || 0) +
+                              (parseFloat(formData.otherCharges) || 0)
+                          )}
+                        </span>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setNotesDrawerOpen(true)}
+                      className={QUICK_LINK_CLASSES(isDarkMode)}
+                    >
+                      <FileText size={16} className="opacity-60" />
+                      Notes & Terms
+                      {(formData.notes || formData.termsAndConditions) && (
+                        <span
+                          className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? "bg-teal-400" : "bg-teal-500"}`}
+                        />
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setVolumeDiscountModalOpen(true)}
+                      className={QUICK_LINK_CLASSES(isDarkMode)}
+                    >
+                      <Calculator size={16} className="opacity-60" />
+                      Volume Discounts
+                      {formData.volumeDiscountTiers?.length > 0 && (
+                        <span
+                          className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${isDarkMode ? "bg-teal-900/50 text-teal-300" : "bg-teal-100 text-teal-700"}`}
+                        >
+                          {formData.volumeDiscountTiers.length}
+                        </span>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowPreview(true)}
+                    className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 text-sm rounded-lg border transition-colors ${
+                      isDarkMode
+                        ? "bg-gray-800 border-gray-600 text-gray-300 hover:border-teal-500 hover:text-teal-400"
+                        : "bg-white border-gray-300 text-gray-700 hover:border-teal-500 hover:text-teal-600"
+                    }`}
+                  >
+                    <Eye size={16} />
+                    Preview
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg text-sm transition-all duration-300 shadow-sm hover:shadow-md ${
+                      isSaving ? "opacity-60 cursor-not-allowed" : ""
+                    }`}
+                    data-testid="save-quotation"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save size={16} />
+                        {isEdit ? "Update Quotation" : "Create Quotation"}
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleBackClick}
+                    className={`w-full py-2 text-[13px] text-center ${
+                      isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          {/* Charges Drawer */}
+          <Drawer
+            isOpen={chargesDrawerOpen}
+            onClose={() => setChargesDrawerOpen(false)}
+            title="Additional Charges"
+            subtitle="Packing, freight, insurance, and other charges"
+            isDarkMode={isDarkMode}
+          >
+            <div className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="quotation-packing-charges" className={LABEL_CLASSES(isDarkMode)}>
+                    Packing Charges
+                  </label>
+                  <input
+                    id="quotation-packing-charges"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.packingCharges}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        packingCharges: e.target.value,
+                      }))
+                    }
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                      isDarkMode
+                        ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                        : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                    } focus:ring-2 focus:ring-teal-500/20`}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="quotation-freight-charges" className={LABEL_CLASSES(isDarkMode)}>
+                    Freight Charges
+                  </label>
+                  <input
+                    id="quotation-freight-charges"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.freightCharges}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        freightCharges: e.target.value,
+                      }))
+                    }
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                      isDarkMode
+                        ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                        : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                    } focus:ring-2 focus:ring-teal-500/20`}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="quotation-insurance-charges" className={LABEL_CLASSES(isDarkMode)}>
+                    Insurance Charges
+                  </label>
+                  <input
+                    id="quotation-insurance-charges"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.insuranceCharges}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        insuranceCharges: e.target.value,
+                      }))
+                    }
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                      isDarkMode
+                        ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                        : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                    } focus:ring-2 focus:ring-teal-500/20`}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="quotation-loading-charges" className={LABEL_CLASSES(isDarkMode)}>
+                    Loading Charges
+                  </label>
+                  <input
+                    id="quotation-loading-charges"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.loadingCharges}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        loadingCharges: e.target.value,
+                      }))
+                    }
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                      isDarkMode
+                        ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                        : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                    } focus:ring-2 focus:ring-teal-500/20`}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label htmlFor="quotation-other-charges" className={LABEL_CLASSES(isDarkMode)}>
+                    Other Charges
+                  </label>
+                  <input
+                    id="quotation-other-charges"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.otherCharges}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        otherCharges: e.target.value,
+                      }))
+                    }
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                      isDarkMode
+                        ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                        : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                    } focus:ring-2 focus:ring-teal-500/20`}
+                  />
+                </div>
+              </div>
+
+              {/* Discount Section */}
+              <div className="space-y-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                <div className={`block text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  Discount
+                </div>
+
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="discountType"
+                      value="percentage"
+                      checked={formData.discountType === "percentage"}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          discountType: e.target.value,
+                        }))
+                      }
+                      className="w-4 h-4 text-teal-600 focus:ring-teal-500"
+                    />
+                    <span className={`text-sm ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>Percentage</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="discountType"
+                      value="fixed"
+                      checked={formData.discountType === "fixed"}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          discountType: e.target.value,
+                        }))
+                      }
+                      className="w-4 h-4 text-teal-600 focus:ring-teal-500"
+                    />
+                    <span className={`text-sm ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>Fixed Amount</span>
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {formData.discountType === "percentage" && (
+                    <div>
+                      <label htmlFor="discountPercentage" className={LABEL_CLASSES(isDarkMode)}>
+                        Discount Percentage (%)
+                      </label>
+                      <input
+                        id="discountPercentage"
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={formData.discountPercentage || ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            discountPercentage: e.target.value,
+                          }))
+                        }
+                        className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                          isDarkMode
+                            ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                            : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                        } focus:ring-2 focus:ring-teal-500/20`}
+                      />
+                    </div>
+                  )}
+
+                  {formData.discountType === "fixed" && (
+                    <div>
+                      <label htmlFor="discountAmount" className={LABEL_CLASSES(isDarkMode)}>
+                        Discount Amount
+                      </label>
+                      <input
+                        id="discountAmount"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={formData.discountAmount || ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            discountAmount: e.target.value,
+                          }))
+                        }
+                        className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                          isDarkMode
+                            ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                            : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                        } focus:ring-2 focus:ring-teal-500/20`}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div
+                className={`p-3 rounded-[14px] ${isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-gray-50 border border-gray-200"}`}
+              >
+                <div className="flex justify-between items-center">
+                  <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Total Charges</span>
+                  <span className="text-sm font-bold font-mono">
+                    {formatCurrency(
+                      (parseFloat(formData.packingCharges) || 0) +
+                        (parseFloat(formData.freightCharges) || 0) +
+                        (parseFloat(formData.insuranceCharges) || 0) +
+                        (parseFloat(formData.loadingCharges) || 0) +
+                        (parseFloat(formData.otherCharges) || 0)
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
+              <button
+                type="button"
+                onClick={() => setChargesDrawerOpen(false)}
+                className="w-full bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-sm hover:shadow-md"
+              >
+                Done
+              </button>
+            </div>
+          </Drawer>
+
+          {/* Notes & Terms Drawer */}
+          <Drawer
+            isOpen={notesDrawerOpen}
+            onClose={() => setNotesDrawerOpen(false)}
+            title="Notes & Terms"
+            subtitle="Internal notes and terms for this quotation"
+            isDarkMode={isDarkMode}
+          >
+            <div className="space-y-4 mt-4">
+              <div>
+                <label htmlFor="quotation-notes" className={LABEL_CLASSES(isDarkMode)}>
+                  Notes
+                </label>
+                <textarea
+                  id="quotation-notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
+                  placeholder="Add any notes about this quotation..."
+                  rows={4}
+                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
+                    isDarkMode
+                      ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-teal-500"
+                      : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
+                  } focus:ring-2 focus:ring-teal-500/20`}
+                />
+              </div>
+              <div>
+                <label htmlFor="quotation-terms" className={LABEL_CLASSES(isDarkMode)}>
+                  Terms & Conditions
+                </label>
+                <textarea
+                  id="quotation-terms"
+                  value={formData.termsAndConditions}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      termsAndConditions: e.target.value,
+                    }))
                   }
-                  helperText={
-                    formData.currency !== "AED"
-                      ? `Rate to convert ${formData.currency} to AED (must be > 0)`
-                      : "Exchange rate is 1.0000 (AED is the base currency)"
-                  }
+                  placeholder="Enter terms and conditions..."
+                  rows={5}
+                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
+                    isDarkMode
+                      ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-teal-500"
+                      : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
+                  } focus:ring-2 focus:ring-teal-500/20`}
                 />
               </div>
             </div>
 
-            {/* Customer Information - Compact */}
-            <div className={CARD_CLASSES(isDarkMode)}>
-              <div className="flex items-center gap-2 mb-3 md:mb-4">
-                <User size={18} className="text-teal-600 md:hidden" />
-                <User size={20} className="text-teal-600 hidden md:block" />
-                <h2 className={`text-base md:text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  Customer Information
-                </h2>
+            <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
+              <button
+                type="button"
+                onClick={() => setNotesDrawerOpen(false)}
+                className="w-full bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-sm hover:shadow-md"
+              >
+                Done
+              </button>
+            </div>
+          </Drawer>
+
+          {/* Customer & Document Details Drawer */}
+          <Drawer
+            isOpen={customerDetailsDrawerOpen}
+            onClose={() => setCustomerDetailsDrawerOpen(false)}
+            title="Customer & Document Details"
+            subtitle="Email, phone, VAT, PO references, and exchange rate"
+            isDarkMode={isDarkMode}
+          >
+            <div className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="qt-customer-email" className={LABEL_CLASSES(isDarkMode)}>
+                    Email
+                  </label>
+                  <input
+                    id="qt-customer-email"
+                    type="email"
+                    value={formData.customerDetails.email}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        customerDetails: {
+                          ...prev.customerDetails,
+                          email: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="customer@example.com"
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                      isDarkMode
+                        ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                        : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                    } focus:ring-2 focus:ring-teal-500/20`}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="qt-customer-phone" className={LABEL_CLASSES(isDarkMode)}>
+                    Phone
+                  </label>
+                  <input
+                    id="qt-customer-phone"
+                    type="tel"
+                    value={formData.customerDetails.phone}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        customerDetails: {
+                          ...prev.customerDetails,
+                          phone: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="+971 XX XXX XXXX"
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                      isDarkMode
+                        ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                        : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                    } focus:ring-2 focus:ring-teal-500/20`}
+                  />
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                <Autocomplete
-                  label="Select Customer"
-                  placeholder="Search or enter manually"
-                  options={customers.map((c) => ({
-                    id: c.id,
-                    label: c.name,
-                    name: c.name,
-                    company: c.company,
-                    email: c.email,
-                    phone: c.phone,
-                    address: c.address,
-                    vatNumber: c.vatNumber,
-                    pricelistId: c.pricelistId,
-                    pricelist_id: c.pricelist_id,
-                  }))}
-                  value={
-                    formData.customerId ? customers.find((c) => String(c.id) === String(formData.customerId)) : null
-                  }
-                  inputValue={customerInputValue}
-                  onInputChange={(_e, newValue) => {
-                    setCustomerInputValue(newValue || "");
-                  }}
-                  onChange={(_e, selected) => {
-                    if (selected) {
-                      handleCustomerChange(selected.id, selected);
-                    } else {
-                      handleCustomerChange("");
-                      setCustomerInputValue("");
-                    }
-                  }}
-                  noOptionsText="No customers found"
-                  data-testid="customer-autocomplete"
-                />
-
-                <Input
-                  label="Customer Name"
-                  type="text"
-                  value={formData.customerDetails.name}
-                  onChange={(e) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      customerDetails: {
-                        ...prev.customerDetails,
-                        name: e.target.value,
-                      },
-                    }));
-                    validateField("customerName", e.target.value);
-                  }}
-                  required
-                  validationState={fieldValidation.customerName}
-                  showValidation={formPreferences.showValidationHighlighting}
-                />
-
-                <Input
-                  label="Company"
-                  type="text"
-                  value={formData.customerDetails.company}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      customerDetails: {
-                        ...prev.customerDetails,
-                        company: e.target.value,
-                      },
-                    }))
-                  }
-                />
-
-                <Input
-                  label="Email"
-                  type="email"
-                  value={formData.customerDetails.email}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      customerDetails: {
-                        ...prev.customerDetails,
-                        email: e.target.value,
-                      },
-                    }))
-                  }
-                />
-
-                <Input
-                  label="Phone"
-                  type="tel"
-                  value={formData.customerDetails.phone}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      customerDetails: {
-                        ...prev.customerDetails,
-                        phone: e.target.value,
-                      },
-                    }))
-                  }
-                />
-
-                <Input
-                  label="VAT Number"
+              <div>
+                <label htmlFor="qt-customer-vat" className={LABEL_CLASSES(isDarkMode)}>
+                  VAT Number
+                </label>
+                <input
+                  id="qt-customer-vat"
                   type="text"
                   value={formData.customerDetails.vatNumber}
                   onChange={(e) =>
@@ -2165,839 +3292,7 @@ const QuotationForm = () => {
                       },
                     }))
                   }
-                />
-
-                <Input
-                  label="Customer PO Number"
-                  type="text"
-                  value={formData.customerPurchaseOrderNumber}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      customerPurchaseOrderNumber: e.target.value,
-                    }))
-                  }
-                />
-
-                <Input
-                  label="Customer PO Date"
-                  type="date"
-                  placeholder="DD/MM/YYYY"
-                  value={formData.customerPurchaseOrderDate}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      customerPurchaseOrderDate: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-            </div>
-
-            {/* Warehouse & Delivery - New Section */}
-            <div className={CARD_CLASSES(isDarkMode)}>
-              <div className="flex items-center gap-2 mb-3 md:mb-4">
-                <Package size={18} className="text-teal-600 md:hidden" />
-                <Package size={20} className="text-teal-600 hidden md:block" />
-                <h2 className={`text-base md:text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  Warehouse & Delivery
-                </h2>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                <FormSelect
-                  label="Warehouse"
-                  value={formData.warehouseId || "none"}
-                  onValueChange={(warehouseId) => {
-                    if (warehouseId === "none") {
-                      setFormData((prev) => ({
-                        ...prev,
-                        warehouseId: "",
-                        warehouseName: "",
-                        warehouseCode: "",
-                        warehouseCity: "",
-                      }));
-                      validateField("warehouse", "");
-                    } else {
-                      const w = warehouses.find((wh) => wh.id.toString() === warehouseId);
-                      setFormData((prev) => ({
-                        ...prev,
-                        warehouseId,
-                        warehouseName: w ? w.name : "",
-                        warehouseCode: w ? w.code : "",
-                        warehouseCity: w ? w.city : "",
-                      }));
-                      validateField("warehouse", warehouseId);
-                    }
-                  }}
-                  required={formData.status !== "draft"}
-                  validationState={fieldValidation.warehouse}
-                  showValidation={formPreferences.showValidationHighlighting}
-                  disabled={loading || warehouses.length === 0}
-                >
-                  <SelectItem value="none">
-                    {loading
-                      ? "Loading warehouses..."
-                      : warehouses.length === 0
-                        ? "No warehouses available"
-                        : "Select warehouse"}
-                  </SelectItem>
-                  {warehouses && warehouses.length > 0
-                    ? warehouses.map((wh) => (
-                        <SelectItem key={wh.id} value={wh.id.toString()}>
-                          {wh.name}
-                          {wh.city?.trim() ? ` (${wh.city.trim()})` : ""}
-                        </SelectItem>
-                      ))
-                    : null}
-                </FormSelect>
-
-                <Input
-                  label="Delivery Terms"
-                  type="text"
-                  value={formData.deliveryTerms}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      deliveryTerms: e.target.value,
-                    }))
-                  }
-                  placeholder="e.g., FOB Destination"
-                />
-
-                <Input
-                  label="Payment Terms"
-                  type="text"
-                  value={formData.paymentTerms}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      paymentTerms: e.target.value,
-                    }))
-                  }
-                  placeholder="e.g., 30 days from invoice"
-                />
-
-                {/* Price Validity Condition (STEEL-FORMS-PHASE1 Priority 2) */}
-                <PriceValiditySelector
-                  value={formData.priceValidityCondition}
-                  onChange={(value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      priceValidityCondition: value,
-                    }))
-                  }
-                />
-              </div>
-            </div>
-
-            {/* Items Section with Speed Buttons */}
-            <div className={CARD_CLASSES(isDarkMode)}>
-              <div className="flex items-center justify-between mb-3 md:mb-4">
-                <div className="flex items-center gap-2">
-                  <Package size={18} className="text-teal-600 md:hidden" />
-                  <Package size={20} className="text-teal-600 hidden md:block" />
-                  <h2 className={`text-base md:text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    Items ({formData.items.length})
-                  </h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={addItem}
-                  className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm"
-                  data-testid="add-item"
-                >
-                  <Plus size={14} className="md:hidden" />
-                  <Plus size={16} className="hidden md:block" />
-                  <span className="hidden sm:inline">Add Item</span>
-                  <span className="sm:hidden">Add</span>
-                </button>
-              </div>
-
-              {/* Speed Buttons */}
-              {formPreferences.showSpeedButtons && sortedProducts.length > 0 && (
-                <div className="mb-4">
-                  <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                    Quick Add (Pinned & Top Products)
-                  </p>
-                  <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
-                    {sortedProducts.map((product) => {
-                      const isPinned = pinnedProductIds.includes(product.id);
-                      return (
-                        <div key={product.id} className="relative group flex-shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => quickAddItem(product)}
-                            className={`px-2 md:px-3 py-1.5 md:py-2 pr-6 md:pr-8 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-105 whitespace-nowrap ${
-                              isPinned
-                                ? isDarkMode
-                                  ? "border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60 shadow-md hover:shadow-lg"
-                                  : "border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200 shadow-md hover:shadow-lg"
-                                : isDarkMode
-                                  ? "border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md"
-                                  : "border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md"
-                            }`}
-                          >
-                            {unescapeProductName(
-                              product.displayName ||
-                                product.display_name ||
-                                product.uniqueName ||
-                                product.unique_name ||
-                                "N/A"
-                            )}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => handleTogglePin(e, product.id)}
-                            className={`absolute right-0.5 md:right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
-                              isPinned
-                                ? isDarkMode
-                                  ? "text-teal-300 hover:text-teal-200"
-                                  : "text-teal-700 hover:text-teal-800"
-                                : isDarkMode
-                                  ? "text-gray-400 hover:text-teal-400"
-                                  : "text-gray-500 hover:text-teal-600"
-                            }`}
-                            title={isPinned ? "Unpin product" : "Pin product"}
-                          >
-                            {isPinned ? (
-                              <Pin size={12} fill="currentColor" className="md:hidden" />
-                            ) : (
-                              <Pin size={12} className="md:hidden" />
-                            )}
-                            {isPinned ? (
-                              <Pin size={14} fill="currentColor" className="hidden md:block" />
-                            ) : (
-                              <Pin size={14} className="hidden md:block" />
-                            )}
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {formData.items.length === 0 ? (
-                <div className="text-center py-8 md:py-12">
-                  <Package
-                    size={40}
-                    className={`mx-auto mb-3 md:mb-4 md:hidden ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
-                  />
-                  <Package
-                    size={48}
-                    className={`mx-auto mb-3 md:mb-4 hidden md:block ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
-                  />
-                  <p
-                    className={`text-sm md:text-lg font-medium mb-1 md:mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                  >
-                    No items added yet
-                  </p>
-                  <p className={`text-xs md:text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                    Click &quot;Add Item&quot; or use Quick Add buttons
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3 md:space-y-4">
-                  {formData.items.map((item, index) => (
-                    <div
-                      key={item.id || item.name || `item-${index}`}
-                      className={`p-3 md:p-4 border rounded-lg ${
-                        isDarkMode ? "border-gray-600 bg-gray-800/50" : "border-gray-200 bg-gray-50"
-                      }`}
-                    >
-                      {/* Stock Availability & Source Type Row */}
-                      <div className="flex items-center gap-3 mb-3">
-                        {/* Stock Availability Indicator - icon-only compact mode */}
-                        {item.productId && formData.warehouseId && (
-                          <div className="flex items-center gap-2">
-                            <span className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                              Stock:
-                            </span>
-                            <StockAvailabilityIndicator
-                              productId={item.productId}
-                              warehouseId={formData.warehouseId}
-                              requiredQty={item.quantity || 0}
-                              compact
-                              iconOnly
-                            />
-                          </div>
-                        )}
-
-                        {/* Source Type Selector */}
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                            Source:
-                          </span>
-                          <SourceTypeSelector
-                            value={item.sourceType || "WAREHOUSE"}
-                            onChange={(value) => updateItem(index, "sourceType", value)}
-                            id={`source-type-${index}`}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Steel Industry Action Buttons (STEEL-FORMS-PHASE1 Priority 2) */}
-                      <div
-                        className="flex flex-wrap items-center gap-2 mb-3 border-t border-b py-2 mt-2"
-                        style={{
-                          borderColor: isDarkMode ? "#374151" : "#e5e7eb",
-                        }}
-                      >
-                        {/* Stock Reservation */}
-                        <StockReservationToggle
-                          item={item}
-                          index={index}
-                          onToggleReservation={handleToggleStockReservation}
-                        />
-
-                        {/* View Batches */}
-                        {item.productId && (
-                          <button
-                            type="button"
-                            onClick={() => handleViewBatches(index)}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                              isDarkMode
-                                ? "bg-teal-900/30 text-teal-300 hover:bg-teal-900/50"
-                                : "bg-teal-50 text-teal-700 hover:bg-teal-100"
-                            }`}
-                          >
-                            <Package className="h-4 w-4" />
-                            Batches
-                          </button>
-                        )}
-
-                        {/* Delivery Schedule */}
-                        <button
-                          type="button"
-                          onClick={() => handleOpenDeliverySchedule(index)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                            isDarkMode
-                              ? "bg-teal-900/30 text-teal-300 hover:bg-teal-900/50"
-                              : "bg-teal-50 text-teal-700 hover:bg-teal-100"
-                          }`}
-                        >
-                          <Calendar className="h-4 w-4" />
-                          Schedule {item.deliverySchedule?.length > 0 && `(${item.deliverySchedule.length})`}
-                        </button>
-
-                        {/* Alternative Products */}
-                        <button
-                          type="button"
-                          onClick={() => handleOpenAlternativeProducts(index)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border ${
-                            isDarkMode
-                              ? "bg-gray-800 text-gray-300 border-gray-600 hover:border-teal-500 hover:text-teal-400"
-                              : "bg-white text-gray-700 border-gray-300 hover:border-teal-500 hover:text-teal-600"
-                          }`}
-                        >
-                          <Layers className="h-4 w-4" />
-                          Alternatives {item.alternativeProducts?.length > 0 && `(${item.alternativeProducts.length})`}
-                        </button>
-
-                        {/* Lead Time Input */}
-                        <LeadTimeInput item={item} index={index} onUpdate={updateItem} />
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
-                        <div className="sm:col-span-2">
-                          <FormSelect
-                            label="Product"
-                            value={item.productId || "none"}
-                            onValueChange={(value) => updateItem(index, "productId", value === "none" ? "" : value)}
-                          >
-                            <SelectItem value="none">Select or enter manually</SelectItem>
-                            {products.map((product) => (
-                              <SelectItem key={product.id} value={product.id.toString()}>
-                                {unescapeProductName(
-                                  product.displayName ||
-                                    product.display_name ||
-                                    product.uniqueName ||
-                                    product.unique_name ||
-                                    "N/A"
-                                )}
-                              </SelectItem>
-                            ))}
-                          </FormSelect>
-                          <Input
-                            placeholder="Item name"
-                            value={item.name}
-                            onChange={(e) => updateItem(index, "name", e.target.value)}
-                            required
-                            className="mt-2"
-                          />
-                        </div>
-
-                        <FormSelect
-                          label="Grade"
-                          value={item.grade || "none"}
-                          onValueChange={(value) => updateItem(index, "grade", value === "none" ? "" : value)}
-                        >
-                          <SelectItem value="none">Select Grade</SelectItem>
-                          {STEEL_GRADES.map((g) => (
-                            <SelectItem key={g} value={g}>
-                              {g}
-                            </SelectItem>
-                          ))}
-                        </FormSelect>
-
-                        <FormSelect
-                          label="Finish"
-                          value={item.finish || "none"}
-                          onValueChange={(value) => updateItem(index, "finish", value === "none" ? "" : value)}
-                        >
-                          <SelectItem value="none">Select Finish</SelectItem>
-                          {FINISHES.map((f) => (
-                            <SelectItem key={f} value={f}>
-                              {f}
-                            </SelectItem>
-                          ))}
-                        </FormSelect>
-
-                        <Input
-                          label="Size"
-                          type="text"
-                          value={item.size || ""}
-                          onChange={(e) => updateItem(index, "size", e.target.value)}
-                          placeholder="e.g., 1220x2440"
-                        />
-
-                        <Input
-                          label="Thickness"
-                          type="text"
-                          value={item.thickness || ""}
-                          onChange={(e) => updateItem(index, "thickness", e.target.value)}
-                          placeholder="e.g., 1.2mm"
-                        />
-
-                        <div>
-                          <label
-                            htmlFor={`item-quantity-${index}`}
-                            className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                          >
-                            Quantity ({item.quantityUom || "PCS"})
-                          </label>
-                          <input
-                            id={`item-quantity-${index}`}
-                            type="number"
-                            value={item.quantity}
-                            onChange={(e) => {
-                              const allowDecimal = item.quantityUom === "MT" || item.quantityUom === "KG";
-                              const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
-                              updateItem(index, "quantity", Number.isNaN(val) ? "" : val);
-                            }}
-                            min="0"
-                            step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
-                            className={`w-full px-3 py-2 text-sm border rounded-md ${
-                              isDarkMode
-                                ? "bg-gray-700 border-gray-600 text-white"
-                                : "bg-white border-gray-300 text-gray-900"
-                            }`}
-                            required
-                          />
-                        </div>
-
-                        <div>
-                          <label
-                            htmlFor={`item-unit-weight-${index}`}
-                            className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                          >
-                            Unit Wt (kg)
-                          </label>
-                          <input
-                            id={`item-unit-weight-${index}`}
-                            type="number"
-                            value={item.unitWeightKg || ""}
-                            onChange={(e) =>
-                              updateItem(
-                                index,
-                                "unitWeightKg",
-                                e.target.value === "" ? null : parseFloat(e.target.value)
-                              )
-                            }
-                            min="0"
-                            step="0.01"
-                            placeholder="0.00"
-                            className={`w-full px-3 py-2 text-sm border rounded-md ${
-                              isDarkMode
-                                ? "bg-gray-700 border-gray-600 text-white"
-                                : "bg-white border-gray-300 text-gray-900"
-                            } ${item.missingWeightWarning ? "border-red-500" : ""}`}
-                          />
-                        </div>
-
-                        <div>
-                          <div
-                            className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                          >
-                            Total Wt (kg)
-                          </div>
-                          <div
-                            className={`px-3 py-2 text-sm border rounded-md ${
-                              isDarkMode
-                                ? "bg-gray-700/50 border-gray-600 text-gray-300"
-                                : "bg-gray-100 border-gray-300 text-gray-600"
-                            }`}
-                          >
-                            {(() => {
-                              const totalWt = item.theoreticalWeightKg || item.quantity * (item.unitWeightKg || 0);
-                              return totalWt ? totalWt.toFixed(2) : "-";
-                            })()}
-                          </div>
-                        </div>
-
-                        <div>
-                          <label
-                            htmlFor={`item-rate-${index}`}
-                            className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                          >
-                            Rate ({formData.currency})
-                          </label>
-                          <div
-                            className={`flex rounded-md overflow-hidden border ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
-                          >
-                            <input
-                              id={`item-rate-${index}`}
-                              type="number"
-                              value={item.rate}
-                              onChange={(e) => updateItem(index, "rate", parseFloat(e.target.value) || 0)}
-                              min="0"
-                              step="0.01"
-                              className={`flex-1 px-3 py-2 text-sm border-0 ${
-                                isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"
-                              }`}
-                              required
-                            />
-                            <select
-                              value={item.pricingBasis || "PER_MT"}
-                              onChange={(e) => updateItem(index, "pricingBasis", e.target.value)}
-                              className={`text-[10px] font-bold px-1.5 border-l cursor-pointer outline-none ${
-                                item.pricingBasis === "PER_KG"
-                                  ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
-                                  : item.pricingBasis === "PER_PCS"
-                                    ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700"
-                                    : "bg-gray-50 text-gray-600 border-gray-300"
-                              }`}
-                            >
-                              <option value="PER_MT">/MT</option>
-                              <option value="PER_KG">/kg</option>
-                              <option value="PER_PCS">/pc</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <Input
-                          label="VAT (%)"
-                          type="number"
-                          value={item.vatRate}
-                          onChange={(e) => updateItem(index, "vatRate", e.target.value)}
-                          min="0"
-                          max="100"
-                          step="0.01"
-                        />
-
-                        <div className="flex items-end gap-2">
-                          <div className="flex-1">
-                            <div
-                              className={`block text-xs font-medium mb-1 ${
-                                isDarkMode ? "text-gray-400" : "text-gray-700"
-                              }`}
-                            >
-                              Total
-                            </div>
-                            <div
-                              className={`px-2 py-1.5 text-sm border rounded-md ${
-                                isDarkMode
-                                  ? "bg-gray-700 border-gray-600 text-gray-300"
-                                  : "bg-gray-100 border-gray-300 text-gray-600"
-                              }`}
-                            >
-                              {formatCurrency(item.netAmount)}
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => removeItem(index)}
-                            className={`p-1.5 text-red-500 hover:text-red-700 rounded-lg transition-colors ${isDarkMode ? "hover:bg-red-900/30" : "hover:bg-red-50"}`}
-                          >
-                            <Trash2 size={14} className="md:hidden" />
-                            <Trash2 size={16} className="hidden md:block" />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Missing Weight Warning */}
-                      {item.missingWeightWarning && (
-                        <div
-                          className={`mt-2 p-2 rounded-md border ${isDarkMode ? "bg-amber-900/30 border-amber-600" : "bg-amber-50 border-amber-200"}`}
-                        >
-                          <p className={`text-xs ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}>
-                            <AlertCircle className="inline h-3 w-3 mr-1" />
-                            Unit weight missing for weight-based pricing ({item.pricingBasis}). Contact admin to update
-                            product master.
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Additional fields - collapsible on mobile */}
-                      <details className="mt-2 md:mt-3">
-                        <summary className={`text-xs cursor-pointer ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                          More details
-                        </summary>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 mt-2">
-                          <Input
-                            label="Specification"
-                            type="text"
-                            value={item.specification}
-                            onChange={(e) => updateItem(index, "specification", e.target.value)}
-                          />
-
-                          <FormSelect
-                            label="Unit"
-                            value={item.unit || "pcs"}
-                            onValueChange={(value) => updateItem(index, "unit", value)}
-                          >
-                            <SelectItem value="pcs">Pieces</SelectItem>
-                            <SelectItem value="kg">Kilograms</SelectItem>
-                            <SelectItem value="tons">Tons</SelectItem>
-                            <SelectItem value="meters">Meters</SelectItem>
-                            <SelectItem value="sqm">Square Meters</SelectItem>
-                            <SelectItem value="feet">Feet</SelectItem>
-                            <SelectItem value="sqft">Square Feet</SelectItem>
-                          </FormSelect>
-
-                          <Input
-                            label="HSN Code"
-                            type="text"
-                            value={item.hsnCode}
-                            onChange={(e) => updateItem(index, "hsnCode", e.target.value)}
-                          />
-                        </div>
-                      </details>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-          {/* End Main Content 8 columns */}
-
-          {/* Sidebar - 4 columns, sticky */}
-          <div className="col-span-12 lg:col-span-4">
-            <div className="lg:sticky lg:top-24 space-y-4">
-              {/* Summary */}
-              <div className={CARD_CLASSES(isDarkMode)}>
-                <div className="flex items-center gap-2 mb-3">
-                  <Calculator size={18} className="text-teal-600" />
-                  <h3 className={`text-sm font-extrabold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Summary</h3>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-[13px]">
-                    <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Subtotal</span>
-                    <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`} data-testid="subtotal">
-                      {formatCurrency(formData.subtotal)}
-                    </span>
-                  </div>
-
-                  {formData.vatAmount > 0 && (
-                    <div className="flex justify-between text-[13px]">
-                      <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>VAT</span>
-                      <span
-                        className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                        data-testid="vat-amount"
-                      >
-                        {formatCurrency(formData.vatAmount)}
-                      </span>
-                    </div>
-                  )}
-
-                  {(parseFloat(formData.packingCharges) || 0) +
-                    (parseFloat(formData.freightCharges) || 0) +
-                    (parseFloat(formData.insuranceCharges) || 0) +
-                    (parseFloat(formData.loadingCharges) || 0) +
-                    (parseFloat(formData.otherCharges) || 0) >
-                    0 && (
-                    <div className="flex justify-between text-[13px]">
-                      <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Charges</span>
-                      <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                        {formatCurrency(
-                          (parseFloat(formData.packingCharges) || 0) +
-                            (parseFloat(formData.freightCharges) || 0) +
-                            (parseFloat(formData.insuranceCharges) || 0) +
-                            (parseFloat(formData.loadingCharges) || 0) +
-                            (parseFloat(formData.otherCharges) || 0)
-                        )}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className={`h-px my-2 ${isDarkMode ? "bg-[#2a3640]" : "bg-gray-200"}`} />
-
-                  <div className="flex justify-between items-center">
-                    <span className={`text-sm font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Total</span>
-                    <span className="text-lg font-extrabold text-teal-600 font-mono" data-testid="total">
-                      {formatCurrency(formData.total)}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between text-xs pt-1">
-                    <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
-                      {formData.items.length} item{formData.items.length === 1 ? "" : "s"}
-                    </span>
-                    <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
-                      Qty: {formData.totalQuantity}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              <div className={CARD_CLASSES(isDarkMode)}>
-                <div className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                  Quick Actions
-                </div>
-                <div className="space-y-1.5">
-                  {/* Volume Discount Tiers Button (STEEL-FORMS-PHASE1 Priority 2) */}
-                  <button
-                    type="button"
-                    onClick={() => setVolumeDiscountModalOpen(true)}
-                    className={`w-full px-3 py-2 rounded-lg text-left text-sm transition-all flex items-center gap-2 border ${
-                      isDarkMode
-                        ? "bg-gray-800 hover:bg-gray-700 text-gray-300 border-gray-600 hover:border-teal-500 hover:text-teal-400"
-                        : "bg-white hover:bg-gray-50 text-gray-700 border-gray-300 hover:border-teal-500 hover:text-teal-600"
-                    }`}
-                  >
-                    <Calculator className="h-4 w-4" />
-                    <span>
-                      Volume Discounts{" "}
-                      {formData.volumeDiscountTiers?.length > 0 && `(${formData.volumeDiscountTiers.length})`}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setChargesDrawerOpen(true)}
-                    className={`w-full flex items-center gap-2 py-2 px-2.5 text-sm rounded-lg border transition-colors ${
-                      isDarkMode
-                        ? "bg-gray-800 border-gray-600 text-gray-300 hover:border-teal-500 hover:text-teal-400"
-                        : "bg-white border-gray-300 text-gray-700 hover:border-teal-500 hover:text-teal-600"
-                    }`}
-                  >
-                    <Package className="h-4 w-4 opacity-60" />
-                    Edit Charges
-                    {(parseFloat(formData.packingCharges) || 0) +
-                      (parseFloat(formData.freightCharges) || 0) +
-                      (parseFloat(formData.insuranceCharges) || 0) +
-                      (parseFloat(formData.loadingCharges) || 0) +
-                      (parseFloat(formData.otherCharges) || 0) >
-                      0 && (
-                      <span
-                        className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${isDarkMode ? "bg-teal-900/50 text-teal-300" : "bg-teal-100 text-teal-700"}`}
-                      >
-                        {formatCurrency(
-                          (parseFloat(formData.packingCharges) || 0) +
-                            (parseFloat(formData.freightCharges) || 0) +
-                            (parseFloat(formData.insuranceCharges) || 0) +
-                            (parseFloat(formData.loadingCharges) || 0) +
-                            (parseFloat(formData.otherCharges) || 0)
-                        )}
-                      </span>
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setNotesDrawerOpen(true)}
-                    className={`w-full flex items-center gap-2 py-2 px-2.5 text-sm rounded-lg border transition-colors ${
-                      isDarkMode
-                        ? "bg-gray-800 border-gray-600 text-gray-300 hover:border-teal-500 hover:text-teal-400"
-                        : "bg-white border-gray-300 text-gray-700 hover:border-teal-500 hover:text-teal-600"
-                    }`}
-                  >
-                    <FileText className="h-4 w-4 opacity-60" />
-                    Notes & Terms
-                    {(formData.notes || formData.termsAndConditions) && (
-                      <span className={`ml-auto w-2 h-2 rounded-full ${isDarkMode ? "bg-teal-400" : "bg-teal-500"}`} />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={() => setShowPreview(true)}
-                  className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 text-sm rounded-lg border transition-colors ${
-                    isDarkMode
-                      ? "bg-gray-800 border-gray-600 text-gray-300 hover:border-teal-500 hover:text-teal-400"
-                      : "bg-white border-gray-300 text-gray-700 hover:border-teal-500 hover:text-teal-600"
-                  }`}
-                >
-                  <Eye size={16} />
-                  Preview
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg text-sm transition-all duration-300 shadow-sm hover:shadow-md ${
-                    isSaving ? "opacity-60 cursor-not-allowed" : ""
-                  }`}
-                  data-testid="save-quotation"
-                >
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save size={16} />
-                      {isEdit ? "Update Quotation" : "Create Quotation"}
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleBackClick}
-                  className={`w-full py-2 text-[13px] text-center ${
-                    isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </form>
-
-        {/* Charges Drawer */}
-        <Drawer
-          isOpen={chargesDrawerOpen}
-          onClose={() => setChargesDrawerOpen(false)}
-          title="Additional Charges"
-          subtitle="Packing, freight, insurance, and other charges"
-          isDarkMode={isDarkMode}
-        >
-          <div className="space-y-4 mt-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label htmlFor="quotation-packing-charges" className={LABEL_CLASSES(isDarkMode)}>
-                  Packing Charges
-                </label>
-                <input
-                  id="quotation-packing-charges"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  value={formData.packingCharges}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      packingCharges: e.target.value,
-                    }))
-                  }
+                  placeholder="e.g., 100000000000003"
                   className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
                     isDarkMode
                       ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
@@ -3005,352 +3300,147 @@ const QuotationForm = () => {
                   } focus:ring-2 focus:ring-teal-500/20`}
                 />
               </div>
-              <div>
-                <label htmlFor="quotation-freight-charges" className={LABEL_CLASSES(isDarkMode)}>
-                  Freight Charges
-                </label>
-                <input
-                  id="quotation-freight-charges"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  value={formData.freightCharges}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      freightCharges: e.target.value,
-                    }))
-                  }
-                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                    isDarkMode
-                      ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
-                      : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
-                  } focus:ring-2 focus:ring-teal-500/20`}
-                />
-              </div>
-              <div>
-                <label htmlFor="quotation-insurance-charges" className={LABEL_CLASSES(isDarkMode)}>
-                  Insurance Charges
-                </label>
-                <input
-                  id="quotation-insurance-charges"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  value={formData.insuranceCharges}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      insuranceCharges: e.target.value,
-                    }))
-                  }
-                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                    isDarkMode
-                      ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
-                      : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
-                  } focus:ring-2 focus:ring-teal-500/20`}
-                />
-              </div>
-              <div>
-                <label htmlFor="quotation-loading-charges" className={LABEL_CLASSES(isDarkMode)}>
-                  Loading Charges
-                </label>
-                <input
-                  id="quotation-loading-charges"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  value={formData.loadingCharges}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      loadingCharges: e.target.value,
-                    }))
-                  }
-                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                    isDarkMode
-                      ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
-                      : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
-                  } focus:ring-2 focus:ring-teal-500/20`}
-                />
-              </div>
-              <div className="col-span-2">
-                <label htmlFor="quotation-other-charges" className={LABEL_CLASSES(isDarkMode)}>
-                  Other Charges
-                </label>
-                <input
-                  id="quotation-other-charges"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  value={formData.otherCharges}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      otherCharges: e.target.value,
-                    }))
-                  }
-                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                    isDarkMode
-                      ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
-                      : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
-                  } focus:ring-2 focus:ring-teal-500/20`}
-                />
-              </div>
-            </div>
 
-            {/* Discount Section */}
-            <div className="space-y-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-              <div className={`block text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                Discount
-              </div>
-
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="discountType"
-                    value="percentage"
-                    checked={formData.discountType === "percentage"}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        discountType: e.target.value,
-                      }))
-                    }
-                    className="w-4 h-4 text-teal-600 focus:ring-teal-500"
-                  />
-                  <span className={`text-sm ${isDarkMode ? "text-[#e6edf3]" : "text-gray-700"}`}>Percentage</span>
-                </label>
-
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="discountType"
-                    value="fixed"
-                    checked={formData.discountType === "fixed"}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        discountType: e.target.value,
-                      }))
-                    }
-                    className="w-4 h-4 text-teal-600 focus:ring-teal-500"
-                  />
-                  <span className={`text-sm ${isDarkMode ? "text-[#e6edf3]" : "text-gray-700"}`}>Fixed Amount</span>
-                </label>
-              </div>
+              <div className={DIVIDER_CLASSES(isDarkMode)} />
 
               <div className="grid grid-cols-2 gap-3">
-                {formData.discountType === "percentage" && (
-                  <div>
-                    <label htmlFor="discountPercentage" className={LABEL_CLASSES(isDarkMode)}>
-                      Discount Percentage (%)
-                    </label>
-                    <input
-                      id="discountPercentage"
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.01"
-                      placeholder="0.00"
-                      value={formData.discountPercentage || ""}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          discountPercentage: e.target.value,
-                        }))
-                      }
-                      className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                        isDarkMode
-                          ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
-                          : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
-                      } focus:ring-2 focus:ring-teal-500/20`}
-                    />
-                  </div>
-                )}
+                <div>
+                  <label htmlFor="qt-customer-po-number" className={LABEL_CLASSES(isDarkMode)}>
+                    Customer PO Number
+                  </label>
+                  <input
+                    id="qt-customer-po-number"
+                    type="text"
+                    value={formData.customerPurchaseOrderNumber}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        customerPurchaseOrderNumber: e.target.value,
+                      }))
+                    }
+                    placeholder="PO-XXXX"
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                      isDarkMode
+                        ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                        : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                    } focus:ring-2 focus:ring-teal-500/20`}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="qt-customer-po-date" className={LABEL_CLASSES(isDarkMode)}>
+                    Customer PO Date
+                  </label>
+                  <input
+                    id="qt-customer-po-date"
+                    type="date"
+                    value={formData.customerPurchaseOrderDate}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        customerPurchaseOrderDate: e.target.value,
+                      }))
+                    }
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                      isDarkMode
+                        ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                        : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                    } focus:ring-2 focus:ring-teal-500/20`}
+                  />
+                </div>
+              </div>
 
-                {formData.discountType === "fixed" && (
-                  <div>
-                    <label htmlFor="discountAmount" className={LABEL_CLASSES(isDarkMode)}>
-                      Discount Amount
-                    </label>
-                    <input
-                      id="discountAmount"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                      value={formData.discountAmount || ""}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          discountAmount: e.target.value,
-                        }))
-                      }
-                      className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                        isDarkMode
-                          ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
-                          : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
-                      } focus:ring-2 focus:ring-teal-500/20`}
-                    />
-                  </div>
-                )}
+              <div>
+                <label htmlFor="qt-exchange-rate" className={LABEL_CLASSES(isDarkMode)}>
+                  Exchange Rate
+                </label>
+                <input
+                  id="qt-exchange-rate"
+                  type="number"
+                  step="0.0001"
+                  min="0.0001"
+                  max="99999"
+                  value={formData.exchangeRate || ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const numValue = parseFloat(value);
+                    if (value === "" || (numValue > 0 && !Number.isNaN(numValue))) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        exchangeRate: value === "" ? 1 : numValue,
+                      }));
+                    }
+                  }}
+                  placeholder="1.0000"
+                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                    isDarkMode
+                      ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
+                      : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
+                  } focus:ring-2 focus:ring-teal-500/20`}
+                />
+                <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                  {formData.currency !== "AED"
+                    ? `Rate to convert ${formData.currency} to AED`
+                    : "AED is the base currency (rate = 1)"}
+                </p>
               </div>
             </div>
 
-            <div
-              className={`p-3 rounded-[14px] ${isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-gray-50 border border-gray-200"}`}
-            >
-              <div className="flex justify-between items-center">
-                <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Total Charges</span>
-                <span className="text-sm font-bold font-mono">
-                  {formatCurrency(
-                    (parseFloat(formData.packingCharges) || 0) +
-                      (parseFloat(formData.freightCharges) || 0) +
-                      (parseFloat(formData.insuranceCharges) || 0) +
-                      (parseFloat(formData.loadingCharges) || 0) +
-                      (parseFloat(formData.otherCharges) || 0)
-                  )}
-                </span>
-              </div>
+            <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
+              <button
+                type="button"
+                onClick={() => setCustomerDetailsDrawerOpen(false)}
+                className="w-full bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-sm hover:shadow-md"
+              >
+                Done
+              </button>
             </div>
-          </div>
+          </Drawer>
 
-          <div
-            className="sticky bottom-0 pt-4 mt-6"
-            style={{
-              background: isDarkMode
-                ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
-                : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
-            }}
-          >
-            <button
-              type="button"
-              onClick={() => setChargesDrawerOpen(false)}
-              className="w-full bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-sm hover:shadow-md"
-            >
-              Done
-            </button>
-          </div>
-        </Drawer>
+          {/* Preview Modal */}
+          {showPreview && <QuotationPreview quotation={formData} company={{}} onClose={() => setShowPreview(false)} />}
 
-        {/* Notes & Terms Drawer */}
-        <Drawer
-          isOpen={notesDrawerOpen}
-          onClose={() => setNotesDrawerOpen(false)}
-          title="Notes & Terms"
-          subtitle="Internal notes and terms for this quotation"
-          isDarkMode={isDarkMode}
-        >
-          <div className="space-y-4 mt-4">
-            <div>
-              <label htmlFor="quotation-notes" className={LABEL_CLASSES(isDarkMode)}>
-                Notes
-              </label>
-              <textarea
-                id="quotation-notes"
-                value={formData.notes}
-                onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
-                placeholder="Add any notes about this quotation..."
-                rows={4}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
-                  isDarkMode
-                    ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-teal-500"
-                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
-                } focus:ring-2 focus:ring-teal-500/20`}
-              />
-            </div>
-            <div>
-              <label htmlFor="quotation-terms" className={LABEL_CLASSES(isDarkMode)}>
-                Terms & Conditions
-              </label>
-              <textarea
-                id="quotation-terms"
-                value={formData.termsAndConditions}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    termsAndConditions: e.target.value,
-                  }))
-                }
-                placeholder="Enter terms and conditions..."
-                rows={5}
-                className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
-                  isDarkMode
-                    ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-teal-500"
-                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
-                } focus:ring-2 focus:ring-teal-500/20`}
-              />
-            </div>
-          </div>
-
-          <div
-            className="sticky bottom-0 pt-4 mt-6"
-            style={{
-              background: isDarkMode
-                ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
-                : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))",
-            }}
-          >
-            <button
-              type="button"
-              onClick={() => setNotesDrawerOpen(false)}
-              className="w-full bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-sm hover:shadow-md"
-            >
-              Done
-            </button>
-          </div>
-        </Drawer>
-
-        {/* Preview Modal */}
-        {showPreview && <QuotationPreview quotation={formData} company={{}} onClose={() => setShowPreview(false)} />}
-
-        {/* Steel Industry Modals (STEEL-FORMS-PHASE1 Priority 2) */}
-        <VolumeDiscountTiersModal
-          isOpen={volumeDiscountModalOpen}
-          onClose={() => setVolumeDiscountModalOpen(false)}
-          tiers={formData.volumeDiscountTiers}
-          onSave={handleSaveVolumeDiscountTiers}
-        />
-
-        <BatchesModal
-          isOpen={batchesModalOpen}
-          onClose={() => setBatchesModalOpen(false)}
-          productId={selectedItemForBatches?.productId}
-          productName={selectedItemForBatches?.name}
-          warehouseId={formData.warehouseId}
-        />
-
-        {selectedItemForDelivery !== null && (
-          <DeliveryScheduleModal
-            isOpen={deliveryScheduleModalOpen}
-            onClose={() => {
-              setDeliveryScheduleModalOpen(false);
-              setSelectedItemForDelivery(null);
-            }}
-            schedule={formData.items[selectedItemForDelivery]?.deliverySchedule || []}
-            lineQuantity={formData.items[selectedItemForDelivery]?.quantity || 0}
-            onSave={(schedule) => handleSaveDeliverySchedule(selectedItemForDelivery, schedule)}
+          {/* Steel Industry Modals (STEEL-FORMS-PHASE1 Priority 2) */}
+          <VolumeDiscountTiersModal
+            isOpen={volumeDiscountModalOpen}
+            onClose={() => setVolumeDiscountModalOpen(false)}
+            tiers={formData.volumeDiscountTiers}
+            onSave={handleSaveVolumeDiscountTiers}
           />
-        )}
 
-        {selectedItemForAlternatives !== null && (
-          <AlternativeProductsModal
-            isOpen={alternativeProductsModalOpen}
-            onClose={() => {
-              setAlternativeProductsModalOpen(false);
-              setSelectedItemForAlternatives(null);
-            }}
-            alternatives={formData.items[selectedItemForAlternatives]?.alternativeProducts || []}
-            currentProductId={formData.items[selectedItemForAlternatives]?.productId}
-            onSave={(alternatives) => handleSaveAlternativeProducts(selectedItemForAlternatives, alternatives)}
+          <BatchesModal
+            isOpen={batchesModalOpen}
+            onClose={() => setBatchesModalOpen(false)}
+            productId={selectedItemForBatches?.productId}
+            productName={selectedItemForBatches?.name}
+            warehouseId={formData.warehouseId}
           />
-        )}
+
+          {selectedItemForDelivery !== null && (
+            <DeliveryScheduleModal
+              isOpen={deliveryScheduleModalOpen}
+              onClose={() => {
+                setDeliveryScheduleModalOpen(false);
+                setSelectedItemForDelivery(null);
+              }}
+              schedule={formData.items[selectedItemForDelivery]?.deliverySchedule || []}
+              lineQuantity={formData.items[selectedItemForDelivery]?.quantity || 0}
+              onSave={(schedule) => handleSaveDeliverySchedule(selectedItemForDelivery, schedule)}
+            />
+          )}
+
+          {selectedItemForAlternatives !== null && (
+            <AlternativeProductsModal
+              isOpen={alternativeProductsModalOpen}
+              onClose={() => {
+                setAlternativeProductsModalOpen(false);
+                setSelectedItemForAlternatives(null);
+              }}
+              alternatives={formData.items[selectedItemForAlternatives]?.alternativeProducts || []}
+              currentProductId={formData.items[selectedItemForAlternatives]?.productId}
+              onSave={(alternatives) => handleSaveAlternativeProducts(selectedItemForAlternatives, alternatives)}
+            />
+          )}
+        </div>
       </div>
     </>
   );

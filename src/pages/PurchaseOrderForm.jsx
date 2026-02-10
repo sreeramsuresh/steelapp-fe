@@ -19,55 +19,42 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-// ==================== DESIGN TOKENS ====================
-// const COLORS = {
-//   bg: '#0b0f14',
-//   card: '#141a20',
-//   border: '#2a3640',
-//   text: '#e6edf3',
-//   muted: '#93a4b4',
-//   good: '#2ecc71',
-//   warn: '#f39c12',
-//   bad: '#e74c3c',
-//   accent: '#4aa3ff',
-//   accentHover: '#5bb2ff',
-//   inputBg: '#0f151b',
-// };
+// ==================== DESIGN TOKENS (Matched to Invoice Form) ====================
 
 // Layout classes (use with isDarkMode ternary)
 const CARD_CLASSES = (isDarkMode) =>
-  `${isDarkMode ? "bg-[#141a20] border-[#2a3640]" : "bg-white border-gray-200"} border rounded-2xl p-4`;
+  `${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4`;
 
 const INPUT_CLASSES = (isDarkMode) =>
-  `w-full ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"} border rounded-xl py-2.5 px-3 text-[13px] outline-none focus:border-[#5bb2ff] focus:ring-2 focus:ring-[#4aa3ff]/20`;
+  `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-md py-2 px-3 text-sm outline-none shadow-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-[38px]`;
 
-const LABEL_CLASSES = (isDarkMode) => `block text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"} mb-1.5`;
+const LABEL_CLASSES = (isDarkMode) => `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
 
 const BTN_CLASSES = (isDarkMode) =>
-  `${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]" : "bg-white border-gray-300 text-gray-900 hover:border-blue-500"} border rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors`;
+  `${isDarkMode ? "bg-gray-900 border-gray-700 text-white hover:border-teal-500" : "bg-white border-gray-300 text-gray-900 hover:border-teal-500"} border rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors`;
 
 const BTN_PRIMARY =
-  "bg-[#4aa3ff] border-transparent text-[#001018] font-extrabold hover:bg-[#5bb2ff] rounded-xl py-2.5 px-3 text-[13px] cursor-pointer";
+  "bg-teal-600 border-transparent text-white font-bold hover:bg-teal-500 rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors";
 
 const BTN_SMALL = (isDarkMode) =>
-  `${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] hover:border-[#4aa3ff]" : "bg-white border-gray-300 text-gray-900 hover:border-blue-500"} border rounded-[10px] py-2 px-2.5 text-xs cursor-pointer transition-colors`;
+  `${isDarkMode ? "bg-gray-900 border-gray-700 text-white hover:border-teal-500" : "bg-white border-gray-300 text-gray-900 hover:border-teal-500"} border rounded-lg py-1.5 px-2.5 text-xs cursor-pointer transition-colors`;
 
 const QUICK_LINK_CLASSES = (isDarkMode) =>
-  `flex items-center gap-2 py-2 px-2.5 ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-gray-50 border-gray-200 text-gray-900"} border rounded-[10px] cursor-pointer text-[13px] transition-colors hover:border-[#4aa3ff] hover:text-[#4aa3ff] w-full`;
+  `flex items-center gap-2 py-2 px-2.5 ${isDarkMode ? "bg-gray-900 border-gray-700 text-gray-200" : "bg-gray-50 border-gray-200 text-gray-900"} border rounded-md cursor-pointer text-xs transition-colors hover:border-teal-500 hover:text-teal-400 w-full`;
 
-const DIVIDER_CLASSES = (isDarkMode) => `h-px ${isDarkMode ? "bg-[#2a3640]" : "bg-gray-200"} my-3`;
+const DIVIDER_CLASSES = (isDarkMode) => `h-px ${isDarkMode ? "bg-gray-700" : "bg-gray-200"} my-3`;
 
 const DRAWER_OVERLAY = "fixed inset-0 bg-black/55 z-30 transition-opacity";
 
 const DRAWER_PANEL = (isDarkMode) =>
-  `fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31] ${isDarkMode ? "bg-[#141a20] border-l border-[#2a3640]" : "bg-white border-l border-gray-200"} overflow-auto transition-transform`;
+  `fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31] ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform`;
 
 const DRAWER_HEADER = (isDarkMode) =>
-  `sticky top-0 flex justify-between items-start gap-2.5 p-4 ${isDarkMode ? "bg-[#141a20] border-b border-[#2a3640]" : "bg-white border-b border-gray-200"} z-[1]`;
+  `sticky top-0 flex justify-between items-start gap-2.5 p-4 ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"} z-[1]`;
 
 const DRAWER_FOOTER_GRADIENT = (isDarkMode) =>
   isDarkMode
-    ? "linear-gradient(to top, rgba(20,26,32,1) 70%, rgba(20,26,32,0))"
+    ? "linear-gradient(to top, rgba(31,41,55,1) 70%, rgba(31,41,55,0))"
     : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))";
 
 import PurchaseOrderPreview from "../components/purchase-orders/PurchaseOrderPreview";
@@ -122,7 +109,7 @@ const PaymentForm = ({ onSubmit, onCancel, totalAmount, paidAmount, isDarkMode }
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div
         className={`w-full max-w-md p-6 rounded-xl shadow-xl ${
-          isDarkMode ? "bg-[#1E2328] text-white" : "bg-white text-gray-900"
+          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
         }`}
       >
         <h3 className="text-lg font-semibold mb-4">Add Payment</h3>
@@ -716,23 +703,37 @@ const PurchaseOrderForm = () => {
       setLoading(true);
       try {
         const data = await purchaseOrderService.getById(id);
-        // Map backend fields to form model
+
+        // Resolve supplier address — may be a JSON object from supplier_details
+        const supplierDetails = data.supplier_details || data.supplierDetails || {};
+        let resolvedAddress = data.supplierAddress || data.supplier_address || "";
+        if (!resolvedAddress && supplierDetails.address) {
+          resolvedAddress =
+            typeof supplierDetails.address === "object"
+              ? supplierDetails.address.full_address || supplierDetails.address.fullAddress || ""
+              : supplierDetails.address;
+        }
+        if (typeof resolvedAddress === "object") {
+          resolvedAddress = resolvedAddress.full_address || resolvedAddress.fullAddress || "";
+        }
+
+        // Map backend fields to form model (handle both camelCase and snake_case)
         setPurchaseOrder((prev) => ({
           ...prev,
-          poNumber: data.poNumber || prev.poNumber,
-          supplierName: data.supplierName || "",
-          supplierEmail: data.supplierEmail || "",
-          supplierPhone: data.supplierPhone || "",
-          supplierAddress: data.supplierAddress || "",
-          poDate: toDateInput(data.poDate) || prev.poDate,
-          expectedDeliveryDate: toDateInput(data.expectedDeliveryDate) || "",
+          poNumber: data.poNumber || data.po_number || prev.poNumber,
+          supplierName: data.supplierName || data.supplier_name || "",
+          supplierEmail: data.supplierEmail || data.supplier_email || supplierDetails.email || "",
+          supplierPhone: data.supplierPhone || data.supplier_phone || supplierDetails.phone || "",
+          supplierAddress: resolvedAddress,
+          poDate: toDateInput(data.poDate || data.po_date) || prev.poDate,
+          expectedDeliveryDate: toDateInput(data.expectedDeliveryDate || data.expected_delivery_date) || "",
           status: data.status || "draft",
-          stockStatus: data.stockStatus || "retain",
+          stockStatus: data.stockStatus || data.stock_status || "retain",
           currency: data.currency || prev.currency,
-          supplierContactName: data.supplierContactName || "",
-          supplierContactEmail: data.supplierContactEmail || data.supplierEmail || "",
-          supplierContactPhone: data.supplierContactPhone || data.supplierPhone || "",
-          exchangeRate: data.exchangeRate || null,
+          supplierContactName: data.supplierContactName || data.supplier_contact_name || supplierDetails.contact_name || "",
+          supplierContactEmail: data.supplierContactEmail || data.supplier_contact_email || supplierDetails.contact_email || data.supplierEmail || data.supplier_email || "",
+          supplierContactPhone: data.supplierContactPhone || data.supplier_contact_phone || supplierDetails.contact_phone || data.supplierPhone || data.supplier_phone || "",
+          exchangeRate: data.exchangeRate || data.exchange_rate || null,
           items: Array.isArray(data.items)
             ? data.items.map((it) => ({
                 productType: it.name || "",
@@ -741,10 +742,12 @@ const PurchaseOrderForm = () => {
                 thickness: "",
                 size: "",
                 finish: "",
-                specification: it.specifications || "",
+                specification: it.specifications || it.specification || "",
                 quantity: it.quantity || 0,
                 rate: it.rate || 0,
                 amount: it.amount || 0,
+                vatRate: it.vat_rate || it.vatRate || 0,
+                vatAmount: it.vat_amount || it.vatAmount || 0,
                 // Phase 4: Stock-In Enhancement fields
                 lineStockStatus: it.lineStockStatus || it.line_stock_status || "PENDING",
                 expectedWeightKg: it.expectedWeightKg || it.expected_weight_kg || null,
@@ -755,12 +758,12 @@ const PurchaseOrderForm = () => {
               }))
             : prev.items,
           subtotal: data.subtotal || 0,
-          vatAmount: data.vatAmount || data.taxAmount || 0,
+          vatAmount: data.vatAmount || data.tax_amount || data.taxAmount || 0,
           total: data.total || 0,
           notes: data.notes || "",
           terms: data.terms || "",
-          paymentTerms: data.paymentTerms || prev.paymentTerms,
-          dueDate: toDateInput(data.dueDate) || "",
+          paymentTerms: data.paymentTerms || data.payment_terms || prev.paymentTerms,
+          dueDate: toDateInput(data.dueDate || data.due_date) || "",
         }));
 
         // Load existing payments
@@ -769,9 +772,10 @@ const PurchaseOrderForm = () => {
           updatePaymentStatus(data.payments, data.total || 0);
         }
 
-        // Set warehouse if available
-        if (data.warehouseId) {
-          setSelectedWarehouse(data.warehouseId.toString());
+        // Set warehouse if available (handle both camelCase and snake_case)
+        const warehouseId = data.warehouseId || data.warehouse_id;
+        if (warehouseId) {
+          setSelectedWarehouse(warehouseId.toString());
         }
       } catch (_e) {
         notificationService.error("Failed to load purchase order");
@@ -1528,29 +1532,30 @@ const PurchaseOrderForm = () => {
   };
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-[#0b0f14]" : "bg-gray-50"}`} data-testid="purchase-order-form">
+    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`} data-testid="purchase-order-form">
       {/* ==================== STICKY HEADER ==================== */}
-      <div
-        className={`sticky top-0 z-20 backdrop-blur-md ${
-          isDarkMode ? "bg-[#0f151b]/94 border-b border-[#2a3640]" : "bg-white/94 border-b border-gray-200"
-        } px-4 py-3`}
+      <header
+        className={`sticky top-0 z-20 shrink-0 backdrop-blur-md border-b ${
+          isDarkMode ? "bg-gray-900/92 border-gray-700" : "bg-white/92 border-gray-200"
+        }`}
       >
-        <div className="max-w-[1400px] mx-auto flex justify-between items-center">
+        <div className="max-w-[1400px] mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => navigate("/app/purchase-orders")}
-              className={`p-2 rounded-xl transition-colors ${
-                isDarkMode ? "hover:bg-[#1a2129] text-[#93a4b4]" : "hover:bg-gray-100 text-gray-600"
+              className={`p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${
+                isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
               }`}
+              aria-label="Back to purchase orders"
             >
-              <ArrowLeft size={20} />
+              <ArrowLeft className="h-5 w-5" />
             </button>
             <div>
-              <h1 className={`text-lg font-extrabold ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+              <h1 className={`text-lg md:text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                 {id ? "Edit" : "Create"} Purchase Order
               </h1>
-              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 {purchaseOrder.poNumber || "New PO"}
               </div>
             </div>
@@ -1625,10 +1630,10 @@ const PurchaseOrderForm = () => {
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* ==================== MAIN CONTENT ==================== */}
-      <div className="max-w-[1400px] mx-auto p-4">
+      <main className="max-w-[1400px] mx-auto px-4 py-4">
         {/* Validation Errors Alert */}
         {validationErrors.length > 0 && (
           <div
@@ -1669,7 +1674,7 @@ const PurchaseOrderForm = () => {
           <div className="col-span-12 lg:col-span-8 space-y-4">
             {/* ===== PO DETAILS + SUPPLIER (Consolidated Card) ===== */}
             <div className={CARD_CLASSES(isDarkMode)}>
-              <div className="text-sm font-extrabold mb-3">Document Details</div>
+              <div className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Document Details</div>
               <div className="grid grid-cols-12 gap-3">
                 {/* Row 1: PO Number, Date, Expected Delivery */}
                 <div className="col-span-12 sm:col-span-3">
@@ -1772,7 +1777,7 @@ const PurchaseOrderForm = () => {
                     )}
                   </div>
                   {purchaseOrder.supplierTRN && (
-                    <div className={`text-xs mt-1 font-mono ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                    <div className={`text-xs mt-1 font-mono ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                       TRN: {purchaseOrder.supplierTRN}
                     </div>
                   )}
@@ -1811,7 +1816,7 @@ const PurchaseOrderForm = () => {
             {/* ===== LINE ITEMS SECTION ===== */}
             <div className={CARD_CLASSES(isDarkMode)}>
               <div className="flex justify-between items-center mb-3">
-                <div className="text-sm font-extrabold">Line Items</div>
+                <div className={`text-xs font-semibold uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Line Items</div>
                 <button type="button" onClick={addItem} className={BTN_PRIMARY} data-testid="add-item">
                   <Plus size={16} className="inline mr-1" />
                   Add Item
@@ -1821,7 +1826,7 @@ const PurchaseOrderForm = () => {
               {/* Quick Add Speed Buttons */}
               {formPreferences.showSpeedButtons && (
                 <div className="mb-3">
-                  <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}>
+                  <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                     Quick Add (Pinned & Top Products)
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -1832,13 +1837,13 @@ const PurchaseOrderForm = () => {
                           <button
                             type="button"
                             onClick={() => handleQuickAddItem(product)}
-                            className={`w-full px-2.5 py-2 pr-7 rounded-[10px] border text-xs font-medium transition-all truncate text-left ${
+                            className={`w-full px-2.5 py-2 pr-7 rounded-md border text-xs font-medium transition-all truncate text-left ${
                               isPinned
                                 ? isDarkMode
                                   ? "border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60"
                                   : "border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200"
                                 : isDarkMode
-                                  ? "border-[#2a3640] bg-[#0f151b] text-[#93a4b4] hover:border-[#4aa3ff]"
+                                  ? "border-gray-700 bg-gray-900 text-gray-400 hover:border-teal-500"
                                   : "border-gray-300 bg-white text-gray-700 hover:border-blue-500"
                             }`}
                             title={
@@ -1886,87 +1891,87 @@ const PurchaseOrderForm = () => {
                   className={`min-w-full table-fixed ${isDarkMode ? "divide-gray-600" : "divide-gray-200"}`}
                   data-testid="line-items-table"
                 >
-                  <thead className={isDarkMode ? "bg-[#0f151b]" : "bg-gray-50"}>
+                  <thead className={isDarkMode ? "bg-gray-900" : "bg-gray-50"}>
                     <tr>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         style={{ width: "18%" }}
                       >
                         Product
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         style={{ width: "5%" }}
                       >
                         Qty
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         style={{ width: "5%" }}
                       >
                         Unit Wt
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         style={{ width: "5%" }}
                       >
                         Exp. Wt
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         style={{ width: "8%" }}
                       >
                         Rate
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         style={{ width: "8%" }}
                       >
                         Channel
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         style={{ width: "8%" }}
                       >
                         Supply Type
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         style={{ width: "5%" }}
                       >
                         VAT %
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         style={{ width: "8%" }}
                       >
                         Amount
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         style={{ width: "7%" }}
                       >
                         Stock
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         style={{ width: "8%" }}
                       >
                         GRN
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}
+                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         style={{ width: "4%" }}
                       ></th>
                     </tr>
                   </thead>
-                  <tbody className={`divide-y ${isDarkMode ? "divide-[#2a3640]" : "divide-gray-200"}`}>
+                  <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
                     {purchaseOrder.items.map((item, index) => (
                       <tr
                         key={item.id || index}
                         data-item-index={index}
                         data-testid={`item-row-${index}`}
-                        className={isDarkMode ? "bg-[#141a20]" : "bg-white"}
+                        className={isDarkMode ? "bg-gray-800" : "bg-white"}
                       >
                         <td className="px-2 py-2 align-middle">
                           <Autocomplete
@@ -1998,7 +2003,7 @@ const PurchaseOrderForm = () => {
                                     option.sku ||
                                     "Product"}
                                 </div>
-                                <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+                                <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                                   {option.origin ? `${option.origin} • ` : ""}
                                   {option.subtitle}
                                 </div>
@@ -2022,7 +2027,7 @@ const PurchaseOrderForm = () => {
                             }}
                             min="0"
                             step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
-                            className={`w-full px-2 py-1.5 text-xs border rounded-[10px] text-right ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"} ${invalidFields.has(`item.${index}.quantity`) ? "border-red-500" : ""}`}
+                            className={`w-full px-2 py-1.5 text-xs border rounded-md text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} ${invalidFields.has(`item.${index}.quantity`) ? "border-red-500" : ""}`}
                           />
                         </td>
                         <td className="px-2 py-2 align-middle">
@@ -2039,7 +2044,7 @@ const PurchaseOrderForm = () => {
                             min="0"
                             step="0.01"
                             placeholder="0.00"
-                            className={`w-full px-2 py-1.5 text-xs border rounded-[10px] text-right ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"} ${item.missingWeightWarning ? "border-red-500" : ""}`}
+                            className={`w-full px-2 py-1.5 text-xs border rounded-md text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} ${item.missingWeightWarning ? "border-red-500" : ""}`}
                           />
                         </td>
                         <td className="px-2 py-2 align-middle">
@@ -2059,12 +2064,12 @@ const PurchaseOrderForm = () => {
                               const calcWt = item.theoreticalWeightKg || item.quantity * (item.unitWeightKg || 0);
                               return calcWt ? calcWt.toFixed(2) : "0.00";
                             })()}
-                            className={`w-full px-2 py-1.5 text-xs border rounded-[10px] text-right ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3] placeholder-gray-500" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"}`}
+                            className={`w-full px-2 py-1.5 text-xs border rounded-md text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-white placeholder-gray-500" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"}`}
                           />
                         </td>
                         <td className="px-1 py-2 align-middle">
                           <div
-                            className={`flex rounded-[10px] overflow-hidden border ${isDarkMode ? "border-[#2a3640]" : "border-gray-300"}`}
+                            className={`flex rounded-md overflow-hidden border ${isDarkMode ? "border-gray-700" : "border-gray-300"}`}
                           >
                             <input
                               type="number"
@@ -2074,7 +2079,7 @@ const PurchaseOrderForm = () => {
                               }
                               min="0"
                               step="0.01"
-                              className={`flex-1 w-full px-2 py-1.5 text-xs border-0 outline-none text-right ${isDarkMode ? "bg-[#0f151b] text-[#e6edf3]" : "bg-white text-gray-900"} ${invalidFields.has(`item.${index}.rate`) ? "border-red-500" : ""}`}
+                              className={`flex-1 w-full px-2 py-1.5 text-xs border-0 outline-none text-right ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"} ${invalidFields.has(`item.${index}.rate`) ? "border-red-500" : ""}`}
                               style={{ minWidth: 0 }}
                             />
                             <select
@@ -2086,7 +2091,7 @@ const PurchaseOrderForm = () => {
                                   : item.pricingBasis === "PER_PCS"
                                     ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700"
                                     : isDarkMode
-                                      ? "bg-[#1a2129] text-[#93a4b4] border-[#2a3640]"
+                                      ? "bg-gray-700 text-gray-400 border-gray-700"
                                       : "bg-gray-50 text-gray-600 border-gray-300"
                               }`}
                             >
@@ -2109,7 +2114,7 @@ const PurchaseOrderForm = () => {
                             <select
                               value={item.procurementChannel || "LOCAL"}
                               onChange={(e) => handleItemChange(index, "procurementChannel", e.target.value)}
-                              className={`w-full px-2 py-1 border rounded-[10px] text-xs ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"} ${
+                              className={`w-full px-2 py-1 border rounded-md text-xs ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} ${
                                 item.procurementChannel === "IMPORTED"
                                   ? isDarkMode
                                     ? "border-emerald-600"
@@ -2126,7 +2131,7 @@ const PurchaseOrderForm = () => {
                               <select
                                 value={item.importContainerId || ""}
                                 onChange={(e) => handleItemChange(index, "importContainerId", e.target.value || null)}
-                                className={`w-full px-2 py-1 border rounded-[10px] text-xs ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"}`}
+                                className={`w-full px-2 py-1 border rounded-md text-xs ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                               >
                                 <option value="">No container</option>
                                 {importContainers.map((container) => (
@@ -2142,7 +2147,7 @@ const PurchaseOrderForm = () => {
                           <select
                             value={item.supplyType || "standard"}
                             onChange={(e) => handleItemChange(index, "supplyType", e.target.value)}
-                            className={`w-full px-2 py-1 border rounded-[10px] text-xs ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"}`}
+                            className={`w-full px-2 py-1 border rounded-md text-xs ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                           >
                             <option value="standard">Standard (5%)</option>
                             <option value="zero_rated">Zero-Rated (0%)</option>
@@ -2164,12 +2169,12 @@ const PurchaseOrderForm = () => {
                             max="15"
                             step="0.01"
                             placeholder="5.00"
-                            className={`w-full px-2 py-1.5 text-xs border rounded-[10px] text-right ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"}`}
+                            className={`w-full px-2 py-1.5 text-xs border rounded-md text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                           />
                         </td>
                         <td className="px-2 py-2 align-middle">
                           <div
-                            className={`font-mono text-xs text-right ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                            className={`font-mono text-xs text-right ${isDarkMode ? "text-white" : "text-gray-900"}`}
                           >
                             {formatCurrency(item.amount)}
                           </div>
@@ -2178,7 +2183,7 @@ const PurchaseOrderForm = () => {
                           <select
                             value={item.lineStockStatus || "PENDING"}
                             onChange={(e) => handleItemChange(index, "lineStockStatus", e.target.value)}
-                            className={`w-full px-1 py-1 border rounded-[10px] text-xs ${isDarkMode ? "bg-[#0f151b] border-[#2a3640] text-[#e6edf3]" : "bg-white border-gray-300 text-gray-900"} ${
+                            className={`w-full px-1 py-1 border rounded-md text-xs ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} ${
                               item.lineStockStatus === "RECEIVED"
                                 ? "bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-300 dark:border-green-700"
                                 : item.lineStockStatus === "PARTIAL"
@@ -2193,7 +2198,7 @@ const PurchaseOrderForm = () => {
                         </td>
                         <td className="px-2 py-2 align-middle">
                           {item.grnNumber ? (
-                            <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-700"}`}>
+                            <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
                               <span className="font-medium text-teal-500">{item.grnNumber}</span>
                               {item.receivedQty && (
                                 <div className="text-[10px]">
@@ -2222,30 +2227,30 @@ const PurchaseOrderForm = () => {
               </div>
 
               {/* Mobile Cards - placeholder for now, keep existing mobile layout logic */}
-              <div className="md:hidden text-xs text-center py-4 text-[#93a4b4]">
+              <div className="md:hidden text-xs text-center py-4 text-gray-400">
                 Mobile view: use desktop for best experience
               </div>
 
               {/* Inline Totals (visible on left column, quick reference) */}
-              <div className={`mt-4 pt-4 border-t ${isDarkMode ? "border-[#2a3640]" : "border-gray-200"}`}>
+              <div className={`mt-4 pt-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                 <div className="flex justify-end">
                   <div className="w-full max-w-xs space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}>Subtotal:</span>
-                      <span className={`font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Subtotal:</span>
+                      <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                         {formatCurrency(purchaseOrder.subtotal)}
                       </span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}>VAT (5%):</span>
-                      <span className={`font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>VAT (5%):</span>
+                      <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                         {formatCurrency(purchaseOrder.vatAmount)}
                       </span>
                     </div>
-                    <div className={`h-px my-1 ${isDarkMode ? "bg-[#2a3640]" : "bg-gray-200"}`} />
+                    <div className={`h-px my-1 ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`} />
                     <div className="flex justify-between text-sm font-bold">
-                      <span className={isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}>Total:</span>
-                      <span className="text-[#4aa3ff] font-mono">{formatCurrency(purchaseOrder.total)}</span>
+                      <span className={isDarkMode ? "text-white" : "text-gray-900"}>Total:</span>
+                      <span className="text-teal-400 font-mono">{formatCurrency(purchaseOrder.total)}</span>
                     </div>
                   </div>
                 </div>
@@ -2260,18 +2265,18 @@ const PurchaseOrderForm = () => {
             <div className="lg:sticky lg:top-[72px] space-y-4">
               {/* Order Summary Card */}
               <div className={CARD_CLASSES(isDarkMode)}>
-                <div className="text-sm font-extrabold mb-3">Order Summary</div>
+                <div className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Order Summary</div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
-                    <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}>Items</span>
-                    <span className={`font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                    <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Items</span>
+                    <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       {purchaseOrder.items.length}
                     </span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}>Subtotal</span>
+                    <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Subtotal</span>
                     <span
-                      className={`font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                      className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
                       data-testid="subtotal"
                     >
                       {formatCurrency(purchaseOrder.subtotal)}
@@ -2282,8 +2287,8 @@ const PurchaseOrderForm = () => {
                     parseFloat(purchaseOrder.handlingCharges) > 0 ||
                     parseFloat(purchaseOrder.otherCharges) > 0) && (
                     <div className="flex justify-between text-xs">
-                      <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}>Charges</span>
-                      <span className={`font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}>
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Charges</span>
+                      <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                         {formatCurrency(
                           (parseFloat(purchaseOrder.freightCharges) || 0) +
                             (parseFloat(purchaseOrder.shippingCharges) || 0) +
@@ -2308,9 +2313,9 @@ const PurchaseOrderForm = () => {
                     </div>
                   )}
                   <div className="flex justify-between text-xs">
-                    <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}>VAT (5%)</span>
+                    <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>VAT (5%)</span>
                     <span
-                      className={`font-mono ${isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}`}
+                      className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
                       data-testid="vat-amount"
                     >
                       {formatCurrency(purchaseOrder.vatAmount)}
@@ -2318,8 +2323,8 @@ const PurchaseOrderForm = () => {
                   </div>
                   <div className={DIVIDER_CLASSES(isDarkMode)} />
                   <div className="flex justify-between font-bold">
-                    <span className={isDarkMode ? "text-[#e6edf3]" : "text-gray-900"}>Grand Total</span>
-                    <span className="text-[#4aa3ff] font-mono text-lg" data-testid="total">
+                    <span className={isDarkMode ? "text-white" : "text-gray-900"}>Grand Total</span>
+                    <span className="text-teal-400 font-mono text-lg" data-testid="total">
                       {formatCurrency(purchaseOrder.total)}
                     </span>
                   </div>
@@ -2329,7 +2334,7 @@ const PurchaseOrderForm = () => {
               {/* Payment Status Card */}
               <div className={CARD_CLASSES(isDarkMode)}>
                 <div className="flex justify-between items-center mb-3">
-                  <div className="text-sm font-extrabold">Payment</div>
+                  <div className={`text-xs font-semibold uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Payment</div>
                   <span
                     className={`px-2 py-1 rounded-full text-[11px] font-medium ${
                       paymentStatus === "paid"
@@ -2344,7 +2349,7 @@ const PurchaseOrderForm = () => {
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
-                    <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}>Paid</span>
+                    <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Paid</span>
                     <span className="font-mono text-green-500">
                       {formatCurrency(
                         payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
@@ -2352,7 +2357,7 @@ const PurchaseOrderForm = () => {
                     </span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className={isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}>Outstanding</span>
+                    <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Outstanding</span>
                     <span className="font-mono text-red-400">
                       {formatCurrency(
                         Math.max(
@@ -2364,9 +2369,9 @@ const PurchaseOrderForm = () => {
                     </span>
                   </div>
                   {/* Progress bar */}
-                  <div className={`w-full rounded-full h-1.5 ${isDarkMode ? "bg-[#2a3640]" : "bg-gray-200"}`}>
+                  <div className={`w-full rounded-full h-1.5 ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}>
                     <div
-                      className="bg-[#4aa3ff] h-1.5 rounded-full transition-all"
+                      className="bg-teal-500 h-1.5 rounded-full transition-all"
                       style={{
                         width: `${Math.min(100, (payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0) / purchaseOrder.total) * 100)}%`,
                       }}
@@ -2377,7 +2382,7 @@ const PurchaseOrderForm = () => {
 
               {/* Quick Actions */}
               <div className={CARD_CLASSES(isDarkMode)}>
-                <div className="text-xs font-bold text-[#93a4b4] uppercase tracking-wider mb-2">Quick Actions</div>
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Quick Actions</div>
                 <div className="space-y-1.5">
                   <button
                     type="button"
@@ -2432,7 +2437,7 @@ const PurchaseOrderForm = () => {
             </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {/* ==================== DRAWERS ==================== */}
 
@@ -2449,7 +2454,7 @@ const PurchaseOrderForm = () => {
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
               <div className="text-sm font-extrabold">Charges & Discount</div>
-              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Add freight, shipping, handling, or discounts
               </div>
             </div>
@@ -2580,7 +2585,7 @@ const PurchaseOrderForm = () => {
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
               <div className="text-sm font-extrabold">Delivery Terms</div>
-              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Shipping, warehouse, and delivery settings
               </div>
             </div>
@@ -2683,7 +2688,7 @@ const PurchaseOrderForm = () => {
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
               <div className="text-sm font-extrabold">Notes & Terms</div>
-              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Internal notes and payment terms
               </div>
             </div>
@@ -2742,7 +2747,7 @@ const PurchaseOrderForm = () => {
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
               <div className="text-sm font-extrabold">Buyer & Supplier Info</div>
-              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Contact details for this order
               </div>
             </div>
@@ -2753,7 +2758,7 @@ const PurchaseOrderForm = () => {
           <div className="mt-4 space-y-4">
             {/* Supplier Section */}
             <div
-              className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+              className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             >
               Supplier Details
             </div>
@@ -2794,7 +2799,7 @@ const PurchaseOrderForm = () => {
             <div className={DIVIDER_CLASSES(isDarkMode)} />
             {/* Buyer Section */}
             <div
-              className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+              className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             >
               Buyer Details
             </div>
@@ -2878,7 +2883,7 @@ const PurchaseOrderForm = () => {
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
               <div className="text-sm font-extrabold">Payment Details</div>
-              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Payment terms, history, and status
               </div>
             </div>
@@ -2922,15 +2927,15 @@ const PurchaseOrderForm = () => {
             {/* Payment Summary */}
             <div className="grid grid-cols-3 gap-2.5">
               <div
-                className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
+                className={`${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
               >
-                <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Total</div>
+                <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Total</div>
                 <div className="text-sm font-extrabold mt-1 font-mono">{formatCurrency(purchaseOrder.total)}</div>
               </div>
               <div
-                className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
+                className={`${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
               >
-                <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Paid</div>
+                <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Paid</div>
                 <div className="text-sm font-extrabold mt-1 font-mono text-green-500">
                   {formatCurrency(
                     payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
@@ -2938,9 +2943,9 @@ const PurchaseOrderForm = () => {
                 </div>
               </div>
               <div
-                className={`${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
+                className={`${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
               >
-                <div className={`text-[11px] ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>Outstanding</div>
+                <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Outstanding</div>
                 <div className="text-sm font-extrabold mt-1 font-mono text-red-400">
                   {formatCurrency(
                     Math.max(
@@ -2968,7 +2973,7 @@ const PurchaseOrderForm = () => {
             {payments.length > 0 && (
               <>
                 <div
-                  className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}
+                  className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
                   Payment History
                 </div>
@@ -2978,9 +2983,9 @@ const PurchaseOrderForm = () => {
                       key={payment.id}
                       className={`p-3 rounded-[14px] border flex justify-between items-center ${
                         payment.voided
-                          ? `opacity-60 ${isDarkMode ? "bg-[#0f151b] border-[#2a3640]" : "bg-gray-100 border-gray-300"}`
+                          ? `opacity-60 ${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-100 border-gray-300"}`
                           : isDarkMode
-                            ? "bg-[#0f151b] border-[#2a3640]"
+                            ? "bg-gray-900 border-gray-700"
                             : "bg-gray-50 border-gray-200"
                       }`}
                     >
@@ -2989,7 +2994,7 @@ const PurchaseOrderForm = () => {
                           {formatCurrency(payment.amount)}
                           {payment.voided && <span className="text-red-500 ml-2 text-xs">(VOIDED)</span>}
                         </div>
-                        <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-600"}`}>
+                        <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                           {payment.paymentMethod} - {payment.paymentDate}
                           {payment.referenceNumber && ` | Ref: ${payment.referenceNumber}`}
                         </div>
@@ -3032,7 +3037,7 @@ const PurchaseOrderForm = () => {
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
               <div className="text-sm font-extrabold">Approval Workflow</div>
-              <div className={`text-xs ${isDarkMode ? "text-[#93a4b4]" : "text-gray-500"}`}>
+              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Manage approval status and comments
               </div>
             </div>
