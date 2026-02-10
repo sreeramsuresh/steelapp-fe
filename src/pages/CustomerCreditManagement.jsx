@@ -115,7 +115,7 @@ export default function CustomerCreditManagement() {
 
   return (
     <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto">
         <h2 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
           Customer Credit Management
         </h2>

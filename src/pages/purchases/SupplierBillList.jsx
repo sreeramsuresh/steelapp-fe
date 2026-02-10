@@ -272,7 +272,7 @@ const SupplierBillList = () => {
 
   return (
     <div className={`h-full overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="mx-auto px-6 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
