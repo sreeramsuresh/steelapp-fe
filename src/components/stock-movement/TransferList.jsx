@@ -414,7 +414,11 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
               ) : transfers.length === 0 ? (
                 <tr>
                   <td colSpan={9} className={`px-4 py-8 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                    No transfers found
+                    <p>No transfers found</p>
+                    <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                      Transfers are created when you need to move stock between warehouses. Click &apos;+ New
+                      Transfer&apos; to get started.
+                    </p>
                   </td>
                 </tr>
               ) : (

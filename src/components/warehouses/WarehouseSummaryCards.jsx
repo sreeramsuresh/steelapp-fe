@@ -16,6 +16,7 @@ const WarehouseSummaryCards = ({ summary, loading }) => {
       icon: MapPin,
       color: "teal",
       format: "number",
+      tooltip: "Number of warehouse locations configured in the system",
     },
     {
       title: "Active",
@@ -23,6 +24,7 @@ const WarehouseSummaryCards = ({ summary, loading }) => {
       icon: CheckCircle,
       color: "green",
       format: "number",
+      tooltip: "Warehouses currently accepting stock movements",
     },
     {
       title: "Total Items",
@@ -30,6 +32,7 @@ const WarehouseSummaryCards = ({ summary, loading }) => {
       icon: Package,
       color: "blue",
       format: "number",
+      tooltip: "Distinct products stored across all active warehouses",
     },
     {
       title: "Low Stock Alerts",
@@ -37,6 +40,7 @@ const WarehouseSummaryCards = ({ summary, loading }) => {
       icon: AlertTriangle,
       color: summary.lowStockItems > 0 ? "red" : "gray",
       format: "number",
+      tooltip: "Products below their configured minimum stock level",
     },
   ];
 
@@ -96,7 +100,11 @@ const WarehouseSummaryCards = ({ summary, loading }) => {
             className={`rounded-lg border p-4 ${
               isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"
             } ${card.title === "Total Items" && card.value === 0 ? "opacity-60" : ""}`}
-            title={card.title === "Total Items" && card.value === 0 ? "Inventory synchronization pending" : ""}
+            title={
+              card.title === "Total Items" && card.value === 0
+                ? "Inventory synchronization pending"
+                : card.tooltip || ""
+            }
           >
             <div className="flex items-start justify-between">
               <div className="flex-1">

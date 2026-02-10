@@ -60,7 +60,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
       // Completed today - check if receivedDate is today
       const today = new Date().toDateString();
       const completedToday = transfers.filter((t) => {
-        if (t.status !== "RECEIVED") return false;
+        if (t.status !== "COMPLETED") return false;
         if (!t.receivedDate) return false;
         const receivedDate =
           typeof t.receivedDate === "object" && t.receivedDate.seconds
@@ -105,7 +105,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
         let color = "blue";
         let description = "";
 
-        if (t.status === "RECEIVED") {
+        if (t.status === "COMPLETED") {
           color = "green";
           description = `Transfer ${t.transferNumber} received at ${t.destinationWarehouseName}`;
         } else if (t.status === "SHIPPED" || t.status === "IN_TRANSIT") {
@@ -210,10 +210,11 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
     return `${diffDays} days ago`;
   };
 
-  const StatCard = ({ title, value, icon: Icon, color, onClick, sublabel }) => (
+  const StatCard = ({ title, value, icon: Icon, color, onClick, sublabel, tooltip }) => (
     <button
       type="button"
       onClick={onClick}
+      title={tooltip}
       className={`w-full text-left ${
         isDarkMode ? "bg-gray-800 hover:bg-gray-750" : "bg-white hover:bg-gray-50"
       } p-4 rounded-lg shadow-sm transition-colors border ${
@@ -315,6 +316,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           color="bg-green-500"
           onClick={() => onNavigateToTab?.("history")}
           sublabel="received today"
+          tooltip="Total quantity received into warehouses today via GRN approvals"
         />
         <StatCard
           title="Stock Out Today"
@@ -323,6 +325,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           color="bg-red-500"
           onClick={() => onNavigateToTab?.("history")}
           sublabel="dispatched today"
+          tooltip="Total quantity dispatched from warehouses today via delivery notes"
         />
         <StatCard
           title="Total Movements"
@@ -331,6 +334,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           color="bg-teal-500"
           onClick={() => onNavigateToTab?.("history")}
           sublabel="all time"
+          tooltip="Count of all stock movements (IN, OUT, adjustments) recorded in the system. Click to view full history"
         />
       </div>
 
@@ -343,6 +347,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           color="bg-orange-500"
           onClick={() => onNavigateToTab?.("transfers")}
           sublabel="awaiting shipment"
+          tooltip="Inter-warehouse transfers in Draft or Pending status, awaiting shipment"
         />
         <StatCard
           title="In Transit"
@@ -351,6 +356,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           color="bg-blue-500"
           onClick={() => onNavigateToTab?.("transfers")}
           sublabel="being shipped"
+          tooltip="Transfers that have been shipped but not yet received at destination"
         />
         <StatCard
           title="Completed Today"
@@ -359,6 +365,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           color="bg-green-500"
           onClick={() => onNavigateToTab?.("transfers")}
           sublabel="transfers received"
+          tooltip="Transfers received and confirmed at destination warehouse today"
         />
         <StatCard
           title="Awaiting Reconciliation"
@@ -367,6 +374,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           color="bg-red-500"
           onClick={() => onNavigateToTab?.("reconciliation")}
           sublabel="active reservations"
+          tooltip="Active or partially fulfilled reservations that need attention"
         />
       </div>
 
@@ -386,7 +394,8 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
               </div>
             ) : recentActivity.length === 0 ? (
               <p className={`text-sm ${isDarkMode ? "text-gray-500" : "text-gray-500"} text-center py-4`}>
-                No recent activity
+                No recent activity. Stock movements appear here when goods are received (GRN), dispatched (Delivery
+                Note), or transferred between warehouses.
               </p>
             ) : (
               recentActivity.map((activity) => (

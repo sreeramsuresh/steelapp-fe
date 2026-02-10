@@ -13,7 +13,7 @@ import { productService } from "../../services/dataService";
 import { stockMovementService } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
 import { getProductUniqueName } from "../../utils/fieldAccessors";
-import { validateSsotPattern } from "../../utils/productSsotValidation";
+
 
 /**
  * Format quantity with unit
@@ -86,7 +86,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
       try {
         setLoadingProducts(true);
         const result = await productService.getProducts({ limit: 1000 });
-        setProducts(result.data || []);
+        setProducts(result.products || result.data || []);
       } catch (err) {
         console.error("Error loading products:", err);
         setError("Failed to load products");
@@ -210,19 +210,13 @@ const TransferForm = ({ onCancel, onSuccess }) => {
   // Handle product select
   const handleProductSelect = useCallback(
     (itemId, product) => {
-      const uniqueName = getProductUniqueName(product);
-
-      // SSOT validation (Epic 5 - TRAN-002)
-      const ssotValidation = validateSsotPattern(uniqueName);
-      if (!ssotValidation.isValid) {
-        setError(`Invalid product name: ${ssotValidation.error}\nPattern: ${ssotValidation.pattern}`);
-        return;
-      }
+      // Use product.name (SSOT format) for display, fallback to getProductUniqueName
+      const displayName = product.name || getProductUniqueName(product);
 
       handleItemChange(itemId, "product", product);
       setProductSearchTerms((prev) => ({
         ...prev,
-        [itemId]: `${uniqueName} (${product.sku || "No SKU"})`,
+        [itemId]: `${displayName} (${product.sku || "No SKU"})`,
       }));
       setActiveItemId(null);
       setError(null); // Clear any previous errors
@@ -676,7 +670,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                                         : "text-gray-900"
                                   }`}
                                 >
-                                  <div className="font-medium">{getProductUniqueName(product)}</div>
+                                  <div className="font-medium">{product.name || getProductUniqueName(product)}</div>
                                   <div className="text-xs opacity-75">{product.sku || "No SKU"}</div>
                                 </button>
                               ))}

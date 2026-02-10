@@ -223,6 +223,7 @@ const StockLevelsDashboard = () => {
             className={`p-4 rounded-xl border ${
               isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
             }`}
+            title="Number of distinct products with stock in any warehouse"
           >
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg ${isDarkMode ? "bg-blue-900/30" : "bg-blue-100"}`}>
@@ -242,6 +243,7 @@ const StockLevelsDashboard = () => {
             className={`p-4 rounded-xl border ${
               isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
             }`}
+            title="Sum of all on-hand quantities across warehouses (in default unit)"
           >
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg ${isDarkMode ? "bg-teal-900/30" : "bg-teal-100"}`}>
@@ -261,6 +263,7 @@ const StockLevelsDashboard = () => {
             className={`p-4 rounded-xl border ${
               isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
             }`}
+            title="Estimated value of all stock based on last purchase price"
           >
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg ${isDarkMode ? "bg-green-900/30" : "bg-green-100"}`}>
@@ -280,6 +283,7 @@ const StockLevelsDashboard = () => {
             className={`p-4 rounded-xl border ${
               isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
             }`}
+            title="Products below minimum stock threshold — needs reorder"
           >
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg ${isDarkMode ? "bg-yellow-900/30" : "bg-yellow-100"}`}>
@@ -299,6 +303,7 @@ const StockLevelsDashboard = () => {
             className={`p-4 rounded-xl border ${
               isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
             }`}
+            title="Products with zero available quantity — urgent action needed"
           >
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg ${isDarkMode ? "bg-red-900/30" : "bg-red-100"}`}>
@@ -492,6 +497,9 @@ const StockLevelsDashboard = () => {
           <div className={`text-center p-12 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
             <Package size={48} className="mx-auto mb-4 opacity-50" />
             <p>No stock levels found</p>
+            <p className={`text-sm mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+              Stock appears here after goods are received via GRN approval against Purchase Orders.
+            </p>
             {(searchTerm || warehouseFilter !== "all" || lowStockOnly) && (
               <button type="button" onClick={resetFilters} className="mt-4 text-teal-600 hover:underline">
                 Clear filters

@@ -41,26 +41,31 @@ const StockMovementPage = () => {
       id: "overview",
       label: "Overview",
       icon: BarChart3,
+      description: "Dashboard summary of stock-in, stock-out, transfers, and reservations",
     },
     {
       id: "transfers",
       label: "Transfers",
       icon: ArrowLeftRight,
+      description: "Move stock between warehouses — create, ship, and receive transfers",
     },
     {
       id: "reservations",
       label: "Reservations",
       icon: Bookmark,
+      description: "Reserve stock for pending orders — prevents overselling allocated inventory",
     },
     {
       id: "reconciliation",
       label: "Reconciliation",
       icon: ClipboardList,
+      description: "Compare system quantities against physical counts and resolve discrepancies",
     },
     {
       id: "history",
       label: "Movement History",
       icon: Clock,
+      description: "Full audit trail of every stock-in, stock-out, and adjustment recorded",
     },
   ];
 
@@ -359,7 +364,8 @@ const StockMovementPage = () => {
                 Stock Movement Management
               </h1>
               <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                Manage inter-warehouse transfers, stock reservations, and reconciliation
+                {tabs.find((t) => t.id === activeTab)?.description ||
+                  "Manage inter-warehouse transfers, stock reservations, and reconciliation"}
               </p>
             </div>
           </div>
