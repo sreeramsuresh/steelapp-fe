@@ -389,7 +389,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
   if (loading) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div className={`p-8 rounded-xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"}`}>
+        <div className={`p-8 rounded-xl ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       </div>
@@ -403,14 +403,14 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
     >
       <div
         className={`w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl shadow-xl ${
-          isDarkMode ? "bg-[#1E2328] text-white" : "bg-white text-gray-900"
+          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
         }`}
         data-testid="container-form"
       >
         {/* Header */}
         <div
           className={`sticky top-0 flex items-center justify-between p-4 border-b ${
-            isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"
+            isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
           }`}
         >
           <h2 className="text-xl font-semibold">{isEditing ? "Edit Container" : "Add New Container"}</h2>
