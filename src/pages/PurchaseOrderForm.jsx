@@ -28,7 +28,8 @@ const CARD_CLASSES = (isDarkMode) =>
 const INPUT_CLASSES = (isDarkMode) =>
   `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-md py-2 px-3 text-sm outline-none shadow-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-[38px]`;
 
-const LABEL_CLASSES = (isDarkMode) => `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
+const LABEL_CLASSES = (isDarkMode) =>
+  `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
 
 const BTN_CLASSES = (isDarkMode) =>
   `${isDarkMode ? "bg-gray-900 border-gray-700 text-white hover:border-teal-500" : "bg-white border-gray-300 text-gray-900 hover:border-teal-500"} border rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors`;
@@ -730,9 +731,22 @@ const PurchaseOrderForm = () => {
           status: data.status || "draft",
           stockStatus: data.stockStatus || data.stock_status || "retain",
           currency: data.currency || prev.currency,
-          supplierContactName: data.supplierContactName || data.supplier_contact_name || supplierDetails.contact_name || "",
-          supplierContactEmail: data.supplierContactEmail || data.supplier_contact_email || supplierDetails.contact_email || data.supplierEmail || data.supplier_email || "",
-          supplierContactPhone: data.supplierContactPhone || data.supplier_contact_phone || supplierDetails.contact_phone || data.supplierPhone || data.supplier_phone || "",
+          supplierContactName:
+            data.supplierContactName || data.supplier_contact_name || supplierDetails.contact_name || "",
+          supplierContactEmail:
+            data.supplierContactEmail ||
+            data.supplier_contact_email ||
+            supplierDetails.contact_email ||
+            data.supplierEmail ||
+            data.supplier_email ||
+            "",
+          supplierContactPhone:
+            data.supplierContactPhone ||
+            data.supplier_contact_phone ||
+            supplierDetails.contact_phone ||
+            data.supplierPhone ||
+            data.supplier_phone ||
+            "",
           exchangeRate: data.exchangeRate || data.exchange_rate || null,
           items: Array.isArray(data.items)
             ? data.items.map((it) => ({
@@ -1674,7 +1688,11 @@ const PurchaseOrderForm = () => {
           <div className="col-span-12 lg:col-span-8 space-y-4">
             {/* ===== PO DETAILS + SUPPLIER (Consolidated Card) ===== */}
             <div className={CARD_CLASSES(isDarkMode)}>
-              <div className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Document Details</div>
+              <div
+                className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
+                Document Details
+              </div>
               <div className="grid grid-cols-12 gap-3">
                 {/* Row 1: PO Number, Date, Expected Delivery */}
                 <div className="col-span-12 sm:col-span-3">
@@ -1816,7 +1834,11 @@ const PurchaseOrderForm = () => {
             {/* ===== LINE ITEMS SECTION ===== */}
             <div className={CARD_CLASSES(isDarkMode)}>
               <div className="flex justify-between items-center mb-3">
-                <div className={`text-xs font-semibold uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Line Items</div>
+                <div
+                  className={`text-xs font-semibold uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                >
+                  Line Items
+                </div>
                 <button type="button" onClick={addItem} className={BTN_PRIMARY} data-testid="add-item">
                   <Plus size={16} className="inline mr-1" />
                   Add Item
@@ -2265,7 +2287,11 @@ const PurchaseOrderForm = () => {
             <div className="lg:sticky lg:top-[72px] space-y-4">
               {/* Order Summary Card */}
               <div className={CARD_CLASSES(isDarkMode)}>
-                <div className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Order Summary</div>
+                <div
+                  className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                >
+                  Order Summary
+                </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
                     <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Items</span>
@@ -2275,10 +2301,7 @@ const PurchaseOrderForm = () => {
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Subtotal</span>
-                    <span
-                      className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                      data-testid="subtotal"
-                    >
+                    <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`} data-testid="subtotal">
                       {formatCurrency(purchaseOrder.subtotal)}
                     </span>
                   </div>
@@ -2334,7 +2357,11 @@ const PurchaseOrderForm = () => {
               {/* Payment Status Card */}
               <div className={CARD_CLASSES(isDarkMode)}>
                 <div className="flex justify-between items-center mb-3">
-                  <div className={`text-xs font-semibold uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Payment</div>
+                  <div
+                    className={`text-xs font-semibold uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
+                    Payment
+                  </div>
                   <span
                     className={`px-2 py-1 rounded-full text-[11px] font-medium ${
                       paymentStatus === "paid"
