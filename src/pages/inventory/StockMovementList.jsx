@@ -28,7 +28,7 @@ import { formatDate } from "../../utils/invoiceUtils";
  *
  * Displays a paginated, filterable list of stock movements
  */
-const StockMovementList = () => {
+const StockMovementList = ({ embedded = false }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
 
@@ -167,6 +167,14 @@ const StockMovementList = () => {
 
   // Loading state
   if (loading && movements.length === 0) {
+    if (embedded) {
+      return (
+        <div className="flex justify-center items-center min-h-[200px]">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
+          <span className={`ml-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Loading stock movements...</span>
+        </div>
+      );
+    }
     return (
       <div
         className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
@@ -181,6 +189,17 @@ const StockMovementList = () => {
 
   // Empty state
   if (movements.length === 0 && !loading) {
+    if (embedded) {
+      return (
+        <div className="text-center py-8">
+          <Package size={48} className="mx-auto mb-3 opacity-50" />
+          <p className={`text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>No Stock Movements Yet</p>
+          <p className={`text-sm mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+            Stock movements from purchases and dispatches will appear here
+          </p>
+        </div>
+      );
+    }
     return (
       <div
         className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
@@ -209,6 +228,342 @@ const StockMovementList = () => {
     );
   }
 
+  // Filters + Table + Pagination content (shared between embedded and full-page)
+  const renderContent = () => (
+    <>
+      {/* Filters */}
+      <div className={embedded ? "mb-4" : "mb-6 px-4 sm:px-0"}>
+        {/* Main search and filter toggle */}
+        <div className="flex gap-4 flex-wrap items-center">
+          <div className="flex-grow min-w-[300px] relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search size={20} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
+            </div>
+            <input
+              type="text"
+              placeholder="Search movements..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                isDarkMode
+                  ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+              }`}
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
+              showFilters
+                ? "bg-teal-600 text-white border-teal-600"
+                : isDarkMode
+                  ? "border-gray-600 text-gray-300 hover:bg-gray-700"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            <Filter size={18} />
+            Filters
+            {(movementTypeFilter !== "all" || dateFrom || dateTo) && (
+              <span className="w-2 h-2 rounded-full bg-teal-400" />
+            )}
+          </button>
+        </div>
+
+        {/* Extended filters */}
+        {showFilters && (
+          <div
+            className={`mt-4 p-4 rounded-lg border ${
+              isDarkMode ? "bg-gray-800/50 border-gray-700" : "bg-gray-50 border-gray-200"
+            }`}
+          >
+            <div className="flex flex-wrap gap-4 items-end">
+              {/* Movement Type */}
+              <div className="min-w-[180px]">
+                <label
+                  htmlFor="movement-type-filter"
+                  className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
+                  Movement Type
+                </label>
+                <div className="relative">
+                  <select
+                    id="movement-type-filter"
+                    value={movementTypeFilter}
+                    onChange={(e) => {
+                      setMovementTypeFilter(e.target.value);
+                      setPage(1);
+                    }}
+                    className={`w-full px-4 py-2 border rounded-lg appearance-none ${
+                      isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
+                    }`}
+                  >
+                    <option value="all">All Types</option>
+                    {Object.entries(MOVEMENT_TYPES).map(([key, { label }]) => (
+                      <option key={key} value={key}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown
+                    size={16}
+                    className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  />
+                </div>
+              </div>
+
+              {/* Date From */}
+              <div className="min-w-[160px]">
+                <label
+                  htmlFor="movement-date-from"
+                  className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
+                  From Date
+                </label>
+                <div className="relative">
+                  <input
+                    id="movement-date-from"
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => {
+                      setDateFrom(e.target.value);
+                      setPage(1);
+                    }}
+                    className={`w-full px-4 py-2 border rounded-lg ${
+                      isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Date To */}
+              <div className="min-w-[160px]">
+                <label
+                  htmlFor="movement-date-to"
+                  className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
+                  To Date
+                </label>
+                <div className="relative">
+                  <input
+                    id="movement-date-to"
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => {
+                      setDateTo(e.target.value);
+                      setPage(1);
+                    }}
+                    className={`w-full px-4 py-2 border rounded-lg ${
+                      isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Reset button */}
+              <button
+                type="button"
+                onClick={resetFilters}
+                className={`flex items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
+                  isDarkMode
+                    ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                }`}
+              >
+                <X size={16} />
+                Reset
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Error display */}
+      {error && (
+        <div
+          className={`mb-4 p-4 rounded-lg border mx-4 sm:mx-0 ${
+            isDarkMode ? "bg-red-900/20 border-red-700 text-red-300" : "bg-red-50 border-red-200 text-red-800"
+          }`}
+        >
+          {error}
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className={isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}>
+            <tr>
+              <th
+                className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
+                Date
+              </th>
+              <th
+                className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
+                Product
+              </th>
+              <th
+                className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
+                Warehouse
+              </th>
+              <th
+                className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
+                Type
+              </th>
+              <th
+                className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
+                Quantity
+              </th>
+              <th
+                className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
+                Reference
+              </th>
+              <th
+                className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
+                Balance After
+              </th>
+              <th
+                className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
+                Notes
+              </th>
+              <th
+                className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
+            {movements.map((movement) => (
+              <tr
+                key={movement.id}
+                className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}
+              >
+                <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  <div className="flex items-center gap-2">
+                    <Calendar size={14} className="opacity-50" />
+                    {formatDate(movement.movementDate)}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    {movement.productName || "-"}
+                  </div>
+                  <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    {movement.productSku || ""}
+                  </div>
+                </td>
+                <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  <div className="flex items-center gap-2">
+                    <Warehouse size={14} className="opacity-50" />
+                    {movement.warehouseName || "-"}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">{getMovementTypeBadge(movement.movementType)}</td>
+                <td
+                  className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${getQuantityColorClass(movement)}`}
+                >
+                  {formatQuantityWithSign(movement)} {movement.unit}
+                </td>
+                <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  {movement.referenceNumber || "-"}
+                  {movement.referenceType && (
+                    <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                      {REFERENCE_TYPES[movement.referenceType]?.label || movement.referenceType}
+                    </div>
+                  )}
+                </td>
+                <td
+                  className={`px-6 py-4 whitespace-nowrap text-sm text-right ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                >
+                  {(movement.balanceAfter || 0).toFixed(2)} {movement.unit}
+                </td>
+                <td
+                  className={`px-6 py-4 text-sm max-w-[200px] truncate ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                >
+                  {movement.notes || "-"}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/app/inventory/stock-movements/${movement.id}`)}
+                    className={`p-2 rounded-lg transition-colors ${
+                      isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
+                    }`}
+                    title="View Details"
+                  >
+                    <Eye size={18} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6 px-4 sm:px-0">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1}
+              className={`p-2 rounded transition-colors ${
+                page === 1
+                  ? isDarkMode
+                    ? "text-gray-600 cursor-not-allowed"
+                    : "text-gray-400 cursor-not-allowed"
+                  : isDarkMode
+                    ? "text-gray-300 hover:bg-gray-700"
+                    : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <span className={`px-3 py-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+              Page {page} of {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
+              disabled={page === totalPages}
+              className={`p-2 rounded transition-colors ${
+                page === totalPages
+                  ? isDarkMode
+                    ? "text-gray-600 cursor-not-allowed"
+                    : "text-gray-400 cursor-not-allowed"
+                  : isDarkMode
+                    ? "text-gray-300 hover:bg-gray-700"
+                    : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  // Embedded mode: render content directly without page wrapper
+  if (embedded) {
+    return renderContent();
+  }
+
+  // Full-page mode: wrap with page layout, card, and header
   return (
     <div
       className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
@@ -222,7 +577,7 @@ const StockMovementList = () => {
         <div className="flex justify-between items-start mb-1 sm:mb-6 px-4 sm:px-0 pt-4 sm:pt-0">
           <div>
             <h1 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-              🔀 Stock Movements
+              Stock Movements
             </h1>
             <p className={`${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Track all inventory movements across warehouses
@@ -241,336 +596,7 @@ const StockMovementList = () => {
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="mb-6 px-4 sm:px-0">
-          {/* Main search and filter toggle */}
-          <div className="flex gap-4 flex-wrap items-center">
-            <div className="flex-grow min-w-[300px] relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search size={20} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
-              </div>
-              <input
-                type="text"
-                placeholder="Search movements..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setPage(1);
-                }}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                  isDarkMode
-                    ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                }`}
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
-                showFilters
-                  ? "bg-teal-600 text-white border-teal-600"
-                  : isDarkMode
-                    ? "border-gray-600 text-gray-300 hover:bg-gray-700"
-                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              <Filter size={18} />
-              Filters
-              {(movementTypeFilter !== "all" || dateFrom || dateTo) && (
-                <span className="w-2 h-2 rounded-full bg-teal-400" />
-              )}
-            </button>
-          </div>
-
-          {/* Extended filters */}
-          {showFilters && (
-            <div
-              className={`mt-4 p-4 rounded-lg border ${
-                isDarkMode ? "bg-gray-800/50 border-gray-700" : "bg-gray-50 border-gray-200"
-              }`}
-            >
-              <div className="flex flex-wrap gap-4 items-end">
-                {/* Movement Type */}
-                <div className="min-w-[180px]">
-                  <label
-                    htmlFor="movement-type-filter"
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    Movement Type
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="movement-type-filter"
-                      value={movementTypeFilter}
-                      onChange={(e) => {
-                        setMovementTypeFilter(e.target.value);
-                        setPage(1);
-                      }}
-                      className={`w-full px-4 py-2 border rounded-lg appearance-none ${
-                        isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-                      }`}
-                    >
-                      <option value="all">All Types</option>
-                      {Object.entries(MOVEMENT_TYPES).map(([key, { label }]) => (
-                        <option key={key} value={key}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown
-                      size={16}
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                    />
-                  </div>
-                </div>
-
-                {/* Date From */}
-                <div className="min-w-[160px]">
-                  <label
-                    htmlFor="movement-date-from"
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    From Date
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="movement-date-from"
-                      type="date"
-                      value={dateFrom}
-                      onChange={(e) => {
-                        setDateFrom(e.target.value);
-                        setPage(1);
-                      }}
-                      className={`w-full px-4 py-2 border rounded-lg ${
-                        isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-                      }`}
-                    />
-                  </div>
-                </div>
-
-                {/* Date To */}
-                <div className="min-w-[160px]">
-                  <label
-                    htmlFor="movement-date-to"
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    To Date
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="movement-date-to"
-                      type="date"
-                      value={dateTo}
-                      onChange={(e) => {
-                        setDateTo(e.target.value);
-                        setPage(1);
-                      }}
-                      className={`w-full px-4 py-2 border rounded-lg ${
-                        isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-                      }`}
-                    />
-                  </div>
-                </div>
-
-                {/* Reset button */}
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  className={`flex items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
-                    isDarkMode
-                      ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  }`}
-                >
-                  <X size={16} />
-                  Reset
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Error display */}
-        {error && (
-          <div
-            className={`mb-4 p-4 rounded-lg border mx-4 sm:mx-0 ${
-              isDarkMode ? "bg-red-900/20 border-red-700 text-red-300" : "bg-red-50 border-red-200 text-red-800"
-            }`}
-          >
-            {error}
-          </div>
-        )}
-
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className={isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}>
-              <tr>
-                <th
-                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                >
-                  Date
-                </th>
-                <th
-                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                >
-                  Product
-                </th>
-                <th
-                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                >
-                  Warehouse
-                </th>
-                <th
-                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                >
-                  Type
-                </th>
-                <th
-                  className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                >
-                  Quantity
-                </th>
-                <th
-                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                >
-                  Reference
-                </th>
-                <th
-                  className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                >
-                  Balance After
-                </th>
-                <th
-                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                >
-                  Notes
-                </th>
-                <th
-                  className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
-              {movements.map((movement) => (
-                <tr
-                  key={movement.id}
-                  className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}
-                >
-                  <td
-                    className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Calendar size={14} className="opacity-50" />
-                      {formatDate(movement.movementDate)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                      {movement.productName || "-"}
-                    </div>
-                    <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                      {movement.productSku || ""}
-                    </div>
-                  </td>
-                  <td
-                    className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Warehouse size={14} className="opacity-50" />
-                      {movement.warehouseName || "-"}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{getMovementTypeBadge(movement.movementType)}</td>
-                  <td
-                    className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${getQuantityColorClass(movement)}`}
-                  >
-                    {formatQuantityWithSign(movement)} {movement.unit}
-                  </td>
-                  <td
-                    className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
-                  >
-                    {movement.referenceNumber || "-"}
-                    {movement.referenceType && (
-                      <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                        {REFERENCE_TYPES[movement.referenceType]?.label || movement.referenceType}
-                      </div>
-                    )}
-                  </td>
-                  <td
-                    className={`px-6 py-4 whitespace-nowrap text-sm text-right ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
-                  >
-                    {(movement.balanceAfter || 0).toFixed(2)} {movement.unit}
-                  </td>
-                  <td
-                    className={`px-6 py-4 text-sm max-w-[200px] truncate ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                  >
-                    {movement.notes || "-"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/app/inventory/stock-movements/${movement.id}`)}
-                      className={`p-2 rounded-lg transition-colors ${
-                        isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
-                      }`}
-                      title="View Details"
-                    >
-                      <Eye size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-6 px-4 sm:px-0">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setPage(Math.max(1, page - 1))}
-                disabled={page === 1}
-                className={`p-2 rounded transition-colors ${
-                  page === 1
-                    ? isDarkMode
-                      ? "text-gray-600 cursor-not-allowed"
-                      : "text-gray-400 cursor-not-allowed"
-                    : isDarkMode
-                      ? "text-gray-300 hover:bg-gray-700"
-                      : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <ChevronLeft size={20} />
-              </button>
-              <span className={`px-3 py-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                Page {page} of {totalPages}
-              </span>
-              <button
-                type="button"
-                onClick={() => setPage(Math.min(totalPages, page + 1))}
-                disabled={page === totalPages}
-                className={`p-2 rounded transition-colors ${
-                  page === totalPages
-                    ? isDarkMode
-                      ? "text-gray-600 cursor-not-allowed"
-                      : "text-gray-400 cursor-not-allowed"
-                    : isDarkMode
-                      ? "text-gray-300 hover:bg-gray-700"
-                      : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <ChevronRight size={20} />
-              </button>
-            </div>
-          </div>
-        )}
+        {renderContent()}
       </div>
     </div>
   );

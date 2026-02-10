@@ -10,7 +10,7 @@
  * - Consistent filter bar styling
  */
 
-import { ArrowLeftRight, BarChart3, Bookmark, ClipboardList, Package } from "lucide-react";
+import { ArrowLeftRight, BarChart3, Bookmark, ClipboardList, Clock, Package } from "lucide-react";
 import { useState } from "react";
 import {
   ReconciliationDashboard,
@@ -21,6 +21,7 @@ import {
   TransferList,
 } from "../components/stock-movement";
 import { useTheme } from "../contexts/ThemeContext";
+import StockMovementList from "./inventory/StockMovementList";
 
 const StockMovementPage = () => {
   const { isDarkMode } = useTheme();
@@ -55,6 +56,11 @@ const StockMovementPage = () => {
       id: "reconciliation",
       label: "Reconciliation",
       icon: ClipboardList,
+    },
+    {
+      id: "history",
+      label: "Movement History",
+      icon: Clock,
     },
   ];
 
@@ -326,6 +332,9 @@ const StockMovementPage = () => {
 
       case "reconciliation":
         return <ReconciliationDashboard />;
+
+      case "history":
+        return <StockMovementList embedded />;
 
       default:
         return null;

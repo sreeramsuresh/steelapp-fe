@@ -6,8 +6,11 @@
  */
 
 import {
+  Activity,
   AlertTriangle,
+  ArrowDownLeft,
   ArrowRight,
+  ArrowUpRight,
   BarChart3,
   CheckCircle,
   ClipboardList,
@@ -28,6 +31,9 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
     inTransit: 0,
     completedToday: 0,
     awaitingReconciliation: 0,
+    stockInToday: 0,
+    stockOutToday: 0,
+    totalMovements: 0,
   });
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,14 +41,16 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
   const loadDashboardData = useCallback(async () => {
     setLoading(true);
     try {
-      // Load transfers to calculate stats
-      const [transfersResult, reservationsResult] = await Promise.all([
+      // Load transfers, reservations, and stock movements
+      const [transfersResult, reservationsResult, movementsResult] = await Promise.all([
         stockMovementService.listTransfers({ limit: 100 }),
         stockMovementService.listReservations({ limit: 50 }),
+        stockMovementService.getAll({ limit: 20 }),
       ]);
 
       const transfers = transfersResult.data || [];
       const reservations = reservationsResult.data || [];
+      const allMovements = movementsResult.data || [];
 
       // Calculate stats
       const pendingTransfers = transfers.filter((t) => t.status === "DRAFT" || t.status === "PENDING").length;
@@ -66,11 +74,25 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
         (r) => r.status === "ACTIVE" || r.status === "PARTIALLY_FULFILLED"
       ).length;
 
+      // Stock in/out today from stock_movements
+      const stockInToday = allMovements
+        .filter((m) => m.movementType === "IN" && new Date(m.movementDate).toDateString() === today)
+        .reduce((sum, m) => sum + parseFloat(m.quantity || 0), 0);
+
+      const stockOutToday = allMovements
+        .filter((m) => m.movementType === "OUT" && new Date(m.movementDate).toDateString() === today)
+        .reduce((sum, m) => sum + parseFloat(m.quantity || 0), 0);
+
+      const totalMovements = movementsResult.pagination?.totalItems || allMovements.length;
+
       const newStats = {
         pendingTransfers,
         inTransit,
         completedToday,
         awaitingReconciliation,
+        stockInToday,
+        stockOutToday,
+        totalMovements,
       };
 
       setStats(newStats);
@@ -129,14 +151,24 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
         });
       });
 
-      // Sort by timestamp and take first 5
+      // Add recent stock movements (purchase receipts, dispatches)
+      allMovements.slice(0, 5).forEach((m) => {
+        activities.push({
+          id: `movement-${m.id}`,
+          color: m.movementType === "IN" ? "green" : "red",
+          description: `${m.movementType === "IN" ? "Received" : "Dispatched"}: ${m.productName} (${m.quantity} ${m.unit})${m.referenceNumber ? ` — ${m.referenceNumber}` : ""}`,
+          timestamp: m.movementDate || m.createdAt,
+        });
+      });
+
+      // Sort by timestamp and take first 8
       activities.sort((a, b) => {
         const dateA = a.timestamp ? new Date(a.timestamp) : new Date(0);
         const dateB = b.timestamp ? new Date(b.timestamp) : new Date(0);
         return dateB - dateA;
       });
 
-      const newRecentActivity = activities.slice(0, 5);
+      const newRecentActivity = activities.slice(0, 8);
       setRecentActivity(newRecentActivity);
     } catch (err) {
       console.error("Error loading dashboard data:", err);
@@ -145,6 +177,9 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
         inTransit: 0,
         completedToday: 0,
         awaitingReconciliation: 0,
+        stockInToday: 0,
+        stockOutToday: 0,
+        totalMovements: 0,
       });
       setRecentActivity([]);
     } finally {
@@ -271,7 +306,35 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* Stock In/Out KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <StatCard
+          title="Stock In Today"
+          value={`${stats.stockInToday.toFixed(1)} MT`}
+          icon={ArrowDownLeft}
+          color="bg-green-500"
+          onClick={() => onNavigateToTab?.("history")}
+          sublabel="received today"
+        />
+        <StatCard
+          title="Stock Out Today"
+          value={`${stats.stockOutToday.toFixed(1)} MT`}
+          icon={ArrowUpRight}
+          color="bg-red-500"
+          onClick={() => onNavigateToTab?.("history")}
+          sublabel="dispatched today"
+        />
+        <StatCard
+          title="Total Movements"
+          value={stats.totalMovements}
+          icon={Activity}
+          color="bg-teal-500"
+          onClick={() => onNavigateToTab?.("history")}
+          sublabel="all time"
+        />
+      </div>
+
+      {/* Transfer & Reservation KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Pending Transfers"
