@@ -18,9 +18,7 @@ export default function BulkActionBar({ selectedCount, onClearAll, children }) {
         isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-200 text-gray-900"
       }`}
     >
-      <span className="text-sm font-medium">
-        {selectedCount} selected
-      </span>
+      <span className="text-sm font-medium">{selectedCount} selected</span>
       <div className="h-4 w-px bg-gray-300 dark:bg-gray-600" />
       {children}
       <button
