@@ -1,4 +1,4 @@
-import { Banknote, ChevronDown, Download, RefreshCw } from "lucide-react";
+import { Banknote, ChevronDown, Download, Filter, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import PaymentDrawer from "../components/payments/PaymentDrawer";
@@ -168,6 +168,7 @@ const Receivables = () => {
   const [printingReceiptId, setPrintingReceiptId] = useState(null);
   const [voidDropdownPaymentId, setVoidDropdownPaymentId] = useState(null);
   const [localSearch, setLocalSearch] = useState(filters.q);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Debounce search - wait 300ms after user stops typing
   useEffect(() => {
@@ -648,84 +649,113 @@ const Receivables = () => {
         </div>
       </div>
 
-      {/* Filters Row */}
+      {/* Primary Filters Row */}
       <div
-        className={`p-3 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+        className={`p-3 rounded-lg border mb-3 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div className="flex flex-wrap sm:flex-nowrap gap-2 items-center">
-            <FormSelect
-              value={filters.dateType}
-              onValueChange={(value) => setFilters({ dateType: value, page: "1" })}
-              showValidation={false}
-              className="w-32"
-            >
-              <SelectItem value="invoice">Invoice Date</SelectItem>
-              <SelectItem value="due">Due Date</SelectItem>
-            </FormSelect>
-            <input
-              id="receivables-start-date"
-              name="startDate"
-              type="date"
-              value={filters.start}
-              onChange={(e) => setFilters({ start: e.target.value, page: "1" })}
-              className="px-2 py-2 rounded border flex-1 min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-              aria-label="Start date"
-            />
-            <span className="opacity-70 shrink-0">to</span>
-            <input
-              id="receivables-end-date"
-              name="endDate"
-              type="date"
-              value={filters.end}
-              onChange={(e) => setFilters({ end: e.target.value, page: "1" })}
-              className="px-2 py-2 rounded border flex-1 min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-              aria-label="End date"
-            />
-          </div>
-          <div className="flex flex-wrap sm:flex-nowrap gap-2">
-            <input
-              id="receivables-customer-search"
-              name="customerSearch"
-              placeholder="Customer (name/email)"
-              value={filters.customer}
-              onChange={(e) => setFilters({ customer: e.target.value, page: "1" })}
-              data-testid="customer-search"
-              className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-              aria-label="Search by customer name or email"
-            />
-          </div>
-          <div className="flex flex-wrap sm:flex-nowrap gap-2">
-            <FormSelect
-              value={filters.status}
-              onValueChange={(value) => setFilters({ status: value, page: "1" })}
-              showValidation={false}
-              data-testid="status-filter"
-            >
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="unpaid">Outstanding</SelectItem>
-              <SelectItem value="partially_paid">Partially Paid</SelectItem>
-              <SelectItem value="paid">Paid</SelectItem>
-              <SelectItem value="overdue">Overdue</SelectItem>
-            </FormSelect>
-          </div>
-          <div className="flex flex-wrap sm:flex-nowrap gap-2">
-            <input
-              id="receivables-invoice-search"
-              name="invoiceSearch"
-              placeholder="Invoice # or search"
-              value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)}
-              data-testid="invoice-search"
-              className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-              aria-label="Search by invoice number"
-            />
-          </div>
-          <div className="flex flex-wrap sm:flex-nowrap gap-2">
-            <div className="flex-1 min-w-0">
-              <label htmlFor="min-outstanding" className="block text-xs font-medium mb-1">
-                Min Outstanding
-              </label>
+        <div className="flex flex-wrap gap-2 items-center">
+          <input
+            id="receivables-invoice-search"
+            name="invoiceSearch"
+            placeholder="Search invoices..."
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            data-testid="invoice-search"
+            className="px-3 py-2 rounded border min-w-[200px] flex-1 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+            aria-label="Search by invoice number"
+          />
+          <FormSelect
+            value={filters.status}
+            onValueChange={(value) => setFilters({ status: value, page: "1" })}
+            showValidation={false}
+            data-testid="status-filter"
+            className="w-36"
+          >
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="unpaid">Outstanding</SelectItem>
+            <SelectItem value="partially_paid">Partially Paid</SelectItem>
+            <SelectItem value="paid">Paid</SelectItem>
+            <SelectItem value="overdue">Overdue</SelectItem>
+          </FormSelect>
+          <input
+            id="receivables-start-date"
+            name="startDate"
+            type="date"
+            value={filters.start}
+            onChange={(e) => setFilters({ start: e.target.value, page: "1" })}
+            className="px-2 py-2 rounded border dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+            aria-label="Start date"
+          />
+          <span className="opacity-70 shrink-0">to</span>
+          <input
+            id="receivables-end-date"
+            name="endDate"
+            type="date"
+            value={filters.end}
+            onChange={(e) => setFilters({ end: e.target.value, page: "1" })}
+            className="px-2 py-2 rounded border dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+            aria-label="End date"
+          />
+          <button
+            type="button"
+            onClick={() => fetchData(true)}
+            data-testid="apply-filters"
+            className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-1.5 text-sm"
+          >
+            <RefreshCw size={14} />
+            Apply
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            className={`px-3 py-2 rounded border flex items-center gap-1.5 text-sm transition-colors ${
+              showAdvancedFilters
+                ? "bg-teal-50 border-teal-300 text-teal-700 dark:bg-teal-900/30 dark:border-teal-700 dark:text-teal-300"
+                : "dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+            }`}
+          >
+            <Filter size={14} />
+            More
+          </button>
+          <button
+            type="button"
+            onClick={exportInvoices}
+            className="px-3 py-2 rounded border flex items-center gap-1.5 text-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+          >
+            <Download size={14} />
+            Export
+          </button>
+        </div>
+
+        {/* Advanced Filters (collapsible) */}
+        {showAdvancedFilters && (
+          <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3`}>
+            <div>
+              <label htmlFor="receivables-customer-search" className="block text-xs font-medium mb-1 opacity-70">Customer</label>
+              <input
+                id="receivables-customer-search"
+                name="customerSearch"
+                placeholder="Name or email"
+                value={filters.customer}
+                onChange={(e) => setFilters({ customer: e.target.value, page: "1" })}
+                data-testid="customer-search"
+                className="px-3 py-2 rounded border w-full dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+                aria-label="Search by customer name or email"
+              />
+            </div>
+            <div>
+              <label htmlFor="receivables-date-type" className="block text-xs font-medium mb-1 opacity-70">Date Type</label>
+              <FormSelect
+                value={filters.dateType}
+                onValueChange={(value) => setFilters({ dateType: value, page: "1" })}
+                showValidation={false}
+              >
+                <SelectItem value="invoice">Invoice Date</SelectItem>
+                <SelectItem value="due">Due Date</SelectItem>
+              </FormSelect>
+            </div>
+            <div>
+              <label htmlFor="min-outstanding" className="block text-xs font-medium mb-1 opacity-70">Min Outstanding</label>
               <input
                 id="min-outstanding"
                 type="number"
@@ -733,13 +763,11 @@ const Receivables = () => {
                 placeholder="0.00"
                 value={filters.minOut}
                 onChange={(e) => setFilters({ minOut: numberInput(e.target.value), page: "1" })}
-                className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+                className="px-3 py-2 rounded border w-full dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               />
             </div>
-            <div className="flex-1 min-w-0">
-              <label htmlFor="max-outstanding" className="block text-xs font-medium mb-1">
-                Max Outstanding
-              </label>
+            <div>
+              <label htmlFor="max-outstanding" className="block text-xs font-medium mb-1 opacity-70">Max Outstanding</label>
               <input
                 id="max-outstanding"
                 type="number"
@@ -747,58 +775,63 @@ const Receivables = () => {
                 placeholder="0.00"
                 value={filters.maxOut}
                 onChange={(e) => setFilters({ maxOut: numberInput(e.target.value), page: "1" })}
-                className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+                className="px-3 py-2 rounded border w-full dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               />
             </div>
           </div>
-          <div className="flex flex-wrap gap-2 items-center justify-end sm:justify-end">
-            <button
-              type="button"
-              onClick={() => fetchData(true)}
-              data-testid="apply-filters"
-              className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2"
-            >
-              <RefreshCw size={16} />
-              Apply
-            </button>
-            <button
-              type="button"
-              onClick={exportInvoices}
-              className="px-3 py-2 rounded border flex items-center gap-2 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
-            >
-              <Download size={16} />
-              Export
-            </button>
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        <div
-          className={`p-3 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+      {/* Clickable KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-3">
+        <button
+          type="button"
+          onClick={() => setFilters({ status: "all", page: "1" })}
+          className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
+            filters.status === "all"
+              ? isDarkMode ? "bg-teal-900/30 border-teal-600 ring-1 ring-teal-600" : "bg-teal-50 border-teal-300 ring-1 ring-teal-300"
+              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+          }`}
         >
           <div className="text-xs opacity-70">Total Invoiced</div>
           <div className="text-lg font-semibold">{formatCurrency(aggregates.totalInvoiced)}</div>
-        </div>
-        <div
-          className={`p-3 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilters({ status: "paid", page: "1" })}
+          className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
+            filters.status === "paid"
+              ? isDarkMode ? "bg-green-900/30 border-green-600 ring-1 ring-green-600" : "bg-green-50 border-green-300 ring-1 ring-green-300"
+              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+          }`}
         >
           <div className="text-xs opacity-70">Total Received</div>
           <div className="text-lg font-semibold">{formatCurrency(aggregates.totalReceived)}</div>
-        </div>
-        <div
-          className={`p-3 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilters({ status: "unpaid", page: "1" })}
+          className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
+            filters.status === "unpaid"
+              ? isDarkMode ? "bg-red-900/30 border-red-600 ring-1 ring-red-600" : "bg-red-50 border-red-300 ring-1 ring-red-300"
+              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+          }`}
         >
           <div className="text-xs opacity-70">Total Outstanding</div>
           <div className="text-lg font-semibold">{formatCurrency(aggregates.totalOutstanding)}</div>
-        </div>
-        <div
-          className={`p-3 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilters({ status: "overdue", page: "1" })}
+          className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
+            filters.status === "overdue"
+              ? isDarkMode ? "bg-orange-900/30 border-orange-600 ring-1 ring-orange-600" : "bg-orange-50 border-orange-300 ring-1 ring-orange-300"
+              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+          }`}
         >
           <div className="text-xs opacity-70">Overdue Amount</div>
           <div className="text-lg font-semibold">{formatCurrency(aggregates.overdueAmount)}</div>
-        </div>
+        </button>
         <div
           className={`p-3 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
         >
@@ -807,7 +840,7 @@ const Receivables = () => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table — 8 columns: checkbox, Invoice#, Customer, Date, Due, Amount, Outstanding, Status + Actions */}
       <div
         className={`rounded-lg border overflow-hidden ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
       >
@@ -815,32 +848,30 @@ const Receivables = () => {
           <table className="min-w-full divide-y" data-testid="receivables-table">
             <thead>
               <tr className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                <th className="px-4 py-3 text-left">
+                <th className="px-3 py-3 text-left w-10">
                   <input type="checkbox" checked={allSelected} onChange={toggleAll} aria-label="Select all invoices" />
                 </th>
-                <th className="px-4 py-3 text-left text-xs uppercase">Invoice #</th>
-                <th className="px-4 py-3 text-left text-xs uppercase">Customer</th>
-                <th className="px-4 py-3 text-left text-xs uppercase">Invoice Date</th>
-                <th className="px-4 py-3 text-left text-xs uppercase">Due Date</th>
-                <th className="px-4 py-3 text-left text-xs uppercase">Currency</th>
-                <th className="px-4 py-3 text-right text-xs uppercase">Invoice Amount</th>
-                <th className="px-4 py-3 text-right text-xs uppercase">Received To-Date</th>
-                <th className="px-4 py-3 text-right text-xs uppercase">Outstanding</th>
-                <th className="px-4 py-3 text-left text-xs uppercase">Status</th>
-                <th className="px-4 py-3 text-right text-xs uppercase">Actions</th>
+                <th className="px-3 py-3 text-left text-xs uppercase">Invoice #</th>
+                <th className="px-3 py-3 text-left text-xs uppercase">Customer</th>
+                <th className="px-3 py-3 text-left text-xs uppercase">Date</th>
+                <th className="px-3 py-3 text-left text-xs uppercase">Due</th>
+                <th className="px-3 py-3 text-right text-xs uppercase">Amount</th>
+                <th className="px-3 py-3 text-right text-xs uppercase">Outstanding</th>
+                <th className="px-3 py-3 text-center text-xs uppercase">Status</th>
+                <th className="px-3 py-3 w-10"></th>
               </tr>
             </thead>
             <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
               {loading ? (
                 <tr>
-                  <td colSpan={11} className="px-4 py-6 text-center">
+                  <td colSpan={9} className="px-4 py-6 text-center">
                     Loading...
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={11}
+                    colSpan={9}
                     className={`px-4 py-12 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
                     <div className="flex flex-col items-center gap-2">
@@ -854,28 +885,24 @@ const Receivables = () => {
                   <tr
                     key={row.id}
                     className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} cursor-pointer`}
+                    onClick={() => openDrawer(row)}
                   >
-                    <td className="px-4 py-2">
+                    <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
                       <input
                         type="checkbox"
                         checked={selected.has(row.id)}
                         onChange={() => toggleOne(row.id)}
-                        onClick={(e) => e.stopPropagation()}
                         aria-label={`Select invoice ${row.invoice_number || row.id}`}
                       />
                     </td>
-                    <td
-                      className="px-4 py-2 text-teal-600 font-semibold"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
+                    <td className="px-3 py-2 text-teal-600 font-semibold whitespace-nowrap">
                       {row.invoiceNo || row.invoiceNumber}
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-3 py-2">
                       {getCustomerName(row) ? (
                         <button
                           type="button"
-                          className="text-teal-600 hover:underline"
+                          className="text-teal-600 hover:underline text-left"
                           onClick={(e) => {
                             e.stopPropagation();
                             const cid = getCustomerId(row);
@@ -890,72 +917,39 @@ const Receivables = () => {
                           {getCustomerName(row)}
                         </button>
                       ) : (
-                        <button type="button" className="text-gray-400 cursor-pointer" onClick={() => openDrawer(row)}>
-                          No Customer
-                        </button>
+                        <span className="text-gray-400">No Customer</span>
                       )}
                     </td>
-                    <td
-                      className="px-4 py-2 whitespace-nowrap"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
+                    <td className="px-3 py-2 whitespace-nowrap text-sm">
                       {formatDateDMY(row.invoiceDate || row.date)}
                     </td>
-                    <td
-                      className="px-4 py-2 whitespace-nowrap"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span>{formatDateDMY(row.dueDate || row.dueDate)}</span>
+                    <td className="px-3 py-2 whitespace-nowrap text-sm">
+                      <div className="flex items-center gap-1.5">
+                        <span>{formatDateDMY(row.dueDate)}</span>
                         {row.status === "overdue" && <Pill color="red">Overdue</Pill>}
                       </div>
                     </td>
-                    <td
-                      className="px-4 py-2"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
-                      {row.currency || "AED"}
+                    <td className="px-3 py-2 text-right whitespace-nowrap">
+                      <div>{formatCurrency(getInvoiceAmount(row))}</div>
+                      {getReceived(row) > 0 && (
+                        <div className="text-[10px] text-green-600 opacity-80">Rcvd: {formatCurrency(getReceived(row))}</div>
+                      )}
                     </td>
-                    <td
-                      className="px-4 py-2 text-right"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
-                      {formatCurrency(getInvoiceAmount(row))}
-                    </td>
-                    <td
-                      className="px-4 py-2 text-right"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
-                      {formatCurrency(getReceived(row))}
-                    </td>
-                    <td
-                      className="px-4 py-2 text-right"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
+                    <td className="px-3 py-2 text-right font-semibold whitespace-nowrap">
                       {formatCurrency(getOutstanding(row))}
                     </td>
-                    <td
-                      className="px-4 py-2"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
+                    <td className="px-3 py-2 text-center">
                       <StatusPill status={row.status} />
                     </td>
-                    <td className="px-4 py-2 text-right">
+                    <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
                       <button
                         type="button"
-                        className={`px-2 py-1 ${canManage ? "text-teal-600" : "text-gray-400 cursor-not-allowed"}`}
+                        className={`px-2 py-1 text-xs rounded ${canManage ? "text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30" : "text-gray-400 cursor-not-allowed"}`}
                         onClick={() => canManage && openDrawer(row)}
                         disabled={!canManage}
                         data-testid="record-payment-button"
                       >
-                        Record Payment
+                        Pay
                       </button>
                     </td>
                   </tr>
