@@ -729,9 +729,13 @@ const Receivables = () => {
 
         {/* Advanced Filters (collapsible) */}
         {showAdvancedFilters && (
-          <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3`}>
+          <div
+            className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3`}
+          >
             <div>
-              <label htmlFor="receivables-customer-search" className="block text-xs font-medium mb-1 opacity-70">Customer</label>
+              <label htmlFor="receivables-customer-search" className="block text-xs font-medium mb-1 opacity-70">
+                Customer
+              </label>
               <input
                 id="receivables-customer-search"
                 name="customerSearch"
@@ -744,7 +748,9 @@ const Receivables = () => {
               />
             </div>
             <div>
-              <label htmlFor="receivables-date-type" className="block text-xs font-medium mb-1 opacity-70">Date Type</label>
+              <label htmlFor="receivables-date-type" className="block text-xs font-medium mb-1 opacity-70">
+                Date Type
+              </label>
               <FormSelect
                 value={filters.dateType}
                 onValueChange={(value) => setFilters({ dateType: value, page: "1" })}
@@ -755,7 +761,9 @@ const Receivables = () => {
               </FormSelect>
             </div>
             <div>
-              <label htmlFor="min-outstanding" className="block text-xs font-medium mb-1 opacity-70">Min Outstanding</label>
+              <label htmlFor="min-outstanding" className="block text-xs font-medium mb-1 opacity-70">
+                Min Outstanding
+              </label>
               <input
                 id="min-outstanding"
                 type="number"
@@ -767,7 +775,9 @@ const Receivables = () => {
               />
             </div>
             <div>
-              <label htmlFor="max-outstanding" className="block text-xs font-medium mb-1 opacity-70">Max Outstanding</label>
+              <label htmlFor="max-outstanding" className="block text-xs font-medium mb-1 opacity-70">
+                Max Outstanding
+              </label>
               <input
                 id="max-outstanding"
                 type="number"
@@ -789,8 +799,12 @@ const Receivables = () => {
           onClick={() => setFilters({ status: "all", page: "1" })}
           className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
             filters.status === "all"
-              ? isDarkMode ? "bg-teal-900/30 border-teal-600 ring-1 ring-teal-600" : "bg-teal-50 border-teal-300 ring-1 ring-teal-300"
-              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+              ? isDarkMode
+                ? "bg-teal-900/30 border-teal-600 ring-1 ring-teal-600"
+                : "bg-teal-50 border-teal-300 ring-1 ring-teal-300"
+              : isDarkMode
+                ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500"
+                : "bg-white border-gray-200 hover:border-gray-300"
           }`}
         >
           <div className="text-xs opacity-70">Total Invoiced</div>
@@ -801,8 +815,12 @@ const Receivables = () => {
           onClick={() => setFilters({ status: "paid", page: "1" })}
           className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
             filters.status === "paid"
-              ? isDarkMode ? "bg-green-900/30 border-green-600 ring-1 ring-green-600" : "bg-green-50 border-green-300 ring-1 ring-green-300"
-              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+              ? isDarkMode
+                ? "bg-green-900/30 border-green-600 ring-1 ring-green-600"
+                : "bg-green-50 border-green-300 ring-1 ring-green-300"
+              : isDarkMode
+                ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500"
+                : "bg-white border-gray-200 hover:border-gray-300"
           }`}
         >
           <div className="text-xs opacity-70">Total Received</div>
@@ -813,8 +831,12 @@ const Receivables = () => {
           onClick={() => setFilters({ status: "unpaid", page: "1" })}
           className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
             filters.status === "unpaid"
-              ? isDarkMode ? "bg-red-900/30 border-red-600 ring-1 ring-red-600" : "bg-red-50 border-red-300 ring-1 ring-red-300"
-              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+              ? isDarkMode
+                ? "bg-red-900/30 border-red-600 ring-1 ring-red-600"
+                : "bg-red-50 border-red-300 ring-1 ring-red-300"
+              : isDarkMode
+                ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500"
+                : "bg-white border-gray-200 hover:border-gray-300"
           }`}
         >
           <div className="text-xs opacity-70">Total Outstanding</div>
@@ -825,8 +847,12 @@ const Receivables = () => {
           onClick={() => setFilters({ status: "overdue", page: "1" })}
           className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
             filters.status === "overdue"
-              ? isDarkMode ? "bg-orange-900/30 border-orange-600 ring-1 ring-orange-600" : "bg-orange-50 border-orange-300 ring-1 ring-orange-300"
-              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+              ? isDarkMode
+                ? "bg-orange-900/30 border-orange-600 ring-1 ring-orange-600"
+                : "bg-orange-50 border-orange-300 ring-1 ring-orange-300"
+              : isDarkMode
+                ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500"
+                : "bg-white border-gray-200 hover:border-gray-300"
           }`}
         >
           <div className="text-xs opacity-70">Overdue Amount</div>
@@ -932,7 +958,9 @@ const Receivables = () => {
                     <td className="px-3 py-2 text-right whitespace-nowrap">
                       <div>{formatCurrency(getInvoiceAmount(row))}</div>
                       {getReceived(row) > 0 && (
-                        <div className="text-[10px] text-green-600 opacity-80">Rcvd: {formatCurrency(getReceived(row))}</div>
+                        <div className="text-[10px] text-green-600 opacity-80">
+                          Rcvd: {formatCurrency(getReceived(row))}
+                        </div>
                       )}
                     </td>
                     <td className="px-3 py-2 text-right font-semibold whitespace-nowrap">

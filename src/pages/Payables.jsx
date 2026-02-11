@@ -547,9 +547,13 @@ const POTab = ({ canManage }) => {
 
         {/* Advanced Filters (collapsible) */}
         {showAdvancedFilters && (
-          <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3`}>
+          <div
+            className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3`}
+          >
             <div>
-              <label htmlFor="payables-vendor-search" className="block text-xs font-medium mb-1 opacity-70">Vendor</label>
+              <label htmlFor="payables-vendor-search" className="block text-xs font-medium mb-1 opacity-70">
+                Vendor
+              </label>
               <input
                 id="payables-vendor-search"
                 name="vendorSearch"
@@ -561,7 +565,9 @@ const POTab = ({ canManage }) => {
               />
             </div>
             <div>
-              <label htmlFor="payables-date-type" className="block text-xs font-medium mb-1 opacity-70">Date Type</label>
+              <label htmlFor="payables-date-type" className="block text-xs font-medium mb-1 opacity-70">
+                Date Type
+              </label>
               <FormSelect
                 value={filters.dateType}
                 onValueChange={(value) => setFilters({ dateType: value, page: "1" })}
@@ -572,7 +578,9 @@ const POTab = ({ canManage }) => {
               </FormSelect>
             </div>
             <div>
-              <label htmlFor="payables-min-balance" className="block text-xs font-medium mb-1 opacity-70">Min Balance</label>
+              <label htmlFor="payables-min-balance" className="block text-xs font-medium mb-1 opacity-70">
+                Min Balance
+              </label>
               <input
                 id="payables-min-balance"
                 name="minBalance"
@@ -586,7 +594,9 @@ const POTab = ({ canManage }) => {
               />
             </div>
             <div>
-              <label htmlFor="payables-max-balance" className="block text-xs font-medium mb-1 opacity-70">Max Balance</label>
+              <label htmlFor="payables-max-balance" className="block text-xs font-medium mb-1 opacity-70">
+                Max Balance
+              </label>
               <input
                 id="payables-max-balance"
                 name="maxBalance"
@@ -610,8 +620,12 @@ const POTab = ({ canManage }) => {
           onClick={() => setFilters({ status: "all", page: "1" })}
           className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
             filters.status === "all"
-              ? isDarkMode ? "bg-teal-900/30 border-teal-600 ring-1 ring-teal-600" : "bg-teal-50 border-teal-300 ring-1 ring-teal-300"
-              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+              ? isDarkMode
+                ? "bg-teal-900/30 border-teal-600 ring-1 ring-teal-600"
+                : "bg-teal-50 border-teal-300 ring-1 ring-teal-300"
+              : isDarkMode
+                ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500"
+                : "bg-white border-gray-200 hover:border-gray-300"
           }`}
         >
           <div className="text-xs opacity-70">Total PO Value</div>
@@ -622,8 +636,12 @@ const POTab = ({ canManage }) => {
           onClick={() => setFilters({ status: "paid", page: "1" })}
           className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
             filters.status === "paid"
-              ? isDarkMode ? "bg-green-900/30 border-green-600 ring-1 ring-green-600" : "bg-green-50 border-green-300 ring-1 ring-green-300"
-              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+              ? isDarkMode
+                ? "bg-green-900/30 border-green-600 ring-1 ring-green-600"
+                : "bg-green-50 border-green-300 ring-1 ring-green-300"
+              : isDarkMode
+                ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500"
+                : "bg-white border-gray-200 hover:border-gray-300"
           }`}
         >
           <div className="text-xs opacity-70">Total Paid</div>
@@ -634,8 +652,12 @@ const POTab = ({ canManage }) => {
           onClick={() => setFilters({ status: "unpaid", page: "1" })}
           className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
             filters.status === "unpaid"
-              ? isDarkMode ? "bg-red-900/30 border-red-600 ring-1 ring-red-600" : "bg-red-50 border-red-300 ring-1 ring-red-300"
-              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+              ? isDarkMode
+                ? "bg-red-900/30 border-red-600 ring-1 ring-red-600"
+                : "bg-red-50 border-red-300 ring-1 ring-red-300"
+              : isDarkMode
+                ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500"
+                : "bg-white border-gray-200 hover:border-gray-300"
           }`}
         >
           <div className="text-xs opacity-70">Total Balance</div>
@@ -646,8 +668,12 @@ const POTab = ({ canManage }) => {
           onClick={() => setFilters({ status: "overdue", page: "1" })}
           className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
             filters.status === "overdue"
-              ? isDarkMode ? "bg-orange-900/30 border-orange-600 ring-1 ring-orange-600" : "bg-orange-50 border-orange-300 ring-1 ring-orange-300"
-              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+              ? isDarkMode
+                ? "bg-orange-900/30 border-orange-600 ring-1 ring-orange-600"
+                : "bg-orange-50 border-orange-300 ring-1 ring-orange-300"
+              : isDarkMode
+                ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500"
+                : "bg-white border-gray-200 hover:border-gray-300"
           }`}
         >
           <div className="text-xs opacity-70">Overdue Payables</div>
@@ -722,12 +748,8 @@ const POTab = ({ canManage }) => {
                     <td className="px-3 py-2 text-teal-600 font-semibold whitespace-nowrap">
                       {row.poNo || row.poNumber}
                     </td>
-                    <td className="px-3 py-2">
-                      {getVendorName(row)}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap text-sm">
-                      {formatDate(row.poDate || row.date)}
-                    </td>
+                    <td className="px-3 py-2">{getVendorName(row)}</td>
+                    <td className="px-3 py-2 whitespace-nowrap text-sm">{formatDate(row.poDate || row.date)}</td>
                     <td className="px-3 py-2 whitespace-nowrap text-sm">
                       <div className="flex items-center gap-1.5">
                         <span>{formatDate(row.dueDate)}</span>
@@ -737,7 +759,9 @@ const POTab = ({ canManage }) => {
                     <td className="px-3 py-2 text-right whitespace-nowrap">
                       <div>{formatCurrency(getPOValue(row))}</div>
                       {getPaid(row) > 0 && (
-                        <div className="text-[10px] text-green-600 opacity-80">Paid: {formatCurrency(getPaid(row))}</div>
+                        <div className="text-[10px] text-green-600 opacity-80">
+                          Paid: {formatCurrency(getPaid(row))}
+                        </div>
                       )}
                     </td>
                     <td className="px-3 py-2 text-right font-semibold whitespace-nowrap">
