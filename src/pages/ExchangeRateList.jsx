@@ -207,7 +207,10 @@ const ExchangeRateList = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div>
-              <label htmlFor="converter-amount" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+              <label
+                htmlFor="converter-amount"
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+              >
                 Amount
               </label>
               <input
@@ -221,7 +224,10 @@ const ExchangeRateList = () => {
               />
             </div>
             <div>
-              <label htmlFor="converter-from" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+              <label
+                htmlFor="converter-from"
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+              >
                 From
               </label>
               <input
@@ -234,7 +240,10 @@ const ExchangeRateList = () => {
               />
             </div>
             <div>
-              <label htmlFor="converter-to" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+              <label
+                htmlFor="converter-to"
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+              >
                 To
               </label>
               <input
@@ -435,7 +444,10 @@ const ExchangeRateList = () => {
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="form-from-currency" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                  <label
+                    htmlFor="form-from-currency"
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
                     From Currency *
                   </label>
                   <input
@@ -450,7 +462,10 @@ const ExchangeRateList = () => {
                   {formErrors.from_currency && <p className="text-red-500 text-xs mt-1">{formErrors.from_currency}</p>}
                 </div>
                 <div>
-                  <label htmlFor="form-to-currency" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                  <label
+                    htmlFor="form-to-currency"
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                  >
                     To Currency *
                   </label>
                   <input
@@ -466,7 +481,10 @@ const ExchangeRateList = () => {
                 </div>
               </div>
               <div>
-                <label htmlFor="form-rate" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                <label
+                  htmlFor="form-rate"
+                  className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
                   Rate *
                 </label>
                 <input
@@ -481,7 +499,10 @@ const ExchangeRateList = () => {
                 {formErrors.rate && <p className="text-red-500 text-xs mt-1">{formErrors.rate}</p>}
               </div>
               <div>
-                <label htmlFor="form-effective-date" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                <label
+                  htmlFor="form-effective-date"
+                  className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
                   Effective Date *
                 </label>
                 <input
