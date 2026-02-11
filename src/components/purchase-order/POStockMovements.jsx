@@ -109,10 +109,9 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
             )}
           </h3>
         </div>
-        {/* eslint-disable-next-line local-rules/no-dead-button */}
-        <button type="button" className="p-1 hover:bg-gray-100 rounded transition-colors">
+        <span className="p-1 hover:bg-gray-100 rounded transition-colors">
           {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-        </button>
+        </span>
       </button>
 
       {expanded && (

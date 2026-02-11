@@ -76,9 +76,9 @@ const ImportOrderList = () => {
   };
 
   // Handle status update
-  const _handleStatusUpdate = async (orderId, status) => {
+  const handleStatusUpdate = async (orderId, newStatus) => {
     try {
-      await importOrderService.updateStatus(orderId, status);
+      await importOrderService.updateStatus(orderId, newStatus);
       loadOrders(pagination.current_page);
     } catch (err) {
       setError(err.message);
@@ -254,8 +254,10 @@ const ImportOrderList = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      <select
+                        value={order.status}
+                        onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
+                        className={`text-xs font-semibold rounded-full px-2 py-1 border-0 cursor-pointer ${
                           order.status === "completed"
                             ? "bg-green-100 text-green-800"
                             : order.status === "shipped"
@@ -265,8 +267,12 @@ const ImportOrderList = () => {
                                 : "bg-gray-100 text-gray-800"
                         }`}
                       >
-                        {statusOptions.find((s) => s.value === order.status)?.label || order.status}
-                      </span>
+                        {statusOptions.map((s) => (
+                          <option key={s.value} value={s.value}>
+                            {s.label}
+                          </option>
+                        ))}
+                      </select>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <Link to={`/app/import-orders/${order.id}`} className="text-teal-600 hover:text-teal-900">

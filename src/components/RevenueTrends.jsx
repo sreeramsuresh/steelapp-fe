@@ -275,11 +275,33 @@ const RevenueTrends = () => {
             <RefreshCw size={16} />
             Refresh
           </button>
-          {/* eslint-disable-next-line local-rules/no-dead-button */}
           <button
             type="button"
             onClick={() => {
-              // TODO: Implement export functionality
+              if (!revenueData || revenueData.length === 0) return;
+              const headers = ["Month", "Revenue (AED)", "Invoices", "Avg Order Value (AED)", "Unique Customers"];
+              const rows = revenueData.map((item) => [
+                item.month,
+                item.revenue.toFixed(2),
+                item.invoiceCount,
+                item.avgOrderValue.toFixed(2),
+                item.uniqueCustomers,
+              ]);
+              if (forecastData && forecastData.length > 0) {
+                rows.push([]);
+                rows.push(["--- Forecast ---"]);
+                for (const f of forecastData) {
+                  rows.push([f.month, f.revenue.toFixed(2), "", "", ""]);
+                }
+              }
+              const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+              const blob = new Blob([csv], { type: "text/csv" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `revenue-trends-${format(new Date(), "yyyy-MM-dd")}.csv`;
+              a.click();
+              URL.revokeObjectURL(url);
             }}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
           >

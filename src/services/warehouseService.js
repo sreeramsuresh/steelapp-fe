@@ -199,58 +199,33 @@ class WarehouseService {
    * Get warehouse dashboard data
    */
   async getDashboard(warehouseId) {
-    try {
-      const response = await apiClient.get(`${this.endpoint}/${warehouseId}/dashboard`);
-      return response;
-    } catch (_error) {
-      // Return mock data if endpoint not available
-      console.warn("Dashboard endpoint not available");
-      return {
-        totalQuantity: 0,
-        reservedQuantity: 0,
-        availableQuantity: 0,
-        totalValue: 0,
-        productCount: 0,
-        lowStockCount: 0,
-        utilizationPercent: 0,
-        recentActivities: [],
-        lowStockAlerts: [],
-      };
-    }
+    const response = await apiClient.get(`${this.endpoint}/${warehouseId}/dashboard`);
+    return response;
   }
 
   /**
    * Get warehouse stock (products in warehouse)
    */
   async getStock(warehouseId, filters = {}) {
-    try {
-      const params = {
-        page: filters.page || 1,
-        limit: filters.limit || 50,
-        search: filters.search,
-        product_type: filters.productType,
-        low_stock_only: filters.lowStockOnly,
-      };
+    const params = {
+      page: filters.page || 1,
+      limit: filters.limit || 50,
+      search: filters.search,
+      product_type: filters.productType,
+      low_stock_only: filters.lowStockOnly,
+    };
 
-      // Remove undefined params
-      Object.keys(params).forEach((key) => {
-        if (params[key] === undefined) delete params[key];
-      });
+    // Remove undefined params
+    Object.keys(params).forEach((key) => {
+      if (params[key] === undefined) delete params[key];
+    });
 
-      const response = await apiClient.get(`${this.endpoint}/${warehouseId}/stock`, params);
-      return {
-        data: response?.items || response?.data || [],
-        pagination: response?.pageInfo || response?.pagination || {},
-        summary: response?.summary || {},
-      };
-    } catch (_error) {
-      console.warn("Stock endpoint not available");
-      return {
-        data: [],
-        pagination: {},
-        summary: {},
-      };
-    }
+    const response = await apiClient.get(`${this.endpoint}/${warehouseId}/stock`, params);
+    return {
+      data: response?.items || response?.data || [],
+      pagination: response?.pageInfo || response?.pagination || {},
+      summary: response?.summary || {},
+    };
   }
 
   /**
@@ -266,23 +241,12 @@ class WarehouseService {
    * Get warehouse analytics
    */
   async getAnalytics(warehouseId, filters = {}) {
-    try {
-      const response = await apiClient.get(`${this.endpoint}/${warehouseId}/analytics`, {
-        period: filters.period || "MONTHLY",
-        start_date: filters.startDate,
-        end_date: filters.endDate,
-      });
-      return response;
-    } catch (_error) {
-      console.warn("Analytics endpoint not available");
-      return {
-        inboundTrend: [],
-        outboundTrend: [],
-        topInboundProducts: [],
-        topOutboundProducts: [],
-        utilizationHistory: [],
-      };
-    }
+    const response = await apiClient.get(`${this.endpoint}/${warehouseId}/analytics`, {
+      period: filters.period || "MONTHLY",
+      start_date: filters.startDate,
+      end_date: filters.endDate,
+    });
+    return response;
   }
 }
 

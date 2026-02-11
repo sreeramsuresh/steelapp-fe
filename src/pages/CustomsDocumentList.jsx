@@ -499,8 +499,7 @@ const CustomsDocumentList = () => {
   };
 
   // Handle status update
-  // Prefixed with underscore to indicate intentionally unused (future feature)
-  const _handleStatusUpdate = async (document, newStatus) => {
+  const handleStatusUpdate = async (document, newStatus) => {
     try {
       await customsDocumentService.updateClearance(
         document.id,
@@ -603,18 +602,6 @@ const CustomsDocumentList = () => {
       month: "short",
       year: "numeric",
     });
-  };
-
-  // Get status badge
-  const getStatusBadge = (status) => {
-    const statusConfig = STATUS_OPTIONS.find((s) => s.value === status) || STATUS_OPTIONS[0];
-    return (
-      <span
-        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusConfig.bgColor} ${statusConfig.textColor}`}
-      >
-        {statusConfig.label}
-      </span>
-    );
   };
 
   // Get document type label
@@ -970,7 +957,21 @@ const CustomsDocumentList = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="text-sm">{formatCurrency(doc.vat_amount)}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(doc.status)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <select
+                        value={doc.status}
+                        onChange={(e) => handleStatusUpdate(doc, e.target.value)}
+                        className={`text-xs font-semibold rounded-full px-2 py-1 border-0 cursor-pointer ${
+                          STATUS_OPTIONS.find((s) => s.value === doc.status)?.bgColor || "bg-gray-100"
+                        } ${STATUS_OPTIONS.find((s) => s.value === doc.status)?.textColor || "text-gray-800"}`}
+                      >
+                        {STATUS_OPTIONS.map((s) => (
+                          <option key={s.value} value={s.value}>
+                            {s.label}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button

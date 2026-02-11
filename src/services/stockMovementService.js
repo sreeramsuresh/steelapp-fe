@@ -802,7 +802,7 @@ class StockMovementService {
       productSku: reservation.productSku || "",
       warehouseId: reservation.warehouseId,
       warehouseName: reservation.warehouseName || "",
-      quantityReserved: parseFloat(reservation.quantityReserved) || 0,
+      quantityReserved: parseFloat(reservation.quantityReserved || reservation.quantity) || 0,
       quantityFulfilled: parseFloat(reservation.quantityFulfilled) || 0,
       quantityRemaining: parseFloat(reservation.quantityRemaining) || 0,
       unit: reservation.unit || "KG",

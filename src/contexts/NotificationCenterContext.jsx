@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { api } from "../services/api";
 import { uuid } from "../utils/uuid";
 
 const NotificationCenterContext = createContext(null);
@@ -61,59 +62,39 @@ export const NotificationCenterProvider = ({ children }) => {
     setLoading(true);
     setError("");
     try {
-      // Temporarily disabled backend call until notifications endpoint is implemented
-      // const res = await apiClient.get('/notifications');
-      // const list = Array.isArray(res?.notifications) ? res.notifications : (Array.isArray(res) ? res : []);
-      // persist(normalize(list));
-
-      // Fallback: seed with a couple of sample items if empty
-      // Use state setter to avoid dependency on notifications
+      const res = await api.get("/notifications");
+      const data = res.data || res;
+      const list = Array.isArray(data?.notifications) ? data.notifications : Array.isArray(data) ? data : [];
+      persist(normalize(list));
+    } catch {
+      // Fallback: seed with sample items if empty
       setNotifications((currentNotifications) => {
         const validCurrent = Array.isArray(currentNotifications) ? currentNotifications.filter((n) => n?.id) : [];
         if (validCurrent.length === 0) {
           const now = new Date();
           const oneMinAgo = new Date(now.getTime() - 60000);
           const seed = normalize([
-            {
-              title: "Welcome",
-              message: "You are all set!",
-              time: now.toISOString(),
-              unread: true,
-            },
-            {
-              title: "Tip",
-              message: "Use the global search to find anything.",
-              time: oneMinAgo.toISOString(),
-              unread: false,
-            },
+            { title: "Welcome", message: "You are all set!", time: now.toISOString(), unread: true },
+            { title: "Tip", message: "Use the global search to find anything.", time: oneMinAgo.toISOString(), unread: false },
           ]);
-          // Persist to localStorage
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
-          } catch {
-            /* ignore storage errors */
-          }
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(seed)); } catch { /* ignore */ }
           return seed;
         }
         return validCurrent;
       });
-    } catch (err) {
-      console.warn("Notification fetch error (expected during development):", err);
     } finally {
       setLoading(false);
     }
-  }, [normalize]);
+  }, [normalize, persist]);
 
   const markAsRead = useCallback(async (id) => {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, unread: false } : n)));
-    // Temporarily disabled until notifications endpoint is implemented
-    // try { await apiClient.patch(`/notifications/${id}/read`, {}); } catch {}
+    try { await api.patch(`/notifications/${id}/read`, {}); } catch { /* best-effort */ }
   }, []);
 
   const markAllAsRead = useCallback(async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
-    // Temporarily disabled until notifications endpoint is implemented
-    // try { await apiClient.patch('/notifications/read-all', {}); } catch {}
+    try { await api.patch("/notifications/read-all", {}); } catch { /* best-effort */ }
   }, []);
 
   const addNotification = useCallback(

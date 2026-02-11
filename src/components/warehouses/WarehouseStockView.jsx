@@ -41,26 +41,33 @@ const WarehouseStockView = ({ warehouseId, warehouseName: _warehouseName }) => {
     }
   }, [warehouseId, searchTerm, filterProductType, filterLowStock]);
 
-  // Map API response to UI fields
-  const mappedItems = stockItems.map((item) => ({
-    id: item.id,
-    productName: item.description || item.product_name,
-    productSku: item.product_id ? `SKU-${item.product_id}` : "N/A",
-    productType: item.product_type || "Unknown",
-    grade: item.grade || "N/A",
-    quantityOnHand: item.quantity || 0,
-    quantityReserved: 0, // Not available in current API
-    quantityAvailable: item.quantity || 0,
-    unit: "KG", // Default unit - can be enhanced if stored in DB
-    minimumStock: item.min_stock || 0,
-    isLowStock: (item.quantity || 0) <= (item.min_stock || 5),
-  }));
+  // Map API response to UI fields (API returns camelCase)
+  const mappedItems = stockItems.map((item) => {
+    const onHand = item.quantityOnHand ?? item.quantity ?? 0;
+    const reserved = item.quantityReserved ?? 0;
+    const available = item.quantityAvailable ?? onHand;
+    const minStock = item.minimumStock ?? item.min_stock ?? 0;
+    return {
+      id: item.id,
+      productId: item.productId ?? item.product_id,
+      productName: item.productName || item.product_name || item.description || "N/A",
+      productSku: (item.productId || item.product_id) ? `PID-${item.productId || item.product_id}` : "N/A",
+      productType: item.productType || item.product_type || "Unknown",
+      grade: item.grade || "N/A",
+      quantityOnHand: onHand,
+      quantityReserved: reserved,
+      quantityAvailable: available,
+      unit: item.unit || "KG",
+      minimumStock: Number(minStock) || 0,
+      isLowStock: item.status === "LOW_STOCK" || onHand <= (Number(minStock) || 5),
+    };
+  });
 
   // Apply filters to mapped items
   const filteredItems = mappedItems.filter((item) => {
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      if (!item.productName.toLowerCase().includes(term) && !item.productSku.toLowerCase().includes(term)) {
+      if (!(item.productName || "").toLowerCase().includes(term) && !(item.productSku || "").toLowerCase().includes(term)) {
         return false;
       }
     }
@@ -276,7 +283,7 @@ const WarehouseStockView = ({ warehouseId, warehouseName: _warehouseName }) => {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link
-                        to={`/stock-movements?product_id=${item.id}&warehouse_id=${warehouseId}`}
+                        to={`/stock-movements?product_id=${item.productId || item.id}&warehouse_id=${warehouseId}`}
                         className="text-teal-500 hover:underline text-sm"
                       >
                         Movements

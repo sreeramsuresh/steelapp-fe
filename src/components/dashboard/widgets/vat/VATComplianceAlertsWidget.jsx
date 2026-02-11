@@ -248,14 +248,12 @@ const VATComplianceAlertsWidget = ({
                     <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                       {alert.description}
                     </p>
-                    {/* eslint-disable-next-line local-rules/no-dead-button */}
-                    <button
-                      type="button"
+                    <span
                       className={`text-xs mt-1 font-medium flex items-center gap-0.5 ${severityConfig.textColor}`}
                     >
                       {alert.actionText}
                       <ChevronRight size={12} />
-                    </button>
+                    </span>
                   </div>
                 </div>
               </button>

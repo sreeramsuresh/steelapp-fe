@@ -39,6 +39,20 @@ const commissionService = {
     }
   },
 
+  // Reject commission (manager action)
+  rejectCommission: async (invoiceId, rejectedByUserId, reason = "") => {
+    try {
+      const response = await api.post(`/commissions/invoice/${invoiceId}/reject`, {
+        rejected_by_user_id: rejectedByUserId,
+        reason,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error rejecting commission:", error);
+      throw error;
+    }
+  },
+
   // Mark commission as paid (finance action)
   markCommissionAsPaid: async (invoiceId, paymentReference) => {
     try {

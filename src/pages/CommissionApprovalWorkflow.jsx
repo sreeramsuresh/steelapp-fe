@@ -97,8 +97,30 @@ export default function CommissionApprovalWorkflow() {
     }
   };
 
-  const _handleRejectCommission = async (_commission) => {
-    // In a real scenario, this would be a separate action
+  const [rejectReason, setRejectReason] = useState("");
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [commissionToReject, setCommissionToReject] = useState(null);
+
+  const handleRejectCommission = async () => {
+    if (!commissionToReject) return;
+    try {
+      setUpdating(true);
+      const rejectedByUserId = parseInt(localStorage.getItem("userId"), 10) || 1;
+      await commissionService.rejectCommission(commissionToReject.invoiceId, rejectedByUserId, rejectReason);
+      setSuccessMessage(`Commission for Invoice ${commissionToReject.invoiceNumber} rejected.`);
+      setShowRejectModal(false);
+      setCommissionToReject(null);
+      setRejectReason("");
+      setSelectedCommission(null);
+      setTimeout(() => {
+        loadPendingApprovals();
+        setSuccessMessage("");
+      }, 2000);
+    } catch (err) {
+      setError(`Error rejecting commission: ${err.message}`);
+    } finally {
+      setUpdating(false);
+    }
   };
 
   // Batch selection handlers
@@ -397,6 +419,18 @@ export default function CommissionApprovalWorkflow() {
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
+                            setCommissionToReject(commission);
+                            setShowRejectModal(true);
+                          }}
+                          disabled={updating}
+                          className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 disabled:opacity-50 transition text-sm"
+                        >
+                          Reject
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
                             handleApproveCommission(commission);
                           }}
                           disabled={updating}
@@ -580,6 +614,17 @@ export default function CommissionApprovalWorkflow() {
                     </button>
                     <button
                       type="button"
+                      onClick={() => {
+                        setCommissionToReject(selectedCommission);
+                        setShowRejectModal(true);
+                      }}
+                      disabled={updating}
+                      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                    >
+                      Reject
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => handleApproveCommission(selectedCommission)}
                       disabled={updating}
                       className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
@@ -592,6 +637,52 @@ export default function CommissionApprovalWorkflow() {
             );
           })()}
       </div>
+
+      {/* Reject Reason Modal */}
+      {showRejectModal && commissionToReject && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className={`w-full max-w-md rounded-lg p-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+            <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+              Reject Commission
+            </h3>
+            <p className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+              Rejecting commission for Invoice {commissionToReject.invoiceNumber}
+            </p>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Enter rejection reason (optional)"
+              rows={3}
+              className={`w-full px-3 py-2 rounded-lg border mb-4 ${
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600 text-white placeholder-gray-500"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+              } focus:outline-none focus:ring-2 focus:ring-red-500`}
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setCommissionToReject(null);
+                  setRejectReason("");
+                }}
+                className={`px-4 py-2 border rounded ${isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-300 hover:bg-gray-50 text-gray-700"}`}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleRejectCommission}
+                disabled={updating}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+              >
+                {updating ? "Rejecting..." : "Confirm Reject"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
