@@ -658,9 +658,7 @@ const StockLevelsDashboard = () => {
                 setPage(1);
               }}
               className={`px-3 py-2.5 border rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                isDarkMode
-                  ? "bg-gray-800 border-gray-600 text-white"
-                  : "bg-white border-gray-300 text-gray-900"
+                isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             >
               <option value="all">All Warehouses</option>
@@ -676,9 +674,7 @@ const StockLevelsDashboard = () => {
               value={groupBy}
               onChange={(e) => setGroupBy(e.target.value)}
               className={`px-3 py-2.5 border rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                isDarkMode
-                  ? "bg-gray-800 border-gray-600 text-white"
-                  : "bg-white border-gray-300 text-gray-900"
+                isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             >
               <option value="none">No Grouping</option>
@@ -820,9 +816,7 @@ const StockLevelsDashboard = () => {
                             <div className="flex items-center gap-2">
                               <Layers size={14} />
                               {groupBy === "grade" ? `Grade: ${groupName}` : groupName}
-                              <span
-                                className={`text-xs font-normal ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                              >
+                              <span className={`text-xs font-normal ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                                 ({items.length} {items.length === 1 ? "item" : "items"})
                               </span>
                             </div>
