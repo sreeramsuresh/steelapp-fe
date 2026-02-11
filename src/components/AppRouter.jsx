@@ -31,7 +31,7 @@ const CustomerForm = lazy(() => import("../pages/CustomerForm"));
 const SteelProducts = lazy(() => import("./SteelProducts"));
 const CompanySettings = lazy(() => import("./CompanySettings"));
 const SearchResults = lazy(() => import("./SearchResults"));
-const InventoryList = lazy(() => import("./InventoryList"));
+const InventoryList = lazy(() => import("../pages/inventory/StockLevelsDashboard"));
 const DeliveryNoteList = lazy(() => import("../pages/DeliveryNoteList"));
 const DeliveryNoteForm = lazy(() => import("../pages/DeliveryNoteForm"));
 const DeliveryNoteDetails = lazy(() => import("../pages/DeliveryNoteDetails"));
