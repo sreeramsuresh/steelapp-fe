@@ -56,9 +56,7 @@ export default function ERPFormLayout({
               <ArrowLeft className="h-5 w-5" />
             </button>
             <div>
-              <h1 className={`text-lg md:text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                {title}
-              </h1>
+              <h1 className={`text-lg md:text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{title}</h1>
               {subtitle && (
                 <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{subtitle}</div>
               )}
