@@ -66,11 +66,13 @@ export default function COGSAnalysisReport() {
     try {
       // Load customers
       const customersRes = await api.get("/customers");
-      setCustomers(customersRes.data || []);
+      const rawCustomers = customersRes?.data || customersRes?.customers || customersRes;
+      setCustomers(Array.isArray(rawCustomers) ? rawCustomers : []);
 
       // Load products
       const productsRes = await api.get("/products");
-      setProducts(productsRes.data || []);
+      const rawProducts = productsRes?.data || productsRes?.products || productsRes;
+      setProducts(Array.isArray(rawProducts) ? rawProducts : []);
     } catch (error) {
       // Error loading filter options - fail silently
 
@@ -90,13 +92,47 @@ export default function COGSAnalysisReport() {
       if (selectedProduct !== "all") params.productId = selectedProduct;
 
       const response = await api.get("/cogs/analysis", { params });
-      const data = response.data || {};
+      const data = response?.data ?? response ?? {};
 
       setSummary(data.summary || { totalCogs: 0, marginPercent: 0, totalRevenue: 0, totalProfit: 0 });
-      setCogsByBatch(data.cogsByBatch || []);
-      setCostComponents(data.costComponents || []);
-      setBatchProfitability(data.batchProfitability || []);
-      setProcurementComparison(data.procurementComparison || []);
+
+      // Map API field names to what charts expect
+      setCogsByBatch(
+        (data.cogsByBatch || []).map((b) => ({
+          ...b,
+          batch: b.batch || b.batchNumber || `Batch-${b.batchId}`,
+          cogs: Number(b.cogs) || 0,
+          revenue: Number(b.revenue) || 0,
+        })),
+      );
+      setCostComponents(
+        (data.costComponents || []).map((c) => ({
+          ...c,
+          value: c.value ?? c.amount ?? 0,
+        })),
+      );
+      setBatchProfitability(
+        (data.batchProfitability || []).map((b) => ({
+          ...b,
+          batch: b.batch || b.batchNumber || `Batch-${b.batchId}`,
+          margin: b.margin ?? b.marginPercent ?? 0,
+          cogs: Number(b.cogs) || 0,
+          revenue: Number(b.revenue) || 0,
+          profit: Number(b.profit) || 0,
+        })),
+      );
+
+      // Pivot procurement comparison from flat rows to {month, local, imported}
+      const rawProcurement = data.procurementComparison || [];
+      const pivoted = {};
+      for (const row of rawProcurement) {
+        const month = row.month || row.period || "Unknown";
+        if (!pivoted[month]) pivoted[month] = { month, local: 0, imported: 0 };
+        const channel = (row.procurementChannel || "").toLowerCase();
+        if (channel === "local") pivoted[month].local = Number(row.cogs) || 0;
+        else if (channel === "imported") pivoted[month].imported = Number(row.cogs) || 0;
+      }
+      setProcurementComparison(Object.values(pivoted));
     } catch (error) {
       console.warn("COGS API not available:", error.message);
       setSummary({ totalCogs: 0, marginPercent: 0, totalRevenue: 0, totalProfit: 0 });

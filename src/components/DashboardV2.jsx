@@ -121,14 +121,12 @@ const SectionHeader = ({ title, icon: Icon, description, isExpanded, onToggle, w
           {description && <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{description}</p>}
         </div>
       </div>
-      <button
-        type="button"
-        onClick={onToggle}
+      <span
         className={`p-1 rounded ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}
-        aria-label={isExpanded ? "Collapse section" : "Expand section"}
+        aria-hidden="true"
       >
         {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-      </button>
+      </span>
     </button>
   );
 };
@@ -446,8 +444,29 @@ const DashboardV2 = () => {
       // Fetch product analytics for category performance and grade analysis
       const productAnalytics = await dashboardService.getProductAnalytics().catch(() => null);
       if (productAnalytics) {
+        // Build topProducts data for TopProductsWidget in {byRevenue, byMargin, byVolume} shape
+        const topProductsList = (productAnalytics.topProducts || []).map((p) => ({
+          id: p.id,
+          name: p.displayName || p.name,
+          displayName: p.displayName || p.name,
+          category: p.category || "Uncategorized",
+          revenue: p.totalRevenue || 0,
+          margin: p.margin || 0,
+          volume: p.totalSold || 0,
+          percentOfTotal:
+            productAnalytics.topProducts.reduce((s, x) => s + (x.totalRevenue || 0), 0) > 0
+              ? ((p.totalRevenue || 0) /
+                  productAnalytics.topProducts.reduce((s, x) => s + (x.totalRevenue || 0), 0)) *
+                100
+              : 0,
+        }));
+        const byRevenue = [...topProductsList].sort((a, b) => b.revenue - a.revenue);
+        const byMargin = [...topProductsList].sort((a, b) => b.margin - a.margin);
+        const byVolume = [...topProductsList].sort((a, b) => b.volume - a.volume);
+
         setWidgetData((prev) => ({
           ...prev,
+          topProducts: { byRevenue, byMargin, byVolume },
           // Category Performance - aggregated by product category
           categoryPerformance:
             productAnalytics.categoryPerformance?.length > 0
@@ -505,7 +524,7 @@ const DashboardV2 = () => {
             }),
             summary: {
               newCustomersCount: customerInsights.newCustomersThisMonth || 0,
-              previousPeriodCount: Math.max(0, (customerInsights.newCustomersThisMonth || 0) - 2),
+              previousPeriodCount: Math.max(1, (customerInsights.newCustomersThisMonth || 0) - 2),
               target: Math.max(15, (customerInsights.newCustomersThisMonth || 0) + 5),
               totalFirstOrderValue:
                 customerInsights.topCustomers
@@ -958,7 +977,7 @@ const DashboardV2 = () => {
                 </WidgetErrorBoundary>
                 <WidgetErrorBoundary widgetName="Top Products">
                   <Suspense fallback={<WidgetSkeleton variant="list" />}>
-                    <LazyTopProductsWidget />
+                    <LazyTopProductsWidget data={widgetData.topProducts} />
                   </Suspense>
                 </WidgetErrorBoundary>
                 <WidgetErrorBoundary widgetName="Fast Moving Items">

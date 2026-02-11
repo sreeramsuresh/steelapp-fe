@@ -182,7 +182,7 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
                 {product.data.map((value, monthIndex) => (
                   // biome-ignore lint/a11y/useSemanticElements: Heatmap cell - div required for flex layout in grid
                   <div
-                    key={value}
+                    key={`${product.id}-${turnoverData.months[monthIndex]}`}
                     role="button"
                     tabIndex={0}
                     className={`flex-1 h-6 rounded cursor-pointer transition-all ${getTurnoverColor(value)} hover:ring-2 hover:ring-white/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}

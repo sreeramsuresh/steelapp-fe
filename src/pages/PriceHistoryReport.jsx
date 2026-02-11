@@ -19,7 +19,7 @@ export default function PriceHistoryReport() {
   const fetchProducts = useCallback(async () => {
     try {
       const response = await productService.getProducts();
-      const raw = response && (response.data || response.items || response);
+      const raw = response && (response.data || response.products || response.items || response);
       setProducts(Array.isArray(raw) ? raw : []);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -30,7 +30,8 @@ export default function PriceHistoryReport() {
   const fetchPricelists = useCallback(async () => {
     try {
       const response = await pricelistService.getAll();
-      setPricelists((response && (response.data || response.items || response)) || []);
+      const raw = response && (response.data || response.pricelists || response.items || response);
+      setPricelists(Array.isArray(raw) ? raw : []);
     } catch (error) {
       console.error("Error fetching pricelists:", error);
       toast.error("Failed to load price lists");
@@ -93,7 +94,7 @@ export default function PriceHistoryReport() {
     const previous = priceHistory[index + 1].price;
 
     const diff = current - previous;
-    const diffPercent = ((diff / previous) * 100).toFixed(1);
+    const diffPercent = previous !== 0 ? ((diff / previous) * 100).toFixed(1) : "0.0";
 
     return { diff, diffPercent };
   };

@@ -270,7 +270,7 @@ export default function JournalRegisterReport() {
             </thead>
             <tbody className={`${cardBg} divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
               {data.entries.map((entry, idx) => (
-                <tr key={entry.id || entry.name || `entry-${idx}`} className={hoverRow}>
+                <tr key={entry.id || entry.journal_number || `entry-${idx}`} className={hoverRow}>
                   <td className={`px-4 py-3 text-sm ${textPrimary}`}>
                     {financialReportsService.formatDate(entry.entry_date)}
                   </td>

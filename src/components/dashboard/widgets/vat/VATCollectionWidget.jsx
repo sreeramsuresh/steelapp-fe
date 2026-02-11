@@ -15,30 +15,44 @@ import { ArrowDownRight, ArrowUpRight, Calendar, Info, RefreshCw, TrendingDown, 
 import { useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
 
-// Mock data for demonstration - replace with actual API calls
-const mockVATData = {
-  currentQuarter: {
-    period: "Q4 2024",
-    periodStart: "2024-10-01",
-    periodEnd: "2024-12-31",
-    outputVAT: 125750.0,
-    inputVAT: 89420.5,
-    netVAT: 36329.5,
-    dueDate: "2025-01-28",
-    daysUntilDue: 31,
-  },
-  previousQuarter: {
-    period: "Q3 2024",
-    outputVAT: 112500.0,
-    inputVAT: 78900.0,
-    netVAT: 33600.0,
-  },
-  yearToDate: {
-    outputVAT: 485250.0,
-    inputVAT: 342180.5,
-    netVAT: 143069.5,
-  },
+// Generate dynamic fallback data based on current date
+const generateFallbackVATData = () => {
+  const now = new Date();
+  const currentQ = Math.ceil((now.getMonth() + 1) / 3);
+  const currentYear = now.getFullYear();
+  const prevQ = currentQ === 1 ? 4 : currentQ - 1;
+  const prevYear = currentQ === 1 ? currentYear - 1 : currentYear;
+  const qStart = new Date(currentYear, (currentQ - 1) * 3, 1);
+  const qEnd = new Date(currentYear, currentQ * 3, 0);
+  const dueDate = new Date(currentYear, currentQ * 3, 28);
+  const daysUntilDue = Math.max(0, Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24)));
+
+  return {
+    currentQuarter: {
+      period: `Q${currentQ} ${currentYear}`,
+      periodStart: qStart.toISOString().slice(0, 10),
+      periodEnd: qEnd.toISOString().slice(0, 10),
+      outputVAT: 0,
+      inputVAT: 0,
+      netVAT: 0,
+      dueDate: dueDate.toISOString().slice(0, 10),
+      daysUntilDue,
+    },
+    previousQuarter: {
+      period: `Q${prevQ} ${prevYear}`,
+      outputVAT: 0,
+      inputVAT: 0,
+      netVAT: 0,
+    },
+    yearToDate: {
+      outputVAT: 0,
+      inputVAT: 0,
+      netVAT: 0,
+    },
+  };
 };
+
+const mockVATData = generateFallbackVATData();
 
 const VATCollectionWidget = ({ data = null, onRefresh = null, onViewDetails = null, isLoading = false }) => {
   const { isDarkMode } = useTheme();

@@ -62,8 +62,9 @@ export default function ReconciliationReport() {
       const productResult = await productService.getAll({
         limit: 1000,
       });
+      const rawProducts = productResult && (productResult.data || productResult.products || productResult.items || productResult);
       setProducts(
-        (productResult.data || []).map((prod) => ({
+        (Array.isArray(rawProducts) ? rawProducts : []).map((prod) => ({
           id: prod.id,
           name: prod.name,
           sku: prod.sku,
@@ -539,7 +540,7 @@ export default function ReconciliationReport() {
 
                     return (
                       <tr
-                        key={item.id || item.name || `item-${index}`}
+                        key={item.id || item.productName || `item-${index}`}
                         className={`${
                           Math.abs(item.variancePercent) > 1
                             ? isDarkMode

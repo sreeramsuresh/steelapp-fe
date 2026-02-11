@@ -51,17 +51,18 @@ export default function ProfitAnalysisReport() {
         },
       });
 
-      const results = response.data?.products || response.data?.results || [];
+      const responseData = response?.data ?? response;
+      const results = responseData?.products || responseData?.results || [];
       setData(results);
 
       // Calculate summary from response or results
-      if (response.data?.summary) {
+      if (responseData?.summary) {
         setSummary({
-          totalRevenue: response.data.summary.totalRevenue || 0,
-          totalCost: response.data.summary.totalCost || 0,
-          totalProfit: response.data.summary.totalProfit || 0,
-          totalQuantity: response.data.summary.totalQuantity || 0,
-          averageMargin: response.data.summary.averageMargin || 0,
+          totalRevenue: responseData.summary.totalRevenue || 0,
+          totalCost: responseData.summary.totalCost || 0,
+          totalProfit: responseData.summary.totalProfit || 0,
+          totalQuantity: responseData.summary.totalQuantity || 0,
+          averageMargin: responseData.summary.averageMargin || 0,
         });
       } else {
         const totals = results.reduce(
@@ -235,7 +236,7 @@ export default function ProfitAnalysisReport() {
                 <TableBody>
                   {data.map((row, index) => (
                     <TableRow
-                      key={row.id || row.name || `row-${index}`}
+                      key={row.id || `row-${index}`}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700"
                     >
                       <TableCell>

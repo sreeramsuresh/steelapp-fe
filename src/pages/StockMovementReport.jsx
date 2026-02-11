@@ -96,7 +96,8 @@ export default function StockMovementReport() {
       setLoadingProducts(true);
       setProductError(null);
       const response = await productService.getAll();
-      setProducts(response.data || []);
+      const raw = response && (response.data || response.products || response.items || response);
+      setProducts(Array.isArray(raw) ? raw : []);
     } catch (error) {
       console.error("Error fetching products:", error);
       setProductError("Failed to load products");
@@ -129,20 +130,12 @@ export default function StockMovementReport() {
         warehouseId: selectedWarehouse || undefined,
         productId: selectedProduct || undefined,
         movementType: selectedMovementTypes.length > 0 ? selectedMovementTypes.join(",") : undefined,
+        procurementChannel: procurementChannel !== "ALL" ? procurementChannel : undefined,
       };
 
       const response = await stockMovementService.getAll(filters);
 
-      let filteredMovements = response.data || [];
-
-      // Apply procurement channel filter if needed (client-side for now)
-      if (procurementChannel !== "ALL") {
-        filteredMovements = filteredMovements.filter(() => {
-          // This would require product procurement info - placeholder logic
-          // In reality, you'd add this to the backend filter
-          return true;
-        });
-      }
+      const filteredMovements = response.data || [];
 
       setMovements(filteredMovements);
       setPage(pageNum);
@@ -683,7 +676,8 @@ export default function StockMovementReport() {
                   First
                 </button>
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const pageNum = Math.max(1, page - 2) + i;
+                  const start = Math.max(1, Math.min(page - 2, totalPages - 4));
+                  const pageNum = start + i;
                   return pageNum <= totalPages ? (
                     <button
                       type="button"

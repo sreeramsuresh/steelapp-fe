@@ -199,10 +199,9 @@ const NewCustomerWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
   }
 
   const { summary, acquisitionSources, recentCustomers } = customerData;
-  const growthPercent = (
-    ((summary.newCustomersCount - summary.previousPeriodCount) / summary.previousPeriodCount) *
-    100
-  ).toFixed(1);
+  const growthPercent = summary.previousPeriodCount > 0
+    ? (((summary.newCustomersCount - summary.previousPeriodCount) / summary.previousPeriodCount) * 100).toFixed(1)
+    : "0.0";
   const targetPercent = ((summary.newCustomersCount / summary.target) * 100).toFixed(0);
   const retentionChange = summary.retentionRate - summary.previousRetentionRate;
 

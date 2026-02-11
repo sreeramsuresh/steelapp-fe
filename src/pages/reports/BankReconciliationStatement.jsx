@@ -116,7 +116,7 @@ export default function BankReconciliationStatement() {
             <table className="w-full">
               <tbody>
                 {data.reconciliation_steps.map((step, idx) => (
-                  <tr key={step.id || step.name || `step-${idx}`} className={idx % 2 === 0 ? stripeBg : ""}>
+                  <tr key={step.step || `step-${idx}`} className={idx % 2 === 0 ? stripeBg : ""}>
                     <td className={`px-4 py-3 text-sm ${textPrimary} font-medium`}>{step.step}</td>
                     <td className="px-4 py-3 text-sm text-right">
                       <span className={step.amount < 0 ? "text-red-500" : textPrimary}>

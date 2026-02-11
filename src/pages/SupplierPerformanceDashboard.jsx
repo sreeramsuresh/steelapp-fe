@@ -18,7 +18,7 @@ function SupplierPerformanceDashboard() {
   const [suppliers, setSuppliers] = useState([]);
   const [atRiskSuppliers, setAtRiskSuppliers] = useState([]);
   const [trends, setTrends] = useState([]);
-  const [_loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [kpis, setKpis] = useState({
     otdPercent: 0,
     avgVariance: 0,
@@ -90,6 +90,17 @@ function SupplierPerformanceDashboard() {
     };
     return colors[rating] || "bg-gray-100 text-gray-800";
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
+          <p className={`mt-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Loading supplier performance data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

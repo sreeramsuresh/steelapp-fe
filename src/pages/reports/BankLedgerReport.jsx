@@ -169,7 +169,7 @@ export default function BankLedgerReport() {
             </thead>
             <tbody>
               {data.transactions.map((txn, idx) => (
-                <tr key={txn.id || txn.name || `txn-${idx}`} className={`${rowBorder} ${hoverRow}`}>
+                <tr key={txn.id || txn.journal_number || `txn-${idx}`} className={`${rowBorder} ${hoverRow}`}>
                   <td className={`px-4 py-3 text-sm ${textPrimary}`}>
                     {bankReconciliationService.formatDate(txn.entry_date)}
                   </td>

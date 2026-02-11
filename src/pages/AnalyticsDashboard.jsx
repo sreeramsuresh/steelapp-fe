@@ -154,7 +154,7 @@ const AnalyticsDashboard = () => {
       <div className="p-6">
         <div className="max-w-7xl mx-auto space-y-8">
           {analyticsCards.map((section, sectionIndex) => (
-            <div key={section.id || section.name || `section-${sectionIndex}`}>
+            <div key={section.section || `section-${sectionIndex}`}>
               <h2 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
                 {section.section}
               </h2>
@@ -163,7 +163,7 @@ const AnalyticsDashboard = () => {
                   const Icon = item.icon;
                   return (
                     <Link
-                      key={item.id || item.name || `item-${itemIndex}`}
+                      key={item.path || `item-${itemIndex}`}
                       to={item.path}
                       className={`group block p-5 rounded-xl border transition-all duration-200 no-underline ${
                         isDarkMode

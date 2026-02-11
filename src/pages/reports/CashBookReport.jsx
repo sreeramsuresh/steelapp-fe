@@ -192,7 +192,7 @@ export default function CashBookReport() {
             </thead>
             <tbody>
               {summary.summary.map((day, idx) => (
-                <tr key={day.id || day.name || `day-${idx}`} className={`${rowBorder} ${hoverRow}`}>
+                <tr key={day.entry_date || `day-${idx}`} className={`${rowBorder} ${hoverRow}`}>
                   <td className={`px-4 py-3 text-sm ${textPrimary}`}>
                     {bankReconciliationService.formatDate(day.entry_date)}
                   </td>
@@ -248,7 +248,7 @@ export default function CashBookReport() {
             </thead>
             <tbody>
               {data.entries.map((entry, idx) => (
-                <tr key={entry.id || entry.name || `entry-${idx}`} className={`${rowBorder} ${hoverRow} text-sm`}>
+                <tr key={entry.id || entry.journal_number || `entry-${idx}`} className={`${rowBorder} ${hoverRow} text-sm`}>
                   <td className={`px-4 py-3 ${textPrimary}`}>
                     {bankReconciliationService.formatDate(entry.entry_date)}
                   </td>
