@@ -1,4 +1,4 @@
-import { Banknote, CheckCircle, Download, Printer, RefreshCw, Trash2, X } from "lucide-react";
+import { Banknote, CheckCircle, Download, Filter, Printer, RefreshCw, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AddPaymentForm from "../components/payments/AddPaymentForm";
@@ -166,6 +166,7 @@ const POTab = ({ canManage }) => {
   const [printingReceiptId, setPrintingReceiptId] = useState(null);
   const [confirmAction, setConfirmAction] = useState({ open: false, type: null });
   const [localSearch, setLocalSearch] = useState(filters.q);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Debounce search - wait 300ms after user stops typing
   useEffect(() => {
@@ -469,145 +470,189 @@ const POTab = ({ canManage }) => {
 
   return (
     <div className="space-y-4">
+      {/* Primary Filters Row */}
       <div
         className={`p-3 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div className="flex flex-wrap sm:flex-nowrap gap-2 items-center">
-            <FormSelect
-              value={filters.dateType}
-              onValueChange={(value) => setFilters({ dateType: value })}
-              showValidation={false}
-              className="w-32"
-            >
-              <SelectItem value="po">PO Date</SelectItem>
-              <SelectItem value="due">Due Date</SelectItem>
-            </FormSelect>
-            <input
-              id="payables-start-date"
-              name="startDate"
-              type="date"
-              value={filters.start}
-              onChange={(e) => setFilters({ start: e.target.value })}
-              className="px-2 py-2 rounded border flex-1 min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-              aria-label="Start date"
-            />
-            <span className="opacity-70 shrink-0">to</span>
-            <input
-              id="payables-end-date"
-              name="endDate"
-              type="date"
-              value={filters.end}
-              onChange={(e) => setFilters({ end: e.target.value })}
-              className="px-2 py-2 rounded border flex-1 min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-              aria-label="End date"
-            />
-          </div>
-          <div className="flex flex-wrap sm:flex-nowrap gap-2">
-            <input
-              id="payables-vendor-search"
-              name="vendorSearch"
-              placeholder="Vendor"
-              value={filters.vendor}
-              onChange={(e) => setFilters({ vendor: e.target.value })}
-              className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-              aria-label="Search by vendor name"
-            />
-          </div>
-          <div className="flex flex-wrap sm:flex-nowrap gap-2">
-            <FormSelect
-              value={filters.status}
-              onValueChange={(value) => setFilters({ status: value })}
-              showValidation={false}
-            >
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="unpaid">Unpaid</SelectItem>
-              <SelectItem value="partially_paid">Partially Paid</SelectItem>
-              <SelectItem value="paid">Paid</SelectItem>
-              <SelectItem value="overdue">Overdue</SelectItem>
-            </FormSelect>
-          </div>
-          <div className="flex flex-wrap sm:flex-nowrap gap-2">
-            <input
-              id="payables-po-search"
-              name="poSearch"
-              placeholder="PO # or search"
-              value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)}
-              className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-              aria-label="Search by PO number"
-            />
-          </div>
-          <div className="flex flex-wrap sm:flex-nowrap gap-2">
-            <input
-              id="payables-min-balance"
-              name="minBalance"
-              type="number"
-              step="0.01"
-              placeholder="Min Balance"
-              value={filters.minBal}
-              onChange={(e) => setFilters({ minBal: numberInput(e.target.value) })}
-              className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-              aria-label="Minimum balance"
-            />
-            <input
-              id="payables-max-balance"
-              name="maxBalance"
-              type="number"
-              step="0.01"
-              placeholder="Max Balance"
-              value={filters.maxBal}
-              onChange={(e) => setFilters({ maxBal: numberInput(e.target.value) })}
-              className="px-3 py-2 rounded border w-full min-w-0 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-              aria-label="Maximum balance"
-            />
-          </div>
-          <div className="flex flex-wrap gap-2 items-center justify-end sm:justify-end">
-            <button
-              type="button"
-              onClick={() => fetchData(true)}
-              className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-2"
-            >
-              <RefreshCw size={16} />
-              Apply
-            </button>
-            <button
-              type="button"
-              onClick={exportPOs}
-              className="px-3 py-2 rounded border flex items-center gap-2 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
-            >
-              <Download size={16} />
-              Export
-            </button>
-          </div>
+        <div className="flex flex-wrap gap-2 items-center">
+          <input
+            id="payables-po-search"
+            name="poSearch"
+            placeholder="Search POs..."
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            className="px-3 py-2 rounded border min-w-[200px] flex-1 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+            aria-label="Search by PO number"
+          />
+          <FormSelect
+            value={filters.status}
+            onValueChange={(value) => setFilters({ status: value, page: "1" })}
+            showValidation={false}
+            className="w-36"
+          >
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="unpaid">Unpaid</SelectItem>
+            <SelectItem value="partially_paid">Partially Paid</SelectItem>
+            <SelectItem value="paid">Paid</SelectItem>
+            <SelectItem value="overdue">Overdue</SelectItem>
+          </FormSelect>
+          <input
+            id="payables-start-date"
+            name="startDate"
+            type="date"
+            value={filters.start}
+            onChange={(e) => setFilters({ start: e.target.value, page: "1" })}
+            className="px-2 py-2 rounded border dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+            aria-label="Start date"
+          />
+          <span className="opacity-70 shrink-0">to</span>
+          <input
+            id="payables-end-date"
+            name="endDate"
+            type="date"
+            value={filters.end}
+            onChange={(e) => setFilters({ end: e.target.value, page: "1" })}
+            className="px-2 py-2 rounded border dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+            aria-label="End date"
+          />
+          <button
+            type="button"
+            onClick={() => fetchData(true)}
+            className="px-3 py-2 rounded bg-teal-600 text-white flex items-center gap-1.5 text-sm"
+          >
+            <RefreshCw size={14} />
+            Apply
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            className={`px-3 py-2 rounded border flex items-center gap-1.5 text-sm transition-colors ${
+              showAdvancedFilters
+                ? "bg-teal-50 border-teal-300 text-teal-700 dark:bg-teal-900/30 dark:border-teal-700 dark:text-teal-300"
+                : "dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+            }`}
+          >
+            <Filter size={14} />
+            More
+          </button>
+          <button
+            type="button"
+            onClick={exportPOs}
+            className="px-3 py-2 rounded border flex items-center gap-1.5 text-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+          >
+            <Download size={14} />
+            Export
+          </button>
         </div>
+
+        {/* Advanced Filters (collapsible) */}
+        {showAdvancedFilters && (
+          <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3`}>
+            <div>
+              <label htmlFor="payables-vendor-search" className="block text-xs font-medium mb-1 opacity-70">Vendor</label>
+              <input
+                id="payables-vendor-search"
+                name="vendorSearch"
+                placeholder="Name or code"
+                value={filters.vendor}
+                onChange={(e) => setFilters({ vendor: e.target.value, page: "1" })}
+                className="px-3 py-2 rounded border w-full dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+                aria-label="Search by vendor name"
+              />
+            </div>
+            <div>
+              <label htmlFor="payables-date-type" className="block text-xs font-medium mb-1 opacity-70">Date Type</label>
+              <FormSelect
+                value={filters.dateType}
+                onValueChange={(value) => setFilters({ dateType: value, page: "1" })}
+                showValidation={false}
+              >
+                <SelectItem value="po">PO Date</SelectItem>
+                <SelectItem value="due">Due Date</SelectItem>
+              </FormSelect>
+            </div>
+            <div>
+              <label htmlFor="payables-min-balance" className="block text-xs font-medium mb-1 opacity-70">Min Balance</label>
+              <input
+                id="payables-min-balance"
+                name="minBalance"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={filters.minBal}
+                onChange={(e) => setFilters({ minBal: numberInput(e.target.value), page: "1" })}
+                className="px-3 py-2 rounded border w-full dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+                aria-label="Minimum balance"
+              />
+            </div>
+            <div>
+              <label htmlFor="payables-max-balance" className="block text-xs font-medium mb-1 opacity-70">Max Balance</label>
+              <input
+                id="payables-max-balance"
+                name="maxBalance"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={filters.maxBal}
+                onChange={(e) => setFilters({ maxBal: numberInput(e.target.value), page: "1" })}
+                className="px-3 py-2 rounded border w-full dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+                aria-label="Maximum balance"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div
-          className={`p-3 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+      {/* Clickable KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <button
+          type="button"
+          onClick={() => setFilters({ status: "all", page: "1" })}
+          className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
+            filters.status === "all"
+              ? isDarkMode ? "bg-teal-900/30 border-teal-600 ring-1 ring-teal-600" : "bg-teal-50 border-teal-300 ring-1 ring-teal-300"
+              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+          }`}
         >
           <div className="text-xs opacity-70">Total PO Value</div>
           <div className="text-lg font-semibold">{formatCurrency(aggregates.totalPO)}</div>
-        </div>
-        <div
-          className={`p-3 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilters({ status: "paid", page: "1" })}
+          className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
+            filters.status === "paid"
+              ? isDarkMode ? "bg-green-900/30 border-green-600 ring-1 ring-green-600" : "bg-green-50 border-green-300 ring-1 ring-green-300"
+              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+          }`}
         >
           <div className="text-xs opacity-70">Total Paid</div>
           <div className="text-lg font-semibold">{formatCurrency(aggregates.totalPaid)}</div>
-        </div>
-        <div
-          className={`p-3 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilters({ status: "unpaid", page: "1" })}
+          className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
+            filters.status === "unpaid"
+              ? isDarkMode ? "bg-red-900/30 border-red-600 ring-1 ring-red-600" : "bg-red-50 border-red-300 ring-1 ring-red-300"
+              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+          }`}
         >
           <div className="text-xs opacity-70">Total Balance</div>
           <div className="text-lg font-semibold">{formatCurrency(aggregates.totalBalance)}</div>
-        </div>
-        <div
-          className={`p-3 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilters({ status: "overdue", page: "1" })}
+          className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
+            filters.status === "overdue"
+              ? isDarkMode ? "bg-orange-900/30 border-orange-600 ring-1 ring-orange-600" : "bg-orange-50 border-orange-300 ring-1 ring-orange-300"
+              : isDarkMode ? "bg-[#1E2328] border-[#37474F] hover:border-gray-500" : "bg-white border-gray-200 hover:border-gray-300"
+          }`}
         >
           <div className="text-xs opacity-70">Overdue Payables</div>
           <div className="text-lg font-semibold">{formatCurrency(aggregates.overdue)}</div>
-        </div>
+        </button>
         <div
           className={`p-3 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
         >
@@ -620,34 +665,30 @@ const POTab = ({ canManage }) => {
         className={`rounded-lg border overflow-hidden ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
       >
         <div className="overflow-auto">
+          {/* Table — 8 columns: PO#, Vendor, Date, Due, Amount, Balance, Status + Pay action */}
           <table className="min-w-full divide-y">
-            {items.length > 0 && (
-              <thead>
-                <tr className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                  <th className="px-4 py-3 text-left text-xs uppercase">PO #</th>
-                  <th className="px-4 py-3 text-left text-xs uppercase">Vendor</th>
-                  <th className="px-4 py-3 text-left text-xs uppercase">PO Date</th>
-                  <th className="px-4 py-3 text-left text-xs uppercase">Due Date</th>
-                  <th className="px-4 py-3 text-left text-xs uppercase">Currency</th>
-                  <th className="px-4 py-3 text-right text-xs uppercase">PO Value</th>
-                  <th className="px-4 py-3 text-right text-xs uppercase">Paid To-Date</th>
-                  <th className="px-4 py-3 text-left text-xs uppercase">Last Payment</th>
-                  <th className="px-4 py-3 text-right text-xs uppercase">Balance</th>
-                  <th className="px-4 py-3 text-left text-xs uppercase">Status</th>
-                  <th className="px-4 py-3 text-right text-xs uppercase">Actions</th>
-                </tr>
-              </thead>
-            )}
+            <thead>
+              <tr className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                <th className="px-3 py-3 text-left text-xs uppercase">PO #</th>
+                <th className="px-3 py-3 text-left text-xs uppercase">Vendor</th>
+                <th className="px-3 py-3 text-left text-xs uppercase">Date</th>
+                <th className="px-3 py-3 text-left text-xs uppercase">Due</th>
+                <th className="px-3 py-3 text-right text-xs uppercase">Amount</th>
+                <th className="px-3 py-3 text-right text-xs uppercase">Balance</th>
+                <th className="px-3 py-3 text-center text-xs uppercase">Status</th>
+                <th className="px-3 py-3 w-10"></th>
+              </tr>
+            </thead>
             <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
               {loading ? (
                 <tr>
-                  <td colSpan={11} className="px-4 py-6 text-center">
+                  <td colSpan={8} className="px-4 py-6 text-center">
                     Loading...
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="px-4 py-6 text-center">
+                  <td colSpan={8} className="px-4 py-12 text-center">
                     <div className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
                       <p className="font-medium">
                         {filters.q || filters.status !== "all" || filters.start || filters.vendor
@@ -676,107 +717,43 @@ const POTab = ({ canManage }) => {
                   <tr
                     key={row.id}
                     className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} cursor-pointer`}
+                    onClick={() => openDrawer(row)}
                   >
-                    <td
-                      className="px-4 py-2 text-teal-600 font-semibold"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
+                    <td className="px-3 py-2 text-teal-600 font-semibold whitespace-nowrap">
                       {row.poNo || row.poNumber}
                     </td>
-                    <td
-                      className="px-4 py-2"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
+                    <td className="px-3 py-2">
                       {getVendorName(row)}
                     </td>
-                    <td
-                      className="px-4 py-2"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
+                    <td className="px-3 py-2 whitespace-nowrap text-sm">
                       {formatDate(row.poDate || row.date)}
                     </td>
-                    <td
-                      className="px-4 py-2"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
-                      <div className="flex items-center gap-2">
+                    <td className="px-3 py-2 whitespace-nowrap text-sm">
+                      <div className="flex items-center gap-1.5">
                         <span>{formatDate(row.dueDate)}</span>
                         {row.status === "overdue" && <Pill color="red">Overdue</Pill>}
                       </div>
                     </td>
-                    <td
-                      className="px-4 py-2"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
-                      {row.currency || "AED"}
-                    </td>
-                    <td
-                      className="px-4 py-2 text-right"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
-                      {formatCurrency(getPOValue(row))}
-                    </td>
-                    <td
-                      className="px-4 py-2 text-right"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
-                      <div>
-                        <div className="font-medium">{formatCurrency(getPaid(row))}</div>
-                        {row.payments && row.payments.filter((p) => !p.voided).length > 0 && (
-                          <div className="text-xs opacity-70">
-                            {row.payments.filter((p) => !p.voided).length} payment
-                            {row.payments.filter((p) => !p.voided).length !== 1 ? "s" : ""}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td
-                      className="px-4 py-2"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
-                      {row.payments && row.payments.length > 0 ? (
-                        <div className="text-xs">
-                          <div className="font-medium">
-                            {formatDate(row.payments[row.payments.length - 1]?.paymentDate)}
-                          </div>
-                          <div className="opacity-70">
-                            {formatCurrency(row.payments[row.payments.length - 1]?.amount || 0)}
-                          </div>
-                        </div>
-                      ) : (
-                        <span className="text-gray-400 text-xs">No payments</span>
+                    <td className="px-3 py-2 text-right whitespace-nowrap">
+                      <div>{formatCurrency(getPOValue(row))}</div>
+                      {getPaid(row) > 0 && (
+                        <div className="text-[10px] text-green-600 opacity-80">Paid: {formatCurrency(getPaid(row))}</div>
                       )}
                     </td>
-                    <td
-                      className="px-4 py-2 text-right"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
+                    <td className="px-3 py-2 text-right font-semibold whitespace-nowrap">
                       {formatCurrency(getBalance(row))}
                     </td>
-                    <td
-                      className="px-4 py-2"
-                      onClick={() => openDrawer(row)}
-                      onKeyDown={(e) => e.key === "Enter" && openDrawer(row)}
-                    >
+                    <td className="px-3 py-2 text-center">
                       <StatusPill status={row.status} />
                     </td>
-                    <td className="px-4 py-2 text-right">
+                    <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
                       <button
                         type="button"
-                        className={`px-2 py-1 ${canManage ? "text-teal-600" : "text-gray-400 cursor-not-allowed"}`}
+                        className={`px-2 py-1 text-xs rounded ${canManage ? "text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30" : "text-gray-400 cursor-not-allowed"}`}
                         disabled={!canManage}
                         onClick={() => canManage && openDrawer(row)}
                       >
-                        Record Payment
+                        Pay
                       </button>
                     </td>
                   </tr>
