@@ -5,7 +5,7 @@ const commissionService = {
   getInvoiceCommission: async (invoiceId) => {
     try {
       const response = await api.get(`/commissions/invoice/${invoiceId}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching invoice commission:", error);
       throw error;
@@ -19,7 +19,7 @@ const commissionService = {
         newCommissionAmount: newAmount,
         reason,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error adjusting commission:", error);
       throw error;
@@ -32,7 +32,7 @@ const commissionService = {
       const response = await api.post(`/commissions/invoice/${invoiceId}/approve`, {
         approvedByUserId,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error approving commission:", error);
       throw error;
@@ -46,7 +46,7 @@ const commissionService = {
         rejected_by_user_id: rejectedByUserId,
         reason,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error rejecting commission:", error);
       throw error;
@@ -59,7 +59,7 @@ const commissionService = {
       const response = await api.post(`/commissions/invoice/${invoiceId}/pay`, {
         paymentReference,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error marking commission as paid:", error);
       throw error;
@@ -72,7 +72,7 @@ const commissionService = {
       const response = await api.get(`/commissions/sales-person/${salesPersonId}`, {
         params: { status, daysBack },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching sales person commissions:", error);
       throw error;
@@ -85,7 +85,7 @@ const commissionService = {
       const response = await api.get(`/commissions/sales-person/${salesPersonId}/stats`, {
         params: { daysBack },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching commission stats:", error);
       throw error;
@@ -96,7 +96,7 @@ const commissionService = {
   getCommissionAuditTrail: async (invoiceId) => {
     try {
       const response = await api.get(`/commissions/invoice/${invoiceId}/audit`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching audit trail:", error);
       throw error;
@@ -125,7 +125,7 @@ const commissionService = {
       const response = await api.get("/commissions/dashboard", {
         params: { period },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching commission dashboard:", error);
       throw error;
@@ -138,7 +138,7 @@ const commissionService = {
       const response = await api.get("/commissions/agents", {
         params: { page, limit, active_only: activeOnly },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching commission agents:", error);
       throw error;
@@ -159,7 +159,7 @@ const commissionService = {
           ...(dateTo && { date_to: dateTo }),
         },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching commission transactions:", error);
       throw error;
@@ -170,7 +170,7 @@ const commissionService = {
   getPlans: async () => {
     try {
       const response = await api.get("/commissions/plans");
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching commission plans:", error);
       throw error;
@@ -181,7 +181,7 @@ const commissionService = {
   calculateCommission: async (invoiceId) => {
     try {
       const response = await api.post(`/commissions/calculate/${invoiceId}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error calculating commission:", error);
       throw error;
@@ -192,7 +192,7 @@ const commissionService = {
   batchCalculateCommissions: async () => {
     try {
       const response = await api.post("/commissions/batch-calculate");
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error batch calculating commissions:", error);
       throw error;
@@ -206,7 +206,7 @@ const commissionService = {
         reversalReason,
         notes,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error reversing commission:", error);
       throw error;
@@ -217,7 +217,7 @@ const commissionService = {
   getCommissionEligibility: async (invoiceId) => {
     try {
       const response = await api.get(`/commissions/eligibility/${invoiceId}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error checking commission eligibility:", error);
       throw error;
@@ -232,7 +232,7 @@ const commissionService = {
         invoiceId,
         notes,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error adjusting commission for credit note:", error);
       throw error;
@@ -307,7 +307,7 @@ const commissionService = {
   listPayPeriods: async () => {
     try {
       const response = await api.get("/commissions/pay-periods");
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error listing pay periods:", error);
       throw error;
@@ -318,7 +318,7 @@ const commissionService = {
   closePayPeriod: async (periodId) => {
     try {
       const response = await api.post(`/commissions/pay-periods/${periodId}/close`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error closing pay period:", error);
       throw error;
@@ -329,7 +329,7 @@ const commissionService = {
   processPayPeriodPayments: async (periodId) => {
     try {
       const response = await api.post(`/commissions/pay-periods/${periodId}/process`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error processing pay period payments:", error);
       throw error;
@@ -344,7 +344,7 @@ const commissionService = {
         userId,
         effectiveDate,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error assigning plan to user:", error);
       throw error;
@@ -357,7 +357,7 @@ const commissionService = {
       const response = await api.post("/commissions/bulk-approve", {
         commissionIds,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error bulk approving commissions:", error);
       throw error;
@@ -370,7 +370,7 @@ const commissionService = {
       const response = await api.post("/commissions/bulk-mark-paid", {
         commissionIds,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error bulk marking commissions as paid:", error);
       throw error;
@@ -381,7 +381,7 @@ const commissionService = {
   createPlan: async (planData) => {
     try {
       const response = await api.post("/commissions/plans", planData);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error creating commission plan:", error);
       throw error;
@@ -392,7 +392,7 @@ const commissionService = {
   updatePlan: async (planId, planData) => {
     try {
       const response = await api.put(`/commissions/plans/${planId}`, planData);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error updating commission plan:", error);
       throw error;
@@ -403,7 +403,7 @@ const commissionService = {
   deletePlan: async (planId) => {
     try {
       const response = await api.delete(`/commissions/plans/${planId}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error deleting commission plan:", error);
       throw error;
@@ -467,7 +467,7 @@ const commissionService = {
           limit,
         },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching commission history:", error);
       throw error;

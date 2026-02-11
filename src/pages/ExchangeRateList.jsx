@@ -193,7 +193,9 @@ const ExchangeRateList = () => {
 
       {/* Converter Panel */}
       {showConverter && (
-        <div className={`${cardClass} rounded-lg p-6 mb-6 shadow-sm border ${isDarkMode ? "border-purple-800" : "border-purple-200"}`}>
+        <div
+          className={`${cardClass} rounded-lg p-6 mb-6 shadow-sm border ${isDarkMode ? "border-purple-800" : "border-purple-200"}`}
+        >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <ArrowRightLeft className="text-purple-600" size={20} />
@@ -205,7 +207,9 @@ const ExchangeRateList = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div>
-              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>Amount</label>
+              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                Amount
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -216,7 +220,9 @@ const ExchangeRateList = () => {
               />
             </div>
             <div>
-              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>From</label>
+              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                From
+              </label>
               <input
                 type="text"
                 value={converterData.from_currency}
@@ -226,7 +232,9 @@ const ExchangeRateList = () => {
               />
             </div>
             <div>
-              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>To</label>
+              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                To
+              </label>
               <input
                 type="text"
                 value={converterData.to_currency}
@@ -245,14 +253,17 @@ const ExchangeRateList = () => {
             </button>
           </div>
           {convertResult && (
-            <div className={`mt-4 p-4 rounded-lg ${convertResult.error ? "bg-red-100 text-red-700" : isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}>
+            <div
+              className={`mt-4 p-4 rounded-lg ${convertResult.error ? "bg-red-100 text-red-700" : isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}
+            >
               {convertResult.error ? (
                 <p className="text-sm">{convertResult.message}</p>
               ) : (
                 <p className="text-lg font-bold">
                   {parseFloat(converterData.amount).toFixed(2)} {converterData.from_currency} ={" "}
                   <span className={isDarkMode ? "text-green-400" : "text-green-700"}>
-                    {parseFloat(convertResult.converted_amount || convertResult.convertedAmount || 0).toFixed(2)} {converterData.to_currency}
+                    {parseFloat(convertResult.converted_amount || convertResult.convertedAmount || 0).toFixed(2)}{" "}
+                    {converterData.to_currency}
                   </span>
                   {convertResult.rate && (
                     <span className="text-sm font-normal text-gray-500 ml-2">
@@ -268,12 +279,16 @@ const ExchangeRateList = () => {
 
       {/* Success / Error */}
       {successMessage && (
-        <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">{successMessage}</div>
+        <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+          {successMessage}
+        </div>
       )}
       {error && (
         <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-center justify-between">
           {error}
-          <button type="button" onClick={() => setError(null)}><X size={16} /></button>
+          <button type="button" onClick={() => setError(null)}>
+            <X size={16} />
+          </button>
         </div>
       )}
 
@@ -311,7 +326,11 @@ const ExchangeRateList = () => {
           <div className="p-8 text-center">
             <DollarSign size={48} className="mx-auto mb-4 text-gray-400" />
             <p className="text-gray-500">No exchange rates found</p>
-            <button type="button" onClick={() => openModal("create")} className="text-teal-600 hover:text-teal-700 mt-2 inline-block">
+            <button
+              type="button"
+              onClick={() => openModal("create")}
+              className="text-teal-600 hover:text-teal-700 mt-2 inline-block"
+            >
               Add your first exchange rate
             </button>
           </div>
@@ -320,23 +339,35 @@ const ExchangeRateList = () => {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    From
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">To</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Rate</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Effective Date</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Rate
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Effective Date
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
                 {rates.map((rate) => (
                   <tr key={rate.id} className={isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`text-sm font-mono font-bold px-2 py-1 rounded ${isDarkMode ? "bg-gray-600" : "bg-gray-100"}`}>
+                      <span
+                        className={`text-sm font-mono font-bold px-2 py-1 rounded ${isDarkMode ? "bg-gray-600" : "bg-gray-100"}`}
+                      >
                         {rate.from_currency || rate.fromCurrency}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`text-sm font-mono font-bold px-2 py-1 rounded ${isDarkMode ? "bg-gray-600" : "bg-gray-100"}`}>
+                      <span
+                        className={`text-sm font-mono font-bold px-2 py-1 rounded ${isDarkMode ? "bg-gray-600" : "bg-gray-100"}`}
+                      >
                         {rate.to_currency || rate.toCurrency}
                       </span>
                     </td>
@@ -377,20 +408,33 @@ const ExchangeRateList = () => {
       {/* Create/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <button type="button" className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setShowModal(false)} aria-label="Close" />
+          <button
+            type="button"
+            className="fixed inset-0 bg-black bg-opacity-50"
+            onClick={() => setShowModal(false)}
+            aria-label="Close"
+          />
           <div className={`relative z-10 w-full max-w-md mx-4 rounded-xl shadow-2xl ${cardClass}`}>
-            <div className={`flex justify-between items-center px-6 py-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+            <div
+              className={`flex justify-between items-center px-6 py-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+            >
               <h2 className="text-xl font-semibold">
                 {modalMode === "edit" ? "Edit Exchange Rate" : "New Exchange Rate"}
               </h2>
-              <button type="button" onClick={() => setShowModal(false)} className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded">
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+              >
                 <X size={24} />
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>From Currency *</label>
+                  <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                    From Currency *
+                  </label>
                   <input
                     type="text"
                     value={formData.from_currency}
@@ -402,7 +446,9 @@ const ExchangeRateList = () => {
                   {formErrors.from_currency && <p className="text-red-500 text-xs mt-1">{formErrors.from_currency}</p>}
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>To Currency *</label>
+                  <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                    To Currency *
+                  </label>
                   <input
                     type="text"
                     value={formData.to_currency}
@@ -415,7 +461,9 @@ const ExchangeRateList = () => {
                 </div>
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>Rate *</label>
+                <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                  Rate *
+                </label>
                 <input
                   type="number"
                   step="0.0001"
@@ -427,7 +475,9 @@ const ExchangeRateList = () => {
                 {formErrors.rate && <p className="text-red-500 text-xs mt-1">{formErrors.rate}</p>}
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>Effective Date *</label>
+                <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                  Effective Date *
+                </label>
                 <input
                   type="date"
                   value={formData.effective_date}

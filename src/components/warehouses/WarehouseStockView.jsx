@@ -51,7 +51,7 @@ const WarehouseStockView = ({ warehouseId, warehouseName: _warehouseName }) => {
       id: item.id,
       productId: item.productId ?? item.product_id,
       productName: item.productName || item.product_name || item.description || "N/A",
-      productSku: (item.productId || item.product_id) ? `PID-${item.productId || item.product_id}` : "N/A",
+      productSku: item.productId || item.product_id ? `PID-${item.productId || item.product_id}` : "N/A",
       productType: item.productType || item.product_type || "Unknown",
       grade: item.grade || "N/A",
       quantityOnHand: onHand,
@@ -67,7 +67,10 @@ const WarehouseStockView = ({ warehouseId, warehouseName: _warehouseName }) => {
   const filteredItems = mappedItems.filter((item) => {
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      if (!(item.productName || "").toLowerCase().includes(term) && !(item.productSku || "").toLowerCase().includes(term)) {
+      if (
+        !(item.productName || "").toLowerCase().includes(term) &&
+        !(item.productSku || "").toLowerCase().includes(term)
+      ) {
         return false;
       }
     }

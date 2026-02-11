@@ -248,9 +248,7 @@ const VATComplianceAlertsWidget = ({
                     <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                       {alert.description}
                     </p>
-                    <span
-                      className={`text-xs mt-1 font-medium flex items-center gap-0.5 ${severityConfig.textColor}`}
-                    >
+                    <span className={`text-xs mt-1 font-medium flex items-center gap-0.5 ${severityConfig.textColor}`}>
                       {alert.actionText}
                       <ChevronRight size={12} />
                     </span>

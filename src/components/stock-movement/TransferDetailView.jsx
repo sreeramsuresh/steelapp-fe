@@ -4,17 +4,7 @@
  * timeline, shipping info, and associated stock movements.
  */
 
-import {
-  ArrowLeft,
-  ArrowRight,
-  CheckCircle,
-  Clock,
-  MapPin,
-  Package,
-  RefreshCw,
-  Truck,
-  XCircle,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, Clock, MapPin, Package, RefreshCw, Truck, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { stockMovementService } from "../../services/stockMovementService";
@@ -44,7 +34,7 @@ const TransferDetailView = ({ transfer, onBack }) => {
           limit: 100,
         });
         const transferMovements = (response.data || []).filter(
-          (m) => m.transferId === transfer.id || m.referenceNumber === transfer.transferNumber,
+          (m) => m.transferId === transfer.id || m.referenceNumber === transfer.transferNumber
         );
         setMovements(transferMovements);
       } catch (error) {
@@ -122,7 +112,9 @@ const TransferDetailView = ({ transfer, onBack }) => {
       <div className={`${cardClass} p-6`}>
         <div className="flex items-center justify-between">
           <div className="flex-1 text-center">
-            <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-2 ${isDarkMode ? "bg-orange-900/30" : "bg-orange-100"}`}>
+            <div
+              className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-2 ${isDarkMode ? "bg-orange-900/30" : "bg-orange-100"}`}
+            >
               <MapPin className={`w-6 h-6 ${isDarkMode ? "text-orange-400" : "text-orange-600"}`} />
             </div>
             <p className={`font-medium ${valueClass}`}>{transfer.sourceWarehouseName || "Source Warehouse"}</p>
@@ -132,10 +124,14 @@ const TransferDetailView = ({ transfer, onBack }) => {
             <ArrowRight className={`w-8 h-8 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
           </div>
           <div className="flex-1 text-center">
-            <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-2 ${isDarkMode ? "bg-teal-900/30" : "bg-teal-100"}`}>
+            <div
+              className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-2 ${isDarkMode ? "bg-teal-900/30" : "bg-teal-100"}`}
+            >
               <MapPin className={`w-6 h-6 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
             </div>
-            <p className={`font-medium ${valueClass}`}>{transfer.destinationWarehouseName || "Destination Warehouse"}</p>
+            <p className={`font-medium ${valueClass}`}>
+              {transfer.destinationWarehouseName || "Destination Warehouse"}
+            </p>
             <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>Destination</p>
           </div>
         </div>
@@ -145,7 +141,9 @@ const TransferDetailView = ({ transfer, onBack }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Transfer Info */}
         <div className={`${cardClass} p-5`}>
-          <h3 className={`text-sm font-semibold uppercase tracking-wide mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+          <h3
+            className={`text-sm font-semibold uppercase tracking-wide mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+          >
             Transfer Information
           </h3>
           <div className="space-y-3">
@@ -174,7 +172,9 @@ const TransferDetailView = ({ transfer, onBack }) => {
 
         {/* Timeline */}
         <div className={`${cardClass} p-5`}>
-          <h3 className={`text-sm font-semibold uppercase tracking-wide mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+          <h3
+            className={`text-sm font-semibold uppercase tracking-wide mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+          >
             Timeline
           </h3>
           <div className="space-y-4">
@@ -216,7 +216,9 @@ const TransferDetailView = ({ transfer, onBack }) => {
       {/* Shipping Info (if available) */}
       {(transfer.vehicleNumber || transfer.driverName) && (
         <div className={`${cardClass} p-5`}>
-          <h3 className={`text-sm font-semibold uppercase tracking-wide mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+          <h3
+            className={`text-sm font-semibold uppercase tracking-wide mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+          >
             Shipping Details
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -245,7 +247,9 @@ const TransferDetailView = ({ transfer, onBack }) => {
       {/* Items Table */}
       <div className={`${cardClass} overflow-hidden`}>
         <div className="px-5 py-4 border-b border-gray-700/50">
-          <h3 className={`text-sm font-semibold uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+          <h3
+            className={`text-sm font-semibold uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+          >
             <Package className="w-4 h-4 inline mr-2" />
             Transfer Items ({displayItems.length})
           </h3>
@@ -267,25 +271,39 @@ const TransferDetailView = ({ transfer, onBack }) => {
             <table className="w-full">
               <thead>
                 <tr className={isDarkMode ? "bg-gray-800" : "bg-gray-50"}>
-                  <th className={`px-5 py-3 text-left text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <th
+                    className={`px-5 py-3 text-left text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
                     Product
                   </th>
-                  <th className={`px-5 py-3 text-left text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <th
+                    className={`px-5 py-3 text-left text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
                     Type
                   </th>
-                  <th className={`px-5 py-3 text-right text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <th
+                    className={`px-5 py-3 text-right text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
                     Quantity
                   </th>
-                  <th className={`px-5 py-3 text-left text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <th
+                    className={`px-5 py-3 text-left text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
                     Unit
                   </th>
-                  <th className={`px-5 py-3 text-left text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <th
+                    className={`px-5 py-3 text-left text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
                     Batch
                   </th>
-                  <th className={`px-5 py-3 text-left text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <th
+                    className={`px-5 py-3 text-left text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
                     Movement
                   </th>
-                  <th className={`px-5 py-3 text-left text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <th
+                    className={`px-5 py-3 text-left text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
                     Date
                   </th>
                 </tr>
@@ -295,10 +313,14 @@ const TransferDetailView = ({ transfer, onBack }) => {
                   <tr key={item.id} className={isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}>
                     <td className="px-5 py-3">
                       <p className={`font-medium ${valueClass}`}>{item.productName || "N/A"}</p>
-                      <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>PID-{item.productId}</p>
+                      <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                        PID-{item.productId}
+                      </p>
                     </td>
                     <td className="px-5 py-3">
-                      <span className={`px-2 py-0.5 text-xs rounded-full ${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"}`}>
+                      <span
+                        className={`px-2 py-0.5 text-xs rounded-full ${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"}`}
+                      >
                         {item.productType || "-"}
                       </span>
                     </td>
@@ -337,7 +359,9 @@ const TransferDetailView = ({ transfer, onBack }) => {
                   <td colSpan={2} className={`px-5 py-3 font-medium ${valueClass}`}>
                     Total
                   </td>
-                  <td className={`px-5 py-3 text-right font-semibold ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}>
+                  <td
+                    className={`px-5 py-3 text-right font-semibold ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                  >
                     {Math.abs(totalQuantity).toLocaleString()}
                   </td>
                   <td className={`px-5 py-3 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
@@ -355,13 +379,7 @@ const TransferDetailView = ({ transfer, onBack }) => {
 };
 
 const TimelineStep = ({ icon, label, date, completed, isCancelled, isDarkMode }) => {
-  const dotColor = isCancelled
-    ? "bg-red-500"
-    : completed
-      ? "bg-teal-500"
-      : isDarkMode
-        ? "bg-gray-600"
-        : "bg-gray-300";
+  const dotColor = isCancelled ? "bg-red-500" : completed ? "bg-teal-500" : isDarkMode ? "bg-gray-600" : "bg-gray-300";
 
   const textColor = completed
     ? isDarkMode

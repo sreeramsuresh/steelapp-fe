@@ -75,9 +75,18 @@ export const NotificationCenterProvider = ({ children }) => {
           const oneMinAgo = new Date(now.getTime() - 60000);
           const seed = normalize([
             { title: "Welcome", message: "You are all set!", time: now.toISOString(), unread: true },
-            { title: "Tip", message: "Use the global search to find anything.", time: oneMinAgo.toISOString(), unread: false },
+            {
+              title: "Tip",
+              message: "Use the global search to find anything.",
+              time: oneMinAgo.toISOString(),
+              unread: false,
+            },
           ]);
-          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(seed)); } catch { /* ignore */ }
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
+          } catch {
+            /* ignore */
+          }
           return seed;
         }
         return validCurrent;
@@ -89,12 +98,20 @@ export const NotificationCenterProvider = ({ children }) => {
 
   const markAsRead = useCallback(async (id) => {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, unread: false } : n)));
-    try { await api.patch(`/notifications/${id}/read`, {}); } catch { /* best-effort */ }
+    try {
+      await api.patch(`/notifications/${id}/read`, {});
+    } catch {
+      /* best-effort */
+    }
   }, []);
 
   const markAllAsRead = useCallback(async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
-    try { await api.patch("/notifications/read-all", {}); } catch { /* best-effort */ }
+    try {
+      await api.patch("/notifications/read-all", {});
+    } catch {
+      /* best-effort */
+    }
   }, []);
 
   const addNotification = useCallback(

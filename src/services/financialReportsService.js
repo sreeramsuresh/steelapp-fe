@@ -19,7 +19,7 @@ class FinancialReportsService {
           accountCategory: options.accountCategory || null,
         },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching Trial Balance:", error);
       throw error;
@@ -42,7 +42,7 @@ class FinancialReportsService {
           limit,
         },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching Journal Register:", error);
       throw error;
@@ -62,7 +62,7 @@ class FinancialReportsService {
           endDate,
         },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching General Ledger:", error);
       throw error;
@@ -83,7 +83,7 @@ class FinancialReportsService {
           includeInactive,
         },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching Chart of Accounts:", error);
       throw error;
@@ -98,7 +98,7 @@ class FinancialReportsService {
       const response = await apiClient.post("/financial-reports/validate-trial-balance", {
         periodId,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error validating Trial Balance:", error);
       throw error;

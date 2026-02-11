@@ -166,7 +166,9 @@ const ReservationDetailView = ({ reservation, onBack }) => {
             </div>
             <div className="flex justify-between">
               <span className={labelClass}>Remaining</span>
-              <span className={`font-medium ${remaining > 0 ? (isDarkMode ? "text-yellow-400" : "text-yellow-600") : isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+              <span
+                className={`font-medium ${remaining > 0 ? (isDarkMode ? "text-yellow-400" : "text-yellow-600") : isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
                 {remaining.toFixed(2)} {reservation.unit}
               </span>
             </div>
@@ -263,9 +265,7 @@ const ReservationDetailView = ({ reservation, onBack }) => {
             {reservation.notes && (
               <div>
                 <span className={labelClass}>Notes</span>
-                <p className={`mt-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                  {reservation.notes}
-                </p>
+                <p className={`mt-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{reservation.notes}</p>
               </div>
             )}
           </div>
@@ -276,13 +276,7 @@ const ReservationDetailView = ({ reservation, onBack }) => {
 };
 
 const TimelineStep = ({ icon, label, detail, date, completed, isCancelled, isDarkMode }) => {
-  const dotColor = isCancelled
-    ? "bg-red-500"
-    : completed
-      ? "bg-teal-500"
-      : isDarkMode
-        ? "bg-gray-600"
-        : "bg-gray-300";
+  const dotColor = isCancelled ? "bg-red-500" : completed ? "bg-teal-500" : isDarkMode ? "bg-gray-600" : "bg-gray-300";
 
   const textColor = completed
     ? isDarkMode

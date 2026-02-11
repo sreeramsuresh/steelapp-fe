@@ -5,7 +5,7 @@ export const exchangeRateService = {
   async getExchangeRates(params = {}) {
     try {
       const response = await api.get("/exchange-rates", { params });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching exchange rates:", error);
       throw error;
@@ -16,7 +16,7 @@ export const exchangeRateService = {
   async getLatestRate(from, to) {
     try {
       const response = await api.get(`/exchange-rates/latest/${from}/${to}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching latest rate:", error);
       throw error;
@@ -27,7 +27,7 @@ export const exchangeRateService = {
   async getLatestRatesForBase(base) {
     try {
       const response = await api.get(`/exchange-rates/latest/${base}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching latest rates for base:", error);
       throw error;
@@ -38,7 +38,7 @@ export const exchangeRateService = {
   async createExchangeRate(data) {
     try {
       const response = await api.post("/exchange-rates", data);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error creating exchange rate:", error);
       throw error;
@@ -49,7 +49,7 @@ export const exchangeRateService = {
   async updateExchangeRate(id, data) {
     try {
       const response = await api.put(`/exchange-rates/${id}`, data);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error updating exchange rate:", error);
       throw error;
@@ -60,7 +60,7 @@ export const exchangeRateService = {
   async deleteExchangeRate(id) {
     try {
       const response = await api.delete(`/exchange-rates/${id}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error deleting exchange rate:", error);
       throw error;
@@ -71,7 +71,7 @@ export const exchangeRateService = {
   async convertCurrency(data) {
     try {
       const response = await api.post("/exchange-rates/convert", data);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error converting currency:", error);
       throw error;
@@ -82,7 +82,7 @@ export const exchangeRateService = {
   async bulkImportRates(data) {
     try {
       const response = await api.post("/exchange-rates/bulk-import", data);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error bulk importing rates:", error);
       throw error;
@@ -93,7 +93,7 @@ export const exchangeRateService = {
   async getCurrencies() {
     try {
       const response = await api.get("/exchange-rates/currencies/list");
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching currencies:", error);
       throw error;
@@ -106,7 +106,7 @@ export const exchangeRateService = {
       const response = await api.get(`/exchange-rates/history/${from}/${to}`, {
         params: { days },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching rate history:", error);
       throw error;

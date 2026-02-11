@@ -17,7 +17,7 @@ const customerCreditService = {
       const response = await api.get("/customers/credit-risk/high", {
         params: { limit },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching high-risk customers:", error);
       throw error;
@@ -31,7 +31,7 @@ const customerCreditService = {
   getOverLimitCustomers: async () => {
     try {
       const response = await api.get("/customers/credit-risk/over-limit");
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching over-limit customers:", error);
       throw error;
@@ -47,7 +47,7 @@ const customerCreditService = {
   getCustomerCreditSummary: async (customerId) => {
     try {
       const response = await api.get(`/customers/${customerId}/credit-summary`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error(`Error fetching credit summary for customer ${customerId}:`, error);
       throw error;
@@ -63,7 +63,7 @@ const customerCreditService = {
   getCustomerAging: async (customerId) => {
     try {
       const response = await api.get(`/customers/${customerId}/aging`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error(`Error fetching aging analysis for customer ${customerId}:`, error);
       throw error;
@@ -84,7 +84,7 @@ const customerCreditService = {
         newCreditLimit,
         adjustmentReason,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error(`Error updating credit limit for customer ${customerId}:`, error);
       throw error;
@@ -103,7 +103,7 @@ const customerCreditService = {
       const response = await api.get(`/customers/${customerId}/payment-history`, {
         params: { monthsBack },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error(`Error fetching payment history for customer ${customerId}:`, error);
       throw error;
@@ -122,7 +122,7 @@ const customerCreditService = {
       const response = await api.get(`/customers/${customerId}/dso-trend`, {
         params: { monthsBack },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error(`Error fetching DSO trend for customer ${customerId}:`, error);
       throw error;
@@ -141,7 +141,7 @@ const customerCreditService = {
       const response = await api.get(`/customers/${customerId}/credit-utilization-trend`, {
         params: { monthsBack },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error(`Error fetching credit utilization trend for customer ${customerId}:`, error);
       throw error;
@@ -157,7 +157,7 @@ const customerCreditService = {
   getCustomerRiskAssessment: async (customerId) => {
     try {
       const response = await api.get(`/customers/${customerId}/risk-assessment`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error(`Error fetching risk assessment for customer ${customerId}:`, error);
       throw error;
@@ -181,7 +181,7 @@ const customerCreditService = {
           ...filters,
         },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching customers with credit metrics:", error);
       throw error;
@@ -197,7 +197,7 @@ const customerCreditService = {
   getCustomerCreditHoldStatus: async (customerId) => {
     try {
       const response = await api.get(`/customers/${customerId}/credit-hold-status`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error(`Error fetching credit hold status for customer ${customerId}:`, error);
       throw error;
@@ -216,7 +216,7 @@ const customerCreditService = {
       const response = await api.put(`/customers/${customerId}/credit-hold`, {
         reason,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error(`Error placing credit hold for customer ${customerId}:`, error);
       throw error;
@@ -232,7 +232,7 @@ const customerCreditService = {
   removeCreditHold: async (customerId, reason) => {
     try {
       const response = await api.put(`/customers/${customerId}/credit-hold/remove`, { reason });
-      return response.data;
+      return response;
     } catch (error) {
       console.error(`Error removing credit hold for customer ${customerId}:`, error);
       throw error;
@@ -247,7 +247,7 @@ const customerCreditService = {
   getCreditMetricsDashboard: async () => {
     try {
       const response = await api.get("/customers/credit-metrics/dashboard");
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching credit metrics dashboard:", error);
       throw error;
@@ -262,7 +262,7 @@ const customerCreditService = {
   getCreditQualityDistribution: async () => {
     try {
       const response = await api.get("/customers/credit-metrics/distribution");
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching credit quality distribution:", error);
       throw error;
@@ -277,7 +277,7 @@ const customerCreditService = {
   getDSOBenchmarkReport: async () => {
     try {
       const response = await api.get("/customers/credit-metrics/dso-benchmark");
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching DSO benchmark report:", error);
       throw error;
@@ -292,7 +292,7 @@ const customerCreditService = {
   getCreditRecommendations: async () => {
     try {
       const response = await api.get("/customers/credit-metrics/recommendations");
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching credit recommendations:", error);
       throw error;
@@ -309,7 +309,7 @@ const customerCreditService = {
   performCreditReview: async (customerId, reason) => {
     try {
       const response = await api.post(`/customers/${customerId}/credit-review`, { reason });
-      return response.data;
+      return response;
     } catch (error) {
       console.error(`Error performing credit review for customer ${customerId}:`, error);
       throw error;
@@ -324,7 +324,7 @@ const customerCreditService = {
   getAgingSummaryReport: async () => {
     try {
       const response = await api.get("/customers/credit-metrics/aging-summary");
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching aging summary report:", error);
       throw error;

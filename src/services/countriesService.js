@@ -5,7 +5,7 @@ export const countriesService = {
   async getCountries(params = {}) {
     try {
       const response = await api.get("/countries", { params });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching countries:", error);
       throw error;
@@ -16,7 +16,7 @@ export const countriesService = {
   async getCountry(id) {
     try {
       const response = await api.get(`/countries/${id}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching country:", error);
       throw error;
@@ -27,7 +27,7 @@ export const countriesService = {
   async getCountriesByRegion(region) {
     try {
       const response = await api.get(`/countries/region/${region}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching countries by region:", error);
       throw error;
@@ -40,7 +40,7 @@ export const countriesService = {
       const response = await api.get(`/countries/${id}/exchange-rates`, {
         params: { base_currency },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Error fetching country exchange rates:", error);
       throw error;

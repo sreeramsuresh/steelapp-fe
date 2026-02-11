@@ -17,7 +17,7 @@ class AuditHubService {
       if (filters.status) params.append("status", filters.status);
 
       const response = await api.get(`/accounting-periods?${params.toString()}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Get periods error:", error);
       throw error;
@@ -27,7 +27,7 @@ class AuditHubService {
   async getPeriodById(_companyId, periodId) {
     try {
       const response = await api.get(`/accounting-periods/${periodId}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Get period error:", error);
       throw error;
@@ -41,7 +41,7 @@ class AuditHubService {
         year,
         month,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Create period error:", error);
       throw error;
@@ -51,7 +51,7 @@ class AuditHubService {
   async closePeriod(_companyId, periodId) {
     try {
       const response = await api.post(`/accounting-periods/${periodId}/close`, {});
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Close period error:", error);
       throw error;
@@ -61,7 +61,7 @@ class AuditHubService {
   async lockPeriod(_companyId, periodId) {
     try {
       const response = await api.post(`/accounting-periods/${periodId}/lock`, {});
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Lock period error:", error);
       throw error;
@@ -72,7 +72,7 @@ class AuditHubService {
   async getDatasets(_companyId, periodId) {
     try {
       const response = await api.get(`/audit-hub/datasets?period_id=${periodId}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Get datasets error:", error);
       throw error;
@@ -82,7 +82,7 @@ class AuditHubService {
   async getDatasetById(_companyId, datasetId) {
     try {
       const response = await api.get(`/audit-hub/datasets/${datasetId}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Get dataset error:", error);
       throw error;
@@ -97,7 +97,7 @@ class AuditHubService {
       if (pagination.limit) params.append("limit", pagination.limit);
 
       const response = await api.get(`/audit-hub/datasets/${datasetId}/transactions?${params.toString()}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Get transactions error:", error);
       throw error;
@@ -108,7 +108,7 @@ class AuditHubService {
   async generateExcelExport(_companyId, datasetId) {
     try {
       const response = await api.post(`/audit-hub/datasets/${datasetId}/export/excel`, {});
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Generate Excel error:", error);
       throw error;
@@ -118,7 +118,7 @@ class AuditHubService {
   async generatePDFExport(_companyId, datasetId) {
     try {
       const response = await api.post(`/audit-hub/datasets/${datasetId}/export/pdf`, {});
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Generate PDF error:", error);
       throw error;
@@ -128,7 +128,7 @@ class AuditHubService {
   async generateCSVExport(_companyId, datasetId, module) {
     try {
       const response = await api.post(`/audit-hub/datasets/${datasetId}/export/csv/${module.toLowerCase()}`, {});
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Generate CSV error:", error);
       throw error;
@@ -138,7 +138,7 @@ class AuditHubService {
   async getExportStatus(_companyId, datasetId) {
     try {
       const response = await api.get(`/audit-hub/datasets/${datasetId}/export/status`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Get export status error:", error);
       throw error;
@@ -160,7 +160,7 @@ class AuditHubService {
       const response = await api.post(`/audit-hub/datasets/${datasetId}/export/verify`, {
         export_type: exportType,
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Verify export error:", error);
       throw error;
@@ -171,7 +171,7 @@ class AuditHubService {
   async getReconciliations(_companyId, fiscalPeriod) {
     try {
       const response = await api.get(`/reconciliations?fiscal_period=${fiscalPeriod}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Get reconciliations error:", error);
       throw error;
@@ -181,7 +181,7 @@ class AuditHubService {
   async reconcileAR(_companyId, fiscalPeriod) {
     try {
       const response = await api.post("/reconciliations/ar", { fiscal_period: fiscalPeriod });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] AR reconciliation error:", error);
       throw error;
@@ -191,7 +191,7 @@ class AuditHubService {
   async reconcileAP(_companyId, fiscalPeriod) {
     try {
       const response = await api.post("/reconciliations/ap", { fiscal_period: fiscalPeriod });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] AP reconciliation error:", error);
       throw error;
@@ -201,7 +201,7 @@ class AuditHubService {
   async reconcileInventory(_companyId, fiscalPeriod) {
     try {
       const response = await api.post("/reconciliations/inventory", { fiscal_period: fiscalPeriod });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Inventory reconciliation error:", error);
       throw error;
@@ -211,7 +211,7 @@ class AuditHubService {
   async getReconciliationExceptions(_companyId, reconciliationId) {
     try {
       const response = await api.get(`/reconciliations/${reconciliationId}/exceptions`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Get exceptions error:", error);
       throw error;
@@ -222,7 +222,7 @@ class AuditHubService {
   async submitSignOff(_companyId, datasetId, signOffType, notes) {
     try {
       const response = await api.post("/audit-hub/sign-offs", { datasetId, signOffType, notes });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Submit sign-off error:", error);
       throw error;
@@ -232,7 +232,7 @@ class AuditHubService {
   async getSignOffs(_companyId, datasetId) {
     try {
       const response = await api.get(`/audit-hub/sign-offs/dataset/${datasetId}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Get sign-offs error:", error);
       throw error;
@@ -242,7 +242,7 @@ class AuditHubService {
   async getSignOffStatus(_companyId, datasetId) {
     try {
       const response = await api.get(`/audit-hub/sign-offs/dataset/${datasetId}/status`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Get sign-off status error:", error);
       throw error;
@@ -252,7 +252,7 @@ class AuditHubService {
   async approveSignOff(_companyId, signOffId, approvalNotes) {
     try {
       const response = await api.post(`/audit-hub/sign-offs/${signOffId}/approve`, { approvalNotes });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Approve sign-off error:", error);
       throw error;
@@ -262,7 +262,7 @@ class AuditHubService {
   async rejectSignOff(_companyId, signOffId, rejectionReason) {
     try {
       const response = await api.post(`/audit-hub/sign-offs/${signOffId}/reject`, { rejectionReason });
-      return response.data;
+      return response;
     } catch (error) {
       console.error("[AuditHub] Reject sign-off error:", error);
       throw error;

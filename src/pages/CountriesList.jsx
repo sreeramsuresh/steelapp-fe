@@ -60,7 +60,9 @@ const CountriesList = () => {
 
   const cardClass = isDarkMode ? "bg-gray-800" : "bg-white";
   const inputClass = `w-full px-3 py-2 border rounded-lg ${
-    isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 placeholder-gray-500"
+    isDarkMode
+      ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+      : "bg-white border-gray-300 placeholder-gray-500"
   }`;
 
   return (
@@ -89,23 +91,19 @@ const CountriesList = () => {
               className={`${inputClass} pl-10`}
             />
           </div>
-          <select
-            value={regionFilter}
-            onChange={(e) => setRegionFilter(e.target.value)}
-            className={inputClass}
-          >
+          <select value={regionFilter} onChange={(e) => setRegionFilter(e.target.value)} className={inputClass}>
             <option value="">All Regions</option>
             {regions.map((r) => (
-              <option key={r.value} value={r.value}>{r.label}</option>
+              <option key={r.value} value={r.value}>
+                {r.label}
+              </option>
             ))}
           </select>
         </div>
       </div>
 
       {/* Error */}
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>
-      )}
+      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
 
       {/* Table */}
       <div className={`${cardClass} rounded-lg shadow-sm overflow-hidden`}>
@@ -125,11 +123,21 @@ const CountriesList = () => {
               <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10" />
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Region</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Currency</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Ports</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Country
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Code
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Region
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Currency
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Ports
+                  </th>
                 </tr>
               </thead>
               <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
@@ -138,33 +146,43 @@ const CountriesList = () => {
                   const ports = countryPorts[country.id] || [];
                   return (
                     <React.Fragment key={country.id}>
-                      <tr className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} cursor-pointer`} onClick={() => toggleExpand(country.id)}>
+                      <tr
+                        className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} cursor-pointer`}
+                        onClick={() => toggleExpand(country.id)}
+                      >
                         <td className="px-6 py-4">
                           {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium">
-                            {countriesService.formatCountryDisplay(country)}
-                          </div>
+                          <div className="text-sm font-medium">{countriesService.formatCountryDisplay(country)}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`text-xs font-mono px-2 py-1 rounded ${isDarkMode ? "bg-gray-600" : "bg-gray-100"}`}>
+                          <span
+                            className={`text-xs font-mono px-2 py-1 rounded ${isDarkMode ? "bg-gray-600" : "bg-gray-100"}`}
+                          >
                             {country.code}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">{getRegionLabel(country.region)}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">{country.currency || "—"}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm">{country.portsCount ?? country.ports_count ?? "—"}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
+                          {country.portsCount ?? country.ports_count ?? "—"}
+                        </td>
                       </tr>
                       {isExpanded && (
                         <tr>
                           <td colSpan={6} className={`px-6 py-4 ${isDarkMode ? "bg-gray-750" : "bg-gray-50"}`}>
                             {ports.length === 0 ? (
-                              <p className="text-sm text-gray-500 text-center py-2">No ports available for this country</p>
+                              <p className="text-sm text-gray-500 text-center py-2">
+                                No ports available for this country
+                              </p>
                             ) : (
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                 {ports.map((port) => (
-                                  <div key={port.id || port.code} className={`flex items-start gap-2 p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-white"} shadow-sm`}>
+                                  <div
+                                    key={port.id || port.code}
+                                    className={`flex items-start gap-2 p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-white"} shadow-sm`}
+                                  >
                                     <MapPin size={16} className="text-teal-600 mt-0.5 shrink-0" />
                                     <div>
                                       <div className="text-sm font-medium">{port.name}</div>

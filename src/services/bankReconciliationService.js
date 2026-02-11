@@ -8,7 +8,7 @@ class BankReconciliationService {
     const response = await apiClient.get(`/bank-reconciliation/bank-ledger/${accountCode}`, {
       params: { startDate, endDate },
     });
-    return response.data;
+    return response;
   }
 
   /**
@@ -16,7 +16,7 @@ class BankReconciliationService {
    */
   async getBankReconciliation(statementId) {
     const response = await apiClient.get(`/bank-reconciliation/brs/${statementId}`);
-    return response.data;
+    return response;
   }
 
   /**
@@ -24,7 +24,7 @@ class BankReconciliationService {
    */
   async importBankStatement(statementId, lines) {
     const response = await apiClient.post("/bank-reconciliation/import-statement", { statementId, lines });
-    return response.data;
+    return response;
   }
 
   /**
@@ -35,7 +35,7 @@ class BankReconciliationService {
       lineId,
       journalEntryId,
     });
-    return response.data;
+    return response;
   }
 
   /**
@@ -51,7 +51,7 @@ class BankReconciliationService {
         limit: options.limit || 100,
       },
     });
-    return response.data;
+    return response;
   }
 
   /**
@@ -61,7 +61,7 @@ class BankReconciliationService {
     const response = await apiClient.get("/bank-reconciliation/cash-book-summary", {
       params: { startDate, endDate, cashAccountCode },
     });
-    return response.data;
+    return response;
   }
 
   /**
@@ -69,7 +69,7 @@ class BankReconciliationService {
    */
   async reconcileCashToBank(periodId) {
     const response = await apiClient.get(`/bank-reconciliation/reconcile-cash-bank/${periodId}`);
-    return response.data;
+    return response;
   }
 
   /**
