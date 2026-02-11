@@ -217,8 +217,8 @@ export const productsAPI = {
   // GUARD #2: Automatically normalizes products (camelCase + contract assertion)
   getAll: async (params = {}) => {
     const response = await apiClient.get("/products", params);
-    if (response.data?.products) {
-      response.data.products = response.data.products.map(normalizeProduct);
+    if (response?.products) {
+      response.products = response.products.map(normalizeProduct);
     }
     return response;
   },
@@ -227,8 +227,10 @@ export const productsAPI = {
   // GUARD #2: Automatically normalizes product (camelCase + contract assertion)
   getById: async (id) => {
     const response = await apiClient.get(`/products/${id}`);
-    if (response.data) {
-      response.data = normalizeProduct(response.data);
+    if (response?.product) {
+      response.product = normalizeProduct(response.product);
+    } else if (response && !response.product) {
+      return normalizeProduct(response);
     }
     return response;
   },
@@ -252,8 +254,8 @@ export const productsAPI = {
   // GUARD #2: Automatically normalizes products (camelCase + contract assertion)
   search: async (query) => {
     const response = await apiClient.get("/products/search", { query });
-    if (response.data?.products) {
-      response.data.products = response.data.products.map(normalizeProduct);
+    if (response?.products) {
+      response.products = response.products.map(normalizeProduct);
     }
     return response;
   },
@@ -267,8 +269,8 @@ export const productsAPI = {
   // GUARD #2: Automatically normalizes products (camelCase + contract assertion)
   getByCategory: async (category) => {
     const response = await apiClient.get(`/products/category/${category}`);
-    if (response.data?.products) {
-      response.data.products = response.data.products.map(normalizeProduct);
+    if (response?.products) {
+      response.products = response.products.map(normalizeProduct);
     }
     return response;
   },

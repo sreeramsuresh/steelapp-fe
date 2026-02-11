@@ -515,7 +515,7 @@ const advancePaymentService = {
   async getApplicationHistory(id) {
     try {
       const response = await apiClient.get(`/advance-payments/${id}/applications`);
-      return response.data || response || [];
+      return response || [];
     } catch (error) {
       console.error("[AdvancePaymentService] getApplicationHistory failed:", error);
       throw error;

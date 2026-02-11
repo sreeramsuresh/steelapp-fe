@@ -331,7 +331,7 @@ export const invoiceService = {
   async getInvoiceStockMovements(invoiceId) {
     const response = await apiClient.get(`/stock-movements/by-reference/INVOICE/${invoiceId}`);
     // Response format: { data: [...movements] }
-    return response.data || response || [];
+    return response || [];
   },
 
   /**

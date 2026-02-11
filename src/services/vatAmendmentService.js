@@ -489,7 +489,7 @@ const vatAmendmentService = {
   async getAuditTrail(id) {
     try {
       const response = await apiClient.get(`/vat-amendments/${id}/audit-trail`);
-      return response.data || response || [];
+      return response || [];
     } catch (error) {
       console.error("[VATAmendmentService] getAuditTrail failed:", error);
       throw error;

@@ -45,9 +45,10 @@ const CountriesList = () => {
     if (!countryPorts[countryId]) {
       try {
         const detail = await countriesService.getCountry(countryId);
+        const countryData = detail.country || detail;
         setCountryPorts((prev) => ({
           ...prev,
-          [countryId]: detail.ports || detail.country?.ports || [],
+          [countryId]: countryData.ports || [],
         }));
       } catch {
         setCountryPorts((prev) => ({ ...prev, [countryId]: [] }));

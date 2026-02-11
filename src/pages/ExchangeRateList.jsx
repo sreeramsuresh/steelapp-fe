@@ -207,10 +207,11 @@ const ExchangeRateList = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div>
-              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+              <label htmlFor="converter-amount" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                 Amount
               </label>
               <input
+                id="converter-amount"
                 type="number"
                 step="0.01"
                 value={converterData.amount}
@@ -220,10 +221,11 @@ const ExchangeRateList = () => {
               />
             </div>
             <div>
-              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+              <label htmlFor="converter-from" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                 From
               </label>
               <input
+                id="converter-from"
                 type="text"
                 value={converterData.from_currency}
                 onChange={(e) => setConverterData((p) => ({ ...p, from_currency: e.target.value.toUpperCase() }))}
@@ -232,10 +234,11 @@ const ExchangeRateList = () => {
               />
             </div>
             <div>
-              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+              <label htmlFor="converter-to" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                 To
               </label>
               <input
+                id="converter-to"
                 type="text"
                 value={converterData.to_currency}
                 onChange={(e) => setConverterData((p) => ({ ...p, to_currency: e.target.value.toUpperCase() }))}
@@ -432,10 +435,11 @@ const ExchangeRateList = () => {
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                  <label htmlFor="form-from-currency" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                     From Currency *
                   </label>
                   <input
+                    id="form-from-currency"
                     type="text"
                     value={formData.from_currency}
                     onChange={(e) => setFormData((p) => ({ ...p, from_currency: e.target.value.toUpperCase() }))}
@@ -446,10 +450,11 @@ const ExchangeRateList = () => {
                   {formErrors.from_currency && <p className="text-red-500 text-xs mt-1">{formErrors.from_currency}</p>}
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                  <label htmlFor="form-to-currency" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                     To Currency *
                   </label>
                   <input
+                    id="form-to-currency"
                     type="text"
                     value={formData.to_currency}
                     onChange={(e) => setFormData((p) => ({ ...p, to_currency: e.target.value.toUpperCase() }))}
@@ -461,10 +466,11 @@ const ExchangeRateList = () => {
                 </div>
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                <label htmlFor="form-rate" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                   Rate *
                 </label>
                 <input
+                  id="form-rate"
                   type="number"
                   step="0.0001"
                   value={formData.rate}
@@ -475,10 +481,11 @@ const ExchangeRateList = () => {
                 {formErrors.rate && <p className="text-red-500 text-xs mt-1">{formErrors.rate}</p>}
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                <label htmlFor="form-effective-date" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                   Effective Date *
                 </label>
                 <input
+                  id="form-effective-date"
                   type="date"
                   value={formData.effective_date}
                   onChange={(e) => setFormData((p) => ({ ...p, effective_date: e.target.value }))}

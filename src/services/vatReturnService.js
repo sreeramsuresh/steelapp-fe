@@ -138,7 +138,7 @@ const vatReturnService = {
   async getPeriods() {
     try {
       const response = await apiClient.get("/vat-return/periods");
-      return response.data || response || [];
+      return response || [];
     } catch (error) {
       console.error("[VATReturnService] getPeriods failed:", error);
       throw error;
@@ -177,7 +177,7 @@ const vatReturnService = {
       const response = await apiClient.get("/vat-return/generate", {
         params: { startDate, endDate },
       });
-      return response.data || response;
+      return response;
     } catch (error) {
       console.error("[VATReturnService] generateReport failed:", error);
       throw error;
@@ -196,7 +196,7 @@ const vatReturnService = {
         startDate,
         endDate,
       });
-      return transformVatReturnFromServer(response.data || response);
+      return transformVatReturnFromServer(response);
     } catch (error) {
       console.error("[VATReturnService] saveReport failed:", error);
       throw error;
@@ -210,7 +210,7 @@ const vatReturnService = {
   async getEmirates() {
     try {
       const response = await apiClient.get("/vat-return/emirates");
-      return response.data || response || [];
+      return response || [];
     } catch (error) {
       console.error("[VATReturnService] getEmirates failed:", error);
       throw error;
@@ -355,7 +355,7 @@ const vatReturnService = {
   async getAuditTrail(id) {
     try {
       const response = await apiClient.get(`/vat-returns/${id}/audit-trail`);
-      return response.data || response || [];
+      return response || [];
     } catch (error) {
       console.error("[VATReturnService] getAuditTrail failed:", error);
       throw error;
@@ -401,7 +401,7 @@ const vatReturnService = {
   async getBlockedVATCategories() {
     try {
       const response = await apiClient.get("/vat-return/blocked-vat/categories");
-      return response.data || response || [];
+      return response || [];
     } catch (error) {
       console.error("[VATReturnService] getBlockedVATCategories failed:", error);
       throw error;

@@ -478,7 +478,7 @@ const vatAdjustmentService = {
   async getAuditTrail(id) {
     try {
       const response = await apiClient.get(`/vat-adjustments/${id}/audit-trail`);
-      return response.data || response || [];
+      return response || [];
     } catch (error) {
       console.error("[VATAdjustmentService] getAuditTrail failed:", error);
       throw error;

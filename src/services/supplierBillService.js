@@ -593,7 +593,7 @@ const supplierBillService = {
   async getBlockedVATItems(id) {
     try {
       const response = await apiClient.get(`/supplier-bills/${id}/blocked-vat`);
-      return response.data || response || [];
+      return response || [];
     } catch (error) {
       console.error("[SupplierBillService] getBlockedVATItems failed:", error);
       throw error;
