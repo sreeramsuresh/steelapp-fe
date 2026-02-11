@@ -42,6 +42,7 @@ import { quotationService } from "../services/quotationService";
 import { FINISHES, STEEL_GRADES } from "../types";
 import { getProductDisplayName } from "../utils/fieldAccessors";
 import { calculateItemAmount, formatCurrency } from "../utils/invoiceUtils";
+import { getAllowedBases, getDefaultBasis, getBasisLabel } from "../utils/pricingBasisRules";
 
 // Design system helpers (matching PO form standard)
 const CARD_CLASSES = (isDarkMode) =>
@@ -960,8 +961,9 @@ const QuotationForm = () => {
       quantityUom = isCoil ? "MT" : "PCS";
     }
 
-    // Get pricing basis and unit weight from product
-    const pricingBasis = product.pricingBasis || product.pricing_basis || "PER_MT";
+    // Get pricing basis and unit weight from product (category-aware default)
+    const productCategory = product.category || product.product_category || "";
+    const pricingBasis = product.pricingBasis || product.pricing_basis || getDefaultBasis(productCategory);
     const unitWeightKg = product.unitWeightKg || product.unit_weight_kg || null;
     const quantity = 1;
 
@@ -1003,6 +1005,7 @@ const QuotationForm = () => {
       netAmount: grossAmount + (grossAmount * 5) / 100,
       // Pricing & Commercial Fields
       pricingBasis,
+      productCategory: productCategory.toUpperCase(),
       unitWeightKg,
       quantityUom,
       theoreticalWeightKg,
@@ -1049,8 +1052,9 @@ const QuotationForm = () => {
           vatRate: 5,
           amount: 0,
           netAmount: 0,
-          // Pricing & Commercial Fields
+          // Pricing & Commercial Fields (category-aware default)
           pricingBasis: "PER_MT",
+          productCategory: "",
           unitWeightKg: null,
           quantityUom: "PCS",
           theoreticalWeightKg: null,
@@ -1172,8 +1176,9 @@ const QuotationForm = () => {
           quantityUom = isCoil ? "MT" : "PCS";
         }
 
-        // Get pricing basis and unit weight from product
-        const pricingBasis = product.pricingBasis || product.pricing_basis || "PER_MT";
+        // Get pricing basis and unit weight from product (category-aware default)
+        const productCategory = product.category || product.product_category || "";
+        const pricingBasis = product.pricingBasis || product.pricing_basis || getDefaultBasis(productCategory);
         const unitWeightKg = product.unitWeightKg || product.unit_weight_kg || null;
 
         // Flag if weight is missing for weight-based pricing
@@ -1198,6 +1203,7 @@ const QuotationForm = () => {
           rate: sellingPrice,
           // Pricing & Commercial Fields
           pricingBasis,
+          productCategory: productCategory.toUpperCase(),
           unitWeightKg,
           quantityUom,
           missingWeightWarning,
@@ -2586,9 +2592,11 @@ const QuotationForm = () => {
                                       : "bg-gray-50 text-gray-600 border-gray-300"
                                 }`}
                               >
-                                <option value="PER_MT">/MT</option>
-                                <option value="PER_KG">/kg</option>
-                                <option value="PER_PCS">/pc</option>
+                                {getAllowedBases(item.productCategory).map((b) => (
+                                  <option key={b} value={b}>
+                                    /{getBasisLabel(b).replace("per ", "")}
+                                  </option>
+                                ))}
                               </select>
                             </div>
                           </div>

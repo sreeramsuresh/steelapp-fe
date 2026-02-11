@@ -75,6 +75,7 @@ import { supplierService } from "../services/supplierService";
 import { FINISHES, PRODUCT_TYPES } from "../types";
 import { getProductDisplayName, getProductUniqueName } from "../utils/fieldAccessors";
 import { calculateItemAmount, calculateSubtotal, formatCurrency, generatePONumber } from "../utils/invoiceUtils";
+import { getAllowedBases, getDefaultBasis, getBasisLabel } from "../utils/pricingBasisRules";
 
 const { PAYMENT_MODES } = payablesService;
 
@@ -1085,8 +1086,9 @@ const PurchaseOrderForm = () => {
         quantityUom = isCoil ? "MT" : "PCS";
       }
 
-      // Get pricing basis and unit weight from product
-      const pricingBasis = product.pricingBasis || product.pricing_basis || "PER_MT";
+      // Get pricing basis and unit weight from product (category-aware default)
+      const productCategory = product.category || product.product_category || "";
+      const pricingBasis = product.pricingBasis || product.pricing_basis || getDefaultBasis(productCategory);
       const unitWeightKg = product.unitWeightKg || product.unit_weight_kg || null;
 
       // Flag if weight is missing for weight-based pricing
@@ -1127,6 +1129,7 @@ const PurchaseOrderForm = () => {
         amount,
         // Pricing & Commercial Fields
         pricingBasis,
+        productCategory: productCategory.toUpperCase(),
         unitWeightKg,
         quantityUom,
         theoreticalWeightKg,
@@ -2231,9 +2234,11 @@ const PurchaseOrderForm = () => {
                                       : "bg-gray-50 text-gray-600 border-gray-300"
                               }`}
                             >
-                              <option value="PER_MT">/MT</option>
-                              <option value="PER_KG">/kg</option>
-                              <option value="PER_PCS">/pc</option>
+                              {getAllowedBases(item.productCategory).map((b) => (
+                                <option key={b} value={b}>
+                                  /{getBasisLabel(b).replace("per ", "")}
+                                </option>
+                              ))}
                             </select>
                           </div>
                           {/* PCS-Centric: Show derived cost/piece for MT/KG pricing */}

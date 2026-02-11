@@ -61,6 +61,7 @@ import {
   titleCase,
 } from "../utils/invoiceUtils";
 import { PAYMENT_MODES } from "../utils/paymentUtils";
+import { getAllowedBases, getDefaultBasis, getBasisLabel } from "../utils/pricingBasisRules";
 
 // ==================== ROUTE HELPERS ====================
 
@@ -2696,8 +2697,9 @@ const InvoiceForm = ({ onSave }) => {
             quantityUom = isCoil ? "MT" : "PCS";
           }
 
-          // Get pricing basis and unit weight from product
-          const pricingBasis = product.pricingBasis || product.pricing_basis || "PER_MT";
+          // Get pricing basis and unit weight from product (category-aware default)
+          const productCategory = product.category || product.product_category || "";
+          const pricingBasis = product.pricingBasis || product.pricing_basis || getDefaultBasis(productCategory);
           const unitWeightKg = product.unitWeightKg || product.unit_weight_kg || null;
           const quantity = newItems[index].quantity || 1;
 
@@ -3130,7 +3132,7 @@ const InvoiceForm = ({ onSave }) => {
         quantity: parseFloat(lineItemData.quantity),
         quantityUom: lineItemData.unit || "KG",
         rate: parseFloat(lineItemData.rate),
-        pricingBasis: lineItemData.pricingBasis || lineItemData.basePricingBasis || "PER_MT", // Use base pricing basis from drawer
+        pricingBasis: lineItemData.pricingBasis || lineItemData.basePricingBasis || getDefaultBasis(lineItemData.product?.category), // Use base pricing basis from drawer
         baseRate: lineItemData.baseRate, // CRITICAL: Persist immutable base price
         basePricingBasis: lineItemData.basePricingBasis, // CRITICAL: Persist immutable base basis
         amount: parseFloat(lineItemData.amount),
@@ -5374,9 +5376,11 @@ const InvoiceForm = ({ onSave }) => {
                                               : "border-l border-gray-200 bg-gray-50 text-gray-600"
                                       }`}
                                     >
-                                      <option value="PER_MT">/MT</option>
-                                      <option value="PER_KG">/kg</option>
-                                      <option value="PER_PCS">/pc</option>
+                                      {getAllowedBases(item.category).map((b) => (
+                                        <option key={b} value={b}>
+                                          /{getBasisLabel(b).replace("per ", "")}
+                                        </option>
+                                      ))}
                                     </select>
                                   </div>
                                 </td>

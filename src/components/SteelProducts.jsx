@@ -34,6 +34,7 @@ import pricelistService from "../services/pricelistService";
 import { FINISHES } from "../types";
 import { getProductDisplayName, getProductUniqueName } from "../utils/fieldAccessors";
 import { clearInventoryCache } from "../utils/inventorySyncUtils";
+import { getAllowedBases, getDefaultBasis, PRICING_BASIS_MICROCOPY } from "../utils/pricingBasisRules";
 import ConfirmDialog from "./ConfirmDialog";
 import ProductUpload from "./ProductUpload";
 import QuickPriceEditModal from "./pricing/QuickPriceEditModal";
@@ -3449,14 +3450,23 @@ const SteelProducts = () => {
                                 pricingBasis: e.target.value,
                               })
                             }
-                            options={[
-                              { value: "PER_MT", label: "Per MT (Metric Ton)" },
-                              { value: "PER_KG", label: "Per KG" },
-                              { value: "PER_PCS", label: "Per Piece" },
-                              { value: "PER_METER", label: "Per Meter" },
-                              { value: "PER_LOT", label: "Per Lot" },
-                            ]}
+                            options={(() => {
+                              const allOpts = [
+                                { value: "PER_MT", label: "Per MT (Metric Ton)" },
+                                { value: "PER_KG", label: "Per KG" },
+                                { value: "PER_PCS", label: "Per Piece" },
+                                { value: "PER_METER", label: "Per Meter" },
+                                { value: "PER_LOT", label: "Per Lot" },
+                              ];
+                              const allowed = getAllowedBases(newProduct.productCategory);
+                              return allOpts.filter((o) => allowed.includes(o.value));
+                            })()}
                           />
+                          {newProduct.productCategory === "SHEET" && (
+                            <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                              {PRICING_BASIS_MICROCOPY.SHEET}
+                            </p>
+                          )}
                         </div>
                         {/* Live Margin Preview */}
                         {newProduct.costPrice && newProduct.sellingPrice && sellNum > 0 && (
@@ -3705,12 +3715,14 @@ const SteelProducts = () => {
                         { value: "FLAT", label: "FLAT" },
                       ]}
                       value={newProduct.productCategory || ""}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const cat = e.target.value;
                         setNewProduct({
                           ...newProduct,
-                          productCategory: e.target.value,
-                        })
-                      }
+                          productCategory: cat,
+                          pricingBasis: getDefaultBasis(cat),
+                        });
+                      }}
                       placeholder="Select category..."
                     />
                   </div>

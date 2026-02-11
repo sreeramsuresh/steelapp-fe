@@ -42,6 +42,7 @@ import { productService } from "../../services/productService";
 import supplierBillService from "../../services/supplierBillService";
 import { supplierService } from "../../services/supplierService";
 import { calculateItemAmount, formatCurrency, formatDateForInput } from "../../utils/invoiceUtils";
+import { getAllowedBases, getBasisLabel } from "../../utils/pricingBasisRules";
 
 // UAE Emirates for place of supply
 const EMIRATES = [
@@ -1856,9 +1857,11 @@ const SupplierBillForm = () => {
                                         : "bg-gray-50 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700"
                                   }`}
                                 >
-                                  <option value="PER_MT">/MT</option>
-                                  <option value="PER_KG">/kg</option>
-                                  <option value="PER_PCS">/pc</option>
+                                  {getAllowedBases(item.productCategory).map((b) => (
+                                    <option key={b} value={b}>
+                                      /{getBasisLabel(b).replace("per ", "")}
+                                    </option>
+                                  ))}
                                 </select>
                               </div>
                             </td>
