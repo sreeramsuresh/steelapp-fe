@@ -1,11 +1,8 @@
 import {
   AlertTriangle,
   ArrowLeft,
-  ClipboardCheck,
-  CreditCard,
   DollarSign,
   Eye,
-  FileText,
   Loader2,
   Pin,
   Plus,
@@ -428,13 +425,10 @@ const PurchaseOrderForm = () => {
   const [_expandedItems, _setExpandedItems] = useState({});
   const [showPreview, setShowPreview] = useState(false);
 
-  // Drawer states for refactored UX
-  const [chargesDrawerOpen, setChargesDrawerOpen] = useState(false);
-  const [deliveryDrawerOpen, setDeliveryDrawerOpen] = useState(false);
-  const [notesDrawerOpen, setNotesDrawerOpen] = useState(false);
-  const [approvalDrawerOpen, setApprovalDrawerOpen] = useState(false);
-  const [buyerDrawerOpen, setBuyerDrawerOpen] = useState(false);
-  const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
+  // Drawer states (consolidated: 6 → 3)
+  const [commercialDrawerOpen, setCommercialDrawerOpen] = useState(false); // Charges + Payments
+  const [logisticsDrawerOpen, setLogisticsDrawerOpen] = useState(false); // Delivery + Notes
+  const [peopleDrawerOpen, setPeopleDrawerOpen] = useState(false); // Buyer/Supplier + Approval
 
   // Receive to Warehouse modal state (dropship customer rejection)
   const [receiveToWarehouseOpen, setReceiveToWarehouseOpen] = useState(false);
@@ -1896,7 +1890,7 @@ const PurchaseOrderForm = () => {
                     {selectedSupplierId && (
                       <button
                         type="button"
-                        onClick={() => setBuyerDrawerOpen(true)}
+                        onClick={() => setPeopleDrawerOpen(true)}
                         className={BTN_SMALL(isDarkMode)}
                         title="Edit Supplier Details"
                       >
@@ -2034,69 +2028,39 @@ const PurchaseOrderForm = () => {
                     <tr>
                       <th
                         className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "18%" }}
+                        style={{ width: "28%" }}
                       >
                         Product
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "5%" }}
+                        className={`px-2 py-2 text-right text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                        style={{ width: "10%" }}
                       >
                         Qty
                       </th>
                       <th
                         className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "5%" }}
-                      >
-                        Unit Wt
-                      </th>
-                      <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "5%" }}
-                      >
-                        Exp. Wt
-                      </th>
-                      <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "8%" }}
+                        style={{ width: "16%" }}
                       >
                         Rate
                       </th>
                       <th
                         className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "8%" }}
+                        style={{ width: "12%" }}
                       >
                         Channel
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                        className={`px-2 py-2 text-right text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                         style={{ width: "8%" }}
-                      >
-                        Supply Type
-                      </th>
-                      <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "5%" }}
                       >
                         VAT %
                       </th>
                       <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "8%" }}
+                        className={`px-2 py-2 text-right text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                        style={{ width: "12%" }}
                       >
                         Amount
-                      </th>
-                      <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "7%" }}
-                      >
-                        Stock
-                      </th>
-                      <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "8%" }}
-                      >
-                        GRN
                       </th>
                       <th
                         className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
@@ -2112,6 +2076,7 @@ const PurchaseOrderForm = () => {
                         data-testid={`item-row-${index}`}
                         className={isDarkMode ? "bg-gray-800" : "bg-white"}
                       >
+                        {/* PRODUCT — wider, includes weight info + stock/GRN badges for edit mode */}
                         <td className="px-2 py-2 align-middle">
                           <Autocomplete
                             options={
@@ -2150,7 +2115,39 @@ const PurchaseOrderForm = () => {
                             )}
                             noOptionsText="No products found"
                           />
+                          {/* Sub-text: weight info + stock/GRN badges */}
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            {item.unitWeightKg > 0 && (
+                              <span className={`text-[10px] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                                Wt: {item.unitWeightKg}kg/pc
+                                {item.theoreticalWeightKg > 0 && ` · ${item.theoreticalWeightKg.toFixed(1)}kg total`}
+                              </span>
+                            )}
+                            {item.missingWeightWarning && (
+                              <span className="text-[10px] text-red-500 font-medium" title="Unit weight required for weight-based pricing">
+                                Missing weight
+                              </span>
+                            )}
+                            {id && item.lineStockStatus && item.lineStockStatus !== "PENDING" && (
+                              <span
+                                className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                                  item.lineStockStatus === "RECEIVED"
+                                    ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                                    : "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
+                                }`}
+                              >
+                                {item.lineStockStatus}
+                              </span>
+                            )}
+                            {id && item.grnNumber && (
+                              <span className="text-[10px] font-medium text-teal-500" title={`GRN: ${item.grnNumber}${item.receivedQty ? ` | Rcvd: ${item.receivedQty}` : ""}`}>
+                                GRN: {item.grnNumber}
+                              </span>
+                            )}
+                          </div>
                         </td>
+
+                        {/* QTY */}
                         <td className="px-2 py-2 align-middle">
                           <input
                             type="number"
@@ -2168,44 +2165,14 @@ const PurchaseOrderForm = () => {
                             step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
                             className={`w-full px-2 py-1.5 text-xs border rounded-md text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} ${invalidFields.has(`item.${index}.quantity`) ? "border-red-500" : ""}`}
                           />
+                          {item.quantityUom && (
+                            <div className={`text-[10px] text-right mt-0.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                              {item.quantityUom}
+                            </div>
+                          )}
                         </td>
-                        <td className="px-2 py-2 align-middle">
-                          <input
-                            type="number"
-                            value={item.unitWeightKg || ""}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                "unitWeightKg",
-                                e.target.value === "" ? null : parseFloat(e.target.value)
-                              )
-                            }
-                            min="0"
-                            step="0.01"
-                            placeholder="0.00"
-                            className={`w-full px-2 py-1.5 text-xs border rounded-md text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} ${item.missingWeightWarning ? "border-red-500" : ""}`}
-                          />
-                        </td>
-                        <td className="px-2 py-2 align-middle">
-                          <input
-                            type="number"
-                            value={item.expectedWeightKg || ""}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                "expectedWeightKg",
-                                e.target.value === "" ? null : parseFloat(e.target.value)
-                              )
-                            }
-                            min="0"
-                            step="0.01"
-                            placeholder={(() => {
-                              const calcWt = item.theoreticalWeightKg || item.quantity * (item.unitWeightKg || 0);
-                              return calcWt ? calcWt.toFixed(2) : "0.00";
-                            })()}
-                            className={`w-full px-2 py-1.5 text-xs border rounded-md text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-white placeholder-gray-500" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"}`}
-                          />
-                        </td>
+
+                        {/* RATE + PRICING BASIS */}
                         <td className="px-1 py-2 align-middle">
                           <div
                             className={`flex rounded-md overflow-hidden border ${isDarkMode ? "border-gray-700" : "border-gray-300"}`}
@@ -2241,7 +2208,6 @@ const PurchaseOrderForm = () => {
                               ))}
                             </select>
                           </div>
-                          {/* PCS-Centric: Show derived cost/piece for MT/KG pricing */}
                           {item.rate > 0 && item.unitWeightKg > 0 && item.pricingBasis !== "PER_PCS" && (
                             <div className={`text-[10px] mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                               {item.pricingBasis === "PER_MT"
@@ -2250,6 +2216,8 @@ const PurchaseOrderForm = () => {
                             </div>
                           )}
                         </td>
+
+                        {/* CHANNEL */}
                         <td className="px-2 py-2 align-middle">
                           <div className="space-y-1">
                             <select
@@ -2284,17 +2252,8 @@ const PurchaseOrderForm = () => {
                             )}
                           </div>
                         </td>
-                        <td className="px-2 py-2 align-middle">
-                          <select
-                            value={item.supplyType || "standard"}
-                            onChange={(e) => handleItemChange(index, "supplyType", e.target.value)}
-                            className={`w-full px-2 py-1 border rounded-md text-xs ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
-                          >
-                            <option value="standard">Standard (5%)</option>
-                            <option value="zero_rated">Zero-Rated (0%)</option>
-                            <option value="exempt">Exempt</option>
-                          </select>
-                        </td>
+
+                        {/* VAT % — includes supply type as sub-select */}
                         <td className="px-2 py-2 align-middle">
                           <input
                             type="number"
@@ -2312,45 +2271,27 @@ const PurchaseOrderForm = () => {
                             placeholder="5.00"
                             className={`w-full px-2 py-1.5 text-xs border rounded-md text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                           />
+                          <select
+                            value={item.supplyType || "standard"}
+                            onChange={(e) => handleItemChange(index, "supplyType", e.target.value)}
+                            className={`w-full mt-1 px-1 py-0.5 border rounded text-[10px] ${isDarkMode ? "bg-gray-900 border-gray-700 text-gray-400" : "bg-gray-50 border-gray-200 text-gray-500"}`}
+                          >
+                            <option value="standard">Std</option>
+                            <option value="zero_rated">Zero</option>
+                            <option value="exempt">Exempt</option>
+                          </select>
                         </td>
+
+                        {/* AMOUNT */}
                         <td className="px-2 py-2 align-middle">
                           <div
-                            className={`font-mono text-xs text-right ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                            className={`font-mono text-xs text-right font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                           >
                             {formatCurrency(item.amount)}
                           </div>
                         </td>
-                        <td className="px-2 py-2 align-middle">
-                          <select
-                            value={item.lineStockStatus || "PENDING"}
-                            onChange={(e) => handleItemChange(index, "lineStockStatus", e.target.value)}
-                            className={`w-full px-1 py-1 border rounded-md text-xs ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} ${
-                              item.lineStockStatus === "RECEIVED"
-                                ? "bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-300 dark:border-green-700"
-                                : item.lineStockStatus === "PARTIAL"
-                                  ? "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900 dark:text-amber-300 dark:border-amber-700"
-                                  : ""
-                            }`}
-                          >
-                            <option value="PENDING">Pending</option>
-                            <option value="PARTIAL">Partial</option>
-                            <option value="RECEIVED">Received</option>
-                          </select>
-                        </td>
-                        <td className="px-2 py-2 align-middle">
-                          {item.grnNumber ? (
-                            <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
-                              <span className="font-medium text-teal-500">{item.grnNumber}</span>
-                              {item.receivedQty && (
-                                <div className="text-[10px]">
-                                  Rcvd: {item.receivedQty} {item.receivedWeightKg ? `(${item.receivedWeightKg}kg)` : ""}
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <span className={`text-xs ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}>-</span>
-                          )}
-                        </td>
+
+                        {/* DELETE */}
                         <td className="px-2 py-2 align-middle text-center">
                           <button
                             type="button"
@@ -2526,57 +2467,33 @@ const PurchaseOrderForm = () => {
                 </div>
               </div>
 
-              {/* Quick Actions */}
+              {/* Quick Actions (3 consolidated drawers) */}
               <div className={CARD_CLASSES(isDarkMode)}>
                 <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Quick Actions</div>
                 <div className="space-y-1.5">
                   <button
                     type="button"
-                    onClick={() => setChargesDrawerOpen(true)}
+                    onClick={() => setCommercialDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <DollarSign size={16} className="opacity-60" />
-                    Edit Charges & Discount
+                    Charges, Discount & Payments
                   </button>
                   <button
                     type="button"
-                    onClick={() => setDeliveryDrawerOpen(true)}
+                    onClick={() => setLogisticsDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <Truck size={16} className="opacity-60" />
-                    Edit Delivery Terms
+                    Delivery, Notes & Terms
                   </button>
                   <button
                     type="button"
-                    onClick={() => setNotesDrawerOpen(true)}
-                    className={QUICK_LINK_CLASSES(isDarkMode)}
-                  >
-                    <FileText size={16} className="opacity-60" />
-                    Add Notes & Terms
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBuyerDrawerOpen(true)}
+                    onClick={() => setPeopleDrawerOpen(true)}
                     className={QUICK_LINK_CLASSES(isDarkMode)}
                   >
                     <User size={16} className="opacity-60" />
-                    Edit Buyer Info
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentDrawerOpen(true)}
-                    className={QUICK_LINK_CLASSES(isDarkMode)}
-                  >
-                    <CreditCard size={16} className="opacity-60" />
-                    View Payments
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setApprovalDrawerOpen(true)}
-                    className={QUICK_LINK_CLASSES(isDarkMode)}
-                  >
-                    <ClipboardCheck size={16} className="opacity-60" />
-                    Approval Workflow
+                    People & Approval
                   </button>
                   {canReceiveToWarehouse && (
                     <button
@@ -2595,98 +2512,59 @@ const PurchaseOrderForm = () => {
         </div>
       </main>
 
-      {/* ==================== DRAWERS ==================== */}
+      {/* ==================== DRAWERS (3 consolidated) ==================== */}
 
-      {/* Charges & Discount Drawer */}
-
+      {/* DRAWER 1: Commercial — Charges, Discount & Payments */}
       <button
         type="button"
-        className={`${DRAWER_OVERLAY} ${chargesDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
-        onClick={() => setChargesDrawerOpen(false)}
-        aria-label="Close charges drawer"
+        className={`${DRAWER_OVERLAY} ${commercialDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
+        onClick={() => setCommercialDrawerOpen(false)}
+        aria-label="Close commercial drawer"
       />
-      <div className={`${DRAWER_PANEL(isDarkMode)} ${chargesDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
+      <div className={`${DRAWER_PANEL(isDarkMode)} ${commercialDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="p-4">
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
-              <div className="text-sm font-extrabold">Charges & Discount</div>
+              <div className="text-sm font-extrabold">Charges, Discount & Payments</div>
               <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                Add freight, shipping, handling, or discounts
+                Freight, discounts, payment terms & history
               </div>
             </div>
-            <button type="button" onClick={() => setChargesDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
+            <button type="button" onClick={() => setCommercialDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
               <X size={16} />
             </button>
           </div>
           <div className="mt-4 space-y-4">
             {/* Additional Charges */}
+            <div className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+              Additional Charges
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label htmlFor="freight-charges" className={LABEL_CLASSES(isDarkMode)}>
-                  Freight Charges
-                </label>
-                <input
-                  id="freight-charges"
-                  type="number"
-                  step="0.01"
-                  value={purchaseOrder.freightCharges}
-                  onChange={(e) => handleInputChange("freightCharges", e.target.value)}
-                  placeholder="0.00"
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
+                <label htmlFor="freight-charges" className={LABEL_CLASSES(isDarkMode)}>Freight Charges</label>
+                <input id="freight-charges" type="number" step="0.01" value={purchaseOrder.freightCharges} onChange={(e) => handleInputChange("freightCharges", e.target.value)} placeholder="0.00" className={INPUT_CLASSES(isDarkMode)} />
               </div>
               <div>
-                <label htmlFor="shipping-charges" className={LABEL_CLASSES(isDarkMode)}>
-                  Shipping Charges
-                </label>
-                <input
-                  id="shipping-charges"
-                  type="number"
-                  step="0.01"
-                  value={purchaseOrder.shippingCharges}
-                  onChange={(e) => handleInputChange("shippingCharges", e.target.value)}
-                  placeholder="0.00"
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
+                <label htmlFor="shipping-charges" className={LABEL_CLASSES(isDarkMode)}>Shipping Charges</label>
+                <input id="shipping-charges" type="number" step="0.01" value={purchaseOrder.shippingCharges} onChange={(e) => handleInputChange("shippingCharges", e.target.value)} placeholder="0.00" className={INPUT_CLASSES(isDarkMode)} />
               </div>
               <div>
-                <label htmlFor="handling-charges" className={LABEL_CLASSES(isDarkMode)}>
-                  Handling Charges
-                </label>
-                <input
-                  id="handling-charges"
-                  type="number"
-                  step="0.01"
-                  value={purchaseOrder.handlingCharges}
-                  onChange={(e) => handleInputChange("handlingCharges", e.target.value)}
-                  placeholder="0.00"
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
+                <label htmlFor="handling-charges" className={LABEL_CLASSES(isDarkMode)}>Handling Charges</label>
+                <input id="handling-charges" type="number" step="0.01" value={purchaseOrder.handlingCharges} onChange={(e) => handleInputChange("handlingCharges", e.target.value)} placeholder="0.00" className={INPUT_CLASSES(isDarkMode)} />
               </div>
               <div>
-                <label htmlFor="other-charges" className={LABEL_CLASSES(isDarkMode)}>
-                  Other Charges
-                </label>
-                <input
-                  id="other-charges"
-                  type="number"
-                  step="0.01"
-                  value={purchaseOrder.otherCharges}
-                  onChange={(e) => handleInputChange("otherCharges", e.target.value)}
-                  placeholder="0.00"
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
+                <label htmlFor="other-charges" className={LABEL_CLASSES(isDarkMode)}>Other Charges</label>
+                <input id="other-charges" type="number" step="0.01" value={purchaseOrder.otherCharges} onChange={(e) => handleInputChange("otherCharges", e.target.value)} placeholder="0.00" className={INPUT_CLASSES(isDarkMode)} />
               </div>
             </div>
             <div className={DIVIDER_CLASSES(isDarkMode)} />
             {/* Discount */}
+            <div className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+              Order Discount
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <FormSelect
-                  label="Discount Type"
-                  value={purchaseOrder.discountType}
-                  onValueChange={(value) => handleInputChange("discountType", value)}
-                >
+                <FormSelect label="Discount Type" value={purchaseOrder.discountType} onValueChange={(value) => handleInputChange("discountType", value)}>
                   <SelectItem value="amount">Amount</SelectItem>
                   <SelectItem value="percentage">Percentage</SelectItem>
                 </FormSelect>
@@ -2695,374 +2573,17 @@ const PurchaseOrderForm = () => {
                 <label htmlFor="discount-amount-input" className={LABEL_CLASSES(isDarkMode)}>
                   {purchaseOrder.discountType === "percentage" ? "Discount %" : "Discount Amount"}
                 </label>
-                <input
-                  id="discount-amount-input"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  max={purchaseOrder.discountType === "percentage" ? 100 : undefined}
-                  value={
-                    purchaseOrder.discountType === "percentage"
-                      ? purchaseOrder.discountPercentage
-                      : purchaseOrder.discountAmount
-                  }
-                  onChange={(e) =>
-                    handleInputChange(
-                      purchaseOrder.discountType === "percentage" ? "discountPercentage" : "discountAmount",
-                      e.target.value
-                    )
-                  }
-                  placeholder="0.00"
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
+                <input id="discount-amount-input" type="number" step="0.01" min="0" max={purchaseOrder.discountType === "percentage" ? 100 : undefined} value={purchaseOrder.discountType === "percentage" ? purchaseOrder.discountPercentage : purchaseOrder.discountAmount} onChange={(e) => handleInputChange(purchaseOrder.discountType === "percentage" ? "discountPercentage" : "discountAmount", e.target.value)} placeholder="0.00" className={INPUT_CLASSES(isDarkMode)} />
               </div>
-            </div>
-          </div>
-          <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
-            <div className="flex justify-end">
-              <button type="button" onClick={() => setChargesDrawerOpen(false)} className={BTN_PRIMARY}>
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Delivery Terms Drawer */}
-
-      <button
-        type="button"
-        className={`${DRAWER_OVERLAY} ${deliveryDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
-        onClick={() => setDeliveryDrawerOpen(false)}
-        aria-label="Close delivery drawer"
-      />
-      <div className={`${DRAWER_PANEL(isDarkMode)} ${deliveryDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
-        <div className="p-4">
-          <div className={DRAWER_HEADER(isDarkMode)}>
-            <div>
-              <div className="text-sm font-extrabold">Delivery Terms</div>
-              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                Shipping, warehouse, and delivery settings
-              </div>
-            </div>
-            <button type="button" onClick={() => setDeliveryDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
-              <X size={16} />
-            </button>
-          </div>
-          <div className="mt-4 space-y-4">
-            <div>
-              <FormSelect
-                label="Incoterms"
-                value={purchaseOrder.incoterms || "none"}
-                onValueChange={(value) => handleInputChange("incoterms", value === "none" ? "" : value)}
-              >
-                <SelectItem value="none">Select Incoterm</SelectItem>
-                <SelectItem value="FOB">FOB - Free on Board</SelectItem>
-                <SelectItem value="CIF">CIF - Cost, Insurance & Freight</SelectItem>
-                <SelectItem value="EXW">EXW - Ex Works</SelectItem>
-                <SelectItem value="DDP">DDP - Delivered Duty Paid</SelectItem>
-                <SelectItem value="DAP">DAP - Delivered at Place</SelectItem>
-                <SelectItem value="FCA">FCA - Free Carrier</SelectItem>
-                <SelectItem value="CPT">CPT - Carriage Paid To</SelectItem>
-                <SelectItem value="CIP">CIP - Carriage and Insurance Paid To</SelectItem>
-              </FormSelect>
-            </div>
-            <div>
-              <FormSelect
-                label="Destination Warehouse"
-                value={selectedWarehouse || "none"}
-                onValueChange={(value) => setSelectedWarehouse(value === "none" ? "" : value)}
-              >
-                <SelectItem value="none">Select Warehouse</SelectItem>
-                {warehouses.map((warehouse) => (
-                  <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
-                    {warehouse.name} - {warehouse.city}
-                  </SelectItem>
-                ))}
-              </FormSelect>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label htmlFor="expectedDeliveryDate" className={LABEL_CLASSES(isDarkMode)}>
-                  Expected Delivery
-                </label>
-                <input
-                  id="expectedDeliveryDate"
-                  type="date"
-                  value={purchaseOrder.expectedDeliveryDate}
-                  onChange={(e) => handleInputChange("expectedDeliveryDate", e.target.value)}
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
-              </div>
-              <div>
-                <label htmlFor="gracePeriodDays" className={LABEL_CLASSES(isDarkMode)}>
-                  Grace Period (Days)
-                </label>
-                <input
-                  id="gracePeriodDays"
-                  type="number"
-                  min="0"
-                  max="30"
-                  value={purchaseOrder.gracePeriodDays}
-                  onChange={(e) => handleInputChange("gracePeriodDays", parseInt(e.target.value, 10) || 5)}
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
-              </div>
-            </div>
-            <div>
-              <FormSelect
-                label="Stock Status"
-                value={purchaseOrder.stockStatus}
-                onValueChange={(value) => handleInputChange("stockStatus", value)}
-              >
-                <SelectItem value="retain">Retain (To be received)</SelectItem>
-                <SelectItem value="transit">In Transit</SelectItem>
-                {hasDropshipItems ? (
-                  <>
-                    <SelectItem value="received">Delivered to Customer (Dropship)</SelectItem>
-                    <SelectItem value="in_warehouse">Received to Warehouse (Rejection)</SelectItem>
-                  </>
-                ) : (
-                  <SelectItem value="received">Received (Add to Inventory)</SelectItem>
-                )}
-              </FormSelect>
-            </div>
-          </div>
-          <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
-            <div className="flex justify-end">
-              <button type="button" onClick={() => setDeliveryDrawerOpen(false)} className={BTN_PRIMARY}>
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Notes & Terms Drawer */}
-
-      <button
-        type="button"
-        className={`${DRAWER_OVERLAY} ${notesDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
-        onClick={() => setNotesDrawerOpen(false)}
-        aria-label="Close notes drawer"
-      />
-      <div className={`${DRAWER_PANEL(isDarkMode)} ${notesDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
-        <div className="p-4">
-          <div className={DRAWER_HEADER(isDarkMode)}>
-            <div>
-              <div className="text-sm font-extrabold">Notes & Terms</div>
-              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                Internal notes and payment terms
-              </div>
-            </div>
-            <button type="button" onClick={() => setNotesDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
-              <X size={16} />
-            </button>
-          </div>
-          <div className="mt-4 space-y-4">
-            <div>
-              <label htmlFor="purchaseOrderNotes" className={LABEL_CLASSES(isDarkMode)}>
-                Notes
-              </label>
-              <textarea
-                id="purchaseOrderNotes"
-                rows={4}
-                value={purchaseOrder.notes}
-                onChange={(e) => handleInputChange("notes", e.target.value)}
-                placeholder="Additional notes..."
-                className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`}
-              />
-            </div>
-            <div>
-              <label htmlFor="purchaseOrderTerms" className={LABEL_CLASSES(isDarkMode)}>
-                Terms & Conditions
-              </label>
-              <textarea
-                id="purchaseOrderTerms"
-                rows={4}
-                value={purchaseOrder.terms}
-                onChange={(e) => handleInputChange("terms", e.target.value)}
-                placeholder="Terms and conditions..."
-                className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`}
-              />
-            </div>
-          </div>
-          <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
-            <div className="flex justify-end">
-              <button type="button" onClick={() => setNotesDrawerOpen(false)} className={BTN_PRIMARY}>
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Buyer Info Drawer (also used for Supplier details) */}
-
-      <button
-        type="button"
-        className={`${DRAWER_OVERLAY} ${buyerDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
-        onClick={() => setBuyerDrawerOpen(false)}
-        aria-label="Close buyer drawer"
-      />
-      <div className={`${DRAWER_PANEL(isDarkMode)} ${buyerDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
-        <div className="p-4">
-          <div className={DRAWER_HEADER(isDarkMode)}>
-            <div>
-              <div className="text-sm font-extrabold">Buyer & Supplier Info</div>
-              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                Contact details for this order
-              </div>
-            </div>
-            <button type="button" onClick={() => setBuyerDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
-              <X size={16} />
-            </button>
-          </div>
-          <div className="mt-4 space-y-4">
-            {/* Supplier Section */}
-            <div
-              className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-            >
-              Supplier Details
-            </div>
-            <div>
-              <label htmlFor="supplierName" className={LABEL_CLASSES(isDarkMode)}>
-                Supplier Name
-              </label>
-              <input
-                id="supplierName"
-                type="text"
-                value={purchaseOrder.supplierName}
-                onChange={(e) => handleInputChange("supplierName", e.target.value)}
-                placeholder="Supplier company name"
-                className={INPUT_CLASSES(isDarkMode)}
-              />
-            </div>
-            <div>
-              <label htmlFor="supplierAddress" className={LABEL_CLASSES(isDarkMode)}>
-                Supplier Address
-              </label>
-              <textarea
-                id="supplierAddress"
-                rows={2}
-                value={purchaseOrder.supplierAddress}
-                onChange={(e) => handleInputChange("supplierAddress", e.target.value)}
-                placeholder="Full address"
-                className={INPUT_CLASSES(isDarkMode)}
-              />
-            </div>
-            <div>
-              <TRNInput
-                value={purchaseOrder.supplierTRN}
-                onChange={(value) => handleInputChange("supplierTRN", value)}
-                label="Supplier TRN"
-                required={true}
-              />
             </div>
             <div className={DIVIDER_CLASSES(isDarkMode)} />
-            {/* Buyer Section */}
-            <div
-              className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-            >
-              Buyer Details
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label htmlFor="buyerName" className={LABEL_CLASSES(isDarkMode)}>
-                  Buyer Name
-                </label>
-                <input
-                  id="buyerName"
-                  type="text"
-                  value={purchaseOrder.buyerName}
-                  onChange={(e) => handleInputChange("buyerName", e.target.value)}
-                  placeholder="Name of person placing order"
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
-              </div>
-              <div>
-                <label htmlFor="buyerDepartment" className={LABEL_CLASSES(isDarkMode)}>
-                  Department
-                </label>
-                <input
-                  id="buyerDepartment"
-                  type="text"
-                  value={purchaseOrder.buyerDepartment}
-                  onChange={(e) => handleInputChange("buyerDepartment", e.target.value)}
-                  placeholder="e.g., Procurement"
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label htmlFor="buyerEmail" className={LABEL_CLASSES(isDarkMode)}>
-                  Buyer Email
-                </label>
-                <input
-                  id="buyerEmail"
-                  type="email"
-                  value={purchaseOrder.buyerEmail}
-                  onChange={(e) => handleInputChange("buyerEmail", e.target.value)}
-                  placeholder="buyer@company.com"
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
-              </div>
-              <div>
-                <label htmlFor="buyerPhone" className={LABEL_CLASSES(isDarkMode)}>
-                  Buyer Phone
-                </label>
-                <input
-                  id="buyerPhone"
-                  type="tel"
-                  value={purchaseOrder.buyerPhone}
-                  onChange={(e) => handleInputChange("buyerPhone", e.target.value)}
-                  placeholder="+971 50 123 4567"
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
-            <div className="flex justify-end">
-              <button type="button" onClick={() => setBuyerDrawerOpen(false)} className={BTN_PRIMARY}>
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Payment Drawer */}
-
-      <button
-        type="button"
-        className={`${DRAWER_OVERLAY} ${paymentDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
-        onClick={() => setPaymentDrawerOpen(false)}
-        aria-label="Close payment drawer"
-      />
-      <div className={`${DRAWER_PANEL(isDarkMode)} ${paymentDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
-        <div className="p-4">
-          <div className={DRAWER_HEADER(isDarkMode)}>
-            <div>
-              <div className="text-sm font-extrabold">Payment Details</div>
-              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                Payment terms, history, and status
-              </div>
-            </div>
-            <button type="button" onClick={() => setPaymentDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
-              <X size={16} />
-            </button>
-          </div>
-          <div className="mt-4 space-y-4">
             {/* Payment Terms */}
+            <div className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+              Payment Terms
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <FormSelect
-                  label="Payment Terms"
-                  value={purchaseOrder.paymentTerms}
-                  onValueChange={(value) => handleInputChange("paymentTerms", value)}
-                >
+                <FormSelect label="Payment Terms" value={purchaseOrder.paymentTerms} onValueChange={(value) => handleInputChange("paymentTerms", value)}>
                   <SelectItem value="Net 7">Net 7 days</SelectItem>
                   <SelectItem value="Net 15">Net 15 days</SelectItem>
                   <SelectItem value="Net 30">Net 30 days</SelectItem>
@@ -3075,83 +2596,38 @@ const PurchaseOrderForm = () => {
                 </FormSelect>
               </div>
               <div>
-                <label htmlFor="dueDate" className={LABEL_CLASSES(isDarkMode)}>
-                  Due Date
-                </label>
-                <input
-                  id="dueDate"
-                  type="date"
-                  value={purchaseOrder.dueDate}
-                  onChange={(e) => handleInputChange("dueDate", e.target.value)}
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
+                <label htmlFor="dueDate" className={LABEL_CLASSES(isDarkMode)}>Due Date</label>
+                <input id="dueDate" type="date" value={purchaseOrder.dueDate} onChange={(e) => handleInputChange("dueDate", e.target.value)} className={INPUT_CLASSES(isDarkMode)} />
               </div>
             </div>
             {/* Payment Summary */}
             <div className="grid grid-cols-3 gap-2.5">
-              <div
-                className={`${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
-              >
+              <div className={`${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}>
                 <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Total</div>
                 <div className="text-sm font-extrabold mt-1 font-mono">{formatCurrency(purchaseOrder.total)}</div>
               </div>
-              <div
-                className={`${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
-              >
+              <div className={`${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}>
                 <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Paid</div>
                 <div className="text-sm font-extrabold mt-1 font-mono text-green-500">
-                  {formatCurrency(
-                    payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
-                  )}
+                  {formatCurrency(payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0))}
                 </div>
               </div>
-              <div
-                className={`${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}
-              >
+              <div className={`${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"} border rounded-[14px] p-2.5`}>
                 <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Outstanding</div>
                 <div className="text-sm font-extrabold mt-1 font-mono text-red-400">
-                  {formatCurrency(
-                    Math.max(
-                      0,
-                      purchaseOrder.total -
-                        payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
-                    )
-                  )}
+                  {formatCurrency(Math.max(0, purchaseOrder.total - payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)))}
                 </div>
               </div>
             </div>
-            {/* Add Payment Button */}
-            <button
-              type="button"
-              onClick={() => {
-                setPaymentDrawerOpen(false);
-                setShowPaymentForm(true);
-              }}
-              className={`w-full ${BTN_PRIMARY}`}
-            >
-              <Plus size={16} className="inline mr-1" />
-              Add Payment
+            <button type="button" onClick={() => { setCommercialDrawerOpen(false); setShowPaymentForm(true); }} className={`w-full ${BTN_PRIMARY}`}>
+              <Plus size={16} className="inline mr-1" /> Add Payment
             </button>
-            {/* Payment History */}
             {payments.length > 0 && (
               <>
-                <div
-                  className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                >
-                  Payment History
-                </div>
+                <div className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Payment History</div>
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {payments.map((payment) => (
-                    <div
-                      key={payment.id}
-                      className={`p-3 rounded-[14px] border flex justify-between items-center ${
-                        payment.voided
-                          ? `opacity-60 ${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-100 border-gray-300"}`
-                          : isDarkMode
-                            ? "bg-gray-900 border-gray-700"
-                            : "bg-gray-50 border-gray-200"
-                      }`}
-                    >
+                    <div key={payment.id} className={`p-3 rounded-[14px] border flex justify-between items-center ${payment.voided ? `opacity-60 ${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-100 border-gray-300"}` : isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"}`}>
                       <div>
                         <div className={`font-medium text-sm ${payment.voided ? "line-through" : ""}`}>
                           {formatCurrency(payment.amount)}
@@ -3163,13 +2639,7 @@ const PurchaseOrderForm = () => {
                         </div>
                       </div>
                       {!payment.voided && (
-                        <button
-                          type="button"
-                          onClick={() => handleVoidPayment(payment.id)}
-                          className="text-red-400 hover:text-red-300 text-xs"
-                        >
-                          Void
-                        </button>
+                        <button type="button" onClick={() => handleVoidPayment(payment.id)} className="text-red-400 hover:text-red-300 text-xs">Void</button>
                       )}
                     </div>
                   ))}
@@ -3179,93 +2649,187 @@ const PurchaseOrderForm = () => {
           </div>
           <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
             <div className="flex justify-end">
-              <button type="button" onClick={() => setPaymentDrawerOpen(false)} className={BTN_PRIMARY}>
-                Done
-              </button>
+              <button type="button" onClick={() => setCommercialDrawerOpen(false)} className={BTN_PRIMARY}>Done</button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Approval Workflow Drawer */}
-
+      {/* DRAWER 2: Logistics — Delivery, Notes & Terms */}
       <button
         type="button"
-        className={`${DRAWER_OVERLAY} ${approvalDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
-        onClick={() => setApprovalDrawerOpen(false)}
-        aria-label="Close approval drawer"
+        className={`${DRAWER_OVERLAY} ${logisticsDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
+        onClick={() => setLogisticsDrawerOpen(false)}
+        aria-label="Close logistics drawer"
       />
-      <div className={`${DRAWER_PANEL(isDarkMode)} ${approvalDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
+      <div className={`${DRAWER_PANEL(isDarkMode)} ${logisticsDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="p-4">
           <div className={DRAWER_HEADER(isDarkMode)}>
             <div>
-              <div className="text-sm font-extrabold">Approval Workflow</div>
+              <div className="text-sm font-extrabold">Delivery, Notes & Terms</div>
               <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                Manage approval status and comments
+                Shipping, delivery settings, notes and conditions
               </div>
             </div>
-            <button type="button" onClick={() => setApprovalDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
+            <button type="button" onClick={() => setLogisticsDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
               <X size={16} />
             </button>
           </div>
           <div className="mt-4 space-y-4">
+            <div className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+              Delivery Settings
+            </div>
+            <div>
+              <FormSelect label="Incoterms" value={purchaseOrder.incoterms || "none"} onValueChange={(value) => handleInputChange("incoterms", value === "none" ? "" : value)}>
+                <SelectItem value="none">Select Incoterm</SelectItem>
+                <SelectItem value="FOB">FOB - Free on Board</SelectItem>
+                <SelectItem value="CIF">CIF - Cost, Insurance & Freight</SelectItem>
+                <SelectItem value="EXW">EXW - Ex Works</SelectItem>
+                <SelectItem value="DDP">DDP - Delivered Duty Paid</SelectItem>
+                <SelectItem value="DAP">DAP - Delivered at Place</SelectItem>
+                <SelectItem value="FCA">FCA - Free Carrier</SelectItem>
+                <SelectItem value="CPT">CPT - Carriage Paid To</SelectItem>
+                <SelectItem value="CIP">CIP - Carriage and Insurance Paid To</SelectItem>
+              </FormSelect>
+            </div>
+            <div>
+              <FormSelect label="Destination Warehouse" value={selectedWarehouse || "none"} onValueChange={(value) => setSelectedWarehouse(value === "none" ? "" : value)}>
+                <SelectItem value="none">Select Warehouse</SelectItem>
+                {warehouses.map((warehouse) => (
+                  <SelectItem key={warehouse.id} value={warehouse.id.toString()}>{warehouse.name} - {warehouse.city}</SelectItem>
+                ))}
+              </FormSelect>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <FormSelect
-                  label="Approval Status"
-                  value={purchaseOrder.approvalStatus}
-                  onValueChange={(value) => handleInputChange("approvalStatus", value)}
-                >
+                <label htmlFor="expectedDeliveryDate" className={LABEL_CLASSES(isDarkMode)}>Expected Delivery</label>
+                <input id="expectedDeliveryDate" type="date" value={purchaseOrder.expectedDeliveryDate} onChange={(e) => handleInputChange("expectedDeliveryDate", e.target.value)} className={INPUT_CLASSES(isDarkMode)} />
+              </div>
+              <div>
+                <label htmlFor="gracePeriodDays" className={LABEL_CLASSES(isDarkMode)}>Grace Period (Days)</label>
+                <input id="gracePeriodDays" type="number" min="0" max="30" value={purchaseOrder.gracePeriodDays} onChange={(e) => handleInputChange("gracePeriodDays", parseInt(e.target.value, 10) || 5)} className={INPUT_CLASSES(isDarkMode)} />
+              </div>
+            </div>
+            <div>
+              <FormSelect label="Stock Status" value={purchaseOrder.stockStatus} onValueChange={(value) => handleInputChange("stockStatus", value)}>
+                <SelectItem value="retain">Retain (To be received)</SelectItem>
+                <SelectItem value="transit">In Transit</SelectItem>
+                {hasDropshipItems ? (
+                  <>
+                    <SelectItem value="received">Delivered to Customer (Dropship)</SelectItem>
+                    <SelectItem value="in_warehouse">Received to Warehouse (Rejection)</SelectItem>
+                  </>
+                ) : (
+                  <SelectItem value="received">Received (Add to Inventory)</SelectItem>
+                )}
+              </FormSelect>
+            </div>
+            <div className={DIVIDER_CLASSES(isDarkMode)} />
+            <div className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+              Notes & Terms
+            </div>
+            <div>
+              <label htmlFor="purchaseOrderNotes" className={LABEL_CLASSES(isDarkMode)}>Notes</label>
+              <textarea id="purchaseOrderNotes" rows={4} value={purchaseOrder.notes} onChange={(e) => handleInputChange("notes", e.target.value)} placeholder="Additional notes..." className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`} />
+            </div>
+            <div>
+              <label htmlFor="purchaseOrderTerms" className={LABEL_CLASSES(isDarkMode)}>Terms & Conditions</label>
+              <textarea id="purchaseOrderTerms" rows={4} value={purchaseOrder.terms} onChange={(e) => handleInputChange("terms", e.target.value)} placeholder="Terms and conditions..." className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`} />
+            </div>
+          </div>
+          <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
+            <div className="flex justify-end">
+              <button type="button" onClick={() => setLogisticsDrawerOpen(false)} className={BTN_PRIMARY}>Done</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* DRAWER 3: People & Approval — Supplier, Buyer, Approval Workflow */}
+      <button
+        type="button"
+        className={`${DRAWER_OVERLAY} ${peopleDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"} border-0`}
+        onClick={() => setPeopleDrawerOpen(false)}
+        aria-label="Close people drawer"
+      />
+      <div className={`${DRAWER_PANEL(isDarkMode)} ${peopleDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="p-4">
+          <div className={DRAWER_HEADER(isDarkMode)}>
+            <div>
+              <div className="text-sm font-extrabold">People & Approval</div>
+              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                Supplier, buyer details and approval workflow
+              </div>
+            </div>
+            <button type="button" onClick={() => setPeopleDrawerOpen(false)} className={BTN_SMALL(isDarkMode)}>
+              <X size={16} />
+            </button>
+          </div>
+          <div className="mt-4 space-y-4">
+            {/* Supplier Section */}
+            <div className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Supplier Details</div>
+            <div>
+              <label htmlFor="supplierName" className={LABEL_CLASSES(isDarkMode)}>Supplier Name</label>
+              <input id="supplierName" type="text" value={purchaseOrder.supplierName} onChange={(e) => handleInputChange("supplierName", e.target.value)} placeholder="Supplier company name" className={INPUT_CLASSES(isDarkMode)} />
+            </div>
+            <div>
+              <label htmlFor="supplierAddress" className={LABEL_CLASSES(isDarkMode)}>Supplier Address</label>
+              <textarea id="supplierAddress" rows={2} value={purchaseOrder.supplierAddress} onChange={(e) => handleInputChange("supplierAddress", e.target.value)} placeholder="Full address" className={INPUT_CLASSES(isDarkMode)} />
+            </div>
+            <div>
+              <TRNInput value={purchaseOrder.supplierTRN} onChange={(value) => handleInputChange("supplierTRN", value)} label="Supplier TRN" required={true} />
+            </div>
+            <div className={DIVIDER_CLASSES(isDarkMode)} />
+            {/* Buyer Section */}
+            <div className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Buyer Details</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="buyerName" className={LABEL_CLASSES(isDarkMode)}>Buyer Name</label>
+                <input id="buyerName" type="text" value={purchaseOrder.buyerName} onChange={(e) => handleInputChange("buyerName", e.target.value)} placeholder="Name of person placing order" className={INPUT_CLASSES(isDarkMode)} />
+              </div>
+              <div>
+                <label htmlFor="buyerDepartment" className={LABEL_CLASSES(isDarkMode)}>Department</label>
+                <input id="buyerDepartment" type="text" value={purchaseOrder.buyerDepartment} onChange={(e) => handleInputChange("buyerDepartment", e.target.value)} placeholder="e.g., Procurement" className={INPUT_CLASSES(isDarkMode)} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="buyerEmail" className={LABEL_CLASSES(isDarkMode)}>Buyer Email</label>
+                <input id="buyerEmail" type="email" value={purchaseOrder.buyerEmail} onChange={(e) => handleInputChange("buyerEmail", e.target.value)} placeholder="buyer@company.com" className={INPUT_CLASSES(isDarkMode)} />
+              </div>
+              <div>
+                <label htmlFor="buyerPhone" className={LABEL_CLASSES(isDarkMode)}>Buyer Phone</label>
+                <input id="buyerPhone" type="tel" value={purchaseOrder.buyerPhone} onChange={(e) => handleInputChange("buyerPhone", e.target.value)} placeholder="+971 50 123 4567" className={INPUT_CLASSES(isDarkMode)} />
+              </div>
+            </div>
+            <div className={DIVIDER_CLASSES(isDarkMode)} />
+            {/* Approval Workflow */}
+            <div className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Approval Workflow</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <FormSelect label="Approval Status" value={purchaseOrder.approvalStatus} onValueChange={(value) => handleInputChange("approvalStatus", value)}>
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="approved">Approved</SelectItem>
                   <SelectItem value="rejected">Rejected</SelectItem>
                 </FormSelect>
               </div>
               <div>
-                <label htmlFor="approvedBy" className={LABEL_CLASSES(isDarkMode)}>
-                  Approved By
-                </label>
-                <input
-                  id="approvedBy"
-                  type="text"
-                  value={purchaseOrder.approvedBy}
-                  onChange={(e) => handleInputChange("approvedBy", e.target.value)}
-                  placeholder="Name of approver"
-                  className={INPUT_CLASSES(isDarkMode)}
-                />
+                <label htmlFor="approvedBy" className={LABEL_CLASSES(isDarkMode)}>Approved By</label>
+                <input id="approvedBy" type="text" value={purchaseOrder.approvedBy} onChange={(e) => handleInputChange("approvedBy", e.target.value)} placeholder="Name of approver" className={INPUT_CLASSES(isDarkMode)} />
               </div>
             </div>
             <div>
-              <label htmlFor="approvalDate" className={LABEL_CLASSES(isDarkMode)}>
-                Approval Date
-              </label>
-              <input
-                id="approvalDate"
-                type="date"
-                value={purchaseOrder.approvalDate}
-                onChange={(e) => handleInputChange("approvalDate", e.target.value)}
-                className={INPUT_CLASSES(isDarkMode)}
-              />
+              <label htmlFor="approvalDate" className={LABEL_CLASSES(isDarkMode)}>Approval Date</label>
+              <input id="approvalDate" type="date" value={purchaseOrder.approvalDate} onChange={(e) => handleInputChange("approvalDate", e.target.value)} className={INPUT_CLASSES(isDarkMode)} />
             </div>
             <div>
-              <label htmlFor="approvalComments" className={LABEL_CLASSES(isDarkMode)}>
-                Approval Comments
-              </label>
-              <textarea
-                id="approvalComments"
-                rows={4}
-                value={purchaseOrder.approvalComments}
-                onChange={(e) => handleInputChange("approvalComments", e.target.value)}
-                placeholder="Comments from approver..."
-                className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`}
-              />
+              <label htmlFor="approvalComments" className={LABEL_CLASSES(isDarkMode)}>Approval Comments</label>
+              <textarea id="approvalComments" rows={4} value={purchaseOrder.approvalComments} onChange={(e) => handleInputChange("approvalComments", e.target.value)} placeholder="Comments from approver..." className={`${INPUT_CLASSES(isDarkMode)} min-h-[100px]`} />
             </div>
           </div>
           <div className="sticky bottom-0 pt-4 mt-6" style={{ background: DRAWER_FOOTER_GRADIENT(isDarkMode) }}>
             <div className="flex justify-end">
-              <button type="button" onClick={() => setApprovalDrawerOpen(false)} className={BTN_PRIMARY}>
-                Done
-              </button>
+              <button type="button" onClick={() => setPeopleDrawerOpen(false)} className={BTN_PRIMARY}>Done</button>
             </div>
           </div>
         </div>
