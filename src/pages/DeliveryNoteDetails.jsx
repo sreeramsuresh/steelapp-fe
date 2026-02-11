@@ -699,8 +699,7 @@ const DeliveryNoteDetails = () => {
               <div className="flex justify-between">
                 <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Stock Deducted</span>
                 <span className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  {deliveryNote.stockDeducted ? deliveryNote.items?.length || 0 : 0} /{" "}
-                  {deliveryNote.items?.length || 0}
+                  {deliveryNote.stockDeducted ? deliveryNote.items?.length || 0 : 0} / {deliveryNote.items?.length || 0}
                 </span>
               </div>
 
@@ -713,11 +712,7 @@ const DeliveryNoteDetails = () => {
 
               <div className="flex justify-between">
                 <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Failed Deductions</span>
-                <span
-                  className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                >
-                  0
-                </span>
+                <span className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>0</span>
               </div>
 
               {deliveryNote.stockDeducted && deliveryNote.stockDeductedAt && (
