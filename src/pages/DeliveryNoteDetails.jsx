@@ -699,7 +699,7 @@ const DeliveryNoteDetails = () => {
               <div className="flex justify-between">
                 <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Stock Deducted</span>
                 <span className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  {deliveryNote.items?.filter((item) => item.stockDeducted).length || 0} /{" "}
+                  {deliveryNote.stockDeducted ? deliveryNote.items?.length || 0 : 0} /{" "}
                   {deliveryNote.items?.length || 0}
                 </span>
               </div>
@@ -707,39 +707,26 @@ const DeliveryNoteDetails = () => {
               <div className="flex justify-between">
                 <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Pending Deduction</span>
                 <span className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  {deliveryNote.items?.filter((item) => !item.stockDeducted && item.allocationStatus !== "failed")
-                    .length || 0}
+                  {deliveryNote.stockDeducted ? 0 : deliveryNote.items?.length || 0}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Failed Deductions</span>
                 <span
-                  className={`text-sm font-medium ${
-                    deliveryNote.items?.filter((item) => item.allocationStatus === "failed").length > 0
-                      ? isDarkMode
-                        ? "text-red-400"
-                        : "text-red-600"
-                      : isDarkMode
-                        ? "text-white"
-                        : "text-gray-900"
-                  }`}
+                  className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                 >
-                  {deliveryNote.items?.filter((item) => item.allocationStatus === "failed").length || 0}
+                  0
                 </span>
               </div>
 
-              {deliveryNote.items?.some((item) => item.stockDeducted && item.stockDeductedAt) && (
+              {deliveryNote.stockDeducted && deliveryNote.stockDeductedAt && (
                 <>
                   <hr className={`my-2 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`} />
                   <div>
-                    <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Last Deduction</span>
+                    <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Deducted At</span>
                     <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                      {formatDate(
-                        deliveryNote.items
-                          .filter((item) => item.stockDeductedAt)
-                          .sort((a, b) => new Date(b.stockDeductedAt) - new Date(a.stockDeductedAt))[0]?.stockDeductedAt
-                      )}
+                      {formatDate(deliveryNote.stockDeductedAt)}
                     </p>
                   </div>
                 </>

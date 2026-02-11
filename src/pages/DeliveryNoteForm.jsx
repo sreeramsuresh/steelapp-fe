@@ -121,10 +121,12 @@ const DeliveryNoteForm = () => {
       if (!invoice) return;
 
       try {
-        setSelectedInvoice(invoice);
+        // Fetch full invoice with items (list API doesn't include items)
+        const fullInvoice = await invoicesAPI.getById(invoice.id);
+        setSelectedInvoice(fullInvoice);
 
         // Parse address if string
-        let invoiceAddress = invoice.customerDetails?.address || {};
+        let invoiceAddress = fullInvoice.customerDetails?.address || {};
         if (typeof invoiceAddress === "string") {
           try {
             invoiceAddress = JSON.parse(invoiceAddress);
@@ -135,14 +137,14 @@ const DeliveryNoteForm = () => {
 
         setFormData((prev) => ({
           ...prev,
-          invoiceId: invoice.id,
+          invoiceId: fullInvoice.id,
           deliveryAddress: {
             street: invoiceAddress.street || prev.deliveryAddress.street,
             city: invoiceAddress.city || prev.deliveryAddress.city,
             poBox: invoiceAddress.poBox || invoiceAddress.po_box || prev.deliveryAddress.poBox,
           },
           items:
-            invoice.items?.map((item) => {
+            fullInvoice.items?.map((item) => {
               // Calculate theoretical weight based on unit and quantity
               const qty = item.quantity || 0;
               const unitWeight = item.unitWeightKg || item.unit_weight_kg || 0;

@@ -75,7 +75,7 @@ import { supplierService } from "../services/supplierService";
 import { FINISHES, PRODUCT_TYPES } from "../types";
 import { getProductDisplayName, getProductUniqueName } from "../utils/fieldAccessors";
 import { calculateItemAmount, calculateSubtotal, formatCurrency, generatePONumber } from "../utils/invoiceUtils";
-import { getAllowedBases, getDefaultBasis, getBasisLabel } from "../utils/pricingBasisRules";
+import { getAllowedBases, getBasisLabel, getDefaultBasis } from "../utils/pricingBasisRules";
 
 const { PAYMENT_MODES } = payablesService;
 

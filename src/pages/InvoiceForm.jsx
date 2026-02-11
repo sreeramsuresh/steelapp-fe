@@ -61,7 +61,7 @@ import {
   titleCase,
 } from "../utils/invoiceUtils";
 import { PAYMENT_MODES } from "../utils/paymentUtils";
-import { getAllowedBases, getDefaultBasis, getBasisLabel } from "../utils/pricingBasisRules";
+import { getAllowedBases, getBasisLabel, getDefaultBasis } from "../utils/pricingBasisRules";
 
 // ==================== ROUTE HELPERS ====================
 
@@ -3132,7 +3132,8 @@ const InvoiceForm = ({ onSave }) => {
         quantity: parseFloat(lineItemData.quantity),
         quantityUom: lineItemData.unit || "KG",
         rate: parseFloat(lineItemData.rate),
-        pricingBasis: lineItemData.pricingBasis || lineItemData.basePricingBasis || getDefaultBasis(lineItemData.product?.category), // Use base pricing basis from drawer
+        pricingBasis:
+          lineItemData.pricingBasis || lineItemData.basePricingBasis || getDefaultBasis(lineItemData.product?.category), // Use base pricing basis from drawer
         baseRate: lineItemData.baseRate, // CRITICAL: Persist immutable base price
         basePricingBasis: lineItemData.basePricingBasis, // CRITICAL: Persist immutable base basis
         amount: parseFloat(lineItemData.amount),

@@ -42,7 +42,7 @@ import { quotationService } from "../services/quotationService";
 import { FINISHES, STEEL_GRADES } from "../types";
 import { getProductDisplayName } from "../utils/fieldAccessors";
 import { calculateItemAmount, formatCurrency } from "../utils/invoiceUtils";
-import { getAllowedBases, getDefaultBasis, getBasisLabel } from "../utils/pricingBasisRules";
+import { getAllowedBases, getBasisLabel, getDefaultBasis } from "../utils/pricingBasisRules";
 
 // Design system helpers (matching PO form standard)
 const CARD_CLASSES = (isDarkMode) =>
