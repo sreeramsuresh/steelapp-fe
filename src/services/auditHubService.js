@@ -17,7 +17,7 @@ class AuditHubService {
       if (filters.status) params.append("status", filters.status);
 
       const response = await api.get(`/accounting-periods?${params.toString()}`);
-      return response;
+      return Array.isArray(response) ? response : response?.data || [];
     } catch (error) {
       console.error("[AuditHub] Get periods error:", error);
       throw error;
@@ -27,7 +27,7 @@ class AuditHubService {
   async getPeriodById(_companyId, periodId) {
     try {
       const response = await api.get(`/accounting-periods/${periodId}`);
-      return response;
+      return response?.data || response;
     } catch (error) {
       console.error("[AuditHub] Get period error:", error);
       throw error;

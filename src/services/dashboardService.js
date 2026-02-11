@@ -187,6 +187,7 @@ export const dashboardService = {
       const totalCustomers = parseInt(
         dashboardData?.metrics?.totalCustomers ||
           dashboardData?.customerMetrics?.totalCustomers ||
+          customerStats?.pageInfo?.totalItems ||
           customerStats?.pagination?.total ||
           (Array.isArray(customerStats?.customers) ? customerStats.customers.length : 0) ||
           0,
@@ -195,6 +196,7 @@ export const dashboardService = {
       const totalProducts = parseInt(
         dashboardData?.metrics?.totalProducts ||
           dashboardData?.productMetrics?.totalProducts ||
+          productStats?.pageInfo?.totalItems ||
           productStats?.pagination?.total ||
           (Array.isArray(productStats?.products) ? productStats.products.length : 0) ||
           0,
@@ -203,6 +205,7 @@ export const dashboardService = {
       const totalInvoices = parseInt(
         dashboardData?.metrics?.totalOrders ||
           dashboardData?.revenueMetrics?.totalInvoices ||
+          invoiceStats?.pageInfo?.totalItems ||
           invoiceStats?.pagination?.total ||
           0,
         10
