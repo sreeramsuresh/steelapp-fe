@@ -103,13 +103,13 @@ export default function COGSAnalysisReport() {
           batch: b.batch || b.batchNumber || `Batch-${b.batchId}`,
           cogs: Number(b.cogs) || 0,
           revenue: Number(b.revenue) || 0,
-        })),
+        }))
       );
       setCostComponents(
         (data.costComponents || []).map((c) => ({
           ...c,
           value: c.value ?? c.amount ?? 0,
-        })),
+        }))
       );
       setBatchProfitability(
         (data.batchProfitability || []).map((b) => ({
@@ -119,7 +119,7 @@ export default function COGSAnalysisReport() {
           cogs: Number(b.cogs) || 0,
           revenue: Number(b.revenue) || 0,
           profit: Number(b.profit) || 0,
-        })),
+        }))
       );
 
       // Pivot procurement comparison from flat rows to {month, local, imported}

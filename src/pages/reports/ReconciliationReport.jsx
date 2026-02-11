@@ -62,7 +62,8 @@ export default function ReconciliationReport() {
       const productResult = await productService.getAll({
         limit: 1000,
       });
-      const rawProducts = productResult && (productResult.data || productResult.products || productResult.items || productResult);
+      const rawProducts =
+        productResult && (productResult.data || productResult.products || productResult.items || productResult);
       setProducts(
         (Array.isArray(rawProducts) ? rawProducts : []).map((prod) => ({
           id: prod.id,

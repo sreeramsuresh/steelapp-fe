@@ -121,10 +121,7 @@ const SectionHeader = ({ title, icon: Icon, description, isExpanded, onToggle, w
           {description && <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{description}</p>}
         </div>
       </div>
-      <span
-        className={`p-1 rounded ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}
-        aria-hidden="true"
-      >
+      <span className={`p-1 rounded ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`} aria-hidden="true">
         {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
       </span>
     </button>
@@ -455,8 +452,7 @@ const DashboardV2 = () => {
           volume: p.totalSold || 0,
           percentOfTotal:
             productAnalytics.topProducts.reduce((s, x) => s + (x.totalRevenue || 0), 0) > 0
-              ? ((p.totalRevenue || 0) /
-                  productAnalytics.topProducts.reduce((s, x) => s + (x.totalRevenue || 0), 0)) *
+              ? ((p.totalRevenue || 0) / productAnalytics.topProducts.reduce((s, x) => s + (x.totalRevenue || 0), 0)) *
                 100
               : 0,
         }));

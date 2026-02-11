@@ -146,7 +146,6 @@ export const dashboardService = {
     const { forceRefresh: _forceRefresh = false } = options;
 
     try {
-
       // Fetch all data in parallel from real APIs
       const [dashboardData, arAgingData, revenueTrendData, dashboardKPIs, invoiceStats, customerStats, productStats] =
         await Promise.all([
@@ -267,7 +266,6 @@ export const dashboardService = {
         fetchedAt: new Date().toISOString(),
       };
 
-
       return metrics;
     } catch (error) {
       console.error("[dashboardService] Error fetching dashboard metrics:", error);
@@ -305,7 +303,6 @@ export const dashboardService = {
     const { forceRefresh: _forceRefresh = false } = options;
 
     try {
-
       const [productPerformance, productList, inventorySummary] = await Promise.all([
         analyticsService.getProductPerformance().catch((err) => {
           console.warn("[dashboardService] getProductPerformance failed:", err.message);
@@ -449,7 +446,6 @@ export const dashboardService = {
     const { forceRefresh: _forceRefresh = false } = options;
 
     try {
-
       // Fetch commission data from real APIs
       const [commissionDashboard, commissionAgents, commissionTransactions] = await Promise.all([
         commissionService.getDashboard().catch((err) => {
@@ -598,7 +594,6 @@ export const dashboardService = {
     const { forceRefresh: _forceRefresh = false } = options;
 
     try {
-
       const [inventorySummary, lowStockItems, inventoryInsights] = await Promise.all([
         inventoryService.getInventorySummary().catch((err) => {
           console.warn("[dashboardService] getInventorySummary failed:", err.message);
@@ -655,7 +650,6 @@ export const dashboardService = {
     const { forceRefresh: _forceRefresh = false } = options;
 
     try {
-
       // Try to get VAT dashboard metrics from the VAT service
       const vatMetrics = await vatService.getVATDashboardMetrics().catch((err) => {
         console.warn("[dashboardService] getVATDashboardMetrics failed:", err.message);
@@ -820,7 +814,6 @@ export const dashboardService = {
     const { forceRefresh: _forceRefresh = false } = options;
 
     try {
-
       const [customerAnalysis, customerList, recentInvoices] = await Promise.all([
         analyticsService.getCustomerAnalysis().catch((err) => {
           console.warn("[dashboardService] getCustomerAnalysis failed:", err.message);

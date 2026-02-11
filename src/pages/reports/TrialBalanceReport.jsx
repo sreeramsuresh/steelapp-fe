@@ -224,7 +224,10 @@ export default function TrialBalanceReport() {
             </thead>
             <tbody className={`${cardBg} divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
               {data.accounts.map((account, idx) => (
-                <tr key={account.id || account.account_code || `account-${idx}`} className={`${hoverRow} cursor-pointer`}>
+                <tr
+                  key={account.id || account.account_code || `account-${idx}`}
+                  className={`${hoverRow} cursor-pointer`}
+                >
                   <td className={`px-6 py-3 text-sm font-medium ${textPrimary}`}>{account.account_code}</td>
                   <td className={`px-6 py-3 text-sm ${textLabel}`}>{account.account_name}</td>
                   <td className={`px-6 py-3 text-sm ${textSecondary}`}>{account.account_category}</td>

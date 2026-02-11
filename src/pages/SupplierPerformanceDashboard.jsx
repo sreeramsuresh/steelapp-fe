@@ -96,7 +96,9 @@ function SupplierPerformanceDashboard() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
-          <p className={`mt-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Loading supplier performance data...</p>
+          <p className={`mt-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+            Loading supplier performance data...
+          </p>
         </div>
       </div>
     );

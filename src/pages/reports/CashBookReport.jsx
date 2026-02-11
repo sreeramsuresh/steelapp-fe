@@ -248,7 +248,10 @@ export default function CashBookReport() {
             </thead>
             <tbody>
               {data.entries.map((entry, idx) => (
-                <tr key={entry.id || entry.journal_number || `entry-${idx}`} className={`${rowBorder} ${hoverRow} text-sm`}>
+                <tr
+                  key={entry.id || entry.journal_number || `entry-${idx}`}
+                  className={`${rowBorder} ${hoverRow} text-sm`}
+                >
                   <td className={`px-4 py-3 ${textPrimary}`}>
                     {bankReconciliationService.formatDate(entry.entry_date)}
                   </td>
