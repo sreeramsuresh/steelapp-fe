@@ -447,7 +447,11 @@ const DebitNoteForm = () => {
                       : "border-amber-200 bg-amber-50 text-amber-700"
                   }`}
                 >
-                  {debitNote.status === "approved" ? "Approved" : debitNote.status === "cancelled" ? "Cancelled" : "Draft"}
+                  {debitNote.status === "approved"
+                    ? "Approved"
+                    : debitNote.status === "cancelled"
+                      ? "Cancelled"
+                      : "Draft"}
                 </span>
                 {isEditable && (
                   <>
@@ -471,7 +475,9 @@ const DebitNoteForm = () => {
                       onClick={() => handleSave("approved")}
                       disabled={saving}
                       className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
-                        isDarkMode ? "bg-teal-500 text-white hover:bg-teal-400" : "bg-teal-600 text-white hover:bg-teal-700"
+                        isDarkMode
+                          ? "bg-teal-500 text-white hover:bg-teal-400"
+                          : "bg-teal-600 text-white hover:bg-teal-700"
                       } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
                     >
                       {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
