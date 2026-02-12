@@ -37,6 +37,8 @@ const DeliveryNoteForm = lazy(() => import("../pages/DeliveryNoteForm"));
 const DeliveryNoteDetails = lazy(() => import("../pages/DeliveryNoteDetails"));
 const PurchaseOrderForm = lazy(() => import("../pages/PurchaseOrderForm"));
 const Login = lazy(() => import("./Login"));
+const ForgotPassword = lazy(() => import("./ForgotPassword"));
+const ResetPassword = lazy(() => import("./ResetPassword"));
 const MarketingHome = lazy(() => import("../marketing/MarketingHome"));
 const MarketingProducts = lazy(() => import("../marketing/MarketingProducts"));
 const MarketingAbout = lazy(() => import("../marketing/MarketingAbout"));
@@ -237,6 +239,10 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
 
           {/* Login */}
           <Route path="/login" element={<Login onLoginSuccess={onLoginSuccess} />} />
+
+          {/* Password Reset */}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* ========================================== */}
           {/* LEGACY REDIRECTS (Old URLs → New URLs)    */}

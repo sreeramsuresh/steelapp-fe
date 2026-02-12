@@ -50,6 +50,15 @@ class AuthService {
       // eslint-disable-next-line no-console
       console.log("Login response:", response); // Debug log
 
+      // Handle 2FA challenge — server returns requires2FA instead of tokens
+      if (response.requires2FA) {
+        return {
+          requires2FA: true,
+          twoFactorToken: response.twoFactorToken,
+          methods: response.methods,
+        };
+      }
+
       // Support both response formats: SteelApp (token) and GigLabz (accessToken)
       const accessToken = response.accessToken || response.token;
       const refreshToken = response.refreshToken || response.refreshToken;
@@ -81,6 +90,15 @@ class AuthService {
       console.error("Login failed:", error);
       const data = error.response?.data;
       const status = error.response?.status;
+
+      // Handle account lockout (423)
+      if (status === 423) {
+        const err = new Error(data?.message || "Account is temporarily locked");
+        err.code = "ACCOUNT_LOCKED";
+        err.remainingMinutes = data?.remainingMinutes;
+        err.lockedUntil = data?.lockedUntil;
+        throw err;
+      }
 
       // Handle error messages
       const details = Array.isArray(data?.errors)
@@ -204,6 +222,192 @@ class AuthService {
       throw new Error(error.response?.data?.message || "Password change failed");
     }
   }
+
+  // ── Password Reset ────────────────────────────────
+
+  async forgotPassword(email) {
+    try {
+      const response = await apiService.post("/auth/forgot-password", { email });
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to request password reset");
+    }
+  }
+
+  async resetPassword(token, newPassword) {
+    try {
+      const response = await apiService.post("/auth/reset-password", { token, newPassword });
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to reset password");
+    }
+  }
+
+  // ── Two-Factor Authentication ─────────────────────
+
+  async verify2FA(twoFactorToken, code, method) {
+    try {
+      const response = await apiService.post("/auth/verify-2fa", {
+        twoFactorToken,
+        code,
+        method,
+      });
+
+      // On success, store tokens just like a normal login
+      const accessToken = response.accessToken || response.token;
+      const refreshToken = response.refreshToken;
+      const user = response.user;
+
+      if (accessToken && user) {
+        tokenUtils.setToken(accessToken);
+        if (refreshToken) {
+          tokenUtils.setRefreshToken(refreshToken);
+        }
+        this._populatePermissionsForRole(user);
+        tokenUtils.setUser(user);
+      }
+
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Invalid verification code");
+    }
+  }
+
+  async sendEmailOTP(twoFactorToken) {
+    try {
+      const response = await apiService.post("/auth/2fa/send-email-otp", { twoFactorToken });
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to send email code");
+    }
+  }
+
+  async setup2FA() {
+    try {
+      const response = await apiService.post("/auth/2fa/setup");
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to start 2FA setup");
+    }
+  }
+
+  async verifySetup2FA(code, tempSecret) {
+    try {
+      const response = await apiService.post("/auth/2fa/verify-setup", { code, tempSecret });
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to verify 2FA setup");
+    }
+  }
+
+  async disable2FA(password) {
+    try {
+      const response = await apiService.post("/auth/2fa/disable", { password });
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to disable 2FA");
+    }
+  }
+
+  async get2FAStatus() {
+    try {
+      const response = await apiService.get("/auth/2fa/status");
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to get 2FA status");
+    }
+  }
+
+  async regenerateRecoveryCodes(password) {
+    try {
+      const response = await apiService.post("/auth/2fa/regenerate-recovery-codes", { password });
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to regenerate recovery codes");
+    }
+  }
+
+  // ── Passkeys / WebAuthn ───────────────────────────
+
+  async passkeyRegisterStart() {
+    try {
+      const response = await apiService.post("/auth/passkey/register/start");
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to start passkey registration");
+    }
+  }
+
+  async passkeyRegisterFinish(credential) {
+    try {
+      const response = await apiService.post("/auth/passkey/register/finish", { credential });
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to complete passkey registration");
+    }
+  }
+
+  async passkeyLoginStart(email) {
+    try {
+      const response = await apiService.post("/auth/passkey/login/start", { email });
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to start passkey authentication");
+    }
+  }
+
+  async passkeyLoginFinish(credential) {
+    try {
+      const response = await apiService.post("/auth/passkey/login/finish", { credential });
+
+      // On success, store tokens just like a normal login
+      const accessToken = response.accessToken || response.token;
+      const refreshToken = response.refreshToken;
+      const user = response.user;
+
+      if (accessToken && user) {
+        tokenUtils.setToken(accessToken);
+        if (refreshToken) {
+          tokenUtils.setRefreshToken(refreshToken);
+        }
+        this._populatePermissionsForRole(user);
+        tokenUtils.setUser(user);
+      }
+
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to complete passkey authentication");
+    }
+  }
+
+  async listPasskeys() {
+    try {
+      const response = await apiService.get("/auth/passkey/credentials");
+      return response.credentials || response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to list passkeys");
+    }
+  }
+
+  async deletePasskey(id) {
+    try {
+      const response = await apiService.delete(`/auth/passkey/credentials/${id}`);
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to delete passkey");
+    }
+  }
+
+  async renamePasskey(id, label) {
+    try {
+      const response = await apiService.patch(`/auth/passkey/credentials/${id}`, { label });
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to rename passkey");
+    }
+  }
+
+  // ── Session Management ────────────────────────────
 
   // Clear all session data (matching GigLabz comprehensive cleanup)
   clearSession() {

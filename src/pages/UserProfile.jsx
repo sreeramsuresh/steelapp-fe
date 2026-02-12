@@ -1,6 +1,8 @@
-import { LogOut } from "lucide-react";
+import { KeyRound, LogOut, RefreshCw, Shield, ShieldOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PasskeyManagement from "../components/PasskeyManagement";
+import TwoFactorSetup from "../components/TwoFactorSetup";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
 import { notificationService } from "../services/notificationService";
@@ -20,6 +22,16 @@ export default function UserProfile() {
   });
   const [showPasswordChange, setShowPasswordChange] = useState(false);
 
+  // 2FA state
+  const [twoFactorStatus, setTwoFactorStatus] = useState(null);
+  const [show2FASetup, setShow2FASetup] = useState(false);
+  const [disablePassword, setDisablePassword] = useState("");
+  const [showDisable2FA, setShowDisable2FA] = useState(false);
+  const [regenPassword, setRegenPassword] = useState("");
+  const [showRegenCodes, setShowRegenCodes] = useState(false);
+  const [recoveryCodes, setRecoveryCodes] = useState([]);
+  const [twoFactorLoading, setTwoFactorLoading] = useState(false);
+
   // Load current user on mount
   useEffect(() => {
     (async () => {
@@ -35,6 +47,18 @@ export default function UserProfile() {
         notificationService.error("Failed to load profile");
       } finally {
         setLoading(false);
+      }
+    })();
+  }, []);
+
+  // Load 2FA status
+  useEffect(() => {
+    (async () => {
+      try {
+        const status = await authService.get2FAStatus();
+        setTwoFactorStatus(status);
+      } catch {
+        // Silently fail — 2FA section will show as disabled
       }
     })();
   }, []);
@@ -93,6 +117,43 @@ export default function UserProfile() {
       notificationService.error(error?.response?.data?.message || "Failed to change password");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDisable2FA = async () => {
+    if (!disablePassword) {
+      notificationService.warning("Please enter your password");
+      return;
+    }
+    setTwoFactorLoading(true);
+    try {
+      await authService.disable2FA(disablePassword);
+      setTwoFactorStatus({ enabled: false });
+      setShowDisable2FA(false);
+      setDisablePassword("");
+      notificationService.success("Two-factor authentication disabled");
+    } catch (error) {
+      notificationService.error(error.message || "Failed to disable 2FA");
+    } finally {
+      setTwoFactorLoading(false);
+    }
+  };
+
+  const handleRegenerateRecoveryCodes = async () => {
+    if (!regenPassword) {
+      notificationService.warning("Please enter your password");
+      return;
+    }
+    setTwoFactorLoading(true);
+    try {
+      const data = await authService.regenerateRecoveryCodes(regenPassword);
+      setRecoveryCodes(data.recoveryCodes || []);
+      setRegenPassword("");
+      notificationService.success("Recovery codes regenerated");
+    } catch (error) {
+      notificationService.error(error.message || "Failed to regenerate codes");
+    } finally {
+      setTwoFactorLoading(false);
     }
   };
 
@@ -395,6 +456,184 @@ export default function UserProfile() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Two-Factor Authentication Card */}
+        <div className={`rounded-2xl shadow-lg p-8 mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          {show2FASetup ? (
+            <TwoFactorSetup
+              onComplete={() => {
+                setShow2FASetup(false);
+                setTwoFactorStatus({ enabled: true, method: "totp" });
+                notificationService.success("Two-factor authentication enabled");
+              }}
+              onCancel={() => setShow2FASetup(false)}
+            />
+          ) : (
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    Two-Factor Authentication
+                  </h3>
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                    {twoFactorStatus?.enabled
+                      ? "Your account is protected with 2FA"
+                      : "Add an extra layer of security to your account"}
+                  </p>
+                </div>
+                <div
+                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    twoFactorStatus?.enabled
+                      ? isDarkMode
+                        ? "bg-green-900/30 text-green-400 border border-green-700"
+                        : "bg-green-50 text-green-700 border border-green-200"
+                      : isDarkMode
+                        ? "bg-gray-700 text-gray-400 border border-gray-600"
+                        : "bg-gray-100 text-gray-500 border border-gray-200"
+                  }`}
+                >
+                  {twoFactorStatus?.enabled ? "Enabled" : "Disabled"}
+                </div>
+              </div>
+
+              {twoFactorStatus?.enabled ? (
+                <div className={`space-y-4 border-t pt-4 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                  <div className="flex items-center gap-3">
+                    <Shield size={18} className={isDarkMode ? "text-green-400" : "text-green-600"} />
+                    <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                      Method: {twoFactorStatus.method === "totp" ? "Authenticator App" : twoFactorStatus.method}
+                    </span>
+                  </div>
+
+                  {/* Regenerate Recovery Codes */}
+                  {showRegenCodes ? (
+                    <div className="space-y-3">
+                      {recoveryCodes.length > 0 ? (
+                        <div
+                          className={`grid grid-cols-2 gap-2 p-4 rounded-lg border font-mono text-sm ${
+                            isDarkMode ? "bg-gray-900 border-gray-700 text-gray-300" : "bg-gray-50 border-gray-200 text-gray-700"
+                          }`}
+                        >
+                          {recoveryCodes.map((code) => (
+                            <div key={code} className="text-center py-1">{code}</div>
+                          ))}
+                        </div>
+                      ) : (
+                        <>
+                          <input
+                            type="password"
+                            value={regenPassword}
+                            onChange={(e) => setRegenPassword(e.target.value)}
+                            placeholder="Enter your password"
+                            className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                              isDarkMode
+                                ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
+                                : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
+                            } focus:outline-none`}
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => { setShowRegenCodes(false); setRegenPassword(""); }}
+                              className={`flex-1 px-4 py-2 rounded-lg font-medium ${isDarkMode ? "bg-gray-700 text-white hover:bg-gray-600" : "bg-gray-200 text-gray-900 hover:bg-gray-300"}`}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleRegenerateRecoveryCodes}
+                              disabled={twoFactorLoading}
+                              className="flex-1 px-4 py-2 rounded-lg font-medium bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-60"
+                            >
+                              {twoFactorLoading ? "Generating..." : "Regenerate"}
+                            </button>
+                          </div>
+                        </>
+                      )}
+                      {recoveryCodes.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => { setShowRegenCodes(false); setRecoveryCodes([]); }}
+                          className="w-full px-4 py-2 rounded-lg font-medium bg-teal-600 text-white hover:bg-teal-700"
+                        >
+                          Done
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowRegenCodes(true)}
+                      className={`flex items-center gap-2 text-sm font-medium ${isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"} transition-colors`}
+                    >
+                      <RefreshCw size={14} />
+                      Regenerate Recovery Codes
+                    </button>
+                  )}
+
+                  {/* Disable 2FA */}
+                  {showDisable2FA ? (
+                    <div className="space-y-3">
+                      <input
+                        type="password"
+                        value={disablePassword}
+                        onChange={(e) => setDisablePassword(e.target.value)}
+                        placeholder="Enter your password to confirm"
+                        className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                          isDarkMode
+                            ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
+                            : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
+                        } focus:outline-none`}
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => { setShowDisable2FA(false); setDisablePassword(""); }}
+                          className={`flex-1 px-4 py-2 rounded-lg font-medium ${isDarkMode ? "bg-gray-700 text-white hover:bg-gray-600" : "bg-gray-200 text-gray-900 hover:bg-gray-300"}`}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleDisable2FA}
+                          disabled={twoFactorLoading}
+                          className="flex-1 px-4 py-2 rounded-lg font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+                        >
+                          {twoFactorLoading ? "Disabling..." : "Disable 2FA"}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowDisable2FA(true)}
+                      className={`flex items-center gap-2 text-sm font-medium ${isDarkMode ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-700"} transition-colors`}
+                    >
+                      <ShieldOff size={14} />
+                      Disable Two-Factor Authentication
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShow2FASetup(true)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                    isDarkMode ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-teal-500 text-white hover:bg-teal-600"
+                  }`}
+                >
+                  <KeyRound size={16} />
+                  Enable Two-Factor Authentication
+                </button>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Passkeys Card */}
+        <div className={`rounded-2xl shadow-lg p-8 mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <PasskeyManagement />
         </div>
 
         {/* Logout Card */}
