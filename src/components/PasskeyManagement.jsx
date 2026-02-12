@@ -1,5 +1,5 @@
 import { Check, Fingerprint, Pencil, Plus, Trash2, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
 import { notificationService } from "../services/notificationService";
@@ -18,13 +18,9 @@ export default function PasskeyManagement() {
   const [deletingId, setDeletingId] = useState(null);
 
   const isSupported = typeof window !== "undefined" && window.PublicKeyCredential !== undefined;
+  const editInputRef = useRef(null);
 
-  useEffect(() => {
-    if (isSupported) loadCredentials();
-    else setLoading(false);
-  }, []);
-
-  const loadCredentials = async () => {
+  const loadCredentials = useCallback(async () => {
     try {
       const data = await authService.listPasskeys();
       setCredentials(data || []);
@@ -33,7 +29,16 @@ export default function PasskeyManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (isSupported) loadCredentials();
+    else setLoading(false);
+  }, [isSupported, loadCredentials]);
+
+  useEffect(() => {
+    if (editingId) editInputRef.current?.focus();
+  }, [editingId]);
 
   const handleRegister = async () => {
     setRegistering(true);
@@ -154,6 +159,7 @@ export default function PasskeyManagement() {
                     <div className="flex items-center gap-2">
                       <input
                         type="text"
+                        ref={editInputRef}
                         value={editLabel}
                         onChange={(e) => setEditLabel(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleRename(cred.id)}
@@ -162,7 +168,6 @@ export default function PasskeyManagement() {
                             ? "bg-gray-700 border-gray-600 text-white"
                             : "bg-white border-gray-300 text-gray-900"
                         } focus:outline-none focus:ring-1 focus:ring-teal-500`}
-                        autoFocus
                       />
                       <button type="button" onClick={() => handleRename(cred.id)}>
                         <Check size={16} className="text-green-500" />
