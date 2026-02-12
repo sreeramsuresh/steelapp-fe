@@ -10,12 +10,12 @@ import CustomerCreditManagement from "./CustomerCreditManagement";
 const DocumentWorkflowGuideTab = lazy(() => import("./DocumentWorkflowGuide"));
 
 const LazyJournalCorrectionGuide = lazy(() =>
-	Promise.all([
-		import("../components/posted-document-framework/DocumentWorkflowGuide"),
-		import("../components/finance/journalEntryCorrectionConfig"),
-	]).then(([guideModule, configModule]) => ({
-		default: (props) => <guideModule.default {...props} config={configModule.default} mode="guide" />,
-	})),
+  Promise.all([
+    import("../components/posted-document-framework/DocumentWorkflowGuide"),
+    import("../components/finance/journalEntryCorrectionConfig"),
+  ]).then(([guideModule, configModule]) => ({
+    default: (props) => <guideModule.default {...props} config={configModule.default} mode="guide" />,
+  }))
 );
 
 const FinanceDashboard = () => {

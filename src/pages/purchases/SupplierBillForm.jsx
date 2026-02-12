@@ -31,6 +31,8 @@ import {
 } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import supplierBillCorrectionConfig from "../../components/finance/supplierBillCorrectionConfig";
+import { CorrectionHelpModal, DocumentHistoryPanel } from "../../components/posted-document-framework";
 import ProductAutocomplete from "../../components/shared/ProductAutocomplete";
 import { FormSelect } from "../../components/ui/form-select";
 import { SelectItem } from "../../components/ui/select";
@@ -44,8 +46,6 @@ import supplierBillService from "../../services/supplierBillService";
 import { supplierService } from "../../services/supplierService";
 import { calculateItemAmount, formatCurrency, formatDateForInput } from "../../utils/invoiceUtils";
 import { getAllowedBases, getBasisLabel } from "../../utils/pricingBasisRules";
-import { CorrectionHelpModal, DocumentHistoryPanel } from "../../components/posted-document-framework";
-import supplierBillCorrectionConfig from "../../components/finance/supplierBillCorrectionConfig";
 
 // UAE Emirates for place of supply
 const EMIRATES = [
