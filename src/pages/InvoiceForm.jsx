@@ -31,7 +31,7 @@ import AllocationPanel from "../components/invoice/AllocationPanel";
 import InvoiceValidationPanel from "../components/invoice/InvoiceValidationPanel";
 import SourceTypeSelector from "../components/invoice/SourceTypeSelector";
 import LoadingOverlay from "../components/LoadingOverlay";
-import { CorrectionHelpModal } from "../components/posted-document-framework";
+import { CorrectionHelpModal, DocumentHistoryPanel } from "../components/posted-document-framework";
 import FormErrorBoundaryWithTheme from "../components/quotations/FormErrorBoundary";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApi, useApiData } from "../hooks/useApi";
@@ -40,10 +40,12 @@ import useBulkActions from "../hooks/useBulkActions";
 import useDragReorder from "../hooks/useDragReorder";
 import useInvoiceTemplates from "../hooks/useInvoiceTemplates";
 import useKeyboardShortcuts, { getShortcutDisplayString, INVOICE_SHORTCUTS } from "../hooks/useKeyboardShortcuts";
-import { commissionService, companyService, invoiceService } from "../services";
 import { invoicesAPI } from "../services/api";
 import { batchReservationService } from "../services/batchReservationService";
+import { commissionService } from "../services/commissionService";
+import { companyService } from "../services/companyService";
 import { customerService } from "../services/customerService";
+import { invoiceService } from "../services/invoiceService";
 import { notificationService } from "../services/notificationService";
 import { pinnedProductsService } from "../services/pinnedProductsService";
 import pricelistService from "../services/pricelistService";
@@ -4244,6 +4246,26 @@ const InvoiceForm = ({ onSave }) => {
                     </Button>
                   </div>
                 </div>
+              )}
+
+              {/* Document History / Correction Chain (Phase 3) */}
+              {id && (
+                <DocumentHistoryPanel
+                  documentType="invoice"
+                  documentId={id}
+                  documentStatus={originalSavedStatus}
+                  allowedActions={
+                    isLocked
+                      ? [
+                          {
+                            label: "Create Credit Note",
+                            type: "credit_note",
+                            href: `/app/credit-notes/new?invoiceId=${id}`,
+                          },
+                        ]
+                      : []
+                  }
+                />
               )}
 
               {/* Validation Errors Alert */}

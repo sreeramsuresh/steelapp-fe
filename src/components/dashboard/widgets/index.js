@@ -72,15 +72,8 @@ export {
   LeaderboardWidget,
 } from "./sales-agent";
 // ============================================================================
-// VAT WIDGETS
+// VAT WIDGETS — lazy-loaded only (via LazyWidgets.jsx / DashboardV2.jsx)
+// Static re-exports removed to enable code-splitting.
+// Config/constants available via: import { VAT_WIDGET_CONFIG } from './vat';
 // ============================================================================
-export {
-  DesignatedZoneWidget,
-  ReverseChargeWidget,
-  TRNValidationWidget,
-  VATCollectionWidget,
-  VATComplianceAlertsWidget,
-  VATReconciliationWidget,
-  VATReturnStatusWidget,
-  ZeroRatedExportsWidget,
-} from "./vat";
+export { FORM_201_BOXES, UAE_DESIGNATED_ZONES, UAE_VAT_CONSTANTS, VAT_WIDGET_CONFIG, VATWidgets } from "./vat";

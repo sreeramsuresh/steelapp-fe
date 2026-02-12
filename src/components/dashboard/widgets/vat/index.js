@@ -9,18 +9,11 @@
  * TRN Format: 15 digits (100XXXXXXXXXXXX)
  */
 
-// Medium Priority Widgets
-export { default as DesignatedZoneWidget } from "./DesignatedZoneWidget";
-export { default as ReverseChargeWidget } from "./ReverseChargeWidget";
-export { default as TRNValidationWidget } from "./TRNValidationWidget";
-// High Priority Widgets
-export { default as VATCollectionWidget } from "./VATCollectionWidget";
-export { default as VATComplianceAlertsWidget } from "./VATComplianceAlertsWidget";
-export { default as VATReconciliationWidget } from "./VATReconciliationWidget";
-export { default as VATReturnStatusWidget } from "./VATReturnStatusWidget";
-export { default as ZeroRatedExportsWidget } from "./ZeroRatedExportsWidget";
+// Widget components are lazy-loaded via LazyWidgets.jsx and DashboardV2.jsx.
+// Static re-exports removed to prevent defeating dynamic import() code-splitting.
+// Use: import { LazyVATCollectionWidget } from '../LazyWidgets';
 
-// Re-export all widgets as a named object for convenience
+// Dynamic widget factory for programmatic loading
 export const VATWidgets = {
   VATCollectionWidget: () => import("./VATCollectionWidget"),
   VATReturnStatusWidget: () => import("./VATReturnStatusWidget"),
@@ -177,6 +170,4 @@ export const UAE_DESIGNATED_ZONES = [
   { code: "ADGM", name: "Abu Dhabi Global Market", emirate: "Abu Dhabi" },
 ];
 
-// Note: Individual widgets are exported as named exports above (lines 13-22)
-// Default export removed to avoid circular dependency issues
-// Use named imports: import { VATCollectionWidget } from './vat';
+// Use lazy imports: import { LazyVATCollectionWidget } from '../LazyWidgets';

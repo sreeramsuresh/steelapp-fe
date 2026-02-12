@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApiData } from "../hooks/useApi";
-import { companyService } from "../services";
+import { companyService } from "../services/companyService";
 import { payablesService } from "../services/payablesService";
 import { formatCurrency, formatDateDMY } from "../utils/invoiceUtils";
 import { generateStatementPDF } from "../utils/statementPdfGenerator";

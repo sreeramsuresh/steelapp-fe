@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApiData } from "../hooks/useApi";
 import { useStockValidation } from "../hooks/useStockValidation";
-import { companyService } from "../services";
+import { companyService } from "../services/companyService";
 import { deliveryNoteService } from "../services/deliveryNoteService";
 import { formatDate } from "../utils/invoiceUtils";
 
