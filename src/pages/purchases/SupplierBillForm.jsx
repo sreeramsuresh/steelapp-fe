@@ -8,6 +8,7 @@
 import {
   AlertTriangle,
   ArrowLeft,
+  BookOpen,
   ChevronDown,
   ChevronRight,
   ClipboardCheck,
@@ -43,6 +44,8 @@ import supplierBillService from "../../services/supplierBillService";
 import { supplierService } from "../../services/supplierService";
 import { calculateItemAmount, formatCurrency, formatDateForInput } from "../../utils/invoiceUtils";
 import { getAllowedBases, getBasisLabel } from "../../utils/pricingBasisRules";
+import { CorrectionHelpModal, DocumentHistoryPanel } from "../../components/posted-document-framework";
+import supplierBillCorrectionConfig from "../../components/finance/supplierBillCorrectionConfig";
 
 // UAE Emirates for place of supply
 const EMIRATES = [
@@ -444,6 +447,7 @@ const SupplierBillForm = () => {
   const [products, setProducts] = useState([]);
   const [validationErrors, setValidationErrors] = useState([]);
   const [showFormSettings, setShowFormSettings] = useState(false);
+  const [showCorrectionGuide, setShowCorrectionGuide] = useState(false);
   const [pinnedProductIds, setPinnedProductIds] = useState(() => {
     const saved = localStorage.getItem("supplierBillPinnedProducts");
     return saved ? JSON.parse(saved) : [];
@@ -1313,6 +1317,18 @@ const SupplierBillForm = () => {
 
               <button
                 type="button"
+                onClick={() => setShowCorrectionGuide(true)}
+                className={`p-2 rounded-lg transition-colors ${
+                  isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
+                }`}
+                aria-label="Correction Guide"
+                title="Correction Guide"
+              >
+                <BookOpen className="h-5 w-5" />
+              </button>
+
+              <button
+                type="button"
                 onClick={() => setShowFormSettings(!showFormSettings)}
                 className={`p-2 rounded-lg transition-colors ${
                   isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
@@ -1370,6 +1386,28 @@ const SupplierBillForm = () => {
                 </ul>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Document History / Correction Chain */}
+        {id && (
+          <div className="mb-4">
+            <DocumentHistoryPanel
+              documentType="supplier_bill"
+              documentId={id}
+              documentStatus={bill.status}
+              allowedActions={
+                ["approved", "posted", "issued"].includes((bill.status || "").toLowerCase())
+                  ? [
+                      {
+                        label: "Create Debit Note",
+                        type: "debit_note",
+                        href: `/app/debit-notes/new?supplierBillId=${id}`,
+                      },
+                    ]
+                  : []
+              }
+            />
           </div>
         )}
 
@@ -3277,6 +3315,12 @@ const SupplierBillForm = () => {
           </div>
         </div>
       )}
+      {/* Correction Guide Modal */}
+      <CorrectionHelpModal
+        open={showCorrectionGuide}
+        onOpenChange={setShowCorrectionGuide}
+        config={supplierBillCorrectionConfig}
+      />
     </div>
   );
 };

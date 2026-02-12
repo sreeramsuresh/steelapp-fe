@@ -49,12 +49,12 @@ const DocumentHistoryPanel = ({ documentType, documentId, documentStatus, allowe
     }
   }, [documentType, documentId]);
 
-  // Auto-fetch when expanded
+  // Auto-fetch when expanded (stop if error already set to avoid infinite retry)
   useEffect(() => {
-    if (expanded && !graphData && !loading) {
+    if (expanded && !graphData && !loading && !error) {
       fetchGraph();
     }
-  }, [expanded, graphData, loading, fetchGraph]);
+  }, [expanded, graphData, loading, error, fetchGraph]);
 
   // Auto-expand if the document is posted (likely has a chain)
   useEffect(() => {

@@ -28,8 +28,8 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import invoiceCorrectionConfig from "../../components/finance/invoiceCorrectionConfig";
-import { CorrectionHelpModal } from "../../components/posted-document-framework";
+import supplierBillCorrectionConfig from "../../components/finance/supplierBillCorrectionConfig";
+import { CorrectionHelpModal, DocumentHistoryPanel } from "../../components/posted-document-framework";
 import { FormSelect } from "../../components/ui/form-select";
 import { SelectItem } from "../../components/ui/select";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -522,6 +522,19 @@ const DebitNoteForm = () => {
                   </p>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Document History / Correction Chain */}
+          {id && (
+            <div className="px-4 pt-4">
+              <DocumentHistoryPanel
+                documentType="debit_note"
+                documentId={id}
+                documentStatus={debitNote.status}
+                allowedActions={[]}
+                compact
+              />
             </div>
           )}
 
@@ -1353,7 +1366,7 @@ const DebitNoteForm = () => {
       <CorrectionHelpModal
         open={showCorrectionGuide}
         onOpenChange={setShowCorrectionGuide}
-        config={invoiceCorrectionConfig}
+        config={supplierBillCorrectionConfig}
         onNavigate={(url) => {
           setShowCorrectionGuide(false);
           navigate(url);

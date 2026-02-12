@@ -1,12 +1,24 @@
 import { ArrowLeft, BookOpen } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import invoiceCorrectionConfig from "../components/finance/invoiceCorrectionConfig";
+import journalEntryCorrectionConfig from "../components/finance/journalEntryCorrectionConfig";
+import paymentCorrectionConfig from "../components/finance/paymentCorrectionConfig";
+import priceListCorrectionConfig from "../components/finance/priceListCorrectionConfig";
+import stockMovementCorrectionConfig from "../components/finance/stockMovementCorrectionConfig";
+import supplierBillCorrectionConfig from "../components/finance/supplierBillCorrectionConfig";
+import vatPeriodCorrectionConfig from "../components/finance/vatPeriodCorrectionConfig";
 import { DocumentWorkflowGuide as Guide } from "../components/posted-document-framework";
 import { useTheme } from "../contexts/ThemeContext";
 
-// Registry: add more module configs here as they are built (Phases 4-8)
+// Registry: all module correction configs
 const MODULE_CONFIGS = {
   invoice: invoiceCorrectionConfig,
+  supplier_bill: supplierBillCorrectionConfig,
+  journal_entry: journalEntryCorrectionConfig,
+  payment: paymentCorrectionConfig,
+  stock: stockMovementCorrectionConfig,
+  vat_period: vatPeriodCorrectionConfig,
+  price_list: priceListCorrectionConfig,
 };
 
 const DocumentWorkflowGuidePage = () => {

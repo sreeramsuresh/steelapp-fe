@@ -49,7 +49,7 @@ const DOC_TYPE_CONFIG = {
     color: "purple",
     signLabel: "Purchase charge",
     sign: +1,
-    navigateTo: (id) => `/app/purchases/supplier-bills/${id}`,
+    navigateTo: (id) => `/app/supplier-bills/${id}`,
   },
   supplier_credit_note: {
     label: "Supplier Credit Note",
@@ -65,7 +65,7 @@ const DOC_TYPE_CONFIG = {
     color: "orange",
     signLabel: "Purchase surcharge",
     sign: +1,
-    navigateTo: (id) => `/app/purchases/supplier-debit-notes/${id}`,
+    navigateTo: (id) => `/app/debit-notes/${id}`,
   },
   journal_entry: {
     label: "Journal Entry",

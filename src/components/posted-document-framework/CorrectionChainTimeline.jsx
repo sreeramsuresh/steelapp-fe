@@ -86,7 +86,7 @@ const CorrectionChainTimeline = ({ nodes = [], edges = [], computed, onNavigate,
         {orderedNodes.map((node, idx) => {
           const isLast = idx === orderedNodes.length - 1;
           const colors = DOC_TYPE_COLORS[node.type] || DEFAULT_COLOR;
-          const amount = node.amount ?? 0;
+          const amount = (node.amount ?? 0) * (node.sign ?? 1);
           runningBalance += amount;
 
           // Find linking edge

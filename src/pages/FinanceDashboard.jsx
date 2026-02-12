@@ -1,4 +1,4 @@
-import { Banknote, BookOpen, DollarSign, FileText, RotateCcw, ShieldCheck } from "lucide-react";
+import { Banknote, BookOpen, ClipboardCheck, DollarSign, FileText, RotateCcw, ShieldCheck } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
@@ -9,6 +9,15 @@ import CustomerCreditManagement from "./CustomerCreditManagement";
 
 const DocumentWorkflowGuideTab = lazy(() => import("./DocumentWorkflowGuide"));
 
+const LazyJournalCorrectionGuide = lazy(() =>
+	Promise.all([
+		import("../components/posted-document-framework/DocumentWorkflowGuide"),
+		import("../components/finance/journalEntryCorrectionConfig"),
+	]).then(([guideModule, configModule]) => ({
+		default: (props) => <guideModule.default {...props} config={configModule.default} mode="guide" />,
+	})),
+);
+
 const FinanceDashboard = () => {
   const { isDarkMode } = useTheme();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -18,9 +27,14 @@ const FinanceDashboard = () => {
     const tabParam = searchParams.get("tab");
     if (
       tabParam &&
-      ["credit-notes", "statements", "commission-approvals", "credit-management", "document-workflow"].includes(
-        tabParam
-      )
+      [
+        "credit-notes",
+        "statements",
+        "commission-approvals",
+        "credit-management",
+        "document-workflow",
+        "journal-correction-guide",
+      ].includes(tabParam)
     ) {
       return tabParam;
     }
@@ -32,9 +46,14 @@ const FinanceDashboard = () => {
     const tabParam = searchParams.get("tab");
     if (
       tabParam &&
-      ["credit-notes", "statements", "commission-approvals", "credit-management", "document-workflow"].includes(
-        tabParam
-      )
+      [
+        "credit-notes",
+        "statements",
+        "commission-approvals",
+        "credit-management",
+        "document-workflow",
+        "journal-correction-guide",
+      ].includes(tabParam)
     ) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveTab(tabParam);
@@ -71,6 +90,12 @@ const FinanceDashboard = () => {
       label: "Correction Guide",
       icon: BookOpen,
       component: DocumentWorkflowGuideTab,
+    },
+    {
+      id: "journal-correction-guide",
+      label: "Journal Reversal Guide",
+      icon: ClipboardCheck,
+      component: LazyJournalCorrectionGuide,
     },
   ];
 

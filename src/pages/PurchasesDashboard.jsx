@@ -8,14 +8,23 @@
  * - Advance Payments (supplier deposits)
  */
 
-import { Coins, FileMinus, Receipt, ShoppingCart } from "lucide-react";
-import { useEffect, useState } from "react";
+import { BookOpen, Coins, FileMinus, Receipt, ShoppingCart } from "lucide-react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 
 import PurchaseOrderList from "./PurchaseOrderList";
 import { AdvancePaymentList } from "./payments";
 import { DebitNoteList, SupplierBillList } from "./purchases";
+
+const LazySupplierCorrectionGuide = lazy(() =>
+  Promise.all([
+    import("../components/posted-document-framework/DocumentWorkflowGuide"),
+    import("../components/finance/supplierBillCorrectionConfig"),
+  ]).then(([guideModule, configModule]) => ({
+    default: (props) => <guideModule.default {...props} config={configModule.default} mode="guide" />,
+  }))
+);
 
 const PurchasesDashboard = () => {
   const { isDarkMode } = useTheme();
@@ -28,7 +37,9 @@ const PurchasesDashboard = () => {
     const normalizedTab = tabParam === "vendor-bills" ? "supplier-bills" : tabParam;
     if (
       normalizedTab &&
-      ["purchase-orders", "supplier-bills", "debit-notes", "advance-payments"].includes(normalizedTab)
+      ["purchase-orders", "supplier-bills", "debit-notes", "advance-payments", "correction-guide"].includes(
+        normalizedTab
+      )
     ) {
       return normalizedTab;
     }
@@ -42,7 +53,9 @@ const PurchasesDashboard = () => {
     const normalizedTab = tabParam === "vendor-bills" ? "supplier-bills" : tabParam;
     if (
       normalizedTab &&
-      ["purchase-orders", "supplier-bills", "debit-notes", "advance-payments"].includes(normalizedTab)
+      ["purchase-orders", "supplier-bills", "debit-notes", "advance-payments", "correction-guide"].includes(
+        normalizedTab
+      )
     ) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveTab(normalizedTab);
@@ -73,6 +86,13 @@ const PurchasesDashboard = () => {
       label: "Advance Payments",
       icon: Coins,
       component: AdvancePaymentList,
+    },
+    {
+      id: "correction-guide",
+      label: "Correction Guide",
+      icon: BookOpen,
+      component: LazySupplierCorrectionGuide,
+      isSuspense: true,
     },
   ];
 
@@ -134,13 +154,15 @@ const PurchasesDashboard = () => {
 
       {/* Tab Content */}
       <div className="flex-1">
-        {ActiveComponent && (
-          <ActiveComponent
-            preSelectedSupplierId={searchParams.get("supplierId")}
-            preSelectedSupplierName={searchParams.get("supplierName")}
-            preSelectedPurchaseOrderId={searchParams.get("purchaseOrderId")}
-          />
-        )}
+        <Suspense fallback={<div className="p-8 text-center text-gray-400">Loading...</div>}>
+          {ActiveComponent && (
+            <ActiveComponent
+              preSelectedSupplierId={searchParams.get("supplierId")}
+              preSelectedSupplierName={searchParams.get("supplierName")}
+              preSelectedPurchaseOrderId={searchParams.get("purchaseOrderId")}
+            />
+          )}
+        </Suspense>
       </div>
     </div>
   );
