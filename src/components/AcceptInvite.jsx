@@ -139,9 +139,7 @@ export default function AcceptInvite() {
           <h1 className="text-3xl font-bold mb-2 bg-gradient-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent">
             ULTIMATE STEELS
           </h1>
-          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-            Set up your account
-          </p>
+          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Set up your account</p>
         </div>
 
         {/* Form */}
@@ -159,14 +157,17 @@ export default function AcceptInvite() {
 
           {/* Username */}
           <div>
-            <label className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+            <label htmlFor="accept-username" className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
               Username
             </label>
             <div className="relative">
-              <div className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+              <div
+                className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+              >
                 <Mail size={16} />
               </div>
               <input
+                id="accept-username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -184,14 +185,17 @@ export default function AcceptInvite() {
 
           {/* Full Name (optional) */}
           <div>
-            <label className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+            <label htmlFor="accept-fullname" className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
               Full Name <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>(optional)</span>
             </label>
             <div className="relative">
-              <div className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+              <div
+                className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+              >
                 <User size={16} />
               </div>
               <input
+                id="accept-fullname"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -207,14 +211,17 @@ export default function AcceptInvite() {
 
           {/* Password */}
           <div>
-            <label className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+            <label htmlFor="accept-password" className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
               Password
             </label>
             <div className="relative">
-              <div className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+              <div
+                className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+              >
                 <Lock size={16} />
               </div>
               <input
+                id="accept-password"
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -239,14 +246,17 @@ export default function AcceptInvite() {
 
           {/* Confirm Password */}
           <div>
-            <label className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+            <label htmlFor="accept-confirm-password" className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
               Confirm Password
             </label>
             <div className="relative">
-              <div className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+              <div
+                className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+              >
                 <Lock size={16} />
               </div>
               <input
+                id="accept-confirm-password"
                 type={showPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
