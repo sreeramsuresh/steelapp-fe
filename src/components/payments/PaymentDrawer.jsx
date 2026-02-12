@@ -1,4 +1,7 @@
-import { AlertCircle, CheckCircle, CircleDollarSign, Download, Printer, Trash2, X } from "lucide-react";
+import { AlertCircle, BookOpen, CheckCircle, CircleDollarSign, Download, Printer, Trash2, X } from "lucide-react";
+import { useState } from "react";
+import paymentCorrectionConfig from "../finance/paymentCorrectionConfig";
+import { CorrectionHelpModal } from "../posted-document-framework";
 import { formatCurrency, formatDate } from "../../utils/invoiceUtils";
 import AddPaymentForm from "./AddPaymentForm";
 
@@ -52,6 +55,8 @@ const PaymentDrawer = ({
   PAYMENT_MODES = {},
   VOID_REASONS = [],
 }) => {
+  const [showCorrectionGuide, setShowCorrectionGuide] = useState(false);
+
   if (!isOpen || !invoice) return null;
 
   const invoiceAmount = invoice.invoiceAmount || invoice.totalAmount || invoice.total || 0;
@@ -119,6 +124,16 @@ const PaymentDrawer = ({
             >
               {getPaymentStatusLabel()}
             </span>
+            <button
+              type="button"
+              onClick={() => setShowCorrectionGuide(true)}
+              title="Payment Correction Guide"
+              className={`p-2 rounded transition-colors ${
+                isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
+              }`}
+            >
+              <BookOpen size={16} />
+            </button>
             <button type="button" onClick={onClose} className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
               <X size={18} />
             </button>
@@ -557,6 +572,13 @@ const PaymentDrawer = ({
           )}
         </div>
       </div>
+
+      {/* Payment Correction Guide Modal */}
+      <CorrectionHelpModal
+        open={showCorrectionGuide}
+        onOpenChange={setShowCorrectionGuide}
+        config={paymentCorrectionConfig}
+      />
     </div>
   );
 };

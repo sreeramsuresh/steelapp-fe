@@ -85,7 +85,7 @@ const APPROVAL_STATUSES = [
 
 // Empty line item template
 const createEmptyItem = () => ({
-  id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+  id: `temp_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
   supplierBillItemId: null,
   productId: null,
   description: "",
@@ -171,7 +171,16 @@ const DebitNoteForm = () => {
       const data = await debitNoteService.getById(id);
       setDebitNote({
         ...data,
-        items: data.items?.length > 0 ? data.items : [createEmptyItem()],
+        debitNoteDate: formatDateForInput(data.debitNoteDate),
+        settlementDate: data.settlementDate ? formatDateForInput(data.settlementDate) : "",
+        items:
+          data.items?.length > 0
+            ? data.items.map((item, idx) => ({
+                ...createEmptyItem(),
+                ...item,
+                id: item.id || `loaded_${idx}`,
+              }))
+            : [createEmptyItem()],
       });
       if (data.supplierBillId) {
         const bill = await supplierBillService.getById(data.supplierBillId);
@@ -288,7 +297,7 @@ const DebitNoteForm = () => {
     }
 
     const copiedItems = selectedSupplierBill.items.map((item) => ({
-      id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `temp_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
       supplierBillItemId: item.id,
       productId: item.productId,
       description: item.description,

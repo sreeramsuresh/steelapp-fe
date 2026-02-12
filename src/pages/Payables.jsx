@@ -1,7 +1,9 @@
-import { Banknote, CheckCircle, Download, Filter, Printer, RefreshCw, Trash2, X } from "lucide-react";
+import { Banknote, BookOpen, CheckCircle, Download, Filter, Printer, RefreshCw, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import paymentCorrectionConfig from "../components/finance/paymentCorrectionConfig";
 import AddPaymentForm from "../components/payments/AddPaymentForm";
+import { CorrectionHelpModal } from "../components/posted-document-framework";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
 import { useTheme } from "../contexts/ThemeContext";
@@ -163,6 +165,7 @@ const POTab = ({ canManage }) => {
   const [loading, setLoading] = useState(cachedState.loading);
   const [items, setItems] = useState(cachedState.items);
   const [drawer, setDrawer] = useState({ open: false, item: null });
+  const [showCorrectionGuide, setShowCorrectionGuide] = useState(false);
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
   const [printingReceiptId, setPrintingReceiptId] = useState(null);
   const [confirmAction, setConfirmAction] = useState({ open: false, type: null });
@@ -807,6 +810,16 @@ const POTab = ({ canManage }) => {
                 <StatusPill status={drawer.item.status} />
                 <button
                   type="button"
+                  onClick={() => setShowCorrectionGuide(true)}
+                  title="Payment Correction Guide"
+                  className={`p-2 rounded transition-colors ${
+                    isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  <BookOpen size={16} />
+                </button>
+                <button
+                  type="button"
                   onClick={closeDrawer}
                   className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
@@ -1015,6 +1028,13 @@ const POTab = ({ canManage }) => {
           </div>
         </div>
       )}
+
+      {/* Payment Correction Guide Modal */}
+      <CorrectionHelpModal
+        open={showCorrectionGuide}
+        onOpenChange={setShowCorrectionGuide}
+        config={paymentCorrectionConfig}
+      />
     </div>
   );
 };
