@@ -62,11 +62,12 @@ export default function CashBookReport() {
   };
 
   // Re-fetch when pagination page changes (only after initial fetch)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional — only re-fetch on page change, fetchData is stable via ref guard
   useEffect(() => {
     if (hasFetched.current) {
       fetchData();
     }
-  }, [filters.page]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [filters.page]);
 
   return (
     <div className="p-6">

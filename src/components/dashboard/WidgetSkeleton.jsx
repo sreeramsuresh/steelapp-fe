@@ -46,6 +46,7 @@ const WidgetSkeleton = ({ variant = "card", size = "md" }) => {
       <div className="flex items-end gap-2 h-32">
         {[40, 65, 45, 80, 55, 70, 50, 85, 60, 75, 45, 90].map((h, i) => (
           <div
+            // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton bars with duplicate values, never reordered
             key={i}
             className={`flex-1 rounded-t ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}
             style={{ height: `${h}%` }}

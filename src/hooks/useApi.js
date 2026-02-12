@@ -224,6 +224,7 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
     [apiFunction, skipInitialLoading, showToasts]
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: execute is stable (useCallback) — only immediate should trigger mount effect
   useEffect(() => {
     // Only fetch on mount if immediate is true and haven't fetched yet
     if (immediate && !hasFetchedRef.current) {
@@ -232,14 +233,11 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
         // Error already handled in execute
       });
     }
-    // Note: execute is intentionally NOT in the dependency array.
-    // execute is stable (created with useCallback) and should not trigger this effect.
-    // Only immediate should trigger the mount effect since it controls whether to fetch.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [immediate]);
 
   // Separate effect for dependency changes (after initial mount)
   const isFirstRenderRef = useRef(true);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: execute is stable (useCallback) — including it would cause infinite re-render loops
   useEffect(() => {
     // Skip first render (already handled above)
     if (isFirstRenderRef.current) {
@@ -253,10 +251,6 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
         // Error already handled in execute
       });
     }
-    // Note: execute is intentionally NOT in the dependency array to prevent infinite loops.
-    // execute is created with useCallback and is stable across renders (only changes if apiFunction changes).
-    // Including it would create: dependencies change → effect runs → setData → re-render → dependencies might change again → loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [immediate, ...dependencies]);
 
   const reset = useCallback(() => {

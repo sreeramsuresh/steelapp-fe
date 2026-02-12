@@ -488,9 +488,9 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   }, [currentPage, pageSize, searchTerm, statusFilter, showDeleted, fetchInvoices]);
 
   // Reset to page 1 when filters change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional — only reset page on filter changes
   useEffect(() => {
     setCurrentPage(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, statusFilter, paymentStatusFilter, showDeleted]);
 
   // Initialize search from URL param
@@ -2480,13 +2480,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                            {invoice.customerDetails?.name || invoice.customer?.name}
-                          </div>
-                          <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                            {invoice.customerDetails?.email || invoice.customer?.email}
-                          </div>
+                        <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                          {invoice.customerDetails?.name || invoice.customer?.name}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

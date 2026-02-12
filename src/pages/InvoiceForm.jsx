@@ -6569,10 +6569,14 @@ const InvoiceForm = ({ onSave }) => {
             )}
 
             <div className="mb-4">
-              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+              <label
+                htmlFor="dropship-supplier-select"
+                className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+              >
                 Select Supplier
               </label>
               <select
+                id="dropship-supplier-select"
                 className={`w-full px-3 py-2 rounded border text-sm ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}

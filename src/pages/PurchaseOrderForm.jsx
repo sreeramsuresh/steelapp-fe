@@ -3177,6 +3177,7 @@ const PurchaseOrderForm = () => {
 
             {/* Per-item quantity inputs */}
             <div className="mb-4">
+              {/* biome-ignore lint/a11y/noLabelWithoutControl: label for item group, not a single control */}
               <label className={LABEL_CLASSES(isDarkMode)}>Items to Receive</label>
               <div
                 className={`rounded-lg border ${isDarkMode ? "border-gray-700" : "border-gray-200"} overflow-hidden`}

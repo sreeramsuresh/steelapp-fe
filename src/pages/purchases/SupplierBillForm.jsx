@@ -1145,16 +1145,11 @@ const SupplierBillForm = () => {
     }
   }, []);
 
-  const handleProductSelectFromAutocomplete = useCallback(
-    (index, selectedProduct) => {
-      if (!selectedProduct) return;
-      // Use handleItemChange with productId which already handles product field population
-      handleItemChange(index, "productId", selectedProduct.id);
-      // Clear search input for this row
-      setSearchInputs((prev) => ({ ...prev, [index]: "" }));
-    },
-    [handleItemChange]
-  );
+  const handleProductSelectFromAutocomplete = (index, selectedProduct) => {
+    if (!selectedProduct) return;
+    handleItemChange(index, "productId", selectedProduct.id);
+    setSearchInputs((prev) => ({ ...prev, [index]: "" }));
+  };
 
   // Validate form
   const validateForm = () => {

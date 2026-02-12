@@ -600,6 +600,7 @@ const DebitNoteList = () => {
                         +{formatCurrency(debitNote.totalDebit)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(debitNote.status)}</td>
+                      {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation cell in clickable row */}
                       <td className="px-6 py-4 whitespace-nowrap text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2">
                           {/* View */}
@@ -754,6 +755,7 @@ const DebitNoteList = () => {
               placeholder="Cancellation reason..."
               className={`w-full p-2 rounded border text-sm mb-4 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"}`}
               rows={3}
+              // biome-ignore lint/a11y/noAutofocus: modal textarea should auto-focus for UX
               autoFocus
             />
             <div className="flex justify-end gap-2">

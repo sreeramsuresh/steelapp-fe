@@ -5,7 +5,7 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import sinon from "sinon";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { ThemeContext } from "../../../contexts/ThemeContext";
 import BaseWidget, { MetricValue, WidgetEmptyState, WidgetListItem } from "../widgets/BaseWidget";
 

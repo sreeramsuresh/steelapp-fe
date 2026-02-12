@@ -493,9 +493,11 @@ const CustomerManagement = () => {
       await createCustomer(customerData);
       // Invalidate any cached customer data in localStorage
       try {
-        Object.keys(localStorage)
-          .filter((key) => key.startsWith("customers_") || key.startsWith("customer_"))
-          .forEach((key) => localStorage.removeItem(key));
+        for (const key of Object.keys(localStorage)) {
+          if (key.startsWith("customers_") || key.startsWith("customer_")) {
+            localStorage.removeItem(key);
+          }
+        }
       } catch (_e) {
         // Cache clear is best-effort
       }
@@ -561,9 +563,11 @@ const CustomerManagement = () => {
       await updateCustomer(selectedCustomer.id, customerData);
       // Invalidate any cached customer data in localStorage
       try {
-        Object.keys(localStorage)
-          .filter((key) => key.startsWith("customers_") || key.startsWith("customer_"))
-          .forEach((key) => localStorage.removeItem(key));
+        for (const key of Object.keys(localStorage)) {
+          if (key.startsWith("customers_") || key.startsWith("customer_")) {
+            localStorage.removeItem(key);
+          }
+        }
       } catch (_e) {
         // Cache clear is best-effort
       }
@@ -591,9 +595,11 @@ const CustomerManagement = () => {
       await archiveCustomer(customerId);
       // Invalidate any cached customer data in localStorage
       try {
-        Object.keys(localStorage)
-          .filter((key) => key.startsWith("customers_") || key.startsWith("customer_"))
-          .forEach((key) => localStorage.removeItem(key));
+        for (const key of Object.keys(localStorage)) {
+          if (key.startsWith("customers_") || key.startsWith("customer_")) {
+            localStorage.removeItem(key);
+          }
+        }
       } catch (_e) {
         // Cache clear is best-effort
       }

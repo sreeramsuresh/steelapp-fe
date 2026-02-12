@@ -372,167 +372,170 @@ export default function PriceListList() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-stretch">
-            {filteredPricelists.map((pricelist) => (
-              <div
-                key={pricelist.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => navigate(`/app/pricelists/${pricelist.id}`)}
-                onKeyDown={(e) => e.key === "Enter" && navigate(`/app/pricelists/${pricelist.id}`)}
-                className={`cursor-pointer rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col w-full text-left ${
-                  isDarkMode
-                    ? "bg-[#1E2328] border-[#37474F] hover:border-teal-500"
-                    : "bg-white border-[#E0E0E0] hover:border-teal-500"
-                }`}
-              >
-                <div className="p-5 flex flex-col flex-1">
-                  {/* Header */}
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                          <Link
-                            to={`/app/pricelists/${pricelist.id}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="hover:underline"
-                          >
-                            {pricelist.name}
-                          </Link>
-                        </h3>
-                        {pricelist.isDefault && (
-                          <span
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full font-medium ${
-                              isDarkMode
-                                ? "bg-yellow-900/30 text-yellow-300 border border-yellow-700"
-                                : "bg-yellow-100 text-yellow-800 border border-yellow-200"
-                            }`}
-                          >
-                            <Star size={10} fill="currentColor" />
-                            Default
-                          </span>
-                        )}
+            {filteredPricelists.map((pricelist) => {
+              return (
+                // biome-ignore lint/a11y/useSemanticElements: card grid item with keyboard support
+                <div
+                  key={pricelist.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate(`/app/pricelists/${pricelist.id}`)}
+                  onKeyDown={(e) => e.key === "Enter" && navigate(`/app/pricelists/${pricelist.id}`)}
+                  className={`cursor-pointer rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col w-full text-left ${
+                    isDarkMode
+                      ? "bg-[#1E2328] border-[#37474F] hover:border-teal-500"
+                      : "bg-white border-[#E0E0E0] hover:border-teal-500"
+                  }`}
+                >
+                  <div className="p-5 flex flex-col flex-1">
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                            <Link
+                              to={`/app/pricelists/${pricelist.id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="hover:underline"
+                            >
+                              {pricelist.name}
+                            </Link>
+                          </h3>
+                          {pricelist.isDefault && (
+                            <span
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full font-medium ${
+                                isDarkMode
+                                  ? "bg-yellow-900/30 text-yellow-300 border border-yellow-700"
+                                  : "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                              }`}
+                            >
+                              <Star size={10} fill="currentColor" />
+                              Default
+                            </span>
+                          )}
+                        </div>
+                        <p
+                          className={`text-sm mb-2 line-clamp-2 min-h-[2.5rem] ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                        >
+                          {pricelist.description || "\u00A0"}
+                        </p>
                       </div>
-                      <p
-                        className={`text-sm mb-2 line-clamp-2 min-h-[2.5rem] ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                      >
-                        {pricelist.description || "\u00A0"}
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-1 min-h-[6.5rem]">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/app/pricelists/${pricelist.id}/edit`);
-                        }}
-                        className={`p-1.5 rounded transition-colors ${
-                          isDarkMode
-                            ? "text-teal-400 hover:text-teal-300 hover:bg-gray-700"
-                            : "text-teal-600 hover:bg-gray-100"
-                        }`}
-                        title="Edit"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => handleCopy(pricelist.id, e)}
-                        className={`p-1.5 rounded transition-colors ${
-                          isDarkMode
-                            ? "text-blue-400 hover:text-blue-300 hover:bg-gray-700"
-                            : "text-blue-600 hover:bg-gray-100"
-                        }`}
-                        title="Copy"
-                      >
-                        <Copy size={16} />
-                      </button>
-                      {!pricelist.isDefault ? (
+                      <div className="flex flex-col gap-1 min-h-[6.5rem]">
                         <button
                           type="button"
-                          onClick={(e) => handleDelete(pricelist.id, pricelist.name, e)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/app/pricelists/${pricelist.id}/edit`);
+                          }}
                           className={`p-1.5 rounded transition-colors ${
                             isDarkMode
-                              ? "text-red-400 hover:text-red-300 hover:bg-gray-700"
-                              : "text-red-600 hover:bg-gray-100"
+                              ? "text-teal-400 hover:text-teal-300 hover:bg-gray-700"
+                              : "text-teal-600 hover:bg-gray-100"
                           }`}
-                          title="Delete"
+                          title="Edit"
                         >
-                          <Trash2 size={16} />
+                          <Edit size={16} />
                         </button>
-                      ) : (
-                        <div className="p-1.5 w-7 h-7" />
-                      )}
+                        <button
+                          type="button"
+                          onClick={(e) => handleCopy(pricelist.id, e)}
+                          className={`p-1.5 rounded transition-colors ${
+                            isDarkMode
+                              ? "text-blue-400 hover:text-blue-300 hover:bg-gray-700"
+                              : "text-blue-600 hover:bg-gray-100"
+                          }`}
+                          title="Copy"
+                        >
+                          <Copy size={16} />
+                        </button>
+                        {!pricelist.isDefault ? (
+                          <button
+                            type="button"
+                            onClick={(e) => handleDelete(pricelist.id, pricelist.name, e)}
+                            className={`p-1.5 rounded transition-colors ${
+                              isDarkMode
+                                ? "text-red-400 hover:text-red-300 hover:bg-gray-700"
+                                : "text-red-600 hover:bg-gray-100"
+                            }`}
+                            title="Delete"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        ) : (
+                          <div className="p-1.5 w-7 h-7" />
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Status Badge */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span
-                      className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md font-medium border ${
-                        pricelist.isActive
-                          ? isDarkMode
-                            ? "bg-green-900/30 text-green-300 border-green-700"
-                            : "bg-green-100 text-green-800 border-green-200"
-                          : isDarkMode
-                            ? "bg-gray-700 text-gray-400 border-gray-600"
-                            : "bg-gray-100 text-gray-600 border-gray-200"
-                      }`}
-                    >
-                      {pricelist.isActive ? <CheckCircle size={12} /> : <XCircle size={12} />}
-                      {pricelist.isActive ? "Active" : "Inactive"}
-                    </span>
-                    <span
-                      className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md font-medium border ${
-                        isDarkMode
-                          ? "bg-blue-900/30 text-blue-300 border-blue-700"
-                          : "bg-blue-100 text-blue-800 border-blue-200"
-                      }`}
-                    >
-                      <DollarSign size={12} />
-                      {pricelist.currency || "AED"}
-                    </span>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="space-y-2 mb-4 flex-1">
-                    <div className="flex justify-between text-sm">
-                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Products</span>
-                      <span className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                        {pricelist.productCount || 0}
+                    {/* Status Badge */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md font-medium border ${
+                          pricelist.isActive
+                            ? isDarkMode
+                              ? "bg-green-900/30 text-green-300 border-green-700"
+                              : "bg-green-100 text-green-800 border-green-200"
+                            : isDarkMode
+                              ? "bg-gray-700 text-gray-400 border-gray-600"
+                              : "bg-gray-100 text-gray-600 border-gray-200"
+                        }`}
+                      >
+                        {pricelist.isActive ? <CheckCircle size={12} /> : <XCircle size={12} />}
+                        {pricelist.isActive ? "Active" : "Inactive"}
+                      </span>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md font-medium border ${
+                          isDarkMode
+                            ? "bg-blue-900/30 text-blue-300 border-blue-700"
+                            : "bg-blue-100 text-blue-800 border-blue-200"
+                        }`}
+                      >
+                        <DollarSign size={12} />
+                        {pricelist.currency || "AED"}
                       </span>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Date Range</span>
-                      <span className={`font-medium text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                        {pricelist.effectiveFrom || pricelist.effectiveTo
-                          ? `${pricelist.effectiveFrom ? new Date(pricelist.effectiveFrom).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"} to ${pricelist.effectiveTo ? new Date(pricelist.effectiveTo).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Ongoing"}`
-                          : "No date range"}
-                      </span>
-                    </div>
-                  </div>
 
-                  {/* Products Progress Bar */}
-                  <div className="mt-auto">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                        Products Coverage
-                      </span>
+                    {/* Stats */}
+                    <div className="space-y-2 mb-4 flex-1">
+                      <div className="flex justify-between text-sm">
+                        <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Products</span>
+                        <span className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                          {pricelist.productCount || 0}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Date Range</span>
+                        <span className={`font-medium text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                          {pricelist.effectiveFrom || pricelist.effectiveTo
+                            ? `${pricelist.effectiveFrom ? new Date(pricelist.effectiveFrom).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"} to ${pricelist.effectiveTo ? new Date(pricelist.effectiveTo).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Ongoing"}`
+                            : "No date range"}
+                        </span>
+                      </div>
                     </div>
-                    <div className={`w-full rounded-full h-2 ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}>
-                      <div
-                        className="h-2 rounded-full bg-teal-500 transition-all duration-300"
-                        style={{
-                          width: `${Math.min((pricelist.productCount || 0) * 5, 100)}%`,
-                        }}
-                      />
+
+                    {/* Products Progress Bar */}
+                    <div className="mt-auto">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                          Products Coverage
+                        </span>
+                      </div>
+                      <div className={`w-full rounded-full h-2 ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}>
+                        <div
+                          className="h-2 rounded-full bg-teal-500 transition-all duration-300"
+                          style={{
+                            width: `${Math.min((pricelist.productCount || 0) * 5, 100)}%`,
+                          }}
+                        />
+                      </div>
+                      <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
+                        {pricelist.productCount || 0} products configured
+                      </p>
                     </div>
-                    <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
-                      {pricelist.productCount || 0} products configured
-                    </p>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

@@ -74,6 +74,7 @@ const ALLOWED_INVOICE_KEYS = new Set<keyof Invoice | string>([
 
   // Items & Payments
   "items",
+  "itemCount",
   "payments",
   "lastPaymentDate",
   "advanceReceived",
@@ -88,6 +89,11 @@ const ALLOWED_INVOICE_KEYS = new Set<keyof Invoice | string>([
   "commissionEligible", // NEW: Whether invoice qualifies for commission
   "commissionPaid", // NEW: Whether commission has been paid
   "commissionNotes", // NEW: Notes about commission status
+
+  // Dropship
+  "dropshipItemCount",
+  "dropshipPOs",
+  "dropshipItemsNeedingPO",
 
   // Delivery
   "deliveryStatus",

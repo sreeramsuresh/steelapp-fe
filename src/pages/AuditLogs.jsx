@@ -462,66 +462,69 @@ const AuditLogs = () => {
                     </tr>
                   </thead>
                   <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
-                    {filteredLogs.map((log) => (
-                      <tr
-                        key={log.id}
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => handleRowClick(log)}
-                        onKeyDown={(e) => e.key === "Enter" && handleRowClick(log)}
-                        className={`cursor-pointer ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-50"} transition-colors`}
-                      >
-                        <td
-                          className={`px-4 py-3 text-sm whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
+                    {filteredLogs.map((log) => {
+                      return (
+                        // biome-ignore lint/a11y/useSemanticElements: clickable table row with keyboard support
+                        <tr
+                          key={log.id}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => handleRowClick(log)}
+                          onKeyDown={(e) => e.key === "Enter" && handleRowClick(log)}
+                          className={`cursor-pointer ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-50"} transition-colors`}
                         >
-                          {formatDate(log.createdAt)}
-                        </td>
-                        <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
-                          <div className="flex items-center gap-2">
-                            <User size={16} className={isDarkMode ? "text-gray-500" : "text-gray-400"} />
-                            <div>
-                              <div className="font-medium">{log.username || "-"}</div>
-                              <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
-                                {log.userEmail || "-"}
+                          <td
+                            className={`px-4 py-3 text-sm whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
+                          >
+                            {formatDate(log.createdAt)}
+                          </td>
+                          <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
+                            <div className="flex items-center gap-2">
+                              <User size={16} className={isDarkMode ? "text-gray-500" : "text-gray-400"} />
+                              <div>
+                                <div className="font-medium">{log.username || "-"}</div>
+                                <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
+                                  {log.userEmail || "-"}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-sm">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryBadge(log.category)}`}
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryBadge(log.category)}`}
+                            >
+                              {log.category?.replace(/_/g, " ")}
+                            </span>
+                          </td>
+                          <td
+                            className={`px-4 py-3 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
                           >
-                            {log.category?.replace(/_/g, " ")}
-                          </span>
-                        </td>
-                        <td
-                          className={`px-4 py-3 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
-                        >
-                          {log.action}
-                        </td>
-                        <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                          {log.entityName || "-"}
-                        </td>
-                        <td
-                          className={`px-4 py-3 text-sm max-w-xs truncate ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                        >
-                          {log.description || "-"}
-                        </td>
-                        <td className="px-4 py-3 text-sm">
-                          {log.status === "success" ? (
-                            <span className="flex items-center gap-1 text-green-600">
-                              <CheckCircle size={16} />
-                              Success
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1 text-red-600">
-                              <AlertCircle size={16} />
-                              Failed
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                            {log.action}
+                          </td>
+                          <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                            {log.entityName || "-"}
+                          </td>
+                          <td
+                            className={`px-4 py-3 text-sm max-w-xs truncate ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          >
+                            {log.description || "-"}
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            {log.status === "success" ? (
+                              <span className="flex items-center gap-1 text-green-600">
+                                <CheckCircle size={16} />
+                                Success
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1 text-red-600">
+                                <AlertCircle size={16} />
+                                Failed
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

@@ -97,7 +97,7 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
 
   return (
     <>
-      {/* Backdrop */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: modal overlay with role="presentation" */}
       <div role="presentation" className="fixed inset-0 bg-black/40 z-[60]" onClick={onClose} onKeyDown={() => {}} />
 
       {/* Drawer */}

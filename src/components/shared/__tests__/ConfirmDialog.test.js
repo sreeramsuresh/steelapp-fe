@@ -11,7 +11,7 @@
  */
 
 import sinon from "sinon";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
 // Mock ConfirmDialog component

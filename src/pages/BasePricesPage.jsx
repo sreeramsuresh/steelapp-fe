@@ -57,7 +57,7 @@ export default function BasePricesPage() {
 
       // Get items for this pricelist
       const itemsData = await pricelistService.getById(pricelist.id);
-      if (itemsData && itemsData.items) {
+      if (itemsData?.items) {
         setItems(itemsData.items);
       }
     } catch (err) {
@@ -105,6 +105,7 @@ export default function BasePricesPage() {
   };
 
   // Filter and sort items
+  // biome-ignore lint/correctness/useExhaustiveDependencies: getItemSortValue is a pure function with no external deps
   const filteredItems = useMemo(() => {
     const filtered = items.filter((item) => {
       const product = item.product || {};
@@ -199,7 +200,7 @@ export default function BasePricesPage() {
       setEditingRowId(null);
     } catch (err) {
       console.error("Error updating price:", err);
-      notificationService.error("Failed to update price: " + err.message);
+      notificationService.error(`Failed to update price: ${err.message}`);
     }
   };
 
@@ -266,7 +267,7 @@ export default function BasePricesPage() {
       setShowBulkModal(false);
     } catch (err) {
       console.error("Error updating prices:", err);
-      notificationService.error("Failed to update prices: " + err.message);
+      notificationService.error(`Failed to update prices: ${err.message}`);
     }
   };
 

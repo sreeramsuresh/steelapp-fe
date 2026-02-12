@@ -715,10 +715,14 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
             }`}
           >
             <h3 className="text-lg font-semibold mb-4">Process Refund</h3>
-            <label className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+            <label
+              htmlFor="refund-method-select"
+              className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+            >
               Refund Method
             </label>
             <select
+              id="refund-method-select"
               value={refundMethod}
               onChange={(e) => setRefundMethod(e.target.value)}
               className={`w-full px-3 py-2 rounded-lg border text-sm mb-6 ${

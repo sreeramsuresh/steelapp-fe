@@ -208,6 +208,7 @@ const Home = () => {
             {heroSlides.map((_, index) => (
               <button
                 type="button"
+                // biome-ignore lint/suspicious/noArrayIndexKey: static slide dots, never reordered
                 key={index}
                 className={`w-4 h-4 rounded-full transition-all duration-300 ${
                   index === currentSlide ? "bg-white scale-125 shadow-lg" : "bg-white/50 hover:bg-white/75"

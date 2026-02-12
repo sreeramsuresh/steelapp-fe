@@ -9,7 +9,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { AlertCircle, Check, Edit, Trash2 } from "lucide-react";
 import sinon from "sinon";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import IconButton from "../IconButton";
 
 describe("IconButton", () => {

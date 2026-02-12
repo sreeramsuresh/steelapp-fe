@@ -936,6 +936,7 @@ const AdvancePaymentList = () => {
                           </span>
                         )}
                       </td>
+                      {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation cell in clickable row */}
                       <td className="px-6 py-4 whitespace-nowrap text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2">
                           {/* View */}
