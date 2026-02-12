@@ -16,6 +16,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { formatDateDMY } from "../utils/invoiceUtils";
 
 const STORAGE_KEY_PREFIX = "invoice_draft_";
 const DEFAULT_DEBOUNCE_MS = 30000; // 30 seconds
@@ -60,7 +61,7 @@ export const formatRelativeTime = (timestamp) => {
   if (hours < 24) return `${hours}h ago`;
 
   // Show date for older saves
-  return new Date(timestamp).toLocaleDateString();
+  return formatDateDMY(timestamp);
 };
 
 /**

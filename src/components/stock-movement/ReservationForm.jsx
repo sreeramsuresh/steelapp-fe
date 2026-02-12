@@ -14,6 +14,7 @@ import { productService } from "../../services/dataService";
 import { stockMovementService } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
 import { getProductUniqueName } from "../../utils/fieldAccessors";
+import { formatDateDMY } from "../../utils/invoiceUtils";
 import { validateSsotPattern } from "../../utils/productSsotValidation";
 
 /**
@@ -530,7 +531,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                     const bNum = batch.batchNumber || batch.batch_number || `BATCH-${bId}`;
                     const available = parseFloat(batch.quantityAvailable || batch.quantity_available || 0);
                     const supplier = batch.supplier || batch.supplierName || "N/A";
-                    const date = new Date(batch.created_at || batch.procurementDate).toLocaleDateString();
+                    const date = formatDateDMY(batch.created_at || batch.procurementDate);
 
                     return (
                       <option key={bId} value={bId}>

@@ -7,6 +7,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { formatDateDMY } from "../../utils/invoiceUtils";
 
 /**
  * CommissionPanel Component
@@ -166,7 +167,7 @@ const CommissionPanel = ({
                   <p className={`${textColor} text-sm font-medium`}>
                     Adjustments allowed until{" "}
                     {invoice.commissionGracePeriodEndDate
-                      ? new Date(invoice.commissionGracePeriodEndDate).toLocaleDateString()
+                      ? formatDateDMY(invoice.commissionGracePeriodEndDate)
                       : "N/A"}
                   </p>
                 </div>
@@ -187,7 +188,7 @@ const CommissionPanel = ({
                   <div>
                     <p className={`${mutedColor} text-sm`}>Approved</p>
                     <p className={`${textColor} text-sm font-medium`}>
-                      {new Date(invoice.commissionApprovedDate).toLocaleDateString()}
+                      {formatDateDMY(invoice.commissionApprovedDate)}
                     </p>
                   </div>
                   <CheckCircle className="w-4 h-4 text-green-600" />
@@ -200,7 +201,7 @@ const CommissionPanel = ({
                   <div>
                     <p className={`${mutedColor} text-sm`}>Paid</p>
                     <p className={`${textColor} text-sm font-medium`}>
-                      {new Date(invoice.commissionPayoutDate).toLocaleDateString()}
+                      {formatDateDMY(invoice.commissionPayoutDate)}
                     </p>
                   </div>
                   <CheckCircle className="w-4 h-4 text-green-600" />

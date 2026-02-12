@@ -57,6 +57,7 @@ import { companyService } from "../services/companyService";
 import { notificationService } from "../services/notificationService";
 import { roleService } from "../services/roleService";
 import { userAdminAPI } from "../services/userAdminApi";
+import { formatDateDMY } from "../utils/invoiceUtils";
 import vatRateService from "../services/vatRateService";
 import ConfirmDialog from "./ConfirmDialog";
 import InvoiceTemplateSettings from "./InvoiceTemplateSettings";
@@ -4233,7 +4234,7 @@ const CompanySettings = () => {
                                     }`}
                                   >
                                     <Clock size={12} className="mr-1" />
-                                    Expires: {new Date(grant.expires_at).toLocaleDateString()}
+                                    Expires: {formatDateDMY(grant.expires_at)}
                                   </span>
                                 </div>
                               )}

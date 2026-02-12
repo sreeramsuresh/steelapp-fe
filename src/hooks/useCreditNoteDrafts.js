@@ -23,6 +23,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { formatDateDMY } from "../utils/invoiceUtils";
 
 const STORAGE_KEY = "credit_note_drafts";
 
@@ -73,7 +74,7 @@ export const formatRelativeTime = (timestamp) => {
   if (minutes < 60) return `${minutes}m ago`;
   if (hours < 24) return `${hours}h ago`;
 
-  return new Date(timestamp).toLocaleDateString();
+  return formatDateDMY(timestamp);
 };
 
 /**
@@ -112,7 +113,7 @@ export const getDraftStatusMessage = (draft) => {
     return `Saved ${savedTime} • Expires tonight at midnight`;
   }
 
-  return `Saved ${savedTime} • Expires ${expiresAt.toLocaleDateString()}`;
+  return `Saved ${savedTime} • Expires ${formatDateDMY(expiresAt)}`;
 };
 
 /**

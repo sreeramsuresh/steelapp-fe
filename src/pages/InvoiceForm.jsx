@@ -56,6 +56,7 @@ import {
   calculateSubtotal,
   calculateTotal,
   formatCurrency,
+  formatDateDMY,
   formatDateForInput,
   normalizeLLC,
   titleCase,
@@ -3283,8 +3284,11 @@ const InvoiceForm = ({ onSave }) => {
     const errors = [];
     const invalidFieldsSet = new Set();
 
-    // Check customer information
-    if (!invoice.customer?.name || invoice.customer.name.trim() === "") {
+    // Check customer information (both ID and name required)
+    if (!invoice.customer?.id) {
+      errors.push("Customer is required. Please select a customer from the dropdown.");
+      invalidFieldsSet.add("customer.name");
+    } else if (!invoice.customer?.name || invoice.customer.name.trim() === "") {
       errors.push("Customer name is required");
       invalidFieldsSet.add("customer.name");
     }
@@ -3518,8 +3522,11 @@ const InvoiceForm = ({ onSave }) => {
     const errors = [];
     const invalidFieldsSet = new Set();
 
-    // Check customer information
-    if (!invoice.customer?.name || invoice.customer.name.trim() === "") {
+    // Check customer information (both ID and name required)
+    if (!invoice.customer?.id) {
+      errors.push("Customer is required. Please select a customer from the dropdown.");
+      invalidFieldsSet.add("customer.name");
+    } else if (!invoice.customer?.name || invoice.customer.name.trim() === "") {
       errors.push("Customer name is required");
       invalidFieldsSet.add("customer.name");
     }
@@ -4412,7 +4419,7 @@ const InvoiceForm = ({ onSave }) => {
                           {tradeLicenseStatus.expiryDate && (
                             <p className="text-sm">
                               <span className="font-medium">Expiry Date:</span>{" "}
-                              {new Date(tradeLicenseStatus.expiryDate).toLocaleDateString()}
+                              {formatDateDMY(tradeLicenseStatus.expiryDate)}
                             </p>
                           )}
                         </div>

@@ -6,6 +6,7 @@ import BulkPriceModal from "../components/pricing/BulkPriceModal";
 import { useTheme } from "../contexts/ThemeContext";
 import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
+import { formatDateDMY } from "../utils/invoiceUtils";
 
 /**
  * BasePricesPage - Dedicated management view for company default pricelist
@@ -279,7 +280,7 @@ export default function BasePricesPage() {
       item.product?.grade || "",
       item.product?.form_type || "",
       item.selling_price || "",
-      item.updated_at ? new Date(item.updated_at).toLocaleDateString() : "",
+      item.updated_at ? formatDateDMY(item.updated_at) : "",
     ]);
 
     const csv = [headers.join(","), ...rows.map((r) => r.map((v) => `"${v}"`).join(","))].join("\n");

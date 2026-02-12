@@ -35,6 +35,7 @@ import exchangeRateService from "../services/exchangeRateService";
 import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
 import { getProductDisplayName, getProductUniqueName } from "../utils/fieldAccessors";
+import { formatDateDMY } from "../utils/invoiceUtils";
 import { getMarginColor as getMarginColorByChannel, PROCUREMENT_CHANNELS } from "../utils/pricingStrategyMatrix";
 
 // Pricing unit display labels (kept local for UI - DB defines the policy, not labels)
@@ -307,12 +308,12 @@ const CurrencyConversionModal = ({
                 Source: {conversionData.rateSource}
               </p>
               <p className={`text-[10px] ${isDarkMode ? "text-gray-400/70" : "text-gray-400"}`}>
-                {new Date(conversionData.rateDate).toLocaleDateString()}
+                {formatDateDMY(conversionData.rateDate)}
               </p>
             </div>
             {isOld && (
               <p className={`text-[10px] mt-2 ${isDarkMode ? "text-amber-400/80" : "text-amber-600"}`}>
-                ⚠ Exchange rate dated {new Date(conversionData.rateDate).toLocaleDateString()}, consider updating
+                ⚠ Exchange rate dated {formatDateDMY(conversionData.rateDate)}, consider updating
               </p>
             )}
           </div>
@@ -1608,8 +1609,8 @@ export default function PriceListForm() {
                         <div>
                           <p className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                             Price list valid from{" "}
-                            <span className="font-bold">{new Date(formData.effectiveFrom).toLocaleDateString()}</span>{" "}
-                            to <span className="font-bold">{new Date(formData.effectiveTo).toLocaleDateString()}</span>
+                            <span className="font-bold">{formatDateDMY(formData.effectiveFrom)}</span>{" "}
+                            to <span className="font-bold">{formatDateDMY(formData.effectiveTo)}</span>
                           </p>
                           <p className={`text-[11px] mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                             Duration: {calculateValidityDays(formData.effectiveFrom, formData.effectiveTo)} days
@@ -1643,8 +1644,8 @@ export default function PriceListForm() {
                                   className={`text-[11px] ${isDarkMode ? "text-amber-400/80" : "text-amber-700"}`}
                                 >
                                   <span className="font-bold">{pl.name}</span> from{" "}
-                                  {new Date(pl.effectiveFrom).toLocaleDateString()} to{" "}
-                                  {new Date(pl.effectiveTo).toLocaleDateString()}
+                                  {formatDateDMY(pl.effectiveFrom)} to{" "}
+                                  {formatDateDMY(pl.effectiveTo)}
                                 </p>
                               ))}
                             </div>
@@ -1673,7 +1674,7 @@ export default function PriceListForm() {
                             </span>
                             {formData.createdDate && (
                               <span className={`ml-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                                on {new Date(formData.createdDate).toLocaleDateString()}
+                                on {formatDateDMY(formData.createdDate)}
                               </span>
                             )}
                           </div>
@@ -1686,7 +1687,7 @@ export default function PriceListForm() {
                             </span>
                             {formData.approvalDate && (
                               <span className={`ml-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                                on {new Date(formData.approvalDate).toLocaleDateString()}
+                                on {formatDateDMY(formData.approvalDate)}
                               </span>
                             )}
                           </div>

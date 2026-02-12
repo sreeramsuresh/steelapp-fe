@@ -33,7 +33,7 @@ import advancePaymentService from "../../services/advancePaymentService";
 import { customerService } from "../../services/customerService";
 import { invoiceService } from "../../services/invoiceService";
 import { notificationService } from "../../services/notificationService";
-import { formatCurrency, formatDateForInput } from "../../utils/invoiceUtils";
+import { formatCurrency, formatDateDMY, formatDateForInput } from "../../utils/invoiceUtils";
 
 // UAE Emirates for place of supply
 const EMIRATES = [
@@ -1168,7 +1168,7 @@ const AdvancePaymentForm = () => {
                         <input
                           id="settlementDate"
                           type="text"
-                          value={payment.settlementDate ? new Date(payment.settlementDate).toLocaleDateString() : ""}
+                          value={payment.settlementDate ? formatDateDMY(payment.settlementDate) : ""}
                           readOnly
                           className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textMuted} cursor-not-allowed`}
                         />

@@ -95,6 +95,7 @@ import { notificationService } from "../services/notificationService";
 import {
   calculateItemAmount,
   formatCurrency,
+  formatDateDMY,
   formatDateForInput,
   validateQuantityPrecision,
 } from "../utils/invoiceUtils";
@@ -1379,7 +1380,7 @@ const CreditNoteForm = () => {
                                   {formatCurrency(invoice.total)}
                                 </div>
                                 <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
-                                  {new Date(invoice.invoiceDate).toLocaleDateString()}
+                                  {formatDateDMY(invoice.invoiceDate)}
                                 </div>
                               </div>
                             </div>
@@ -1460,7 +1461,7 @@ const CreditNoteForm = () => {
                     <span className="font-medium">Customer:</span> {selectedInvoice.customer?.name}
                   </div>
                   <div>
-                    <span className="font-medium">Date:</span> {new Date(selectedInvoice.date).toLocaleDateString()}
+                    <span className="font-medium">Date:</span> {formatDateDMY(selectedInvoice.date)}
                   </div>
                   <div>
                     <span className="font-medium">Total:</span> {formatCurrency(selectedInvoice.total)}
@@ -2381,7 +2382,7 @@ const CreditNoteForm = () => {
                               }`}
                             >
                               {creditNote.rmaValidityDate
-                                ? new Date(creditNote.rmaValidityDate).toLocaleDateString()
+                                ? formatDateDMY(creditNote.rmaValidityDate)
                                 : "N/A"}
                             </div>
                           </div>

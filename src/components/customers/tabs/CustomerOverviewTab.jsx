@@ -36,7 +36,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useTheme } from "../../../contexts/ThemeContext";
-import { formatCurrency } from "../../../utils/invoiceUtils";
+import { formatCurrency, formatDateDMY } from "../../../utils/invoiceUtils";
 
 export default function CustomerOverviewTab({ customer }) {
   const { isDarkMode } = useTheme();
@@ -239,13 +239,13 @@ export default function CustomerOverviewTab({ customer }) {
             {customer.createdAt && (
               <div className={`flex items-center gap-2 ${mutedText} text-xs`}>
                 <Calendar className="w-3 h-3" />
-                <span>Created: {new Date(customer.createdAt).toLocaleDateString()}</span>
+                <span>Created: {formatDateDMY(customer.createdAt)}</span>
               </div>
             )}
             {customer.updatedAt && (
               <div className={`flex items-center gap-2 ${mutedText} text-xs`}>
                 <Calendar className="w-3 h-3" />
-                <span>Updated: {new Date(customer.updatedAt).toLocaleDateString()}</span>
+                <span>Updated: {formatDateDMY(customer.updatedAt)}</span>
               </div>
             )}
           </div>

@@ -6,6 +6,7 @@ import { exportOrderService } from "../services/exportOrderService";
 import { importOrderService } from "../services/importOrderService";
 import { materialCertificateService } from "../services/materialCertificateService";
 import { shippingDocumentService } from "../services/shippingDocumentService";
+import { formatDateDMY } from "../utils/invoiceUtils";
 
 const ImportExportOverview = () => {
   const { isDarkMode } = useTheme();
@@ -91,7 +92,7 @@ const ImportExportOverview = () => {
           activity.push({
             color: "green",
             text: `Import Order ${latest.importOrderNumber} - ${latest.status}`,
-            time: latest.audit?.updatedAt ? new Date(latest.audit.updatedAt).toLocaleDateString() : "Recently",
+            time: latest.audit?.updatedAt ? formatDateDMY(latest.audit.updatedAt) : "Recently",
           });
         }
         if (exportOrders.length > 0) {
@@ -99,7 +100,7 @@ const ImportExportOverview = () => {
           activity.push({
             color: "blue",
             text: `Export Order ${latest.exportOrderNumber} - ${latest.status}`,
-            time: latest.audit?.updatedAt ? new Date(latest.audit.updatedAt).toLocaleDateString() : "Recently",
+            time: latest.audit?.updatedAt ? formatDateDMY(latest.audit.updatedAt) : "Recently",
           });
         }
         if (certificates.length > 0) {
@@ -107,7 +108,7 @@ const ImportExportOverview = () => {
           activity.push({
             color: "orange",
             text: `Certificate ${latest.certificateNumber} - ${latest.verificationStatus}`,
-            time: latest.audit?.updatedAt ? new Date(latest.audit.updatedAt).toLocaleDateString() : "Recently",
+            time: latest.audit?.updatedAt ? formatDateDMY(latest.audit.updatedAt) : "Recently",
           });
         }
 

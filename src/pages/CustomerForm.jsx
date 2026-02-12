@@ -23,6 +23,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useTheme } from "../contexts/ThemeContext";
 import { customerService } from "../services/customerService";
 import { notificationService } from "../services/notificationService";
+import { formatDateDMY } from "../utils/invoiceUtils";
 
 /**
  * ISO 3166-1 alpha-2 country codes for address validation
@@ -1211,7 +1212,7 @@ const CustomerForm = () => {
                   paymentHistory.map((payment, idx) => (
                     <tr key={payment.id || payment.name || `payment-${idx}`}>
                       <td className={`px-3 py-2 text-sm ${textMuted}`}>
-                        {new Date(payment.paymentDate).toLocaleDateString()}
+                        {formatDateDMY(payment.paymentDate)}
                       </td>
                       <td className={`px-3 py-2 text-sm font-mono ${textPrimary}`}>
                         AED{" "}

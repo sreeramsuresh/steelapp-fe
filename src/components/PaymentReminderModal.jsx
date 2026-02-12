@@ -5,6 +5,14 @@ import { notificationService } from "../services/notificationService";
 import { formatCurrency, formatDateTime } from "../utils/invoiceUtils";
 import ConfirmDialog from "./ConfirmDialog";
 
+// Format a Date to local datetime-local input value (YYYY-MM-DDTHH:mm)
+// Uses the browser's local timezone (GST/UTC+4 for UAE)
+const toLocalDateTimeValue = (date = new Date()) => {
+  const d = new Date(date);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
 // Helper function to get first name from full name
 const getFirstName = (name) => {
   if (!name) return "N/A";
@@ -43,7 +51,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
   const [currentUser, setCurrentUser] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null); // For custom confirmation dialog
   const [formData, setFormData] = useState({
-    contact_date: new Date().toISOString().slice(0, 16), // YYYY-MM-DDTHH:mm
+    contact_date: toLocalDateTimeValue(), // YYYY-MM-DDTHH:mm
     notes: "",
     promised_amount: "",
     promised_date: "",
@@ -103,7 +111,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
 
         // Reset form
         setFormData({
-          contact_date: new Date().toISOString().slice(0, 16),
+          contact_date: toLocalDateTimeValue(),
           notes: "",
           promised_amount: "",
           promised_date: "",
@@ -119,7 +127,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
 
         // Reset form
         setFormData({
-          contact_date: new Date().toISOString().slice(0, 16),
+          contact_date: toLocalDateTimeValue(),
           notes: "",
           promised_amount: "",
           promised_date: "",
@@ -147,7 +155,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
   const handleEdit = (reminder) => {
     setEditingId(reminder.id);
     setFormData({
-      contact_date: new Date(reminder.contactDate).toISOString().slice(0, 16),
+      contact_date: toLocalDateTimeValue(reminder.contactDate),
       notes: reminder.notes,
       promised_amount: reminder.promisedAmount || "",
       promised_date: reminder.promisedDate || "",
@@ -182,7 +190,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
   const handleCancel = () => {
     setEditingId(null);
     setFormData({
-      contact_date: new Date().toISOString().slice(0, 16),
+      contact_date: toLocalDateTimeValue(),
       notes: "",
       promised_amount: "",
       promised_date: "",
@@ -249,22 +257,22 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
             <div className="text-sm font-semibold text-orange-900 dark:text-orange-100 mb-3 flex items-center gap-2">
               <span>📊</span> Invoice Summary
             </div>
-            <div className="grid grid-cols-3 gap-4 text-sm">
-              <div>
+            <div className="grid grid-cols-3 gap-2 text-sm">
+              <div className="min-w-0">
                 <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">Total Amount</div>
-                <div className="font-bold text-lg text-orange-900 dark:text-orange-100">
+                <div className="font-bold text-sm text-orange-900 dark:text-orange-100 truncate">
                   {formatCurrency(invoice?.invoiceAmount || invoice?.total || 0)}
                 </div>
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">Paid Amount</div>
-                <div className="font-bold text-lg text-green-600 dark:text-green-400">
+                <div className="font-bold text-sm text-green-600 dark:text-green-400 truncate">
                   {formatCurrency(invoice?.received || 0)}
                 </div>
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">Balance Due</div>
-                <div className="font-bold text-lg text-red-600 dark:text-red-400">
+                <div className="font-bold text-sm text-red-600 dark:text-red-400 truncate">
                   {formatCurrency(invoice?.outstanding || invoice?.balanceDue || 0)}
                 </div>
               </div>

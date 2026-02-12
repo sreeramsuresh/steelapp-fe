@@ -5,7 +5,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
 import { commissionService } from "../services/commissionService";
 import { notificationService } from "../services/notificationService";
-import { formatCurrency } from "../utils/invoiceUtils";
+import { formatCurrency, formatDateDMY } from "../utils/invoiceUtils";
 
 const AgentCommissionDashboard = () => {
   const { isDarkMode } = useTheme();
@@ -367,7 +367,7 @@ const AgentCommissionDashboard = () => {
                         <td
                           className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                         >
-                          {new Date(transaction.createdAt).toLocaleDateString()}
+                          {formatDateDMY(transaction.createdAt)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(transaction.status)}</td>
                       </tr>

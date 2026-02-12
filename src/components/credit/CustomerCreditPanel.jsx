@@ -5,6 +5,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { formatDateDMY } from "../../utils/invoiceUtils";
 
 /**
  * CustomerCreditPanel Component
@@ -192,7 +193,7 @@ const CustomerCreditPanel = ({
                   <span className={`${mutedColor} text-sm`}>Last Payment</span>
                 </div>
                 <span className={`${textColor} font-semibold`}>
-                  {customer.lastPaymentDate ? new Date(customer.lastPaymentDate).toLocaleDateString() : "No payments"}
+                  {customer.lastPaymentDate ? formatDateDMY(customer.lastPaymentDate) : "No payments"}
                 </span>
               </div>
 

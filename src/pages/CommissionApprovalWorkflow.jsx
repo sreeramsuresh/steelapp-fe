@@ -4,6 +4,7 @@ import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
 import { useTheme } from "../contexts/ThemeContext";
 import { commissionService } from "../services/commissionService";
+import { formatDateDMY } from "../utils/invoiceUtils";
 
 export default function CommissionApprovalWorkflow() {
   const { isDarkMode } = useTheme();
@@ -404,7 +405,7 @@ export default function CommissionApprovalWorkflow() {
                               <span className="font-semibold">Amount:</span> AED {commissionAmount?.toFixed(2)}
                             </div>
                             <div>
-                              <span className="font-semibold">Accrued:</span> {new Date().toLocaleDateString()}
+                              <span className="font-semibold">Accrued:</span> {formatDateDMY(new Date())}
                             </div>
                             <div className={daysRemaining < 3 ? "text-red-600 font-semibold" : ""}>
                               <Clock className="inline w-4 h-4 mr-1" />
@@ -556,7 +557,7 @@ export default function CommissionApprovalWorkflow() {
                           Grace Period End
                         </div>
                         <p className={isDarkMode ? "text-gray-300" : "text-gray-900"}>
-                          {gracePeriodEndDate ? new Date(gracePeriodEndDate).toLocaleDateString() : "N/A"}
+                          {gracePeriodEndDate ? formatDateDMY(gracePeriodEndDate) : "N/A"}
                         </p>
                       </div>
                     </div>

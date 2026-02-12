@@ -17,7 +17,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { commissionService } from "../services/commissionService";
 import { notificationService } from "../services/notificationService";
-import { formatCurrency, formatDate } from "../utils/invoiceUtils";
+import { formatCurrency, formatDate, formatDateDMY } from "../utils/invoiceUtils";
 
 const CommissionTransactions = () => {
   const { isDarkMode } = useTheme();
@@ -185,7 +185,7 @@ const CommissionTransactions = () => {
       parseFloat(t.saleAmount || 0).toFixed(2),
       t.commissionRate || 0,
       parseFloat(t.commissionAmount || 0).toFixed(2),
-      t.createdAt ? new Date(t.createdAt).toLocaleDateString() : "",
+      t.createdAt ? formatDateDMY(t.createdAt) : "",
       t.status || "pending",
     ]);
 

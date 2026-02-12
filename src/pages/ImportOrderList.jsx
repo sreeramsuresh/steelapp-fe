@@ -5,6 +5,7 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
 import { importOrderService } from "../services/importOrderService";
+import { formatDateDMY } from "../utils/invoiceUtils";
 
 const ImportOrderList = () => {
   const { isDarkMode } = useTheme();
@@ -246,7 +247,7 @@ const ImportOrderList = () => {
                       <div className="text-sm">{order.originPort || "N/A"}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm">{new Date(order.orderDate).toLocaleDateString()}</div>
+                      <div className="text-sm">{formatDateDMY(order.orderDate)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium">

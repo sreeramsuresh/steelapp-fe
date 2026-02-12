@@ -3,6 +3,7 @@ import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { ChartSkeleton } from "../components/charts";
 import { useTheme } from "../contexts/ThemeContext";
 import { deliveryVarianceService } from "../services/deliveryVarianceService";
+import { formatDateDMY } from "../utils/invoiceUtils";
 
 const LazyLineChart = lazy(() => import("../components/charts/LazyLineChart"));
 const LazyBarChart = lazy(() => import("../components/charts/LazyBarChart"));
@@ -102,7 +103,7 @@ export default function DeliveryVarianceDashboard() {
   const trendChartData =
     trend?.trendData?.length > 0 &&
     trend.trendData.map((d) => ({
-      date: new Date(d.date).toLocaleDateString(),
+      date: formatDateDMY(d.date),
       onTimeDeliveryPct: d.onTimeDeliveryPct,
     }));
 

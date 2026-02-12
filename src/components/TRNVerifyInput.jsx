@@ -23,6 +23,7 @@ import { AlertCircle, Check, CheckCircle, Copy, ExternalLink, Loader2, ShieldChe
 import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { trnService } from "../services/trnService";
+import { formatDateDMY } from "../utils/invoiceUtils";
 
 const TRNVerifyInput = ({
   value = "",
@@ -283,7 +284,7 @@ const TRNVerifyInput = ({
               )}
               {verificationResult.registrationDate && (
                 <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                  Registered since: {new Date(verificationResult.registrationDate).toLocaleDateString()}
+                  Registered since: {formatDateDMY(verificationResult.registrationDate)}
                 </p>
               )}
             </div>

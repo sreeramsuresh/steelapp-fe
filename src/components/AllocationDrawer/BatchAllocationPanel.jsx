@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import useBulkActions, { BulkCheckbox } from "../../hooks/useBulkActions";
 import { batchReservationService } from "../../services/batchReservationService";
+import { formatDateDMY } from "../../utils/invoiceUtils";
 
 /**
  * BatchAllocationPanel Component (PCS-CENTRIC)
@@ -220,7 +221,7 @@ const BatchAllocationPanel = ({
   const _formatDate = (dateStr) => {
     if (!dateStr) return "N/A";
     try {
-      return new Date(dateStr).toLocaleDateString();
+      return formatDateDMY(dateStr);
     } catch (_e) {
       return "N/A";
     }

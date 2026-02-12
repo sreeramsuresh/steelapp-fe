@@ -5,13 +5,13 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useApiData } from "../hooks/useApi";
 import { companyService } from "../services";
 import { payablesService } from "../services/payablesService";
-import { formatCurrency } from "../utils/invoiceUtils";
+import { formatCurrency, formatDateDMY } from "../utils/invoiceUtils";
 import { generateStatementPDF } from "../utils/statementPdfGenerator";
 
 const formatDate = (d) => {
   if (!d) return "";
   try {
-    return new Date(d).toLocaleDateString();
+    return formatDateDMY(d);
   } catch {
     return d;
   }
