@@ -512,11 +512,15 @@ export default function UserProfile() {
                       {recoveryCodes.length > 0 ? (
                         <div
                           className={`grid grid-cols-2 gap-2 p-4 rounded-lg border font-mono text-sm ${
-                            isDarkMode ? "bg-gray-900 border-gray-700 text-gray-300" : "bg-gray-50 border-gray-200 text-gray-700"
+                            isDarkMode
+                              ? "bg-gray-900 border-gray-700 text-gray-300"
+                              : "bg-gray-50 border-gray-200 text-gray-700"
                           }`}
                         >
                           {recoveryCodes.map((code) => (
-                            <div key={code} className="text-center py-1">{code}</div>
+                            <div key={code} className="text-center py-1">
+                              {code}
+                            </div>
                           ))}
                         </div>
                       ) : (
@@ -535,7 +539,10 @@ export default function UserProfile() {
                           <div className="flex gap-2">
                             <button
                               type="button"
-                              onClick={() => { setShowRegenCodes(false); setRegenPassword(""); }}
+                              onClick={() => {
+                                setShowRegenCodes(false);
+                                setRegenPassword("");
+                              }}
                               className={`flex-1 px-4 py-2 rounded-lg font-medium ${isDarkMode ? "bg-gray-700 text-white hover:bg-gray-600" : "bg-gray-200 text-gray-900 hover:bg-gray-300"}`}
                             >
                               Cancel
@@ -554,7 +561,10 @@ export default function UserProfile() {
                       {recoveryCodes.length > 0 && (
                         <button
                           type="button"
-                          onClick={() => { setShowRegenCodes(false); setRecoveryCodes([]); }}
+                          onClick={() => {
+                            setShowRegenCodes(false);
+                            setRecoveryCodes([]);
+                          }}
                           className="w-full px-4 py-2 rounded-lg font-medium bg-teal-600 text-white hover:bg-teal-700"
                         >
                           Done
@@ -589,7 +599,10 @@ export default function UserProfile() {
                       <div className="flex gap-2">
                         <button
                           type="button"
-                          onClick={() => { setShowDisable2FA(false); setDisablePassword(""); }}
+                          onClick={() => {
+                            setShowDisable2FA(false);
+                            setDisablePassword("");
+                          }}
                           className={`flex-1 px-4 py-2 rounded-lg font-medium ${isDarkMode ? "bg-gray-700 text-white hover:bg-gray-600" : "bg-gray-200 text-gray-900 hover:bg-gray-300"}`}
                         >
                           Cancel

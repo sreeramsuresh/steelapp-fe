@@ -148,10 +148,7 @@ export default function PasskeyManagement() {
               }`}
             >
               <div className="flex items-center gap-3">
-                <Fingerprint
-                  size={20}
-                  className={isDarkMode ? "text-teal-400" : "text-teal-600"}
-                />
+                <Fingerprint size={20} className={isDarkMode ? "text-teal-400" : "text-teal-600"} />
                 <div>
                   {editingId === cred.id ? (
                     <div className="flex items-center gap-2">

@@ -143,9 +143,7 @@ export default function TwoFactorSetup({ onComplete, onCancel }) {
     return (
       <div className={cardClass}>
         <div className="text-center mb-4">
-          <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-            Scan QR Code
-          </h3>
+          <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Scan QR Code</h3>
           <p className={`text-sm mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
             Scan this code with your authenticator app
           </p>
@@ -172,9 +170,7 @@ export default function TwoFactorSetup({ onComplete, onCancel }) {
             <p className={`text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               Or enter this key manually:
             </p>
-            <code
-              className={`text-sm font-mono break-all ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
-            >
+            <code className={`text-sm font-mono break-all ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}>
               {setupData.secret}
             </code>
           </div>

@@ -44,9 +44,7 @@ export default function ResetPassword() {
           <Link
             to="/forgot-password"
             className={`flex items-center justify-center gap-2 w-full py-3 rounded-lg font-medium transition-colors ${
-              isDarkMode
-                ? "bg-teal-600 text-white hover:bg-teal-700"
-                : "bg-teal-500 text-white hover:bg-teal-600"
+              isDarkMode ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-teal-500 text-white hover:bg-teal-600"
             }`}
           >
             Request a New Reset Link

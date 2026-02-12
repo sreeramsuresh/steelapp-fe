@@ -160,7 +160,9 @@ const Login = ({ onLoginSuccess }) => {
     } catch (loginError) {
       if (loginError.code === "ACCOUNT_LOCKED") {
         setLockoutMinutes(loginError.remainingMinutes || 15);
-        setError(`Account locked due to too many failed attempts. Try again in ${loginError.remainingMinutes || 15} minutes.`);
+        setError(
+          `Account locked due to too many failed attempts. Try again in ${loginError.remainingMinutes || 15} minutes.`
+        );
       } else {
         setError(loginError.message || "Authentication failed");
       }
@@ -340,7 +342,9 @@ const Login = ({ onLoginSuccess }) => {
               {lockoutMinutes > 0 && (
                 <div
                   className={`p-3 rounded-lg border ${
-                    isDarkMode ? "bg-orange-900/20 border-orange-700 text-orange-400" : "bg-orange-50 border-orange-200 text-orange-800"
+                    isDarkMode
+                      ? "bg-orange-900/20 border-orange-700 text-orange-400"
+                      : "bg-orange-50 border-orange-200 text-orange-800"
                   }`}
                 >
                   <div className="flex items-center gap-2">
