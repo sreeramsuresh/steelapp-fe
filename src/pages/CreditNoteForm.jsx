@@ -1,6 +1,7 @@
 import {
   AlertTriangle,
   ArrowLeft,
+  BookOpen,
   Eye,
   FileText,
   Filter,
@@ -14,6 +15,8 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import invoiceCorrectionConfig from "../components/finance/invoiceCorrectionConfig";
+import { CorrectionHelpModal } from "../components/posted-document-framework";
 import { normalizeUom } from "../utils/fieldAccessors";
 
 // Design system helpers (matching PO form standard)
@@ -218,6 +221,7 @@ const CreditNoteForm = () => {
   const [saving, setSaving] = useState(false);
   const [_invoiceLoading, setInvoiceLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showCorrectionGuide, setShowCorrectionGuide] = useState(false);
   const [company, setCompany] = useState(null);
 
   // Drawer states
@@ -1074,6 +1078,20 @@ const CreditNoteForm = () => {
             </div>
           </div>
           <div className="flex gap-3">
+            {/* Correction Guide Button */}
+            <button
+              type="button"
+              onClick={() => setShowCorrectionGuide(true)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                isDarkMode
+                  ? "bg-amber-900/20 text-amber-400 hover:bg-amber-900/30"
+                  : "bg-amber-50 text-amber-700 hover:bg-amber-100"
+              }`}
+              title="Correction Guide"
+            >
+              <BookOpen className="h-4 w-4" />
+              <span className="hidden sm:inline text-sm">Guide</span>
+            </button>
             {/* Preview Button */}
             <button
               type="button"
@@ -3007,6 +3025,17 @@ const CreditNoteForm = () => {
       {showPreview && (
         <CreditNotePreview creditNote={creditNote} company={company} onClose={() => setShowPreview(false)} />
       )}
+
+      {/* Correction Guide Modal */}
+      <CorrectionHelpModal
+        open={showCorrectionGuide}
+        onOpenChange={setShowCorrectionGuide}
+        config={invoiceCorrectionConfig}
+        onNavigate={(url) => {
+          setShowCorrectionGuide(false);
+          navigate(url);
+        }}
+      />
     </div>
   );
 };

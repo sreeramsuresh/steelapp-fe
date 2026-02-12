@@ -14,6 +14,7 @@
 import {
   AlertTriangle,
   ArrowLeft,
+  BookOpen,
   ChevronDown,
   Copy,
   FileText,
@@ -27,6 +28,8 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import invoiceCorrectionConfig from "../../components/finance/invoiceCorrectionConfig";
+import { CorrectionHelpModal } from "../../components/posted-document-framework";
 import { FormSelect } from "../../components/ui/form-select";
 import { SelectItem } from "../../components/ui/select";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -103,6 +106,7 @@ const DebitNoteForm = () => {
   // Form state
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showCorrectionGuide, setShowCorrectionGuide] = useState(false);
   const [supplierBillSearching, setSupplierBillSearching] = useState(false);
   const [validationErrors, setValidationErrors] = useState([]);
 
@@ -440,6 +444,17 @@ const DebitNoteForm = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                {/* Correction Guide */}
+                <button
+                  type="button"
+                  onClick={() => setShowCorrectionGuide(true)}
+                  className={`p-2 rounded-xl transition-colors ${
+                    isDarkMode ? "text-amber-400 hover:bg-amber-900/20" : "text-amber-600 hover:bg-amber-50"
+                  }`}
+                  title="Correction Guide"
+                >
+                  <BookOpen className="h-4 w-4" />
+                </button>
                 <span
                   className={`px-2.5 py-1 rounded-xl text-xs border ${
                     isDarkMode
@@ -1333,6 +1348,17 @@ const DebitNoteForm = () => {
           </div>
         </div>
       </div>
+
+      {/* Correction Guide Modal */}
+      <CorrectionHelpModal
+        open={showCorrectionGuide}
+        onOpenChange={setShowCorrectionGuide}
+        config={invoiceCorrectionConfig}
+        onNavigate={(url) => {
+          setShowCorrectionGuide(false);
+          navigate(url);
+        }}
+      />
     </div>
   );
 };

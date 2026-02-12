@@ -72,6 +72,9 @@ const OperatingExpenses = lazy(() => import("../pages/OperatingExpenses"));
 // Purchases Dashboard
 const PurchasesDashboard = lazy(() => import("../pages/PurchasesDashboard"));
 
+// Document Workflow Guide
+const DocumentWorkflowGuide = lazy(() => import("../pages/DocumentWorkflowGuide"));
+
 // Admin Components
 const AuditLogs = lazy(() => import("../pages/AuditLogs"));
 
@@ -572,6 +575,14 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredPermission="payables.read">
                   <FinanceDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="finance/document-workflow"
+              element={
+                <ProtectedRoute user={user} requiredPermission="payables.read">
+                  <DocumentWorkflowGuide />
                 </ProtectedRoute>
               }
             />

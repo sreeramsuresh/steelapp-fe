@@ -2,6 +2,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   Banknote,
+  BookOpen,
   CheckCircle,
   DollarSign,
   Download,
@@ -24,6 +25,8 @@ import { FormSelect } from "@/components/ui/form-select";
 import { SelectItem } from "@/components/ui/select";
 import AllocationDrawer from "../components/AllocationDrawer";
 import ConfirmDialog from "../components/ConfirmDialog";
+import invoiceCorrectionConfig from "../components/finance/invoiceCorrectionConfig";
+import { CorrectionHelpModal } from "../components/posted-document-framework";
 import InvoicePreview from "../components/InvoicePreview";
 import AllocationPanel from "../components/invoice/AllocationPanel";
 import InvoiceValidationPanel from "../components/invoice/InvoiceValidationPanel";
@@ -1490,6 +1493,7 @@ const InvoiceForm = ({ onSave }) => {
 
   // Form preferences state (with localStorage persistence)
   const [showFormSettings, setShowFormSettings] = useState(false);
+  const [showCorrectionGuide, setShowCorrectionGuide] = useState(false);
   const [showFreightCharges, setShowFreightCharges] = useState(false);
 
   // Phase 1.1 UX Refactoring: Drawer states for secondary content
@@ -4109,6 +4113,18 @@ const InvoiceForm = ({ onSave }) => {
               </div>
 
               <div className="hidden md:flex gap-2 items-start relative">
+                {/* Correction Guide */}
+                <button
+                  type="button"
+                  onClick={() => setShowCorrectionGuide(true)}
+                  className={`p-2 rounded-lg transition-colors ${
+                    isDarkMode ? "text-amber-400 hover:bg-amber-900/20" : "text-amber-600 hover:bg-amber-50"
+                  }`}
+                  aria-label="Correction Guide"
+                  title="Correction Guide"
+                >
+                  <BookOpen className="h-5 w-5" />
+                </button>
                 {/* Settings Icon */}
                 <button
                   type="button"
@@ -6790,6 +6806,17 @@ const InvoiceForm = ({ onSave }) => {
           }
         />
       )}
+
+      {/* Correction Guide Modal */}
+      <CorrectionHelpModal
+        open={showCorrectionGuide}
+        onOpenChange={setShowCorrectionGuide}
+        config={invoiceCorrectionConfig}
+        onNavigate={(url) => {
+          setShowCorrectionGuide(false);
+          navigate(url);
+        }}
+      />
     </>
   );
 };

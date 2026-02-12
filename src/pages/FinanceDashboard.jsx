@@ -1,11 +1,13 @@
-import { Banknote, DollarSign, FileText, RotateCcw, ShieldCheck } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Banknote, BookOpen, DollarSign, FileText, RotateCcw, ShieldCheck } from "lucide-react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import AccountStatementList from "./AccountStatementList";
 import CommissionApprovalWorkflow from "./CommissionApprovalWorkflow";
 import CreditNoteList from "./CreditNoteList";
 import CustomerCreditManagement from "./CustomerCreditManagement";
+
+const DocumentWorkflowGuideTab = lazy(() => import("./DocumentWorkflowGuide"));
 
 const FinanceDashboard = () => {
   const { isDarkMode } = useTheme();
@@ -14,7 +16,12 @@ const FinanceDashboard = () => {
   // Initialize activeTab from URL parameter
   const [activeTab, setActiveTab] = useState(() => {
     const tabParam = searchParams.get("tab");
-    if (tabParam && ["credit-notes", "statements", "commission-approvals", "credit-management"].includes(tabParam)) {
+    if (
+      tabParam &&
+      ["credit-notes", "statements", "commission-approvals", "credit-management", "document-workflow"].includes(
+        tabParam
+      )
+    ) {
       return tabParam;
     }
     return "credit-notes";
@@ -23,7 +30,12 @@ const FinanceDashboard = () => {
   // Update tab when URL parameter changes
   useEffect(() => {
     const tabParam = searchParams.get("tab");
-    if (tabParam && ["credit-notes", "statements", "commission-approvals", "credit-management"].includes(tabParam)) {
+    if (
+      tabParam &&
+      ["credit-notes", "statements", "commission-approvals", "credit-management", "document-workflow"].includes(
+        tabParam
+      )
+    ) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveTab(tabParam);
     }
@@ -53,6 +65,12 @@ const FinanceDashboard = () => {
       label: "Credit Management",
       icon: ShieldCheck,
       component: CustomerCreditManagement,
+    },
+    {
+      id: "document-workflow",
+      label: "Correction Guide",
+      icon: BookOpen,
+      component: DocumentWorkflowGuideTab,
     },
   ];
 
@@ -114,13 +132,21 @@ const FinanceDashboard = () => {
 
       {/* Tab Content */}
       <div className="flex-1">
-        {ActiveComponent && (
-          <ActiveComponent
-            preSelectedCustomerId={searchParams.get("customerId")}
-            preSelectedCustomerName={searchParams.get("customerName")}
-            preSelectedInvoiceId={searchParams.get("invoiceId")}
-          />
-        )}
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin h-6 w-6 border-2 border-green-500 border-t-transparent rounded-full" />
+            </div>
+          }
+        >
+          {ActiveComponent && (
+            <ActiveComponent
+              preSelectedCustomerId={searchParams.get("customerId")}
+              preSelectedCustomerName={searchParams.get("customerName")}
+              preSelectedInvoiceId={searchParams.get("invoiceId")}
+            />
+          )}
+        </Suspense>
       </div>
     </div>
   );
