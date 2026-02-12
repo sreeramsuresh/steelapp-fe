@@ -23,20 +23,20 @@ import { z } from "zod";
  */
 export const PageInfoSchema = z.object({
   totalItems: z.number({
-    required_error: "totalItems is required",
-    invalid_type_error: "totalItems must be a number",
+    error: "totalItems is required",
+    message: "totalItems must be a number",
   }),
   totalPages: z.number({
-    required_error: "totalPages is required",
-    invalid_type_error: "totalPages must be a number",
+    error: "totalPages is required",
+    message: "totalPages must be a number",
   }),
   currentPage: z.number({
-    required_error: "currentPage is required",
-    invalid_type_error: "currentPage must be a number",
+    error: "currentPage is required",
+    message: "currentPage must be a number",
   }),
   perPage: z.number({
-    required_error: "perPage is required",
-    invalid_type_error: "perPage must be a number",
+    error: "perPage is required",
+    message: "perPage must be a number",
   }),
   hasNext: z.boolean().optional(),
   hasPrev: z.boolean().optional(),
