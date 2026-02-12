@@ -18,7 +18,6 @@ import {
   Download,
   Edit,
   Eye,
-  EyeOff,
   FilePlus,
   FileText,
   Globe,
@@ -41,7 +40,6 @@ import {
   Truck,
   Upload,
   UserCheck,
-  UserPlus,
   Users,
   Warehouse,
   X,
@@ -630,12 +628,14 @@ const CompanySettings = () => {
     active: true,
   });
 
-  const [showPassword, setShowPassword] = useState(false);
 
   // User management filters and validation
   const [userSearchTerm, setUserSearchTerm] = useState("");
   const [userValidationErrors, setUserValidationErrors] = useState({});
   const [isSubmittingUser, setIsSubmittingUser] = useState(false);
+
+  // Invitation state
+  const [invitations, setInvitations] = useState([]);
 
   // User list pagination and error handling
   const [userCurrentPage, setUserCurrentPage] = useState(1);
@@ -850,6 +850,14 @@ const CompanySettings = () => {
         setUsers(mapped);
         setUserTotalPages(pageInfo.total_pages || 1);
         setUserLoadingError(null);
+
+        // Also load pending invitations
+        try {
+          const invites = await userAdminAPI.listInvitations();
+          setInvitations(invites);
+        } catch (_invErr) {
+          // Non-critical — don't block user list
+        }
       } catch (e) {
         const errorMsg = e?.response?.data?.message || e?.message || "Failed to load users from backend";
         console.warn("Failed to load users from backend:", errorMsg);
@@ -2647,7 +2655,7 @@ const CompanySettings = () => {
                 </Button>
                 <Button
                   variant="primary"
-                  startIcon={<UserPlus size={16} />}
+                  startIcon={<Mail size={16} />}
                   onClick={() => {
                     setNewUser({
                       name: "",
@@ -2659,7 +2667,7 @@ const CompanySettings = () => {
                     setShowAddUserModal(true);
                   }}
                 >
-                  Add User
+                  Invite User
                 </Button>
               </div>
             </div>
@@ -2971,6 +2979,84 @@ const CompanySettings = () => {
             )}
           </div>
         </SettingsPaper>
+
+        {/* Pending Invitations */}
+        {invitations.filter((inv) => inv.status === "pending").length > 0 && (
+          <SettingsPaper>
+            <div className="p-6">
+              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                Pending Invitations
+              </h3>
+              <div className="space-y-3">
+                {invitations
+                  .filter((inv) => inv.status === "pending")
+                  .map((inv) => (
+                    <div
+                      key={inv.id}
+                      className={`flex items-center justify-between p-4 rounded-lg border ${
+                        isDarkMode ? "bg-gray-800/50 border-gray-700" : "bg-gray-50 border-gray-200"
+                      }`}
+                    >
+                      <div>
+                        <div className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                          {inv.name || inv.email}
+                        </div>
+                        <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                          {inv.email} — {inv.role}
+                        </div>
+                        <div className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                          Invited {inv.created_at ? new Date(inv.created_at).toLocaleDateString() : ""}
+                          {inv.invited_by_name ? ` by ${inv.invited_by_name}` : ""}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              await userAdminAPI.resendInvite(inv.email);
+                              notificationService.success(`Invitation resent to ${inv.email}`);
+                              const updated = await userAdminAPI.listInvitations();
+                              setInvitations(updated);
+                            } catch (err) {
+                              notificationService.error(err.response?.data?.error || "Failed to resend invitation");
+                            }
+                          }}
+                          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                            isDarkMode
+                              ? "bg-teal-900/30 text-teal-400 hover:bg-teal-900/50 border border-teal-700"
+                              : "bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200"
+                          }`}
+                        >
+                          Resend
+                        </button>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              await userAdminAPI.revokeInvite(inv.id);
+                              notificationService.success("Invitation revoked");
+                              const updated = await userAdminAPI.listInvitations();
+                              setInvitations(updated);
+                            } catch (err) {
+                              notificationService.error(err.response?.data?.error || "Failed to revoke invitation");
+                            }
+                          }}
+                          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                            isDarkMode
+                              ? "bg-red-900/30 text-red-400 hover:bg-red-900/50 border border-red-700"
+                              : "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
+                          }`}
+                        >
+                          Revoke
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </SettingsPaper>
+        )}
       </div>
 
       {/* Right Column - Help Panel (40%) */}
@@ -3227,7 +3313,7 @@ const CompanySettings = () => {
         </div>
       )}
 
-      {/* Add User Modal */}
+      {/* Invite User Modal */}
       {showAddUserModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div
@@ -3235,7 +3321,7 @@ const CompanySettings = () => {
           >
             <div className={`p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
               <div className="flex justify-between items-center">
-                <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Add New User</h3>
+                <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Invite New User</h3>
                 <button
                   type="button"
                   onClick={() => setShowAddUserModal(false)}
@@ -3249,6 +3335,16 @@ const CompanySettings = () => {
             </div>
 
             <form className="p-6" onSubmit={(e) => e.preventDefault()}>
+              {/* Info banner */}
+              <div
+                className={`mb-4 p-3 rounded-lg border text-sm flex items-center gap-2 ${
+                  isDarkMode ? "bg-teal-900/20 border-teal-700 text-teal-300" : "bg-teal-50 border-teal-200 text-teal-700"
+                }`}
+              >
+                <Mail size={16} />
+                <span>An invitation email will be sent to this address. The user will set their own password.</span>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
                   label="Full Name"
@@ -3282,32 +3378,6 @@ const CompanySettings = () => {
                   placeholder="Enter email address"
                   error={userValidationErrors.email}
                   helperText={userValidationErrors.email}
-                />
-                <TextField
-                  label="Password"
-                  type={showPassword ? "text" : "password"}
-                  value={newUser.password}
-                  onChange={(e) => {
-                    setNewUser({ ...newUser, password: e.target.value });
-                    if (userValidationErrors.password) {
-                      setUserValidationErrors({
-                        ...userValidationErrors,
-                        password: null,
-                      });
-                    }
-                  }}
-                  placeholder="Minimum 8 characters"
-                  error={userValidationErrors.password}
-                  helperText={userValidationErrors.password || "Must be at least 8 characters"}
-                  endAdornment={
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className={`p-1 ${isDarkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-700"}`}
-                    >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  }
                 />
               </div>
 
@@ -3389,8 +3459,8 @@ const CompanySettings = () => {
               </Button>
               <Button
                 onClick={async () => {
-                  // Validate form
-                  const errors = validateUserForm(newUser, false);
+                  // Validate form (invite mode — no password required)
+                  const errors = validateUserForm(newUser, true);
                   if (Object.keys(errors).length > 0) {
                     setUserValidationErrors(errors);
                     notificationService.warning("Please fix the validation errors");
@@ -3400,20 +3470,14 @@ const CompanySettings = () => {
                   try {
                     setIsSubmittingUser(true);
 
-                    // 1. Create user via existing API
-                    const userData = {
+                    // Send invitation
+                    await userAdminAPI.invite({
                       name: newUser.name.trim(),
                       email: newUser.email.trim(),
-                      password: newUser.password,
-                    };
-                    const createdUser = await userAdminAPI.create(userData);
+                      role: "user",
+                    });
 
-                    // 2. Assign selected roles
-                    if (selectedUserRoles.length > 0) {
-                      await roleService.assignRoles(createdUser.id, selectedUserRoles);
-                    }
-
-                    notificationService.success("User created successfully!");
+                    notificationService.success(`Invitation sent to ${newUser.email.trim()}`);
                     setShowAddUserModal(false);
                     setUserValidationErrors({});
                     setNewUser({
@@ -3424,35 +3488,20 @@ const CompanySettings = () => {
                     });
                     setSelectedUserRoles([]);
 
-                    // Refresh user list
-                    const remoteUsers = await userAdminAPI.list();
-                    const mapped = await Promise.all(
-                      remoteUsers.map(async (u) => {
-                        const userPerms = await roleService.getUserPermissions(u.id);
-                        return {
-                          id: String(u.id),
-                          name: u.name,
-                          email: u.email,
-                          role: u.role,
-                          status: u.status || "active",
-                          createdAt: (u.createdAt || u.createdAt || "").toString().substring(0, 10),
-                          lastLogin: u.lastLogin || u.lastLogin || null,
-                          roles: userPerms.roles || [],
-                        };
-                      })
-                    );
-                    setUsers(mapped);
+                    // Refresh invitations list
+                    const updated = await userAdminAPI.listInvitations();
+                    setInvitations(updated);
                   } catch (error) {
-                    console.error("Error creating user:", error);
-                    notificationService.error(error.response?.data?.error || "Failed to create user");
+                    console.error("Error sending invitation:", error);
+                    notificationService.error(error.response?.data?.error || "Failed to send invitation");
                   } finally {
                     setIsSubmittingUser(false);
                   }
                 }}
                 disabled={isSubmittingUser}
-                startIcon={isSubmittingUser ? <CircularProgress size={16} /> : <Save size={20} />}
+                startIcon={isSubmittingUser ? <CircularProgress size={16} /> : <Mail size={20} />}
               >
-                Add User
+                Send Invitation
               </Button>
             </div>
           </div>

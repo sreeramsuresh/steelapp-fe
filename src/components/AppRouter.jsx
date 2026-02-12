@@ -39,6 +39,7 @@ const PurchaseOrderForm = lazy(() => import("../pages/PurchaseOrderForm"));
 const Login = lazy(() => import("./Login"));
 const ForgotPassword = lazy(() => import("./ForgotPassword"));
 const ResetPassword = lazy(() => import("./ResetPassword"));
+const AcceptInvite = lazy(() => import("./AcceptInvite"));
 const MarketingHome = lazy(() => import("../marketing/MarketingHome"));
 const MarketingProducts = lazy(() => import("../marketing/MarketingProducts"));
 const MarketingAbout = lazy(() => import("../marketing/MarketingAbout"));
@@ -193,10 +194,14 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   // Allow public marketing pages and login without auth
   const isMarketing = location.pathname === "/" || location.pathname.startsWith("/marketing");
   const isLoginPage = location.pathname === "/login";
+  const isPublicAuthPage =
+    location.pathname === "/forgot-password" ||
+    location.pathname === "/reset-password" ||
+    location.pathname === "/accept-invite";
   const isAppRoute = location.pathname.startsWith("/app") || location.pathname.startsWith("/analytics");
 
   // Check if we need to redirect to login
-  const needsAuth = !user && !isLoginPage && !isMarketing;
+  const needsAuth = !user && !isLoginPage && !isMarketing && !isPublicAuthPage;
 
   // If user is logged in and on login page, redirect to app
   const needsAppRedirect = user && isLoginPage;
@@ -243,6 +248,9 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
           {/* Password Reset */}
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* Accept Invitation */}
+          <Route path="/accept-invite" element={<AcceptInvite />} />
 
           {/* ========================================== */}
           {/* LEGACY REDIRECTS (Old URLs → New URLs)    */}

@@ -22,4 +22,20 @@ export const userAdminAPI = {
     const res = await apiService.put(`/users/${id}/password`, payload);
     return res;
   },
+  async invite({ name, email, role }) {
+    const res = await apiService.post("/users/invite", { name, email, role });
+    return res;
+  },
+  async resendInvite(email) {
+    const res = await apiService.post("/users/invite/resend", { email });
+    return res;
+  },
+  async revokeInvite(invitationId) {
+    const res = await apiService.post("/users/invite/revoke", { invitationId });
+    return res;
+  },
+  async listInvitations() {
+    const res = await apiService.get("/users/invitations");
+    return res?.invitations || [];
+  },
 };

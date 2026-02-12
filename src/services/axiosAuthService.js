@@ -407,6 +407,22 @@ class AuthService {
     }
   }
 
+  // ── Accept Invitation ────────────────────────────
+
+  async acceptInvite(token, username, password, name) {
+    try {
+      const response = await apiService.post("/auth/accept-invite", {
+        token,
+        username,
+        password,
+        name: name || undefined,
+      });
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || "Failed to accept invitation");
+    }
+  }
+
   // ── Session Management ────────────────────────────
 
   // Clear all session data (matching GigLabz comprehensive cleanup)
