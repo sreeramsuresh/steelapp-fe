@@ -1609,8 +1609,8 @@ export default function PriceListForm() {
                         <div>
                           <p className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                             Price list valid from{" "}
-                            <span className="font-bold">{formatDateDMY(formData.effectiveFrom)}</span>{" "}
-                            to <span className="font-bold">{formatDateDMY(formData.effectiveTo)}</span>
+                            <span className="font-bold">{formatDateDMY(formData.effectiveFrom)}</span> to{" "}
+                            <span className="font-bold">{formatDateDMY(formData.effectiveTo)}</span>
                           </p>
                           <p className={`text-[11px] mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                             Duration: {calculateValidityDays(formData.effectiveFrom, formData.effectiveTo)} days
@@ -1643,8 +1643,7 @@ export default function PriceListForm() {
                                   key={pl.id}
                                   className={`text-[11px] ${isDarkMode ? "text-amber-400/80" : "text-amber-700"}`}
                                 >
-                                  <span className="font-bold">{pl.name}</span> from{" "}
-                                  {formatDateDMY(pl.effectiveFrom)} to{" "}
+                                  <span className="font-bold">{pl.name}</span> from {formatDateDMY(pl.effectiveFrom)} to{" "}
                                   {formatDateDMY(pl.effectiveTo)}
                                 </p>
                               ))}

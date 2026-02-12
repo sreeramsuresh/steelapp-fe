@@ -2381,9 +2381,7 @@ const CreditNoteForm = () => {
                                   : "border-gray-300 bg-gray-100 text-gray-900"
                               }`}
                             >
-                              {creditNote.rmaValidityDate
-                                ? formatDateDMY(creditNote.rmaValidityDate)
-                                : "N/A"}
+                              {creditNote.rmaValidityDate ? formatDateDMY(creditNote.rmaValidityDate) : "N/A"}
                             </div>
                           </div>
                           <div>

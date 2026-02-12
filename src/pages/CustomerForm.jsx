@@ -1211,9 +1211,7 @@ const CustomerForm = () => {
                 {paymentHistory.length > 0 ? (
                   paymentHistory.map((payment, idx) => (
                     <tr key={payment.id || payment.name || `payment-${idx}`}>
-                      <td className={`px-3 py-2 text-sm ${textMuted}`}>
-                        {formatDateDMY(payment.paymentDate)}
-                      </td>
+                      <td className={`px-3 py-2 text-sm ${textMuted}`}>{formatDateDMY(payment.paymentDate)}</td>
                       <td className={`px-3 py-2 text-sm font-mono ${textPrimary}`}>
                         AED{" "}
                         {payment.amount.toLocaleString("en-US", {

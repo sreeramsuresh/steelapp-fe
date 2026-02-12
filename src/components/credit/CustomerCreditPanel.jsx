@@ -1,11 +1,11 @@
 import { AlertCircle, Calendar, DollarSign, Edit3, Shield, TrendingUp } from "lucide-react";
 import { useContext, useState } from "react";
 import { ThemeContext } from "../../contexts/ThemeContext";
+import { formatDateDMY } from "../../utils/invoiceUtils";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
-import { formatDateDMY } from "../../utils/invoiceUtils";
 
 /**
  * CustomerCreditPanel Component

@@ -2,12 +2,12 @@ import { AlertCircle, CheckCircle, Clock, DollarSign, Edit2, ThumbsUp } from "lu
 import { useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { notificationService } from "../../services/notificationService";
+import { formatDateDMY } from "../../utils/invoiceUtils";
 import ConfirmDialog from "../ConfirmDialog";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
-import { formatDateDMY } from "../../utils/invoiceUtils";
 
 /**
  * CommissionPanel Component
@@ -166,9 +166,7 @@ const CommissionPanel = ({
                   <p className={`${mutedColor} text-sm`}>Grace Period</p>
                   <p className={`${textColor} text-sm font-medium`}>
                     Adjustments allowed until{" "}
-                    {invoice.commissionGracePeriodEndDate
-                      ? formatDateDMY(invoice.commissionGracePeriodEndDate)
-                      : "N/A"}
+                    {invoice.commissionGracePeriodEndDate ? formatDateDMY(invoice.commissionGracePeriodEndDate) : "N/A"}
                   </p>
                 </div>
                 {daysUntilGraceExpiry > 0 && (
@@ -200,9 +198,7 @@ const CommissionPanel = ({
                 <div className="flex items-start justify-between">
                   <div>
                     <p className={`${mutedColor} text-sm`}>Paid</p>
-                    <p className={`${textColor} text-sm font-medium`}>
-                      {formatDateDMY(invoice.commissionPayoutDate)}
-                    </p>
+                    <p className={`${textColor} text-sm font-medium`}>{formatDateDMY(invoice.commissionPayoutDate)}</p>
                   </div>
                   <CheckCircle className="w-4 h-4 text-green-600" />
                 </div>
