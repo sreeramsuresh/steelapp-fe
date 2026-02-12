@@ -108,7 +108,7 @@ const RecentItemsSection = ({ recentItems, handleNavigate, isDarkMode }) => (
         return (
           <button
             type="button"
-            key={item.id}
+            key={`${item.type}-${item.id}`}
             onClick={() => handleNavigate(item.link)}
             className={`w-full flex items-center justify-between p-4 transition-all hover:bg-teal-500/10 ${
               index !== recentItems.length - 1
