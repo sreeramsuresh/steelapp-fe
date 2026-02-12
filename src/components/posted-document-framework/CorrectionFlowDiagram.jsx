@@ -53,9 +53,7 @@ const CorrectionFlowDiagram = ({ steps = [] }) => {
 
               {/* Arrow */}
               {!isLast && (
-                <div
-                  className={`flex items-center mx-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                >
+                <div className={`flex items-center mx-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                   <ArrowRight className="h-5 w-5 hidden sm:block" strokeWidth={2.5} />
                   <ChevronRight className="h-5 w-5 sm:hidden" strokeWidth={2.5} />
                 </div>
