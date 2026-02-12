@@ -79,7 +79,8 @@ const Pill = ({ color = "gray", children }) => {
 
 const useURLState = (initial) => {
   // Memoize initial to avoid infinite re-renders when called with inline objects
-  const stableInitial = useMemo(() => initial, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional — memoize inline object once to prevent infinite re-renders
+  const stableInitial = useMemo(() => initial, []);
   const [searchParams, setSearchParams] = useSearchParams();
   const state = useMemo(() => {
     const obj = { ...stableInitial };
@@ -171,6 +172,7 @@ const Receivables = () => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Debounce search - wait 300ms after user stops typing
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional — only re-run on localSearch change to avoid debounce reset
   useEffect(() => {
     const timer = setTimeout(() => {
       if (localSearch !== filters.q) {
@@ -178,7 +180,7 @@ const Receivables = () => {
       }
     }, 300);
     return () => clearTimeout(timer);
-  }, [localSearch]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [localSearch]);
   const [voidCustomReason, setVoidCustomReason] = useState("");
   const [isVoidingPayment, setIsVoidingPayment] = useState(false);
   const [pageInfo, setPageInfo] = useState({ totalPages: 0, totalCount: 0 });
@@ -913,6 +915,7 @@ const Receivables = () => {
                     className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} cursor-pointer`}
                     onClick={() => openDrawer(row)}
                   >
+                    {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation cell in clickable row */}
                     <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
                       <input
                         type="checkbox"
@@ -969,6 +972,7 @@ const Receivables = () => {
                     <td className="px-3 py-2 text-center">
                       <StatusPill status={row.status} />
                     </td>
+                    {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation cell in clickable row */}
                     <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
                       <button
                         type="button"

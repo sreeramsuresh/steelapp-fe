@@ -105,7 +105,7 @@ export function FormDrawer({ open, onClose, title, subtitle, children, footer })
 
   return (
     <>
-      {/* Overlay */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: modal overlay with role="presentation" */}
       <div
         className="fixed inset-0 bg-black/55 z-30 transition-opacity"
         onClick={onClose}

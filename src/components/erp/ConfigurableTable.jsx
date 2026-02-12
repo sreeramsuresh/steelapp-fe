@@ -69,15 +69,18 @@ export default function ConfigurableTable({
                   className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} ${onRowClick ? "cursor-pointer" : ""}`}
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
                 >
-                  {columns.map((col) => (
-                    <td
-                      key={col.key}
-                      className={`px-3 py-2 ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"} ${col.cellClassName || ""}`}
-                      onClick={col.stopPropagation ? (e) => e.stopPropagation() : undefined}
-                    >
-                      {col.render ? col.render(row) : row[col.key]}
-                    </td>
-                  ))}
+                  {columns.map((col) => {
+                    return (
+                      // biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation cell in clickable row
+                      <td
+                        key={col.key}
+                        className={`px-3 py-2 ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"} ${col.cellClassName || ""}`}
+                        onClick={col.stopPropagation ? (e) => e.stopPropagation() : undefined}
+                      >
+                        {col.render ? col.render(row) : row[col.key]}
+                      </td>
+                    );
+                  })}
                 </tr>
               ))
             )}
