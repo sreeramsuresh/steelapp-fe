@@ -628,7 +628,6 @@ const CompanySettings = () => {
     active: true,
   });
 
-
   // User management filters and validation
   const [userSearchTerm, setUserSearchTerm] = useState("");
   const [userValidationErrors, setUserValidationErrors] = useState({});
@@ -3321,7 +3320,9 @@ const CompanySettings = () => {
           >
             <div className={`p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
               <div className="flex justify-between items-center">
-                <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Invite New User</h3>
+                <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                  Invite New User
+                </h3>
                 <button
                   type="button"
                   onClick={() => setShowAddUserModal(false)}
@@ -3338,7 +3339,9 @@ const CompanySettings = () => {
               {/* Info banner */}
               <div
                 className={`mb-4 p-3 rounded-lg border text-sm flex items-center gap-2 ${
-                  isDarkMode ? "bg-teal-900/20 border-teal-700 text-teal-300" : "bg-teal-50 border-teal-200 text-teal-700"
+                  isDarkMode
+                    ? "bg-teal-900/20 border-teal-700 text-teal-300"
+                    : "bg-teal-50 border-teal-200 text-teal-700"
                 }`}
               >
                 <Mail size={16} />

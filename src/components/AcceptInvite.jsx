@@ -157,7 +157,10 @@ export default function AcceptInvite() {
 
           {/* Username */}
           <div>
-            <label htmlFor="accept-username" className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+            <label
+              htmlFor="accept-username"
+              className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+            >
               Username
             </label>
             <div className="relative">
@@ -185,7 +188,10 @@ export default function AcceptInvite() {
 
           {/* Full Name (optional) */}
           <div>
-            <label htmlFor="accept-fullname" className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+            <label
+              htmlFor="accept-fullname"
+              className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+            >
               Full Name <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>(optional)</span>
             </label>
             <div className="relative">
@@ -211,7 +217,10 @@ export default function AcceptInvite() {
 
           {/* Password */}
           <div>
-            <label htmlFor="accept-password" className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+            <label
+              htmlFor="accept-password"
+              className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+            >
               Password
             </label>
             <div className="relative">
@@ -246,7 +255,10 @@ export default function AcceptInvite() {
 
           {/* Confirm Password */}
           <div>
-            <label htmlFor="accept-confirm-password" className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+            <label
+              htmlFor="accept-confirm-password"
+              className={`block text-sm font-medium mb-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+            >
               Confirm Password
             </label>
             <div className="relative">
