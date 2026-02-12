@@ -19,6 +19,10 @@ const transformCreditNoteForServer = (creditNoteData) => {
     customer_email: creditNoteData.customerEmail ?? creditNoteData.customer?.email,
     customer_trn: creditNoteData.customerTrn ?? creditNoteData.customer?.trn,
     notes: creditNoteData.notes ?? "",
+    // Settlement / refund fields
+    refund_method: creditNoteData.refundMethod ?? creditNoteData.refund_method ?? "",
+    refund_date: creditNoteData.refundDate ?? creditNoteData.refund_date ?? null,
+    refund_reference: creditNoteData.refundReference ?? creditNoteData.refund_reference ?? "",
     // Ensure numeric fields are numbers
     subtotal: parseFloat(creditNoteData.subtotal ?? 0),
     vat_amount: parseFloat(creditNoteData.vatAmount ?? 0),
@@ -105,6 +109,10 @@ const transformCreditNoteFromServer = (serverData) => {
     // BUG #13: manual_credit_amount - frontend expects manual_credit_amount, proto sends manual_credit_amount
     manual_credit_amount: parseFloat(serverData.manual_credit_amount ?? serverData.manualCreditAmount ?? 0),
     notes: serverData.notes ?? "",
+    // Settlement / refund fields
+    refundMethod: serverData.refundMethod ?? serverData.refund_method ?? "",
+    refundDate: serverData.refundDate ?? serverData.refund_date ?? null,
+    refundReference: serverData.refundReference ?? serverData.refund_reference ?? "",
     createdAt: serverData.createdAt ?? serverData.created_at ?? serverData.audit?.createdAt ?? null,
     updatedAt: serverData.updatedAt ?? serverData.updated_at ?? serverData.audit?.updatedAt ?? null,
   };
@@ -137,16 +145,35 @@ class CreditNoteService {
 
     const response = await apiClient.get(this.endpoint, queryParams, axiosConfig);
 
-    // Handle paginated response
+    // Normalize pageInfo to { total, totalPages, currentPage, pageSize }
+    const normalizePagination = (pi) => {
+      if (!pi) return null;
+      return {
+        total: pi.totalItems ?? pi.total ?? 0,
+        totalPages: pi.totalPages ?? 1,
+        currentPage: pi.currentPage ?? 1,
+        pageSize: pi.pageSize ?? 20,
+      };
+    };
+
+    // Handle paginated response - API returns { creditNotes: [...], pageInfo: {...} }
+    if (response?.creditNotes && Array.isArray(response.creditNotes)) {
+      return {
+        data: response.creditNotes.map(transformCreditNoteFromServer),
+        pagination: normalizePagination(response.pageInfo),
+      };
+    }
+
+    // Fallback: handle { data: [...] } shape or raw array
     if (response?.data && Array.isArray(response.data)) {
       return {
         data: response.data.map(transformCreditNoteFromServer),
-        pagination: response.pagination ?? null,
+        pagination: normalizePagination(response.pageInfo ?? response.pagination),
       };
     }
 
     // Handle non-paginated response (array directly)
-    const creditNotes = Array.isArray(response) ? response : Array.isArray(response?.data) ? response.data : [];
+    const creditNotes = Array.isArray(response) ? response : [];
     return {
       data: creditNotes.map(transformCreditNoteFromServer),
       pagination: null,
