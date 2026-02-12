@@ -149,6 +149,9 @@ const DebitNoteForm = () => {
     version: 1,
   });
 
+  // Edit locking: only DRAFT debit notes can be edited
+  const isEditable = !isEditMode || debitNote.status === "draft";
+
   const loadWarehouses = useCallback(async () => {
     try {
       const result = await warehouseService.getAll({ isActive: true });
@@ -444,37 +447,62 @@ const DebitNoteForm = () => {
                       : "border-amber-200 bg-amber-50 text-amber-700"
                   }`}
                 >
-                  {debitNote.status === "approved" ? "Approved" : "Draft"}
+                  {debitNote.status === "approved" ? "Approved" : debitNote.status === "cancelled" ? "Cancelled" : "Draft"}
                 </span>
-                <button
-                  type="button"
-                  data-testid="save-draft"
-                  onClick={() => handleSave("draft")}
-                  disabled={saving}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm border transition-colors ${
-                    isDarkMode
-                      ? "border-gray-700 hover:border-teal-500 text-gray-400"
-                      : "border-gray-300 hover:border-teal-500 text-gray-600"
-                  } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
-                >
-                  <Save className="h-4 w-4" />
-                  Save Draft
-                </button>
-                <button
-                  type="button"
-                  data-testid="submit-debit-note"
-                  onClick={() => handleSave("approved")}
-                  disabled={saving}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
-                    isDarkMode ? "bg-teal-500 text-white hover:bg-teal-400" : "bg-teal-600 text-white hover:bg-teal-700"
-                  } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
-                >
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                  {saving ? "Saving..." : "Save & Approve"}
-                </button>
+                {isEditable && (
+                  <>
+                    <button
+                      type="button"
+                      data-testid="save-draft"
+                      onClick={() => handleSave("draft")}
+                      disabled={saving}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm border transition-colors ${
+                        isDarkMode
+                          ? "border-gray-700 hover:border-teal-500 text-gray-400"
+                          : "border-gray-300 hover:border-teal-500 text-gray-600"
+                      } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
+                    >
+                      <Save className="h-4 w-4" />
+                      Save Draft
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="submit-debit-note"
+                      onClick={() => handleSave("approved")}
+                      disabled={saving}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-sm transition-colors ${
+                        isDarkMode ? "bg-teal-500 text-white hover:bg-teal-400" : "bg-teal-600 text-white hover:bg-teal-700"
+                      } ${saving ? "opacity-60 cursor-not-allowed" : ""}`}
+                    >
+                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                      {saving ? "Saving..." : "Save & Approve"}
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
+
+          {/* Read-Only Banner */}
+          {!isEditable && (
+            <div
+              className={`mx-4 mt-3 p-3 rounded-[14px] border ${
+                isDarkMode
+                  ? "bg-amber-900/20 border-amber-600/50 text-amber-200"
+                  : "bg-amber-50 border-amber-300 text-amber-800"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <AlertTriangle size={18} />
+                <div>
+                  <span className="font-bold text-sm">Read-Only Mode - Debit Note Locked</span>
+                  <p className="text-xs mt-0.5 opacity-80">
+                    This debit note has been approved and cannot be edited. Only draft debit notes can be modified.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Main Content Grid */}
           <div className="grid grid-cols-12 gap-3 p-4">
@@ -633,13 +661,14 @@ const DebitNoteForm = () => {
                       data-testid="debit-note-number"
                       type="text"
                       value={debitNote.debitNoteNumber}
+                      disabled={!isEditable}
                       onChange={(e) =>
                         setDebitNote((prev) => ({
                           ...prev,
                           debitNoteNumber: e.target.value,
                         }))
                       }
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
                     />
                   </div>
 
@@ -653,13 +682,14 @@ const DebitNoteForm = () => {
                       data-testid="debit-note-date"
                       type="date"
                       value={debitNote.debitNoteDate}
+                      disabled={!isEditable}
                       onChange={(e) =>
                         setDebitNote((prev) => ({
                           ...prev,
                           debitNoteDate: e.target.value,
                         }))
                       }
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
                     />
                   </div>
 
@@ -672,6 +702,7 @@ const DebitNoteForm = () => {
                       id="reasonCategory"
                       data-testid="reason-category"
                       value={debitNote.reasonCategory}
+                      disabled={!isEditable}
                       onValueChange={(value) =>
                         setDebitNote((prev) => ({
                           ...prev,
@@ -697,6 +728,7 @@ const DebitNoteForm = () => {
                       id="vatCategory"
                       data-testid="vat-category"
                       value={debitNote.vatCategory}
+                      disabled={!isEditable}
                       onValueChange={(value) =>
                         setDebitNote((prev) => ({
                           ...prev,
@@ -723,6 +755,7 @@ const DebitNoteForm = () => {
                       data-testid="reason"
                       type="text"
                       value={debitNote.reason}
+                      disabled={!isEditable}
                       onChange={(e) =>
                         setDebitNote((prev) => ({
                           ...prev,
@@ -730,7 +763,7 @@ const DebitNoteForm = () => {
                         }))
                       }
                       placeholder="Describe the reason for this debit note..."
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
                     />
                   </div>
                 </div>
@@ -750,11 +783,12 @@ const DebitNoteForm = () => {
                     type="button"
                     data-testid="add-item"
                     onClick={handleAddItem}
+                    disabled={!isEditable}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-xl font-bold transition-colors ${
                       isDarkMode
                         ? "bg-teal-500 text-white hover:bg-teal-400"
                         : "bg-teal-600 text-white hover:bg-teal-700"
-                    }`}
+                    } ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Add Item
@@ -778,9 +812,10 @@ const DebitNoteForm = () => {
                             id={`item-description-${index}`}
                             type="text"
                             value={item.description}
+                            disabled={!isEditable}
                             onChange={(e) => handleItemChange(index, "description", e.target.value)}
                             placeholder="Item description"
-                            className={`w-full py-2 px-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                            className={`w-full py-2 px-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
                           />
                         </div>
 
@@ -795,8 +830,9 @@ const DebitNoteForm = () => {
                             min="0"
                             step="0.01"
                             value={item.quantity}
+                            disabled={!isEditable}
                             onChange={(e) => handleItemChange(index, "quantity", parseFloat(e.target.value) || 0)}
-                            className={`w-full py-2 px-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                            className={`w-full py-2 px-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
                           />
                         </div>
 
@@ -811,8 +847,9 @@ const DebitNoteForm = () => {
                             min="0"
                             step="0.01"
                             value={item.unitPrice}
+                            disabled={!isEditable}
                             onChange={(e) => handleItemChange(index, "unitPrice", parseFloat(e.target.value) || 0)}
-                            className={`w-full py-2 px-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                            className={`w-full py-2 px-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
                           />
                         </div>
 
@@ -839,9 +876,10 @@ const DebitNoteForm = () => {
                           <button
                             type="button"
                             onClick={() => handleRemoveItem(index)}
+                            disabled={!isEditable}
                             className={`p-2 rounded-xl transition-colors ${
                               isDarkMode ? "hover:bg-red-900/30 text-red-400" : "hover:bg-red-100 text-red-600"
-                            }`}
+                            } ${!isEditable ? "opacity-40 cursor-not-allowed" : ""}`}
                             title="Remove item"
                           >
                             <Trash2 className="h-4 w-4" />

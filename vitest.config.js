@@ -13,5 +13,10 @@ export default defineConfig({
       "node_modules/**",
       "**/*.node.test.mjs",
     ],
+    server: {
+      deps: {
+        inline: ["html-encoding-sniffer", "@exodus/bytes"],
+      },
+    },
   },
 });
