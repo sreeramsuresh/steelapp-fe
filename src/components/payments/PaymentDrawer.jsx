@@ -1,8 +1,8 @@
 import { AlertCircle, BookOpen, CheckCircle, CircleDollarSign, Download, Printer, Trash2, X } from "lucide-react";
 import { useState } from "react";
+import { formatCurrency, formatDate } from "../../utils/invoiceUtils";
 import paymentCorrectionConfig from "../finance/paymentCorrectionConfig";
 import { CorrectionHelpModal } from "../posted-document-framework";
-import { formatCurrency, formatDate } from "../../utils/invoiceUtils";
 import AddPaymentForm from "./AddPaymentForm";
 
 /**
