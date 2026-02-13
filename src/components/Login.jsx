@@ -92,7 +92,9 @@ const RBACTestPanel = ({ onLoginSuccess, isDarkMode }) => {
       const res = await fetch("/api/auth/dev/rbac-test-accounts");
       const data = await res.json();
       setAccounts(data.testAccounts || data.test_accounts || []);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   };
 
   const setupAccounts = async () => {
@@ -141,7 +143,9 @@ const RBACTestPanel = ({ onLoginSuccess, isDarkMode }) => {
     }
   };
 
-  useEffect(() => { fetchAccounts(); }, []);
+  useEffect(() => {
+    fetchAccounts();
+  }, []);
 
   if (!expanded) {
     return (
@@ -159,20 +163,26 @@ const RBACTestPanel = ({ onLoginSuccess, isDarkMode }) => {
   }
 
   return (
-    <div className={`fixed bottom-4 right-4 z-50 w-80 max-h-[70vh] overflow-auto rounded-xl border shadow-2xl p-4 ${
-      isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"
-    }`}>
+    <div
+      className={`fixed bottom-4 right-4 z-50 w-80 max-h-[70vh] overflow-auto rounded-xl border shadow-2xl p-4 ${
+        isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"
+      }`}
+    >
       <div className="flex items-center justify-between mb-3">
-        <h3 className={`text-sm font-bold ${isDarkMode ? "text-amber-400" : "text-amber-700"}`}>
-          RBAC Test Login
-        </h3>
-        <button type="button" onClick={() => setExpanded(false)} className={`p-1 rounded ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}>
+        <h3 className={`text-sm font-bold ${isDarkMode ? "text-amber-400" : "text-amber-700"}`}>RBAC Test Login</h3>
+        <button
+          type="button"
+          onClick={() => setExpanded(false)}
+          className={`p-1 rounded ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
+        >
           <X size={14} />
         </button>
       </div>
 
       {message && (
-        <div className={`text-xs mb-2 p-2 rounded ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-50 text-gray-600"}`}>
+        <div
+          className={`text-xs mb-2 p-2 rounded ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-50 text-gray-600"}`}
+        >
           {message}
         </div>
       )}
@@ -209,27 +219,34 @@ const RBACTestPanel = ({ onLoginSuccess, isDarkMode }) => {
           </button>
 
           {/* Role-based logins */}
-          {accounts.filter((a) => a.email !== "norole@rbac-test.local" && !a.email.includes("test_role_") && !a.email.includes("role_with_perms_")).map((acct) => {
-            const roleName = acct.roleNames?.[0] || acct.role_names?.[0] || acct.role_name || "unknown";
-            const colorClass = ROLE_COLORS[roleName] || "bg-gray-500";
-            const displayName = roleName.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-            return (
-              <button
-                type="button"
-                key={acct.email}
-                onClick={() => quickLogin(acct.email)}
-                disabled={loginLoading !== null}
-                className={`w-full flex items-center gap-2 py-1.5 px-3 rounded-lg text-xs font-medium text-white ${colorClass} hover:opacity-90 disabled:opacity-50 transition-colors`}
-              >
-                {loginLoading === acct.email ? (
-                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white" />
-                ) : (
-                  <div className={`w-2 h-2 rounded-full bg-white/50`} />
-                )}
-                {displayName}
-              </button>
-            );
-          })}
+          {accounts
+            .filter(
+              (a) =>
+                a.email !== "norole@rbac-test.local" &&
+                !a.email.includes("test_role_") &&
+                !a.email.includes("role_with_perms_")
+            )
+            .map((acct) => {
+              const roleName = acct.roleNames?.[0] || acct.role_names?.[0] || acct.role_name || "unknown";
+              const colorClass = ROLE_COLORS[roleName] || "bg-gray-500";
+              const displayName = roleName.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+              return (
+                <button
+                  type="button"
+                  key={acct.email}
+                  onClick={() => quickLogin(acct.email)}
+                  disabled={loginLoading !== null}
+                  className={`w-full flex items-center gap-2 py-1.5 px-3 rounded-lg text-xs font-medium text-white ${colorClass} hover:opacity-90 disabled:opacity-50 transition-colors`}
+                >
+                  {loginLoading === acct.email ? (
+                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white" />
+                  ) : (
+                    <div className={`w-2 h-2 rounded-full bg-white/50`} />
+                  )}
+                  {displayName}
+                </button>
+              );
+            })}
 
           {/* No-role test */}
           <button
@@ -237,7 +254,9 @@ const RBACTestPanel = ({ onLoginSuccess, isDarkMode }) => {
             onClick={() => quickLogin("norole@rbac-test.local")}
             disabled={loginLoading !== null}
             className={`w-full flex items-center gap-2 py-1.5 px-3 rounded-lg text-xs font-medium border ${
-              isDarkMode ? "border-gray-600 text-gray-400 hover:bg-gray-700" : "border-gray-300 text-gray-600 hover:bg-gray-50"
+              isDarkMode
+                ? "border-gray-600 text-gray-400 hover:bg-gray-700"
+                : "border-gray-300 text-gray-600 hover:bg-gray-50"
             } disabled:opacity-50 transition-colors`}
           >
             {loginLoading === "norole@rbac-test.local" ? (
