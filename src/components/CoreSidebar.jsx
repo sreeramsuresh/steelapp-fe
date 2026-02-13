@@ -112,7 +112,7 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           path: "/app/invoices",
           icon: FileText,
           description: "View and manage invoices",
-          requiredPermission: "invoices_all.read",
+          requiredPermission: "invoices.read",
         },
         {
           name: "Delivery Notes",

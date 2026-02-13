@@ -27,6 +27,7 @@ import BrandmarkHero from "../components/BrandmarkHero";
 import { useTheme } from "../contexts/ThemeContext";
 import useDragReorder, { DragHandleIcon } from "../hooks/useDragReorder";
 import useHomeSectionOrder from "../hooks/useHomeSectionOrder";
+import { authService } from "../services/authService";
 import { apiService } from "../services/axiosApi";
 import { customerService } from "../services/customerService";
 import { invoiceService } from "../services/invoiceService";
@@ -294,25 +295,27 @@ const HomePage = () => {
     return "User";
   });
 
-  const [quickAccessItems] = useState([
-    { icon: Quote, name: "Quotations", path: "/app/quotations", color: "from-blue-500 to-blue-600" },
-    { icon: FileText, name: "Invoices", path: "/app/invoices", color: "from-purple-500 to-purple-600" },
-    { icon: ShoppingCart, name: "Purchases", path: "/app/purchase-orders", color: "from-orange-500 to-orange-600" },
-    { icon: Truck, name: "Deliveries", path: "/app/delivery-notes", color: "from-green-500 to-green-600" },
-    { icon: Users, name: "Customers", path: "/app/customers", color: "from-pink-500 to-pink-600" },
-    { icon: Package, name: "Products", path: "/app/products", color: "from-indigo-500 to-indigo-600" },
-    { icon: Warehouse, name: "Warehouse", path: "/app/warehouses", color: "from-cyan-500 to-cyan-600" },
-    { icon: Settings, name: "Settings", path: "/app/settings", color: "from-gray-500 to-gray-600" },
-  ]);
+  const [quickAccessItems] = useState(
+    [
+      { icon: Quote, name: "Quotations", path: "/app/quotations", color: "from-blue-500 to-blue-600", perm: ["quotations", "read"] },
+      { icon: FileText, name: "Invoices", path: "/app/invoices", color: "from-purple-500 to-purple-600", perm: ["invoices", "read"] },
+      { icon: ShoppingCart, name: "Purchases", path: "/app/purchase-orders", color: "from-orange-500 to-orange-600", perm: ["purchase_orders", "read"] },
+      { icon: Truck, name: "Deliveries", path: "/app/delivery-notes", color: "from-green-500 to-green-600", perm: ["delivery_notes", "read"] },
+      { icon: Users, name: "Customers", path: "/app/customers", color: "from-pink-500 to-pink-600", perm: ["customers", "read"] },
+      { icon: Package, name: "Products", path: "/app/products", color: "from-indigo-500 to-indigo-600", perm: ["products", "read"] },
+      { icon: Warehouse, name: "Warehouse", path: "/app/warehouses", color: "from-cyan-500 to-cyan-600", perm: ["warehouses", "read"] },
+      { icon: Settings, name: "Settings", path: "/app/settings", color: "from-gray-500 to-gray-600", perm: ["company_settings", "read"] },
+    ].filter((item) => authService.hasPermission(item.perm[0], item.perm[1])),
+  );
 
   const createNewItems = [
-    { icon: Quote, name: "New Quotation", path: "/app/quotations/new", color: "blue" },
-    { icon: FileText, name: "New Invoice", path: "/app/invoices/new", color: "purple" },
-    { icon: ShoppingCart, name: "New Purchase", path: "/app/purchase-orders/new", color: "orange" },
-    { icon: Truck, name: "New Delivery", path: "/app/delivery-notes/new", color: "green" },
-    { icon: Users, name: "New Customer", path: "/app/customers/new", color: "pink" },
-    { icon: Package, name: "New Product", path: "/app/products/new", color: "indigo" },
-  ];
+    { icon: Quote, name: "New Quotation", path: "/app/quotations/new", color: "blue", perm: ["quotations", "create"] },
+    { icon: FileText, name: "New Invoice", path: "/app/invoices/new", color: "purple", perm: ["invoices", "create"] },
+    { icon: ShoppingCart, name: "New Purchase", path: "/app/purchase-orders/new", color: "orange", perm: ["purchase_orders", "create"] },
+    { icon: Truck, name: "New Delivery", path: "/app/delivery-notes/new", color: "green", perm: ["delivery_notes", "create"] },
+    { icon: Users, name: "New Customer", path: "/app/customers/new", color: "pink", perm: ["customers", "create"] },
+    { icon: Package, name: "New Product", path: "/app/products/new", color: "indigo", perm: ["products", "create"] },
+  ].filter((item) => authService.hasPermission(item.perm[0], item.perm[1]));
 
   // Fetch recent items from multiple modules (max 9 items)
   useEffect(() => {

@@ -1701,7 +1701,11 @@ const CompanySettings = () => {
     } catch (error) {
       setPasswordChangeModal((prev) => ({
         ...prev,
-        error: error?.response?.data?.error || error?.response?.data?.message || error?.message || "Failed to change password",
+        error:
+          error?.response?.data?.error ||
+          error?.response?.data?.message ||
+          error?.message ||
+          "Failed to change password",
         loading: false,
       }));
     }

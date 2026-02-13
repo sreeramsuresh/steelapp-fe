@@ -144,13 +144,30 @@ class AuthService {
     return resourcePermissions?.[action];
   }
 
-  // Check if user has specific role
+  // Check if user has specific role (checks resolved roleNames from user_roles table)
   hasRole(roles) {
     const user = this.getUser();
     if (!user) return false;
 
     const allowedRoles = Array.isArray(roles) ? roles : [roles];
+
+    // Check against resolved role names from login response
+    const userRoleNames = user.roleNames || [];
+    if (userRoleNames.some((r) => allowedRoles.includes(r))) return true;
+
+    // Fallback: check legacy user.role field
     return allowedRoles.includes(user.role);
+  }
+
+  // Check if user is admin or director
+  isAdminOrDirector() {
+    const user = this.getUser();
+    if (!user) return false;
+    if (user.role === "admin") return true;
+    const roleNames = user.roleNames || [];
+    return roleNames.some((r) =>
+      ["Managing Director", "Operations Manager", "Finance Manager"].includes(r),
+    );
   }
 
   // Update API client headers
