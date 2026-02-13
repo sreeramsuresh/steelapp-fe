@@ -851,22 +851,42 @@ const CompanySettings = () => {
         const response = await userAdminAPI.list({
           page: userCurrentPage,
           limit: userPageSize,
+          status: "all",
         });
 
         // Handle both array response and paginated response format
         const remoteUsers = Array.isArray(response) ? response : response.data || [];
         const pageInfo = response.page_info || { total_pages: 1 };
 
-        const mapped = remoteUsers.map((u) => ({
-          id: String(u.id),
-          name: u.name,
-          email: u.email,
-          role: u.role,
-          status: u.status || "active",
-          createdAt: (u.createdAt || u.createdAt || "").toString().substring(0, 10),
-          lastLogin: u.lastLogin || u.lastLogin || null,
-          permissions: typeof u.permissions === "string" ? JSON.parse(u.permissions) : u.permissions || {},
-        }));
+        // Fetch roles to resolve roleIds to display names
+        let rolesLookup = {};
+        try {
+          const roles = await roleService.getRoles();
+          rolesLookup = Object.fromEntries(roles.map((r) => [r.id, r]));
+        } catch (_e) {
+          // Non-critical — roles will show as IDs
+        }
+
+        const mapped = remoteUsers.map((u) => {
+          // Resolve roleIds to full role objects
+          const roleIds = u.roleIds || [];
+          const roles = roleIds
+            .map((rid) => rolesLookup[rid])
+            .filter(Boolean)
+            .map((r) => ({ id: r.id, displayName: r.displayName || r.name, isDirector: r.isDirector || false }));
+
+          return {
+            id: String(u.id),
+            name: u.name,
+            email: u.email,
+            role: u.role,
+            status: u.status || (u.isActive !== false ? "active" : "inactive"),
+            createdAt: (u.audit?.createdAt || u.createdAt || "").toString().substring(0, 10),
+            lastLogin: u.lastLogin || u.audit?.lastLoginAt || null,
+            roles,
+            permissions: typeof u.permissions === "string" ? JSON.parse(u.permissions) : u.permissions || {},
+          };
+        });
         setUsers(mapped);
         setUserTotalPages(pageInfo.total_pages || 1);
         setUserLoadingError(null);
@@ -1601,18 +1621,8 @@ const CompanySettings = () => {
       if (!u) return;
       const newStatus = u.status === "active" ? "inactive" : "active";
       await userAdminAPI.update(userId, { status: newStatus });
-      const remoteUsers = await userAdminAPI.list();
-      const mapped = remoteUsers.map((user) => ({
-        id: String(user.id),
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        status: user.status || "active",
-        createdAt: (user.createdAt || user.createdAt || "").toString().substring(0, 10),
-        lastLogin: user.lastLogin || user.lastLogin || null,
-        permissions: typeof user.permissions === "string" ? JSON.parse(user.permissions) : user.permissions || {},
-      }));
-      setUsers(mapped);
+      // Optimistic update — just toggle the status in local state
+      setUsers((prev) => prev.map((x) => (x.id === userId ? { ...x, status: newStatus } : x)));
       notificationService.success("User status updated");
     } catch (e) {
       notificationService.error(e?.response?.data?.error || e?.message || "Failed to update user");
@@ -1635,18 +1645,8 @@ const CompanySettings = () => {
 
     try {
       await userAdminAPI.remove(userId);
-      const remoteUsers = await userAdminAPI.list();
-      const mapped = remoteUsers.map((u) => ({
-        id: String(u.id),
-        name: u.name,
-        email: u.email,
-        role: u.role,
-        status: u.status || "active",
-        createdAt: (u.createdAt || u.createdAt || "").toString().substring(0, 10),
-        lastLogin: u.lastLogin || u.lastLogin || null,
-        permissions: typeof u.permissions === "string" ? JSON.parse(u.permissions) : u.permissions || {},
-      }));
-      setUsers(mapped);
+      // Remove from local state
+      setUsers((prev) => prev.filter((x) => x.id !== userId));
       notificationService.success("User deleted successfully!");
     } catch (e) {
       notificationService.error(e?.response?.data?.error || e?.message || "Failed to delete user");
@@ -1701,7 +1701,7 @@ const CompanySettings = () => {
     } catch (error) {
       setPasswordChangeModal((prev) => ({
         ...prev,
-        error: error?.response?.data?.message || error?.message || "Failed to change password",
+        error: error?.response?.data?.error || error?.response?.data?.message || error?.message || "Failed to change password",
         loading: false,
       }));
     }
@@ -3796,7 +3796,8 @@ const CompanySettings = () => {
                     setUserValidationErrors({});
 
                     // Refresh user list
-                    const remoteUsers = await userAdminAPI.list();
+                    const response = await userAdminAPI.list({ page: userCurrentPage, limit: userPageSize });
+                    const remoteUsers = Array.isArray(response) ? response : response.data || [];
                     const mapped = await Promise.all(
                       remoteUsers.map(async (u) => {
                         const userPerms = await roleService.getUserPermissions(u.id);
@@ -3805,9 +3806,9 @@ const CompanySettings = () => {
                           name: u.name,
                           email: u.email,
                           role: u.role,
-                          status: u.status || "active",
-                          createdAt: (u.createdAt || u.createdAt || "").toString().substring(0, 10),
-                          lastLogin: u.lastLogin || u.lastLogin || null,
+                          status: u.status || (u.isActive !== false ? "active" : "inactive"),
+                          createdAt: (u.audit?.createdAt || u.createdAt || "").toString().substring(0, 10),
+                          lastLogin: u.lastLogin || u.audit?.lastLoginAt || null,
                           roles: userPerms.roles || [],
                         };
                       })
