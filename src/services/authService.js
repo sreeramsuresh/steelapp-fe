@@ -165,9 +165,7 @@ class AuthService {
     if (!user) return false;
     if (user.role === "admin") return true;
     const roleNames = user.roleNames || [];
-    return roleNames.some((r) =>
-      ["Managing Director", "Operations Manager", "Finance Manager"].includes(r),
-    );
+    return roleNames.some((r) => ["Managing Director", "Operations Manager", "Finance Manager"].includes(r));
   }
 
   // Update API client headers
