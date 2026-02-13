@@ -64,6 +64,23 @@ import RolesHelpPanel from "./RolesHelpPanel";
 import PhoneInput from "./shared/PhoneInput";
 import VATRulesHelpPanel from "./VATRulesHelpPanel";
 
+// Invitation countdown helper
+function formatCountdown(expiresAt) {
+  const now = new Date();
+  const expires = new Date(expiresAt);
+  const diffMs = expires - now;
+  if (diffMs <= 0) {
+    const agoMs = Math.abs(diffMs);
+    const agoHours = Math.floor(agoMs / 3600000);
+    const agoMinutes = Math.floor((agoMs % 3600000) / 60000);
+    return { text: agoHours > 0 ? `Expired ${agoHours}h ${agoMinutes}m ago` : `Expired ${agoMinutes}m ago`, urgent: true, expired: true };
+  }
+  const hours = Math.floor(diffMs / 3600000);
+  const minutes = Math.floor((diffMs % 3600000) / 60000);
+  if (hours < 6) return { text: `${hours}h ${minutes}m left`, urgent: true, expired: false };
+  return { text: `${hours}h ${minutes}m left`, urgent: false, expired: false };
+}
+
 // Custom Tailwind Components
 const Button = ({
   children,
@@ -2997,15 +3014,42 @@ const CompanySettings = () => {
                       }`}
                     >
                       <div>
-                        <div className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                          {inv.name || inv.email}
+                        <div className="flex items-center gap-2">
+                          <span className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                            {inv.name || inv.email}
+                          </span>
+                          {inv.emailStatus === "SENT" && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                              <CheckCircle size={12} /> Email Sent
+                            </span>
+                          )}
+                          {inv.emailStatus === "FAILED" && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                              <AlertCircle size={12} /> Email Failed
+                            </span>
+                          )}
+                          {(!inv.emailStatus || inv.emailStatus === "PENDING") && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
+                              <Clock size={12} /> Pending
+                            </span>
+                          )}
                         </div>
                         <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                           {inv.email} — {inv.role}
                         </div>
-                        <div className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                          Invited {inv.created_at ? new Date(inv.created_at).toLocaleDateString() : ""}
-                          {inv.invited_by_name ? ` by ${inv.invited_by_name}` : ""}
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                            Invited {inv.createdAt ? new Date(inv.createdAt).toLocaleDateString() : ""}
+                            {inv.invitedByName ? ` by ${inv.invitedByName}` : ""}
+                          </span>
+                          {inv.expiresAt && (() => {
+                            const cd = formatCountdown(inv.expiresAt);
+                            return (
+                              <span className={`text-xs font-medium ${cd.expired ? "text-red-500" : cd.urgent ? "text-yellow-500" : "text-green-500"}`}>
+                                {cd.text}
+                              </span>
+                            );
+                          })()}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -3018,7 +3062,12 @@ const CompanySettings = () => {
                               const updated = await userAdminAPI.listInvitations();
                               setInvitations(updated);
                             } catch (err) {
-                              notificationService.error(err.response?.data?.error || "Failed to resend invitation");
+                              const errorCode = err.response?.data?.errorCode;
+                              if (errorCode === "INVITE_EMAIL_FAILED") {
+                                notificationService.error("Invitation could not be sent — email delivery failed. Check SMTP settings.");
+                              } else {
+                                notificationService.error(err.response?.data?.error || "Failed to resend invitation");
+                              }
                             }
                           }}
                           className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
@@ -3050,6 +3099,68 @@ const CompanySettings = () => {
                           Revoke
                         </button>
                       </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </SettingsPaper>
+        )}
+
+        {/* Expired Invitations */}
+        {invitations.filter((inv) => inv.status === "expired").length > 0 && (
+          <SettingsPaper>
+            <div className="p-6">
+              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                Expired Invitations
+              </h3>
+              <div className="space-y-3">
+                {invitations
+                  .filter((inv) => inv.status === "expired")
+                  .map((inv) => (
+                    <div
+                      key={inv.id}
+                      className={`flex items-center justify-between p-4 rounded-lg border opacity-60 ${
+                        isDarkMode ? "bg-gray-800/30 border-gray-700" : "bg-gray-50 border-gray-200"
+                      }`}
+                    >
+                      <div>
+                        <div className={`font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                          {inv.name || inv.email}
+                        </div>
+                        <div className={`text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                          {inv.email} — {inv.role}
+                        </div>
+                        {inv.expiresAt && (
+                          <div className="text-xs text-red-500 mt-1">
+                            {formatCountdown(inv.expiresAt).text}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            await userAdminAPI.resendInvite(inv.email);
+                            notificationService.success(`Invitation resent to ${inv.email}`);
+                            const updated = await userAdminAPI.listInvitations();
+                            setInvitations(updated);
+                          } catch (err) {
+                            const errorCode = err.response?.data?.errorCode;
+                            if (errorCode === "INVITE_EMAIL_FAILED") {
+                              notificationService.error("Invitation could not be sent — email delivery failed. Check SMTP settings.");
+                            } else {
+                              notificationService.error(err.response?.data?.error || "Failed to resend invitation");
+                            }
+                          }
+                        }}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                          isDarkMode
+                            ? "bg-teal-900/30 text-teal-400 hover:bg-teal-900/50 border border-teal-700"
+                            : "bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200"
+                        }`}
+                      >
+                        Resend
+                      </button>
                     </div>
                   ))}
               </div>
@@ -3496,7 +3607,12 @@ const CompanySettings = () => {
                     setInvitations(updated);
                   } catch (error) {
                     console.error("Error sending invitation:", error);
-                    notificationService.error(error.response?.data?.error || "Failed to send invitation");
+                    const errorCode = error.response?.data?.errorCode;
+                    if (errorCode === "INVITE_EMAIL_FAILED") {
+                      notificationService.error("Invitation could not be sent — email delivery failed. Check SMTP settings.");
+                    } else {
+                      notificationService.error(error.response?.data?.error || "Failed to send invitation");
+                    }
                   } finally {
                     setIsSubmittingUser(false);
                   }
