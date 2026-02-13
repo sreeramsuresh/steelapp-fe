@@ -204,7 +204,9 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
   const needsAuth = !user && !isLoginPage && !isMarketing && !isPublicAuthPage;
 
   // If user is logged in and on login page, redirect to app
-  const needsAppRedirect = user && isLoginPage;
+  // Skip redirect if ?rbac is in the URL (allows RBAC test panel usage)
+  const hasRbacParam = location.search.includes("rbac");
+  const needsAppRedirect = user && isLoginPage && !hasRbacParam;
 
   if (needsAuth) {
     return <Navigate to="/login" state={{ from: location }} replace />;

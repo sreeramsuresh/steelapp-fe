@@ -110,8 +110,20 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Trigger refresh on 401/403 if not already retried
-    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
+    // Account deactivated — force logout immediately, no refresh attempt
+    if (error.response?.status === 403 && error.response?.data?.code === "ACCOUNT_DEACTIVATED") {
+      Cookies.remove("accessToken");
+      Cookies.remove("refreshToken");
+      localStorage.removeItem("steel-app-token");
+      localStorage.removeItem("steel-app-user");
+      localStorage.removeItem("token");
+      alert("Your account has been deactivated. Please contact your administrator.");
+      window.location.href = "/login";
+      return Promise.reject(error);
+    }
+
+    // Trigger refresh on 401 only (not 403 — that means permission denied, not token expired)
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = Cookies.get("refreshToken");
 

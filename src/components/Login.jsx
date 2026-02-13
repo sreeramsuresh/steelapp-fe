@@ -1,8 +1,8 @@
-import { Eye, EyeOff, Fingerprint, Lock, LogIn, Mail, X } from "lucide-react";
+import { Eye, EyeOff, Fingerprint, Lock, LogIn, Mail, Shield, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
-import { authService } from "../services/axiosAuthService";
+import { authService, tokenUtils } from "../services/axiosAuthService";
 import TwoFactorVerification from "./TwoFactorVerification";
 
 // Custom Tailwind Components
@@ -56,6 +56,212 @@ const Button = ({
   );
 };
 
+/**
+ * DEV-ONLY: RBAC Quick Login Panel
+ * Shows buttons for each role to quickly switch and test permissions.
+ */
+const RBACTestPanel = ({ onLoginSuccess, isDarkMode }) => {
+  const [accounts, setAccounts] = useState([]);
+  const [setupLoading, setSetupLoading] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(null);
+  const [message, setMessage] = useState("");
+  const [expanded, setExpanded] = useState(false);
+
+  const ROLE_COLORS = {
+    managing_director: "bg-purple-600",
+    operations_manager: "bg-purple-500",
+    finance_manager_predefined: "bg-purple-400",
+    sales_manager: "bg-blue-600",
+    sales_manager_predefined: "bg-blue-600",
+    purchase_manager: "bg-orange-600",
+    purchase_manager_predefined: "bg-orange-600",
+    warehouse_manager: "bg-cyan-600",
+    warehouse_manager_predefined: "bg-cyan-600",
+    accounts_manager: "bg-green-600",
+    sales_executive: "bg-blue-400",
+    sales_executive_predefined: "bg-blue-400",
+    purchase_executive: "bg-orange-400",
+    purchase_executive_predefined: "bg-orange-400",
+    stock_keeper: "bg-cyan-400",
+    accounts_executive: "bg-green-400",
+    logistics_coordinator: "bg-teal-500",
+  };
+
+  const fetchAccounts = async () => {
+    try {
+      const res = await fetch("/api/auth/dev/rbac-test-accounts");
+      const data = await res.json();
+      setAccounts(data.testAccounts || data.test_accounts || []);
+    } catch { /* ignore */ }
+  };
+
+  const setupAccounts = async () => {
+    setSetupLoading(true);
+    setMessage("");
+    try {
+      const res = await fetch("/api/auth/dev/setup-rbac-test-users", { method: "POST" });
+      const data = await res.json();
+      setAccounts(data.accounts || []);
+      setMessage(`Created ${data.accounts?.length || 0} test accounts`);
+    } catch (err) {
+      setMessage(`Setup failed: ${err.message}`);
+    } finally {
+      setSetupLoading(false);
+    }
+  };
+
+  const quickLogin = async (email) => {
+    setLoginLoading(email);
+    setMessage("");
+    try {
+      const res = await fetch("/api/auth/dev/quick-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Login failed");
+
+      // Store auth data (cookies + sessionStorage + localStorage)
+      if (data.token) {
+        tokenUtils.setToken(data.token);
+        if (data.refreshToken) {
+          tokenUtils.setRefreshToken(data.refreshToken);
+        }
+        tokenUtils.setUser(data.user);
+        localStorage.setItem("steel-app-user", JSON.stringify(data.user));
+      }
+      if (onLoginSuccess) onLoginSuccess(data.user);
+      // Force navigate to /app (bypasses the ?rbac redirect prevention)
+      window.location.href = "/app";
+    } catch (err) {
+      setMessage(`Login failed: ${err.message}`);
+    } finally {
+      setLoginLoading(null);
+    }
+  };
+
+  useEffect(() => { fetchAccounts(); }, []);
+
+  if (!expanded) {
+    return (
+      <div className="fixed bottom-4 right-4 z-50">
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg shadow-lg hover:bg-amber-500 text-sm font-medium"
+        >
+          <Shield size={16} />
+          RBAC Test
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`fixed bottom-4 right-4 z-50 w-80 max-h-[70vh] overflow-auto rounded-xl border shadow-2xl p-4 ${
+      isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"
+    }`}>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className={`text-sm font-bold ${isDarkMode ? "text-amber-400" : "text-amber-700"}`}>
+          RBAC Test Login
+        </h3>
+        <button type="button" onClick={() => setExpanded(false)} className={`p-1 rounded ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}>
+          <X size={14} />
+        </button>
+      </div>
+
+      {message && (
+        <div className={`text-xs mb-2 p-2 rounded ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-50 text-gray-600"}`}>
+          {message}
+        </div>
+      )}
+
+      {accounts.length === 0 ? (
+        <div className="space-y-2">
+          <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+            No test accounts found. Run migration 0054 first, then setup test users.
+          </p>
+          <button
+            type="button"
+            onClick={setupAccounts}
+            disabled={setupLoading}
+            className="w-full py-2 px-3 bg-amber-600 text-white rounded-lg text-xs font-medium hover:bg-amber-500 disabled:opacity-50"
+          >
+            {setupLoading ? "Setting up..." : "Setup Test Users"}
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-1.5">
+          {/* Admin quick login */}
+          <button
+            type="button"
+            onClick={() => quickLogin("admin@ultimatesteel.ae")}
+            disabled={loginLoading !== null}
+            className={`w-full flex items-center gap-2 py-1.5 px-3 rounded-lg text-xs font-medium text-white bg-red-600 hover:bg-red-500 disabled:opacity-50 transition-colors`}
+          >
+            {loginLoading === "admin@ultimatesteel.ae" ? (
+              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white" />
+            ) : (
+              <Shield size={12} />
+            )}
+            Admin (full access)
+          </button>
+
+          {/* Role-based logins */}
+          {accounts.filter((a) => a.email !== "norole@rbac-test.local" && !a.email.includes("test_role_") && !a.email.includes("role_with_perms_")).map((acct) => {
+            const roleName = acct.roleNames?.[0] || acct.role_names?.[0] || acct.role_name || "unknown";
+            const colorClass = ROLE_COLORS[roleName] || "bg-gray-500";
+            const displayName = roleName.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+            return (
+              <button
+                type="button"
+                key={acct.email}
+                onClick={() => quickLogin(acct.email)}
+                disabled={loginLoading !== null}
+                className={`w-full flex items-center gap-2 py-1.5 px-3 rounded-lg text-xs font-medium text-white ${colorClass} hover:opacity-90 disabled:opacity-50 transition-colors`}
+              >
+                {loginLoading === acct.email ? (
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white" />
+                ) : (
+                  <div className={`w-2 h-2 rounded-full bg-white/50`} />
+                )}
+                {displayName}
+              </button>
+            );
+          })}
+
+          {/* No-role test */}
+          <button
+            type="button"
+            onClick={() => quickLogin("norole@rbac-test.local")}
+            disabled={loginLoading !== null}
+            className={`w-full flex items-center gap-2 py-1.5 px-3 rounded-lg text-xs font-medium border ${
+              isDarkMode ? "border-gray-600 text-gray-400 hover:bg-gray-700" : "border-gray-300 text-gray-600 hover:bg-gray-50"
+            } disabled:opacity-50 transition-colors`}
+          >
+            {loginLoading === "norole@rbac-test.local" ? (
+              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current" />
+            ) : (
+              <X size={12} />
+            )}
+            No Role (should be blocked)
+          </button>
+
+          <button
+            type="button"
+            onClick={setupAccounts}
+            disabled={setupLoading}
+            className={`w-full py-1.5 text-xs ${isDarkMode ? "text-gray-500 hover:text-gray-400" : "text-gray-400 hover:text-gray-500"}`}
+          >
+            {setupLoading ? "Refreshing..." : "Refresh test accounts"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Login = ({ onLoginSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -97,6 +303,11 @@ const Login = ({ onLoginSuccess }) => {
       const autoLoginEnabled = import.meta.env.VITE_AUTO_LOGIN === "true";
 
       if (isProduction || !autoLoginEnabled) {
+        return;
+      }
+
+      // Skip auto-login if ?rbac is in the URL (allows RBAC test panel usage)
+      if (window.location.search.includes("rbac")) {
         return;
       }
 
@@ -419,6 +630,9 @@ const Login = ({ onLoginSuccess }) => {
           </>
         )}
       </div>
+
+      {/* DEV-ONLY: RBAC Quick Login Panel */}
+      {!import.meta.env.PROD && <RBACTestPanel onLoginSuccess={onLoginSuccess} isDarkMode={isDarkMode} />}
     </div>
   );
 };
