@@ -73,7 +73,11 @@ function formatCountdown(expiresAt) {
     const agoMs = Math.abs(diffMs);
     const agoHours = Math.floor(agoMs / 3600000);
     const agoMinutes = Math.floor((agoMs % 3600000) / 60000);
-    return { text: agoHours > 0 ? `Expired ${agoHours}h ${agoMinutes}m ago` : `Expired ${agoMinutes}m ago`, urgent: true, expired: true };
+    return {
+      text: agoHours > 0 ? `Expired ${agoHours}h ${agoMinutes}m ago` : `Expired ${agoMinutes}m ago`,
+      urgent: true,
+      expired: true,
+    };
   }
   const hours = Math.floor(diffMs / 3600000);
   const minutes = Math.floor((diffMs % 3600000) / 60000);
@@ -3042,14 +3046,17 @@ const CompanySettings = () => {
                             Invited {inv.createdAt ? new Date(inv.createdAt).toLocaleDateString() : ""}
                             {inv.invitedByName ? ` by ${inv.invitedByName}` : ""}
                           </span>
-                          {inv.expiresAt && (() => {
-                            const cd = formatCountdown(inv.expiresAt);
-                            return (
-                              <span className={`text-xs font-medium ${cd.expired ? "text-red-500" : cd.urgent ? "text-yellow-500" : "text-green-500"}`}>
-                                {cd.text}
-                              </span>
-                            );
-                          })()}
+                          {inv.expiresAt &&
+                            (() => {
+                              const cd = formatCountdown(inv.expiresAt);
+                              return (
+                                <span
+                                  className={`text-xs font-medium ${cd.expired ? "text-red-500" : cd.urgent ? "text-yellow-500" : "text-green-500"}`}
+                                >
+                                  {cd.text}
+                                </span>
+                              );
+                            })()}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -3064,7 +3071,9 @@ const CompanySettings = () => {
                             } catch (err) {
                               const errorCode = err.response?.data?.errorCode;
                               if (errorCode === "INVITE_EMAIL_FAILED") {
-                                notificationService.error("Invitation could not be sent — email delivery failed. Check SMTP settings.");
+                                notificationService.error(
+                                  "Invitation could not be sent — email delivery failed. Check SMTP settings."
+                                );
                               } else {
                                 notificationService.error(err.response?.data?.error || "Failed to resend invitation");
                               }
@@ -3131,9 +3140,7 @@ const CompanySettings = () => {
                           {inv.email} — {inv.role}
                         </div>
                         {inv.expiresAt && (
-                          <div className="text-xs text-red-500 mt-1">
-                            {formatCountdown(inv.expiresAt).text}
-                          </div>
+                          <div className="text-xs text-red-500 mt-1">{formatCountdown(inv.expiresAt).text}</div>
                         )}
                       </div>
                       <button
@@ -3147,7 +3154,9 @@ const CompanySettings = () => {
                           } catch (err) {
                             const errorCode = err.response?.data?.errorCode;
                             if (errorCode === "INVITE_EMAIL_FAILED") {
-                              notificationService.error("Invitation could not be sent — email delivery failed. Check SMTP settings.");
+                              notificationService.error(
+                                "Invitation could not be sent — email delivery failed. Check SMTP settings."
+                              );
                             } else {
                               notificationService.error(err.response?.data?.error || "Failed to resend invitation");
                             }
@@ -3609,7 +3618,9 @@ const CompanySettings = () => {
                     console.error("Error sending invitation:", error);
                     const errorCode = error.response?.data?.errorCode;
                     if (errorCode === "INVITE_EMAIL_FAILED") {
-                      notificationService.error("Invitation could not be sent — email delivery failed. Check SMTP settings.");
+                      notificationService.error(
+                        "Invitation could not be sent — email delivery failed. Check SMTP settings."
+                      );
                     } else {
                       notificationService.error(error.response?.data?.error || "Failed to send invitation");
                     }
