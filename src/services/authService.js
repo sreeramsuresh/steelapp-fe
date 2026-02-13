@@ -131,6 +131,7 @@ class AuthService {
   }
 
   // Check if user has specific permission
+  // Handles both snake_case and camelCase resource keys (API auto-converts)
   hasPermission(resource, action) {
     const user = this.getUser();
     if (!user) return false;
@@ -139,7 +140,13 @@ class AuthService {
     if (user.role === "admin") return true;
 
     const permissions = user.permissions || {};
-    const resourcePermissions = permissions[resource];
+
+    // Try exact match first, then convert snake_case to camelCase
+    let resourcePermissions = permissions[resource];
+    if (!resourcePermissions && resource.includes("_")) {
+      const camelKey = resource.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+      resourcePermissions = permissions[camelKey];
+    }
 
     return resourcePermissions?.[action];
   }

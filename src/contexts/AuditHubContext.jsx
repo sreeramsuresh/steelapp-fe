@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import auditHubService from "../services/auditHubService";
 import { useAuth } from "./AuthContext";
+import { authService } from "../services/authService";
 
 const AuditHubContext = createContext();
 
@@ -33,6 +34,8 @@ export function AuditHubProvider({ children }) {
   const loadPeriods = useCallback(
     async (options = {}) => {
       if (!user?.companyId) return;
+      // Skip if user doesn't have accounting_periods permission
+      if (!authService.hasPermission("accounting_periods", "read")) return;
 
       setLoading(true);
       setError(null);

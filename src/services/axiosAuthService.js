@@ -71,8 +71,10 @@ class AuthService {
           tokenUtils.setRefreshToken(refreshToken);
         }
 
-        // Populate permissions based on role
-        this._populatePermissionsForRole(user);
+        // Use backend-resolved permissions if available, otherwise fall back to static role map
+        if (!user.permissions || Object.keys(user.permissions).length === 0) {
+          this._populatePermissionsForRole(user);
+        }
 
         // Store user data in sessionStorage
         tokenUtils.setUser(user);
@@ -450,6 +452,7 @@ class AuthService {
   }
 
   // Check if user has specific permission
+  // Handles both snake_case and camelCase resource keys (API auto-converts)
   hasPermission(resource, action) {
     const user = this.getUser();
     if (!user) return false;
@@ -458,18 +461,30 @@ class AuthService {
     if (user.role === "admin") return true;
 
     const permissions = user.permissions || {};
-    const resourcePermissions = permissions[resource];
+
+    // Try exact match first, then convert snake_case to camelCase
+    let resourcePermissions = permissions[resource];
+    if (!resourcePermissions && resource.includes("_")) {
+      const camelKey = resource.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+      resourcePermissions = permissions[camelKey];
+    }
 
     return resourcePermissions?.[action];
   }
 
-  // Check if user has specific role
+  // Check if user has specific role (checks both JWT role and DB-assigned roleNames)
   hasRole(roles) {
     const user = this.getUser();
     if (!user) return false;
 
     const allowedRoles = Array.isArray(roles) ? roles : [roles];
-    return allowedRoles.includes(user.role);
+
+    // Check JWT role field
+    if (allowedRoles.includes(user.role)) return true;
+
+    // Check DB-assigned role names
+    const userRoleNames = user.roleNames || [];
+    return userRoleNames.some((rn) => allowedRoles.includes(rn));
   }
 
   // Get user roles and permissions

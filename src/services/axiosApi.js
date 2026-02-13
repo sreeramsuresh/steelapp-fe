@@ -328,6 +328,7 @@ export const tokenUtils = {
       sessionStorage.setItem("userName", user.name || "");
       sessionStorage.setItem("userCompanyId", user.companyId || "");
       sessionStorage.setItem("userPermissions", JSON.stringify(user.permissions || {}));
+      sessionStorage.setItem("userRoleNames", JSON.stringify(user.roleNames || []));
     }
   },
 
@@ -342,6 +343,7 @@ export const tokenUtils = {
       name: sessionStorage.getItem("userName"),
       companyId: sessionStorage.getItem("userCompanyId"),
       permissions: JSON.parse(sessionStorage.getItem("userPermissions") || "{}"),
+      roleNames: JSON.parse(sessionStorage.getItem("userRoleNames") || "[]"),
     };
   },
 
@@ -352,6 +354,7 @@ export const tokenUtils = {
     sessionStorage.removeItem("userName");
     sessionStorage.removeItem("userCompanyId");
     sessionStorage.removeItem("userPermissions");
+    sessionStorage.removeItem("userRoleNames");
   },
 
   clearSession: () => {

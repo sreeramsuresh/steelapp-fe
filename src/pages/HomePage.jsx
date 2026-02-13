@@ -383,11 +383,15 @@ const HomePage = () => {
       setIsLoading(true);
       setFetchError(null);
       try {
-        // Fetch from multiple services in parallel
+        // Fetch from services the user has permission to access
+        const canReadQuotations = authService.hasPermission("quotations", "read");
+        const canReadInvoices = authService.hasPermission("invoices", "read");
+        const canReadCustomers = authService.hasPermission("customers", "read");
+
         const [quotationsRes, invoicesRes, customersRes] = await Promise.all([
-          quotationService.getAll({ limit: 3 }).catch(() => ({ data: [] })),
-          invoiceService.getInvoices({ limit: 3 }).catch(() => ({ invoices: [] })),
-          customerService.getCustomers({ limit: 3 }).catch(() => ({ data: [] })),
+          canReadQuotations ? quotationService.getAll({ limit: 3 }).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+          canReadInvoices ? invoiceService.getInvoices({ limit: 3 }).catch(() => ({ invoices: [] })) : Promise.resolve({ invoices: [] }),
+          canReadCustomers ? customerService.getCustomers({ limit: 3 }).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
         ]);
 
         const allItems = [];
@@ -454,8 +458,12 @@ const HomePage = () => {
     fetchRecentItems();
   }, []);
 
-  // Fetch recent audit activity
+  // Fetch recent audit activity (only if user has permission)
   const fetchRecentActivity = useCallback(async () => {
+    if (!authService.hasPermission("audit_logs", "read")) {
+      setRecentActivity([]);
+      return;
+    }
     try {
       const response = await apiService.get("/audit-logs/recent");
       setRecentActivity(response.logs || []);

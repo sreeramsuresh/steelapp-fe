@@ -259,14 +259,14 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           path: "/app/settings",
           icon: Settings,
           description: "Configure company details and integrations",
-          requiredRole: "admin",
+          requiredRoles: ["admin", "managing_director", "operations_manager", "finance_manager", "finance_manager_predefined"],
         },
         {
           name: "Audit Trail",
           path: "/app/audit-logs",
           icon: Shield,
           description: "View all system activity and change history",
-          requiredRole: "admin",
+          requiredPermission: "audit_logs.read",
         },
       ],
     },
@@ -340,7 +340,25 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
 
         {/* Scrollable content */}
         <div ref={scrollContainerRef} className="absolute inset-0 overflow-y-auto py-2 no-scrollbar">
-          {navigationItems.map((section, sectionIndex) => (
+          {navigationItems.map((section, sectionIndex) => {
+            const visibleItems = section.items.filter((item) => {
+              if (item.requiredRoles) {
+                return item.requiredRoles.some((role) => authService.hasRole(role));
+              }
+              if (item.requiredRole) {
+                return authService.hasRole(item.requiredRole);
+              }
+              if (item.requiredPermission) {
+                const [res, act] = item.requiredPermission.split(".");
+                return authService.hasPermission(res, act);
+              }
+              return true;
+            });
+
+            // Hide entire section if no items are visible
+            if (visibleItems.length === 0) return null;
+
+            return (
             <div key={section.id || section.name || `section-${sectionIndex}`}>
               {section.section && section.section !== "Dashboard" && (
                 <div
@@ -352,20 +370,7 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
                 </div>
               )}
               <div className="space-y-1">
-                {section.items
-                  .filter((item) => {
-                    if (item.requiredRoles) {
-                      return item.requiredRoles.some((role) => authService.hasRole(role));
-                    }
-                    if (item.requiredRole) {
-                      return authService.hasRole(item.requiredRole);
-                    }
-                    if (item.requiredPermission) {
-                      const [res, act] = item.requiredPermission.split(".");
-                      return authService.hasPermission(res, act);
-                    }
-                    return true;
-                  })
+                {visibleItems
                   .map((item, itemIndex) => {
                     const Icon = item.icon;
                     const isActive = isActiveRoute(item.path);
@@ -399,7 +404,8 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
                   })}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Bottom fade indicator */}
