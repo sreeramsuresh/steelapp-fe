@@ -113,9 +113,9 @@ const FeedbackManagement = () => {
   ];
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <MessageSquare className="text-teal-600" size={24} />
           <h1 className={`text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>User Feedback</h1>
@@ -131,7 +131,7 @@ const FeedbackManagement = () => {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-2 mb-4 flex-wrap">
+      <div className="flex gap-2 mb-3 flex-wrap">
         {filterTabs.map((tab) => (
           <button
             key={tab.key}
@@ -158,10 +158,19 @@ const FeedbackManagement = () => {
       <div
         className={`rounded-xl border overflow-hidden ${isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"}`}
       >
-        <table className="w-full text-sm">
+        <table className="w-full text-sm table-fixed">
+          <colgroup>
+            <col className="w-10" />
+            <col className="w-[80px]" />
+            <col className="w-[140px]" />
+            <col />
+            <col className="w-[160px]" />
+            <col className="w-[100px]" />
+            <col className="w-[100px]" />
+          </colgroup>
           <thead>
             <tr className={isDarkMode ? "bg-[#2A2F35] text-gray-400" : "bg-gray-50 text-gray-600"}>
-              <th className="px-4 py-3 w-10">
+              <th className="px-3 py-2.5 w-10">
                 <input
                   type="checkbox"
                   checked={data.length > 0 && selectedIds.size === data.length}
@@ -169,12 +178,12 @@ const FeedbackManagement = () => {
                   className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                 />
               </th>
-              <th className="text-left px-4 py-3 font-medium">Status</th>
-              <th className="text-left px-4 py-3 font-medium">Location</th>
-              <th className="text-left px-4 py-3 font-medium">Message</th>
-              <th className="text-left px-4 py-3 font-medium">Reported By</th>
-              <th className="text-left px-4 py-3 font-medium">Date</th>
-              <th className="text-left px-4 py-3 font-medium">Actions</th>
+              <th className="text-left px-3 py-2.5 font-medium">Status</th>
+              <th className="text-left px-3 py-2.5 font-medium">Location</th>
+              <th className="text-left px-3 py-2.5 font-medium">Message</th>
+              <th className="text-left px-3 py-2.5 font-medium">Reported By</th>
+              <th className="text-left px-3 py-2.5 font-medium">Date</th>
+              <th className="text-left px-3 py-2.5 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -199,7 +208,7 @@ const FeedbackManagement = () => {
                     key={item.id}
                     className={`border-t ${isDarkMode ? "border-[#37474F] hover:bg-[#2A2F35]" : "border-gray-100 hover:bg-gray-50"}`}
                   >
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-2.5">
                       <input
                         type="checkbox"
                         checked={selectedIds.has(item.id)}
@@ -207,45 +216,42 @@ const FeedbackManagement = () => {
                         className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                       />
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-2.5">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[item.status]}`}>
                         {item.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className={`font-medium ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
+                    <td className="px-3 py-2.5">
+                      <div className={`font-medium truncate ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
                         {item.routeLabel || "—"}
                       </div>
-                      <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                      <div className={`text-xs truncate ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                         {item.routePath}
                       </div>
                     </td>
-                    <td className="px-4 py-3 max-w-xs">
+                    <td className="px-3 py-2.5">
                       <button
                         type="button"
                         onClick={() => setExpandedId(isExpanded ? null : item.id)}
-                        className={`text-left ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                        className={`text-left w-full ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         {isExpanded
                           ? item.message
-                          : item.message.length > 80
-                            ? `${item.message.slice(0, 80)}...`
+                          : item.message.length > 120
+                            ? `${item.message.slice(0, 120)}...`
                             : item.message}
                       </button>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className={`${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>{item.userName}</div>
-                      <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                    <td className="px-3 py-2.5">
+                      <div className={`truncate ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>{item.userName}</div>
+                      <div className={`text-xs truncate ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                         {item.userEmail}
                       </div>
                     </td>
-                    <td className={`px-4 py-3 whitespace-nowrap ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    <td className={`px-3 py-2.5 whitespace-nowrap ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                       {new Date(item.createdAt).toLocaleDateString()}
-                      <div className="text-xs">
-                        {browserInfo.screenWidth && `${browserInfo.screenWidth}x${browserInfo.screenHeight}`}
-                      </div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-2.5">
                       {NEXT_STATUS[item.status]?.length > 0 ? (
                         <div className="flex gap-1">
                           {NEXT_STATUS[item.status].map((s) => (
