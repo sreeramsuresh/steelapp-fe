@@ -11,6 +11,49 @@ import api from "../services/axiosApi";
 import { getRouteLabel } from "../utils/routeLabels";
 
 const MAX_CHARS = 2000;
+const MAX_LOG_ENTRIES = 20;
+
+// Global buffers for console errors and failed network requests
+const consoleErrors = [];
+const failedRequests = [];
+
+// Intercept console.error and console.warn
+const origError = console.error;
+const origWarn = console.warn;
+console.error = (...args) => {
+  consoleErrors.push({ level: "error", message: args.map(String).join(" "), ts: Date.now() });
+  if (consoleErrors.length > MAX_LOG_ENTRIES) consoleErrors.shift();
+  origError.apply(console, args);
+};
+console.warn = (...args) => {
+  consoleErrors.push({ level: "warn", message: args.map(String).join(" "), ts: Date.now() });
+  if (consoleErrors.length > MAX_LOG_ENTRIES) consoleErrors.shift();
+  origWarn.apply(console, args);
+};
+
+// Intercept failed fetch/XHR responses
+const origFetch = window.fetch;
+window.fetch = async (...args) => {
+  try {
+    const res = await origFetch.apply(window, args);
+    if (!res.ok) {
+      const url = typeof args[0] === "string" ? args[0] : args[0]?.url || "unknown";
+      let body = "";
+      try {
+        body = await res.clone().text();
+        if (body.length > 500) body = `${body.slice(0, 500)}...`;
+      } catch {}
+      failedRequests.push({ url, status: res.status, body, ts: Date.now() });
+      if (failedRequests.length > MAX_LOG_ENTRIES) failedRequests.shift();
+    }
+    return res;
+  } catch (err) {
+    const url = typeof args[0] === "string" ? args[0] : args[0]?.url || "unknown";
+    failedRequests.push({ url, status: "NETWORK_ERROR", body: err.message, ts: Date.now() });
+    if (failedRequests.length > MAX_LOG_ENTRIES) failedRequests.shift();
+    throw err;
+  }
+};
 
 const FeedbackWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,6 +97,8 @@ const FeedbackWidget = () => {
         browser_info: {
           screenWidth: window.screen.width,
           screenHeight: window.screen.height,
+          consoleErrors: consoleErrors.slice(-10),
+          failedRequests: failedRequests.slice(-10),
         },
       });
       toast.success("Feedback submitted — thank you!");
