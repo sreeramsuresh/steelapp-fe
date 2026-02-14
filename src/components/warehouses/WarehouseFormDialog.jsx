@@ -10,6 +10,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
   const { isDarkMode } = useTheme();
   const isEditing = !!warehouse;
+  const hasStock = isEditing && (warehouse.inventoryCount || 0) > 0;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -433,23 +434,29 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                   </select>
                 </div>
 
-                <div className="flex items-end">
-                  <label
-                    htmlFor="isActive"
-                    className={`flex items-center gap-2 cursor-pointer ${
-                      isDarkMode ? "text-gray-300" : "text-gray-700"
-                    }`}
-                  >
-                    <input
-                      id="isActive"
-                      type="checkbox"
-                      name="isActive"
-                      checked={formData.isActive}
-                      onChange={handleChange}
-                      className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
-                    />
-                    <span className="text-sm font-medium">Active</span>
+                <div>
+                  <label htmlFor="isActive" className={labelClass}>
+                    Status
                   </label>
+                  <select
+                    id="isActive"
+                    name="isActive"
+                    value={formData.isActive ? "active" : "inactive"}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, isActive: e.target.value === "active" }))
+                    }
+                    className={inputClass(false)}
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive" disabled={hasStock}>
+                      Inactive{hasStock ? " (has stock)" : ""}
+                    </option>
+                  </select>
+                  {hasStock && formData.isActive && (
+                    <p className={`mt-1 text-xs ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}>
+                      Cannot deactivate — warehouse has {warehouse.inventoryCount?.toLocaleString()} items in stock
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

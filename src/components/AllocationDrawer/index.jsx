@@ -110,7 +110,12 @@ const AllocationDrawer = ({
 
   // Helper: Convert pricing basis enum to string code
   const deriveBasisCode = useCallback((pricingBasis) => {
-    // pricingBasis is the enum value (0=UNSPECIFIED, 1=PER_KG, 2=PER_MT, 3=PER_PCS, 4=PER_METER, 5=PER_LOT)
+    // Handle string values from REST API (e.g. "PER_MT", "PER_PCS")
+    const VALID_BASES = ["PER_KG", "PER_MT", "PER_PCS", "PER_METER", "PER_LOT"];
+    if (typeof pricingBasis === "string" && VALID_BASES.includes(pricingBasis.toUpperCase())) {
+      return pricingBasis.toUpperCase();
+    }
+    // Handle legacy protobuf enum integers (0-5)
     const basisMap = {
       0: "UNSPECIFIED",
       1: "PER_KG",
@@ -119,7 +124,7 @@ const AllocationDrawer = ({
       4: "PER_METER",
       5: "PER_LOT",
     };
-    return basisMap[pricingBasis] || "PER_PCS"; // Default to PER_PCS if unknown
+    return basisMap[pricingBasis] || "PER_PCS";
   }, []);
 
   // Helper: Derive base unit from pricing basis code
