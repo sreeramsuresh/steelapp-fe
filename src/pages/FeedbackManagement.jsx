@@ -29,7 +29,6 @@ const FeedbackManagement = () => {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [activeFilter, setActiveFilter] = useState("");
-  const [expandedId, setExpandedId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState(new Set());
 
@@ -156,12 +155,21 @@ const FeedbackManagement = () => {
 
       {/* Table */}
       <div
-        className={`rounded-xl border overflow-x-auto ${isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"}`}
+        className={`rounded-xl border overflow-hidden ${isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"}`}
       >
-        <table className="w-full text-sm">
+        <table className="w-full text-sm table-fixed">
+          <colgroup>
+            <col style={{ width: "36px" }} />
+            <col style={{ width: "76px" }} />
+            <col style={{ width: "11%" }} />
+            <col style={{ width: "40%" }} />
+            <col style={{ width: "14%" }} />
+            <col style={{ width: "80px" }} />
+            <col style={{ width: "145px" }} />
+          </colgroup>
           <thead>
             <tr className={isDarkMode ? "bg-[#2A2F35] text-gray-400" : "bg-gray-50 text-gray-600"}>
-              <th className="px-3 py-2.5 w-10">
+              <th className="px-3 py-2.5">
                 <input
                   type="checkbox"
                   checked={data.length > 0 && selectedIds.size === data.length}
@@ -191,9 +199,7 @@ const FeedbackManagement = () => {
                 </td>
               </tr>
             ) : (
-              data.map((item) => {
-                const isExpanded = expandedId === item.id;
-                return (
+              data.map((item) => (
                   <tr
                     key={item.id}
                     className={`border-t ${isDarkMode ? "border-[#37474F] hover:bg-[#2A2F35]" : "border-gray-100 hover:bg-gray-50"}`}
@@ -212,27 +218,19 @@ const FeedbackManagement = () => {
                       </span>
                     </td>
                     <td className="px-3 py-2.5">
-                      <div className={`font-medium truncate ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
+                      <div className={`font-medium ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
                         {item.routeLabel || "—"}
                       </div>
-                      <div className={`text-xs truncate ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                      <div className={`text-xs break-all ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                         {item.routePath}
                       </div>
                     </td>
-                    <td className="px-3 py-2.5 max-w-md">
-                      <button
-                        type="button"
-                        onClick={() => setExpandedId(isExpanded ? null : item.id)}
-                        className={`text-left ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                      >
-                        {isExpanded ? item.message : item.message.length > 80 ? `${item.message.slice(0, 80)}...` : item.message}
-                      </button>
+                    <td className="px-3 py-2.5">
+                      <div className={`${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{item.message}</div>
                     </td>
                     <td className="px-3 py-2.5">
-                      <div className={`truncate ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
-                        {item.userName}
-                      </div>
-                      <div className={`text-xs truncate ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                      <div className={`${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>{item.userName}</div>
+                      <div className={`text-xs break-all ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                         {item.userEmail}
                       </div>
                     </td>
@@ -262,8 +260,7 @@ const FeedbackManagement = () => {
                       )}
                     </td>
                   </tr>
-                );
-              })
+              ))
             )}
           </tbody>
         </table>
