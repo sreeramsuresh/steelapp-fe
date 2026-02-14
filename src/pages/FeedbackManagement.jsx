@@ -156,18 +156,9 @@ const FeedbackManagement = () => {
 
       {/* Table */}
       <div
-        className={`rounded-xl border overflow-hidden ${isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"}`}
+        className={`rounded-xl border overflow-x-auto ${isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"}`}
       >
-        <table className="w-full text-sm table-fixed">
-          <colgroup>
-            <col className="w-10" />
-            <col className="w-[80px]" />
-            <col className="w-[140px]" />
-            <col />
-            <col className="w-[160px]" />
-            <col className="w-[100px]" />
-            <col className="w-[100px]" />
-          </colgroup>
+        <table className="w-full text-sm">
           <thead>
             <tr className={isDarkMode ? "bg-[#2A2F35] text-gray-400" : "bg-gray-50 text-gray-600"}>
               <th className="px-3 py-2.5 w-10">
@@ -228,17 +219,13 @@ const FeedbackManagement = () => {
                         {item.routePath}
                       </div>
                     </td>
-                    <td className="px-3 py-2.5">
+                    <td className="px-3 py-2.5 max-w-md">
                       <button
                         type="button"
                         onClick={() => setExpandedId(isExpanded ? null : item.id)}
-                        className={`text-left w-full ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                        className={`text-left ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
-                        {isExpanded
-                          ? item.message
-                          : item.message.length > 120
-                            ? `${item.message.slice(0, 120)}...`
-                            : item.message}
+                        {isExpanded ? item.message : item.message.length > 80 ? `${item.message.slice(0, 80)}...` : item.message}
                       </button>
                     </td>
                     <td className="px-3 py-2.5">
@@ -252,7 +239,7 @@ const FeedbackManagement = () => {
                     <td className={`px-3 py-2.5 whitespace-nowrap ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                       {new Date(item.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-3 py-2.5">
+                    <td className="px-3 py-2.5 whitespace-nowrap">
                       {NEXT_STATUS[item.status]?.length > 0 ? (
                         <div className="flex gap-1">
                           {NEXT_STATUS[item.status].map((s) => (
