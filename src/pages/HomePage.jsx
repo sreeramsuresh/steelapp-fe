@@ -389,9 +389,15 @@ const HomePage = () => {
         const canReadCustomers = authService.hasPermission("customers", "read");
 
         const [quotationsRes, invoicesRes, customersRes] = await Promise.all([
-          canReadQuotations ? quotationService.getAll({ limit: 3 }).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
-          canReadInvoices ? invoiceService.getInvoices({ limit: 3 }).catch(() => ({ invoices: [] })) : Promise.resolve({ invoices: [] }),
-          canReadCustomers ? customerService.getCustomers({ limit: 3 }).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+          canReadQuotations
+            ? quotationService.getAll({ limit: 3 }).catch(() => ({ data: [] }))
+            : Promise.resolve({ data: [] }),
+          canReadInvoices
+            ? invoiceService.getInvoices({ limit: 3 }).catch(() => ({ invoices: [] }))
+            : Promise.resolve({ invoices: [] }),
+          canReadCustomers
+            ? customerService.getCustomers({ limit: 3 }).catch(() => ({ data: [] }))
+            : Promise.resolve({ data: [] }),
         ]);
 
         const allItems = [];

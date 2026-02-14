@@ -23,6 +23,7 @@ import {
   Shield,
   Ship,
   ShoppingCart,
+  TableProperties,
   Truck,
   Users,
   Warehouse,
@@ -91,7 +92,7 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           path: "/analytics/dashboard",
           icon: BarChart3,
           description: "Analytics and reporting dashboards",
-          requiredPermission: "analytics.read",
+          requiredRoles: ["admin", "managing_director", "financial_analyst"],
         },
       ],
     },
@@ -259,7 +260,20 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           path: "/app/settings",
           icon: Settings,
           description: "Configure company details and integrations",
-          requiredRoles: ["admin", "managing_director", "operations_manager", "finance_manager", "finance_manager_predefined"],
+          requiredRoles: [
+            "admin",
+            "managing_director",
+            "operations_manager",
+            "finance_manager",
+            "finance_manager_predefined",
+          ],
+        },
+        {
+          name: "Permissions Matrix",
+          path: "/app/permissions-matrix",
+          icon: TableProperties,
+          description: "View and manage user permission overrides",
+          requiredPermission: "roles.read",
         },
         {
           name: "Audit Trail",
@@ -359,19 +373,18 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
             if (visibleItems.length === 0) return null;
 
             return (
-            <div key={section.id || section.name || `section-${sectionIndex}`}>
-              {section.section && section.section !== "Dashboard" && (
-                <div
-                  className={`px-4 py-2 pb-1 text-xs font-semibold uppercase tracking-wider ${
-                    isDarkMode ? "text-gray-400" : "text-gray-500"
-                  }`}
-                >
-                  {section.section}
-                </div>
-              )}
-              <div className="space-y-1">
-                {visibleItems
-                  .map((item, itemIndex) => {
+              <div key={section.id || section.name || `section-${sectionIndex}`}>
+                {section.section && section.section !== "Dashboard" && (
+                  <div
+                    className={`px-4 py-2 pb-1 text-xs font-semibold uppercase tracking-wider ${
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    {section.section}
+                  </div>
+                )}
+                <div className="space-y-1">
+                  {visibleItems.map((item, itemIndex) => {
                     const Icon = item.icon;
                     const isActive = isActiveRoute(item.path);
 
@@ -402,8 +415,8 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
                       </div>
                     );
                   })}
+                </div>
               </div>
-            </div>
             );
           })}
         </div>

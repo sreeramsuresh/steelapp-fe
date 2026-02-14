@@ -112,6 +112,7 @@ const ReconciliationReport = lazy(() => import("../pages/reports/ReconciliationR
 
 // Admin Components - Roles & Permissions
 const RolesPage = lazy(() => import("../pages/RolesPage"));
+const PermissionsMatrix = lazy(() => import("../pages/PermissionsMatrix"));
 
 // Phase 3: Pricing Components
 const BasePricesPage = lazy(() => import("../pages/BasePricesPage"));
@@ -369,7 +370,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               path="invoices"
               element={
                 <ErrorBoundary>
-                  <ProtectedRoute user={user} requiredPermission="invoices_all.read">
+                  <ProtectedRoute user={user} requiredPermission="invoices.read">
                     <InvoiceList />
                   </ProtectedRoute>
                 </ErrorBoundary>
@@ -964,7 +965,16 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="settings"
               element={
-                <ProtectedRoute user={user} requiredRole="admin">
+                <ProtectedRoute
+                  user={user}
+                  requiredRoles={[
+                    "admin",
+                    "managing_director",
+                    "operations_manager",
+                    "finance_manager",
+                    "finance_manager_predefined",
+                  ]}
+                >
                   <CompanySettings />
                 </ProtectedRoute>
               }
@@ -972,15 +982,23 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="roles"
               element={
-                <ProtectedRoute user={user} requiredRole="admin">
+                <ProtectedRoute user={user} requiredPermission="roles.read">
                   <RolesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="permissions-matrix"
+              element={
+                <ProtectedRoute user={user} requiredPermission="roles.read">
+                  <PermissionsMatrix />
                 </ProtectedRoute>
               }
             />
             <Route
               path="audit-logs"
               element={
-                <ProtectedRoute user={user} requiredRole="admin">
+                <ProtectedRoute user={user} requiredPermission="audit_logs.read">
                   <AuditLogs />
                 </ProtectedRoute>
               }
@@ -1063,7 +1081,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="dashboard"
               element={
-                <ProtectedRoute user={user}>
+                <ProtectedRoute user={user} requiredRoles={["admin", "managing_director", "financial_analyst"]}>
                   <Dashboard />
                 </ProtectedRoute>
               }

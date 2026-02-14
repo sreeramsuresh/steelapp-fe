@@ -1,0 +1,54 @@
+/* PermissionsMatrix.css — styles Tailwind can't express */
+
+.perm-matrix-header-cell {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  white-space: nowrap;
+  width: 28px;
+  min-width: 28px;
+  max-width: 28px;
+  font-size: 10px;
+  line-height: 1.2;
+  padding: 6px 2px;
+}
+
+.perm-matrix-cell {
+  width: 28px;
+  min-width: 28px;
+  max-width: 28px;
+  height: 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.perm-matrix-cell.disabled {
+  cursor: default;
+}
+
+.perm-matrix-sticky-col {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+}
+
+.perm-matrix-sticky-col-2 {
+  position: sticky;
+  left: 180px;
+  z-index: 10;
+}
+
+.perm-matrix-module-border {
+  border-left: 2px solid;
+}
+
+.perm-matrix-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.perm-matrix-table th,
+.perm-matrix-table td {
+  border: 1px solid;
+  padding: 0;
+}
