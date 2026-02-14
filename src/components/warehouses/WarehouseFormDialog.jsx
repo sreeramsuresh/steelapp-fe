@@ -442,9 +442,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                     id="isActive"
                     name="isActive"
                     value={formData.isActive ? "active" : "inactive"}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, isActive: e.target.value === "active" }))
-                    }
+                    onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.value === "active" }))}
                     className={inputClass(false)}
                   >
                     <option value="active">Active</option>

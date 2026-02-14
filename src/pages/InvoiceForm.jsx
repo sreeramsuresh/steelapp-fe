@@ -1542,7 +1542,6 @@ const InvoiceForm = ({ onSave }) => {
 
   // Phase 3: AllocationDrawer integration - 60/40 layout mode
 
-
   // Real-time field validation states (null = untouched, 'valid' = valid, 'invalid' = invalid)
   const [fieldValidation, setFieldValidation] = useState({});
 
@@ -4577,190 +4576,190 @@ const InvoiceForm = ({ onSave }) => {
 
                 {/* Line Items Display */}
                 <div className="overflow-x-auto">
-                    {/* Empty state when no items */}
-                    {invoice.items.filter((item) => item.productId || item.name).length === 0 ? (
-                      <div
-                        className={`text-center py-8 px-4 border-2 border-dashed rounded-lg ${
-                          isDarkMode ? "border-gray-600 text-gray-400" : "border-gray-300 text-gray-500"
+                  {/* Empty state when no items */}
+                  {invoice.items.filter((item) => item.productId || item.name).length === 0 ? (
+                    <div
+                      className={`text-center py-8 px-4 border-2 border-dashed rounded-lg ${
+                        isDarkMode ? "border-gray-600 text-gray-400" : "border-gray-300 text-gray-500"
+                      }`}
+                    >
+                      <List className="mx-auto h-10 w-10 mb-2 opacity-50" />
+                      <p className="text-sm font-medium mb-1">No line items yet</p>
+                      <p className="text-xs opacity-75">
+                        Search for products in the panel on the right and click &quot;Add to Invoice&quot;
+                      </p>
+                    </div>
+                  ) : (
+                    <table
+                      className={`min-w-full table-fixed divide-y ${
+                        isDarkMode ? "divide-gray-600" : "divide-gray-200"
+                      }`}
+                    >
+                      <thead className="bg-teal-600">
+                        <tr className="h-10">
+                          <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
+                            #
+                          </th>
+                          <th
+                            className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white"
+                            style={{ width: "35%" }}
+                          >
+                            Product
+                          </th>
+                          <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-24">
+                            Qty
+                          </th>
+                          <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-24">
+                            Rate
+                          </th>
+                          <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
+                            Amount
+                          </th>
+                          <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-16">
+                            Status
+                          </th>
+                          <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10"></th>
+                        </tr>
+                      </thead>
+                      <tbody
+                        className={`divide-y ${
+                          isDarkMode ? "bg-gray-800 divide-gray-600" : "bg-white divide-gray-200"
                         }`}
                       >
-                        <List className="mx-auto h-10 w-10 mb-2 opacity-50" />
-                        <p className="text-sm font-medium mb-1">No line items yet</p>
-                        <p className="text-xs opacity-75">
-                          Search for products in the panel on the right and click &quot;Add to Invoice&quot;
-                        </p>
-                      </div>
-                    ) : (
-                      <table
-                        className={`min-w-full table-fixed divide-y ${
-                          isDarkMode ? "divide-gray-600" : "divide-gray-200"
-                        }`}
-                      >
-                        <thead className="bg-teal-600">
-                          <tr className="h-10">
-                            <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
-                              #
-                            </th>
-                            <th
-                              className="pl-3 pr-2 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-white"
-                              style={{ width: "35%" }}
-                            >
-                              Product
-                            </th>
-                            <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-24">
-                              Qty
-                            </th>
-                            <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-24">
-                              Rate
-                            </th>
-                            <th className="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide text-white w-28">
-                              Amount
-                            </th>
-                            <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-16">
-                              Status
-                            </th>
-                            <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10"></th>
-                          </tr>
-                        </thead>
-                        <tbody
-                          className={`divide-y ${
-                            isDarkMode ? "bg-gray-800 divide-gray-600" : "bg-white divide-gray-200"
-                          }`}
-                        >
-                          {invoice.items
-                            .filter((item) => item.productId || item.name)
-                            .map((item, index) => {
-                              const statusInfo = getLineItemStatusIcon(item);
-                              return (
-                                <tr
-                                  key={item.lineItemTempId || item.id || `item-${index}`}
-                                  className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
-                                >
-                                  {/* # */}
-                                  <td className="py-2 px-2 text-center text-sm">{index + 1}</td>
-                                  {/* Product */}
-                                  <td className="pl-3 pr-2 py-2">
-                                    <div>
-                                      <div
-                                        className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                                      >
-                                        {item.name || "Unnamed Product"}
-                                      </div>
-                                      {/* Phase 4: Display batch allocations from saved consumptions or draft allocations */}
-                                      {item.sourceType === "WAREHOUSE" &&
-                                        (() => {
-                                          // Use saved consumptions for finalized invoices, draft allocations otherwise
-                                          const savedConsumption = savedConsumptionsByItemId[item.id];
-                                          const displayAllocations =
-                                            savedConsumption?.consumptions?.length > 0
-                                              ? savedConsumption.consumptions
-                                              : item.allocations || [];
-
-                                          if (displayAllocations.length === 0) return null;
-
-                                          return (
-                                            <div className="text-xs text-gray-500 mt-0.5">
-                                              {displayAllocations.slice(0, 2).map((alloc, i) => (
-                                                <span key={alloc.id || alloc.name || `alloc-${i}`}>
-                                                  {alloc.batchNumber || `Batch ${alloc.batchId}`}:{" "}
-                                                  {parseFloat(alloc.quantity || alloc.quantityConsumed || 0).toFixed(0)}{" "}
-                                                  kg
-                                                  {i < Math.min(displayAllocations.length - 1, 1) && ", "}
-                                                </span>
-                                              ))}
-                                              {displayAllocations.length > 2 && (
-                                                <span className="text-teal-600">
-                                                  {" "}
-                                                  +{displayAllocations.length - 2} more
-                                                </span>
-                                              )}
-                                              {savedConsumption && (
-                                                <span className="ml-1 text-green-600" title="Saved to database">
-                                                  ✓
-                                                </span>
-                                              )}
-                                            </div>
-                                          );
-                                        })()}
-                                      {(item.sourceType === "LOCAL_DROP_SHIP" ||
-                                        item.sourceType === "IMPORT_DROP_SHIP") && (
-                                        <div className="text-xs text-blue-500 mt-0.5 flex items-center gap-1.5">
-                                          <span>
-                                            {item.sourceType === "LOCAL_DROP_SHIP"
-                                              ? "Local Drop-Ship"
-                                              : "Import Drop-Ship"}
-                                          </span>
-                                          {item.linkedPoItemId || item._linkedPONumber ? (
-                                            <span className="text-green-600 font-medium" title="Linked to supplier PO">
-                                              PO Linked
-                                            </span>
-                                          ) : id ? (
-                                            <button
-                                              type="button"
-                                              className="text-blue-700 underline hover:text-blue-900 font-medium"
-                                              onClick={() => handleOpenDropshipPOModal(index)}
-                                            >
-                                              Create PO
-                                            </button>
-                                          ) : null}
-                                        </div>
-                                      )}
+                        {invoice.items
+                          .filter((item) => item.productId || item.name)
+                          .map((item, index) => {
+                            const statusInfo = getLineItemStatusIcon(item);
+                            return (
+                              <tr
+                                key={item.lineItemTempId || item.id || `item-${index}`}
+                                className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
+                              >
+                                {/* # */}
+                                <td className="py-2 px-2 text-center text-sm">{index + 1}</td>
+                                {/* Product */}
+                                <td className="pl-3 pr-2 py-2">
+                                  <div>
+                                    <div
+                                      className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                                    >
+                                      {item.name || "Unnamed Product"}
                                     </div>
-                                  </td>
-                                  {/* Qty */}
-                                  <td className="px-2 py-2 text-center text-sm">
-                                    {item.quantity || 0} {item.quantityUom || "KG"}
-                                  </td>
-                                  {/* Rate */}
-                                  <td className="px-2 py-2 text-right text-sm">{formatCurrency(item.rate || 0)}</td>
-                                  {/* Amount */}
-                                  <td className="px-2 py-2 text-right text-sm font-medium">
-                                    <div>{formatCurrency(item.amount || item.quantity * item.rate || 0)}</div>
-                                    {/* Phase 7: Line item cost/margin display for confirmed invoices */}
-                                    {item.costPrice > 0 && (
-                                      <div
-                                        className={`text-[10px] mt-0.5 ${item.marginPercent >= 15 ? "text-green-500" : item.marginPercent >= 0 ? "text-yellow-500" : "text-red-500"}`}
-                                      >
-                                        Cost: {formatCurrency(item.costPrice)} | {item.marginPercent?.toFixed(1) || 0}%
+                                    {/* Phase 4: Display batch allocations from saved consumptions or draft allocations */}
+                                    {item.sourceType === "WAREHOUSE" &&
+                                      (() => {
+                                        // Use saved consumptions for finalized invoices, draft allocations otherwise
+                                        const savedConsumption = savedConsumptionsByItemId[item.id];
+                                        const displayAllocations =
+                                          savedConsumption?.consumptions?.length > 0
+                                            ? savedConsumption.consumptions
+                                            : item.allocations || [];
+
+                                        if (displayAllocations.length === 0) return null;
+
+                                        return (
+                                          <div className="text-xs text-gray-500 mt-0.5">
+                                            {displayAllocations.slice(0, 2).map((alloc, i) => (
+                                              <span key={alloc.id || alloc.name || `alloc-${i}`}>
+                                                {alloc.batchNumber || `Batch ${alloc.batchId}`}:{" "}
+                                                {parseFloat(alloc.quantity || alloc.quantityConsumed || 0).toFixed(0)}{" "}
+                                                kg
+                                                {i < Math.min(displayAllocations.length - 1, 1) && ", "}
+                                              </span>
+                                            ))}
+                                            {displayAllocations.length > 2 && (
+                                              <span className="text-teal-600">
+                                                {" "}
+                                                +{displayAllocations.length - 2} more
+                                              </span>
+                                            )}
+                                            {savedConsumption && (
+                                              <span className="ml-1 text-green-600" title="Saved to database">
+                                                ✓
+                                              </span>
+                                            )}
+                                          </div>
+                                        );
+                                      })()}
+                                    {(item.sourceType === "LOCAL_DROP_SHIP" ||
+                                      item.sourceType === "IMPORT_DROP_SHIP") && (
+                                      <div className="text-xs text-blue-500 mt-0.5 flex items-center gap-1.5">
+                                        <span>
+                                          {item.sourceType === "LOCAL_DROP_SHIP"
+                                            ? "Local Drop-Ship"
+                                            : "Import Drop-Ship"}
+                                        </span>
+                                        {item.linkedPoItemId || item._linkedPONumber ? (
+                                          <span className="text-green-600 font-medium" title="Linked to supplier PO">
+                                            PO Linked
+                                          </span>
+                                        ) : id ? (
+                                          <button
+                                            type="button"
+                                            className="text-blue-700 underline hover:text-blue-900 font-medium"
+                                            onClick={() => handleOpenDropshipPOModal(index)}
+                                          >
+                                            Create PO
+                                          </button>
+                                        ) : null}
                                       </div>
                                     )}
-                                  </td>
-                                  {/* Status Icon */}
-                                  <td className="px-2 py-2 text-center">
-                                    <span className={statusInfo.className} title={statusInfo.title}>
-                                      {statusInfo.icon === "check" && <CheckCircle className="w-5 h-5 inline" />}
-                                      {statusInfo.icon === "partial" && <AlertTriangle className="w-5 h-5 inline" />}
-                                      {statusInfo.icon === "empty" && (
-                                        <span className="inline-block w-5 h-5 rounded-full border-2 border-current"></span>
-                                      )}
-                                      {statusInfo.icon === "ship" && <span className="text-lg">🚢</span>}
-                                    </span>
-                                  </td>
-                                  {/* Delete */}
-                                  <td className="py-2 px-2 text-center">
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setDeleteLineItemConfirm({
-                                          open: true,
-                                          itemId: item.id,
-                                          itemName: item.name,
-                                          tempId: item.lineItemTempId,
-                                        });
-                                      }}
-                                      className="text-gray-400 hover:text-red-500 p-1 transition-colors"
-                                      title="Delete item"
+                                  </div>
+                                </td>
+                                {/* Qty */}
+                                <td className="px-2 py-2 text-center text-sm">
+                                  {item.quantity || 0} {item.quantityUom || "KG"}
+                                </td>
+                                {/* Rate */}
+                                <td className="px-2 py-2 text-right text-sm">{formatCurrency(item.rate || 0)}</td>
+                                {/* Amount */}
+                                <td className="px-2 py-2 text-right text-sm font-medium">
+                                  <div>{formatCurrency(item.amount || item.quantity * item.rate || 0)}</div>
+                                  {/* Phase 7: Line item cost/margin display for confirmed invoices */}
+                                  {item.costPrice > 0 && (
+                                    <div
+                                      className={`text-[10px] mt-0.5 ${item.marginPercent >= 15 ? "text-green-500" : item.marginPercent >= 0 ? "text-yellow-500" : "text-red-500"}`}
                                     >
-                                      <Trash2 className="w-4 h-4" />
-                                    </button>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                        </tbody>
-                      </table>
-                    )}
-                  </div>
+                                      Cost: {formatCurrency(item.costPrice)} | {item.marginPercent?.toFixed(1) || 0}%
+                                    </div>
+                                  )}
+                                </td>
+                                {/* Status Icon */}
+                                <td className="px-2 py-2 text-center">
+                                  <span className={statusInfo.className} title={statusInfo.title}>
+                                    {statusInfo.icon === "check" && <CheckCircle className="w-5 h-5 inline" />}
+                                    {statusInfo.icon === "partial" && <AlertTriangle className="w-5 h-5 inline" />}
+                                    {statusInfo.icon === "empty" && (
+                                      <span className="inline-block w-5 h-5 rounded-full border-2 border-current"></span>
+                                    )}
+                                    {statusInfo.icon === "ship" && <span className="text-lg">🚢</span>}
+                                  </span>
+                                </td>
+                                {/* Delete */}
+                                <td className="py-2 px-2 text-center">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setDeleteLineItemConfirm({
+                                        open: true,
+                                        itemId: item.id,
+                                        itemName: item.name,
+                                        tempId: item.lineItemTempId,
+                                      });
+                                    }}
+                                    className="text-gray-400 hover:text-red-500 p-1 transition-colors"
+                                    title="Delete item"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
               </Card>
             </div>
             {/* End Left Panel */}
