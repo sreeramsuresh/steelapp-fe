@@ -43,7 +43,9 @@ const PurchaseWorkflowTimeline = ({ currentStatus }) => {
         isDarkMode ? "bg-gray-900/60 border-gray-700" : "bg-gray-50/80 border-gray-200"
       }`}
     >
-      <div className={`text-[10px] font-bold uppercase tracking-wider mb-5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+      <div
+        className={`text-[10px] font-bold uppercase tracking-wider mb-5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+      >
         Workflow
       </div>
       <div className="relative">

@@ -1781,785 +1781,793 @@ const PurchaseOrderForm = () => {
         {/* Workflow Timeline — left sidebar panel */}
         {id && <PurchaseWorkflowTimeline currentStatus={purchaseOrder.status} />}
 
-      <main className="max-w-[1400px] mx-auto px-4 py-4 flex-1 min-w-0">
-        {/* Validation Errors Alert */}
-        {validationErrors.length > 0 && (
-          <div
-            id="validation-errors-alert"
-            className={`mb-4 p-4 rounded-2xl border-2 ${
-              isDarkMode ? "bg-red-900/20 border-red-600 text-red-200" : "bg-red-50 border-red-500 text-red-800"
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <AlertTriangle className={`flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} size={20} />
-              <div className="flex-1">
-                <h4 className="font-bold text-sm mb-2">Please fix the following errors:</h4>
-                <ul className="list-disc list-inside space-y-1 text-xs">
-                  {validationErrors.map((error, _index) => (
-                    <li key={error}>{error}</li>
-                  ))}
-                </ul>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setValidationErrors([]);
-                    setInvalidFields(new Set());
-                  }}
-                  className={`mt-2 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
-                    isDarkMode ? "bg-red-800 hover:bg-red-700 text-white" : "bg-red-600 hover:bg-red-700 text-white"
-                  }`}
-                >
-                  Dismiss
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ==================== 8+4 GRID LAYOUT ==================== */}
-        <div className="grid grid-cols-12 gap-4">
-          {/* LEFT COLUMN - Main Form (8 cols) */}
-          <div className="col-span-12 lg:col-span-8 space-y-4">
-            {/* ===== PO DETAILS + SUPPLIER (Consolidated Card) ===== */}
-            <div className={CARD_CLASSES(isDarkMode)}>
-              <div
-                className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-              >
-                Document Details
-              </div>
-              <div className="grid grid-cols-12 gap-3">
-                {/* Row 1: PO Number, Date, Expected Delivery */}
-                <div className="col-span-12 sm:col-span-3">
-                  <label htmlFor="po-number" className={LABEL_CLASSES(isDarkMode)}>
-                    PO Number
-                  </label>
-                  <input
-                    id="po-number"
-                    type="text"
-                    value={purchaseOrder.poNumber}
-                    onChange={(e) => handleInputChange("poNumber", e.target.value)}
-                    placeholder="PO-2024-001"
-                    className={INPUT_CLASSES(isDarkMode)}
-                    data-testid="po-number"
-                  />
-                </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <label htmlFor="po-date" className={LABEL_CLASSES(isDarkMode)}>
-                    PO Date
-                  </label>
-                  <input
-                    id="po-date"
-                    type="date"
-                    value={purchaseOrder.poDate}
-                    onChange={(e) => handleInputChange("poDate", e.target.value)}
-                    className={INPUT_CLASSES(isDarkMode)}
-                    data-testid="po-date"
-                  />
-                </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <label htmlFor="expected-delivery-date" className={LABEL_CLASSES(isDarkMode)}>
-                    Expected Delivery
-                  </label>
-                  <input
-                    id="expected-delivery-date"
-                    type="date"
-                    value={purchaseOrder.expectedDeliveryDate}
-                    onChange={(e) => handleInputChange("expectedDeliveryDate", e.target.value)}
-                    className={INPUT_CLASSES(isDarkMode)}
-                    data-testid="expected-delivery-date"
-                  />
-                </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <FormSelect
-                    label="Warehouse"
-                    value={selectedWarehouse || "none"}
-                    onValueChange={(value) => setSelectedWarehouse(value === "none" ? "" : value)}
-                    required={true}
-                    validationState={invalidFields.has("warehouse") ? "invalid" : null}
-                    data-testid="warehouse-select"
-                  >
-                    <SelectItem value="none">Select Warehouse</SelectItem>
-                    {warehouses.map((warehouse) => (
-                      <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
-                        {warehouse.name} - {warehouse.city}
-                      </SelectItem>
+        <main className="max-w-[1400px] mx-auto px-4 py-4 flex-1 min-w-0">
+          {/* Validation Errors Alert */}
+          {validationErrors.length > 0 && (
+            <div
+              id="validation-errors-alert"
+              className={`mb-4 p-4 rounded-2xl border-2 ${
+                isDarkMode ? "bg-red-900/20 border-red-600 text-red-200" : "bg-red-50 border-red-500 text-red-800"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <AlertTriangle className={`flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} size={20} />
+                <div className="flex-1">
+                  <h4 className="font-bold text-sm mb-2">Please fix the following errors:</h4>
+                  <ul className="list-disc list-inside space-y-1 text-xs">
+                    {validationErrors.map((error, _index) => (
+                      <li key={error}>{error}</li>
                     ))}
-                  </FormSelect>
-                </div>
-
-                {/* Divider */}
-                <div className="col-span-12">
-                  <div className={DIVIDER_CLASSES(isDarkMode)} />
-                </div>
-
-                {/* Row 2: Supplier */}
-                <div className="col-span-12 sm:col-span-6">
-                  <div className="flex gap-2 items-end">
-                    <div className="flex-1">
-                      <FormSelect
-                        label="Supplier"
-                        value={selectedSupplierId || "none"}
-                        onValueChange={(value) => {
-                          const supplierId = value === "none" ? "" : value;
-                          setSelectedSupplierId(supplierId);
-                          handleSupplierSelect(supplierId);
-                        }}
-                        disabled={loadingSuppliers}
-                        required={true}
-                        validationState={invalidFields.has("supplier") ? "invalid" : null}
-                        data-testid="supplier-select"
-                      >
-                        <SelectItem value="none">Select Supplier</SelectItem>
-                        {suppliers.map((supplier) => (
-                          <SelectItem key={supplier.id} value={supplier.id.toString()}>
-                            {supplier.name}
-                          </SelectItem>
-                        ))}
-                      </FormSelect>
-                    </div>
-                    {selectedSupplierId && (
-                      <button
-                        type="button"
-                        onClick={() => setPeopleDrawerOpen(true)}
-                        className={BTN_SMALL(isDarkMode)}
-                        title="Edit Supplier Details"
-                      >
-                        Edit
-                      </button>
-                    )}
-                  </div>
-                  {purchaseOrder.supplierTRN && (
-                    <div className={`text-xs mt-1 font-mono ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                      TRN: {purchaseOrder.supplierTRN}
-                    </div>
-                  )}
-                </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <FormSelect
-                    label="Stock Status"
-                    value={purchaseOrder.stockStatus}
-                    onValueChange={(value) => handleInputChange("stockStatus", value)}
+                  </ul>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setValidationErrors([]);
+                      setInvalidFields(new Set());
+                    }}
+                    className={`mt-2 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
+                      isDarkMode ? "bg-red-800 hover:bg-red-700 text-white" : "bg-red-600 hover:bg-red-700 text-white"
+                    }`}
                   >
-                    <SelectItem value="retain">Retain (To be received)</SelectItem>
-                    <SelectItem value="transit">In Transit</SelectItem>
-                    {hasDropshipItems ? (
-                      <>
-                        <SelectItem value="received">Delivered to Customer (Dropship)</SelectItem>
-                        <SelectItem value="in_warehouse">Received to Warehouse (Rejection)</SelectItem>
-                      </>
-                    ) : (
-                      <SelectItem value="received">Received at Warehouse</SelectItem>
-                    )}
-                  </FormSelect>
-                </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <FormSelect
-                    label="Incoterms"
-                    value={purchaseOrder.incoterms || "none"}
-                    onValueChange={(value) => handleInputChange("incoterms", value === "none" ? "" : value)}
-                  >
-                    <SelectItem value="none">Select Incoterm</SelectItem>
-                    <SelectItem value="FOB">FOB - Free on Board</SelectItem>
-                    <SelectItem value="CIF">CIF - Cost, Insurance & Freight</SelectItem>
-                    <SelectItem value="EXW">EXW - Ex Works</SelectItem>
-                    <SelectItem value="DDP">DDP - Delivered Duty Paid</SelectItem>
-                    <SelectItem value="DAP">DAP - Delivered at Place</SelectItem>
-                    <SelectItem value="FCA">FCA - Free Carrier</SelectItem>
-                    <SelectItem value="CPT">CPT - Carriage Paid To</SelectItem>
-                    <SelectItem value="CIP">CIP - Carriage and Insurance Paid To</SelectItem>
-                  </FormSelect>
+                    Dismiss
+                  </button>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* ===== LINE ITEMS SECTION ===== */}
-            <div className={CARD_CLASSES(isDarkMode)}>
-              <div className="flex justify-between items-center mb-3">
-                <div
-                  className={`text-xs font-semibold uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                >
-                  Line Items
-                </div>
-                <button type="button" onClick={addItem} className={BTN_PRIMARY} data-testid="add-item">
-                  <Plus size={16} className="inline mr-1" />
-                  Add Item
-                </button>
-              </div>
-
-              {/* Quick Add Speed Buttons */}
-              {formPreferences.showSpeedButtons && (
-                <div className="mb-3">
-                  <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                    Quick Add (Pinned & Top Products)
-                  </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {sortedProducts.slice(0, 8).map((product) => {
-                      const isPinned = pinnedProductIds.includes(product.id);
-                      return (
-                        <div key={product.id} className="relative group">
-                          <button
-                            type="button"
-                            onClick={() => handleQuickAddItem(product)}
-                            className={`w-full px-2.5 py-2 pr-7 rounded-md border text-xs font-medium transition-all truncate text-left ${
-                              isPinned
-                                ? isDarkMode
-                                  ? "border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60"
-                                  : "border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200"
-                                : isDarkMode
-                                  ? "border-gray-700 bg-gray-900 text-gray-400 hover:border-teal-500"
-                                  : "border-gray-300 bg-white text-gray-700 hover:border-blue-500"
-                            }`}
-                            title={
-                              product.displayName ||
-                              product.display_name ||
-                              product.name ||
-                              product.description ||
-                              product.sku ||
-                              "Product"
-                            }
-                          >
-                            {product.uniqueName ||
-                              product.unique_name ||
-                              product.name ||
-                              product.description ||
-                              product.sku ||
-                              "Product"}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => handleTogglePin(e, product.id)}
-                            className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all ${
-                              isPinned
-                                ? isDarkMode
-                                  ? "text-teal-300"
-                                  : "text-teal-700"
-                                : isDarkMode
-                                  ? "text-gray-500 hover:text-teal-400"
-                                  : "text-gray-400 hover:text-teal-600"
-                            }`}
-                            title={isPinned ? "Unpin product" : "Pin product"}
-                          >
-                            {isPinned ? <Pin size={12} fill="currentColor" /> : <Pin size={12} />}
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Desktop Table - preserve existing table structure but remove duplicate */}
-              <div className="hidden md:block overflow-x-auto">
-                <table
-                  className={`min-w-full table-fixed ${isDarkMode ? "divide-gray-600" : "divide-gray-200"}`}
-                  data-testid="line-items-table"
-                >
-                  <thead className={isDarkMode ? "bg-gray-900" : "bg-gray-50"}>
-                    <tr>
-                      <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "28%" }}
-                      >
-                        Product
-                      </th>
-                      <th
-                        className={`px-2 py-2 text-right text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "10%" }}
-                      >
-                        Qty
-                      </th>
-                      <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "16%" }}
-                      >
-                        Rate
-                      </th>
-                      <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "12%" }}
-                      >
-                        Channel
-                      </th>
-                      <th
-                        className={`px-2 py-2 text-right text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "8%" }}
-                      >
-                        VAT %
-                      </th>
-                      <th
-                        className={`px-2 py-2 text-right text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "12%" }}
-                      >
-                        Amount
-                      </th>
-                      <th
-                        className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                        style={{ width: "4%" }}
-                      ></th>
-                    </tr>
-                  </thead>
-                  <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
-                    {purchaseOrder.items.map((item, index) => (
-                      <tr
-                        key={item.id || index}
-                        data-item-index={index}
-                        data-testid={`item-row-${index}`}
-                        className={isDarkMode ? "bg-gray-800" : "bg-white"}
-                      >
-                        {/* PRODUCT — wider, includes weight info + stock/GRN badges for edit mode */}
-                        <td className="px-2 py-2 align-middle">
-                          <Autocomplete
-                            options={
-                              searchInputs[index]
-                                ? searchOptions.length
-                                  ? searchOptions
-                                  : productOptions
-                                : productOptions
-                            }
-                            value={item.productId ? productOptions.find((p) => p.id === item.productId) : null}
-                            inputValue={searchInputs[index] || item.name || ""}
-                            onInputChange={(_event, newInputValue) => handleSearchInputChange(index, newInputValue)}
-                            onChange={(_event, newValue) => {
-                              if (newValue) handleProductSelect(index, newValue);
-                            }}
-                            placeholder="Search products..."
-                            disabled={loading}
-                            error={invalidFields.has(`item.${index}.name`)}
-                            renderOption={(option) => (
-                              <div>
-                                <div className="font-medium">
-                                  {option.uniqueName ||
-                                    option.unique_name ||
-                                    option.displayName ||
-                                    option.display_name ||
-                                    option.name ||
-                                    option.description ||
-                                    option.sku ||
-                                    "Product"}
-                                </div>
-                                <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                                  {option.origin ? `${option.origin} • ` : ""}
-                                  {option.subtitle}
-                                </div>
-                              </div>
-                            )}
-                            noOptionsText="No products found"
-                          />
-                          {/* Sub-text: weight info + stock/GRN badges */}
-                          <div className="flex items-center gap-2 mt-1 flex-wrap">
-                            {item.unitWeightKg > 0 && (
-                              <span className={`text-[10px] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                                Wt: {item.unitWeightKg}kg/pc
-                                {item.theoreticalWeightKg > 0 && ` · ${item.theoreticalWeightKg.toFixed(1)}kg total`}
-                              </span>
-                            )}
-                            {item.missingWeightWarning && (
-                              <span
-                                className="text-[10px] text-red-500 font-medium"
-                                title="Unit weight required for weight-based pricing"
-                              >
-                                Missing weight
-                              </span>
-                            )}
-                            {id && item.lineStockStatus && item.lineStockStatus !== "PENDING" && (
-                              <span
-                                className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
-                                  item.lineStockStatus === "RECEIVED"
-                                    ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                                    : "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
-                                }`}
-                              >
-                                {item.lineStockStatus}
-                              </span>
-                            )}
-                            {id && item.grnNumber && (
-                              <span
-                                className="text-[10px] font-medium text-teal-500"
-                                title={`GRN: ${item.grnNumber}${item.receivedQty ? ` | Rcvd: ${item.receivedQty}` : ""}`}
-                              >
-                                GRN: {item.grnNumber}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-
-                        {/* QTY */}
-                        <td className="px-2 py-2 align-middle">
-                          <input
-                            type="number"
-                            value={item.quantity || ""}
-                            onChange={(e) => {
-                              const allowDecimal = item.quantityUom === "MT" || item.quantityUom === "KG";
-                              const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
-                              handleItemChange(
-                                index,
-                                "quantity",
-                                e.target.value === "" ? "" : Number.isNaN(val) ? "" : val
-                              );
-                            }}
-                            min="0"
-                            step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
-                            className={`w-full px-2 py-1.5 text-xs border rounded-md text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} ${invalidFields.has(`item.${index}.quantity`) ? "border-red-500" : ""}`}
-                          />
-                          {item.quantityUom && (
-                            <div
-                              className={`text-[10px] text-right mt-0.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
-                            >
-                              {item.quantityUom}
-                            </div>
-                          )}
-                        </td>
-
-                        {/* RATE + PRICING BASIS */}
-                        <td className="px-1 py-2 align-middle">
-                          <div
-                            className={`flex rounded-md overflow-hidden border ${isDarkMode ? "border-gray-700" : "border-gray-300"}`}
-                          >
-                            <input
-                              type="number"
-                              value={item.rate || ""}
-                              onChange={(e) =>
-                                handleItemChange(index, "rate", e.target.value === "" ? "" : parseFloat(e.target.value))
-                              }
-                              min="0"
-                              step="0.01"
-                              className={`flex-1 w-full px-2 py-1.5 text-xs border-0 outline-none text-right ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"} ${invalidFields.has(`item.${index}.rate`) ? "border-red-500" : ""}`}
-                              style={{ minWidth: 0 }}
-                            />
-                            <select
-                              value={item.pricingBasis || "PER_MT"}
-                              onChange={(e) => handleItemChange(index, "pricingBasis", e.target.value)}
-                              className={`text-[10px] font-bold px-1.5 border-l cursor-pointer outline-none ${
-                                item.pricingBasis === "PER_KG"
-                                  ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
-                                  : item.pricingBasis === "PER_PCS"
-                                    ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700"
-                                    : isDarkMode
-                                      ? "bg-gray-700 text-gray-400 border-gray-700"
-                                      : "bg-gray-50 text-gray-600 border-gray-300"
-                              }`}
-                            >
-                              {getAllowedBases(item.productCategory).map((b) => (
-                                <option key={b} value={b}>
-                                  /{getBasisLabel(b).replace("per ", "")}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          {item.rate > 0 && item.unitWeightKg > 0 && item.pricingBasis !== "PER_PCS" && (
-                            <div className={`text-[10px] mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                              {item.pricingBasis === "PER_MT"
-                                ? `= ${((item.rate / 1000) * item.unitWeightKg).toFixed(2)}/pc`
-                                : `= ${(item.rate * item.unitWeightKg).toFixed(2)}/pc`}
-                            </div>
-                          )}
-                        </td>
-
-                        {/* CHANNEL */}
-                        <td className="px-2 py-2 align-middle">
-                          <div className="space-y-1">
-                            <select
-                              value={item.procurementChannel || "LOCAL"}
-                              onChange={(e) => handleItemChange(index, "procurementChannel", e.target.value)}
-                              className={`w-full px-2 py-1 border rounded-md text-xs ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} ${
-                                item.procurementChannel === "IMPORTED"
-                                  ? isDarkMode
-                                    ? "border-emerald-600"
-                                    : "border-emerald-400"
-                                  : isDarkMode
-                                    ? "border-blue-600"
-                                    : "border-blue-400"
-                              }`}
-                            >
-                              <option value="LOCAL">LOCAL</option>
-                              <option value="IMPORTED">IMPORTED</option>
-                            </select>
-                            {item.procurementChannel === "IMPORTED" && (
-                              <select
-                                value={item.importContainerId || ""}
-                                onChange={(e) => handleItemChange(index, "importContainerId", e.target.value || null)}
-                                className={`w-full px-2 py-1 border rounded-md text-xs ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
-                              >
-                                <option value="">No container</option>
-                                {importContainers.map((container) => (
-                                  <option key={container.id} value={container.id}>
-                                    {container.containerNumber || `Container #${container.id}`}
-                                  </option>
-                                ))}
-                              </select>
-                            )}
-                          </div>
-                        </td>
-
-                        {/* VAT % — includes supply type as sub-select */}
-                        <td className="px-2 py-2 align-middle">
-                          <input
-                            type="number"
-                            value={item.vatRate || ""}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                "vatRate",
-                                e.target.value === "" ? "" : parseFloat(e.target.value)
-                              )
-                            }
-                            min="0"
-                            max="15"
-                            step="0.01"
-                            placeholder="5.00"
-                            className={`w-full px-2 py-1.5 text-xs border rounded-md text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
-                          />
-                          <select
-                            value={item.supplyType || "standard"}
-                            onChange={(e) => handleItemChange(index, "supplyType", e.target.value)}
-                            className={`w-full mt-1 px-1 py-0.5 border rounded text-[10px] ${isDarkMode ? "bg-gray-900 border-gray-700 text-gray-400" : "bg-gray-50 border-gray-200 text-gray-500"}`}
-                          >
-                            <option value="standard">Std</option>
-                            <option value="zero_rated">Zero</option>
-                            <option value="exempt">Exempt</option>
-                          </select>
-                        </td>
-
-                        {/* AMOUNT */}
-                        <td className="px-2 py-2 align-middle">
-                          <div
-                            className={`font-mono text-xs text-right font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                          >
-                            {formatCurrency(item.amount)}
-                          </div>
-                        </td>
-
-                        {/* DELETE */}
-                        <td className="px-2 py-2 align-middle text-center">
-                          <button
-                            type="button"
-                            onClick={() => removeItem(index)}
-                            disabled={purchaseOrder.items.length === 1}
-                            className={`hover:text-red-300 ${isDarkMode ? "text-red-400 disabled:text-gray-600" : "text-red-500 disabled:text-gray-400"}`}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile Cards - placeholder for now, keep existing mobile layout logic */}
-              <div className="md:hidden text-xs text-center py-4 text-gray-400">
-                Mobile view: use desktop for best experience
-              </div>
-
-              {/* Inline Totals (visible on left column, quick reference) */}
-              <div className={`mt-4 pt-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-                <div className="flex justify-end">
-                  <div className="w-full max-w-xs space-y-1">
-                    <div className="flex justify-between text-xs">
-                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Subtotal:</span>
-                      <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                        {formatCurrency(purchaseOrder.subtotal)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>VAT (5%):</span>
-                      <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                        {formatCurrency(purchaseOrder.vatAmount)}
-                      </span>
-                    </div>
-                    <div className={`h-px my-1 ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`} />
-                    <div className="flex justify-between text-sm font-bold">
-                      <span className={isDarkMode ? "text-white" : "text-gray-900"}>Total:</span>
-                      <span className="text-teal-400 font-mono">{formatCurrency(purchaseOrder.total)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* END LEFT COLUMN - Close it here, we'll add sidebar next */}
-          </div>
-
-          {/* RIGHT COLUMN - Sticky Summary Sidebar (4 cols) */}
-          <div className="col-span-12 lg:col-span-4">
-            <div className="lg:sticky lg:top-[72px] space-y-4">
-              {/* Order Summary Card */}
+          {/* ==================== 8+4 GRID LAYOUT ==================== */}
+          <div className="grid grid-cols-12 gap-4">
+            {/* LEFT COLUMN - Main Form (8 cols) */}
+            <div className="col-span-12 lg:col-span-8 space-y-4">
+              {/* ===== PO DETAILS + SUPPLIER (Consolidated Card) ===== */}
               <div className={CARD_CLASSES(isDarkMode)}>
                 <div
                   className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 >
-                  Order Summary
+                  Document Details
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs">
-                    <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Items</span>
-                    <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                      {purchaseOrder.items.length}
-                    </span>
+                <div className="grid grid-cols-12 gap-3">
+                  {/* Row 1: PO Number, Date, Expected Delivery */}
+                  <div className="col-span-12 sm:col-span-3">
+                    <label htmlFor="po-number" className={LABEL_CLASSES(isDarkMode)}>
+                      PO Number
+                    </label>
+                    <input
+                      id="po-number"
+                      type="text"
+                      value={purchaseOrder.poNumber}
+                      onChange={(e) => handleInputChange("poNumber", e.target.value)}
+                      placeholder="PO-2024-001"
+                      className={INPUT_CLASSES(isDarkMode)}
+                      data-testid="po-number"
+                    />
                   </div>
-                  <div className="flex justify-between text-xs">
-                    <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Subtotal</span>
-                    <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`} data-testid="subtotal">
-                      {formatCurrency(purchaseOrder.subtotal)}
-                    </span>
+                  <div className="col-span-6 sm:col-span-3">
+                    <label htmlFor="po-date" className={LABEL_CLASSES(isDarkMode)}>
+                      PO Date
+                    </label>
+                    <input
+                      id="po-date"
+                      type="date"
+                      value={purchaseOrder.poDate}
+                      onChange={(e) => handleInputChange("poDate", e.target.value)}
+                      className={INPUT_CLASSES(isDarkMode)}
+                      data-testid="po-date"
+                    />
                   </div>
-                  {(parseFloat(purchaseOrder.freightCharges) > 0 ||
-                    parseFloat(purchaseOrder.shippingCharges) > 0 ||
-                    parseFloat(purchaseOrder.handlingCharges) > 0 ||
-                    parseFloat(purchaseOrder.otherCharges) > 0) && (
-                    <div className="flex justify-between text-xs">
-                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Charges</span>
-                      <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                        {formatCurrency(
-                          (parseFloat(purchaseOrder.freightCharges) || 0) +
-                            (parseFloat(purchaseOrder.shippingCharges) || 0) +
-                            (parseFloat(purchaseOrder.handlingCharges) || 0) +
-                            (parseFloat(purchaseOrder.otherCharges) || 0)
-                        )}
-                      </span>
-                    </div>
-                  )}
-                  {(parseFloat(purchaseOrder.discountAmount) > 0 ||
-                    parseFloat(purchaseOrder.discountPercentage) > 0) && (
-                    <div className="flex justify-between text-xs text-green-500">
-                      <span>Discount</span>
-                      <span className="font-mono">
-                        -
-                        {formatCurrency(
-                          purchaseOrder.discountType === "percentage"
-                            ? (purchaseOrder.subtotal * (parseFloat(purchaseOrder.discountPercentage) || 0)) / 100
-                            : parseFloat(purchaseOrder.discountAmount) || 0
-                        )}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-xs">
-                    <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>VAT (5%)</span>
-                    <span
-                      className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                      data-testid="vat-amount"
+                  <div className="col-span-6 sm:col-span-3">
+                    <label htmlFor="expected-delivery-date" className={LABEL_CLASSES(isDarkMode)}>
+                      Expected Delivery
+                    </label>
+                    <input
+                      id="expected-delivery-date"
+                      type="date"
+                      value={purchaseOrder.expectedDeliveryDate}
+                      onChange={(e) => handleInputChange("expectedDeliveryDate", e.target.value)}
+                      className={INPUT_CLASSES(isDarkMode)}
+                      data-testid="expected-delivery-date"
+                    />
+                  </div>
+                  <div className="col-span-6 sm:col-span-3">
+                    <FormSelect
+                      label="Warehouse"
+                      value={selectedWarehouse || "none"}
+                      onValueChange={(value) => setSelectedWarehouse(value === "none" ? "" : value)}
+                      required={true}
+                      validationState={invalidFields.has("warehouse") ? "invalid" : null}
+                      data-testid="warehouse-select"
                     >
-                      {formatCurrency(purchaseOrder.vatAmount)}
-                    </span>
+                      <SelectItem value="none">Select Warehouse</SelectItem>
+                      {warehouses.map((warehouse) => (
+                        <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
+                          {warehouse.name} - {warehouse.city}
+                        </SelectItem>
+                      ))}
+                    </FormSelect>
                   </div>
-                  <div className={DIVIDER_CLASSES(isDarkMode)} />
-                  <div className="flex justify-between font-bold">
-                    <span className={isDarkMode ? "text-white" : "text-gray-900"}>Grand Total</span>
-                    <span className="text-teal-400 font-mono text-lg" data-testid="total">
-                      {formatCurrency(purchaseOrder.total)}
-                    </span>
+
+                  {/* Divider */}
+                  <div className="col-span-12">
+                    <div className={DIVIDER_CLASSES(isDarkMode)} />
+                  </div>
+
+                  {/* Row 2: Supplier */}
+                  <div className="col-span-12 sm:col-span-6">
+                    <div className="flex gap-2 items-end">
+                      <div className="flex-1">
+                        <FormSelect
+                          label="Supplier"
+                          value={selectedSupplierId || "none"}
+                          onValueChange={(value) => {
+                            const supplierId = value === "none" ? "" : value;
+                            setSelectedSupplierId(supplierId);
+                            handleSupplierSelect(supplierId);
+                          }}
+                          disabled={loadingSuppliers}
+                          required={true}
+                          validationState={invalidFields.has("supplier") ? "invalid" : null}
+                          data-testid="supplier-select"
+                        >
+                          <SelectItem value="none">Select Supplier</SelectItem>
+                          {suppliers.map((supplier) => (
+                            <SelectItem key={supplier.id} value={supplier.id.toString()}>
+                              {supplier.name}
+                            </SelectItem>
+                          ))}
+                        </FormSelect>
+                      </div>
+                      {selectedSupplierId && (
+                        <button
+                          type="button"
+                          onClick={() => setPeopleDrawerOpen(true)}
+                          className={BTN_SMALL(isDarkMode)}
+                          title="Edit Supplier Details"
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </div>
+                    {purchaseOrder.supplierTRN && (
+                      <div className={`text-xs mt-1 font-mono ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                        TRN: {purchaseOrder.supplierTRN}
+                      </div>
+                    )}
+                  </div>
+                  <div className="col-span-6 sm:col-span-3">
+                    <FormSelect
+                      label="Stock Status"
+                      value={purchaseOrder.stockStatus}
+                      onValueChange={(value) => handleInputChange("stockStatus", value)}
+                    >
+                      <SelectItem value="retain">Retain (To be received)</SelectItem>
+                      <SelectItem value="transit">In Transit</SelectItem>
+                      {hasDropshipItems ? (
+                        <>
+                          <SelectItem value="received">Delivered to Customer (Dropship)</SelectItem>
+                          <SelectItem value="in_warehouse">Received to Warehouse (Rejection)</SelectItem>
+                        </>
+                      ) : (
+                        <SelectItem value="received">Received at Warehouse</SelectItem>
+                      )}
+                    </FormSelect>
+                  </div>
+                  <div className="col-span-6 sm:col-span-3">
+                    <FormSelect
+                      label="Incoterms"
+                      value={purchaseOrder.incoterms || "none"}
+                      onValueChange={(value) => handleInputChange("incoterms", value === "none" ? "" : value)}
+                    >
+                      <SelectItem value="none">Select Incoterm</SelectItem>
+                      <SelectItem value="FOB">FOB - Free on Board</SelectItem>
+                      <SelectItem value="CIF">CIF - Cost, Insurance & Freight</SelectItem>
+                      <SelectItem value="EXW">EXW - Ex Works</SelectItem>
+                      <SelectItem value="DDP">DDP - Delivered Duty Paid</SelectItem>
+                      <SelectItem value="DAP">DAP - Delivered at Place</SelectItem>
+                      <SelectItem value="FCA">FCA - Free Carrier</SelectItem>
+                      <SelectItem value="CPT">CPT - Carriage Paid To</SelectItem>
+                      <SelectItem value="CIP">CIP - Carriage and Insurance Paid To</SelectItem>
+                    </FormSelect>
                   </div>
                 </div>
               </div>
 
-              {/* Payment Status Card */}
+              {/* ===== LINE ITEMS SECTION ===== */}
               <div className={CARD_CLASSES(isDarkMode)}>
                 <div className="flex justify-between items-center mb-3">
                   <div
                     className={`text-xs font-semibold uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
-                    Payment
+                    Line Items
                   </div>
-                  <span
-                    className={`px-2 py-1 rounded-full text-[11px] font-medium ${
-                      paymentStatus === "paid"
-                        ? "bg-green-500/20 text-green-400"
-                        : paymentStatus === "partially_paid"
-                          ? "bg-yellow-500/20 text-yellow-400"
-                          : "bg-red-500/20 text-red-400"
-                    }`}
-                  >
-                    {paymentStatus === "paid" ? "Paid" : paymentStatus === "partially_paid" ? "Partial" : "Unpaid"}
-                  </span>
+                  <button type="button" onClick={addItem} className={BTN_PRIMARY} data-testid="add-item">
+                    <Plus size={16} className="inline mr-1" />
+                    Add Item
+                  </button>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs">
-                    <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Paid</span>
-                    <span className="font-mono text-green-500">
-                      {formatCurrency(
-                        payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
-                      )}
-                    </span>
+
+                {/* Quick Add Speed Buttons */}
+                {formPreferences.showSpeedButtons && (
+                  <div className="mb-3">
+                    <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                      Quick Add (Pinned & Top Products)
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {sortedProducts.slice(0, 8).map((product) => {
+                        const isPinned = pinnedProductIds.includes(product.id);
+                        return (
+                          <div key={product.id} className="relative group">
+                            <button
+                              type="button"
+                              onClick={() => handleQuickAddItem(product)}
+                              className={`w-full px-2.5 py-2 pr-7 rounded-md border text-xs font-medium transition-all truncate text-left ${
+                                isPinned
+                                  ? isDarkMode
+                                    ? "border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60"
+                                    : "border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200"
+                                  : isDarkMode
+                                    ? "border-gray-700 bg-gray-900 text-gray-400 hover:border-teal-500"
+                                    : "border-gray-300 bg-white text-gray-700 hover:border-blue-500"
+                              }`}
+                              title={
+                                product.displayName ||
+                                product.display_name ||
+                                product.name ||
+                                product.description ||
+                                product.sku ||
+                                "Product"
+                              }
+                            >
+                              {product.uniqueName ||
+                                product.unique_name ||
+                                product.name ||
+                                product.description ||
+                                product.sku ||
+                                "Product"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => handleTogglePin(e, product.id)}
+                              className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all ${
+                                isPinned
+                                  ? isDarkMode
+                                    ? "text-teal-300"
+                                    : "text-teal-700"
+                                  : isDarkMode
+                                    ? "text-gray-500 hover:text-teal-400"
+                                    : "text-gray-400 hover:text-teal-600"
+                              }`}
+                              title={isPinned ? "Unpin product" : "Pin product"}
+                            >
+                              {isPinned ? <Pin size={12} fill="currentColor" /> : <Pin size={12} />}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className="flex justify-between text-xs">
-                    <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Outstanding</span>
-                    <span className="font-mono text-red-400">
-                      {formatCurrency(
-                        Math.max(
-                          0,
-                          purchaseOrder.total -
-                            payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
-                        )
-                      )}
-                    </span>
-                  </div>
-                  {/* Progress bar */}
-                  <div className={`w-full rounded-full h-1.5 ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}>
-                    <div
-                      className="bg-teal-500 h-1.5 rounded-full transition-all"
-                      style={{
-                        width: `${Math.min(100, (payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0) / purchaseOrder.total) * 100)}%`,
-                      }}
-                    />
+                )}
+
+                {/* Desktop Table - preserve existing table structure but remove duplicate */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table
+                    className={`min-w-full table-fixed ${isDarkMode ? "divide-gray-600" : "divide-gray-200"}`}
+                    data-testid="line-items-table"
+                  >
+                    <thead className={isDarkMode ? "bg-gray-900" : "bg-gray-50"}>
+                      <tr>
+                        <th
+                          className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          style={{ width: "28%" }}
+                        >
+                          Product
+                        </th>
+                        <th
+                          className={`px-2 py-2 text-right text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          style={{ width: "10%" }}
+                        >
+                          Qty
+                        </th>
+                        <th
+                          className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          style={{ width: "16%" }}
+                        >
+                          Rate
+                        </th>
+                        <th
+                          className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          style={{ width: "12%" }}
+                        >
+                          Channel
+                        </th>
+                        <th
+                          className={`px-2 py-2 text-right text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          style={{ width: "8%" }}
+                        >
+                          VAT %
+                        </th>
+                        <th
+                          className={`px-2 py-2 text-right text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          style={{ width: "12%" }}
+                        >
+                          Amount
+                        </th>
+                        <th
+                          className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          style={{ width: "4%" }}
+                        ></th>
+                      </tr>
+                    </thead>
+                    <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
+                      {purchaseOrder.items.map((item, index) => (
+                        <tr
+                          key={item.id || index}
+                          data-item-index={index}
+                          data-testid={`item-row-${index}`}
+                          className={isDarkMode ? "bg-gray-800" : "bg-white"}
+                        >
+                          {/* PRODUCT — wider, includes weight info + stock/GRN badges for edit mode */}
+                          <td className="px-2 py-2 align-middle">
+                            <Autocomplete
+                              options={
+                                searchInputs[index]
+                                  ? searchOptions.length
+                                    ? searchOptions
+                                    : productOptions
+                                  : productOptions
+                              }
+                              value={item.productId ? productOptions.find((p) => p.id === item.productId) : null}
+                              inputValue={searchInputs[index] || item.name || ""}
+                              onInputChange={(_event, newInputValue) => handleSearchInputChange(index, newInputValue)}
+                              onChange={(_event, newValue) => {
+                                if (newValue) handleProductSelect(index, newValue);
+                              }}
+                              placeholder="Search products..."
+                              disabled={loading}
+                              error={invalidFields.has(`item.${index}.name`)}
+                              renderOption={(option) => (
+                                <div>
+                                  <div className="font-medium">
+                                    {option.uniqueName ||
+                                      option.unique_name ||
+                                      option.displayName ||
+                                      option.display_name ||
+                                      option.name ||
+                                      option.description ||
+                                      option.sku ||
+                                      "Product"}
+                                  </div>
+                                  <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                                    {option.origin ? `${option.origin} • ` : ""}
+                                    {option.subtitle}
+                                  </div>
+                                </div>
+                              )}
+                              noOptionsText="No products found"
+                            />
+                            {/* Sub-text: weight info + stock/GRN badges */}
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                              {item.unitWeightKg > 0 && (
+                                <span className={`text-[10px] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                                  Wt: {item.unitWeightKg}kg/pc
+                                  {item.theoreticalWeightKg > 0 && ` · ${item.theoreticalWeightKg.toFixed(1)}kg total`}
+                                </span>
+                              )}
+                              {item.missingWeightWarning && (
+                                <span
+                                  className="text-[10px] text-red-500 font-medium"
+                                  title="Unit weight required for weight-based pricing"
+                                >
+                                  Missing weight
+                                </span>
+                              )}
+                              {id && item.lineStockStatus && item.lineStockStatus !== "PENDING" && (
+                                <span
+                                  className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                                    item.lineStockStatus === "RECEIVED"
+                                      ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                                      : "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
+                                  }`}
+                                >
+                                  {item.lineStockStatus}
+                                </span>
+                              )}
+                              {id && item.grnNumber && (
+                                <span
+                                  className="text-[10px] font-medium text-teal-500"
+                                  title={`GRN: ${item.grnNumber}${item.receivedQty ? ` | Rcvd: ${item.receivedQty}` : ""}`}
+                                >
+                                  GRN: {item.grnNumber}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* QTY */}
+                          <td className="px-2 py-2 align-middle">
+                            <input
+                              type="number"
+                              value={item.quantity || ""}
+                              onChange={(e) => {
+                                const allowDecimal = item.quantityUom === "MT" || item.quantityUom === "KG";
+                                const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
+                                handleItemChange(
+                                  index,
+                                  "quantity",
+                                  e.target.value === "" ? "" : Number.isNaN(val) ? "" : val
+                                );
+                              }}
+                              min="0"
+                              step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
+                              className={`w-full px-2 py-1.5 text-xs border rounded-md text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} ${invalidFields.has(`item.${index}.quantity`) ? "border-red-500" : ""}`}
+                            />
+                            {item.quantityUom && (
+                              <div
+                                className={`text-[10px] text-right mt-0.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                              >
+                                {item.quantityUom}
+                              </div>
+                            )}
+                          </td>
+
+                          {/* RATE + PRICING BASIS */}
+                          <td className="px-1 py-2 align-middle">
+                            <div
+                              className={`flex rounded-md overflow-hidden border ${isDarkMode ? "border-gray-700" : "border-gray-300"}`}
+                            >
+                              <input
+                                type="number"
+                                value={item.rate || ""}
+                                onChange={(e) =>
+                                  handleItemChange(
+                                    index,
+                                    "rate",
+                                    e.target.value === "" ? "" : parseFloat(e.target.value)
+                                  )
+                                }
+                                min="0"
+                                step="0.01"
+                                className={`flex-1 w-full px-2 py-1.5 text-xs border-0 outline-none text-right ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"} ${invalidFields.has(`item.${index}.rate`) ? "border-red-500" : ""}`}
+                                style={{ minWidth: 0 }}
+                              />
+                              <select
+                                value={item.pricingBasis || "PER_MT"}
+                                onChange={(e) => handleItemChange(index, "pricingBasis", e.target.value)}
+                                className={`text-[10px] font-bold px-1.5 border-l cursor-pointer outline-none ${
+                                  item.pricingBasis === "PER_KG"
+                                    ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
+                                    : item.pricingBasis === "PER_PCS"
+                                      ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700"
+                                      : isDarkMode
+                                        ? "bg-gray-700 text-gray-400 border-gray-700"
+                                        : "bg-gray-50 text-gray-600 border-gray-300"
+                                }`}
+                              >
+                                {getAllowedBases(item.productCategory).map((b) => (
+                                  <option key={b} value={b}>
+                                    /{getBasisLabel(b).replace("per ", "")}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            {item.rate > 0 && item.unitWeightKg > 0 && item.pricingBasis !== "PER_PCS" && (
+                              <div className={`text-[10px] mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                                {item.pricingBasis === "PER_MT"
+                                  ? `= ${((item.rate / 1000) * item.unitWeightKg).toFixed(2)}/pc`
+                                  : `= ${(item.rate * item.unitWeightKg).toFixed(2)}/pc`}
+                              </div>
+                            )}
+                          </td>
+
+                          {/* CHANNEL */}
+                          <td className="px-2 py-2 align-middle">
+                            <div className="space-y-1">
+                              <select
+                                value={item.procurementChannel || "LOCAL"}
+                                onChange={(e) => handleItemChange(index, "procurementChannel", e.target.value)}
+                                className={`w-full px-2 py-1 border rounded-md text-xs ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} ${
+                                  item.procurementChannel === "IMPORTED"
+                                    ? isDarkMode
+                                      ? "border-emerald-600"
+                                      : "border-emerald-400"
+                                    : isDarkMode
+                                      ? "border-blue-600"
+                                      : "border-blue-400"
+                                }`}
+                              >
+                                <option value="LOCAL">LOCAL</option>
+                                <option value="IMPORTED">IMPORTED</option>
+                              </select>
+                              {item.procurementChannel === "IMPORTED" && (
+                                <select
+                                  value={item.importContainerId || ""}
+                                  onChange={(e) => handleItemChange(index, "importContainerId", e.target.value || null)}
+                                  className={`w-full px-2 py-1 border rounded-md text-xs ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                                >
+                                  <option value="">No container</option>
+                                  {importContainers.map((container) => (
+                                    <option key={container.id} value={container.id}>
+                                      {container.containerNumber || `Container #${container.id}`}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* VAT % — includes supply type as sub-select */}
+                          <td className="px-2 py-2 align-middle">
+                            <input
+                              type="number"
+                              value={item.vatRate || ""}
+                              onChange={(e) =>
+                                handleItemChange(
+                                  index,
+                                  "vatRate",
+                                  e.target.value === "" ? "" : parseFloat(e.target.value)
+                                )
+                              }
+                              min="0"
+                              max="15"
+                              step="0.01"
+                              placeholder="5.00"
+                              className={`w-full px-2 py-1.5 text-xs border rounded-md text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                            />
+                            <select
+                              value={item.supplyType || "standard"}
+                              onChange={(e) => handleItemChange(index, "supplyType", e.target.value)}
+                              className={`w-full mt-1 px-1 py-0.5 border rounded text-[10px] ${isDarkMode ? "bg-gray-900 border-gray-700 text-gray-400" : "bg-gray-50 border-gray-200 text-gray-500"}`}
+                            >
+                              <option value="standard">Std</option>
+                              <option value="zero_rated">Zero</option>
+                              <option value="exempt">Exempt</option>
+                            </select>
+                          </td>
+
+                          {/* AMOUNT */}
+                          <td className="px-2 py-2 align-middle">
+                            <div
+                              className={`font-mono text-xs text-right font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                            >
+                              {formatCurrency(item.amount)}
+                            </div>
+                          </td>
+
+                          {/* DELETE */}
+                          <td className="px-2 py-2 align-middle text-center">
+                            <button
+                              type="button"
+                              onClick={() => removeItem(index)}
+                              disabled={purchaseOrder.items.length === 1}
+                              className={`hover:text-red-300 ${isDarkMode ? "text-red-400 disabled:text-gray-600" : "text-red-500 disabled:text-gray-400"}`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Cards - placeholder for now, keep existing mobile layout logic */}
+                <div className="md:hidden text-xs text-center py-4 text-gray-400">
+                  Mobile view: use desktop for best experience
+                </div>
+
+                {/* Inline Totals (visible on left column, quick reference) */}
+                <div className={`mt-4 pt-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                  <div className="flex justify-end">
+                    <div className="w-full max-w-xs space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Subtotal:</span>
+                        <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                          {formatCurrency(purchaseOrder.subtotal)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>VAT (5%):</span>
+                        <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                          {formatCurrency(purchaseOrder.vatAmount)}
+                        </span>
+                      </div>
+                      <div className={`h-px my-1 ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`} />
+                      <div className="flex justify-between text-sm font-bold">
+                        <span className={isDarkMode ? "text-white" : "text-gray-900"}>Total:</span>
+                        <span className="text-teal-400 font-mono">{formatCurrency(purchaseOrder.total)}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Quick Actions (3 consolidated drawers) */}
-              <div className={CARD_CLASSES(isDarkMode)}>
-                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Quick Actions</div>
-                <div className="space-y-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setCommercialDrawerOpen(true)}
-                    className={QUICK_LINK_CLASSES(isDarkMode)}
+              {/* END LEFT COLUMN - Close it here, we'll add sidebar next */}
+            </div>
+
+            {/* RIGHT COLUMN - Sticky Summary Sidebar (4 cols) */}
+            <div className="col-span-12 lg:col-span-4">
+              <div className="lg:sticky lg:top-[72px] space-y-4">
+                {/* Order Summary Card */}
+                <div className={CARD_CLASSES(isDarkMode)}>
+                  <div
+                    className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
-                    <DollarSign size={16} className="opacity-60" />
-                    Charges, Discount & Payments
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLogisticsDrawerOpen(true)}
-                    className={QUICK_LINK_CLASSES(isDarkMode)}
-                  >
-                    <Truck size={16} className="opacity-60" />
-                    Delivery, Notes & Terms
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPeopleDrawerOpen(true)}
-                    className={QUICK_LINK_CLASSES(isDarkMode)}
-                  >
-                    <User size={16} className="opacity-60" />
-                    People & Approval
-                  </button>
-                  {canReceiveGRN && (
+                    Order Summary
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs">
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Items</span>
+                      <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                        {purchaseOrder.items.length}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Subtotal</span>
+                      <span
+                        className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                        data-testid="subtotal"
+                      >
+                        {formatCurrency(purchaseOrder.subtotal)}
+                      </span>
+                    </div>
+                    {(parseFloat(purchaseOrder.freightCharges) > 0 ||
+                      parseFloat(purchaseOrder.shippingCharges) > 0 ||
+                      parseFloat(purchaseOrder.handlingCharges) > 0 ||
+                      parseFloat(purchaseOrder.otherCharges) > 0) && (
+                      <div className="flex justify-between text-xs">
+                        <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Charges</span>
+                        <span className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                          {formatCurrency(
+                            (parseFloat(purchaseOrder.freightCharges) || 0) +
+                              (parseFloat(purchaseOrder.shippingCharges) || 0) +
+                              (parseFloat(purchaseOrder.handlingCharges) || 0) +
+                              (parseFloat(purchaseOrder.otherCharges) || 0)
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {(parseFloat(purchaseOrder.discountAmount) > 0 ||
+                      parseFloat(purchaseOrder.discountPercentage) > 0) && (
+                      <div className="flex justify-between text-xs text-green-500">
+                        <span>Discount</span>
+                        <span className="font-mono">
+                          -
+                          {formatCurrency(
+                            purchaseOrder.discountType === "percentage"
+                              ? (purchaseOrder.subtotal * (parseFloat(purchaseOrder.discountPercentage) || 0)) / 100
+                              : parseFloat(purchaseOrder.discountAmount) || 0
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-xs">
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>VAT (5%)</span>
+                      <span
+                        className={`font-mono ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                        data-testid="vat-amount"
+                      >
+                        {formatCurrency(purchaseOrder.vatAmount)}
+                      </span>
+                    </div>
+                    <div className={DIVIDER_CLASSES(isDarkMode)} />
+                    <div className="flex justify-between font-bold">
+                      <span className={isDarkMode ? "text-white" : "text-gray-900"}>Grand Total</span>
+                      <span className="text-teal-400 font-mono text-lg" data-testid="total">
+                        {formatCurrency(purchaseOrder.total)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment Status Card */}
+                <div className={CARD_CLASSES(isDarkMode)}>
+                  <div className="flex justify-between items-center mb-3">
+                    <div
+                      className={`text-xs font-semibold uppercase tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                    >
+                      Payment
+                    </div>
+                    <span
+                      className={`px-2 py-1 rounded-full text-[11px] font-medium ${
+                        paymentStatus === "paid"
+                          ? "bg-green-500/20 text-green-400"
+                          : paymentStatus === "partially_paid"
+                            ? "bg-yellow-500/20 text-yellow-400"
+                            : "bg-red-500/20 text-red-400"
+                      }`}
+                    >
+                      {paymentStatus === "paid" ? "Paid" : paymentStatus === "partially_paid" ? "Partial" : "Unpaid"}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs">
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Paid</span>
+                      <span className="font-mono text-green-500">
+                        {formatCurrency(
+                          payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Outstanding</span>
+                      <span className="font-mono text-red-400">
+                        {formatCurrency(
+                          Math.max(
+                            0,
+                            purchaseOrder.total -
+                              payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
+                          )
+                        )}
+                      </span>
+                    </div>
+                    {/* Progress bar */}
+                    <div className={`w-full rounded-full h-1.5 ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}>
+                      <div
+                        className="bg-teal-500 h-1.5 rounded-full transition-all"
+                        style={{
+                          width: `${Math.min(100, (payments.filter((p) => !p.voided).reduce((sum, p) => sum + (Number(p.amount) || 0), 0) / purchaseOrder.total) * 100)}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Actions (3 consolidated drawers) */}
+                <div className={CARD_CLASSES(isDarkMode)}>
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Quick Actions</div>
+                  <div className="space-y-1.5">
                     <button
                       type="button"
-                      onClick={() => setShowStockReceipt(true)}
-                      className="flex items-center gap-2 py-2 px-2.5 bg-teal-600 hover:bg-teal-500 text-white border border-teal-500 rounded-md cursor-pointer text-xs font-semibold transition-colors w-full"
+                      onClick={() => setCommercialDrawerOpen(true)}
+                      className={QUICK_LINK_CLASSES(isDarkMode)}
                     >
-                      <Package size={16} />
-                      Receive GRN (Stock In)
+                      <DollarSign size={16} className="opacity-60" />
+                      Charges, Discount & Payments
                     </button>
-                  )}
-                  {canReceiveToWarehouse && (
                     <button
                       type="button"
-                      onClick={openReceiveToWarehouse}
-                      className="flex items-center gap-2 py-2 px-2.5 bg-amber-600 hover:bg-amber-500 text-white border border-amber-500 rounded-md cursor-pointer text-xs font-semibold transition-colors w-full"
+                      onClick={() => setLogisticsDrawerOpen(true)}
+                      className={QUICK_LINK_CLASSES(isDarkMode)}
                     >
-                      <Warehouse size={16} />
-                      Receive to Warehouse (Rejection)
+                      <Truck size={16} className="opacity-60" />
+                      Delivery, Notes & Terms
                     </button>
-                  )}
+                    <button
+                      type="button"
+                      onClick={() => setPeopleDrawerOpen(true)}
+                      className={QUICK_LINK_CLASSES(isDarkMode)}
+                    >
+                      <User size={16} className="opacity-60" />
+                      People & Approval
+                    </button>
+                    {canReceiveGRN && (
+                      <button
+                        type="button"
+                        onClick={() => setShowStockReceipt(true)}
+                        className="flex items-center gap-2 py-2 px-2.5 bg-teal-600 hover:bg-teal-500 text-white border border-teal-500 rounded-md cursor-pointer text-xs font-semibold transition-colors w-full"
+                      >
+                        <Package size={16} />
+                        Receive GRN (Stock In)
+                      </button>
+                    )}
+                    {canReceiveToWarehouse && (
+                      <button
+                        type="button"
+                        onClick={openReceiveToWarehouse}
+                        className="flex items-center gap-2 py-2 px-2.5 bg-amber-600 hover:bg-amber-500 text-white border border-amber-500 rounded-md cursor-pointer text-xs font-semibold transition-colors w-full"
+                      >
+                        <Warehouse size={16} />
+                        Receive to Warehouse (Rejection)
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </main>
-      </div>{/* end flex wrapper for timeline + main */}
+        </main>
+      </div>
+      {/* end flex wrapper for timeline + main */}
 
       {/* ==================== DRAWERS (3 consolidated) ==================== */}
 
