@@ -3,11 +3,11 @@
  * Displays a single warehouse in card format for the list grid
  */
 
-import { CheckCircle, Edit, Eye, MapPin, MoreVertical, Package, Phone, Trash2, User, XCircle } from "lucide-react";
+import { CheckCircle, Edit, Eye, MapPin, MoreVertical, Package, Phone, Star, Trash2, User, XCircle } from "lucide-react";
 import React from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 
-const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
+const WarehouseCard = ({ warehouse, onView, onEdit, onDelete, onSetDefault }) => {
   const { isDarkMode } = useTheme();
   const [menuOpen, setMenuOpen] = React.useState(false);
 
@@ -23,6 +23,7 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
     capacity,
     capacityUnit = "MT",
     isActive,
+    isDefault,
     inventoryCount = 0,
     utilizationPercent = 0,
   } = warehouse;
@@ -62,6 +63,18 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Default Badge */}
+            {isDefault && (
+              <span
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                  isDarkMode ? "bg-amber-900/30 text-amber-400" : "bg-amber-100 text-amber-700"
+                }`}
+              >
+                <Star className="w-3 h-3" />
+                Default
+              </span>
+            )}
+
             {/* Status Badge */}
             <span
               className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -129,6 +142,21 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete }) => {
                       <Edit className="w-4 h-4" />
                       Edit
                     </button>
+                    {!isDefault && onSetDefault && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuOpen(false);
+                          onSetDefault();
+                        }}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${
+                          isDarkMode ? "text-amber-400 hover:bg-gray-700" : "text-amber-600 hover:bg-gray-100"
+                        }`}
+                      >
+                        <Star className="w-4 h-4" />
+                        Set as Default
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => {

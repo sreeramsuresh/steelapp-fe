@@ -1105,8 +1105,7 @@ const CustomerManagement = () => {
                       <button
                         type="button"
                         onClick={() => {
-                          setSelectedCustomer(customer);
-                          setShowEditModal(true);
+                          navigate(`/app/customers/${customer.id}/edit`);
                         }}
                         className={`p-1.5 rounded transition-colors ${
                           isDarkMode

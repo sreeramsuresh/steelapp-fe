@@ -150,9 +150,7 @@ const FeedbackWidget = () => {
           </div>
 
           {/* Hint */}
-          <div
-            className={`text-[10px] mb-1.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
-          >
+          <div className={`text-[10px] mb-1.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
             Tip: Submit immediately when you notice the error — console &amp; network logs are auto-captured.
           </div>
 

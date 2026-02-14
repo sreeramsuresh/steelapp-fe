@@ -124,6 +124,17 @@ const WarehouseList = () => {
     }
   };
 
+  const handleSetDefault = async (warehouse) => {
+    try {
+      await warehouseService.setDefault(warehouse.id);
+      notificationService.success(`"${warehouse.name}" set as default warehouse`);
+      fetchWarehouses();
+    } catch (error) {
+      console.error("Error setting default warehouse:", error);
+      notificationService.error("Failed to set default warehouse");
+    }
+  };
+
   const handleFormSave = async (formData) => {
     try {
       if (editingWarehouse) {
@@ -297,6 +308,7 @@ const WarehouseList = () => {
                 onView={() => handleViewWarehouse(warehouse)}
                 onEdit={() => handleEditWarehouse(warehouse)}
                 onDelete={() => handleDeleteWarehouse(warehouse)}
+                onSetDefault={() => handleSetDefault(warehouse)}
               />
             ))}
           </div>

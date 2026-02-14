@@ -200,66 +200,66 @@ const FeedbackManagement = () => {
               </tr>
             ) : (
               data.map((item) => (
-                  <tr
-                    key={item.id}
-                    className={`border-t ${isDarkMode ? "border-[#37474F] hover:bg-[#2A2F35]" : "border-gray-100 hover:bg-gray-50"}`}
-                  >
-                    <td className="px-3 py-2.5">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.has(item.id)}
-                        onChange={() => toggleSelect(item.id)}
-                        className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
-                      />
-                    </td>
-                    <td className="px-3 py-2.5">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[item.status]}`}>
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2.5">
-                      <div className={`font-medium ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
-                        {item.routeLabel || "—"}
+                <tr
+                  key={item.id}
+                  className={`border-t ${isDarkMode ? "border-[#37474F] hover:bg-[#2A2F35]" : "border-gray-100 hover:bg-gray-50"}`}
+                >
+                  <td className="px-3 py-2.5">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(item.id)}
+                      onChange={() => toggleSelect(item.id)}
+                      className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                    />
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[item.status]}`}>
+                      {item.status}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <div className={`font-medium ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
+                      {item.routeLabel || "—"}
+                    </div>
+                    <div className={`text-xs break-all ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                      {item.routePath}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <div className={`${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{item.message}</div>
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <div className={`${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>{item.userName}</div>
+                    <div className={`text-xs break-all ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                      {item.userEmail}
+                    </div>
+                  </td>
+                  <td className={`px-3 py-2.5 whitespace-nowrap ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    {new Date(item.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-3 py-2.5 whitespace-nowrap">
+                    {NEXT_STATUS[item.status]?.length > 0 ? (
+                      <div className="flex gap-1">
+                        {NEXT_STATUS[item.status].map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => handleStatusChange(item.id, s)}
+                            className={`px-2 py-1 text-xs rounded transition-colors ${
+                              isDarkMode
+                                ? "bg-[#2A2F35] text-gray-300 hover:bg-[#37474F]"
+                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            }`}
+                          >
+                            {s}
+                          </button>
+                        ))}
                       </div>
-                      <div className={`text-xs break-all ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                        {item.routePath}
-                      </div>
-                    </td>
-                    <td className="px-3 py-2.5">
-                      <div className={`${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{item.message}</div>
-                    </td>
-                    <td className="px-3 py-2.5">
-                      <div className={`${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>{item.userName}</div>
-                      <div className={`text-xs break-all ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                        {item.userEmail}
-                      </div>
-                    </td>
-                    <td className={`px-3 py-2.5 whitespace-nowrap ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                      {new Date(item.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-3 py-2.5 whitespace-nowrap">
-                      {NEXT_STATUS[item.status]?.length > 0 ? (
-                        <div className="flex gap-1">
-                          {NEXT_STATUS[item.status].map((s) => (
-                            <button
-                              key={s}
-                              type="button"
-                              onClick={() => handleStatusChange(item.id, s)}
-                              className={`px-2 py-1 text-xs rounded transition-colors ${
-                                isDarkMode
-                                  ? "bg-[#2A2F35] text-gray-300 hover:bg-[#37474F]"
-                                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                              }`}
-                            >
-                              {s}
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className={`text-xs ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}>—</span>
-                      )}
-                    </td>
-                  </tr>
+                    ) : (
+                      <span className={`text-xs ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}>—</span>
+                    )}
+                  </td>
+                </tr>
               ))
             )}
           </tbody>

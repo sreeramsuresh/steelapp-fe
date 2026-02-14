@@ -55,6 +55,7 @@ import { stockBatchService } from "../services/stockBatchService";
 import { supplierService } from "../services/supplierService";
 import { createInvoice, createSteelItem, UAE_EMIRATES } from "../types";
 import { getProductDisplayName, getProductUniqueName } from "../utils/fieldAccessors";
+import { toUAEDateForInput } from "../utils/timezone";
 import {
   calculateDiscountedTRN,
   calculateItemAmount,
@@ -2262,13 +2263,9 @@ const InvoiceForm = ({ onSave }) => {
         const active = list.filter((w) => w.isActive !== false);
         setWarehouses(active);
 
-        // Set default warehouse (Sharjah or first warehouse) for new invoices
+        // Set default warehouse for new invoices (uses isDefault flag)
         if (!id && active.length > 0 && !invoice.warehouseId) {
-          // Try to find Sharjah warehouse, otherwise use first one
-          const sharjahWarehouse = active.find(
-            (w) => w.city?.toLowerCase().includes("sharjah") || w.name?.toLowerCase().includes("sharjah")
-          );
-          const defaultWarehouse = sharjahWarehouse || active[0];
+          const defaultWarehouse = active.find((w) => w.isDefault) || active[0];
 
           setInvoice((prev) => ({
             ...prev,
@@ -2536,6 +2533,20 @@ const InvoiceForm = ({ onSave }) => {
           },
         }));
 
+        // Auto-calculate due date from customer payment terms
+        const paymentTermsDays = selectedCustomer.paymentTermsDays != null ? selectedCustomer.paymentTermsDays : 30;
+        const invoiceDateStr = invoice.date || toUAEDateForInput(new Date());
+        const invoiceDateMs = new Date(invoiceDateStr).getTime();
+        const calculatedDueDate = toUAEDateForInput(new Date(invoiceDateMs + paymentTermsDays * 24 * 60 * 60 * 1000));
+
+        setInvoice((prev) => ({
+          ...prev,
+          dueDate: calculatedDueDate,
+          ...(selectedCustomer.defaultPaymentMethod
+            ? { modeOfPayment: selectedCustomer.defaultPaymentMethod }
+            : {}),
+        }));
+
         // Fetch customer's pricelist
         if (selectedCustomer.pricelistId) {
           try {
@@ -2579,8 +2590,9 @@ const InvoiceForm = ({ onSave }) => {
     [
       customersData,
       validateField,
-      focusNextMandatoryField, // Check trade license status
+      focusNextMandatoryField,
       checkTradeLicenseStatus,
+      invoice.date,
     ]
   );
 

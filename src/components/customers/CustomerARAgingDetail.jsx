@@ -361,7 +361,7 @@ export default function CustomerARAgingDetail({ customerId }) {
                   Credit Utilization %
                 </span>
                 <span className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  {data.creditUtilizationPercentage?.toFixed(1)}%
+                  {Number(data.creditUtilizationPercentage || 0).toFixed(1)}%
                 </span>
               </div>
             </div>

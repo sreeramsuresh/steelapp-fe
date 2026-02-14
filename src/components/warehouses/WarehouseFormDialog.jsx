@@ -261,6 +261,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                     value={formData.address}
                     onChange={handleChange}
                     placeholder="Street address"
+                    autoComplete="one-time-code"
                     className={inputClass(false)}
                   />
                 </div>
@@ -276,6 +277,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                     value={formData.city}
                     onChange={handleChange}
                     placeholder="e.g., Dubai"
+                    autoComplete="one-time-code"
                     className={inputClass(errors.city)}
                   />
                   {errors.city && <p className="mt-1 text-xs text-red-500">{errors.city}</p>}
@@ -292,6 +294,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                     value={formData.state}
                     onChange={handleChange}
                     placeholder="e.g., Dubai"
+                    autoComplete="one-time-code"
                     className={inputClass(false)}
                   />
                 </div>
@@ -306,6 +309,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                     name="country"
                     value={formData.country}
                     onChange={handleChange}
+                    autoComplete="one-time-code"
                     className={inputClass(false)}
                   />
                 </div>
@@ -321,6 +325,7 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                     value={formData.postalCode}
                     onChange={handleChange}
                     placeholder="e.g., 12345"
+                    autoComplete="one-time-code"
                     className={inputClass(false)}
                   />
                 </div>

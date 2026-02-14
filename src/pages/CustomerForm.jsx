@@ -302,7 +302,8 @@ const CustomerForm = () => {
     vatNumber: "",
     trn: "",
     creditLimit: 0,
-    paymentTerms: "",
+    paymentTermsDays: 0,
+    defaultPaymentMethod: "",
     customerCode: "",
     dsoValue: 0,
     creditUtilization: 0,
@@ -343,7 +344,7 @@ const CustomerForm = () => {
     try {
       setLoading(true);
       setError("");
-      const customer = await customerService.getCustomerById(customerId);
+      const customer = await customerService.getCustomer(customerId);
 
       // Parse address field if it's a JSON string (matches supplier pattern)
       const parseAddress = (addressData) => {
@@ -388,7 +389,8 @@ const CustomerForm = () => {
         vatNumber: customer.vatNumber || "",
         trn: customer.trn || "",
         creditLimit: customer.creditLimit || 0,
-        paymentTerms: customer.paymentTerms || "",
+        paymentTermsDays: customer.paymentTermsDays || 0,
+        defaultPaymentMethod: customer.defaultPaymentMethod || "",
         customerCode: customer.customerCode || "",
         dsoValue: customer.dsoValue || 0,
         creditUtilization: customer.creditUtilization || 0,
@@ -457,26 +459,26 @@ const CustomerForm = () => {
 
       setErrors({});
 
-      // Extract address fields from formData
-      const { street, city, state, postalCode, country, ...otherFields } = formData;
-
       const payload = {
-        ...otherFields,
-        // Structure address as JSON string (API Gateway will parse it)
-        address: JSON.stringify({
-          street: street || "",
-          city: city || "",
-          state: state || "",
-          postal_code: postalCode || "",
-          country: country || "AE",
-        }),
-        vat_number: formData.vatNumber,
+        name: formData.name,
+        company: formData.company,
+        email: formData.email,
+        phone: formData.phone,
+        address: {
+          street: formData.street || "",
+          city: formData.city || "",
+          state: formData.state || "",
+          postalCode: formData.postalCode || "",
+          country: formData.country || "AE",
+        },
+        vatNumber: formData.vatNumber,
         trn: formData.trn,
-        credit_limit: parseFloat(formData.creditLimit) || 0,
-        payment_terms: formData.paymentTerms,
-        customer_code: formData.customerCode,
-        dso_value: parseFloat(formData.dsoValue) || 0,
-        credit_utilization: parseFloat(formData.creditUtilization) || 0,
+        creditLimit: parseFloat(formData.creditLimit) || 0,
+        paymentTermsDays: parseInt(formData.paymentTermsDays, 10) || 0,
+        defaultPaymentMethod: formData.defaultPaymentMethod || "",
+        customerCode: formData.customerCode,
+        dsoValue: parseFloat(formData.dsoValue) || 0,
+        creditUtilization: parseFloat(formData.creditUtilization) || 0,
       };
 
       if (customerId) {
@@ -486,7 +488,7 @@ const CustomerForm = () => {
       }
 
       notificationService.success(customerId ? "Customer updated successfully" : "Customer created successfully");
-      navigate("/app/payables");
+      navigate(customerId ? `/app/customers/${customerId}` : "/app/customers");
     } catch (err) {
       console.error("Error saving customer:", err);
       setError(err.message || "Failed to save customer");
@@ -584,7 +586,7 @@ const CustomerForm = () => {
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => navigate("/app/payables")}
+                  onClick={() => navigate(customerId ? `/app/customers/${customerId}` : "/app/customers")}
                   className={`p-2 rounded-xl transition-colors ${
                     isDarkMode ? "hover:bg-gray-800 text-gray-400" : "hover:bg-gray-100 text-gray-600"
                   }`}
@@ -612,7 +614,7 @@ const CustomerForm = () => {
                           : "border-red-200 bg-red-50 text-red-700"
                         : isDarkMode
                           ? "border-teal-500/50 bg-teal-500/12 text-teal-400"
-                          : "border-teal-200 bg-teal-50 text-teal-700"
+                          : "border-teal-400 bg-teal-100 text-teal-800 font-semibold"
                     }`}
                   >
                     {isEditMode ? "Cancel Edit" : "Edit"}
@@ -683,7 +685,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="e.g., ABC Trading Company"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       data-testid="customer-name"
                     />
                   </div>
@@ -701,7 +703,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="Legal company name"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       data-testid="customer-company"
                     />
                   </div>
@@ -719,7 +721,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="customer@example.com"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       data-testid="customer-email"
                     />
                   </div>
@@ -737,7 +739,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="+971 1 234 5678"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       data-testid="customer-phone"
                     />
                   </div>
@@ -755,25 +757,59 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="Unique code"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                     />
                   </div>
 
-                  {/* Payment Terms */}
+                  {/* Payment Terms (Days) */}
                   <div className="col-span-6 md:col-span-4">
-                    <label htmlFor="customer-payment-terms" className={`block text-xs ${textMuted} mb-1.5`}>
+                    <label htmlFor="customer-payment-terms-days" className={`block text-xs ${textMuted} mb-1.5`}>
                       Payment Terms
                     </label>
-                    <input
-                      id="customer-payment-terms"
-                      type="text"
-                      name="paymentTerms"
-                      value={formData.paymentTerms}
+                    <select
+                      id="customer-payment-terms-days"
+                      name="paymentTermsDays"
+                      value={formData.paymentTermsDays}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, paymentTermsDays: parseInt(e.target.value, 10) }))
+                      }
+                      disabled={!isEditMode}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
+                    >
+                      <option value={0}>Immediate</option>
+                      <option value={7}>Net 7 days</option>
+                      <option value={30}>Net 30 days</option>
+                      <option value={45}>Net 45 days</option>
+                      <option value={60}>Net 60 days</option>
+                      <option value={90}>Net 90 days</option>
+                    </select>
+                  </div>
+
+                  {/* Default Payment Method */}
+                  <div className="col-span-6 md:col-span-4">
+                    <label htmlFor="customer-default-payment-method" className={`block text-xs ${textMuted} mb-1.5`}>
+                      Default Payment Method
+                    </label>
+                    <select
+                      id="customer-default-payment-method"
+                      name="defaultPaymentMethod"
+                      value={formData.defaultPaymentMethod}
                       onChange={handleInputChange}
                       disabled={!isEditMode}
-                      placeholder="e.g., Net 30"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
-                    />
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
+                    >
+                      <option value="">-- None --</option>
+                      <option value="cash">Cash</option>
+                      <option value="cheque">Cheque</option>
+                      <option value="pdc">PDC (Post-Dated Cheque)</option>
+                      <option value="bank_transfer">Bank Transfer</option>
+                      <option value="credit_card">Credit Card</option>
+                      <option value="debit_card">Debit Card</option>
+                      <option value="online">Online Payment</option>
+                      <option value="wire_transfer">Wire Transfer</option>
+                      <option value="mobile_wallet">Mobile Wallet</option>
+                      <option value="other">Other</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -802,7 +838,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="123456789012345"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       data-testid="customer-vat-number"
                     />
                   </div>
@@ -844,7 +880,7 @@ const CustomerForm = () => {
                         onChange={handleInputChange}
                         disabled={!isEditMode}
                         placeholder="Street address"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       />
                     </div>
 
@@ -861,7 +897,7 @@ const CustomerForm = () => {
                         onChange={handleInputChange}
                         disabled={!isEditMode}
                         placeholder="City"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                         data-testid="customer-city"
                       />
                     </div>
@@ -879,7 +915,7 @@ const CustomerForm = () => {
                         onChange={handleInputChange}
                         disabled={!isEditMode}
                         placeholder="State or province"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       />
                     </div>
 
@@ -896,7 +932,7 @@ const CustomerForm = () => {
                         onChange={handleInputChange}
                         disabled={!isEditMode}
                         placeholder="Postal code"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       />
                     </div>
 
@@ -916,7 +952,7 @@ const CustomerForm = () => {
                         disabled={!isEditMode}
                         placeholder="e.g., AE (UAE), IN (India), CN (China)"
                         maxLength={2}
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-50 ${errors.country ? "border-red-500" : ""}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default ${errors.country ? "border-red-500" : ""}`}
                       />
                       {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country}</p>}
                       {!errors.country && formData.country && (
