@@ -3,7 +3,19 @@
  * Displays a single warehouse in card format for the list grid
  */
 
-import { CheckCircle, Edit, Eye, MapPin, MoreVertical, Package, Phone, Star, Trash2, User, XCircle } from "lucide-react";
+import {
+  CheckCircle,
+  Edit,
+  Eye,
+  MapPin,
+  MoreVertical,
+  Package,
+  Phone,
+  Star,
+  Trash2,
+  User,
+  XCircle,
+} from "lucide-react";
 import React from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 

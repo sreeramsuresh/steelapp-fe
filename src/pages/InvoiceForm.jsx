@@ -55,7 +55,6 @@ import { stockBatchService } from "../services/stockBatchService";
 import { supplierService } from "../services/supplierService";
 import { createInvoice, createSteelItem, UAE_EMIRATES } from "../types";
 import { getProductDisplayName, getProductUniqueName } from "../utils/fieldAccessors";
-import { toUAEDateForInput } from "../utils/timezone";
 import {
   calculateDiscountedTRN,
   calculateItemAmount,
@@ -69,6 +68,7 @@ import {
 } from "../utils/invoiceUtils";
 import { PAYMENT_MODES } from "../utils/paymentUtils";
 import { getAllowedBases, getBasisLabel, getDefaultBasis } from "../utils/pricingBasisRules";
+import { toUAEDateForInput } from "../utils/timezone";
 
 // ==================== ROUTE HELPERS ====================
 
@@ -2542,9 +2542,7 @@ const InvoiceForm = ({ onSave }) => {
         setInvoice((prev) => ({
           ...prev,
           dueDate: calculatedDueDate,
-          ...(selectedCustomer.defaultPaymentMethod
-            ? { modeOfPayment: selectedCustomer.defaultPaymentMethod }
-            : {}),
+          ...(selectedCustomer.defaultPaymentMethod ? { modeOfPayment: selectedCustomer.defaultPaymentMethod } : {}),
         }));
 
         // Fetch customer's pricelist
@@ -2587,13 +2585,7 @@ const InvoiceForm = ({ onSave }) => {
         setTimeout(() => focusNextMandatoryField(), 100);
       }
     },
-    [
-      customersData,
-      validateField,
-      focusNextMandatoryField,
-      checkTradeLicenseStatus,
-      invoice.date,
-    ]
+    [customersData, validateField, focusNextMandatoryField, checkTradeLicenseStatus, invoice.date]
   );
 
   const handleSalesAgentSelect = useCallback((agentId) => {
