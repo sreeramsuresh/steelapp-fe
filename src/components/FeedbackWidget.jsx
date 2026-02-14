@@ -149,13 +149,20 @@ const FeedbackWidget = () => {
             <span className="font-medium">Location:</span> {routeLabel || location.pathname}
           </div>
 
+          {/* Hint */}
+          <div
+            className={`text-[10px] mb-1.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+          >
+            Tip: Submit immediately when you notice the error — console &amp; network logs are auto-captured.
+          </div>
+
           {/* Textarea */}
           <textarea
             ref={textareaRef}
             value={message}
             onChange={(e) => setMessage(e.target.value.slice(0, MAX_CHARS))}
             onKeyDown={handleKeyDown}
-            placeholder="Describe the issue you're experiencing..."
+            placeholder="Describe the issue you're experiencing. Submit right away so console & network logs are captured fresh..."
             rows={4}
             className={`w-full resize-none rounded-lg border p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/50 ${
               isDarkMode
