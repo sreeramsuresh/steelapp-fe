@@ -4,6 +4,7 @@ import {
   DollarSign,
   Eye,
   Loader2,
+  Package,
   Pin,
   Plus,
   Save,
@@ -56,6 +57,8 @@ const DRAWER_FOOTER_GRADIENT = (isDarkMode) =>
     ? "linear-gradient(to top, rgba(31,41,55,1) 70%, rgba(31,41,55,0))"
     : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))";
 
+import PurchaseWorkflowTimeline from "../components/purchase-order/PurchaseWorkflowTimeline";
+import StockReceiptForm from "../components/purchase-order/StockReceiptForm";
 import PurchaseOrderPreview from "../components/purchase-orders/PurchaseOrderPreview";
 import ProductAutocomplete from "../components/shared/ProductAutocomplete";
 import TRNInput from "../components/TRNInput";
@@ -438,6 +441,9 @@ const PurchaseOrderForm = () => {
   const [rtwNotes, setRtwNotes] = useState("");
   const [rtwItems, setRtwItems] = useState([]);
 
+  // GRN Stock Receipt modal state
+  const [showStockReceipt, setShowStockReceipt] = useState(false);
+
   // Validation state - MANDATORY for all forms
   const [validationErrors, setValidationErrors] = useState([]);
   const [invalidFields, setInvalidFields] = useState(new Set());
@@ -599,6 +605,15 @@ const PurchaseOrderForm = () => {
       hasDropshipItems &&
       (purchaseOrder.stockStatus === "received" || purchaseOrder.stockStatus === "in_warehouse"),
     [id, hasDropshipItems, purchaseOrder.stockStatus]
+  );
+
+  const canReceiveGRN = useMemo(
+    () =>
+      id &&
+      (purchaseOrder.status === "confirmed" ||
+        purchaseOrder.status === "approved" ||
+        purchaseOrder.status === "partially_received"),
+    [id, purchaseOrder.status]
   );
 
   const openReceiveToWarehouse = useCallback(() => {
@@ -1711,6 +1726,17 @@ const PurchaseOrderForm = () => {
               <Eye size={16} className="inline mr-1.5" />
               Preview
             </button>
+            {canReceiveGRN && (
+              <button
+                type="button"
+                onClick={() => setShowStockReceipt(true)}
+                className="bg-teal-600 border-transparent text-white font-bold hover:bg-teal-500 rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors"
+                title="Receive stock via GRN with PCS counting and weight tracking"
+              >
+                <Package size={16} className="inline mr-1.5" />
+                Receive GRN
+              </button>
+            )}
             {canReceiveToWarehouse && (
               <button
                 type="button"
@@ -1751,7 +1777,11 @@ const PurchaseOrderForm = () => {
       </header>
 
       {/* ==================== MAIN CONTENT ==================== */}
-      <main className="max-w-[1400px] mx-auto px-4 py-4">
+      <div className="flex">
+        {/* Workflow Timeline — left sidebar panel */}
+        {id && <PurchaseWorkflowTimeline currentStatus={purchaseOrder.status} />}
+
+      <main className="max-w-[1400px] mx-auto px-4 py-4 flex-1 min-w-0">
         {/* Validation Errors Alert */}
         {validationErrors.length > 0 && (
           <div
@@ -2503,6 +2533,16 @@ const PurchaseOrderForm = () => {
                     <User size={16} className="opacity-60" />
                     People & Approval
                   </button>
+                  {canReceiveGRN && (
+                    <button
+                      type="button"
+                      onClick={() => setShowStockReceipt(true)}
+                      className="flex items-center gap-2 py-2 px-2.5 bg-teal-600 hover:bg-teal-500 text-white border border-teal-500 rounded-md cursor-pointer text-xs font-semibold transition-colors w-full"
+                    >
+                      <Package size={16} />
+                      Receive GRN (Stock In)
+                    </button>
+                  )}
                   {canReceiveToWarehouse && (
                     <button
                       type="button"
@@ -2519,6 +2559,7 @@ const PurchaseOrderForm = () => {
           </div>
         </div>
       </main>
+      </div>{/* end flex wrapper for timeline + main */}
 
       {/* ==================== DRAWERS (3 consolidated) ==================== */}
 
@@ -3267,6 +3308,28 @@ const PurchaseOrderForm = () => {
           </div>
         </div>
       )}
+
+      {/* GRN Stock Receipt Modal */}
+      <StockReceiptForm
+        open={showStockReceipt}
+        onClose={() => setShowStockReceipt(false)}
+        purchaseOrderId={id}
+        poNumber={purchaseOrder.poNumber}
+        poItems={purchaseOrder.items.map((item) => ({
+          id: item.id,
+          product_id: item.productId,
+          name: item.name || item.productType,
+          quantity: item.quantity,
+          unit: "KG",
+          received_qty: item.receivedQty || 0,
+        }))}
+        onSuccess={() => {
+          setShowStockReceipt(false);
+          notificationService.success("GRN received successfully");
+          // Reload PO data
+          window.location.reload();
+        }}
+      />
     </div>
   );
 };
