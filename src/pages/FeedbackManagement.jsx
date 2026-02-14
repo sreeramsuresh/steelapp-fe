@@ -31,6 +31,7 @@ const FeedbackManagement = () => {
   const [activeFilter, setActiveFilter] = useState("");
   const [expandedId, setExpandedId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedIds, setSelectedIds] = useState(new Set());
 
   const fetchFeedback = useCallback(async () => {
     setLoading(true);
@@ -64,17 +65,40 @@ const FeedbackManagement = () => {
 
   const handleExport = async () => {
     try {
-      const params = activeFilter ? `?status=${activeFilter}` : "";
-      const res = await api.get(`/feedback/export${params}`, { responseType: "blob" });
+      const params = new URLSearchParams();
+      if (selectedIds.size > 0) {
+        params.set("ids", [...selectedIds].join(","));
+      } else if (activeFilter) {
+        params.set("status", activeFilter);
+      }
+      const qs = params.toString() ? `?${params}` : "";
+      const res = await api.get(`/feedback/export${qs}`, { responseType: "blob" });
       const url = URL.createObjectURL(new Blob([res.data]));
       const a = document.createElement("a");
       a.href = url;
       a.download = `feedback-export-${new Date().toISOString().split("T")[0]}.md`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success("Export downloaded");
+      toast.success(`Exported ${selectedIds.size > 0 ? `${selectedIds.size} selected` : "all"} items`);
     } catch {
       toast.error("Failed to export feedback");
+    }
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === data.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(data.map((d) => d.id)));
     }
   };
 
@@ -102,7 +126,7 @@ const FeedbackManagement = () => {
           className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition-colors"
         >
           <Download size={16} />
-          Download for Claude
+          {selectedIds.size > 0 ? `Download ${selectedIds.size} Selected` : "Download for Claude"}
         </button>
       </div>
 
@@ -115,6 +139,7 @@ const FeedbackManagement = () => {
             onClick={() => {
               setActiveFilter(tab.key);
               setPage(1);
+              setSelectedIds(new Set());
             }}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
               activeFilter === tab.key
@@ -136,6 +161,14 @@ const FeedbackManagement = () => {
         <table className="w-full text-sm">
           <thead>
             <tr className={isDarkMode ? "bg-[#2A2F35] text-gray-400" : "bg-gray-50 text-gray-600"}>
+              <th className="px-4 py-3 w-10">
+                <input
+                  type="checkbox"
+                  checked={data.length > 0 && selectedIds.size === data.length}
+                  onChange={toggleSelectAll}
+                  className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                />
+              </th>
               <th className="text-left px-4 py-3 font-medium">Status</th>
               <th className="text-left px-4 py-3 font-medium">Location</th>
               <th className="text-left px-4 py-3 font-medium">Message</th>
@@ -147,13 +180,13 @@ const FeedbackManagement = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="text-center py-8">
+                <td colSpan={7} className="text-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto" />
                 </td>
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={6} className={`text-center py-8 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                <td colSpan={7} className={`text-center py-8 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                   No feedback found
                 </td>
               </tr>
@@ -166,6 +199,14 @@ const FeedbackManagement = () => {
                     key={item.id}
                     className={`border-t ${isDarkMode ? "border-[#37474F] hover:bg-[#2A2F35]" : "border-gray-100 hover:bg-gray-50"}`}
                   >
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(item.id)}
+                        onChange={() => toggleSelect(item.id)}
+                        className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[item.status]}`}>
                         {item.status}

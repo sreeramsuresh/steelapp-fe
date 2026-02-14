@@ -832,6 +832,7 @@ const AllocationDrawer = ({
       ...prev,
       selectedAllocations: [],
       error: "Reservation expired. Please re-allocate batches.",
+      allocationMethod: null,
     }));
   }, []);
 
@@ -1209,7 +1210,30 @@ const AllocationDrawer = ({
 
         {/* Error Display */}
         {(drawerState.error || reservationError) && (
-          <div className="drawer-error">{drawerState.error || reservationError}</div>
+          <div className="drawer-error">
+            {drawerState.error || reservationError}
+            {drawerState.error?.includes("expired") && (
+              <button
+                type="button"
+                onClick={() => {
+                  setDrawerState((prev) => ({ ...prev, error: null, selectedAllocations: [] }));
+                }}
+                style={{
+                  marginLeft: 8,
+                  padding: "4px 12px",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  borderRadius: "6px",
+                  border: "none",
+                  background: "#0d9488",
+                  color: "white",
+                  cursor: "pointer",
+                }}
+              >
+                Re-allocate
+              </button>
+            )}
+          </div>
         )}
       </div>
 
