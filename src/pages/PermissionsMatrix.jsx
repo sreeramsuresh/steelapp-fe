@@ -108,6 +108,7 @@ export default function PermissionsMatrix() {
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [hideInactive, setHideInactive] = useState(true);
+  const [customOnly, setCustomOnly] = useState(false);
   const [activeModules, setActiveModules] = useState(null); // null = all
   const [selectedRow, setSelectedRow] = useState(null);
   const [dialog, setDialog] = useState(null);
@@ -131,16 +132,23 @@ export default function PermissionsMatrix() {
     fetchData();
   }, [fetchData]);
 
+  // Count users with any custom overrides (for badge)
+  const customOverrideCount = useMemo(() => {
+    if (!data) return 0;
+    return data.users.filter((u) => u.customPermissions && Object.keys(u.customPermissions).length > 0).length;
+  }, [data]);
+
   const filteredUsers = useMemo(() => {
     if (!data) return [];
     let users = data.users;
     if (hideInactive) users = users.filter((u) => u.isActive);
+    if (customOnly) users = users.filter((u) => u.customPermissions && Object.keys(u.customPermissions).length > 0);
     if (search) {
       const q = search.toLowerCase();
       users = users.filter((u) => u.fullName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
     }
     return users;
-  }, [data, hideInactive, search]);
+  }, [data, hideInactive, customOnly, search]);
 
   const filteredPermissions = useMemo(() => {
     if (!data) return [];
@@ -346,6 +354,28 @@ export default function PermissionsMatrix() {
           />
           Hide inactive
         </label>
+        <button
+          type="button"
+          onClick={() => setCustomOnly((v) => !v)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border transition-colors ${
+            customOnly
+              ? "bg-blue-500 text-white border-blue-500"
+              : isDarkMode
+                ? "bg-gray-800 text-gray-300 border-gray-600 hover:bg-gray-700"
+                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+          }`}
+        >
+          Custom Only
+          {customOverrideCount > 0 && (
+            <span
+              className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold ${
+                customOnly ? "bg-white/20 text-white" : "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300"
+              }`}
+            >
+              {customOverrideCount}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Module filters */}
@@ -393,25 +423,25 @@ export default function PermissionsMatrix() {
       <div className={`flex flex-wrap items-center gap-5 mb-4 text-xs ${textSecondary}`}>
         <span className="flex items-center gap-1.5">
           <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-emerald-100 dark:bg-emerald-900/40 border border-emerald-300 dark:border-emerald-700">
-            <Check size={12} className="text-emerald-600 dark:text-emerald-400" />
+            <Check size={14} className="text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
           </span>
           Role-granted
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-blue-100 dark:bg-blue-900/40 border border-blue-300 dark:border-blue-700">
-            <Check size={12} className="text-blue-600 dark:text-blue-400" />
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-blue-500 dark:bg-blue-600">
+            <Check size={14} className="text-white" strokeWidth={3} />
           </span>
           Custom grant
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-red-100 dark:bg-red-900/40 border border-red-300 dark:border-red-700">
-            <X size={12} className="text-red-600 dark:text-red-400" />
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-red-500 dark:bg-red-600">
+            <X size={14} className="text-white" strokeWidth={3} />
           </span>
           Custom deny
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
-            <span className="text-gray-400 dark:text-gray-500 text-sm leading-none">·</span>
+            <span className="text-gray-400 dark:text-gray-500 text-base leading-none">·</span>
           </span>
           No access
         </span>
@@ -562,24 +592,22 @@ export default function PermissionsMatrix() {
                       if (state === "director" || state === "role_granted") {
                         cellBg = isDarkMode ? "bg-emerald-900/30" : "bg-emerald-50";
                         cellContent = (
-                          <Check
-                            size={18}
-                            className="text-emerald-600 dark:text-emerald-400 mx-auto"
-                            strokeWidth={2.5}
-                          />
+                          <Check size={20} className="text-emerald-600 dark:text-emerald-400 mx-auto" strokeWidth={2.5} />
                         );
                       } else if (state === "custom_grant") {
-                        cellBg = isDarkMode ? "bg-blue-900/30" : "bg-blue-50";
+                        cellBg = isDarkMode ? "bg-blue-600" : "bg-blue-500";
                         cellContent = (
-                          <Check size={18} className="text-blue-600 dark:text-blue-400 mx-auto" strokeWidth={2.5} />
+                          <Check size={20} className="text-white mx-auto" strokeWidth={3} />
                         );
                       } else if (state === "custom_deny") {
-                        cellBg = isDarkMode ? "bg-red-900/30" : "bg-red-50";
+                        cellBg = isDarkMode ? "bg-red-600" : "bg-red-500";
                         cellContent = (
-                          <X size={18} className="text-red-600 dark:text-red-400 mx-auto" strokeWidth={2.5} />
+                          <X size={20} className="text-white mx-auto" strokeWidth={3} />
                         );
                       } else {
-                        cellContent = <span className="text-gray-300 dark:text-gray-600 text-lg leading-none">·</span>;
+                        cellContent = (
+                          <span className="text-gray-300 dark:text-gray-600 text-xl leading-none">·</span>
+                        );
                       }
 
                       return (
