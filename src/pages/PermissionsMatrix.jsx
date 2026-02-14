@@ -369,7 +369,9 @@ export default function PermissionsMatrix() {
           {customOverrideCount > 0 && (
             <span
               className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold ${
-                customOnly ? "bg-white/20 text-white" : "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300"
+                customOnly
+                  ? "bg-white/20 text-white"
+                  : "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300"
               }`}
             >
               {customOverrideCount}
@@ -441,7 +443,7 @@ export default function PermissionsMatrix() {
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
-            <span className="text-gray-400 dark:text-gray-500 text-base leading-none">·</span>
+            <span className="text-gray-400 dark:text-gray-500 text-2xl leading-none font-bold">·</span>
           </span>
           No access
         </span>
@@ -592,21 +594,26 @@ export default function PermissionsMatrix() {
                       if (state === "director" || state === "role_granted") {
                         cellBg = isDarkMode ? "bg-emerald-900/30" : "bg-emerald-50";
                         cellContent = (
-                          <Check size={20} className="text-emerald-600 dark:text-emerald-400 mx-auto" strokeWidth={2.5} />
+                          <Check
+                            size={20}
+                            className="text-emerald-600 dark:text-emerald-400 mx-auto"
+                            strokeWidth={2.5}
+                          />
                         );
                       } else if (state === "custom_grant") {
                         cellBg = isDarkMode ? "bg-blue-600" : "bg-blue-500";
-                        cellContent = (
-                          <Check size={20} className="text-white mx-auto" strokeWidth={3} />
-                        );
+                        cellContent = <Check size={20} className="text-white mx-auto" strokeWidth={3} />;
                       } else if (state === "custom_deny") {
                         cellBg = isDarkMode ? "bg-red-600" : "bg-red-500";
-                        cellContent = (
-                          <X size={20} className="text-white mx-auto" strokeWidth={3} />
-                        );
+                        cellContent = <X size={20} className="text-white mx-auto" strokeWidth={3} />;
                       } else {
                         cellContent = (
-                          <span className="text-gray-300 dark:text-gray-600 text-xl leading-none">·</span>
+                          <span
+                            className="text-gray-400 dark:text-gray-500 block text-center"
+                            style={{ fontSize: "45px", lineHeight: "40px", height: "40px", overflow: "hidden" }}
+                          >
+                            ·
+                          </span>
                         );
                       }
 

@@ -10,6 +10,8 @@ import AnalyticsSidebar from "../components/AnalyticsSidebar";
 import TopNavbar from "../components/TopNavbar";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
+import FeedbackWidget from "../components/FeedbackWidget";
+import { getRouteLabel } from "../utils/routeLabels";
 
 const AnalyticsLayout = () => {
   const location = useLocation();
@@ -75,29 +77,7 @@ const AnalyticsLayout = () => {
   };
 
   const getPageTitle = () => {
-    const path = location.pathname;
-    const titleMap = {
-      "/analytics": "Analytics Overview",
-      "/analytics/dashboard": "Executive Dashboard",
-      "/analytics/reports": "Reports Hub",
-      "/analytics/ar-aging": "AR Aging Report",
-      "/analytics/batch-analytics": "Batch Analytics",
-      "/analytics/delivery-performance": "Delivery Performance",
-      "/analytics/profit-analysis": "Profit Analysis",
-      "/analytics/price-history": "Price History",
-      "/analytics/stock-movement-report": "Stock Movement Report",
-      "/analytics/supplier-performance": "Supplier Performance",
-      "/analytics/commission-dashboard": "Commission Dashboard",
-      "/analytics/bank-ledger": "Bank Ledger",
-      "/analytics/bank-reconciliation": "Bank Reconciliation",
-      "/analytics/cash-book": "Cash Book",
-      "/analytics/journal-register": "Journal Register",
-      "/analytics/trial-balance": "Trial Balance",
-      "/analytics/cogs-analysis": "COGS Analysis",
-      "/analytics/reconciliation": "Stock Reconciliation",
-    };
-
-    return titleMap[path] || "Analytics";
+    return getRouteLabel(location.pathname) || "Analytics";
   };
 
   return (
@@ -132,6 +112,8 @@ const AnalyticsLayout = () => {
         {/* Page content via Outlet */}
         <Outlet context={{ user }} />
       </div>
+
+      <FeedbackWidget />
     </div>
   );
 };

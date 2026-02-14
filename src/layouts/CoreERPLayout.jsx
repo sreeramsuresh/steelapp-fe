@@ -9,6 +9,8 @@ import CoreSidebar from "../components/CoreSidebar";
 import TopNavbar from "../components/TopNavbar";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
+import FeedbackWidget from "../components/FeedbackWidget";
+import { getRouteLabel } from "../utils/routeLabels";
 
 const CoreERPLayout = () => {
   const location = useLocation();
@@ -74,35 +76,7 @@ const CoreERPLayout = () => {
   };
 
   const getPageTitle = () => {
-    const path = location.pathname;
-    const titleMap = {
-      "/app/quotations": "Quotations",
-      "/app/invoices": "Invoices",
-      "/app/delivery-notes": "Delivery Notes",
-      "/app/purchases": "Purchases",
-      "/app/finance": "Finance",
-      "/app/receivables": "Receivables",
-      "/app/payables": "Payables",
-      "/app/warehouses": "Warehouses",
-      "/app/inventory": "Stock Levels",
-      "/app/stock-movements": "Stock Movements",
-      "/app/import-export": "Import / Export",
-      "/app/containers": "Containers",
-      "/app/customers": "Customers",
-      "/app/products": "Products",
-      "/app/pricelists": "Price Lists",
-      "/app/settings": "Settings",
-    };
-
-    // Check exact match first
-    if (titleMap[path]) return titleMap[path];
-
-    // Check prefix matches
-    for (const [route, title] of Object.entries(titleMap)) {
-      if (path.startsWith(`${route}/`)) return title;
-    }
-
-    return "Core ERP";
+    return getRouteLabel(location.pathname) || "Core ERP";
   };
 
   return (
@@ -137,6 +111,8 @@ const CoreERPLayout = () => {
         {/* Page content via Outlet */}
         <Outlet context={{ user }} />
       </div>
+
+      <FeedbackWidget />
     </div>
   );
 };

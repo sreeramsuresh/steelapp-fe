@@ -110,6 +110,9 @@ const TrialBalanceReport = lazy(() => import("../pages/reports/TrialBalanceRepor
 const COGSAnalysisReport = lazy(() => import("../pages/reports/COGSAnalysisReport"));
 const ReconciliationReport = lazy(() => import("../pages/reports/ReconciliationReport"));
 
+// Feedback Management
+const FeedbackManagement = lazy(() => import("../pages/FeedbackManagement"));
+
 // Admin Components - Roles & Permissions
 const RolesPage = lazy(() => import("../pages/RolesPage"));
 const PermissionsMatrix = lazy(() => import("../pages/PermissionsMatrix"));
@@ -1000,6 +1003,16 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredPermission="audit_logs.read">
                   <AuditLogs />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ===== FEEDBACK MANAGEMENT ===== */}
+            <Route
+              path="feedback"
+              element={
+                <ProtectedRoute user={user} requiredRoles={["admin", "managing_director"]}>
+                  <FeedbackManagement />
                 </ProtectedRoute>
               }
             />
