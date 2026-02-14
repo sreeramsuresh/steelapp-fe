@@ -6,10 +6,10 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import CoreSidebar from "../components/CoreSidebar";
+import FeedbackWidget from "../components/FeedbackWidget";
 import TopNavbar from "../components/TopNavbar";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
-import FeedbackWidget from "../components/FeedbackWidget";
 import { getRouteLabel } from "../utils/routeLabels";
 
 const CoreERPLayout = () => {

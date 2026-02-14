@@ -112,7 +112,10 @@ const FeedbackManagement = () => {
           <button
             key={tab.key}
             type="button"
-            onClick={() => { setActiveFilter(tab.key); setPage(1); }}
+            onClick={() => {
+              setActiveFilter(tab.key);
+              setPage(1);
+            }}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
               activeFilter === tab.key
                 ? "bg-teal-600 text-white"
@@ -127,7 +130,9 @@ const FeedbackManagement = () => {
       </div>
 
       {/* Table */}
-      <div className={`rounded-xl border overflow-hidden ${isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"}`}>
+      <div
+        className={`rounded-xl border overflow-hidden ${isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"}`}
+      >
         <table className="w-full text-sm">
           <thead>
             <tr className={isDarkMode ? "bg-[#2A2F35] text-gray-400" : "bg-gray-50 text-gray-600"}>
@@ -180,12 +185,18 @@ const FeedbackManagement = () => {
                         onClick={() => setExpandedId(isExpanded ? null : item.id)}
                         className={`text-left ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
-                        {isExpanded ? item.message : item.message.length > 80 ? `${item.message.slice(0, 80)}...` : item.message}
+                        {isExpanded
+                          ? item.message
+                          : item.message.length > 80
+                            ? `${item.message.slice(0, 80)}...`
+                            : item.message}
                       </button>
                     </td>
                     <td className="px-4 py-3">
                       <div className={`${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>{item.userName}</div>
-                      <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>{item.userEmail}</div>
+                      <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                        {item.userEmail}
+                      </div>
                     </td>
                     <td className={`px-4 py-3 whitespace-nowrap ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                       {new Date(item.createdAt).toLocaleDateString()}
@@ -202,7 +213,9 @@ const FeedbackManagement = () => {
                               type="button"
                               onClick={() => handleStatusChange(item.id, s)}
                               className={`px-2 py-1 text-xs rounded transition-colors ${
-                                isDarkMode ? "bg-[#2A2F35] text-gray-300 hover:bg-[#37474F]" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                isDarkMode
+                                  ? "bg-[#2A2F35] text-gray-300 hover:bg-[#37474F]"
+                                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                               }`}
                             >
                               {s}

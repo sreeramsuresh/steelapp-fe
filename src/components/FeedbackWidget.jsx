@@ -4,11 +4,11 @@
  */
 import { MessageSquare, Send, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useLocation } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
-import { getRouteLabel } from "../utils/routeLabels";
 import api from "../services/axiosApi";
+import { getRouteLabel } from "../utils/routeLabels";
 
 const MAX_CHARS = 2000;
 
@@ -121,7 +121,9 @@ const FeedbackWidget = () => {
 
           {/* Footer */}
           <div className="flex items-center justify-between mt-2">
-            <span className={`text-xs ${message.length > MAX_CHARS * 0.9 ? "text-amber-500" : isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+            <span
+              className={`text-xs ${message.length > MAX_CHARS * 0.9 ? "text-amber-500" : isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+            >
               {message.length}/{MAX_CHARS}
             </span>
             <div className="flex gap-2">
