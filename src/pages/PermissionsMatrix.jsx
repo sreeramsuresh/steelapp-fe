@@ -6,27 +6,55 @@ import { permissionsMatrixService } from "../services/permissionsMatrixService";
 import "./PermissionsMatrix.css";
 
 const MODULE_PRESETS = {
-  Sales: ["invoices", "quotations", "delivery_notes", "credit_notes", "customers"],
-  Purchase: ["purchase_orders", "suppliers", "supplier_bills", "debit_notes", "supplier_quotations"],
-  Inventory: ["inventory", "warehouses", "stock_movements", "stock_batches", "batch_reservations", "grns"],
-  Finance: ["payments", "payables", "receivables", "advance_payments", "commissions", "operating_expenses"],
-  Admin: ["users", "roles", "company_settings", "audit_logs", "audit_hub"],
+  Sales: [
+    "invoices", "quotations", "deliveryNotes", "creditNotes", "customers",
+    "pricelists", "pricing", "deliveryVariance", "customerCredit",
+  ],
+  Purchase: [
+    "purchaseOrders", "suppliers", "supplierBills", "debitNotes", "supplierQuotations",
+  ],
+  Inventory: [
+    "inventory", "warehouses", "stockMovements", "stockBatches", "batchReservations",
+    "grns", "products", "materialCertificates", "pinnedProducts", "unitConversions", "cogs",
+  ],
+  Finance: [
+    "payments", "payables", "receivables", "advancePayments", "commissions", "operatingExpenses",
+    "accountStatements", "accountingPeriods", "bankReconciliation", "exchangeRates",
+    "financialReports", "journalEntries", "reconciliations", "trn", "vatRates", "vatReturn",
+  ],
+  Trade: [
+    "importOrders", "exportOrders", "importContainers", "customsDocuments",
+    "shippingDocuments", "tradeFinance", "countries",
+  ],
+  Admin: [
+    "users", "roles", "companySettings", "auditLogs", "auditHub",
+    "activities", "analytics", "categoryPolicies", "dashboard", "documentLinks",
+    "integrations", "notifications", "policySnapshots", "reports", "templates",
+  ],
 };
+
+// Convert camelCase to readable label: "accountStatements" → "account statements"
+const toLabel = (str) =>
+  str
+    .replace(/([A-Z])/g, " $1")
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .trim();
 
 const MODULE_ROUTES = {
   invoices: "/app/invoices",
   quotations: "/app/quotations",
-  delivery_notes: "/app/delivery-notes",
-  credit_notes: "/app/credit-notes",
+  deliveryNotes: "/app/delivery-notes",
+  creditNotes: "/app/credit-notes",
   customers: "/app/customers",
   products: "/app/products",
-  purchase_orders: "/app/purchases",
+  purchaseOrders: "/app/purchases",
   suppliers: "/app/suppliers",
   payments: "/app/receivables",
   payables: "/app/payables",
   inventory: "/app/inventory",
   warehouses: "/app/warehouses",
-  stock_movements: "/app/stock-movements",
+  stockMovements: "/app/stock-movements",
 };
 
 export default function PermissionsMatrix() {
@@ -62,10 +90,10 @@ export default function PermissionsMatrix() {
   const filteredUsers = useMemo(() => {
     if (!data) return [];
     let users = data.users;
-    if (hideInactive) users = users.filter((u) => u.is_active);
+    if (hideInactive) users = users.filter((u) => u.isActive);
     if (search) {
       const q = search.toLowerCase();
-      users = users.filter((u) => u.full_name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+      users = users.filter((u) => u.fullName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
     }
     return users;
   }, [data, hideInactive, search]);
@@ -111,32 +139,32 @@ export default function PermissionsMatrix() {
   };
 
   const getCellState = (user, permKey) => {
-    if (user.is_director) return "director";
-    const custom = user.custom_permissions[permKey];
+    if (user.isDirector) return "director";
+    const custom = user.customPermissions[permKey];
     if (custom) return custom.action === "grant" ? "custom_grant" : "custom_deny";
-    const roleGrants = user.role_grants[permKey];
-    if (roleGrants && roleGrants.length > 0) return "role_granted";
+    const grants = user.roleGrants[permKey];
+    if (grants && grants.length > 0) return "role_granted";
     return "no_access";
   };
 
   const getCellTooltip = (user, permKey) => {
-    if (user.is_director) return "Director: Full Access";
-    const custom = user.custom_permissions[permKey];
+    if (user.isDirector) return "Director: Full Access";
+    const custom = user.customPermissions[permKey];
     if (custom) {
       const label = custom.action === "grant" ? "Custom grant" : "Custom deny";
-      const by = custom.granted_by_name ? ` by ${custom.granted_by_name}` : "";
+      const by = custom.grantedByName ? ` by ${custom.grantedByName}` : "";
       const reason = custom.reason ? `\nReason: ${custom.reason}` : "";
       return `${label}${by}${reason}`;
     }
-    const roleGrants = user.role_grants[permKey];
-    if (roleGrants && roleGrants.length > 0) {
-      return `Granted by: ${roleGrants.join(", ")}`;
+    const grants = user.roleGrants[permKey];
+    if (grants && grants.length > 0) {
+      return `Granted by: ${grants.join(", ")}`;
     }
     return "Not granted";
   };
 
   const handleCellClick = (user, permKey) => {
-    if (user.is_director || saving) return;
+    if (user.isDirector || saving) return;
     const state = getCellState(user, permKey);
     const action = permKey.split(".").pop();
     const module = permKey.split(".")[0];
@@ -147,22 +175,22 @@ export default function PermissionsMatrix() {
         user,
         permKey,
         type: "grant",
-        title: `Grant "${permLabel}" to ${user.full_name}?`,
+        title: `Grant "${permLabel}" to ${user.fullName}?`,
       });
     } else if (state === "role_granted") {
       setDialog({
         user,
         permKey,
         type: "deny",
-        title: `Deny "${permLabel}" for ${user.full_name}?`,
-        subtitle: `This will override the role-based grant from: ${(user.role_grants[permKey] || []).join(", ")}`,
+        title: `Deny "${permLabel}" for ${user.fullName}?`,
+        subtitle: `This will override the role-based grant from: ${(user.roleGrants[permKey] || []).join(", ")}`,
       });
     } else if (state === "custom_grant" || state === "custom_deny") {
       setDialog({
         user,
         permKey,
         type: "remove",
-        title: `Remove custom override for "${permLabel}" on ${user.full_name}?`,
+        title: `Remove custom override for "${permLabel}" on ${user.fullName}?`,
         subtitle: "This will revert to role-based access.",
       });
     }
@@ -180,15 +208,14 @@ export default function PermissionsMatrix() {
     const prevData = data;
     try {
       if (type === "grant" || type === "deny") {
-        // Optimistic: add custom permission
         setData((d) => {
           const users = d.users.map((u) => {
             if (u.id !== user.id) return u;
             return {
               ...u,
-              custom_permissions: {
-                ...u.custom_permissions,
-                [permKey]: { action: type, reason: dialogReason, granted_by_name: "You" },
+              customPermissions: {
+                ...u.customPermissions,
+                [permKey]: { action: type, reason: dialogReason, grantedByName: "You" },
               },
             };
           });
@@ -198,13 +225,12 @@ export default function PermissionsMatrix() {
         await permissionsMatrixService.setCustomPermission(user.id, permKey, type, dialogReason);
         notificationService.success(`Permission ${type === "grant" ? "granted" : "denied"} successfully`);
       } else {
-        // Remove override — optimistic
         setData((d) => {
           const users = d.users.map((u) => {
             if (u.id !== user.id) return u;
-            const cp = { ...u.custom_permissions };
+            const cp = { ...u.customPermissions };
             delete cp[permKey];
-            return { ...u, custom_permissions: cp };
+            return { ...u, customPermissions: cp };
           });
           return { ...d, users };
         });
@@ -213,7 +239,6 @@ export default function PermissionsMatrix() {
         notificationService.success("Custom override removed");
       }
     } catch (err) {
-      // Rollback optimistic update
       setData(prevData);
       notificationService.error(err.message || "Failed to update permission");
     } finally {
@@ -225,7 +250,7 @@ export default function PermissionsMatrix() {
     if (!data) return { visible: 0, total: 0 };
     let count = 0;
     for (const p of filteredPermissions) {
-      const state = getCellState(user, p.permission_key);
+      const state = getCellState(user, p.permissionKey);
       if (state === "role_granted" || state === "custom_grant" || state === "director") count++;
     }
     return { visible: count, total: filteredPermissions.length };
@@ -247,7 +272,7 @@ export default function PermissionsMatrix() {
   const bgMain = isDarkMode ? "bg-[#1a1d21]" : "bg-white";
   const bgHeader = isDarkMode ? "bg-[#1e2328]" : "bg-gray-50";
   const textPrimary = isDarkMode ? "text-gray-100" : "text-gray-900";
-  const textSecondary = isDarkMode ? "text-gray-400" : "text-gray-500";
+  const textSecondary = isDarkMode ? "text-gray-400" : "text-gray-600";
 
   return (
     <div className={`p-4 sm:p-6 ${textPrimary}`}>
@@ -270,13 +295,13 @@ export default function PermissionsMatrix() {
       {/* Controls */}
       <div className={`flex flex-wrap items-center gap-3 mb-3 p-3 rounded-lg border ${borderColor} ${bgMain}`}>
         <div className="relative flex-1 min-w-[200px] max-w-xs">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
             placeholder="Search users..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={`w-full pl-8 pr-3 py-1.5 text-sm rounded-md border ${borderColor} ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"} focus:outline-none focus:ring-1 focus:ring-teal-500`}
+            className={`w-full pl-9 pr-3 py-2 text-sm rounded-md border ${borderColor} ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"} focus:outline-none focus:ring-1 focus:ring-teal-500`}
           />
         </div>
         <label className={`flex items-center gap-2 text-sm ${textSecondary} cursor-pointer`}>
@@ -284,7 +309,7 @@ export default function PermissionsMatrix() {
             type="checkbox"
             checked={hideInactive}
             onChange={(e) => setHideInactive(e.target.checked)}
-            className="rounded border-gray-300"
+            className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
           />
           Hide inactive
         </label>
@@ -292,10 +317,11 @@ export default function PermissionsMatrix() {
 
       {/* Module filters */}
       <div className={`flex flex-wrap items-center gap-2 mb-3 p-3 rounded-lg border ${borderColor} ${bgMain}`}>
+        <span className={`text-xs font-medium ${textSecondary} mr-1`}>Filter:</span>
         <button
           type="button"
           onClick={() => setActiveModules(null)}
-          className={`px-2.5 py-1 text-xs font-medium rounded-full border transition-colors ${
+          className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-colors ${
             !activeModules
               ? "bg-teal-600 text-white border-teal-600"
               : isDarkMode
@@ -305,96 +331,123 @@ export default function PermissionsMatrix() {
         >
           All
         </button>
-        {moduleList.map((mod) => (
-          <button
-            type="button"
-            key={mod}
-            onClick={() => toggleModule(mod)}
-            className={`px-2.5 py-1 text-xs font-medium rounded-full border transition-colors ${
-              activeModules?.includes(mod)
-                ? "bg-teal-600 text-white border-teal-600"
-                : isDarkMode
-                  ? "bg-gray-800 text-gray-300 border-gray-600 hover:bg-gray-700"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-            }`}
-          >
-            {mod.replace(/_/g, " ")}
-          </button>
-        ))}
-        <span className={`text-xs ${textSecondary} ml-2`}>Presets:</span>
-        {Object.keys(MODULE_PRESETS).map((preset) => (
-          <button
-            type="button"
-            key={preset}
-            onClick={() => applyPreset(preset)}
-            className={`px-2 py-1 text-xs font-medium rounded-full border transition-colors ${
-              isDarkMode
-                ? "bg-amber-900/30 text-amber-300 border-amber-700 hover:bg-amber-900/50"
-                : "bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100"
-            }`}
-          >
-            {preset}
-          </button>
-        ))}
+        {Object.keys(MODULE_PRESETS).map((preset) => {
+          const presetModules = MODULE_PRESETS[preset];
+          const isActive =
+            activeModules &&
+            presetModules.length === activeModules.length &&
+            presetModules.every((m) => activeModules.includes(m));
+          return (
+            <button
+              type="button"
+              key={preset}
+              onClick={() => applyPreset(preset)}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-colors ${
+                isActive
+                  ? "bg-teal-600 text-white border-teal-600"
+                  : isDarkMode
+                    ? "bg-gray-800 text-gray-300 border-gray-600 hover:bg-gray-700"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+              }`}
+            >
+              {preset}
+            </button>
+          );
+        })}
       </div>
 
       {/* Legend */}
-      <div className={`flex flex-wrap items-center gap-4 mb-3 text-xs ${textSecondary}`}>
-        <span className="flex items-center gap-1">
-          <span className="inline-block w-4 h-4 rounded bg-emerald-100 dark:bg-emerald-900/40 border border-emerald-300 dark:border-emerald-700 text-center leading-4 text-emerald-700 dark:text-emerald-300 text-[10px]">
-            ✔
+      <div className={`flex flex-wrap items-center gap-5 mb-4 text-xs ${textSecondary}`}>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-emerald-100 dark:bg-emerald-900/40 border border-emerald-300 dark:border-emerald-700">
+            <Check size={12} className="text-emerald-600 dark:text-emerald-400" />
           </span>
           Role-granted
         </span>
-        <span className="flex items-center gap-1">
-          <span className="inline-block w-4 h-4 rounded bg-blue-100 dark:bg-blue-900/40 border border-blue-300 dark:border-blue-700 text-center leading-4 text-blue-700 dark:text-blue-300 text-[10px]">
-            ✔
+        <span className="flex items-center gap-1.5">
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-blue-100 dark:bg-blue-900/40 border border-blue-300 dark:border-blue-700">
+            <Check size={12} className="text-blue-600 dark:text-blue-400" />
           </span>
           Custom grant
         </span>
-        <span className="flex items-center gap-1">
-          <span className="inline-block w-4 h-4 rounded bg-red-100 dark:bg-red-900/40 border border-red-300 dark:border-red-700 text-center leading-4 text-red-700 dark:text-red-300 text-[10px]">
-            ✘
+        <span className="flex items-center gap-1.5">
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-red-100 dark:bg-red-900/40 border border-red-300 dark:border-red-700">
+            <X size={12} className="text-red-600 dark:text-red-400" />
           </span>
           Custom deny
         </span>
-        <span className="flex items-center gap-1">
-          <span className="inline-block w-4 h-4 rounded bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-center leading-4 text-gray-400 text-[10px]">
-            ·
+        <span className="flex items-center gap-1.5">
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
+            <span className="text-gray-400 dark:text-gray-500 text-sm leading-none">·</span>
           </span>
           No access
         </span>
       </div>
 
       {/* Matrix table */}
-      <div className={`rounded-lg border ${borderColor} overflow-auto max-h-[calc(100vh-320px)]`} ref={tableRef}>
-        <table className={`perm-matrix-table text-xs ${bgMain}`}>
+      <div className={`rounded-lg border ${borderColor} overflow-x-auto`} ref={tableRef}>
+        <table className={`perm-matrix-table text-[13px] ${bgMain}`}>
           <thead className={`${bgHeader} sticky top-0 z-20`}>
+            {/* Module group header row — placed ABOVE action labels */}
             <tr>
               <th
-                className={`perm-matrix-sticky-col ${bgHeader} px-3 py-2 text-left font-semibold ${textPrimary} ${borderColor}`}
-                style={{ minWidth: 180, width: 180 }}
+                className={`perm-matrix-sticky-col ${bgHeader} ${borderColor}`}
+                style={{ minWidth: 200, width: 200 }}
+              />
+              <th
+                className={`perm-matrix-sticky-col-2 ${bgHeader} ${borderColor}`}
+                style={{ minWidth: 160, width: 160 }}
+              />
+              <th className={`${bgHeader} ${borderColor}`} style={{ minWidth: 56, width: 56 }} />
+              {moduleGroups.map((group) => (
+                <th
+                  key={group.module}
+                  colSpan={group.permissions.length}
+                  className={`px-2 py-2 text-center text-[10px] font-bold uppercase tracking-wider ${borderColor} ${
+                    isDarkMode ? "text-gray-300 bg-gray-800" : "text-gray-700 bg-gray-100"
+                  }`}
+                >
+                  {MODULE_ROUTES[group.module] ? (
+                    <a
+                      href={MODULE_ROUTES[group.module]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-teal-600 hover:text-teal-500 hover:underline"
+                    >
+                      {toLabel(group.module)}
+                    </a>
+                  ) : (
+                    toLabel(group.module)
+                  )}
+                </th>
+              ))}
+            </tr>
+            {/* Action label headers (rotated) */}
+            <tr>
+              <th
+                className={`perm-matrix-sticky-col ${bgHeader} px-4 py-3 text-left font-semibold ${textPrimary} ${borderColor}`}
+                style={{ minWidth: 200, width: 200 }}
               >
                 User
               </th>
               <th
-                className={`perm-matrix-sticky-col-2 ${bgHeader} px-2 py-2 text-left font-semibold ${textPrimary} ${borderColor}`}
-                style={{ minWidth: 120, width: 120 }}
+                className={`perm-matrix-sticky-col-2 ${bgHeader} px-3 py-3 text-left font-semibold ${textPrimary} ${borderColor}`}
+                style={{ minWidth: 160, width: 160 }}
               >
                 Role
               </th>
               <th
-                className={`${bgHeader} px-2 py-2 text-center font-semibold ${textPrimary} ${borderColor}`}
-                style={{ minWidth: 50, width: 50 }}
+                className={`${bgHeader} px-2 py-3 text-center font-semibold ${textPrimary} ${borderColor}`}
+                style={{ minWidth: 56, width: 56 }}
               >
                 #
               </th>
               {moduleGroups.map((group, gi) =>
                 group.permissions.map((perm, pi) => (
                   <th
-                    key={perm.permission_key}
-                    className={`perm-matrix-header-cell ${bgHeader} ${textSecondary} ${borderColor} ${pi === 0 && gi > 0 ? "perm-matrix-module-border" : ""} ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
-                    title={`${perm.permission_key}${perm.description ? ` — ${perm.description}` : ""}`}
+                    key={perm.permissionKey}
+                    className={`perm-matrix-header-cell ${bgHeader} ${isDarkMode ? "text-gray-300" : "text-gray-700"} ${borderColor} ${pi === 0 && gi > 0 ? "perm-matrix-module-border" : ""} ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
+                    title={`${perm.permissionKey}${perm.description ? ` — ${perm.description}` : ""}`}
                   >
                     {pi === 0 && MODULE_ROUTES[perm.module] ? (
                       <a
@@ -413,40 +466,16 @@ export default function PermissionsMatrix() {
                 ))
               )}
             </tr>
-            {/* Module group header row */}
-            <tr>
-              <th className={`perm-matrix-sticky-col ${bgHeader} ${borderColor}`} style={{ minWidth: 180 }} />
-              <th className={`perm-matrix-sticky-col-2 ${bgHeader} ${borderColor}`} style={{ minWidth: 120 }} />
-              <th className={`${bgHeader} ${borderColor}`} />
-              {moduleGroups.map((group) => (
-                <th
-                  key={group.module}
-                  colSpan={group.permissions.length}
-                  className={`px-1 py-1 text-center text-[9px] font-bold uppercase tracking-wide ${borderColor} ${
-                    isDarkMode ? "text-gray-400 bg-gray-800" : "text-gray-500 bg-gray-100"
-                  }`}
-                >
-                  {MODULE_ROUTES[group.module] ? (
-                    <a
-                      href={MODULE_ROUTES[group.module]}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-teal-600 hover:text-teal-500 hover:underline"
-                    >
-                      {group.module.replace(/_/g, " ")}
-                    </a>
-                  ) : (
-                    group.module.replace(/_/g, " ")
-                  )}
-                </th>
-              ))}
-            </tr>
           </thead>
           <tbody>
             {filteredUsers.map((user) => {
               const counts = userPermCount(user);
               const isSelected = selectedRow === user.id;
               const rowBg = isSelected ? (isDarkMode ? "bg-amber-900/20" : "bg-amber-50") : "";
+              // Sticky columns need OPAQUE backgrounds so scrolling cells don't show through
+              const stickyBg = isSelected
+                ? (isDarkMode ? "#2a2310" : "#fffbeb")
+                : (isDarkMode ? "#1a1d21" : "#ffffff");
 
               return (
                 <tr
@@ -455,38 +484,45 @@ export default function PermissionsMatrix() {
                   onClick={() => setSelectedRow(isSelected ? null : user.id)}
                 >
                   <td
-                    className={`perm-matrix-sticky-col ${rowBg || bgMain} px-3 py-1.5 font-medium ${borderColor} ${textPrimary} whitespace-nowrap`}
-                    style={{ minWidth: 180 }}
+                    className={`perm-matrix-sticky-col px-4 py-2 font-medium ${borderColor} ${textPrimary} whitespace-nowrap`}
+                    style={{ minWidth: 200, backgroundColor: stickyBg }}
                   >
-                    <div className="truncate max-w-[160px]" title={`${user.full_name} (${user.email})`}>
-                      {user.full_name}
+                    <div className="truncate max-w-[180px]" title={`${user.fullName} (${user.email})`}>
+                      {user.fullName}
                     </div>
-                    {!user.is_active && <span className="text-[9px] text-red-500 font-medium">INACTIVE</span>}
+                    {!user.isActive && (
+                      <span className="text-[10px] text-red-500 font-semibold uppercase">Inactive</span>
+                    )}
                   </td>
                   <td
-                    className={`perm-matrix-sticky-col-2 ${rowBg || bgMain} px-2 py-1.5 ${borderColor} ${textSecondary} whitespace-nowrap`}
-                    style={{ minWidth: 120 }}
+                    className={`perm-matrix-sticky-col-2 px-3 py-2 ${borderColor} whitespace-nowrap`}
+                    style={{ minWidth: 160, backgroundColor: stickyBg }}
                   >
-                    <div className="flex items-center gap-1">
-                      <span className="truncate max-w-[80px] text-[10px]" title={user.role_display_names.join(", ")}>
-                        {user.role_display_names.join(", ") || "No role"}
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className={`truncate max-w-[100px] text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                        title={user.roleDisplayNames.join(", ")}
+                      >
+                        {user.roleDisplayNames.join(", ") || "No role"}
                       </span>
-                      {user.is_director && (
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-700">
-                          <Shield size={8} />
+                      {user.isDirector && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-700 whitespace-nowrap">
+                          <Shield size={10} />
                           Full Access
                         </span>
                       )}
                     </div>
                   </td>
-                  <td className={`text-center ${borderColor} ${textSecondary} text-[10px]`}>
+                  <td
+                    className={`text-center ${borderColor} text-xs tabular-nums ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                  >
                     {counts.visible}/{counts.total}
                   </td>
                   {moduleGroups.map((group, gi) =>
                     group.permissions.map((perm, pi) => {
-                      const state = getCellState(user, perm.permission_key);
-                      const tooltip = getCellTooltip(user, perm.permission_key);
-                      const isDisabled = user.is_director;
+                      const state = getCellState(user, perm.permissionKey);
+                      const tooltip = getCellTooltip(user, perm.permissionKey);
+                      const isDisabled = user.isDirector;
                       const isModuleBorder = pi === 0 && gi > 0;
 
                       let cellBg = "";
@@ -494,30 +530,38 @@ export default function PermissionsMatrix() {
 
                       if (state === "director" || state === "role_granted") {
                         cellBg = isDarkMode ? "bg-emerald-900/30" : "bg-emerald-50";
-                        cellContent = <Check size={12} className="text-emerald-600 dark:text-emerald-400 mx-auto" />;
+                        cellContent = (
+                          <Check size={18} className="text-emerald-600 dark:text-emerald-400 mx-auto" strokeWidth={2.5} />
+                        );
                       } else if (state === "custom_grant") {
                         cellBg = isDarkMode ? "bg-blue-900/30" : "bg-blue-50";
-                        cellContent = <Check size={12} className="text-blue-600 dark:text-blue-400 mx-auto" />;
+                        cellContent = (
+                          <Check size={18} className="text-blue-600 dark:text-blue-400 mx-auto" strokeWidth={2.5} />
+                        );
                       } else if (state === "custom_deny") {
                         cellBg = isDarkMode ? "bg-red-900/30" : "bg-red-50";
-                        cellContent = <X size={12} className="text-red-600 dark:text-red-400 mx-auto" />;
+                        cellContent = (
+                          <X size={18} className="text-red-600 dark:text-red-400 mx-auto" strokeWidth={2.5} />
+                        );
                       } else {
-                        cellContent = <span className="text-gray-300 dark:text-gray-600">·</span>;
+                        cellContent = (
+                          <span className="text-gray-300 dark:text-gray-600 text-lg leading-none">·</span>
+                        );
                       }
 
                       return (
                         <td
-                          key={perm.permission_key}
+                          key={perm.permissionKey}
                           className={`perm-matrix-cell ${isDisabled ? "disabled" : ""} ${cellBg} ${borderColor} ${isModuleBorder ? `perm-matrix-module-border ${isDarkMode ? "border-gray-600" : "border-gray-300"}` : ""}`}
                           title={tooltip}
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleCellClick(user, perm.permission_key);
+                            handleCellClick(user, perm.permissionKey);
                           }}
                           onKeyDown={(e) => {
                             if (e.key === "Enter" || e.key === " ") {
                               e.stopPropagation();
-                              handleCellClick(user, perm.permission_key);
+                              handleCellClick(user, perm.permissionKey);
                             }
                           }}
                         >
