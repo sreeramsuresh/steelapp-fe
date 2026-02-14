@@ -7,29 +7,73 @@ import "./PermissionsMatrix.css";
 
 const MODULE_PRESETS = {
   Sales: [
-    "invoices", "quotations", "deliveryNotes", "creditNotes", "customers",
-    "pricelists", "pricing", "deliveryVariance", "customerCredit",
+    "invoices",
+    "quotations",
+    "deliveryNotes",
+    "creditNotes",
+    "customers",
+    "pricelists",
+    "pricing",
+    "deliveryVariance",
+    "customerCredit",
   ],
-  Purchase: [
-    "purchaseOrders", "suppliers", "supplierBills", "debitNotes", "supplierQuotations",
-  ],
+  Purchase: ["purchaseOrders", "suppliers", "supplierBills", "debitNotes", "supplierQuotations"],
   Inventory: [
-    "inventory", "warehouses", "stockMovements", "stockBatches", "batchReservations",
-    "grns", "products", "materialCertificates", "pinnedProducts", "unitConversions", "cogs",
+    "inventory",
+    "warehouses",
+    "stockMovements",
+    "stockBatches",
+    "batchReservations",
+    "grns",
+    "products",
+    "materialCertificates",
+    "pinnedProducts",
+    "unitConversions",
+    "cogs",
   ],
   Finance: [
-    "payments", "payables", "receivables", "advancePayments", "commissions", "operatingExpenses",
-    "accountStatements", "accountingPeriods", "bankReconciliation", "exchangeRates",
-    "financialReports", "journalEntries", "reconciliations", "trn", "vatRates", "vatReturn",
+    "payments",
+    "payables",
+    "receivables",
+    "advancePayments",
+    "commissions",
+    "operatingExpenses",
+    "accountStatements",
+    "accountingPeriods",
+    "bankReconciliation",
+    "exchangeRates",
+    "financialReports",
+    "journalEntries",
+    "reconciliations",
+    "trn",
+    "vatRates",
+    "vatReturn",
   ],
   Trade: [
-    "importOrders", "exportOrders", "importContainers", "customsDocuments",
-    "shippingDocuments", "tradeFinance", "countries",
+    "importOrders",
+    "exportOrders",
+    "importContainers",
+    "customsDocuments",
+    "shippingDocuments",
+    "tradeFinance",
+    "countries",
   ],
   Admin: [
-    "users", "roles", "companySettings", "auditLogs", "auditHub",
-    "activities", "analytics", "categoryPolicies", "dashboard", "documentLinks",
-    "integrations", "notifications", "policySnapshots", "reports", "templates",
+    "users",
+    "roles",
+    "companySettings",
+    "auditLogs",
+    "auditHub",
+    "activities",
+    "analytics",
+    "categoryPolicies",
+    "dashboard",
+    "documentLinks",
+    "integrations",
+    "notifications",
+    "policySnapshots",
+    "reports",
+    "templates",
   ],
 };
 
@@ -122,17 +166,6 @@ export default function PermissionsMatrix() {
     }
     return groups;
   }, [filteredPermissions]);
-
-  const toggleModule = (mod) => {
-    setActiveModules((prev) => {
-      if (!prev) return [mod];
-      if (prev.includes(mod)) {
-        const next = prev.filter((m) => m !== mod);
-        return next.length === 0 ? null : next;
-      }
-      return [...prev, mod];
-    });
-  };
 
   const applyPreset = (presetName) => {
     setActiveModules(MODULE_PRESETS[presetName] || null);
@@ -473,9 +506,7 @@ export default function PermissionsMatrix() {
               const isSelected = selectedRow === user.id;
               const rowBg = isSelected ? (isDarkMode ? "bg-amber-900/20" : "bg-amber-50") : "";
               // Sticky columns need OPAQUE backgrounds so scrolling cells don't show through
-              const stickyBg = isSelected
-                ? (isDarkMode ? "#2a2310" : "#fffbeb")
-                : (isDarkMode ? "#1a1d21" : "#ffffff");
+              const stickyBg = isSelected ? (isDarkMode ? "#2a2310" : "#fffbeb") : isDarkMode ? "#1a1d21" : "#ffffff";
 
               return (
                 <tr
@@ -531,7 +562,11 @@ export default function PermissionsMatrix() {
                       if (state === "director" || state === "role_granted") {
                         cellBg = isDarkMode ? "bg-emerald-900/30" : "bg-emerald-50";
                         cellContent = (
-                          <Check size={18} className="text-emerald-600 dark:text-emerald-400 mx-auto" strokeWidth={2.5} />
+                          <Check
+                            size={18}
+                            className="text-emerald-600 dark:text-emerald-400 mx-auto"
+                            strokeWidth={2.5}
+                          />
                         );
                       } else if (state === "custom_grant") {
                         cellBg = isDarkMode ? "bg-blue-900/30" : "bg-blue-50";
@@ -544,9 +579,7 @@ export default function PermissionsMatrix() {
                           <X size={18} className="text-red-600 dark:text-red-400 mx-auto" strokeWidth={2.5} />
                         );
                       } else {
-                        cellContent = (
-                          <span className="text-gray-300 dark:text-gray-600 text-lg leading-none">·</span>
-                        );
+                        cellContent = <span className="text-gray-300 dark:text-gray-600 text-lg leading-none">·</span>;
                       }
 
                       return (
