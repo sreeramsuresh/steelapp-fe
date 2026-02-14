@@ -25,7 +25,6 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import invoiceCorrectionConfig from "../components/finance/invoiceCorrectionConfig";
 import InvoicePreview from "../components/InvoicePreview";
 import AddProductDrawer from "../components/invoice/AddProductDrawer";
-import AllocationPanel from "../components/invoice/AllocationPanel";
 import ChargesDrawer from "../components/invoice/ChargesDrawer";
 import FormSettingsPanel from "../components/invoice/FormSettingsPanel";
 import Alert from "../components/invoice/InvoiceAlert";
@@ -38,7 +37,6 @@ import InvoiceValidationPanel from "../components/invoice/InvoiceValidationPanel
 import { CARD_CLASSES, DIVIDER_CLASSES, INVOICE_ROUTES, QUICK_LINK_CLASSES } from "../components/invoice/invoiceStyles";
 import LoadingSpinner from "../components/invoice/LoadingSpinner";
 import NotesDrawer from "../components/invoice/NotesDrawer";
-import SourceTypeSelector from "../components/invoice/SourceTypeSelector";
 import VatHelpIcon from "../components/invoice/VatHelpIcon";
 import LoadingOverlay from "../components/LoadingOverlay";
 import { CorrectionHelpModal, DocumentHistoryPanel } from "../components/posted-document-framework";
@@ -58,13 +56,10 @@ import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
 import { productService } from "../services/productService";
 import { purchaseOrderService } from "../services/purchaseOrderService";
-import { stockBatchService } from "../services/stockBatchService";
 import { supplierService } from "../services/supplierService";
 import { createInvoice, createSteelItem, UAE_EMIRATES } from "../types";
-import { getProductDisplayName, getProductUniqueName } from "../utils/fieldAccessors";
 import {
   calculateDiscountedTRN,
-  calculateItemAmount,
   calculateSubtotal,
   calculateTotal,
   formatCurrency,
@@ -74,7 +69,7 @@ import {
   titleCase,
 } from "../utils/invoiceUtils";
 import { PAYMENT_MODES } from "../utils/paymentUtils";
-import { getAllowedBases, getBasisLabel, getDefaultBasis } from "../utils/pricingBasisRules";
+import { getDefaultBasis } from "../utils/pricingBasisRules";
 import { toUAEDateForInput } from "../utils/timezone";
 
 const InvoiceForm = ({ onSave }) => {
@@ -147,7 +142,6 @@ const InvoiceForm = ({ onSave }) => {
   const [_pdfButtonHighlight, setPdfButtonHighlight] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   // Removed unused state: selectedProductForRow, setSelectedProductForRow
-  const [searchInputs, setSearchInputs] = useState({});
   const [customerSearchInput, setCustomerSearchInput] = useState("");
   const [tradeLicenseStatus, setTradeLicenseStatus] = useState(null);
   const [showTradeLicenseAlert, setShowTradeLicenseAlert] = useState(false);
@@ -215,11 +209,6 @@ const InvoiceForm = ({ onSave }) => {
   // Form validation state
   const [validationErrors, setValidationErrors] = useState([]);
   const [invalidFields, setInvalidFields] = useState(new Set());
-
-  // Item allocations state (for reallocation modal updates)
-  const [_itemAllocations, setItemAllocations] = useState({});
-
-  // Phase 3: AllocationDrawer integration - 60/40 layout mode
 
   // Real-time field validation states (null = untouched, 'valid' = valid, 'invalid' = invalid)
   const [fieldValidation, setFieldValidation] = useState({});
@@ -522,9 +511,6 @@ const InvoiceForm = ({ onSave }) => {
 
   // No extra payment terms fields; Due Date remains directly editable
 
-  // Remove deferred value which might be causing delays
-  const deferredItems = invoice.items;
-
   // Check if any line items require warehouse (sourceType === 'WAREHOUSE')
   const needsWarehouseSelector = useMemo(() => {
     // Show warehouse selector if no items exist (new invoice) or if any item uses warehouse stock
@@ -552,7 +538,7 @@ const InvoiceForm = ({ onSave }) => {
   const { data: _nextInvoiceData, refetch: refetchNextInvoice } = useApiData(getNextInvoiceNumberFn, [], !id);
   const { data: customersData, loading: loadingCustomers } = useApiData(getCustomersFn, []);
   const { data: salesAgentsData, loading: loadingAgents } = useApiData(getAgentsFn, []);
-  const { data: productsData, loading: loadingProducts, refetch: refetchProducts } = useApiData(getProductsFn, []);
+  const { loading: loadingProducts, refetch: refetchProducts } = useApiData(getProductsFn, []);
   const { execute: _createProduct, loading: _creatingProduct } = useApi(productService.createProduct);
 
   // Pricelist state
@@ -611,230 +597,6 @@ const InvoiceForm = ({ onSave }) => {
 
   // Warehouses state
   const [warehouses, setWarehouses] = useState([]);
-
-  // Stock batches per product for FIFO allocation
-  // Structure: { [productId]: { batches: [...], stockByWarehouse: { [warehouseId]: number } } }
-  const [productBatchData, setProductBatchData] = useState({});
-
-  /**
-   * Fetch available batches for a product across all warehouses
-   * @param {number|string} productId - Product ID
-   * @returns {Promise<{batches: Array, stockByWarehouse: Object, totalStock: number}>}
-   */
-  const fetchBatchesForProduct = useCallback(
-    async (productId) => {
-      if (!productId || !company?.id) return null;
-
-      try {
-        const response = await stockBatchService.getBatches({
-          productId,
-          companyId: company.id,
-          activeOnly: true,
-          limit: 100, // Get all available batches
-        });
-
-        const batches = response?.batches || response?.data?.batches || [];
-
-        // Sort by GRN date (oldest first = FIFO)
-        const sortedBatches = [...batches].sort((a, b) => {
-          const dateA = new Date(a.grnDate || a.grn_date || a.createdAt || a.created_at);
-          const dateB = new Date(b.grnDate || b.grn_date || b.createdAt || b.created_at);
-          return dateA - dateB;
-        });
-
-        // Calculate stock by warehouse
-        // CRITICAL: Normalize keys to strings to prevent type mismatch with wh.id
-        const stockByWarehouse = {};
-        let totalStock = 0;
-        sortedBatches.forEach((batch) => {
-          const whId = batch.warehouseId || batch.warehouse_id;
-          const available = parseFloat(batch.quantityAvailable || batch.quantity_available || 0);
-          if (whId) {
-            const key = String(whId); // Normalize to string
-            stockByWarehouse[key] = (stockByWarehouse[key] || 0) + available;
-          }
-          totalStock += available;
-        });
-
-        const batchData = {
-          batches: sortedBatches,
-          stockByWarehouse,
-          totalStock,
-        };
-
-        // Update state
-        setProductBatchData((prev) => ({
-          ...prev,
-          [productId]: batchData,
-        }));
-
-        return batchData;
-      } catch (error) {
-        console.error("Error fetching batches for product:", error);
-        return { batches: [], stockByWarehouse: {}, totalStock: 0 };
-      }
-    },
-    [company?.id]
-  );
-
-  /**
-   * Auto-allocate batches using FIFO (First-In-First-Out) logic
-   * Enhanced with explicit FIFO sorting and multi-warehouse awareness
-   * @param {number} itemIndex - Index of the item in invoice.items
-   * @param {number} requiredQty - Required quantity to allocate
-   * @param {Array} batches - Available batches (will be sorted by received date)
-   * @returns {Array} - Array of allocations sorted by FIFO order
-   */
-  const autoAllocateFIFO = useCallback((_itemIndex, requiredQty, batches) => {
-    if (!batches || batches.length === 0 || requiredQty <= 0) {
-      return [];
-    }
-
-    // Sort batches by received_date ASC (FIFO - oldest first)
-    // This ensures we always allocate from oldest stock first regardless of warehouse
-    const sortedBatches = [...batches].sort((a, b) => {
-      const dateA = new Date(
-        a.receivedDate || a.received_date || a.grnDate || a.grn_date || a.createdAt || a.created_at
-      );
-      const dateB = new Date(
-        b.receivedDate || b.received_date || b.grnDate || b.grn_date || b.createdAt || b.created_at
-      );
-      return dateA - dateB; // Oldest first
-    });
-
-    const allocations = [];
-    let remaining = requiredQty;
-
-    for (const batch of sortedBatches) {
-      if (remaining <= 0) break;
-
-      const available = parseFloat(batch.quantityAvailable || batch.quantity_available || 0);
-      if (available <= 0) continue;
-
-      const allocateQty = Math.min(available, remaining);
-
-      allocations.push({
-        batchId: batch.id,
-        batchNumber: batch.batchNumber || batch.batch_number || `BTH-${batch.id}`,
-        receivedDate:
-          batch.receivedDate ||
-          batch.received_date ||
-          batch.grnDate ||
-          batch.grn_date ||
-          batch.createdAt ||
-          batch.created_at,
-        warehouseId: batch.warehouseId || batch.warehouse_id,
-        warehouseName: batch.warehouseName || batch.warehouse_name || "Unknown Warehouse",
-        availableQty: available,
-        allocatedQty: allocateQty,
-        unitCost: parseFloat(
-          batch.unitCost || batch.unit_cost || batch.landedCostPerUnit || batch.landed_cost_per_unit || 0
-        ),
-        procurementChannel: batch.procurementChannel || batch.procurement_channel || "LOCAL",
-      });
-
-      remaining -= allocateQty;
-    }
-
-    // If there's remaining quantity after all batches, it needs drop ship or split
-    // This will be handled by the caller (auto drop-ship / auto-split suggestions)
-
-    return allocations;
-  }, []);
-
-  /**
-   * Apply auto-allocation to a line item after product selection
-   * P0: Only allocates if sourceType === 'WAREHOUSE'
-   * @param {number} itemIndex - Index of the item
-   * @param {number|string} productId - Product ID
-   * @param {number} quantity - Required quantity
-   */
-  const applyAutoAllocation = useCallback(
-    async (itemIndex, productId, quantity) => {
-      const currentItem = invoice.items[itemIndex];
-
-      // P0: Only allocate for warehouse items
-      if (currentItem.sourceType !== "WAREHOUSE") {
-        notificationService.info("Auto-allocation only available for Warehouse source type");
-        return;
-      }
-
-      // Fetch batches for this product
-      const batchData = await fetchBatchesForProduct(productId);
-      if (!batchData) return;
-
-      const { batches, totalStock } = batchData;
-      const requiredQty = quantity || 1;
-
-      if (totalStock === 0) {
-        // AUTO-SELECT Local Drop Ship when no warehouse stock
-        setInvoice((prev) => {
-          const newItems = [...prev.items];
-          newItems[itemIndex] = {
-            ...newItems[itemIndex],
-            sourceType: "LOCAL_DROP_SHIP",
-            allocations: [],
-            allocationMode: null,
-          };
-          return { ...prev, items: newItems };
-        });
-
-        // AUTO-EXPAND allocation section for visibility
-        setExpandedAllocations((prev) => {
-          const newSet = new Set(prev);
-          newSet.add(itemIndex);
-          return newSet;
-        });
-
-        return;
-      }
-
-      // Stock available - apply FIFO allocation
-      const fifoAllocations = autoAllocateFIFO(itemIndex, requiredQty, batches);
-      const totalAllocated = fifoAllocations.reduce((sum, a) => sum + a.allocatedQty, 0);
-
-      // Convert legacy format to canonical allocations
-      const canonicalAllocations = fifoAllocations.map((a) => ({
-        batchId: a.batchId,
-        batchNumber: a.batchNumber,
-        quantity: a.allocatedQty,
-        unitCost: a.unitCost || 0,
-        totalCost: (a.allocatedQty || 0) * (a.unitCost || 0),
-      }));
-
-      setInvoice((prev) => {
-        const newItems = [...prev.items];
-        newItems[itemIndex] = {
-          ...newItems[itemIndex],
-          sourceType: "WAREHOUSE",
-          allocations: canonicalAllocations,
-          allocationMode: "AUTO_FIFO",
-          partialAllocation: totalAllocated < requiredQty,
-          shortfallQty: requiredQty - totalAllocated,
-        };
-        return { ...prev, items: newItems };
-      });
-
-      // AUTO-EXPAND allocation section for visibility
-      setExpandedAllocations((prev) => {
-        const newSet = new Set(prev);
-        newSet.add(itemIndex);
-        return newSet;
-      });
-
-      // P1: Show partial stock warning
-      if (totalAllocated < requiredQty) {
-        const shortfall = requiredQty - totalAllocated;
-        notificationService.warning(
-          `Warehouse has ${totalAllocated}/${requiredQty} units. Consider splitting: ${totalAllocated} warehouse + ${shortfall} drop-ship`,
-          { autoClose: 8000 }
-        );
-      } else {
-        notificationService.success(`Allocated ${totalAllocated} units from warehouse batches (FIFO)`);
-      }
-    },
-    [fetchBatchesForProduct, autoAllocateFIFO, invoice.items]
-  );
 
   // Fetch warehouses once (active only)
   useEffect(() => {
@@ -1177,263 +939,7 @@ const InvoiceForm = ({ onSave }) => {
     }));
   }, []);
 
-  // Speed button quantity increment animation
-  const [blinkingRowIndex, setBlinkingRowIndex] = useState(null);
-
-  // Allocation panel expansion state
-  const [expandedAllocations, setExpandedAllocations] = useState(new Set());
-
-  // Toggle allocation panel for a specific row
-  const toggleAllocationPanel = useCallback((index) => {
-    setExpandedAllocations((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index);
-      } else {
-        newSet.add(index);
-      }
-      return newSet;
-    });
-  }, []);
-
-  // Find the first empty item row (no product selected, no name entered)
-  const findEmptyItemIndex = useCallback(() => {
-    return invoice.items.findIndex((item) => !item.productId && !item.name?.trim());
-  }, [invoice.items]);
-
   // No automatic coupling; due date is independently editable by the user
-
-  const searchTimerRef = useRef(null);
-
-  const handleSearchInputChange = useCallback((index, value) => {
-    setSearchInputs((prev) => ({ ...prev, [index]: value }));
-
-    // Update the item name immediately for responsive typing
-    setInvoice((prev) => {
-      const newItems = [...prev.items];
-      newItems[index] = {
-        ...newItems[index],
-        name: value,
-        productId: null, // Clear product ID when typing custom name
-      };
-      return {
-        ...prev,
-        items: newItems,
-      };
-    });
-    // Debounced server-side product search
-    try {
-      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-      searchTimerRef.current = setTimeout(async () => {
-        const term = (value || "").trim();
-        if (!term) return;
-        try {
-          const resp = await productService.getProducts({
-            search: term,
-            limit: 20,
-          });
-          // Overwrite the shared productsData with the fetched subset is complex;
-          // instead we keep a local map of options for active row via Autocomplete filtering.
-          // Here we attach the fetched results to a special key for the row.
-          setSearchInputs((prev) => ({
-            ...prev,
-            __results: resp?.products || [],
-          }));
-        } catch (err) {
-          console.warn("Product search failed:", err);
-          setSearchInputs((prev) => ({ ...prev, __results: [] }));
-        }
-      }, 300);
-    } catch (err) {
-      console.error("Error setting up product search timer:", err);
-    }
-  }, []);
-
-  const handleItemChange = useCallback(
-    async (index, field, value) => {
-      // P0 CRITICAL: Handle sourceType changes with allocation release and stock validation
-      if (field === "sourceType") {
-        const currentItem = invoice.items[index];
-        const oldSourceType = currentItem.sourceType || "WAREHOUSE";
-        const newSourceType = value;
-
-        // P0: Validate stock when switching TO warehouse
-        if (newSourceType === "WAREHOUSE") {
-          const stockData = productBatchData[currentItem.productId];
-          const totalStock = stockData?.batches?.reduce((sum, b) => sum + (b.quantityAvailable || 0), 0) || 0;
-
-          if (totalStock === 0) {
-            notificationService.error("Cannot switch to Warehouse - no stock available");
-            return; // Block the change
-          }
-
-          if (totalStock > 0 && totalStock < currentItem.quantity) {
-            notificationService.warning(
-              `Only ${totalStock} units available in warehouse (${currentItem.quantity} required). Consider partial allocation.`,
-              { autoClose: 8000 }
-            );
-            // Allow switch but show warning
-          }
-        }
-
-        // P0: Release allocations when switching FROM warehouse TO drop-ship
-        if (oldSourceType === "WAREHOUSE" && newSourceType !== "WAREHOUSE") {
-          setInvoice((prev) => {
-            const newItems = [...prev.items];
-            newItems[index] = {
-              ...newItems[index],
-              sourceType: newSourceType,
-              manualAllocations: null,
-              allocationStatus: "pending",
-            };
-            return { ...prev, items: newItems };
-          });
-          notificationService.info("Warehouse allocations released");
-          return;
-        }
-      }
-
-      // First, update the item immediately
-      setInvoice((prev) => {
-        const newItems = [...prev.items];
-        newItems[index] = {
-          ...newItems[index],
-          [field]: value,
-        };
-
-        // Auto-update VAT rate based on supply type
-        if (field === "supplyType") {
-          if (value === "standard") {
-            newItems[index].vatRate = 5;
-          } else if (value === "zero_rated" || value === "exempt") {
-            newItems[index].vatRate = 0;
-          }
-        }
-
-        if (field === "quantity" || field === "rate") {
-          const item = newItems[index];
-          newItems[index].amount = calculateItemAmount(
-            item.quantity,
-            item.rate,
-            item.pricingBasis,
-            item.unitWeightKg,
-            item.quantityUom
-          );
-          // Update theoretical weight when quantity changes
-          if (field === "quantity" && item.unitWeightKg && item.quantityUom === "PCS") {
-            newItems[index].theoreticalWeightKg = item.quantity * item.unitWeightKg;
-          } else if (field === "quantity" && item.quantityUom === "MT") {
-            newItems[index].theoreticalWeightKg = item.quantity * 1000;
-          } else if (field === "quantity" && item.quantityUom === "KG") {
-            newItems[index].theoreticalWeightKg = item.quantity;
-          }
-        }
-
-        // Check if item is now complete (has product, quantity > 0, rate > 0)
-        const updatedItem = newItems[index];
-        if (updatedItem.productId && updatedItem.quantity > 0 && updatedItem.rate > 0) {
-          // Clear item-related validation errors
-          setValidationErrors((errors) => errors.filter((err) => !err.toLowerCase().includes("item")));
-          // Note: Don't auto-focus away - user may want to add more items
-        }
-
-        return {
-          ...prev,
-          items: newItems,
-        };
-      });
-
-      // If quantity changed and we have a pricelist, re-fetch price for volume discount
-      if (field === "quantity" && selectedPricelistId) {
-        // Get current item to check if it has a product
-        setInvoice((prev) => {
-          const item = prev.items[index];
-          if (item?.productId && value > 0) {
-            // Fetch volume-based price asynchronously
-            pricelistService
-              .getPriceForQuantity(item.productId, selectedPricelistId, value)
-              .then((priceResponse) => {
-                const newPrice = priceResponse.price || priceResponse.data?.price;
-                if (newPrice && newPrice !== item.rate) {
-                  setInvoice((prevInv) => {
-                    const newItems = [...prevInv.items];
-                    const currentItem = newItems[index];
-                    newItems[index] = {
-                      ...currentItem,
-                      rate: newPrice,
-                      amount: calculateItemAmount(
-                        currentItem.quantity,
-                        newPrice,
-                        currentItem.pricingBasis,
-                        currentItem.unitWeightKg,
-                        currentItem.quantityUom
-                      ),
-                    };
-                    return { ...prevInv, items: newItems };
-                  });
-                }
-              })
-              .catch((_err) => {
-                // Volume discount price fetch failed, using default price
-              });
-          }
-          return prev; // No change in this callback
-        });
-      }
-    },
-    [selectedPricelistId, invoice.items, productBatchData]
-  );
-
-  const productOptions = useMemo(() => {
-    const list = productsData?.products || [];
-    return list.map((product) => {
-      // Handle both camelCase and snake_case field names from API
-      const uniqueName = getProductUniqueName(product);
-      const displayName = getProductDisplayName(product);
-      const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
-      // Use uniqueName for dropdown display, displayName for documents
-      const label = uniqueName || displayName || "N/A";
-      return {
-        ...product,
-        label,
-        searchDisplay: label,
-        // Normalize fields for consistent access
-        uniqueName: uniqueName || "",
-        displayName: displayName || "",
-        subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${sellingPrice}`,
-      };
-    });
-  }, [productsData]);
-
-  const searchOptions = useMemo(() => {
-    const list = searchInputs?.__results || [];
-    return list.map((product) => {
-      // Handle both camelCase and snake_case field names from API
-      const uniqueName = getProductUniqueName(product);
-      const displayName = getProductDisplayName(product);
-      const sellingPrice = product.sellingPrice ?? product.selling_price ?? 0;
-      // Use uniqueName for dropdown display, displayName for documents
-      const label = uniqueName || displayName || "N/A";
-      return {
-        ...product,
-        label,
-        searchDisplay: label,
-        // Normalize fields for consistent access
-        uniqueName: uniqueName || "",
-        displayName: displayName || "",
-        subtitle: `${product.category} • ${product.grade || "N/A"} • د.إ${sellingPrice}`,
-      };
-    });
-  }, [searchInputs.__results]);
-
-  const addItem = useCallback(() => {
-    setInvoice((prev) => ({
-      ...prev,
-      items: [...prev.items, createSteelItem()],
-    }));
-    // Clear item-related validation errors since user is adding an item
-    setValidationErrors((prev) => prev.filter((err) => !err.toLowerCase().includes("item is required")));
-  }, []);
 
   const removeItem = useCallback((index) => {
     setInvoice((prev) => {
