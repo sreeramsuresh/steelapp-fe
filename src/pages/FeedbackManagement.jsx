@@ -201,7 +201,6 @@ const FeedbackManagement = () => {
               </tr>
             ) : (
               data.map((item) => {
-                const browserInfo = item.browserInfo || {};
                 const isExpanded = expandedId === item.id;
                 return (
                   <tr
@@ -243,7 +242,9 @@ const FeedbackManagement = () => {
                       </button>
                     </td>
                     <td className="px-3 py-2.5">
-                      <div className={`truncate ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>{item.userName}</div>
+                      <div className={`truncate ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
+                        {item.userName}
+                      </div>
                       <div className={`text-xs truncate ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                         {item.userEmail}
                       </div>
