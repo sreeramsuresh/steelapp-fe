@@ -1588,7 +1588,7 @@ const PurchaseOrderForm = () => {
       if (poData.stockStatus === "received") {
         try {
           const stockStatusResponse = await (await import("../services/api")).apiClient.patch(
-            `/purchase-orders/${savedPO.id}/stock-status`,
+            `/purchase-orders/${savedPO.id}/status`,
             {
               stock_status: "received",
             }
@@ -1608,7 +1608,7 @@ const PurchaseOrderForm = () => {
       const action = id ? "updated" : "created";
       notificationService.success(`Purchase order ${action} successfully!`);
 
-      navigate("/app/purchase-orders");
+      navigate("/app/purchases");
     } catch (error) {
       // Extract more detailed error message
       let errorMessage = "Unknown error";
@@ -1660,7 +1660,7 @@ const PurchaseOrderForm = () => {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => navigate("/app/purchase-orders")}
+              onClick={() => navigate("/app/purchases")}
               className={`p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${
                 isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
               }`}

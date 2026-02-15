@@ -140,6 +140,9 @@ const StockLevelsDashboard = () => {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(cachedState.pagination);
 
+  // Track whether we have data (avoids stale closure in useCallback)
+  const hasDataRef = useRef(cachedState.hasCache);
+
   // Phase 1 additions: Group By, Column Configuration, Batch KPI toggle
   const [groupBy, setGroupBy] = useState("none");
   const [visibleColumns, setVisibleColumns] = useState(loadSavedColumns);
@@ -202,7 +205,7 @@ const StockLevelsDashboard = () => {
       isStockCacheFresh(cachedList.timestamp);
 
     // Only show loading spinner if we have no cached data
-    if (!stockLevels.length && !summary) {
+    if (!hasDataRef.current) {
       setLoading(true);
     }
     setError("");
@@ -221,6 +224,7 @@ const StockLevelsDashboard = () => {
       setStockLevels(response.data || []);
       setPagination(response.pagination || {});
       setSummary(response.summary || null);
+      hasDataRef.current = true;
 
       // Cache the results for default filter requests (page 1, no filters)
       if (isDefaultFilters) {
@@ -234,14 +238,14 @@ const StockLevelsDashboard = () => {
       const errorMessage = err.response?.data?.message || err.message || "Failed to fetch stock levels";
       setError(errorMessage);
       notificationService.error(errorMessage);
-      // Only clear data if we don&apos;t have cached data to fall back on
-      if (!stockLevels.length) {
+      // Only clear data if we don't have cached data to fall back on
+      if (!hasDataRef.current) {
         setStockLevels([]);
       }
     } finally {
       setLoading(false);
     }
-  }, [page, searchTerm, warehouseFilter, lowStockOnly, includeZero, stockLevels.length, summary]);
+  }, [page, searchTerm, warehouseFilter, lowStockOnly, includeZero]);
 
   useEffect(() => {
     fetchStockLevels();
@@ -409,7 +413,7 @@ const StockLevelsDashboard = () => {
                 <td key="actions" className="px-6 py-4 whitespace-nowrap text-right">
                   <button
                     type="button"
-                    onClick={() => navigate(`/app/inventory/stock-movements?product_id=${item.productId}`)}
+                    onClick={() => navigate(`/app/stock-movements?product_id=${item.productId}`)}
                     className={`p-2 rounded-lg transition-colors ${
                       isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
                     }`}
@@ -614,7 +618,7 @@ const StockLevelsDashboard = () => {
           </div>
           <div className="flex gap-2">
             <Link
-              to="/app/inventory/stock-movements"
+              to="/app/stock-movements"
               className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
                 isDarkMode
                   ? "border-gray-600 text-gray-300 hover:bg-gray-700"

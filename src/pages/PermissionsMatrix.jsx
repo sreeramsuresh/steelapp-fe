@@ -101,6 +101,22 @@ const MODULE_ROUTES = {
   stockMovements: "/app/stock-movements",
 };
 
+// The API middleware converts all object keys to camelCase (e.g. audit_hub.read → auditHub.read)
+// but permission key *values* stay as snake_case (e.g. permissionKey: "audit_hub.read").
+// This helper converts camelCase object keys back to snake_case so lookups match.
+function camelToSnake(str) {
+  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+}
+
+function normalizePermissionObjectKeys(obj) {
+  if (!obj || typeof obj !== "object") return obj;
+  const result = {};
+  for (const [key, value] of Object.entries(obj)) {
+    result[camelToSnake(key)] = value;
+  }
+  return result;
+}
+
 export default function PermissionsMatrix() {
   const { isDarkMode } = useTheme();
   const [data, setData] = useState(null);
@@ -119,6 +135,16 @@ export default function PermissionsMatrix() {
     try {
       setLoading(true);
       const result = await permissionsMatrixService.getMatrix();
+      // Normalize roleGrants and customPermissions keys from camelCase back to
+      // snake_case so they match the permissionKey values (e.g. "audit_hub.read").
+      // The API middleware converts object keys to camelCase but permission key
+      // *values* remain snake_case, causing lookup mismatches.
+      if (result?.users) {
+        for (const user of result.users) {
+          user.roleGrants = normalizePermissionObjectKeys(user.roleGrants);
+          user.customPermissions = normalizePermissionObjectKeys(user.customPermissions);
+        }
+      }
       setData(result);
     } catch (err) {
       notificationService.error("Failed to load permissions matrix");
@@ -135,7 +161,7 @@ export default function PermissionsMatrix() {
   // Count users with any custom overrides (for badge)
   const customOverrideCount = useMemo(() => {
     if (!data) return 0;
-    return data.users.filter((u) => u.customPermissions && Object.keys(u.customPermissions).length > 0).length;
+    return data.users.reduce((sum, u) => sum + (u.customPermissions ? Object.keys(u.customPermissions).length : 0), 0);
   }, [data]);
 
   const filteredUsers = useMemo(() => {

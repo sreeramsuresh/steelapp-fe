@@ -116,6 +116,7 @@ const FeedbackManagement = lazy(() => import("../pages/FeedbackManagement"));
 // Admin Components - Roles & Permissions
 const RolesPage = lazy(() => import("../pages/RolesPage"));
 const PermissionsMatrix = lazy(() => import("../pages/PermissionsMatrix"));
+const UserManagementPage = lazy(() => import("../pages/UserManagementPage"));
 
 // Phase 3: Pricing Components
 const BasePricesPage = lazy(() => import("../pages/BasePricesPage"));
@@ -987,6 +988,14 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
                   ]}
                 >
                   <CompanySettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="users"
+              element={
+                <ProtectedRoute user={user} requiredPermission="users.read">
+                  <UserManagementPage />
                 </ProtectedRoute>
               }
             />

@@ -102,9 +102,11 @@ const AuditLogs = () => {
         limit: itemsPerPage,
         ...(filters.category && { category: filters.category }),
         ...(filters.action && { action: filters.action }),
-        ...(filters.startDate && { startDate: filters.startDate }),
-        ...(filters.endDate && { endDate: filters.endDate }),
-        ...(filters.userId && { userId: filters.userId }),
+        ...(filters.status && { status: filters.status }),
+        ...(filters.search && { search: filters.search }),
+        ...(filters.startDate && { start_date: filters.startDate }),
+        ...(filters.endDate && { end_date: filters.endDate }),
+        ...(filters.userId && { user_id: filters.userId }),
       };
 
       const response = await apiService.get("/audit-logs", { params });
