@@ -36,6 +36,7 @@ const CATEGORIES = [
   "STATEMENT",
   "USER",
   "ROLE",
+  "PERMISSIONS",
 ];
 
 const CATEGORY_COLORS = {
@@ -56,6 +57,7 @@ const CATEGORY_COLORS = {
   STATEMENT: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300",
   USER: "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300",
   ROLE: "bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-900/30 dark:text-fuchsia-300",
+  PERMISSIONS: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
 };
 
 const AuditLogs = () => {
@@ -266,7 +268,11 @@ const AuditLogs = () => {
         {/* Statistics Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow`}>
+            <button
+              type="button"
+              onClick={() => handleFilterChange("status", "")}
+              className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-white hover:bg-gray-50"} shadow text-left cursor-pointer transition-colors`}
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Total Logs</p>
@@ -274,9 +280,13 @@ const AuditLogs = () => {
                 </div>
                 <Activity className={isDarkMode ? "text-blue-400" : "text-blue-600"} size={32} />
               </div>
-            </div>
+            </button>
 
-            <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow`}>
+            <button
+              type="button"
+              onClick={() => handleFilterChange("status", "failed")}
+              className={`p-4 rounded-lg ${filters.status === "failed" ? (isDarkMode ? "bg-red-900/30 ring-2 ring-red-500" : "bg-red-50 ring-2 ring-red-400") : isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-white hover:bg-gray-50"} shadow text-left cursor-pointer transition-colors`}
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Failed Actions</p>
@@ -286,9 +296,13 @@ const AuditLogs = () => {
                 </div>
                 <AlertCircle className="text-red-500" size={32} />
               </div>
-            </div>
+            </button>
 
-            <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow`}>
+            <button
+              type="button"
+              onClick={() => handleFilterChange("status", "success")}
+              className={`p-4 rounded-lg ${filters.status === "success" ? (isDarkMode ? "bg-green-900/30 ring-2 ring-green-500" : "bg-green-50 ring-2 ring-green-400") : isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-white hover:bg-gray-50"} shadow text-left cursor-pointer transition-colors`}
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Active Categories</p>
@@ -298,7 +312,7 @@ const AuditLogs = () => {
                 </div>
                 <Filter className={isDarkMode ? "text-green-400" : "text-green-600"} size={32} />
               </div>
-            </div>
+            </button>
           </div>
         )}
 
@@ -484,9 +498,11 @@ const AuditLogs = () => {
                             <div className="flex items-center gap-2">
                               <User size={16} className={isDarkMode ? "text-gray-500" : "text-gray-400"} />
                               <div>
-                                <div className="font-medium">{log.username || "-"}</div>
+                                <div className="font-medium">
+                                  {log.username || (log.source === "trigger" ? "System" : "-")}
+                                </div>
                                 <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
-                                  {log.userEmail || "-"}
+                                  {log.userEmail || (log.source === "trigger" ? "DB trigger" : "-")}
                                 </div>
                               </div>
                             </div>
