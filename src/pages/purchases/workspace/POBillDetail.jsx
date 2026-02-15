@@ -20,16 +20,14 @@ export default function POBillDetail() {
         Back to Bills
       </button>
 
-      <div className={`rounded-xl border p-6 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}>
+      <div
+        className={`rounded-xl border p-6 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+      >
         <div className="flex items-center gap-3 mb-4">
           <Receipt className="h-6 w-6 text-teal-500" />
-          <h2 className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-            Bill Detail
-          </h2>
+          <h2 className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Bill Detail</h2>
         </div>
-        <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-          Viewing supplier bill #{billId}.
-        </p>
+        <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Viewing supplier bill #{billId}.</p>
         <button
           type="button"
           onClick={() => navigate(`/app/supplier-bills/${billId}`)}

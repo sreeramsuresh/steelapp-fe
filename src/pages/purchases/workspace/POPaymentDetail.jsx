@@ -23,12 +23,12 @@ export default function POPaymentDetail() {
         Back to Payments
       </button>
 
-      <div className={`rounded-xl border p-6 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}>
+      <div
+        className={`rounded-xl border p-6 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+      >
         <div className="flex items-center gap-3 mb-6">
           <Wallet className="h-6 w-6 text-teal-500" />
-          <h2 className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-            Payment Detail
-          </h2>
+          <h2 className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Payment Detail</h2>
         </div>
 
         {payment ? (

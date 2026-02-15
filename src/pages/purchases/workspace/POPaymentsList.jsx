@@ -21,21 +21,35 @@ export default function POPaymentsList() {
       </div>
 
       {payments.length === 0 ? (
-        <div className={`text-center py-12 rounded-xl border ${isDarkMode ? "bg-gray-800 border-gray-700 text-gray-400" : "bg-white border-gray-200 text-gray-500"}`}>
+        <div
+          className={`text-center py-12 rounded-xl border ${isDarkMode ? "bg-gray-800 border-gray-700 text-gray-400" : "bg-white border-gray-200 text-gray-500"}`}
+        >
           <Wallet className="h-10 w-10 mx-auto mb-3 opacity-40" />
           <p className="font-medium">No payments yet</p>
           <p className="text-sm mt-1">Payments appear here once recorded against supplier bills.</p>
         </div>
       ) : (
-        <div className={`rounded-xl border overflow-hidden ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}>
+        <div
+          className={`rounded-xl border overflow-hidden ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+        >
           <table className="w-full text-sm">
             <thead>
               <tr className={isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}>
-                <th className={`text-left px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Date</th>
-                <th className={`text-left px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Method</th>
-                <th className={`text-left px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Reference</th>
-                <th className={`text-right px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Amount</th>
-                <th className={`text-right px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Actions</th>
+                <th className={`text-left px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Date
+                </th>
+                <th className={`text-left px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Method
+                </th>
+                <th className={`text-left px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Reference
+                </th>
+                <th className={`text-right px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Amount
+                </th>
+                <th className={`text-right px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -72,9 +86,7 @@ export default function POPaymentsList() {
       {summary?.payments?.count > 0 && (
         <div className={`mt-3 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
           Total paid: {formatCurrency(summary.payments.total_paid)}
-          {summary.bills?.total_billed > 0 && (
-            <span> / Billed: {formatCurrency(summary.bills.total_billed)}</span>
-          )}
+          {summary.bills?.total_billed > 0 && <span> / Billed: {formatCurrency(summary.bills.total_billed)}</span>}
         </div>
       )}
     </div>

@@ -17,17 +17,13 @@ function getNextAction(summary) {
   const { grns, bills, workflow } = summary || {};
   const isDropship = workflow?.isDropship;
 
-  if (!workflow?.confirmComplete)
-    return { label: "Confirm PO", route: "overview?confirm=1" };
+  if (!workflow?.confirmComplete) return { label: "Confirm PO", route: "overview?confirm=1" };
 
-  if (!isDropship && grns?.count === 0)
-    return { label: "Create GRN", route: "grn" };
+  if (!isDropship && grns?.count === 0) return { label: "Create GRN", route: "grn" };
 
-  if (bills?.count === 0)
-    return { label: "Create Supplier Bill", route: "bills" };
+  if (bills?.count === 0) return { label: "Create Supplier Bill", route: "bills" };
 
-  if (bills?.count > 0 && !workflow?.isFullyPaid)
-    return { label: "Record Payment", route: "payments" };
+  if (bills?.count > 0 && !workflow?.isFullyPaid) return { label: "Record Payment", route: "payments" };
 
   return null;
 }
@@ -79,7 +75,9 @@ export default function WorkspaceHeader() {
         </div>
         <div className="flex items-center gap-2">
           {po?.status && (
-            <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${STATUS_COLORS[po.status] || STATUS_COLORS.draft}`}>
+            <span
+              className={`px-3 py-1.5 rounded-full text-xs font-medium ${STATUS_COLORS[po.status] || STATUS_COLORS.draft}`}
+            >
               {po.status.toUpperCase()}
             </span>
           )}

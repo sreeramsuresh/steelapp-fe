@@ -708,33 +708,30 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
   }, []);
 
   // Per-field validation — returns boolean, updates fieldValidation state
-  const validateField = useCallback(
-    (fieldName, value) => {
-      let isValid = false;
-      switch (fieldName) {
-        case "supplier":
-          isValid = !!(value && String(value).trim() !== "");
-          break;
-        case "warehouse":
-          isValid = !!(value && String(value).trim() !== "" && value !== "none");
-          break;
-        case "poDate":
-          isValid = !!(value && String(value).trim() !== "");
-          break;
-        case "items":
-          isValid =
-            Array.isArray(value) &&
-            value.length > 0 &&
-            value.some((item) => item.name && item.quantity > 0 && item.rate > 0);
-          break;
-        default:
-          isValid = true;
-      }
-      setFieldValidation((prev) => ({ ...prev, [fieldName]: isValid ? "valid" : "invalid" }));
-      return isValid;
-    },
-    [],
-  );
+  const validateField = useCallback((fieldName, value) => {
+    let isValid = false;
+    switch (fieldName) {
+      case "supplier":
+        isValid = !!(value && String(value).trim() !== "");
+        break;
+      case "warehouse":
+        isValid = !!(value && String(value).trim() !== "" && value !== "none");
+        break;
+      case "poDate":
+        isValid = !!(value && String(value).trim() !== "");
+        break;
+      case "items":
+        isValid =
+          Array.isArray(value) &&
+          value.length > 0 &&
+          value.some((item) => item.name && item.quantity > 0 && item.rate > 0);
+        break;
+      default:
+        isValid = true;
+    }
+    setFieldValidation((prev) => ({ ...prev, [fieldName]: isValid ? "valid" : "invalid" }));
+    return isValid;
+  }, []);
 
   // Validate all mandatory fields at once — returns true if all pass
   const validateAllFields = useCallback(() => {
@@ -746,7 +743,6 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
     ];
     return results.every(Boolean);
   }, [validateField, purchaseOrder.supplierName, selectedWarehouse, purchaseOrder.poDate, purchaseOrder.items]);
-
 
   // Auto-calculate due date when PO date or payment terms change
   useEffect(() => {
@@ -1020,7 +1016,8 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
     setValidationErrors([]);
     setInvalidFields(new Set());
     setIsConfirming(true);
-    purchaseOrderService.updateStatus(id, "confirmed")
+    purchaseOrderService
+      .updateStatus(id, "confirmed")
       .then(() => {
         notificationService.success("Purchase order confirmed successfully");
         navigate(`/app/purchases/po/${id}/overview`, { replace: true });
@@ -1787,121 +1784,126 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
   };
 
   return (
-    <div className={`${workspaceMode ? "" : "min-h-screen"} ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`} data-testid="purchase-order-form">
+    <div
+      className={`${workspaceMode ? "" : "min-h-screen"} ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
+      data-testid="purchase-order-form"
+    >
       {/* ==================== STICKY HEADER ==================== */}
-      {!workspaceMode && <header
-        className={`sticky top-0 z-20 shrink-0 backdrop-blur-md border-b ${
-          isDarkMode ? "bg-gray-900/92 border-gray-700" : "bg-white/92 border-gray-200"
-        }`}
-      >
-        <div className="max-w-[1400px] mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => navigate("/app/purchases")}
-              className={`p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${
-                isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
-              }`}
-              aria-label="Back to purchase orders"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            <div>
-              <h1 className={`text-lg md:text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                {id ? "Edit" : "Create"} Purchase Order
-              </h1>
-              <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                {purchaseOrder.poNumber || "New PO"}
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Status Pill */}
-            <span
-              className={`px-3 py-1.5 rounded-full text-xs font-medium ${
-                purchaseOrder.status === "draft"
-                  ? "bg-gray-500/20 text-gray-400"
-                  : purchaseOrder.status === "pending"
-                    ? "bg-yellow-500/20 text-yellow-400"
-                    : purchaseOrder.status === "approved"
-                      ? "bg-green-500/20 text-green-400"
-                      : "bg-gray-500/20 text-gray-400"
-              }`}
-            >
-              {purchaseOrder.status?.toUpperCase() || "DRAFT"}
-            </span>
-            {hasDropshipItems && (
-              <span className="px-2.5 py-1.5 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400">
-                DROPSHIP
-              </span>
-            )}
-
-            <button
-              type="button"
-              onClick={() => setShowFormSettings(!showFormSettings)}
-              className={BTN_SMALL(isDarkMode)}
-              aria-label="Form settings"
-              title="Form Settings"
-            >
-              <Settings className="h-4 w-4" />
-            </button>
-
-            <FormSettingsPanel
-              isOpen={showFormSettings}
-              onClose={() => setShowFormSettings(false)}
-              preferences={formPreferences}
-              onPreferenceChange={(key, value) => {
-                setFormPreferences((prev) => ({ ...prev, [key]: value }));
-              }}
-            />
-
-            <button
-              type="button"
-              onClick={() => setShowPreview(true)}
-              className={BTN_CLASSES(isDarkMode)}
-              title="Preview Purchase Order"
-            >
-              <Eye size={16} className="inline mr-1.5" />
-              Preview
-            </button>
-            {canReceiveGRN && (
+      {!workspaceMode && (
+        <header
+          className={`sticky top-0 z-20 shrink-0 backdrop-blur-md border-b ${
+            isDarkMode ? "bg-gray-900/92 border-gray-700" : "bg-white/92 border-gray-200"
+          }`}
+        >
+          <div className="max-w-[1400px] mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
+            <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => setShowStockReceipt(true)}
-                className="bg-teal-600 border-transparent text-white font-bold hover:bg-teal-500 rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors"
-                title="Receive stock via GRN with PCS counting and weight tracking"
+                onClick={() => navigate("/app/purchases")}
+                className={`p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${
+                  isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
+                }`}
+                aria-label="Back to purchase orders"
               >
-                <Package size={16} className="inline mr-1.5" />
-                Receive GRN
+                <ArrowLeft className="h-5 w-5" />
               </button>
-            )}
-            <button
-              type="button"
-              onClick={() => handleSubmit("draft")}
-              disabled={isSaving}
-              className={`${BTN_CLASSES(isDarkMode)} ${isSaving ? "opacity-60 cursor-not-allowed" : ""}`}
-              data-testid="save-draft"
-            >
-              {isSaving ? <Loader2 className="h-4 w-4 animate-spin inline mr-1" /> : null}
-              Save Draft
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSubmit("pending")}
-              disabled={isSaving}
-              className={`${BTN_PRIMARY} ${isSaving ? "opacity-60 cursor-not-allowed" : ""}`}
-              data-testid="submit-po"
-            >
-              {isSaving ? (
-                <Loader2 className="h-4 w-4 animate-spin inline mr-1" />
-              ) : (
-                <Save size={16} className="inline mr-1.5" />
+              <div>
+                <h1 className={`text-lg md:text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                  {id ? "Edit" : "Create"} Purchase Order
+                </h1>
+                <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  {purchaseOrder.poNumber || "New PO"}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Status Pill */}
+              <span
+                className={`px-3 py-1.5 rounded-full text-xs font-medium ${
+                  purchaseOrder.status === "draft"
+                    ? "bg-gray-500/20 text-gray-400"
+                    : purchaseOrder.status === "pending"
+                      ? "bg-yellow-500/20 text-yellow-400"
+                      : purchaseOrder.status === "approved"
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-gray-500/20 text-gray-400"
+                }`}
+              >
+                {purchaseOrder.status?.toUpperCase() || "DRAFT"}
+              </span>
+              {hasDropshipItems && (
+                <span className="px-2.5 py-1.5 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400">
+                  DROPSHIP
+                </span>
               )}
-              Submit PO
-            </button>
+
+              <button
+                type="button"
+                onClick={() => setShowFormSettings(!showFormSettings)}
+                className={BTN_SMALL(isDarkMode)}
+                aria-label="Form settings"
+                title="Form Settings"
+              >
+                <Settings className="h-4 w-4" />
+              </button>
+
+              <FormSettingsPanel
+                isOpen={showFormSettings}
+                onClose={() => setShowFormSettings(false)}
+                preferences={formPreferences}
+                onPreferenceChange={(key, value) => {
+                  setFormPreferences((prev) => ({ ...prev, [key]: value }));
+                }}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPreview(true)}
+                className={BTN_CLASSES(isDarkMode)}
+                title="Preview Purchase Order"
+              >
+                <Eye size={16} className="inline mr-1.5" />
+                Preview
+              </button>
+              {canReceiveGRN && (
+                <button
+                  type="button"
+                  onClick={() => setShowStockReceipt(true)}
+                  className="bg-teal-600 border-transparent text-white font-bold hover:bg-teal-500 rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors"
+                  title="Receive stock via GRN with PCS counting and weight tracking"
+                >
+                  <Package size={16} className="inline mr-1.5" />
+                  Receive GRN
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => handleSubmit("draft")}
+                disabled={isSaving}
+                className={`${BTN_CLASSES(isDarkMode)} ${isSaving ? "opacity-60 cursor-not-allowed" : ""}`}
+                data-testid="save-draft"
+              >
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin inline mr-1" /> : null}
+                Save Draft
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSubmit("pending")}
+                disabled={isSaving}
+                className={`${BTN_PRIMARY} ${isSaving ? "opacity-60 cursor-not-allowed" : ""}`}
+                data-testid="submit-po"
+              >
+                {isSaving ? (
+                  <Loader2 className="h-4 w-4 animate-spin inline mr-1" />
+                ) : (
+                  <Save size={16} className="inline mr-1.5" />
+                )}
+                Submit PO
+              </button>
+            </div>
           </div>
-        </div>
-      </header>}
+        </header>
+      )}
 
       {/* ==================== MAIN CONTENT ==================== */}
       <div className="flex">

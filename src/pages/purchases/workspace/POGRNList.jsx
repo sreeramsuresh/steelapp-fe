@@ -66,20 +66,32 @@ export default function POGRNList() {
           <Loader2 className="h-6 w-6 animate-spin text-teal-500" />
         </div>
       ) : grns.length === 0 ? (
-        <div className={`text-center py-12 rounded-xl border ${isDarkMode ? "bg-gray-800 border-gray-700 text-gray-400" : "bg-white border-gray-200 text-gray-500"}`}>
+        <div
+          className={`text-center py-12 rounded-xl border ${isDarkMode ? "bg-gray-800 border-gray-700 text-gray-400" : "bg-white border-gray-200 text-gray-500"}`}
+        >
           <Package className="h-10 w-10 mx-auto mb-3 opacity-40" />
           <p className="font-medium">No GRNs yet</p>
           <p className="text-sm mt-1">Create a GRN to record received goods for this PO.</p>
         </div>
       ) : (
-        <div className={`rounded-xl border overflow-hidden ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}>
+        <div
+          className={`rounded-xl border overflow-hidden ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+        >
           <table className="w-full text-sm">
             <thead>
               <tr className={isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}>
-                <th className={`text-left px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>GRN Number</th>
-                <th className={`text-left px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Received Date</th>
-                <th className={`text-left px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Status</th>
-                <th className={`text-right px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Actions</th>
+                <th className={`text-left px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  GRN Number
+                </th>
+                <th className={`text-left px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Received Date
+                </th>
+                <th className={`text-left px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Status
+                </th>
+                <th className={`text-right px-4 py-3 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -98,7 +110,9 @@ export default function POGRNList() {
                     {formatDate(grn.received_date || grn.receivedDate)}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[grn.status] || STATUS_COLORS.draft}`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[grn.status] || STATUS_COLORS.draft}`}
+                    >
                       {(grn.status || "draft").toUpperCase()}
                     </span>
                   </td>

@@ -1,6 +1,6 @@
 import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getValidationClasses } from "../forms/ValidatedInput";
 import { useTheme } from "../../contexts/ThemeContext";
+import { getValidationClasses } from "../forms/ValidatedInput";
 
 /**
  * FormSelect - Reusable wrapper around Radix UI Select with validation coloring.

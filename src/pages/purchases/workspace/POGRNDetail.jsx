@@ -58,7 +58,9 @@ export default function POGRNDetail() {
         Back to GRN List
       </button>
 
-      <div className={`rounded-xl border p-6 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}>
+      <div
+        className={`rounded-xl border p-6 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+      >
         <div className="flex items-center gap-3 mb-6">
           <Package className="h-6 w-6 text-teal-500" />
           <h2 className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -84,9 +86,7 @@ export default function POGRNDetail() {
           </div>
           <div>
             <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Notes</div>
-            <div className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-              {grn.notes || "—"}
-            </div>
+            <div className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>{grn.notes || "—"}</div>
           </div>
         </div>
 
@@ -95,10 +95,22 @@ export default function POGRNDetail() {
             <table className="w-full text-sm">
               <thead>
                 <tr className={isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}>
-                  <th className={`text-left px-4 py-2.5 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Product</th>
-                  <th className={`text-right px-4 py-2.5 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Qty</th>
-                  <th className={`text-right px-4 py-2.5 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Weight (kg)</th>
-                  <th className={`text-left px-4 py-2.5 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Batch/Heat</th>
+                  <th className={`text-left px-4 py-2.5 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                    Product
+                  </th>
+                  <th
+                    className={`text-right px-4 py-2.5 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                  >
+                    Qty
+                  </th>
+                  <th
+                    className={`text-right px-4 py-2.5 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                  >
+                    Weight (kg)
+                  </th>
+                  <th className={`text-left px-4 py-2.5 font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                    Batch/Heat
+                  </th>
                 </tr>
               </thead>
               <tbody>
