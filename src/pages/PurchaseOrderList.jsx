@@ -440,7 +440,11 @@ const PurchaseOrderList = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(po.status)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{getTransitStatusBadge(po)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                    <td
+                      className="px-6 py-4 whitespace-nowrap text-right"
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.stopPropagation()}
+                    >
                       <div className="flex gap-2 justify-end">
                         {authService.hasPermission("purchase_orders", "read") && (
                           <button
