@@ -1,5 +1,5 @@
-import { Suspense, lazy, useState } from "react";
-import { Users, TableProperties } from "lucide-react";
+import { TableProperties, Users } from "lucide-react";
+import { lazy, Suspense, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 
 const UserManagementTab = lazy(() => import("../components/settings/UserManagementTab"));
@@ -33,9 +33,13 @@ const UserManagementPage = () => {
   };
 
   return (
-    <div className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div
+      className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+    >
       {/* Header */}
-      <div className={`mb-6 rounded-2xl border overflow-hidden ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"} shadow-sm`}>
+      <div
+        className={`mb-6 rounded-2xl border overflow-hidden ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"} shadow-sm`}
+      >
         <div className="p-6">
           <div className="flex items-center gap-4">
             <Users size={28} className={isDarkMode ? "text-gray-300" : "text-gray-700"} />
@@ -51,7 +55,9 @@ const UserManagementPage = () => {
         </div>
 
         {/* Tab bar */}
-        <div className={`${isDarkMode ? "bg-gray-800 border-y border-[#37474F]" : "bg-white border-y border-gray-200"}`}>
+        <div
+          className={`${isDarkMode ? "bg-gray-800 border-y border-[#37474F]" : "bg-white border-y border-gray-200"}`}
+        >
           <div className={`flex flex-wrap gap-2 p-2 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             {tabs.map((tab) => {
               const Icon = tab.icon;

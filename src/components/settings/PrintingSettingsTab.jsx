@@ -317,27 +317,19 @@ const PrintingSettingsTab = () => {
                 <input
                   type="checkbox"
                   checked={printingSettings.auto_print_receipts || false}
-                  onChange={(e) =>
-                    setPrintingSettings({ ...printingSettings, auto_print_receipts: e.target.checked })
-                  }
+                  onChange={(e) => setPrintingSettings({ ...printingSettings, auto_print_receipts: e.target.checked })}
                   className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                 />
-                <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                  Auto print receipts
-                </span>
+                <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>Auto print receipts</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={printingSettings.auto_print_invoices || false}
-                  onChange={(e) =>
-                    setPrintingSettings({ ...printingSettings, auto_print_invoices: e.target.checked })
-                  }
+                  onChange={(e) => setPrintingSettings({ ...printingSettings, auto_print_invoices: e.target.checked })}
                   className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                 />
-                <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                  Auto print invoices
-                </span>
+                <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>Auto print invoices</span>
               </label>
             </div>
           </div>
@@ -348,11 +340,7 @@ const PrintingSettingsTab = () => {
         <Button variant="outline" onClick={resetPrintingSettings}>
           Reset to Defaults
         </Button>
-        <Button
-          startIcon={<Save size={20} />}
-          onClick={savePrintingSettingsHandler}
-          disabled={savingPrintingSettings}
-        >
+        <Button startIcon={<Save size={20} />} onClick={savePrintingSettingsHandler} disabled={savingPrintingSettings}>
           {savingPrintingSettings ? "Saving..." : "Save Printing Settings"}
         </Button>
       </div>

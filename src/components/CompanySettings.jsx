@@ -38,7 +38,7 @@ import {
   Warehouse,
   X,
 } from "lucide-react";
-import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApi, useApiData } from "../hooks/useApi";
@@ -59,7 +59,9 @@ const PrintingSettingsTab = lazy(() => import("./settings/PrintingSettingsTab"))
 const TabSkeleton = () => {
   const { isDarkMode } = useTheme();
   return (
-    <div className={`rounded-2xl shadow-lg border p-8 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}>
+    <div
+      className={`rounded-2xl shadow-lg border p-8 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+    >
       <div className="animate-pulse space-y-4">
         <div className={`h-6 w-48 rounded ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`} />
         <div className={`h-4 w-full rounded ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`} />
@@ -1280,7 +1282,6 @@ const CompanySettings = () => {
     }
   };
 
-
   const renderProfile = () => (
     <SettingsPaper className="max-w-3xl">
       <div className="p-4">
@@ -2144,8 +2145,6 @@ const CompanySettings = () => {
       </div>
     );
   };
-
-
 
   const renderProductNamingSystem = () => {
     // Template renderer

@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
+import { useApiData } from "../../hooks/useApi";
 import { companyService } from "../../services/companyService";
 import { notificationService } from "../../services/notificationService";
-import { useApiData } from "../../hooks/useApi";
 import InvoiceTemplateSettings from "../InvoiceTemplateSettings";
 
 const DocumentTemplatesTab = () => {
-  const {
-    data: companyData,
-  } = useApiData(companyService.getCompany, []);
+  const { data: companyData } = useApiData(companyService.getCompany, []);
 
   const [companyProfile, setCompanyProfile] = useState(null);
 
