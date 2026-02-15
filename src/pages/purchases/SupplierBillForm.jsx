@@ -38,11 +38,11 @@ import { FormSelect } from "../../components/ui/form-select";
 import { SelectItem } from "../../components/ui/select";
 import { useTheme } from "../../contexts/ThemeContext";
 import { grnService } from "../../services/grnService";
-import { purchaseOrderService } from "../../services/purchaseOrderService";
 import { importContainerService } from "../../services/importContainerService";
 import { notificationService } from "../../services/notificationService";
 import { pinnedProductsService } from "../../services/pinnedProductsService";
 import { productService } from "../../services/productService";
+import { purchaseOrderService } from "../../services/purchaseOrderService";
 import supplierBillService from "../../services/supplierBillService";
 import { supplierService } from "../../services/supplierService";
 import { calculateItemAmount, formatCurrency, formatDateForInput } from "../../utils/invoiceUtils";
@@ -667,7 +667,8 @@ const SupplierBillForm = () => {
             unitWeightKg: unitWt,
             quantityUom: uom,
             vatRate,
-            procurementChannel: item.isDropship || item.is_dropship ? "DROPSHIP" : item.channel || item.procurementChannel || "LOCAL",
+            procurementChannel:
+              item.isDropship || item.is_dropship ? "DROPSHIP" : item.channel || item.procurementChannel || "LOCAL",
             poOrderedQty: qty,
             poRate: price,
           };
@@ -720,7 +721,7 @@ const SupplierBillForm = () => {
     };
 
     loadPO();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally runs only on mount/URL change to avoid re-fetch loops
   }, [location.search, isEditMode]);
 
   // Field validation computation
@@ -737,7 +738,7 @@ const SupplierBillForm = () => {
     (fieldName) => {
       return formPreferences.showValidationHighlighting && (touchedFields[fieldName] || hasAttemptedSave);
     },
-    [formPreferences.showValidationHighlighting, touchedFields, hasAttemptedSave],
+    [formPreferences.showValidationHighlighting, touchedFields, hasAttemptedSave]
   );
 
   // Calculate due date when bill date or payment terms change
