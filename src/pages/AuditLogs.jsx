@@ -285,7 +285,7 @@ const AuditLogs = () => {
             <button
               type="button"
               onClick={() => handleFilterChange("status", "failed")}
-              className={`p-4 rounded-lg ${filters.status === "failed" ? (isDarkMode ? "bg-red-900/30 ring-2 ring-red-500" : "bg-red-50 ring-2 ring-red-400") : (isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-white hover:bg-gray-50")} shadow text-left cursor-pointer transition-colors`}
+              className={`p-4 rounded-lg ${filters.status === "failed" ? (isDarkMode ? "bg-red-900/30 ring-2 ring-red-500" : "bg-red-50 ring-2 ring-red-400") : isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-white hover:bg-gray-50"} shadow text-left cursor-pointer transition-colors`}
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -301,7 +301,7 @@ const AuditLogs = () => {
             <button
               type="button"
               onClick={() => handleFilterChange("status", "success")}
-              className={`p-4 rounded-lg ${filters.status === "success" ? (isDarkMode ? "bg-green-900/30 ring-2 ring-green-500" : "bg-green-50 ring-2 ring-green-400") : (isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-white hover:bg-gray-50")} shadow text-left cursor-pointer transition-colors`}
+              className={`p-4 rounded-lg ${filters.status === "success" ? (isDarkMode ? "bg-green-900/30 ring-2 ring-green-500" : "bg-green-50 ring-2 ring-green-400") : isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-white hover:bg-gray-50"} shadow text-left cursor-pointer transition-colors`}
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -498,7 +498,9 @@ const AuditLogs = () => {
                             <div className="flex items-center gap-2">
                               <User size={16} className={isDarkMode ? "text-gray-500" : "text-gray-400"} />
                               <div>
-                                <div className="font-medium">{log.username || (log.source === "trigger" ? "System" : "-")}</div>
+                                <div className="font-medium">
+                                  {log.username || (log.source === "trigger" ? "System" : "-")}
+                                </div>
                                 <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
                                   {log.userEmail || (log.source === "trigger" ? "DB trigger" : "-")}
                                 </div>
