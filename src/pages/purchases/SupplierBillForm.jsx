@@ -634,6 +634,7 @@ const SupplierBillForm = () => {
   }, [isEditMode, loadBill, loadNextBillNumber, loadProducts, loadVendors]); // loadSupplierBill and loadNextBillNumber are stable
 
   // Auto-populate from PO when navigated with ?poId= query param
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally runs only on mount/URL change to avoid re-fetch loops
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const poId = params.get("poId");
@@ -721,7 +722,6 @@ const SupplierBillForm = () => {
     };
 
     loadPO();
-    // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally runs only on mount/URL change to avoid re-fetch loops
   }, [location.search, isEditMode]);
 
   // Field validation computation
