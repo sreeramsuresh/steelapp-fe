@@ -183,13 +183,13 @@ const AuditLogs = () => {
     ];
     const csvData = logs.map((log) => [
       toUAETime(log.createdAt, { format: "datetime" }),
-      log.username || "-",
-      log.userEmail || "-",
-      log.category,
+      log.username || (log.source === "trigger" ? "System" : "-"),
+      log.userEmail || (log.source === "trigger" ? "DB trigger" : "-"),
+      log.category || "-",
       log.action,
-      log.entityName || "-",
+      log.entityName || (log.entityId ? `#${log.entityId}` : "-"),
       log.description || "-",
-      log.status,
+      log.status || "-",
       log.ipAddress || "-",
     ]);
 

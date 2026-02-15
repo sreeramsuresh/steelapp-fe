@@ -159,13 +159,13 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
               <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>User</div>
               <div className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
                 <User size={12} className="inline mr-1" />
-                {log.username || "-"}
+                {log.username || (log.source === "trigger" ? "System" : "-")}
               </div>
             </div>
             <div>
               <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>Email</div>
               <div className={`text-sm font-medium truncate ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
-                {log.userEmail || "-"}
+                {log.userEmail || (log.source === "trigger" ? "DB trigger" : "-")}
               </div>
             </div>
             <div>
@@ -207,7 +207,7 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
           )}
 
           {/* Entity Link */}
-          {log.entityName && (
+          {(log.entityName || log.entityId) && (
             <div
               className={`p-3 rounded-lg flex items-center justify-between ${
                 isDarkMode ? "bg-gray-800" : "bg-gray-50"
@@ -218,7 +218,7 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
                   {log.entityType || "Entity"}
                 </div>
                 <div className={`text-sm font-medium ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
-                  {log.entityName}
+                  {log.entityName || `#${log.entityId}`}
                 </div>
               </div>
               {canNavigateToEntity && (
