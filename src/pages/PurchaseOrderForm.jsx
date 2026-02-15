@@ -16,7 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 // ==================== DESIGN TOKENS (Matched to Invoice Form) ====================
 
@@ -57,6 +57,7 @@ const DRAWER_FOOTER_GRADIENT = (isDarkMode) =>
     ? "linear-gradient(to top, rgba(31,41,55,1) 70%, rgba(31,41,55,0))"
     : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))";
 
+import ValidatedInput from "../components/forms/ValidatedInput";
 import PurchaseWorkflowTimeline from "../components/purchase-order/PurchaseWorkflowTimeline";
 import StockReceiptForm from "../components/purchase-order/StockReceiptForm";
 import PurchaseOrderPreview from "../components/purchase-orders/PurchaseOrderPreview";
@@ -330,9 +331,11 @@ const FormSettingsPanel = ({ isOpen, onClose, preferences, onPreferenceChange })
   );
 };
 
-const PurchaseOrderForm = () => {
-  const { id } = useParams();
+const PurchaseOrderForm = ({ workspaceMode = false }) => {
+  const params = useParams();
+  const id = params.id || params.poId;
   const navigate = useNavigate();
+  const location = useLocation();
   const { isDarkMode } = useTheme();
   const [purchaseOrder, setPurchaseOrder] = useState({
     poNumber: generatePONumber(), // Fallback PO number generation
@@ -444,9 +447,12 @@ const PurchaseOrderForm = () => {
   // GRN Stock Receipt modal state
   const [showStockReceipt, setShowStockReceipt] = useState(false);
 
-  // Validation state - MANDATORY for all forms
+  // Validation state — real-time field validation (matches Invoice form architecture)
   const [validationErrors, setValidationErrors] = useState([]);
   const [invalidFields, setInvalidFields] = useState(new Set());
+  const [fieldValidation, setFieldValidation] = useState({});
+  const [_isConfirming, setIsConfirming] = useState(false);
+  const confirmIntentProcessed = useRef(false);
 
   // Pinned products state (matching Invoice form)
   const [pinnedProductIds, setPinnedProductIds] = useState([]);
@@ -701,6 +707,47 @@ const PurchaseOrderForm = () => {
     }));
   }, []);
 
+  // Per-field validation — returns boolean, updates fieldValidation state
+  const validateField = useCallback(
+    (fieldName, value) => {
+      let isValid = false;
+      switch (fieldName) {
+        case "supplier":
+          isValid = !!(value && String(value).trim() !== "");
+          break;
+        case "warehouse":
+          isValid = !!(value && String(value).trim() !== "" && value !== "none");
+          break;
+        case "poDate":
+          isValid = !!(value && String(value).trim() !== "");
+          break;
+        case "items":
+          isValid =
+            Array.isArray(value) &&
+            value.length > 0 &&
+            value.some((item) => item.name && item.quantity > 0 && item.rate > 0);
+          break;
+        default:
+          isValid = true;
+      }
+      setFieldValidation((prev) => ({ ...prev, [fieldName]: isValid ? "valid" : "invalid" }));
+      return isValid;
+    },
+    [],
+  );
+
+  // Validate all mandatory fields at once — returns true if all pass
+  const validateAllFields = useCallback(() => {
+    const results = [
+      validateField("supplier", purchaseOrder.supplierName),
+      validateField("warehouse", selectedWarehouse),
+      validateField("poDate", purchaseOrder.poDate),
+      validateField("items", purchaseOrder.items),
+    ];
+    return results.every(Boolean);
+  }, [validateField, purchaseOrder.supplierName, selectedWarehouse, purchaseOrder.poDate, purchaseOrder.items]);
+
+
   // Auto-calculate due date when PO date or payment terms change
   useEffect(() => {
     if (purchaseOrder.poDate && purchaseOrder.paymentTerms) {
@@ -900,6 +947,95 @@ const PurchaseOrderForm = () => {
     };
     loadExisting();
   }, [id, toDateInput, updatePaymentStatus]);
+
+  // Real-time field validation — re-validate whenever key fields change
+  useEffect(() => {
+    if (loading) return;
+    validateField("supplier", purchaseOrder.supplierName);
+    validateField("warehouse", selectedWarehouse);
+    validateField("poDate", purchaseOrder.poDate);
+    validateField("items", purchaseOrder.items);
+  }, [
+    loading,
+    purchaseOrder.supplierName,
+    selectedWarehouse,
+    purchaseOrder.poDate,
+    purchaseOrder.items,
+    validateField,
+  ]);
+
+  // Confirm intent: when navigated with ?confirm=1, trigger confirm flow after data loads
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("confirm") !== "1") return;
+    if (loading || !id || confirmIntentProcessed.current) return;
+    if (purchaseOrder.status !== "draft" && purchaseOrder.status !== "pending") return;
+
+    confirmIntentProcessed.current = true;
+    const allValid = validateAllFields();
+    if (!allValid) {
+      // Build error messages for the banner
+      const errors = [];
+      const fields = new Set();
+      if (!purchaseOrder.supplierName || purchaseOrder.supplierName.trim() === "") {
+        errors.push("Supplier name is required");
+        fields.add("supplierName");
+      }
+      if (!selectedWarehouse || selectedWarehouse === "none") {
+        errors.push("Please select a destination warehouse");
+        fields.add("warehouse");
+      }
+      if (!purchaseOrder.poDate) {
+        errors.push("PO date is required");
+        fields.add("poDate");
+      }
+      if (!purchaseOrder.items || purchaseOrder.items.length === 0) {
+        errors.push("At least one item is required");
+      } else {
+        purchaseOrder.items.forEach((item, index) => {
+          if (!item.name || item.name.trim() === "") {
+            errors.push(`Item ${index + 1}: Product name is required`);
+            fields.add(`item.${index}.name`);
+          }
+          if (!item.quantity || item.quantity <= 0) {
+            errors.push(`Item ${index + 1}: Quantity must be greater than 0`);
+            fields.add(`item.${index}.quantity`);
+          }
+          if (!item.rate || item.rate <= 0) {
+            errors.push(`Item ${index + 1}: Rate must be greater than 0`);
+            fields.add(`item.${index}.rate`);
+          }
+        });
+      }
+      setValidationErrors(errors);
+      setInvalidFields(fields);
+      setTimeout(() => {
+        const el = document.getElementById("validation-errors-alert");
+        if (el) el.scrollIntoView({ behavior: "instant", block: "center" });
+      }, 100);
+      return;
+    }
+
+    // All valid — confirm the PO
+    setValidationErrors([]);
+    setInvalidFields(new Set());
+    setIsConfirming(true);
+    purchaseOrderService.updateStatus(id, "confirmed")
+      .then(() => {
+        notificationService.success("Purchase order confirmed successfully");
+        navigate(`/app/purchases/po/${id}/overview`, { replace: true });
+        window.location.reload();
+      })
+      .catch((error) => {
+        const msg =
+          error?.response?.data?.error ||
+          error?.response?.data?.message ||
+          error.message ||
+          "Failed to confirm purchase order";
+        notificationService.error(msg);
+      })
+      .finally(() => setIsConfirming(false));
+  }, [loading, id, purchaseOrder, selectedWarehouse, location.search, navigate, validateAllFields]);
 
   const fetchAvailableProducts = useCallback(async () => {
     try {
@@ -1608,7 +1744,9 @@ const PurchaseOrderForm = () => {
       const action = id ? "updated" : "created";
       notificationService.success(`Purchase order ${action} successfully!`);
 
-      navigate("/app/purchases");
+      if (!workspaceMode) {
+        navigate("/app/purchases");
+      }
     } catch (error) {
       // Extract more detailed error message
       let errorMessage = "Unknown error";
@@ -1649,9 +1787,9 @@ const PurchaseOrderForm = () => {
   };
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`} data-testid="purchase-order-form">
+    <div className={`${workspaceMode ? "" : "min-h-screen"} ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`} data-testid="purchase-order-form">
       {/* ==================== STICKY HEADER ==================== */}
-      <header
+      {!workspaceMode && <header
         className={`sticky top-0 z-20 shrink-0 backdrop-blur-md border-b ${
           isDarkMode ? "bg-gray-900/92 border-gray-700" : "bg-white/92 border-gray-200"
         }`}
@@ -1737,17 +1875,6 @@ const PurchaseOrderForm = () => {
                 Receive GRN
               </button>
             )}
-            {canReceiveToWarehouse && (
-              <button
-                type="button"
-                onClick={openReceiveToWarehouse}
-                className="bg-amber-600 border-transparent text-white font-bold hover:bg-amber-500 rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors"
-                title="Receive dropship goods to warehouse after customer rejection"
-              >
-                <Warehouse size={16} className="inline mr-1.5" />
-                Receive to Warehouse
-              </button>
-            )}
             <button
               type="button"
               onClick={() => handleSubmit("draft")}
@@ -1774,12 +1901,12 @@ const PurchaseOrderForm = () => {
             </button>
           </div>
         </div>
-      </header>
+      </header>}
 
       {/* ==================== MAIN CONTENT ==================== */}
       <div className="flex">
-        {/* Workflow Timeline — left sidebar panel */}
-        {id && <PurchaseWorkflowTimeline currentStatus={purchaseOrder.status} />}
+        {/* Workflow Timeline — left sidebar panel (hidden in workspace mode) */}
+        {id && !workspaceMode && <PurchaseWorkflowTimeline currentStatus={purchaseOrder.status} />}
 
         <main className="max-w-[1400px] mx-auto px-4 py-4 flex-1 min-w-0">
           {/* Validation Errors Alert */}
@@ -1844,15 +1971,15 @@ const PurchaseOrderForm = () => {
                     />
                   </div>
                   <div className="col-span-6 sm:col-span-3">
-                    <label htmlFor="po-date" className={LABEL_CLASSES(isDarkMode)}>
-                      PO Date
-                    </label>
-                    <input
+                    <ValidatedInput
                       id="po-date"
+                      label="PO Date"
                       type="date"
                       value={purchaseOrder.poDate}
                       onChange={(e) => handleInputChange("poDate", e.target.value)}
-                      className={INPUT_CLASSES(isDarkMode)}
+                      required={true}
+                      validationState={fieldValidation.poDate ?? null}
+                      showValidation={formPreferences.showValidationHighlighting}
                       data-testid="po-date"
                     />
                   </div>
@@ -1875,7 +2002,8 @@ const PurchaseOrderForm = () => {
                       value={selectedWarehouse || "none"}
                       onValueChange={(value) => setSelectedWarehouse(value === "none" ? "" : value)}
                       required={true}
-                      validationState={invalidFields.has("warehouse") ? "invalid" : null}
+                      validationState={fieldValidation.warehouse ?? null}
+                      showValidation={formPreferences.showValidationHighlighting}
                       data-testid="warehouse-select"
                     >
                       <SelectItem value="none">Select Warehouse</SelectItem>
@@ -1906,7 +2034,8 @@ const PurchaseOrderForm = () => {
                           }}
                           disabled={loadingSuppliers}
                           required={true}
-                          validationState={invalidFields.has("supplier") ? "invalid" : null}
+                          validationState={fieldValidation.supplier ?? null}
+                          showValidation={formPreferences.showValidationHighlighting}
                           data-testid="supplier-select"
                         >
                           <SelectItem value="none">Select Supplier</SelectItem>
@@ -2554,10 +2683,15 @@ const PurchaseOrderForm = () => {
                       <button
                         type="button"
                         onClick={openReceiveToWarehouse}
-                        className="flex items-center gap-2 py-2 px-2.5 bg-amber-600 hover:bg-amber-500 text-white border border-amber-500 rounded-md cursor-pointer text-xs font-semibold transition-colors w-full"
+                        className={`flex items-center gap-2 py-2 px-2.5 border rounded-md cursor-pointer text-xs font-medium transition-colors w-full ${
+                          isDarkMode
+                            ? "border-gray-600 text-gray-300 hover:border-gray-400 hover:bg-gray-700/50"
+                            : "border-gray-300 text-gray-600 hover:border-gray-400 hover:bg-gray-50"
+                        }`}
+                        title="Use only if customer rejected dropship goods and they need to be returned to your warehouse"
                       >
                         <Warehouse size={16} />
-                        Receive to Warehouse (Rejection)
+                        Receive Returned Goods (Rejection)
                       </button>
                     )}
                   </div>

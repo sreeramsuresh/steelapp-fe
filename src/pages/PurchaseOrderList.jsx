@@ -406,7 +406,8 @@ const PurchaseOrderList = () => {
                 purchaseOrders.map((po) => (
                   <tr
                     key={po.id}
-                    className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}
+                    className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors cursor-pointer`}
+                    onClick={() => navigate(`/app/purchases/po/${po.id}/overview`)}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -439,7 +440,7 @@ const PurchaseOrderList = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(po.status)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{getTransitStatusBadge(po)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <td className="px-6 py-4 whitespace-nowrap text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex gap-2 justify-end">
                         {authService.hasPermission("purchase_orders", "read") && (
                           <button
@@ -460,7 +461,7 @@ const PurchaseOrderList = () => {
                               isDarkMode ? "hover:bg-gray-700 text-teal-400" : "hover:bg-gray-100 text-teal-600"
                             }`}
                             onClick={() => navigate(`/app/purchase-orders/${po.id}/edit`)}
-                            title="Edit"
+                            title="Legacy Edit"
                           >
                             <Edit size={18} />
                           </button>

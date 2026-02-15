@@ -75,6 +75,16 @@ const OperatingExpenses = lazy(() => import("../pages/OperatingExpenses"));
 // Purchases Dashboard
 const PurchasesDashboard = lazy(() => import("../pages/PurchasesDashboard"));
 
+// PO Workspace
+const POWorkspaceShell = lazy(() => import("./purchase-order/workspace/POWorkspaceShell"));
+const POOverview = lazy(() => import("../pages/purchases/workspace/POOverview"));
+const POGRNList = lazy(() => import("../pages/purchases/workspace/POGRNList"));
+const POGRNDetail = lazy(() => import("../pages/purchases/workspace/POGRNDetail"));
+const POBillsList = lazy(() => import("../pages/purchases/workspace/POBillsList"));
+const POBillDetail = lazy(() => import("../pages/purchases/workspace/POBillDetail"));
+const POPaymentsList = lazy(() => import("../pages/purchases/workspace/POPaymentsList"));
+const POPaymentDetail = lazy(() => import("../pages/purchases/workspace/POPaymentDetail"));
+
 // Document Workflow Guide
 const DocumentWorkflowGuide = lazy(() => import("../pages/DocumentWorkflowGuide"));
 
@@ -482,6 +492,25 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
                 </ProtectedRoute>
               }
             />
+            {/* PO Workspace — nested routes */}
+            <Route
+              path="purchases/po/:poId"
+              element={
+                <ProtectedRoute user={user} requiredPermission="purchase_orders.read">
+                  <POWorkspaceShell />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<Navigate to="overview" replace />} />
+              <Route path="overview" element={<POOverview />} />
+              <Route path="grn" element={<POGRNList />} />
+              <Route path="grn/:grnId" element={<POGRNDetail />} />
+              <Route path="bills" element={<POBillsList />} />
+              <Route path="bills/:billId" element={<POBillDetail />} />
+              <Route path="payments" element={<POPaymentsList />} />
+              <Route path="payments/:paymentId" element={<POPaymentDetail />} />
+            </Route>
+
             <Route
               path="purchase-orders/new"
               element={

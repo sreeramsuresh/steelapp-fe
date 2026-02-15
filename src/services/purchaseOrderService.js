@@ -76,6 +76,11 @@ export const purchaseOrderService = {
     return apiClient.post(`/purchase-orders/${id}/receive-to-warehouse`, data);
   },
 
+  // Get workspace summary (stepper state, GRN/bill/payment previews)
+  getWorkspaceSummary: (id) => {
+    return apiClient.get(`/purchase-orders/${id}/workspace-summary`);
+  },
+
   // Generate and download PDF
   downloadPDF: async (id) => {
     const blob = await apiService.request({
