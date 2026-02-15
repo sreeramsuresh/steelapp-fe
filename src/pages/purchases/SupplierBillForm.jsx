@@ -30,7 +30,7 @@ import {
   X,
 } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import supplierBillCorrectionConfig from "../../components/finance/supplierBillCorrectionConfig";
 import { CorrectionHelpModal, DocumentHistoryPanel } from "../../components/posted-document-framework";
 import ProductAutocomplete from "../../components/shared/ProductAutocomplete";
@@ -38,6 +38,7 @@ import { FormSelect } from "../../components/ui/form-select";
 import { SelectItem } from "../../components/ui/select";
 import { useTheme } from "../../contexts/ThemeContext";
 import { grnService } from "../../services/grnService";
+import { purchaseOrderService } from "../../services/purchaseOrderService";
 import { importContainerService } from "../../services/importContainerService";
 import { notificationService } from "../../services/notificationService";
 import { pinnedProductsService } from "../../services/pinnedProductsService";
@@ -153,6 +154,9 @@ const createEmptyItem = () => ({
   // Batch Creation
   createBatch: true, // Flag to trigger batch creation on approval
   batchNumber: "", // Pre-assigned batch number if any
+  // PO Reference (for deviation warnings)
+  poOrderedQty: null,
+  poRate: null,
 });
 
 // Custom Tailwind Components
@@ -437,6 +441,7 @@ const TH_CLASSES = (isDarkMode) =>
 const SupplierBillForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isDarkMode } = useTheme();
   const isEditMode = Boolean(id);
 
@@ -467,6 +472,11 @@ const SupplierBillForm = () => {
 
   // Stock detail sub-row expand state (keyed by item index)
   const [expandedStockRows, setExpandedStockRows] = useState({});
+
+  // Validation highlighting state
+  const [fieldValidation, setFieldValidation] = useState({});
+  const [touchedFields, setTouchedFields] = useState({});
+  const [hasAttemptedSave, setHasAttemptedSave] = useState(false);
 
   // Form preferences
   const [formPreferences, setFormPreferences] = useState(() => {
@@ -622,6 +632,113 @@ const SupplierBillForm = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditMode, loadBill, loadNextBillNumber, loadProducts, loadVendors]); // loadSupplierBill and loadNextBillNumber are stable
+
+  // Auto-populate from PO when navigated with ?poId= query param
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const poId = params.get("poId");
+    if (!poId || isEditMode || bill.purchaseOrderId) return;
+
+    const loadPO = async () => {
+      try {
+        const po = await purchaseOrderService.getById(poId);
+        if (!po) return;
+
+        // Map PO items to bill line items
+        const poItems = (po.items || []).map((item) => {
+          const qty = parseFloat(item.quantity) || 0;
+          const price = parseFloat(item.rate || item.unitPrice) || 0;
+          const basis = item.pricing_basis || item.pricingBasis || "PER_MT";
+          const uom = item.uom || item.unit || item.quantityUom || "PCS";
+          const unitWt = item.unit_weight_kg || item.unitWeightKg || null;
+          const vatRate = item.vat_rate || item.vatRate || 5;
+          const amount = calculateItemAmount(qty, price, basis, unitWt, uom);
+          const vatAmount = (amount * vatRate) / 100;
+
+          return {
+            ...createEmptyItem(),
+            description: item.product_name || item.productName || item.name || "",
+            productId: item.product_id || item.productId || null,
+            quantity: qty,
+            unitPrice: price,
+            amount,
+            vatAmount,
+            pricingBasis: basis,
+            unitWeightKg: unitWt,
+            quantityUom: uom,
+            vatRate,
+            procurementChannel: item.isDropship || item.is_dropship ? "DROPSHIP" : item.channel || item.procurementChannel || "LOCAL",
+            poOrderedQty: qty,
+            poRate: price,
+          };
+        });
+
+        // Determine consensus procurement channel from items
+        const dropshipFlags = (po.items || []).map((item) => item.is_dropship || item.isDropship);
+        const allDropship = dropshipFlags.length > 0 && dropshipFlags.every(Boolean);
+        const noneDropship = dropshipFlags.every((f) => !f);
+        const itemChannels = poItems.map((i) => i.procurementChannel);
+        const uniqueChannels = [...new Set(itemChannels)];
+
+        let consensusChannel = null;
+        let triggerBatch = true;
+        if (allDropship) {
+          consensusChannel = "DROPSHIP";
+          triggerBatch = false;
+        } else if (noneDropship && uniqueChannels.length === 1) {
+          consensusChannel = uniqueChannels[0];
+        }
+
+        setBill((prev) => ({
+          ...prev,
+          supplierId: String(po.supplier_id || po.supplierId || prev.supplierId || ""),
+          purchaseOrderId: po.id,
+          poNumber: po.po_number || po.poNumber || "",
+          currency: po.currency || prev.currency,
+          notes: po.notes || prev.notes,
+          procurementChannel: consensusChannel || prev.procurementChannel,
+          triggerBatchCreation: triggerBatch,
+          items: poItems.length > 0 ? poItems : prev.items,
+        }));
+
+        if (poItems.length > 0) {
+          recalculateTotals(poItems);
+        }
+
+        // Load GRNs/containers for the PO supplier
+        const suppId = po.supplier_id || po.supplierId;
+        if (suppId) {
+          loadUnbilledGRNs(suppId);
+          loadImportContainers(suppId);
+        }
+
+        notificationService.success(`Pre-filled from PO ${po.po_number || po.poNumber || poId}`);
+      } catch (error) {
+        console.error("Failed to load PO for auto-populate:", error);
+        notificationService.error("Failed to load Purchase Order");
+      }
+    };
+
+    loadPO();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search, isEditMode]);
+
+  // Field validation computation
+  useEffect(() => {
+    const validation = {};
+    validation.supplierId = bill.supplierId ? "valid" : "invalid";
+    validation.billNumber = bill.billNumber ? "valid" : "invalid";
+    validation.billDate = bill.billDate ? "valid" : "invalid";
+    validation.procurementChannel = bill.procurementChannel ? "valid" : "invalid";
+    setFieldValidation(validation);
+  }, [bill.supplierId, bill.billNumber, bill.billDate, bill.procurementChannel]);
+
+  const showFieldValidation = useCallback(
+    (fieldName) => {
+      return formPreferences.showValidationHighlighting && (touchedFields[fieldName] || hasAttemptedSave);
+    },
+    [formPreferences.showValidationHighlighting, touchedFields, hasAttemptedSave],
+  );
 
   // Calculate due date when bill date or payment terms change
   useEffect(() => {
@@ -1108,13 +1225,16 @@ const SupplierBillForm = () => {
 
   // Derived procurement channel from items (for display)
   const derivedProcurement = useMemo(() => {
+    if (bill.procurementChannel === "DROPSHIP") return "DROPSHIP";
     const channels = bill.items.map((i) => i.procurementChannel || "LOCAL");
     const allLocal = channels.every((c) => c === "LOCAL");
     const allImported = channels.every((c) => c === "IMPORTED");
+    const allDropship = channels.every((c) => c === "DROPSHIP");
+    if (allDropship) return "DROPSHIP";
     if (allLocal) return "LOCAL";
     if (allImported) return "IMPORTED";
     return "MIXED";
-  }, [bill.items]);
+  }, [bill.items, bill.procurementChannel]);
 
   // Whether any item is imported (for showing Import Details section)
   const hasImportedItems = useMemo(
@@ -1168,6 +1288,9 @@ const SupplierBillForm = () => {
     if (!bill.billDate) {
       errors.push("Bill date is required");
     }
+    if (!bill.procurementChannel) {
+      errors.push("Procurement channel is required — please select Local, Import, or Dropship");
+    }
     if (bill.vatCategory === "BLOCKED" && !bill.blockedVatReason) {
       errors.push("Blocked VAT reason is required");
     }
@@ -1195,6 +1318,7 @@ const SupplierBillForm = () => {
 
   // Handle save
   const handleSave = async (status = "draft") => {
+    setHasAttemptedSave(true);
     if (!validateForm()) {
       notificationService.error("Please fix the validation errors");
       return;
@@ -1424,28 +1548,30 @@ const SupplierBillForm = () => {
               {/* Row 1: Bill Number | Bill Date | Due Date | Procurement Channel badge */}
               <div className="grid grid-cols-12 gap-3">
                 <div className="col-span-6 md:col-span-3">
-                  <label htmlFor="bill-number" className={LABEL_CLASSES(isDarkMode)}>
-                    Bill Number <span className="text-red-500">*</span>
-                  </label>
-                  <input
+                  <_Input
                     id="bill-number"
+                    label="Bill Number"
+                    required
                     type="text"
                     value={bill.billNumber}
                     onChange={(e) => setBill((prev) => ({ ...prev, billNumber: e.target.value }))}
-                    className={INPUT_CLASSES(isDarkMode)}
+                    onBlur={() => setTouchedFields((prev) => ({ ...prev, billNumber: true }))}
+                    validationState={fieldValidation.billNumber || null}
+                    showValidation={showFieldValidation("billNumber")}
                   />
                 </div>
                 <div className="col-span-6 md:col-span-3">
-                  <label htmlFor="bill-date" className={LABEL_CLASSES(isDarkMode)}>
-                    Bill Date <span className="text-red-500">*</span>
-                  </label>
-                  <input
+                  <_Input
                     id="bill-date"
                     data-testid="bill-date"
+                    label="Bill Date"
+                    required
                     type="date"
                     value={bill.billDate}
                     onChange={(e) => setBill((prev) => ({ ...prev, billDate: e.target.value }))}
-                    className={INPUT_CLASSES(isDarkMode)}
+                    onBlur={() => setTouchedFields((prev) => ({ ...prev, billDate: true }))}
+                    validationState={fieldValidation.billDate || null}
+                    showValidation={showFieldValidation("billDate")}
                   />
                 </div>
                 <div className="col-span-6 md:col-span-3">
@@ -1471,24 +1597,30 @@ const SupplierBillForm = () => {
                   >
                     <span
                       className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        derivedProcurement === "IMPORTED"
+                        derivedProcurement === "DROPSHIP"
                           ? isDarkMode
-                            ? "bg-blue-900/50 text-blue-300"
-                            : "bg-blue-100 text-blue-700"
-                          : derivedProcurement === "MIXED"
+                            ? "bg-purple-900/50 text-purple-300"
+                            : "bg-purple-100 text-purple-700"
+                          : derivedProcurement === "IMPORTED"
                             ? isDarkMode
-                              ? "bg-amber-900/50 text-amber-300"
-                              : "bg-amber-100 text-amber-700"
-                            : isDarkMode
-                              ? "bg-green-900/50 text-green-300"
-                              : "bg-green-100 text-green-700"
+                              ? "bg-blue-900/50 text-blue-300"
+                              : "bg-blue-100 text-blue-700"
+                            : derivedProcurement === "MIXED"
+                              ? isDarkMode
+                                ? "bg-amber-900/50 text-amber-300"
+                                : "bg-amber-100 text-amber-700"
+                              : isDarkMode
+                                ? "bg-green-900/50 text-green-300"
+                                : "bg-green-100 text-green-700"
                       }`}
                     >
-                      {derivedProcurement === "IMPORTED"
-                        ? "Import"
-                        : derivedProcurement === "MIXED"
-                          ? "Mixed"
-                          : "Local"}
+                      {derivedProcurement === "DROPSHIP"
+                        ? "Dropship"
+                        : derivedProcurement === "IMPORTED"
+                          ? "Import"
+                          : derivedProcurement === "MIXED"
+                            ? "Mixed"
+                            : "Local"}
                     </span>
                   </div>
                 </div>
@@ -1500,9 +1632,13 @@ const SupplierBillForm = () => {
                     label="Supplier"
                     data-testid="supplier-select"
                     value={bill.supplierId || "none"}
-                    onValueChange={(value) => handleSupplierChange(value === "none" ? "" : value)}
+                    onValueChange={(value) => {
+                      setTouchedFields((prev) => ({ ...prev, supplierId: true }));
+                      handleSupplierChange(value === "none" ? "" : value);
+                    }}
                     required={true}
-                    showValidation={false}
+                    validationState={showFieldValidation("supplierId") ? fieldValidation.supplierId || null : null}
+                    showValidation={showFieldValidation("supplierId")}
                     placeholder="Select Supplier..."
                   >
                     <SelectItem value="none">Select Supplier...</SelectItem>
@@ -1959,6 +2095,33 @@ const SupplierBillForm = () => {
                               </div>
                             </td>
                           </tr>
+                          {/* PO Deviation Warnings */}
+                          {(item.poOrderedQty != null && item.quantity > item.poOrderedQty) ||
+                          (item.poRate != null &&
+                            item.poRate > 0 &&
+                            Math.abs(item.unitPrice - item.poRate) / item.poRate > 0.01) ? (
+                            <tr>
+                              <td
+                                colSpan={9}
+                                className={`px-3 py-1 ${isDarkMode ? "bg-amber-900/15" : "bg-amber-50/80"}`}
+                              >
+                                {item.poOrderedQty != null && item.quantity > item.poOrderedQty && (
+                                  <p className={`text-xs ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}>
+                                    <AlertTriangle className="inline h-3 w-3 mr-1" />
+                                    Quantity exceeds PO ordered quantity ({item.poOrderedQty})
+                                  </p>
+                                )}
+                                {item.poRate != null &&
+                                  item.poRate > 0 &&
+                                  Math.abs(item.unitPrice - item.poRate) / item.poRate > 0.01 && (
+                                    <p className={`text-xs ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}>
+                                      <AlertTriangle className="inline h-3 w-3 mr-1" />
+                                      Invoice price differs from PO rate ({item.poRate})
+                                    </p>
+                                  )}
+                              </td>
+                            </tr>
+                          ) : null}
                           {/* Missing Weight Warning row */}
                           {item.missingWeightWarning && (
                             <tr>
@@ -2377,24 +2540,30 @@ const SupplierBillForm = () => {
                     <span className="font-medium">Procurement:</span>
                     <span
                       className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        derivedProcurement === "IMPORTED"
+                        derivedProcurement === "DROPSHIP"
                           ? isDarkMode
-                            ? "bg-blue-900/50 text-blue-300"
-                            : "bg-blue-100 text-blue-700"
-                          : derivedProcurement === "MIXED"
+                            ? "bg-purple-900/50 text-purple-300"
+                            : "bg-purple-100 text-purple-700"
+                          : derivedProcurement === "IMPORTED"
                             ? isDarkMode
-                              ? "bg-amber-900/50 text-amber-300"
-                              : "bg-amber-100 text-amber-700"
-                            : isDarkMode
-                              ? "bg-green-900/50 text-green-300"
-                              : "bg-green-100 text-green-700"
+                              ? "bg-blue-900/50 text-blue-300"
+                              : "bg-blue-100 text-blue-700"
+                            : derivedProcurement === "MIXED"
+                              ? isDarkMode
+                                ? "bg-amber-900/50 text-amber-300"
+                                : "bg-amber-100 text-amber-700"
+                              : isDarkMode
+                                ? "bg-green-900/50 text-green-300"
+                                : "bg-green-100 text-green-700"
                       }`}
                     >
-                      {derivedProcurement === "IMPORTED"
-                        ? "Import"
-                        : derivedProcurement === "MIXED"
-                          ? "Mixed"
-                          : "Local"}
+                      {derivedProcurement === "DROPSHIP"
+                        ? "Dropship"
+                        : derivedProcurement === "IMPORTED"
+                          ? "Import"
+                          : derivedProcurement === "MIXED"
+                            ? "Mixed"
+                            : "Local"}
                     </span>
                   </div>
 
