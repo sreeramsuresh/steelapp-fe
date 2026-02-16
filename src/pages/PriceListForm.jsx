@@ -721,7 +721,6 @@ export default function PriceListForm() {
     description: "",
     currency: "AED",
     isActive: true,
-    isDefault: false,
     effectiveFrom: "",
     effectiveTo: "",
     pricingUnit: "PIECE_BASED", // Default pricing unit
@@ -756,7 +755,6 @@ export default function PriceListForm() {
         description: pricelist.description || "",
         currency: pricelist.currency || "AED",
         isActive: pricelist.isActive,
-        isDefault: pricelist.isDefault,
         effectiveFrom: pricelist.effectiveFrom || "",
         effectiveTo: pricelist.effectiveTo || "",
         pricingUnit: pricelist.pricingUnit || "WEIGHT_BASED",
@@ -788,7 +786,6 @@ export default function PriceListForm() {
         description: source.description || "",
         currency: source.currency || "AED",
         isActive: true,
-        isDefault: false,
         effectiveFrom: "",
         effectiveTo: "",
         pricingUnit: source.pricingUnit || "WEIGHT_BASED",
@@ -808,7 +805,7 @@ export default function PriceListForm() {
       // Get all pricelists to find the default one
       const response = await pricelistService.getAll();
       const pricelists = response.pricelists || [];
-      const defaultPricelist = pricelists.find((p) => p.isDefault);
+      const defaultPricelist = pricelists.find((p) => p.status === "active");
 
       if (defaultPricelist) {
         // Fetch the default pricelist's items
@@ -1181,7 +1178,6 @@ export default function PriceListForm() {
         description: formData.description,
         currency: formData.currency,
         isActive: formData.isActive,
-        isDefault: false, // New pricelist should not be default
         items: formData.items.map((item) => ({
           product_id: item.productId,
           selling_price: item.sellingPrice,
@@ -1392,15 +1388,6 @@ export default function PriceListForm() {
                 Active
               </span>
             )}
-            {formData.isDefault && (
-              <span
-                className={`px-2.5 py-1 text-xs rounded-full border ${
-                  isDarkMode ? "border-teal-500/35 text-teal-400" : "border-blue-300 text-blue-700 bg-blue-50"
-                }`}
-              >
-                Default
-              </span>
-            )}
             {/* Approval Status Badge (Epic 9 - PRICE-008) */}
             <span
               className={`px-2.5 py-1 text-xs rounded-full border ${
@@ -1534,16 +1521,11 @@ export default function PriceListForm() {
 
                   {/* Toggles */}
                   <div className="col-span-12 sm:col-span-6 flex items-end gap-4 pb-1">
+                    {/* TODO: isActive toggle should call PATCH /api/pricelists/:id/state endpoint separately */}
                     <Toggle
                       checked={formData.isActive}
                       onChange={(val) => handleChange("isActive", val)}
                       label="Active"
-                      isDarkMode={isDarkMode}
-                    />
-                    <Toggle
-                      checked={formData.isDefault}
-                      onChange={(val) => handleChange("isDefault", val)}
-                      label="Default"
                       isDarkMode={isDarkMode}
                     />
                   </div>

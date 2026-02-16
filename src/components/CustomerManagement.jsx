@@ -200,7 +200,7 @@ const CustomerManagement = () => {
     trn_number: "",
     trade_license_number: "",
     trade_license_expiry: "",
-    pricelist_id: null,
+    default_pricelist_id: null,
     is_designated_zone: false, // UAE VAT: Customer in Free Zone
   });
 
@@ -520,7 +520,7 @@ const CustomerManagement = () => {
         trn_number: "",
         trade_license_number: "",
         trade_license_expiry: "",
-        pricelist_id: null,
+        default_pricelist_id: null,
         is_designated_zone: false,
       });
       setShowAddModal(false);
@@ -2129,15 +2129,15 @@ const CustomerManagement = () => {
 
                 <div>
                   <label htmlFor="customerPriceList" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                    Price List
+                    Default Price List (leave empty to use company default)
                   </label>
                   <select
                     id="customerPriceList"
-                    value={newCustomer.pricelist_id || ""}
+                    value={newCustomer.default_pricelist_id || ""}
                     onChange={(e) =>
                       setNewCustomer({
                         ...newCustomer,
-                        pricelist_id: e.target.value ? Number(e.target.value) : null,
+                        default_pricelist_id: e.target.value ? Number(e.target.value) : null,
                       })
                     }
                     className={inputClasses}
@@ -3148,15 +3148,15 @@ const CustomerManagement = () => {
 
                 <div>
                   <label htmlFor="editCustomerPriceList" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                    Price List
+                    Default Price List (leave empty to use company default)
                   </label>
                   <select
                     id="editCustomerPriceList"
-                    value={selectedCustomer.pricelist_id || ""}
+                    value={selectedCustomer.default_pricelist_id || ""}
                     onChange={(e) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
-                        pricelist_id: e.target.value ? Number(e.target.value) : null,
+                        default_pricelist_id: e.target.value ? Number(e.target.value) : null,
                       })
                     }
                     className={inputClasses}

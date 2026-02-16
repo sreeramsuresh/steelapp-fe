@@ -1529,9 +1529,9 @@ const ExportOrderForm = () => {
         setCustomerSearchTerm("");
 
         // Fetch customer's pricelist
-        if (customer.pricelistId || customer.pricelist_id) {
+        if (customer.pricelistId || customer.default_pricelist_id || customer.pricelist_id) {
           try {
-            const pricelistId = customer.pricelistId || customer.pricelist_id;
+            const pricelistId = customer.pricelistId || customer.default_pricelist_id || customer.pricelist_id;
             const response = await pricelistService.getById(pricelistId);
             setSelectedPricelistId(pricelistId);
             setPricelistName(response.pricelist?.name || response.data?.name || "Custom Price List");

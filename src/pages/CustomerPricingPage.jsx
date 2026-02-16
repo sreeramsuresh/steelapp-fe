@@ -143,7 +143,7 @@ export default function CustomerPricingPage() {
       setLoading(true);
 
       // Update customer price override via the pricing API
-      const pricelistId = customer?.pricelist_id || customer?.pricelistId;
+      const pricelistId = customer?.pricelistId || customer?.default_pricelist_id || customer?.pricelist_id;
       if (pricelistId && editingItem.product_id) {
         await fetch(`/api/pricelists/${pricelistId}/items`, {
           method: "PUT",
@@ -183,7 +183,7 @@ export default function CustomerPricingPage() {
       setLoading(true);
 
       // Delete customer price override via the pricing API
-      const pricelistId = customer?.pricelist_id || customer?.pricelistId;
+      const pricelistId = customer?.pricelistId || customer?.default_pricelist_id || customer?.pricelist_id;
       if (pricelistId && item.product_id) {
         await fetch(`/api/pricelists/${pricelistId}/items/${item.product_id}`, {
           method: "DELETE",

@@ -117,7 +117,11 @@ export default function PriceListList() {
       fetchPricelists();
     } catch (error) {
       console.error("Error deleting pricelist:", error);
-      notificationService.error(error.response?.data?.message || "Failed to deactivate price list");
+      if (error.response?.status === 409) {
+        notificationService.error(error.response?.data?.message || "Cannot delete this price list — it is currently in use");
+      } else {
+        notificationService.error(error.response?.data?.message || "Failed to deactivate price list");
+      }
     }
   };
 
@@ -155,7 +159,6 @@ export default function PriceListList() {
       total: pricelists.length,
       active: pricelists.filter((pl) => pl.isActive).length,
       inactive: pricelists.filter((pl) => !pl.isActive).length,
-      default: pricelists.filter((pl) => pl.isDefault).length,
       totalProducts: pricelists.reduce((sum, pl) => sum + (pl.productCount || 0), 0),
     }),
     [pricelists]
@@ -317,11 +320,6 @@ export default function PriceListList() {
             <span className="font-semibold text-green-500">{stats.active}</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
-            <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Default:</span>
-            <span className="font-semibold text-yellow-500">{stats.default}</span>
-          </div>
-          <div className="flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
             <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Total Products:</span>
             <span className="font-semibold text-blue-500">{stats.totalProducts}</span>
@@ -401,7 +399,8 @@ export default function PriceListList() {
                               {pricelist.name}
                             </Link>
                           </h3>
-                          {pricelist.isDefault && (
+                          {/* TODO: Compare pricelist.id against company's defaultPricelistId to show this badge */}
+                          {/* {pricelist.id === companyDefaultPricelistId && (
                             <span
                               className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full font-medium ${
                                 isDarkMode
@@ -410,9 +409,9 @@ export default function PriceListList() {
                               }`}
                             >
                               <Star size={10} fill="currentColor" />
-                              Default
+                              Company Default
                             </span>
-                          )}
+                          )} */}
                         </div>
                         <p
                           className={`text-sm mb-2 line-clamp-2 min-h-[2.5rem] ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
@@ -448,22 +447,18 @@ export default function PriceListList() {
                         >
                           <Copy size={16} />
                         </button>
-                        {!pricelist.isDefault ? (
-                          <button
-                            type="button"
-                            onClick={(e) => handleDelete(pricelist.id, pricelist.name, e)}
-                            className={`p-1.5 rounded transition-colors ${
-                              isDarkMode
-                                ? "text-red-400 hover:text-red-300 hover:bg-gray-700"
-                                : "text-red-600 hover:bg-gray-100"
-                            }`}
-                            title="Delete"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        ) : (
-                          <div className="p-1.5 w-7 h-7" />
-                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => handleDelete(pricelist.id, pricelist.name, e)}
+                          className={`p-1.5 rounded transition-colors ${
+                            isDarkMode
+                              ? "text-red-400 hover:text-red-300 hover:bg-gray-700"
+                              : "text-red-600 hover:bg-gray-100"
+                          }`}
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </div>
 
