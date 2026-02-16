@@ -31,6 +31,15 @@ export const DEFAULT_PRICING_BASIS = {
 };
 
 export const PRICING_BASIS_LABELS = {
+  PER_PCS: "per pc",
+  PER_KG: "per pc",
+  PER_MT: "per pc",
+  PER_METER: "per pc",
+  PER_LOT: "per pc",
+};
+
+/** Internal labels showing actual storage basis (for admin/debug use only) */
+export const PRICING_BASIS_LABELS_INTERNAL = {
   PER_PCS: "per PC",
   PER_KG: "per KG",
   PER_MT: "per MT",

@@ -1354,7 +1354,7 @@ const QuotationForm = () => {
         // CRITICAL: Block save when unit weight is missing for weight-based pricing
         if (item.missingWeightWarning) {
           errors.push(
-            `Item ${index + 1}: Unit weight is missing for "${item.name}". This product has weight-based pricing (${item.pricingBasis}) but no unit weight. Please contact admin to add unit weight to the product master.`
+            `Item ${index + 1}: Unit weight is missing for "${item.name}". Unit weight is required for price calculation. Please contact admin to add unit weight to the product master.`
           );
         }
         if (!item.rate || item.rate <= 0) {
@@ -2626,8 +2626,7 @@ const QuotationForm = () => {
                           >
                             <p className={`text-xs ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}>
                               <AlertCircle className="inline h-3 w-3 mr-1" />
-                              Unit weight missing for weight-based pricing ({item.pricingBasis}). Contact admin to
-                              update product master.
+                              Unit weight missing for price calculation. Contact admin to update product master.
                             </p>
                           </div>
                         )}

@@ -3355,23 +3355,16 @@ const SteelProducts = () => {
                 <div>
                   <h3 className="text-lg font-medium text-teal-600 mb-4">Pricing Information</h3>
                   {(() => {
-                    const basisLabels = {
-                      PER_MT: "/MT",
-                      PER_KG: "/KG",
-                      PER_PCS: "/PC",
-                      PER_METER: "/M",
-                      PER_LOT: "/LOT",
-                    };
-                    const basisUnit = basisLabels[newProduct.pricingBasis] || "/MT";
+                    const basisUnit = "/pc";
                     const costNum = Number(newProduct.costPrice) || 0;
                     const sellNum = Number(newProduct.sellingPrice) || 0;
                     // Range thresholds per pricing basis (AED) for stainless steel
                     const ranges = {
-                      PER_MT: { low: 500, high: 50000, label: "per MT" },
-                      PER_KG: { low: 0.5, high: 50, label: "per KG" },
-                      PER_PCS: { low: 1, high: 10000, label: "per PC" },
-                      PER_METER: { low: 5, high: 5000, label: "per M" },
-                      PER_LOT: { low: 100, high: 500000, label: "per LOT" },
+                      PER_MT: { low: 500, high: 50000, label: "per pc" },
+                      PER_KG: { low: 0.5, high: 50, label: "per pc" },
+                      PER_PCS: { low: 1, high: 10000, label: "per pc" },
+                      PER_METER: { low: 5, high: 5000, label: "per pc" },
+                      PER_LOT: { low: 100, high: 500000, label: "per pc" },
                     };
                     const range = ranges[newProduct.pricingBasis] || ranges.PER_MT;
                     const costWarning =

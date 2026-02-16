@@ -1185,7 +1185,7 @@ const InvoiceForm = ({ onSave }) => {
         // This prevents incorrect pricing calculations (e.g., 30x overcharge)
         if (item.missingWeightWarning) {
           errors.push(
-            `Item ${index + 1}: Unit weight is missing for "${item.name}". This product has weight-based pricing (${item.pricingBasis}) but no unit weight. Please contact admin to add unit weight to the product master.`
+            `Item ${index + 1}: Unit weight is missing for "${item.name}". Unit weight is required for price calculation. Please contact admin to add unit weight to the product master.`
           );
           invalidFieldsSet.add(`item.${index}.unitWeight`);
         }

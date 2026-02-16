@@ -359,14 +359,8 @@ const BatchAllocationPanel = ({
                           <span className="unit-cost">
                             {parseFloat(batch.unitCost || 0).toLocaleString("en-AE", { maximumFractionDigits: 0 })}
                           </span>
-                          <span className="cost-unit">AED/PCS</span>
+                          <span className="cost-unit">AED/pc</span>
                         </div>
-                        {parseFloat(batch.weightPerPieceKg || 0) > 0 && (
-                          <div className="cost-per-kg-derived">
-                            ({(parseFloat(batch.unitCost || 0) / parseFloat(batch.weightPerPieceKg || 1)).toFixed(2)}{" "}
-                            AED/KG)
-                          </div>
-                        )}
                       </td>
                     </tr>
                   );

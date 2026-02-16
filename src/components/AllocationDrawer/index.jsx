@@ -394,15 +394,7 @@ const AllocationDrawer = ({
   const getPricingBasisLabel = () => {
     if (!drawerState.currentDisplayUnit) return "";
 
-    const unitToLabel = {
-      KG: "per KG",
-      MT: "per MT",
-      PCS: "per PCS",
-      M: "per M",
-      LOT: "per LOT",
-    };
-
-    return unitToLabel[drawerState.currentDisplayUnit] || "";
+    return "per pc";
   };
 
   // NOTE: Removed useEffect that initialized selectedWarehouseId from parent's warehouseId.

@@ -89,7 +89,7 @@ export default function VolumeDiscountTiersModal({ isOpen, onClose, tiers, onSav
                         htmlFor={`min-quantity-${index}`}
                         className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
-                        Min Quantity (kg/MT)
+                        Min Quantity (pcs)
                       </label>
                       <input
                         id={`min-quantity-${index}`}
