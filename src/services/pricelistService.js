@@ -106,12 +106,29 @@ const pricelistService = {
     return data;
   },
 
-  // Get the company's default pricelist ID
-  async getDefaultPricelistId() {
-    const data = await api.get("/pricelists", { params: { is_default: true } });
-    const pricelists = data?.pricelists || data?.data?.pricelists || [];
-    if (pricelists.length > 0) return pricelists[0].id;
-    return null;
+  // Toggle pricelist active state
+  async toggleActive(id, isActive) {
+    const response = await api.patch(`/api/pricelists/${id}/state`, { isActive });
+    return response.data;
+  },
+
+  // Set company default pricelist
+  async setCompanyDefault(pricelistId) {
+    const response = await api.patch("/api/pricelists/company-default", { pricelistId });
+    return response.data;
+  },
+
+  // Set customer default pricelist
+  async setCustomerDefault(customerId, pricelistId) {
+    const response = await api.patch("/api/pricelists/customer-default", { customerId, pricelistId });
+    return response.data;
+  },
+
+  // Resolve effective pricelist for company/customer
+  async resolveDefault(customerId = null) {
+    const params = customerId ? `?customerId=${customerId}` : "";
+    const response = await api.get(`/api/pricelists/pricing/resolve${params}`);
+    return response.data;
   },
 
   // Get price change history (audit trail)
@@ -127,6 +144,13 @@ const pricelistService = {
       },
     });
     return data;
+  },
+  async getDefaultPricelistId() {
+    const { data } = await api.get("/pricelists", {
+      params: { is_default: true, limit: 1 },
+    });
+    const list = data?.pricelists || data?.data || [];
+    return list.length > 0 ? list[0].id : null;
   },
 };
 
