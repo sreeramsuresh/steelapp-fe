@@ -384,9 +384,12 @@ const QuotationForm = () => {
 
   // Fetch default pricelist ID on mount
   useEffect(() => {
-    pricelistService.getDefaultPricelistId().then((id) => {
-      if (id) setDefaultPricelistId(id);
-    }).catch(() => {});
+    pricelistService
+      .getDefaultPricelistId()
+      .then((id) => {
+        if (id) setDefaultPricelistId(id);
+      })
+      .catch(() => {});
   }, []);
 
   // Validation function
