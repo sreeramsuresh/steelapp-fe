@@ -757,7 +757,7 @@ export default function PriceListForm() {
         isActive: pricelist.isActive,
         effectiveFrom: pricelist.effectiveFrom || "",
         effectiveTo: pricelist.effectiveTo || "",
-        pricingUnit: pricelist.pricingUnit || "WEIGHT_BASED",
+        pricingUnit: pricelist.pricingUnit || "PIECE_BASED",
         items,
         // Audit trail fields (Epic 9 - PRICE-008)
         approvalStatus: pricelist.approvalStatus || "draft",
@@ -788,7 +788,7 @@ export default function PriceListForm() {
         isActive: true,
         effectiveFrom: "",
         effectiveTo: "",
-        pricingUnit: source.pricingUnit || "WEIGHT_BASED",
+        pricingUnit: source.pricingUnit || "PIECE_BASED",
         items,
       });
     } catch (error) {

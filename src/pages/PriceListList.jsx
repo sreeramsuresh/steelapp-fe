@@ -118,7 +118,9 @@ export default function PriceListList() {
     } catch (error) {
       console.error("Error deleting pricelist:", error);
       if (error.response?.status === 409) {
-        notificationService.error(error.response?.data?.message || "Cannot delete this price list — it is currently in use");
+        notificationService.error(
+          error.response?.data?.message || "Cannot delete this price list — it is currently in use"
+        );
       } else {
         notificationService.error(error.response?.data?.message || "Failed to deactivate price list");
       }
