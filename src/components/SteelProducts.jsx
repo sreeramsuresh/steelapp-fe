@@ -3416,7 +3416,7 @@ const SteelProducts = () => {
                           </div>
                           <div className="relative">
                             <Input
-                              label={`Default Selling Price ${basisUnit}`}
+                              label={`Base Selling Price ${basisUnit} (seeds default pricelist)`}
                               type="number"
                               value={newProduct.sellingPrice || ""}
                               onChange={(e) =>
@@ -3437,7 +3437,7 @@ const SteelProducts = () => {
                               <p className="text-xs mt-0.5 text-amber-500">{sellWarning}</p>
                             ) : (
                               <p className={`text-xs mt-0.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                                Actual pricing from pricelists.
+                                Seeds default pricelist on create/update.
                               </p>
                             )}
                           </div>
@@ -4019,13 +4019,22 @@ const SteelProducts = () => {
                       <div className="text-center">
                         <div
                           className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                          title="Default selling price from pricelists"
+                          title="Base selling price (seeds default pricelist)"
                         >
-                          Sell (Ref)
+                          Base Price
                         </div>
                         <div className={`text-base font-bold ${isDarkMode ? "text-emerald-400" : "text-emerald-600"}`}>
                           {selectedProduct.sellingPrice ? Number(selectedProduct.sellingPrice).toLocaleString() : "—"}
                         </div>
+                        {defaultPricelistId && (
+                          <button
+                            type="button"
+                            onClick={() => setShowPricingEditModal(true)}
+                            className={`text-[10px] mt-0.5 underline ${isDarkMode ? "text-emerald-400" : "text-emerald-600"} hover:opacity-80`}
+                          >
+                            Update Pricelist
+                          </button>
+                        )}
                       </div>
                       <div className="text-center">
                         <div

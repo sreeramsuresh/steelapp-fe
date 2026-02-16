@@ -106,6 +106,14 @@ const pricelistService = {
     return data;
   },
 
+  // Get the company's default pricelist ID
+  async getDefaultPricelistId() {
+    const data = await api.get("/pricelists", { params: { is_default: true } });
+    const pricelists = data?.pricelists || data?.data?.pricelists || [];
+    if (pricelists.length > 0) return pricelists[0].id;
+    return null;
+  },
+
   // Get price change history (audit trail)
   async getHistory(pricelistId, params = {}) {
     const data = await api.get(`/pricelists/${pricelistId}/history`, {

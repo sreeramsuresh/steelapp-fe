@@ -724,7 +724,7 @@ export default function PriceListForm() {
     isDefault: false,
     effectiveFrom: "",
     effectiveTo: "",
-    pricingUnit: "WEIGHT_BASED", // Default pricing unit
+    pricingUnit: "PIECE_BASED", // Default pricing unit
     items: [],
     // Audit trail fields (Epic 9 - PRICE-008)
     approvalStatus: "draft", // draft | pending_approval | approved

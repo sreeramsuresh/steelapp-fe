@@ -338,6 +338,7 @@ const QuotationForm = () => {
 
   // Pricelist state
   const [selectedPricelistId, setSelectedPricelistId] = useState(null);
+  const [defaultPricelistId, setDefaultPricelistId] = useState(null);
   const [_pricelistName, setPricelistName] = useState(null);
 
   // Pinned products (localStorage)
@@ -380,6 +381,13 @@ const QuotationForm = () => {
       return () => clearTimeout(autoSaveTimer);
     }
   }, [formData, isEdit]);
+
+  // Fetch default pricelist ID on mount
+  useEffect(() => {
+    pricelistService.getDefaultPricelistId().then((id) => {
+      if (id) setDefaultPricelistId(id);
+    }).catch(() => {});
+  }, []);
 
   // Validation function
   const validateField = useCallback(
@@ -921,32 +929,16 @@ const QuotationForm = () => {
     // Bug #5-7 fix: Ensure we fetch prices and don't default to 0
     let sellingPrice = parseFloat(product.sellingPrice || product.price) || 0;
 
-    if (selectedPricelistId) {
+    const effectivePricelistId = selectedPricelistId || defaultPricelistId;
+    if (effectivePricelistId) {
       try {
-        const priceResponse = await pricelistService.getPriceForQuantity(product.id, selectedPricelistId, 1);
+        const priceResponse = await pricelistService.getPriceForQuantity(product.id, effectivePricelistId, 1);
         const fetchedPrice = priceResponse.price || priceResponse.data?.price;
         if (fetchedPrice && fetchedPrice > 0) {
           sellingPrice = fetchedPrice;
         }
       } catch (_priceError) {
-        // Fallback to default product price
-      }
-    }
-
-    // If price is still 0, try to fetch from default pricelist
-    if (sellingPrice === 0 && !selectedPricelistId) {
-      try {
-        const defaultPriceResponse = await pricelistService.getPriceForQuantity(
-          product.id,
-          1, // Attempt with default pricelist ID = 1
-          1
-        );
-        const defaultPrice = defaultPriceResponse.price || defaultPriceResponse.data?.price;
-        if (defaultPrice && defaultPrice > 0) {
-          sellingPrice = defaultPrice;
-        }
-      } catch (_defaultPriceError) {
-        // Silently ignore if default pricelist fetch fails
+        console.warn(`No pricelist price found for product ${product.id}`);
       }
     }
 
@@ -1135,33 +1127,16 @@ const QuotationForm = () => {
         // Bug #5-7 fix: Ensure we fetch prices and don't default to 0
         let sellingPrice = product.sellingPrice || product.price || 0;
 
-        if (selectedPricelistId) {
+        const effectivePricelistId = selectedPricelistId || defaultPricelistId;
+        if (effectivePricelistId) {
           try {
-            const priceResponse = await pricelistService.getPriceForQuantity(product.id, selectedPricelistId, 1);
+            const priceResponse = await pricelistService.getPriceForQuantity(product.id, effectivePricelistId, 1);
             const fetchedPrice = priceResponse.price || priceResponse.data?.price;
             if (fetchedPrice && fetchedPrice > 0) {
               sellingPrice = fetchedPrice;
             }
           } catch (_priceError) {
-            // Fallback to default product price
-          }
-        }
-
-        // If price is still 0, try to fetch from default pricelist
-        if (sellingPrice === 0 && !selectedPricelistId) {
-          try {
-            // Try fetching the first/default pricelist
-            const defaultPriceResponse = await pricelistService.getPriceForQuantity(
-              product.id,
-              1, // Attempt with default pricelist ID = 1
-              1
-            );
-            const defaultPrice = defaultPriceResponse.price || defaultPriceResponse.data?.price;
-            if (defaultPrice && defaultPrice > 0) {
-              sellingPrice = defaultPrice;
-            }
-          } catch (_defaultPriceError) {
-            // Silently ignore if default pricelist fetch fails
+            console.warn(`No pricelist price found for product ${product.id}`);
           }
         }
 
