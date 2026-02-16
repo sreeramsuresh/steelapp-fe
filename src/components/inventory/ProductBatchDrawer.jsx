@@ -1,12 +1,4 @@
-import {
-  AlertTriangle,
-  DollarSign,
-  Hash,
-  Layers,
-  Loader2,
-  TrendingUp,
-  X,
-} from "lucide-react";
+import { AlertTriangle, DollarSign, Layers, Loader2, TrendingUp, X } from "lucide-react";
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -67,7 +59,7 @@ const ProductBatchDrawer = ({ open, onClose, product }) => {
 
     // Last buy price: unit_cost from newest batch
     const sorted = [...activeBatches].sort(
-      (a, b) => new Date(b.receivedDate || b.createdAt || 0) - new Date(a.receivedDate || a.createdAt || 0),
+      (a, b) => new Date(b.receivedDate || b.createdAt || 0) - new Date(a.receivedDate || a.createdAt || 0)
     );
     const lastBuyPrice = sorted.length > 0 ? parseFloat(sorted[0].unitCost) || 0 : 0;
 
@@ -95,13 +87,16 @@ const ProductBatchDrawer = ({ open, onClose, product }) => {
         }`}
       >
         {/* Header */}
-        <div className={`flex items-center justify-between px-6 py-4 border-b shrink-0 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+        <div
+          className={`flex items-center justify-between px-6 py-4 border-b shrink-0 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+        >
           <div className="min-w-0">
             <h2 className={`text-lg font-semibold truncate ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               {product?.productName || "Product Batches"}
             </h2>
             <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-              {product?.productSku || ""} — {stats.totalQty.toLocaleString(undefined, { maximumFractionDigits: 2 })} {product?.unit || "KG"} on hand
+              {product?.productSku || ""} — {stats.totalQty.toLocaleString(undefined, { maximumFractionDigits: 2 })}{" "}
+              {product?.unit || "KG"} on hand
             </p>
           </div>
           <button
@@ -114,7 +109,9 @@ const ProductBatchDrawer = ({ open, onClose, product }) => {
         </div>
 
         {/* Summary Cards */}
-        <div className={`grid grid-cols-4 gap-3 px-6 py-4 shrink-0 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+        <div
+          className={`grid grid-cols-4 gap-3 px-6 py-4 shrink-0 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+        >
           <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}>
             <div className="flex items-center gap-2 mb-1">
               <DollarSign size={14} className={isDarkMode ? "text-green-400" : "text-green-600"} />
@@ -152,9 +149,7 @@ const ProductBatchDrawer = ({ open, onClose, product }) => {
               <Layers size={14} className={isDarkMode ? "text-teal-400" : "text-teal-600"} />
               <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Active Batches</span>
             </div>
-            <p className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-              {stats.batchCount}
-            </p>
+            <p className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{stats.batchCount}</p>
           </div>
         </div>
 
@@ -165,7 +160,9 @@ const ProductBatchDrawer = ({ open, onClose, product }) => {
               <Loader2 className={`h-8 w-8 animate-spin ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
             </div>
           ) : error ? (
-            <div className={`flex items-center gap-2 p-4 rounded-lg ${isDarkMode ? "bg-red-900/30 text-red-300" : "bg-red-50 text-red-700"}`}>
+            <div
+              className={`flex items-center gap-2 p-4 rounded-lg ${isDarkMode ? "bg-red-900/30 text-red-300" : "bg-red-50 text-red-700"}`}
+            >
               <AlertTriangle size={18} />
               <span>{error}</span>
             </div>

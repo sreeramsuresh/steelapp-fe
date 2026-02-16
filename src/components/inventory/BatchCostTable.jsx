@@ -1,11 +1,4 @@
-import {
-  AlertTriangle,
-  ChevronDown,
-  ChevronRight,
-  Copy,
-  Package,
-  Ship,
-} from "lucide-react";
+import { AlertTriangle, ChevronDown, Copy, Package, Ship } from "lucide-react";
 import PropTypes from "prop-types";
 import { useMemo, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -63,7 +56,7 @@ const BatchCostTable = ({ batches = [], onBatchClick }) => {
       [...batches]
         .filter((b) => (b.quantityRemaining || 0) > 0)
         .sort((a, b) => new Date(a.receivedDate || a.createdAt || 0) - new Date(b.receivedDate || b.createdAt || 0)),
-    [batches],
+    [batches]
   );
 
   if (sortedBatches.length === 0) {
@@ -99,7 +92,8 @@ const BatchCostTable = ({ batches = [], onBatchClick }) => {
           const totalVal = qty * effectiveCost;
           const age = getDaysAge(batch.receivedDate || batch.createdAt);
           const isExpanded = expandedIds.has(batch.id);
-          const hasNullLanded = isImported && (batch.landedCostPerUnit == null || parseFloat(batch.landedCostPerUnit) <= 0);
+          const hasNullLanded =
+            isImported && (batch.landedCostPerUnit == null || parseFloat(batch.landedCostPerUnit) <= 0);
           const batchLabel = batch.batchNumber || `B-${batch.id}`;
 
           return (
@@ -139,11 +133,15 @@ const BatchCostTable = ({ batches = [], onBatchClick }) => {
                 {/* Channel */}
                 <div className="text-center">
                   {isImported ? (
-                    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium ${isDarkMode ? "bg-emerald-900/30 text-emerald-400" : "bg-emerald-100 text-emerald-700"}`}>
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium ${isDarkMode ? "bg-emerald-900/30 text-emerald-400" : "bg-emerald-100 text-emerald-700"}`}
+                    >
                       <Ship size={12} /> Import
                     </span>
                   ) : (
-                    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium ${isDarkMode ? "bg-blue-900/30 text-blue-400" : "bg-blue-100 text-blue-700"}`}>
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium ${isDarkMode ? "bg-blue-900/30 text-blue-400" : "bg-blue-100 text-blue-700"}`}
+                    >
                       <Package size={12} /> Local
                     </span>
                   )}
@@ -153,7 +151,9 @@ const BatchCostTable = ({ batches = [], onBatchClick }) => {
                   {qty.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 {/* Effective Cost */}
-                <div className={`text-right flex items-center justify-end gap-1 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                <div
+                  className={`text-right flex items-center justify-end gap-1 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                >
                   {formatCurrency(effectiveCost)}
                   {hasNullLanded && (
                     <span title="Landed cost missing — using unit cost">
