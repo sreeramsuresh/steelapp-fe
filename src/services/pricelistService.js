@@ -108,27 +108,23 @@ const pricelistService = {
 
   // Toggle pricelist active state
   async toggleActive(id, isActive) {
-    const response = await api.patch(`/api/pricelists/${id}/state`, { isActive });
-    return response.data;
+    return api.patch(`/pricelists/${id}/state`, { isActive });
   },
 
   // Set company default pricelist
   async setCompanyDefault(pricelistId) {
-    const response = await api.patch("/api/pricelists/company-default", { pricelistId });
-    return response.data;
+    return api.patch("/pricelists/company-default", { pricelistId });
   },
 
   // Set customer default pricelist
   async setCustomerDefault(customerId, pricelistId) {
-    const response = await api.patch("/api/pricelists/customer-default", { customerId, pricelistId });
-    return response.data;
+    return api.patch("/pricelists/customer-default", { customerId, pricelistId });
   },
 
   // Resolve effective pricelist for company/customer
   async resolveDefault(customerId = null) {
     const params = customerId ? `?customerId=${customerId}` : "";
-    const response = await api.get(`/api/pricelists/pricing/resolve${params}`);
-    return response.data;
+    return api.get(`/pricelists/pricing/resolve${params}`);
   },
 
   // Get price change history (audit trail)

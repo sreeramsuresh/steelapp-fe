@@ -1,4 +1,18 @@
-import { CheckCircle, Copy, DollarSign, Edit, Filter, Plus, Search, Star, Tag, Trash2, XCircle } from "lucide-react";
+import {
+  CheckCircle,
+  Copy,
+  DollarSign,
+  Edit,
+  Eye,
+  Filter,
+  MoreVertical,
+  Plus,
+  Search,
+  Star,
+  Tag,
+  Trash2,
+  XCircle,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -86,12 +100,20 @@ export default function PriceListList() {
     id: null,
     name: null,
   });
+  const [companyDefaultPricelistId, setCompanyDefaultPricelistId] = useState(null);
+  const [openMenuId, setOpenMenuId] = useState(null);
 
   const fetchPricelists = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await pricelistService.getAll({ includeItems: false });
-      setPricelists(response.pricelists || []);
+      const [listResponse, resolveResponse] = await Promise.all([
+        pricelistService.getAll({ includeItems: false }),
+        pricelistService.resolveDefault().catch(() => null),
+      ]);
+      setPricelists(listResponse.pricelists || []);
+      if (resolveResponse?.pricelistId) {
+        setCompanyDefaultPricelistId(resolveResponse.pricelistId);
+      }
     } catch (error) {
       console.error("Error fetching pricelists:", error);
       notificationService.error("Failed to load price lists");
@@ -130,6 +152,18 @@ export default function PriceListList() {
   const handleCopy = (id, e) => {
     e.stopPropagation();
     navigate(`/app/pricelists/new?copyFrom=${id}`);
+  };
+
+  const handleSetDefault = async (id, name, e) => {
+    e.stopPropagation();
+    try {
+      await pricelistService.setCompanyDefault(id);
+      setCompanyDefaultPricelistId(id);
+      notificationService.success(`"${name}" set as company default`);
+    } catch (error) {
+      console.error("Error setting default pricelist:", error);
+      notificationService.error(error.response?.data?.message || "Failed to set default price list");
+    }
   };
 
   // Filtered pricelists
@@ -401,19 +435,16 @@ export default function PriceListList() {
                               {pricelist.name}
                             </Link>
                           </h3>
-                          {/* TODO: Compare pricelist.id against company's defaultPricelistId to show this badge */}
-                          {/* {pricelist.id === companyDefaultPricelistId && (
+                          {pricelist.id === companyDefaultPricelistId && (
                             <span
                               className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full font-medium ${
-                                isDarkMode
-                                  ? "bg-yellow-900/30 text-yellow-300 border border-yellow-700"
-                                  : "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                                isDarkMode ? "bg-amber-900/30 text-amber-400" : "bg-amber-100 text-amber-700"
                               }`}
                             >
                               <Star size={10} fill="currentColor" />
-                              Company Default
+                              Default
                             </span>
-                          )} */}
+                          )}
                         </div>
                         <p
                           className={`text-sm mb-2 line-clamp-2 min-h-[2.5rem] ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
@@ -421,46 +452,110 @@ export default function PriceListList() {
                           {pricelist.description || "\u00A0"}
                         </p>
                       </div>
-                      <div className="flex flex-col gap-1 min-h-[6.5rem]">
+                      <div className="relative">
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/app/pricelists/${pricelist.id}/edit`);
+                            setOpenMenuId(openMenuId === pricelist.id ? null : pricelist.id);
                           }}
                           className={`p-1.5 rounded transition-colors ${
-                            isDarkMode
-                              ? "text-teal-400 hover:text-teal-300 hover:bg-gray-700"
-                              : "text-teal-600 hover:bg-gray-100"
+                            isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
                           }`}
-                          title="Edit"
+                          title="More actions"
+                          aria-label="More actions"
                         >
-                          <Edit size={16} />
+                          <MoreVertical size={16} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
                         </button>
-                        <button
-                          type="button"
-                          onClick={(e) => handleCopy(pricelist.id, e)}
-                          className={`p-1.5 rounded transition-colors ${
-                            isDarkMode
-                              ? "text-blue-400 hover:text-blue-300 hover:bg-gray-700"
-                              : "text-blue-600 hover:bg-gray-100"
-                          }`}
-                          title="Copy"
-                        >
-                          <Copy size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => handleDelete(pricelist.id, pricelist.name, e)}
-                          className={`p-1.5 rounded transition-colors ${
-                            isDarkMode
-                              ? "text-red-400 hover:text-red-300 hover:bg-gray-700"
-                              : "text-red-600 hover:bg-gray-100"
-                          }`}
-                          title="Delete"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+
+                        {openMenuId === pricelist.id && (
+                          <>
+                            <button
+                              type="button"
+                              className="fixed inset-0 z-10"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenMenuId(null);
+                              }}
+                              aria-label="Close menu"
+                            />
+                            <div
+                              className={`absolute right-0 mt-1 w-44 rounded-lg shadow-lg z-20 ${
+                                isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"
+                              }`}
+                            >
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOpenMenuId(null);
+                                  navigate(`/app/pricelists/${pricelist.id}`);
+                                }}
+                                className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${
+                                  isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
+                                }`}
+                              >
+                                <Eye size={14} />
+                                View Details
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOpenMenuId(null);
+                                  navigate(`/app/pricelists/${pricelist.id}/edit`);
+                                }}
+                                className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${
+                                  isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
+                                }`}
+                              >
+                                <Edit size={14} />
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  setOpenMenuId(null);
+                                  handleCopy(pricelist.id, e);
+                                }}
+                                className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${
+                                  isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
+                                }`}
+                              >
+                                <Copy size={14} />
+                                Copy
+                              </button>
+                              {pricelist.isActive && pricelist.id !== companyDefaultPricelistId && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    setOpenMenuId(null);
+                                    handleSetDefault(pricelist.id, pricelist.name, e);
+                                  }}
+                                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${
+                                    isDarkMode ? "text-amber-400 hover:bg-gray-700" : "text-amber-600 hover:bg-gray-100"
+                                  }`}
+                                >
+                                  <Star size={14} />
+                                  Set as Default
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  setOpenMenuId(null);
+                                  handleDelete(pricelist.id, pricelist.name, e);
+                                }}
+                                className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 ${
+                                  isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                                }`}
+                              >
+                                <Trash2 size={14} />
+                                Delete
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
 
