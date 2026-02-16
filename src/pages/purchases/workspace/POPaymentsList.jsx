@@ -62,13 +62,13 @@ export default function POPaymentsList() {
                   onClick={() => navigate(`/app/purchases/po/${poId}/payments/${payment.id}`)}
                 >
                   <td className={`px-4 py-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    {formatDate(payment.payment_date)}
+                    {formatDate(payment.payment_date || payment.paymentDate)}
                   </td>
                   <td className={`px-4 py-3 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                    {(payment.payment_method || "—").replace(/_/g, " ")}
+                    {(payment.payment_method || payment.paymentMethod || "—").replace(/_/g, " ")}
                   </td>
                   <td className={`px-4 py-3 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                    {payment.reference_number || "—"}
+                    {payment.reference_number || payment.referenceNumber || "—"}
                   </td>
                   <td className={`px-4 py-3 text-right font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     {formatCurrency(payment.amount)}
@@ -85,8 +85,8 @@ export default function POPaymentsList() {
 
       {summary?.payments?.count > 0 && (
         <div className={`mt-3 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-          Total paid: {formatCurrency(summary.payments.total_paid)}
-          {summary.bills?.total_billed > 0 && <span> / Billed: {formatCurrency(summary.bills.total_billed)}</span>}
+          Total paid: {formatCurrency(summary.payments.total_paid || summary.payments.totalPaid)}
+          {(summary.bills?.total_billed || summary.bills?.totalBilled) > 0 && <span> / Billed: {formatCurrency(summary.bills.total_billed || summary.bills.totalBilled)}</span>}
         </div>
       )}
     </div>

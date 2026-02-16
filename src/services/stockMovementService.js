@@ -135,6 +135,11 @@ const stockLevelFromServer = (level = {}) => ({
   isOutOfStock: level.isOutOfStock || false,
   lastMovementDate: level.lastMovementDate || "",
   lastMovementType: level.lastMovementType || "",
+  avgCost: parseFloat(level.avgCost) || 0,
+  batchTotalValue: parseFloat(level.batchTotalValue) || 0,
+  batchCount: parseInt(level.batchCount, 10) || 0,
+  lastBuyPrice: parseFloat(level.lastBuyPrice) || 0,
+  lastLandedCost: level.lastLandedCost != null ? parseFloat(level.lastLandedCost) : null,
 });
 
 class StockMovementService {
@@ -400,6 +405,7 @@ class StockMovementService {
             outOfStockCount: response.summary.outOfStockCount || 0,
             totalValue: parseFloat(response.summary.totalValue) || 0,
             totalQuantity: parseFloat(response.summary.totalQuantity) || 0,
+            hasImportedBatches: response.summary.hasImportedBatches || false,
           }
         : null,
     };

@@ -15,8 +15,9 @@ import {
   X,
 } from "lucide-react";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import BatchAllocationKPIs from "../../components/dashboard/BatchAllocationKPIs";
+import ProductBatchDrawer from "../../components/inventory/ProductBatchDrawer";
 import { useTheme } from "../../contexts/ThemeContext";
 import { notificationService } from "../../services/notificationService";
 import { stockMovementService } from "../../services/stockMovementService";
@@ -59,9 +60,12 @@ const ALL_COLUMNS = [
   { key: "onHand", label: "On Hand", align: "right", default: true },
   { key: "reserved", label: "Reserved", align: "right", default: true },
   { key: "available", label: "Available", align: "right", default: true },
-  { key: "minStock", label: "Min Stock", align: "right", default: false },
+  { key: "minStock", label: "Min Stock", align: "right", default: true },
   { key: "status", label: "Status", align: "center", default: true },
-  { key: "value", label: "Value", align: "right", default: false },
+  { key: "avgCost", label: "Avg Cost/Unit", align: "right", default: true },
+  { key: "value", label: "Total Value", align: "right", default: true },
+  { key: "lastBuyPrice", label: "Last Buy Price", align: "right", default: true },
+  { key: "lastLandedCost", label: "Last Landed Cost", align: "right", default: true },
   { key: "actions", label: "Actions", align: "right", default: true, locked: true },
 ];
 
@@ -107,7 +111,6 @@ function groupItems(items, groupBy) {
  * Displays inventory levels with low stock highlighting
  */
 const StockLevelsDashboard = () => {
-  const navigate = useNavigate();
   const { isDarkMode } = useTheme();
 
   // Initialize state from cache for instant display (stale-while-revalidate)
@@ -143,7 +146,8 @@ const StockLevelsDashboard = () => {
   // Track whether we have data (avoids stale closure in useCallback)
   const hasDataRef = useRef(cachedState.hasCache);
 
-  // Phase 1 additions: Group By, Column Configuration, Batch KPI toggle
+  // Phase 1 additions: Group By, Column Configuration, Batch KPI toggle, Drawer
+  const [drawerProduct, setDrawerProduct] = useState(null);
   const [groupBy, setGroupBy] = useState("none");
   const [visibleColumns, setVisibleColumns] = useState(loadSavedColumns);
   const [showColumnPicker, setShowColumnPicker] = useState(false);
@@ -403,9 +407,36 @@ const StockLevelsDashboard = () => {
               return (
                 <td
                   key="value"
+                  className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                >
+                  {formatCurrency(item.batchTotalValue || item.totalValue || 0)}
+                </td>
+              );
+            case "avgCost":
+              return (
+                <td
+                  key="avgCost"
                   className={`px-6 py-4 whitespace-nowrap text-sm text-right ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                 >
-                  {formatCurrency(item.totalValue || 0)}
+                  {item.avgCost > 0 ? formatCurrency(item.avgCost) : "-"}
+                </td>
+              );
+            case "lastBuyPrice":
+              return (
+                <td
+                  key="lastBuyPrice"
+                  className={`px-6 py-4 whitespace-nowrap text-sm text-right ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                >
+                  {item.lastBuyPrice > 0 ? formatCurrency(item.lastBuyPrice) : "-"}
+                </td>
+              );
+            case "lastLandedCost":
+              return (
+                <td
+                  key="lastLandedCost"
+                  className={`px-6 py-4 whitespace-nowrap text-sm text-right ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                >
+                  {item.lastLandedCost != null ? formatCurrency(item.lastLandedCost) : "-"}
                 </td>
               );
             case "actions":
@@ -413,11 +444,11 @@ const StockLevelsDashboard = () => {
                 <td key="actions" className="px-6 py-4 whitespace-nowrap text-right">
                   <button
                     type="button"
-                    onClick={() => navigate(`/app/stock-movements?product_id=${item.productId}`)}
+                    onClick={() => setDrawerProduct(item)}
                     className={`p-2 rounded-lg transition-colors ${
                       isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
                     }`}
-                    title="View Movement History"
+                    title="View Batch Details"
                   >
                     <Eye size={18} />
                   </button>
@@ -505,14 +536,16 @@ const StockLevelsDashboard = () => {
             className={`p-4 rounded-xl border ${
               isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
             }`}
-            title="Estimated value of all stock based on last purchase price"
+            title="Total inventory value using effective cost (landed for imports, unit cost for local)"
           >
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg ${isDarkMode ? "bg-green-900/30" : "bg-green-100"}`}>
                 <DollarSign size={20} className={isDarkMode ? "text-green-400" : "text-green-600"} />
               </div>
               <div>
-                <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Total Value</p>
+                <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  {summary.hasImportedBatches ? "Total Value (Landed)" : "Total Value (Cost)"}
+                </p>
                 <p className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   {formatCurrency(summary.totalValue || 0)}
                 </p>
@@ -878,6 +911,13 @@ const StockLevelsDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Product Batch Drawer */}
+      <ProductBatchDrawer
+        open={!!drawerProduct}
+        onClose={() => setDrawerProduct(null)}
+        product={drawerProduct}
+      />
     </div>
   );
 };

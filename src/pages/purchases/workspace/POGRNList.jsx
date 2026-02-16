@@ -5,6 +5,7 @@ import StockReceiptForm from "../../../components/purchase-order/StockReceiptFor
 import { useWorkspace } from "../../../components/purchase-order/workspace/WorkspaceContext";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { grnService } from "../../../services/grnService";
+import { purchaseOrderService } from "../../../services/purchaseOrderService";
 import { formatDate } from "../../../utils/invoiceUtils";
 
 const STATUS_COLORS = {
@@ -21,6 +22,7 @@ export default function POGRNList() {
   const [grns, setGrns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateGRN, setShowCreateGRN] = useState(false);
+  const [poData, setPoData] = useState(null);
 
   const fetchGrns = useCallback(async () => {
     setLoading(true);
@@ -37,6 +39,12 @@ export default function POGRNList() {
   useEffect(() => {
     fetchGrns();
   }, [fetchGrns]);
+
+  // Fetch full PO data (items needed for StockReceiptForm)
+  useEffect(() => {
+    if (!poId) return;
+    purchaseOrderService.getById(poId).then(setPoData).catch(() => {});
+  }, [poId]);
 
   const handleGRNCreated = () => {
     setShowCreateGRN(false);
@@ -129,6 +137,15 @@ export default function POGRNList() {
       <StockReceiptForm
         open={showCreateGRN}
         purchaseOrderId={parseInt(poId, 10)}
+        poNumber={poData?.poNumber || summary?.po?.po_number || ""}
+        poItems={(poData?.items || []).map((item) => ({
+          id: item.id,
+          product_id: item.productId || item.product_id,
+          name: item.name || item.productName || item.productType,
+          quantity: item.quantity,
+          unit: item.unit || "KG",
+          received_qty: item.receivedQty || item.received_qty || 0,
+        }))}
         onClose={() => setShowCreateGRN(false)}
         onSuccess={handleGRNCreated}
       />
