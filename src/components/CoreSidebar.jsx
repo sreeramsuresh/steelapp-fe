@@ -246,7 +246,7 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           path: "/app/pricelists",
           icon: Scroll,
           description: "Manage product price lists",
-          requiredPermission: "products.read",
+          requiredPermission: "pricelists.read",
         },
       ],
     },

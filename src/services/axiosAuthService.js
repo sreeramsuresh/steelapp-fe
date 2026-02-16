@@ -140,8 +140,10 @@ class AuthService {
         tokenUtils.setToken(accessToken);
         tokenUtils.setRefreshToken(refreshToken);
 
-        // Populate permissions based on role
-        this._populatePermissionsForRole(user);
+        // Use backend-resolved permissions if available, otherwise fall back to static role map
+        if (!user.permissions || Object.keys(user.permissions).length === 0) {
+          this._populatePermissionsForRole(user);
+        }
 
         tokenUtils.setUser(user);
       }
@@ -159,8 +161,10 @@ class AuthService {
       const response = await apiService.get("/auth/me", config);
 
       if (response.user) {
-        // Populate permissions based on role
-        this._populatePermissionsForRole(response.user);
+        // Use backend-resolved permissions if available, otherwise fall back to static role map
+        if (!response.user.permissions || Object.keys(response.user.permissions).length === 0) {
+          this._populatePermissionsForRole(response.user);
+        }
         tokenUtils.setUser(response.user);
         return response.user;
       }
@@ -265,7 +269,9 @@ class AuthService {
         if (refreshToken) {
           tokenUtils.setRefreshToken(refreshToken);
         }
-        this._populatePermissionsForRole(user);
+        if (!user.permissions || Object.keys(user.permissions).length === 0) {
+          this._populatePermissionsForRole(user);
+        }
         tokenUtils.setUser(user);
       }
 
@@ -372,7 +378,9 @@ class AuthService {
         if (refreshToken) {
           tokenUtils.setRefreshToken(refreshToken);
         }
-        this._populatePermissionsForRole(user);
+        if (!user.permissions || Object.keys(user.permissions).length === 0) {
+          this._populatePermissionsForRole(user);
+        }
         tokenUtils.setUser(user);
       }
 
