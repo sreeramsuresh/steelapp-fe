@@ -99,6 +99,15 @@ export default {
           "sans-serif",
         ],
       },
+      keyframes: {
+        'line-item-slide-in': {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'line-item-slide-in': 'line-item-slide-in 0.3s ease both',
+      },
     },
   },
   plugins: [],

@@ -13,12 +13,13 @@ import {
   Save,
   Ship,
   StickyNote,
-  Trash2,
   Upload,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import LineItemCard from "../components/shared/LineItemCard";
+import LineItemEmptyState from "../components/shared/LineItemEmptyState";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
 import { useTheme } from "../contexts/ThemeContext";
@@ -36,9 +37,6 @@ const CARD_CLASSES = (isDarkMode) =>
 
 const LABEL_CLASSES = (isDarkMode) =>
   `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
-
-const TH_CLASSES = (isDarkMode) =>
-  `px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`;
 
 const BTN_PRIMARY =
   "bg-teal-500 border-transparent text-white font-extrabold hover:bg-teal-400 rounded-xl py-2.5 px-3 text-[13px] cursor-pointer";
@@ -1516,333 +1514,249 @@ const ImportOrderForm = () => {
                 </div>
               )}
 
-              <div className="overflow-x-auto">
-                <table className="w-full table-fixed min-w-[1200px]" data-testid="line-items-table">
-                  <thead>
-                    <tr className={isDarkMode ? "border-b border-gray-700" : "border-b border-gray-200"}>
-                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "3%" }}>
-                        #
-                      </th>
-                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "12%" }}>
-                        Product
-                      </th>
-                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "5%" }}>
-                        Grade
-                      </th>
-                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "5%" }}>
-                        Finish
-                      </th>
-                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "8%" }}>
-                        Dimensions
-                      </th>
-                      <th className={`${TH_CLASSES(isDarkMode)} text-right`} style={{ width: "5%" }}>
-                        Qty
-                      </th>
-                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "4%" }}>
-                        Unit
-                      </th>
-                      <th className={`${TH_CLASSES(isDarkMode)} text-right`} style={{ width: "6%" }}>
-                        Wt/PC
-                      </th>
-                      <th className={`${TH_CLASSES(isDarkMode)} text-right`} style={{ width: "7%" }}>
-                        Unit Price
-                      </th>
-                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "7%" }}>
-                        HS Code
-                      </th>
-                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "7%" }}>
-                        Mill
-                      </th>
-                      <th className={TH_CLASSES(isDarkMode)} style={{ width: "7%" }}>
-                        Heat #
-                      </th>
-                      <th className={`${TH_CLASSES(isDarkMode)} text-right`} style={{ width: "7%" }}>
-                        FOB Total
-                      </th>
-                      <th className={`${TH_CLASSES(isDarkMode)} text-right`} style={{ width: "7%" }}>
-                        Landed
-                      </th>
-                      <th className={`${TH_CLASSES(isDarkMode)} text-right`} style={{ width: "6%" }}>
-                        Unit L/C
-                      </th>
-                      <th className={`${TH_CLASSES(isDarkMode)} text-right`} style={{ width: "6%" }}>
-                        Cost/PC
-                      </th>
-                      <th style={{ width: "3%" }} />
-                    </tr>
-                  </thead>
-                  <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
-                    {order.items.map((item, index) => (
-                      <tr
+              {order.items.length === 0 ? (
+                <LineItemEmptyState
+                  title="No line items yet"
+                  description="Add products to this import order to get started."
+                  buttonText="Add First Item"
+                  onAdd={addLineItem}
+                />
+              ) : (
+                <div className="space-y-3" data-testid="line-items-table">
+                  {order.items.map((item, index) => {
+                    const itemTotal = calculateItemTotal(item);
+                    const INPUT_CLS = `w-full px-2 py-1.5 text-xs border rounded-md ${
+                      isDarkMode ? "border-gray-600 bg-gray-800 text-white" : "border-gray-300 bg-white text-gray-900"
+                    }`;
+                    const LABEL_CLS = `text-[10.5px] font-semibold uppercase tracking-[0.05em] mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`;
+
+                    return (
+                      <LineItemCard
                         key={item.id}
+                        index={index}
                         data-testid={`item-row-${index}`}
-                        className={`${isDarkMode ? "hover:bg-gray-700/50" : "hover:bg-gray-50"}`}
-                      >
-                        <td className="py-2 pr-2">
-                          <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                            {index + 1}
-                          </span>
-                        </td>
-                        <td className="py-2 pr-2">
-                          <div className="space-y-1">
-                            <select
-                              data-testid={`item-product-${index}`}
-                              value={item.product_id}
-                              onChange={(e) => handleProductSelect(index, e.target.value)}
-                              className="text-xs"
-                            >
-                              <option value="">Select Product</option>
-                              {products.map((product) => (
-                                <option key={product.id} value={product.id}>
-                                  {product.uniqueName ||
-                                    product.unique_name ||
-                                    product.displayName ||
-                                    product.display_name ||
-                                    "N/A"}
-                                </option>
-                              ))}
-                            </select>
-                            <input
-                              type="text"
-                              value={item.unique_name}
-                              onChange={(e) => handleItemChange(index, "unique_name", e.target.value)}
-                              placeholder="SS-304-SHEET-2B-1250mm-2.0mm-2500mm"
-                              className={`w-full px-2 py-1 text-xs border rounded ${
-                                isDarkMode
-                                  ? "border-gray-600 bg-gray-800 text-white"
-                                  : "border-gray-300 bg-white text-gray-900"
-                              }`}
-                            />
-                            {item.ssot_override && (
-                              <p className="text-xs text-amber-500 mt-1 flex items-center gap-1">
-                                <AlertTriangle className="w-3 h-3" />
-                                SSOT override - requires manager approval
-                              </p>
-                            )}
+                        onDelete={() => removeLineItem(index)}
+                        disabled={order.items.length <= 1}
+                        amountDisplay={formatCurrency(itemTotal)}
+                        amountBreakdown={
+                          item.quantity && item.unit_price ? `${item.quantity} ${item.unit} × ${item.unit_price}` : null
+                        }
+                        row1Content={
+                          <div className="flex items-start gap-3">
+                            {/* Product select + unique name */}
+                            <div className="flex-1 min-w-0">
+                              <div className={LABEL_CLS}>Product</div>
+                              <select
+                                data-testid={`item-product-${index}`}
+                                value={item.product_id}
+                                onChange={(e) => handleProductSelect(index, e.target.value)}
+                                className={`${INPUT_CLS} mb-1`}
+                              >
+                                <option value="">Select Product</option>
+                                {products.map((product) => (
+                                  <option key={product.id} value={product.id}>
+                                    {product.uniqueName ||
+                                      product.unique_name ||
+                                      product.displayName ||
+                                      product.display_name ||
+                                      "N/A"}
+                                  </option>
+                                ))}
+                              </select>
+                              <input
+                                type="text"
+                                value={item.unique_name}
+                                onChange={(e) => handleItemChange(index, "unique_name", e.target.value)}
+                                placeholder="SS-304-SHEET-2B-1250mm-2.0mm-2500mm"
+                                className={INPUT_CLS}
+                              />
+                              {item.ssot_override && (
+                                <p className="text-xs text-amber-500 mt-1 flex items-center gap-1">
+                                  <AlertTriangle className="w-3 h-3" />
+                                  SSOT override - requires manager approval
+                                </p>
+                              )}
+                            </div>
+                            {/* Grade */}
+                            <div className="w-[80px]">
+                              <div className={LABEL_CLS}>Grade</div>
+                              <input
+                                type="text"
+                                value={item.grade}
+                                onChange={(e) => handleItemChange(index, "grade", e.target.value)}
+                                placeholder="304"
+                                className={INPUT_CLS}
+                              />
+                            </div>
+                            {/* Finish */}
+                            <div className="w-[70px]">
+                              <div className={LABEL_CLS}>Finish</div>
+                              <input
+                                type="text"
+                                value={item.finish}
+                                onChange={(e) => handleItemChange(index, "finish", e.target.value.toUpperCase())}
+                                placeholder="2B"
+                                className={INPUT_CLS}
+                              />
+                            </div>
+                            {/* Dimensions */}
+                            <div className="w-[130px]">
+                              <div className={LABEL_CLS}>Dimensions</div>
+                              <div className="flex gap-1">
+                                <input
+                                  type="text"
+                                  value={item.thickness}
+                                  onChange={(e) => handleItemChange(index, "thickness", e.target.value)}
+                                  placeholder="T"
+                                  title="Thickness"
+                                  className={`${INPUT_CLS} text-center`}
+                                />
+                                <input
+                                  type="text"
+                                  value={item.width}
+                                  onChange={(e) => handleItemChange(index, "width", e.target.value)}
+                                  placeholder="W"
+                                  title="Width"
+                                  className={`${INPUT_CLS} text-center`}
+                                />
+                                <input
+                                  type="text"
+                                  value={item.length}
+                                  onChange={(e) => handleItemChange(index, "length", e.target.value)}
+                                  placeholder="L"
+                                  title="Length"
+                                  className={`${INPUT_CLS} text-center`}
+                                />
+                              </div>
+                            </div>
+                            {/* Quantity */}
+                            <div className="w-[90px]">
+                              <div className={LABEL_CLS}>Qty</div>
+                              <input
+                                type="number"
+                                value={item.quantity}
+                                onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
+                                min="0"
+                                step="0.001"
+                                className={`${INPUT_CLS} text-right`}
+                              />
+                            </div>
+                            {/* UOM */}
+                            <div className="w-[70px]">
+                              <div className={LABEL_CLS}>Unit</div>
+                              <select
+                                value={item.unit}
+                                onChange={(e) => handleItemChange(index, "unit", e.target.value)}
+                                className={INPUT_CLS}
+                              >
+                                {UNIT_OPTIONS.map((opt) => (
+                                  <option key={opt.value} value={opt.value}>
+                                    {opt.value}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
                           </div>
-                        </td>
-                        <td className="py-2 pr-2">
-                          <input
-                            type="text"
-                            value={item.grade}
-                            onChange={(e) => handleItemChange(index, "grade", e.target.value)}
-                            placeholder="304, 316L"
-                            className={`w-full px-2 py-1 text-xs border rounded ${
-                              isDarkMode
-                                ? "border-gray-600 bg-gray-800 text-white"
-                                : "border-gray-300 bg-white text-gray-900"
-                            }`}
-                          />
-                        </td>
-                        <td className="py-2 pr-2">
-                          <input
-                            type="text"
-                            value={item.finish}
-                            onChange={(e) => handleItemChange(index, "finish", e.target.value.toUpperCase())}
-                            placeholder="2B, BA"
-                            className={`w-full px-2 py-1 text-xs border rounded ${
-                              isDarkMode
-                                ? "border-gray-600 bg-gray-800 text-white"
-                                : "border-gray-300 bg-white text-gray-900"
-                            }`}
-                          />
-                        </td>
-                        <td className="py-2 pr-2">
-                          <div className="flex gap-1">
-                            <input
-                              type="text"
-                              value={item.thickness}
-                              onChange={(e) => handleItemChange(index, "thickness", e.target.value)}
-                              placeholder="T"
-                              title="Thickness"
-                              className={`w-10 px-1 py-1 text-xs border rounded text-center ${
-                                isDarkMode
-                                  ? "border-gray-600 bg-gray-800 text-white"
-                                  : "border-gray-300 bg-white text-gray-900"
-                              }`}
-                            />
-                            <input
-                              type="text"
-                              value={item.width}
-                              onChange={(e) => handleItemChange(index, "width", e.target.value)}
-                              placeholder="W"
-                              title="Width"
-                              className={`w-10 px-1 py-1 text-xs border rounded text-center ${
-                                isDarkMode
-                                  ? "border-gray-600 bg-gray-800 text-white"
-                                  : "border-gray-300 bg-white text-gray-900"
-                              }`}
-                            />
-                            <input
-                              type="text"
-                              value={item.length}
-                              onChange={(e) => handleItemChange(index, "length", e.target.value)}
-                              placeholder="L"
-                              title="Length"
-                              className={`w-10 px-1 py-1 text-xs border rounded text-center ${
-                                isDarkMode
-                                  ? "border-gray-600 bg-gray-800 text-white"
-                                  : "border-gray-300 bg-white text-gray-900"
-                              }`}
-                            />
-                          </div>
-                        </td>
-                        <td className="py-2 pr-2">
-                          <input
-                            type="number"
-                            value={item.quantity}
-                            onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
-                            min="0"
-                            step="0.001"
-                            className={`w-full px-2 py-1 text-xs border rounded text-right ${
-                              isDarkMode
-                                ? "border-gray-600 bg-gray-800 text-white"
-                                : "border-gray-300 bg-white text-gray-900"
-                            }`}
-                          />
-                        </td>
-                        <td className="py-2 pr-2">
-                          <select
-                            value={item.unit}
-                            onChange={(e) => handleItemChange(index, "unit", e.target.value)}
-                            className={`w-full px-1 py-1 text-xs border rounded ${
-                              isDarkMode
-                                ? "border-gray-600 bg-gray-800 text-white"
-                                : "border-gray-300 bg-white text-gray-900"
-                            }`}
-                          >
-                            {UNIT_OPTIONS.map((opt) => (
-                              <option key={opt.value} value={opt.value}>
-                                {opt.value}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        {/* PCS-Centric: Weight per piece input */}
-                        <td className="py-2 pr-2">
-                          <input
-                            type="number"
-                            value={item.weight_per_piece_kg || ""}
-                            onChange={(e) =>
-                              handleItemChange(
-                                index,
-                                "weight_per_piece_kg",
-                                e.target.value === "" ? 0 : parseFloat(e.target.value)
-                              )
-                            }
-                            min="0"
-                            step="0.01"
-                            placeholder="e.g., 15"
-                            className={`w-full px-2 py-1 text-xs border rounded text-right ${
-                              isDarkMode
-                                ? "border-gray-600 bg-gray-800 text-white"
-                                : "border-gray-300 bg-white text-gray-900"
-                            }`}
-                          />
-                        </td>
-                        <td className="py-2 pr-2">
-                          <input
-                            type="number"
-                            value={item.unit_price}
-                            onChange={(e) => handleItemChange(index, "unit_price", e.target.value)}
-                            min="0"
-                            step="0.01"
-                            className={`w-full px-2 py-1 text-xs border rounded text-right ${
-                              isDarkMode
-                                ? "border-gray-600 bg-gray-800 text-white"
-                                : "border-gray-300 bg-white text-gray-900"
-                            }`}
-                          />
-                        </td>
-                        <td className="py-2 pr-2">
-                          <input
-                            type="text"
-                            value={item.hs_code}
-                            onChange={(e) => handleItemChange(index, "hs_code", e.target.value)}
-                            placeholder="7216.10"
-                            className={`w-full px-2 py-1 text-xs border rounded ${
-                              isDarkMode
-                                ? "border-gray-600 bg-gray-800 text-white"
-                                : "border-gray-300 bg-white text-gray-900"
-                            }`}
-                          />
-                        </td>
-                        <td className="py-2 pr-2">
-                          <input
-                            type="text"
-                            value={item.mill_name}
-                            onChange={(e) => handleItemChange(index, "mill_name", e.target.value)}
-                            placeholder="Mill name"
-                            className={`w-full px-2 py-1 text-xs border rounded ${
-                              isDarkMode
-                                ? "border-gray-600 bg-gray-800 text-white"
-                                : "border-gray-300 bg-white text-gray-900"
-                            }`}
-                          />
-                        </td>
-                        <td className="py-2 pr-2">
-                          <input
-                            type="text"
-                            value={item.heat_number}
-                            onChange={(e) => handleItemChange(index, "heat_number", e.target.value)}
-                            placeholder="Heat #"
-                            className={`w-full px-2 py-1 text-xs border rounded ${
-                              isDarkMode
-                                ? "border-gray-600 bg-gray-800 text-white"
-                                : "border-gray-300 bg-white text-gray-900"
-                            }`}
-                          />
-                        </td>
-                        <td className="py-2 pr-2 text-right">
-                          <span className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                            {formatCurrency(calculateItemTotal(item))}
-                          </span>
-                        </td>
-                        {/* Landed Cost Columns (Epic 6 - IMPO-006) */}
-                        <td className="py-2 pr-2 text-right">
-                          <span
-                            className={`text-sm font-semibold ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
-                            title={`FOB: ${formatCurrency(item.fob_value || 0)} + Freight: ${formatCurrency(item.allocated_freight || 0)} + Insurance: ${formatCurrency(item.allocated_insurance || 0)} + Duty: ${formatCurrency(item.allocated_duty || 0)} + Other: ${formatCurrency(item.other_allocated_charges || 0)}`}
-                          >
-                            {formatCurrency(item.landed_cost_total || 0)}
-                          </span>
-                        </td>
-                        <td className="py-2 pr-2 text-right">
-                          <span className={`text-xs font-mono ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                            {formatCurrency(item.unit_landed_cost || 0)}
-                          </span>
-                        </td>
-                        {/* PCS-Centric: Cost per piece display */}
-                        <td className="py-2 pr-2 text-right">
-                          {item.cost_per_piece > 0 ? (
-                            <span
-                              className={`text-xs font-semibold ${isDarkMode ? "text-emerald-400" : "text-emerald-600"}`}
-                              title="Landed cost per piece (for COGS calculation)"
-                            >
-                              {formatCurrency(item.cost_per_piece)}
-                            </span>
-                          ) : (
-                            <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>—</span>
-                          )}
-                        </td>
-                        <td className="py-2">
-                          <button
-                            type="button"
-                            onClick={() => removeLineItem(index)}
-                            className={`p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-colors ${
-                              order.items.length <= 1 ? "opacity-50 cursor-not-allowed" : ""
-                            }`}
-                            disabled={order.items.length <= 1}
-                            title="Remove item"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        }
+                        row2Content={
+                          <>
+                            {/* Wt/PC */}
+                            <div className="w-[80px]">
+                              <div className={LABEL_CLS}>Wt/PC</div>
+                              <input
+                                type="number"
+                                value={item.weight_per_piece_kg || ""}
+                                onChange={(e) =>
+                                  handleItemChange(
+                                    index,
+                                    "weight_per_piece_kg",
+                                    e.target.value === "" ? 0 : parseFloat(e.target.value)
+                                  )
+                                }
+                                min="0"
+                                step="0.01"
+                                placeholder="kg"
+                                className={`${INPUT_CLS} text-right`}
+                              />
+                            </div>
+                            {/* Unit Price */}
+                            <div className="w-[100px]">
+                              <div className={LABEL_CLS}>Unit Price</div>
+                              <input
+                                type="number"
+                                value={item.unit_price}
+                                onChange={(e) => handleItemChange(index, "unit_price", e.target.value)}
+                                min="0"
+                                step="0.01"
+                                className={`${INPUT_CLS} text-right`}
+                              />
+                            </div>
+                            {/* HS Code */}
+                            <div className="w-[100px]">
+                              <div className={LABEL_CLS}>HS Code</div>
+                              <input
+                                type="text"
+                                value={item.hs_code}
+                                onChange={(e) => handleItemChange(index, "hs_code", e.target.value)}
+                                placeholder="7216.10"
+                                className={INPUT_CLS}
+                              />
+                            </div>
+                            {/* Mill */}
+                            <div className="w-[90px]">
+                              <div className={LABEL_CLS}>Mill</div>
+                              <input
+                                type="text"
+                                value={item.mill_name}
+                                onChange={(e) => handleItemChange(index, "mill_name", e.target.value)}
+                                placeholder="Mill"
+                                className={INPUT_CLS}
+                              />
+                            </div>
+                            {/* Heat # */}
+                            <div className="w-[80px]">
+                              <div className={LABEL_CLS}>Heat #</div>
+                              <input
+                                type="text"
+                                value={item.heat_number}
+                                onChange={(e) => handleItemChange(index, "heat_number", e.target.value)}
+                                placeholder="Heat"
+                                className={INPUT_CLS}
+                              />
+                            </div>
+                            {/* Landed cost info badges */}
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              {(item.landed_cost_total || 0) > 0 && (
+                                <span
+                                  className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${isDarkMode ? "bg-teal-900/40 text-teal-400" : "bg-teal-50 text-teal-700"}`}
+                                  title={`FOB: ${formatCurrency(item.fob_value || 0)} + Freight: ${formatCurrency(item.allocated_freight || 0)} + Insurance: ${formatCurrency(item.allocated_insurance || 0)} + Duty: ${formatCurrency(item.allocated_duty || 0)} + Other: ${formatCurrency(item.other_allocated_charges || 0)}`}
+                                >
+                                  Landed {formatCurrency(item.landed_cost_total || 0)}
+                                </span>
+                              )}
+                              {(item.unit_landed_cost || 0) > 0 && (
+                                <span
+                                  className={`text-[11px] font-mono ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                >
+                                  L/C {formatCurrency(item.unit_landed_cost || 0)}
+                                </span>
+                              )}
+                              {item.cost_per_piece > 0 && (
+                                <span
+                                  className={`text-[11px] font-semibold ${isDarkMode ? "text-emerald-400" : "text-emerald-600"}`}
+                                  title="Landed cost per piece (for COGS calculation)"
+                                >
+                                  /PC {formatCurrency(item.cost_per_piece)}
+                                </span>
+                              )}
+                            </div>
+                          </>
+                        }
+                      />
+                    );
+                  })}
+                </div>
+              )}
 
               <div className="mt-4 flex justify-between items-center">
                 <Button variant="outline" size="sm" onClick={addLineItem} data-testid="add-item">

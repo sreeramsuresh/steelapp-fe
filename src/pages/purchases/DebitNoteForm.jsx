@@ -24,12 +24,13 @@ import {
   Plus,
   Save,
   Search,
-  Trash2,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import supplierBillCorrectionConfig from "../../components/finance/supplierBillCorrectionConfig";
 import { CorrectionHelpModal, DocumentHistoryPanel } from "../../components/posted-document-framework";
+import LineItemCard from "../../components/shared/LineItemCard";
+import LineItemEmptyState from "../../components/shared/LineItemEmptyState";
 import { FormSelect } from "../../components/ui/form-select";
 import { SelectItem } from "../../components/ui/select";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -838,99 +839,86 @@ const DebitNoteForm = () => {
                   </button>
                 </div>
 
-                <div className="space-y-2" data-testid="line-items">
-                  {debitNote.items.map((item, index) => (
-                    <div
-                      key={item.id}
-                      data-testid={`item-row-${index}`}
-                      className={`p-3 rounded-[14px] border ${cardBorder}`}
-                    >
-                      <div className="grid grid-cols-12 gap-2">
-                        {/* Description */}
-                        <div className="col-span-12 md:col-span-5">
-                          <label htmlFor={`item-description-${index}`} className={`block text-xs ${textMuted} mb-1`}>
-                            Description
-                          </label>
-                          <input
-                            id={`item-description-${index}`}
-                            type="text"
-                            value={item.description}
-                            disabled={!isEditable}
-                            onChange={(e) => handleItemChange(index, "description", e.target.value)}
-                            placeholder="Item description"
-                            className={`w-full py-2 px-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
-                          />
-                        </div>
-
-                        {/* Quantity */}
-                        <div className="col-span-4 md:col-span-2">
-                          <label htmlFor={`item-quantity-${index}`} className={`block text-xs ${textMuted} mb-1`}>
-                            Qty
-                          </label>
-                          <input
-                            id={`item-quantity-${index}`}
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={item.quantity}
-                            disabled={!isEditable}
-                            onChange={(e) => handleItemChange(index, "quantity", parseFloat(e.target.value) || 0)}
-                            className={`w-full py-2 px-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
-                          />
-                        </div>
-
-                        {/* Unit Price */}
-                        <div className="col-span-4 md:col-span-2">
-                          <label htmlFor={`item-unitPrice-${index}`} className={`block text-xs ${textMuted} mb-1`}>
-                            Unit Price
-                          </label>
-                          <input
-                            id={`item-unitPrice-${index}`}
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={item.unitPrice}
-                            disabled={!isEditable}
-                            onChange={(e) => handleItemChange(index, "unitPrice", parseFloat(e.target.value) || 0)}
-                            className={`w-full py-2 px-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
-                          />
-                        </div>
-
-                        {/* Amount */}
-                        <div className="col-span-3 md:col-span-2">
-                          <label htmlFor={`item-amount-${index}`} className={`block text-xs ${textMuted} mb-1`}>
-                            Amount
-                          </label>
-                          <input
-                            id={`item-amount-${index}`}
-                            type="text"
-                            value={formatCurrency(item.amount)}
-                            disabled
-                            className={`w-full py-2 px-2.5 rounded-xl border text-sm font-mono ${
-                              isDarkMode
-                                ? "bg-gray-950 border-gray-700 text-gray-400"
-                                : "bg-gray-100 border-gray-300 text-gray-500"
-                            }`}
-                          />
-                        </div>
-
-                        {/* Delete Button */}
-                        <div className="col-span-1 flex items-end justify-end">
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveItem(index)}
-                            disabled={!isEditable}
-                            className={`p-2 rounded-xl transition-colors ${
-                              isDarkMode ? "hover:bg-red-900/30 text-red-400" : "hover:bg-red-100 text-red-600"
-                            } ${!isEditable ? "opacity-40 cursor-not-allowed" : ""}`}
-                            title="Remove item"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="space-y-3" data-testid="line-items">
+                  {debitNote.items.length === 0 ? (
+                    <LineItemEmptyState
+                      title="No line items yet"
+                      description="Click the button below to add adjustment items."
+                      buttonText="Add First Item"
+                      onAdd={handleAddItem}
+                    />
+                  ) : (
+                    debitNote.items.map((item, index) => (
+                      <LineItemCard
+                        key={item.id}
+                        index={index}
+                        data-testid={`item-row-${index}`}
+                        row1Content={
+                          <div className="flex items-end gap-3">
+                            <div className="flex-1">
+                              <label
+                                htmlFor={`item-description-${index}`}
+                                className={`block text-[10.5px] font-semibold uppercase tracking-[0.05em] mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                              >
+                                Description
+                              </label>
+                              <input
+                                id={`item-description-${index}`}
+                                type="text"
+                                value={item.description}
+                                disabled={!isEditable}
+                                onChange={(e) => handleItemChange(index, "description", e.target.value)}
+                                placeholder="Item description"
+                                className={`w-full py-1.5 px-2.5 rounded-md border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
+                              />
+                            </div>
+                            <div className="w-24">
+                              <label
+                                htmlFor={`item-quantity-${index}`}
+                                className={`block text-[10.5px] font-semibold uppercase tracking-[0.05em] mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                              >
+                                Qty
+                              </label>
+                              <input
+                                id={`item-quantity-${index}`}
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={item.quantity}
+                                disabled={!isEditable}
+                                onChange={(e) => handleItemChange(index, "quantity", parseFloat(e.target.value) || 0)}
+                                className={`w-full py-1.5 px-2.5 rounded-md border text-sm text-right ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
+                              />
+                            </div>
+                          </div>
+                        }
+                        row2Content={
+                          <div className="w-32">
+                            <label
+                              htmlFor={`item-unitPrice-${index}`}
+                              className={`block text-[10.5px] font-semibold uppercase tracking-[0.05em] mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                            >
+                              Unit Price
+                            </label>
+                            <input
+                              id={`item-unitPrice-${index}`}
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={item.unitPrice}
+                              disabled={!isEditable}
+                              onChange={(e) => handleItemChange(index, "unitPrice", parseFloat(e.target.value) || 0)}
+                              className={`w-full py-1.5 px-2.5 rounded-md border text-sm text-right ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
+                            />
+                          </div>
+                        }
+                        amountDisplay={formatCurrency(item.amount)}
+                        amountBreakdown={`${item.quantity || 0} x ${(parseFloat(item.unitPrice) || 0).toFixed(2)}`}
+                        onDelete={() => handleRemoveItem(index)}
+                        disabled={!isEditable}
+                      />
+                    ))
+                  )}
                 </div>
               </div>
 

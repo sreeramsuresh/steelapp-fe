@@ -5,11 +5,9 @@ import {
   Eye,
   Loader2,
   Package,
-  Pin,
   Plus,
   Save,
   Settings,
-  Trash2,
   Truck,
   User,
   Warehouse,
@@ -61,7 +59,10 @@ import ValidatedInput from "../components/forms/ValidatedInput";
 import PurchaseWorkflowTimeline from "../components/purchase-order/PurchaseWorkflowTimeline";
 import StockReceiptForm from "../components/purchase-order/StockReceiptForm";
 import PurchaseOrderPreview from "../components/purchase-orders/PurchaseOrderPreview";
+import LineItemCard from "../components/shared/LineItemCard";
+import LineItemEmptyState from "../components/shared/LineItemEmptyState";
 import ProductAutocomplete from "../components/shared/ProductAutocomplete";
+import QuickAddChips from "../components/shared/QuickAddChips";
 import TRNInput from "../components/TRNInput";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
@@ -2117,293 +2118,235 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                   </button>
                 </div>
 
-                {/* Quick Add Speed Buttons */}
+                {/* Quick Add Chips */}
                 {formPreferences.showSpeedButtons && (
-                  <div className="mb-3">
-                    <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                      Quick Add (Pinned & Top Products)
-                    </p>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {sortedProducts.slice(0, 8).map((product) => {
-                        const isPinned = pinnedProductIds.includes(product.id);
-                        return (
-                          <div key={product.id} className="relative group">
-                            <button
-                              type="button"
-                              onClick={() => handleQuickAddItem(product)}
-                              className={`w-full px-2.5 py-2 pr-7 rounded-md border text-xs font-medium transition-all truncate text-left ${
-                                isPinned
-                                  ? isDarkMode
-                                    ? "border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60"
-                                    : "border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200"
-                                  : isDarkMode
-                                    ? "border-gray-700 bg-gray-900 text-gray-400 hover:border-teal-500"
-                                    : "border-gray-300 bg-white text-gray-700 hover:border-blue-500"
-                              }`}
-                              title={
-                                product.displayName ||
-                                product.display_name ||
-                                product.name ||
-                                product.description ||
-                                product.sku ||
-                                "Product"
-                              }
-                            >
-                              {product.uniqueName ||
-                                product.unique_name ||
-                                product.name ||
-                                product.description ||
-                                product.sku ||
-                                "Product"}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(e) => handleTogglePin(e, product.id)}
-                              className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all ${
-                                isPinned
-                                  ? isDarkMode
-                                    ? "text-teal-300"
-                                    : "text-teal-700"
-                                  : isDarkMode
-                                    ? "text-gray-500 hover:text-teal-400"
-                                    : "text-gray-400 hover:text-teal-600"
-                              }`}
-                              title={isPinned ? "Unpin product" : "Pin product"}
-                            >
-                              {isPinned ? <Pin size={12} fill="currentColor" /> : <Pin size={12} />}
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  <QuickAddChips
+                    products={sortedProducts.slice(0, 8)}
+                    pinnedIds={pinnedProductIds}
+                    onSelect={handleQuickAddItem}
+                    onTogglePin={handleTogglePin}
+                    label="Quick Add — Pinned & Top Products"
+                  />
                 )}
 
-                {/* Desktop Table - preserve existing table structure but remove duplicate */}
-                <div className="hidden md:block overflow-x-auto">
-                  <table
-                    className={`min-w-full table-fixed ${isDarkMode ? "divide-gray-600" : "divide-gray-200"}`}
-                    data-testid="line-items-table"
-                  >
-                    <thead className={isDarkMode ? "bg-gray-900" : "bg-gray-50"}>
-                      <tr>
-                        <th
-                          className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                          style={{ width: "28%" }}
-                        >
-                          Product
-                        </th>
-                        <th
-                          className={`px-2 py-2 text-right text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                          style={{ width: "10%" }}
-                        >
-                          Qty
-                        </th>
-                        <th
-                          className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                          style={{ width: "16%" }}
-                        >
-                          Rate
-                        </th>
-                        <th
-                          className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                          style={{ width: "12%" }}
-                        >
-                          Channel
-                        </th>
-                        <th
-                          className={`px-2 py-2 text-right text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                          style={{ width: "8%" }}
-                        >
-                          VAT %
-                        </th>
-                        <th
-                          className={`px-2 py-2 text-right text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                          style={{ width: "12%" }}
-                        >
-                          Amount
-                        </th>
-                        <th
-                          className={`px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                          style={{ width: "4%" }}
-                        ></th>
-                      </tr>
-                    </thead>
-                    <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
-                      {purchaseOrder.items.map((item, index) => (
-                        <tr
-                          key={item.id || index}
-                          data-item-index={index}
-                          data-testid={`item-row-${index}`}
-                          className={isDarkMode ? "bg-gray-800" : "bg-white"}
-                        >
-                          {/* PRODUCT — wider, includes weight info + stock/GRN badges for edit mode */}
-                          <td className="px-2 py-2 align-middle">
-                            <Autocomplete
-                              options={
-                                searchInputs[index]
-                                  ? searchOptions.length
-                                    ? searchOptions
-                                    : productOptions
-                                  : productOptions
-                              }
-                              value={item.productId ? productOptions.find((p) => p.id === item.productId) : null}
-                              inputValue={searchInputs[index] || item.name || ""}
-                              onInputChange={(_event, newInputValue) => handleSearchInputChange(index, newInputValue)}
-                              onChange={(_event, newValue) => {
-                                if (newValue) handleProductSelect(index, newValue);
-                              }}
-                              placeholder="Search products..."
-                              disabled={loading}
-                              error={invalidFields.has(`item.${index}.name`)}
-                              renderOption={(option) => (
-                                <div>
-                                  <div className="font-medium">
-                                    {option.uniqueName ||
-                                      option.unique_name ||
-                                      option.displayName ||
-                                      option.display_name ||
-                                      option.name ||
-                                      option.description ||
-                                      option.sku ||
-                                      "Product"}
-                                  </div>
-                                  <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                                    {option.origin ? `${option.origin} • ` : ""}
-                                    {option.subtitle}
-                                  </div>
-                                </div>
-                              )}
-                              noOptionsText="No products found"
-                            />
-                            {/* Sub-text: weight info + stock/GRN badges */}
-                            <div className="flex items-center gap-2 mt-1 flex-wrap">
-                              {item.unitWeightKg > 0 && (
-                                <span className={`text-[10px] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                                  Wt: {item.unitWeightKg}kg/pc
-                                  {item.theoreticalWeightKg > 0 && ` · ${item.theoreticalWeightKg.toFixed(1)}kg total`}
-                                </span>
-                              )}
-                              {item.missingWeightWarning && (
-                                <span
-                                  className="text-[10px] text-red-500 font-medium"
-                                  title="Unit weight required for weight-based pricing"
-                                >
-                                  Missing weight
-                                </span>
-                              )}
-                              {id && item.lineStockStatus && item.lineStockStatus !== "PENDING" && (
-                                <span
-                                  className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
-                                    item.lineStockStatus === "RECEIVED"
-                                      ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                                      : "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
-                                  }`}
-                                >
-                                  {item.lineStockStatus}
-                                </span>
-                              )}
-                              {id && item.grnNumber && (
-                                <span
-                                  className="text-[10px] font-medium text-teal-500"
-                                  title={`GRN: ${item.grnNumber}${item.receivedQty ? ` | Rcvd: ${item.receivedQty}` : ""}`}
-                                >
-                                  GRN: {item.grnNumber}
-                                </span>
-                              )}
-                            </div>
-                          </td>
-
-                          {/* QTY */}
-                          <td className="px-2 py-2 align-middle">
-                            <input
-                              type="number"
-                              value={item.quantity || ""}
-                              onChange={(e) => {
-                                const allowDecimal = item.quantityUom === "MT" || item.quantityUom === "KG";
-                                const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
-                                handleItemChange(
-                                  index,
-                                  "quantity",
-                                  e.target.value === "" ? "" : Number.isNaN(val) ? "" : val
-                                );
-                              }}
-                              min="0"
-                              step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
-                              className={`w-full px-2 py-1.5 text-xs border rounded-md text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} ${invalidFields.has(`item.${index}.quantity`) ? "border-red-500" : ""}`}
-                            />
-                            {item.quantityUom && (
-                              <div
-                                className={`text-[10px] text-right mt-0.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                {/* Line Item Cards */}
+                {purchaseOrder.items.length === 0 ? (
+                  <LineItemEmptyState
+                    description="Search for products or use Quick Add to start building this purchase order."
+                    onAdd={addItem}
+                  />
+                ) : (
+                  <div className="flex flex-col gap-2.5 pl-3" data-testid="line-items-table">
+                    {purchaseOrder.items.map((item, index) => (
+                      <LineItemCard
+                        key={item.id || index}
+                        index={index}
+                        onDelete={() => removeItem(index)}
+                        disabled={purchaseOrder.items.length === 1}
+                        amountDisplay={formatCurrency(item.amount)}
+                        amountBreakdown={
+                          item.quantity && item.rate
+                            ? `${item.quantity} ${item.quantityUom || "pcs"} × ${item.rate}/${getBasisLabel(item.pricingBasis || "PER_MT").replace("per ", "")}`
+                            : null
+                        }
+                        row1Content={
+                          <div
+                            className="grid grid-cols-[1fr_100px] gap-3 items-start"
+                            data-testid={`item-row-${index}`}
+                          >
+                            {/* Product */}
+                            <div>
+                              <span
+                                className={`text-[10.5px] font-semibold uppercase tracking-[0.05em] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
                               >
-                                {item.quantityUom}
+                                Product
+                              </span>
+                              <Autocomplete
+                                options={
+                                  searchInputs[index]
+                                    ? searchOptions.length
+                                      ? searchOptions
+                                      : productOptions
+                                    : productOptions
+                                }
+                                value={item.productId ? productOptions.find((p) => p.id === item.productId) : null}
+                                inputValue={searchInputs[index] || item.name || ""}
+                                onInputChange={(_event, newInputValue) => handleSearchInputChange(index, newInputValue)}
+                                onChange={(_event, newValue) => {
+                                  if (newValue) handleProductSelect(index, newValue);
+                                }}
+                                placeholder="Search products..."
+                                disabled={loading}
+                                error={invalidFields.has(`item.${index}.name`)}
+                                renderOption={(option) => (
+                                  <div>
+                                    <div className="font-medium">
+                                      {option.uniqueName ||
+                                        option.unique_name ||
+                                        option.displayName ||
+                                        option.display_name ||
+                                        option.name ||
+                                        option.description ||
+                                        option.sku ||
+                                        "Product"}
+                                    </div>
+                                    <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                                      {option.origin ? `${option.origin} • ` : ""}
+                                      {option.subtitle}
+                                    </div>
+                                  </div>
+                                )}
+                                noOptionsText="No products found"
+                              />
+                              {/* Weight info + stock/GRN badges */}
+                              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                {item.unitWeightKg > 0 && (
+                                  <span
+                                    className={`text-[11px] font-mono ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                  >
+                                    Wt: {item.unitWeightKg}kg/pc
+                                    {item.theoreticalWeightKg > 0 &&
+                                      ` · ${item.theoreticalWeightKg.toFixed(1)}kg total`}
+                                  </span>
+                                )}
+                                {item.missingWeightWarning && (
+                                  <span
+                                    className="text-[10px] text-red-500 font-medium"
+                                    title="Unit weight required for weight-based pricing"
+                                  >
+                                    Missing weight
+                                  </span>
+                                )}
+                                {id && item.lineStockStatus && item.lineStockStatus !== "PENDING" && (
+                                  <span
+                                    className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                                      item.lineStockStatus === "RECEIVED"
+                                        ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                                        : "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
+                                    }`}
+                                  >
+                                    {item.lineStockStatus}
+                                  </span>
+                                )}
+                                {id && item.grnNumber && (
+                                  <span
+                                    className="text-[10px] font-medium text-teal-500"
+                                    title={`GRN: ${item.grnNumber}${item.receivedQty ? ` | Rcvd: ${item.receivedQty}` : ""}`}
+                                  >
+                                    GRN: {item.grnNumber}
+                                  </span>
+                                )}
                               </div>
-                            )}
-                          </td>
-
-                          {/* RATE + PRICING BASIS */}
-                          <td className="px-1 py-2 align-middle">
-                            <div
-                              className={`flex rounded-md overflow-hidden border ${isDarkMode ? "border-gray-700" : "border-gray-300"}`}
-                            >
+                            </div>
+                            {/* Quantity + UOM */}
+                            <div>
+                              <span
+                                className={`text-[10.5px] font-semibold uppercase tracking-[0.05em] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                              >
+                                Quantity
+                              </span>
                               <input
                                 type="number"
-                                value={item.rate || ""}
-                                onChange={(e) =>
+                                value={item.quantity || ""}
+                                onChange={(e) => {
+                                  const allowDecimal = item.quantityUom === "MT" || item.quantityUom === "KG";
+                                  const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
                                   handleItemChange(
                                     index,
-                                    "rate",
-                                    e.target.value === "" ? "" : parseFloat(e.target.value)
-                                  )
-                                }
+                                    "quantity",
+                                    e.target.value === "" ? "" : Number.isNaN(val) ? "" : val
+                                  );
+                                }}
                                 min="0"
-                                step="0.01"
-                                className={`flex-1 w-full px-2 py-1.5 text-xs border-0 outline-none text-right ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"} ${invalidFields.has(`item.${index}.rate`) ? "border-red-500" : ""}`}
-                                style={{ minWidth: 0 }}
+                                step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
+                                className={`w-full h-[38px] px-3 text-[13px] font-mono font-medium text-right border-[1.5px] rounded-md outline-none transition-colors focus:border-teal-500 focus:shadow-[0_0_0_3px_rgba(13,148,136,0.1)] ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-200 text-gray-900"} ${invalidFields.has(`item.${index}.quantity`) ? "border-red-500" : ""}`}
                               />
-                              <select
-                                value={item.pricingBasis || "PER_MT"}
-                                onChange={(e) => handleItemChange(index, "pricingBasis", e.target.value)}
-                                className={`text-[10px] font-bold px-1.5 border-l cursor-pointer outline-none ${
-                                  item.pricingBasis === "PER_KG"
-                                    ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
-                                    : item.pricingBasis === "PER_PCS"
-                                      ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700"
-                                      : isDarkMode
-                                        ? "bg-gray-700 text-gray-400 border-gray-700"
-                                        : "bg-gray-50 text-gray-600 border-gray-300"
-                                }`}
-                              >
-                                {getAllowedBases(item.productCategory).map((b) => (
-                                  <option key={b} value={b}>
-                                    /{getBasisLabel(b).replace("per ", "")}
-                                  </option>
-                                ))}
-                              </select>
+                              {item.quantityUom && (
+                                <span
+                                  className={`inline-block mt-1 text-[11px] font-semibold uppercase tracking-[0.04em] px-2 py-0.5 rounded ${isDarkMode ? "bg-gray-700 text-gray-400" : "bg-gray-100 text-gray-500"}`}
+                                >
+                                  {item.quantityUom}
+                                </span>
+                              )}
                             </div>
-                            {item.rate > 0 && item.unitWeightKg > 0 && item.pricingBasis !== "PER_PCS" && (
-                              <div className={`text-[10px] mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                                {item.pricingBasis === "PER_MT"
-                                  ? `= ${((item.rate / 1000) * item.unitWeightKg).toFixed(2)}/pc`
-                                  : `= ${(item.rate * item.unitWeightKg).toFixed(2)}/pc`}
+                          </div>
+                        }
+                        row2Content={
+                          <>
+                            {/* Rate + Pricing Basis */}
+                            <div className="flex-shrink-0">
+                              <span
+                                className={`text-[10.5px] font-semibold uppercase tracking-[0.05em] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                              >
+                                Rate
+                              </span>
+                              <div
+                                className={`flex rounded-md overflow-hidden border-[1.5px] ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                              >
+                                <input
+                                  type="number"
+                                  value={item.rate || ""}
+                                  onChange={(e) =>
+                                    handleItemChange(
+                                      index,
+                                      "rate",
+                                      e.target.value === "" ? "" : parseFloat(e.target.value)
+                                    )
+                                  }
+                                  min="0"
+                                  step="0.01"
+                                  className={`w-[100px] h-[38px] px-3 text-[13px] font-mono font-medium text-right border-0 outline-none ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"} ${invalidFields.has(`item.${index}.rate`) ? "ring-1 ring-red-500" : ""}`}
+                                  placeholder="0.00"
+                                />
+                                <select
+                                  value={item.pricingBasis || "PER_MT"}
+                                  onChange={(e) => handleItemChange(index, "pricingBasis", e.target.value)}
+                                  className={`h-[38px] px-2 text-[11px] font-bold uppercase tracking-[0.03em] border-l cursor-pointer outline-none ${
+                                    item.pricingBasis === "PER_KG"
+                                      ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
+                                      : item.pricingBasis === "PER_PCS"
+                                        ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700"
+                                        : isDarkMode
+                                          ? "bg-gray-700 text-gray-400 border-gray-700"
+                                          : "bg-gray-50 text-gray-600 border-gray-200"
+                                  }`}
+                                >
+                                  {getAllowedBases(item.productCategory).map((b) => (
+                                    <option key={b} value={b}>
+                                      /{getBasisLabel(b).replace("per ", "")}
+                                    </option>
+                                  ))}
+                                </select>
                               </div>
-                            )}
-                          </td>
+                              {item.rate > 0 && item.unitWeightKg > 0 && item.pricingBasis !== "PER_PCS" && (
+                                <div
+                                  className={`text-[10px] font-mono mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                >
+                                  {item.pricingBasis === "PER_MT"
+                                    ? `= ${((item.rate / 1000) * item.unitWeightKg).toFixed(2)}/pc`
+                                    : `= ${(item.rate * item.unitWeightKg).toFixed(2)}/pc`}
+                                </div>
+                              )}
+                            </div>
 
-                          {/* CHANNEL */}
-                          <td className="px-2 py-2 align-middle">
-                            <div className="space-y-1">
+                            {/* Channel */}
+                            <div className="flex-shrink-0">
+                              <span
+                                className={`text-[10.5px] font-semibold uppercase tracking-[0.05em] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                              >
+                                Channel
+                              </span>
                               <select
                                 value={item.procurementChannel || "LOCAL"}
                                 onChange={(e) => handleItemChange(index, "procurementChannel", e.target.value)}
-                                className={`w-full px-2 py-1 border rounded-md text-xs ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} ${
+                                className={`block h-[38px] w-[110px] px-2 text-[12.5px] font-medium border-[1.5px] rounded-md cursor-pointer outline-none transition-colors focus:border-teal-500 ${
                                   item.procurementChannel === "IMPORTED"
                                     ? isDarkMode
-                                      ? "border-emerald-600"
-                                      : "border-emerald-400"
+                                      ? "bg-emerald-900/30 border-emerald-600 text-emerald-300"
+                                      : "bg-emerald-50 border-emerald-500 text-emerald-700"
                                     : isDarkMode
-                                      ? "border-blue-600"
-                                      : "border-blue-400"
+                                      ? "bg-blue-900/20 border-blue-600 text-blue-300"
+                                      : "bg-blue-50 border-blue-400 text-blue-700"
                                 }`}
                               >
                                 <option value="LOCAL">LOCAL</option>
@@ -2413,7 +2356,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                                 <select
                                   value={item.importContainerId || ""}
                                   onChange={(e) => handleItemChange(index, "importContainerId", e.target.value || null)}
-                                  className={`w-full px-2 py-1 border rounded-md text-xs ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                                  className={`block w-[110px] mt-1 px-2 py-1 border rounded-md text-[11px] ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                                 >
                                   <option value="">No container</option>
                                   {importContainers.map((container) => (
@@ -2424,67 +2367,33 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                                 </select>
                               )}
                             </div>
-                          </td>
 
-                          {/* VAT % — includes supply type as sub-select */}
-                          <td className="px-2 py-2 align-middle">
-                            <input
-                              type="number"
-                              value={item.vatRate || ""}
-                              onChange={(e) =>
-                                handleItemChange(
-                                  index,
-                                  "vatRate",
-                                  e.target.value === "" ? "" : parseFloat(e.target.value)
-                                )
-                              }
-                              min="0"
-                              max="15"
-                              step="0.01"
-                              placeholder="5.00"
-                              className={`w-full px-2 py-1.5 text-xs border rounded-md text-right ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
-                            />
-                            <select
-                              value={item.supplyType || "standard"}
-                              onChange={(e) => handleItemChange(index, "supplyType", e.target.value)}
-                              className={`w-full mt-1 px-1 py-0.5 border rounded text-[10px] ${isDarkMode ? "bg-gray-900 border-gray-700 text-gray-400" : "bg-gray-50 border-gray-200 text-gray-500"}`}
-                            >
-                              <option value="standard">Std</option>
-                              <option value="zero_rated">Zero</option>
-                              <option value="exempt">Exempt</option>
-                            </select>
-                          </td>
-
-                          {/* AMOUNT */}
-                          <td className="px-2 py-2 align-middle">
-                            <div
-                              className={`font-mono text-xs text-right font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                            >
-                              {formatCurrency(item.amount)}
+                            {/* VAT */}
+                            <div className="flex-shrink-0 flex items-center gap-1">
+                              <select
+                                value={item.supplyType || "standard"}
+                                onChange={(e) => {
+                                  handleItemChange(index, "supplyType", e.target.value);
+                                  if (e.target.value === "zero_rated" || e.target.value === "exempt") {
+                                    handleItemChange(index, "vatRate", 0);
+                                  } else {
+                                    handleItemChange(index, "vatRate", 5);
+                                  }
+                                }}
+                                className={`h-[32px] px-2 text-[11px] font-semibold font-mono rounded-full border-[1.5px] border-transparent cursor-pointer outline-none appearance-none text-center transition-colors ${isDarkMode ? "bg-gray-700 text-gray-300 hover:border-gray-600" : "bg-gray-100 text-gray-600 hover:border-gray-300"}`}
+                                style={{ paddingRight: "8px" }}
+                              >
+                                <option value="standard">VAT 5%</option>
+                                <option value="zero_rated">VAT 0%</option>
+                                <option value="exempt">Exempt</option>
+                              </select>
                             </div>
-                          </td>
-
-                          {/* DELETE */}
-                          <td className="px-2 py-2 align-middle text-center">
-                            <button
-                              type="button"
-                              onClick={() => removeItem(index)}
-                              disabled={purchaseOrder.items.length === 1}
-                              className={`hover:text-red-300 ${isDarkMode ? "text-red-400 disabled:text-gray-600" : "text-red-500 disabled:text-gray-400"}`}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Mobile Cards - placeholder for now, keep existing mobile layout logic */}
-                <div className="md:hidden text-xs text-center py-4 text-gray-400">
-                  Mobile view: use desktop for best experience
-                </div>
+                          </>
+                        }
+                      />
+                    ))}
+                  </div>
+                )}
 
                 {/* Inline Totals (visible on left column, quick reference) */}
                 <div className={`mt-4 pt-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>

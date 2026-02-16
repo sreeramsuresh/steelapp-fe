@@ -1,4 +1,4 @@
-import { ArrowLeft, FileText, Loader2, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, FileText, Loader2, Plus, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import LineItemCard from "../components/shared/LineItemCard";
+import LineItemEmptyState from "../components/shared/LineItemEmptyState";
 import { useTheme } from "../contexts/ThemeContext";
 import { suppliersAPI } from "../services/api";
 import {
@@ -363,108 +365,115 @@ export function SupplierQuotationForm() {
         </CardHeader>
         <CardContent>
           {formData.items.length === 0 ? (
-            <div className={`text-center py-8 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-              No items added yet. Click &quot;Add Item&quot; to start.
-            </div>
+            <LineItemEmptyState
+              title="No items added yet"
+              description="Click the button below to start adding line items."
+              buttonText="Add First Item"
+              onAdd={addItem}
+            />
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {formData.items.map((item, index) => (
-                <div
+                <LineItemCard
                   key={item.id || index}
-                  className={`border rounded-lg p-4 space-y-3 ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50"}`}
-                >
-                  <div className="flex justify-between items-start">
-                    <span className={`text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                      Item #{index + 1}
-                    </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeItem(index)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <div className="md:col-span-2">
-                      <Label>Description *</Label>
-                      <Input
-                        value={item.description}
-                        onChange={(e) => handleItemChange(index, "description", e.target.value)}
-                        placeholder="Product description"
-                        required
-                      />
+                  index={index}
+                  onDelete={() => removeItem(index)}
+                  amountDisplay={formatCurrency(item.amount)}
+                  amountBreakdown={
+                    (parseFloat(item.quantity) || 0) > 0 && (parseFloat(item.unitPrice) || 0) > 0
+                      ? `${item.quantity} ${item.unit || "KG"} × ${parseFloat(item.unitPrice).toFixed(2)}`
+                      : null
+                  }
+                  row1Content={
+                    <div className="grid grid-cols-1 sm:grid-cols-[1fr_100px_90px] gap-2 items-end">
+                      <div>
+                        <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                          Description
+                        </span>
+                        <Input
+                          value={item.description}
+                          onChange={(e) => handleItemChange(index, "description", e.target.value)}
+                          placeholder="Product description"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                          Quantity
+                        </span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={item.quantity}
+                          onChange={(e) => handleItemChange(index, "quantity", parseFloat(e.target.value) || 0)}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                          Unit
+                        </span>
+                        <select
+                          value={item.unit}
+                          onChange={(e) => handleItemChange(index, "unit", e.target.value)}
+                          className={`w-full px-3 py-2 text-sm border rounded-md ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : "bg-white border-gray-300"}`}
+                        >
+                          <option value="KG">KG</option>
+                          <option value="MT">MT</option>
+                          <option value="PCS">PCS</option>
+                          <option value="METER">METER</option>
+                          <option value="LOT">LOT</option>
+                        </select>
+                      </div>
                     </div>
-                    <div>
-                      <Label>Grade</Label>
-                      <Input
-                        value={item.grade}
-                        onChange={(e) => handleItemChange(index, "grade", e.target.value)}
-                        placeholder="e.g., 304, 316L"
-                      />
-                    </div>
-                    <div>
-                      <Label>Finish</Label>
-                      <Input
-                        value={item.finish}
-                        onChange={(e) => handleItemChange(index, "finish", e.target.value)}
-                        placeholder="e.g., 2B, BA"
-                      />
-                    </div>
-                    <div>
-                      <Label>Dimensions</Label>
-                      <Input
-                        value={item.dimensions}
-                        onChange={(e) => handleItemChange(index, "dimensions", e.target.value)}
-                        placeholder="e.g., 1.0mm x 1219mm x 2438mm"
-                      />
-                    </div>
-                    <div>
-                      <Label>Quantity *</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={item.quantity}
-                        onChange={(e) => handleItemChange(index, "quantity", parseFloat(e.target.value) || 0)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label>Unit</Label>
-                      <select
-                        value={item.unit}
-                        onChange={(e) => handleItemChange(index, "unit", e.target.value)}
-                        className={`w-full px-3 py-2 border rounded-md ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : ""}`}
-                      >
-                        <option value="KG">KG</option>
-                        <option value="MT">MT</option>
-                        <option value="PCS">PCS</option>
-                        <option value="METER">METER</option>
-                        <option value="LOT">LOT</option>
-                      </select>
-                    </div>
-                    <div>
-                      <Label>Unit Price *</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={item.unitPrice}
-                        onChange={(e) => handleItemChange(index, "unitPrice", parseFloat(e.target.value) || 0)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label>Amount</Label>
-                      <Input
-                        value={formatCurrency(item.amount)}
-                        disabled
-                        className={isDarkMode ? "bg-gray-600" : "bg-gray-100"}
-                      />
-                    </div>
-                  </div>
-                </div>
+                  }
+                  row2Content={
+                    <>
+                      <div className="w-[100px]">
+                        <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                          Grade
+                        </span>
+                        <Input
+                          value={item.grade}
+                          onChange={(e) => handleItemChange(index, "grade", e.target.value)}
+                          placeholder="304, 316L"
+                        />
+                      </div>
+                      <div className="w-[90px]">
+                        <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                          Finish
+                        </span>
+                        <Input
+                          value={item.finish}
+                          onChange={(e) => handleItemChange(index, "finish", e.target.value)}
+                          placeholder="2B, BA"
+                        />
+                      </div>
+                      <div className="w-[160px]">
+                        <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                          Dimensions
+                        </span>
+                        <Input
+                          value={item.dimensions}
+                          onChange={(e) => handleItemChange(index, "dimensions", e.target.value)}
+                          placeholder="1.0mm x 1219mm"
+                        />
+                      </div>
+                      <div className="w-[110px]">
+                        <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                          Unit Price
+                        </span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={item.unitPrice}
+                          onChange={(e) => handleItemChange(index, "unitPrice", parseFloat(e.target.value) || 0)}
+                          required
+                        />
+                      </div>
+                    </>
+                  }
+                />
               ))}
             </div>
           )}

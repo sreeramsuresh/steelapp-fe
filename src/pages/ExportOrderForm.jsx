@@ -18,7 +18,6 @@ import {
   Save,
   Search,
   Ship,
-  Trash2,
   Truck,
   Upload,
   X,
@@ -26,6 +25,8 @@ import {
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import BatchAllocator from "../components/batch/BatchAllocator";
+import LineItemCard from "../components/shared/LineItemCard";
+import LineItemEmptyState from "../components/shared/LineItemEmptyState";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectGroup, SelectItem, SelectLabel } from "../components/ui/select";
 import { useTheme } from "../contexts/ThemeContext";
@@ -48,9 +49,6 @@ const CARD_CLASSES = (isDarkMode) =>
 
 const LABEL_CLASSES = (isDarkMode) =>
   `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
-
-const TH_CLASSES = (isDarkMode) =>
-  `px-2 py-2 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`;
 
 // ============================================================
 // CUSTOM UI COMPONENTS
@@ -2756,328 +2754,248 @@ const ExportOrderForm = () => {
             </div>
           )}
 
-          <div className="overflow-x-auto">
-            <table className="w-full table-fixed min-w-[1200px]" data-testid="line-items-table">
-              <thead>
-                <tr className={isDarkMode ? "border-b border-gray-700" : "border-b border-gray-200"}>
-                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "3%" }}>
-                    #
-                  </th>
-                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "16%" }}>
-                    Product
-                  </th>
-                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "7%" }}>
-                    Grade
-                  </th>
-                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "7%" }}>
-                    Finish
-                  </th>
-                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "10%" }}>
-                    Dimensions
-                  </th>
-                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "10%" }}>
-                    Shipment
-                  </th>
-                  <th className={`${TH_CLASSES(isDarkMode)} text-right`} style={{ width: "7%" }}>
-                    Qty
-                  </th>
-                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "6%" }}>
-                    Unit
-                  </th>
-                  <th className={`${TH_CLASSES(isDarkMode)} text-right`} style={{ width: "9%" }}>
-                    Unit Price
-                  </th>
-                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "10%" }}>
-                    HS Code *
-                  </th>
-                  <th className={TH_CLASSES(isDarkMode)} style={{ width: "6%" }}>
-                    Origin
-                  </th>
-                  <th className={`${TH_CLASSES(isDarkMode)} text-right`} style={{ width: "8%" }}>
-                    Total
-                  </th>
-                  <th style={{ width: "3%" }} />
-                </tr>
-              </thead>
-              <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
-                {order.items.map((item, index) => (
-                  <tr
+          {order.items.length === 0 ? (
+            <LineItemEmptyState
+              title="No line items yet"
+              description="Add products to this export order to get started."
+              buttonText="Add First Item"
+              onAdd={addLineItem}
+            />
+          ) : (
+            <div className="space-y-3" data-testid="line-items-table">
+              {order.items.map((item, index) => {
+                const itemTotal = calculateItemTotal(item);
+                const INPUT_CLS = `w-full px-2 py-1.5 text-xs border rounded-md ${
+                  isDarkMode ? "border-gray-600 bg-gray-800 text-white" : "border-gray-300 bg-white text-gray-900"
+                }`;
+                const LABEL_CLS = `text-[10.5px] font-semibold uppercase tracking-[0.05em] mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`;
+
+                return (
+                  <LineItemCard
                     key={item.id}
+                    index={index}
                     data-testid={`item-row-${index}`}
-                    className={`${isDarkMode ? "hover:bg-gray-700/50" : "hover:bg-gray-50"}`}
-                  >
-                    <td className="py-2 pr-2">
-                      <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>{index + 1}</span>
-                    </td>
-                    <td className="py-2 pr-2">
-                      <div className="space-y-1">
-                        <select
-                          data-testid={`item-product-${index}`}
-                          value={item.product_id}
-                          onChange={(e) => handleProductSelect(index, e.target.value)}
-                          className="text-xs"
-                        >
-                          <option value="">Select Product</option>
-                          {products.map((product) => (
-                            <option key={product.id} value={product.id}>
-                              {product.uniqueName ||
-                                product.unique_name ||
-                                product.displayName ||
-                                product.display_name ||
-                                "N/A"}
-                            </option>
-                          ))}
-                        </select>
-                        <input
-                          type="text"
-                          data-testid={`item-unique-name-${index}`}
-                          value={item.unique_name}
-                          onChange={(e) => handleItemChange(index, "unique_name", e.target.value)}
-                          placeholder="SS-304-SHEET-2B-1250mm-2.0mm-2500mm"
-                          className={`w-full px-2 py-1 text-xs border rounded ${
-                            errors[`item_${index}_unique_name`]
-                              ? "border-red-500"
-                              : isDarkMode
-                                ? "border-gray-600 bg-gray-800 text-white"
-                                : "border-gray-300 bg-white text-gray-900"
-                          }`}
-                        />
-                        {errors[`item_${index}_unique_name`] && (
-                          <p className="text-xs text-red-500 mt-1">{errors[`item_${index}_unique_name`]}</p>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-2 pr-2">
-                      <input
-                        type="text"
-                        data-testid={`item-grade-${index}`}
-                        value={item.grade}
-                        onChange={(e) => handleItemChange(index, "grade", e.target.value)}
-                        placeholder="304, 316L"
-                        className={`w-full px-2 py-1 text-xs border rounded ${
-                          isDarkMode
-                            ? "border-gray-600 bg-gray-800 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
-                        }`}
-                      />
-                    </td>
-                    <td className="py-2 pr-2">
-                      <input
-                        type="text"
-                        data-testid={`item-finish-${index}`}
-                        value={item.finish}
-                        onChange={(e) => handleItemChange(index, "finish", e.target.value.toUpperCase())}
-                        placeholder="2B, BA"
-                        className={`w-full px-2 py-1 text-xs border rounded ${
-                          isDarkMode
-                            ? "border-gray-600 bg-gray-800 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
-                        }`}
-                      />
-                    </td>
-                    <td className="py-2 pr-2">
-                      <div className="flex gap-1">
-                        <input
-                          type="text"
-                          value={item.thickness}
-                          onChange={(e) => handleItemChange(index, "thickness", e.target.value)}
-                          placeholder="T"
-                          title="Thickness"
-                          className={`w-10 px-1 py-1 text-xs border rounded text-center ${
-                            isDarkMode
-                              ? "border-gray-600 bg-gray-800 text-white"
-                              : "border-gray-300 bg-white text-gray-900"
-                          }`}
-                        />
-                        <input
-                          type="text"
-                          value={item.width}
-                          onChange={(e) => handleItemChange(index, "width", e.target.value)}
-                          placeholder="W"
-                          title="Width"
-                          className={`w-10 px-1 py-1 text-xs border rounded text-center ${
-                            isDarkMode
-                              ? "border-gray-600 bg-gray-800 text-white"
-                              : "border-gray-300 bg-white text-gray-900"
-                          }`}
-                        />
-                        <input
-                          type="text"
-                          value={item.length}
-                          onChange={(e) => handleItemChange(index, "length", e.target.value)}
-                          placeholder="L"
-                          title="Length"
-                          className={`w-10 px-1 py-1 text-xs border rounded text-center ${
-                            isDarkMode
-                              ? "border-gray-600 bg-gray-800 text-white"
-                              : "border-gray-300 bg-white text-gray-900"
-                          }`}
-                        />
-                      </div>
-                    </td>
-                    {/* Epic 7: Shipment Type Column */}
-                    <td className="py-2 pr-2">
-                      <div className="space-y-1">
-                        <select
-                          value={item.shipmentType || "WAREHOUSE"}
-                          onChange={(e) => handleItemChange(index, "shipmentType", e.target.value)}
-                          className={`w-full px-2 py-1 text-xs border rounded ${
-                            isDarkMode
-                              ? "border-gray-600 bg-gray-800 text-white"
-                              : "border-gray-300 bg-white text-gray-900"
-                          }`}
-                        >
-                          <option value="WAREHOUSE">Warehouse</option>
-                          <option value="DROP_SHIP">Drop-Ship</option>
-                        </select>
-                        {/* Show batch allocator button for WAREHOUSE items */}
-                        {item.shipmentType === "WAREHOUSE" && (
-                          <button
-                            type="button"
-                            onClick={() => handleOpenBatchAllocator(index)}
-                            className={`w-full flex items-center justify-center gap-1 px-2 py-1 text-xs rounded transition-colors ${
-                              item.batchAllocations?.length > 0
-                                ? "bg-teal-600 text-white hover:bg-teal-500"
-                                : isDarkMode
-                                  ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                            }`}
-                          >
-                            <Layers className="w-3 h-3" />
-                            {item.batchAllocations?.length > 0
-                              ? `${item.batchAllocations.length} batch${item.batchAllocations.length !== 1 ? "es" : ""}`
-                              : "Allocate"}
-                          </button>
-                        )}
-                        {/* Show supplier selector for DROP_SHIP items */}
-                        {item.shipmentType === "DROP_SHIP" && (
+                    onDelete={() => removeLineItem(index)}
+                    disabled={order.items.length <= 1}
+                    amountDisplay={formatCurrency(itemTotal)}
+                    amountBreakdown={
+                      item.quantity && item.unit_price ? `${item.quantity} ${item.unit} × ${item.unit_price}` : null
+                    }
+                    row1Content={
+                      <div className="flex items-start gap-3">
+                        {/* Product select + unique name */}
+                        <div className="flex-1 min-w-0">
+                          <div className={LABEL_CLS}>Product</div>
                           <select
-                            value={item.supplierDropShip || ""}
-                            onChange={(e) => handleItemChange(index, "supplierDropShip", e.target.value)}
-                            className={`w-full px-2 py-1 text-xs border rounded ${
-                              errors[`item_${index}_supplier`]
-                                ? "border-red-500"
-                                : isDarkMode
-                                  ? "border-gray-600 bg-gray-800 text-white"
-                                  : "border-gray-300 bg-white text-gray-900"
-                            }`}
+                            data-testid={`item-product-${index}`}
+                            value={item.product_id}
+                            onChange={(e) => handleProductSelect(index, e.target.value)}
+                            className={`${INPUT_CLS} mb-1`}
                           >
-                            <option value="">Select Supplier</option>
-                            {suppliers.map((sup) => (
-                              <option key={sup.id} value={sup.id}>
-                                {sup.name || sup.supplierName || `Supplier ${sup.id}`}
+                            <option value="">Select Product</option>
+                            {products.map((product) => (
+                              <option key={product.id} value={product.id}>
+                                {product.uniqueName ||
+                                  product.unique_name ||
+                                  product.displayName ||
+                                  product.display_name ||
+                                  "N/A"}
                               </option>
                             ))}
                           </select>
-                        )}
-                        {errors[`item_${index}_batch`] && item.shipmentType === "WAREHOUSE" && (
-                          <p className="text-xs text-red-500">{errors[`item_${index}_batch`]}</p>
-                        )}
-                        {errors[`item_${index}_supplier`] && item.shipmentType === "DROP_SHIP" && (
-                          <p className="text-xs text-red-500">{errors[`item_${index}_supplier`]}</p>
-                        )}
+                          <input
+                            type="text"
+                            data-testid={`item-unique-name-${index}`}
+                            value={item.unique_name}
+                            onChange={(e) => handleItemChange(index, "unique_name", e.target.value)}
+                            placeholder="SS-304-SHEET-2B-1250mm-2.0mm-2500mm"
+                            className={`${INPUT_CLS} ${errors[`item_${index}_unique_name`] ? "border-red-500" : ""}`}
+                          />
+                          {errors[`item_${index}_unique_name`] && (
+                            <p className="text-xs text-red-500 mt-1">{errors[`item_${index}_unique_name`]}</p>
+                          )}
+                        </div>
+                        {/* Grade */}
+                        <div className="w-[80px]">
+                          <div className={LABEL_CLS}>Grade</div>
+                          <input
+                            type="text"
+                            data-testid={`item-grade-${index}`}
+                            value={item.grade}
+                            onChange={(e) => handleItemChange(index, "grade", e.target.value)}
+                            placeholder="304"
+                            className={INPUT_CLS}
+                          />
+                        </div>
+                        {/* Finish */}
+                        <div className="w-[70px]">
+                          <div className={LABEL_CLS}>Finish</div>
+                          <input
+                            type="text"
+                            data-testid={`item-finish-${index}`}
+                            value={item.finish}
+                            onChange={(e) => handleItemChange(index, "finish", e.target.value.toUpperCase())}
+                            placeholder="2B"
+                            className={INPUT_CLS}
+                          />
+                        </div>
+                        {/* Dimensions */}
+                        <div className="w-[130px]">
+                          <div className={LABEL_CLS}>Dimensions</div>
+                          <div className="flex gap-1">
+                            <input
+                              type="text"
+                              value={item.thickness}
+                              onChange={(e) => handleItemChange(index, "thickness", e.target.value)}
+                              placeholder="T"
+                              title="Thickness"
+                              className={`${INPUT_CLS} text-center`}
+                            />
+                            <input
+                              type="text"
+                              value={item.width}
+                              onChange={(e) => handleItemChange(index, "width", e.target.value)}
+                              placeholder="W"
+                              title="Width"
+                              className={`${INPUT_CLS} text-center`}
+                            />
+                            <input
+                              type="text"
+                              value={item.length}
+                              onChange={(e) => handleItemChange(index, "length", e.target.value)}
+                              placeholder="L"
+                              title="Length"
+                              className={`${INPUT_CLS} text-center`}
+                            />
+                          </div>
+                        </div>
+                        {/* Quantity */}
+                        <div className="w-[90px]">
+                          <div className={LABEL_CLS}>Qty</div>
+                          <input
+                            type="number"
+                            data-testid={`item-quantity-${index}`}
+                            value={item.quantity}
+                            onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
+                            min="0"
+                            step="0.001"
+                            className={`${INPUT_CLS} text-right`}
+                          />
+                        </div>
+                        {/* UOM */}
+                        <div className="w-[70px]">
+                          <div className={LABEL_CLS}>Unit</div>
+                          <select
+                            data-testid={`item-unit-${index}`}
+                            value={item.unit}
+                            onChange={(e) => handleItemChange(index, "unit", e.target.value)}
+                            className={INPUT_CLS}
+                          >
+                            {UNIT_OPTIONS.map((opt) => (
+                              <option key={opt.value} value={opt.value}>
+                                {opt.value}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
-                    </td>
-                    <td className="py-2 pr-2">
-                      <input
-                        type="number"
-                        data-testid={`item-quantity-${index}`}
-                        value={item.quantity}
-                        onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
-                        min="0"
-                        step="0.001"
-                        className={`w-full px-2 py-1 text-xs border rounded text-right ${
-                          isDarkMode
-                            ? "border-gray-600 bg-gray-800 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
-                        }`}
-                      />
-                    </td>
-                    <td className="py-2 pr-2">
-                      <select
-                        data-testid={`item-unit-${index}`}
-                        value={item.unit}
-                        onChange={(e) => handleItemChange(index, "unit", e.target.value)}
-                        className={`w-full px-1 py-1 text-xs border rounded ${
-                          isDarkMode
-                            ? "border-gray-600 bg-gray-800 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
-                        }`}
-                      >
-                        {UNIT_OPTIONS.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.value}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="py-2 pr-2">
-                      <input
-                        type="number"
-                        data-testid={`item-unit-price-${index}`}
-                        value={item.unit_price}
-                        onChange={(e) => handleItemChange(index, "unit_price", e.target.value)}
-                        min="0"
-                        step="0.01"
-                        className={`w-full px-2 py-1 text-xs border rounded text-right ${
-                          isDarkMode
-                            ? "border-gray-600 bg-gray-800 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
-                        }`}
-                      />
-                    </td>
-                    <td className="py-2 pr-2">
-                      <input
-                        type="text"
-                        value={item.hs_code}
-                        onChange={(e) => handleItemChange(index, "hs_code", e.target.value)}
-                        placeholder="7216.10.00"
-                        className={`w-full px-2 py-1 text-xs border rounded ${
-                          isDarkMode
-                            ? "border-gray-600 bg-gray-800 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
-                        } ${errors[`item_${index}_hs_code`] ? "border-red-500" : ""}`}
-                      />
-                      {errors[`item_${index}_hs_code`] && <span className="text-xs text-red-500">Required</span>}
-                    </td>
-                    <td className="py-2 pr-2">
-                      <input
-                        type="text"
-                        value={item.country_of_origin}
-                        onChange={(e) => handleItemChange(index, "country_of_origin", e.target.value)}
-                        placeholder="AE"
-                        maxLength={2}
-                        className={`w-full px-2 py-1 text-xs border rounded text-center ${
-                          isDarkMode
-                            ? "border-gray-600 bg-gray-800 text-white"
-                            : "border-gray-300 bg-white text-gray-900"
-                        }`}
-                      />
-                    </td>
-                    <td className="py-2 pr-2 text-right">
-                      <span className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                        {formatCurrency(calculateItemTotal(item))}
-                      </span>
-                    </td>
-                    <td className="py-2">
-                      <button
-                        type="button"
-                        data-testid={`item-delete-${index}`}
-                        onClick={() => removeLineItem(index)}
-                        className={`p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-colors ${
-                          order.items.length <= 1 ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
-                        disabled={order.items.length <= 1}
-                        title="Remove item"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    }
+                    row2Content={
+                      <>
+                        {/* Unit Price */}
+                        <div className="w-[100px]">
+                          <div className={LABEL_CLS}>Unit Price</div>
+                          <input
+                            type="number"
+                            data-testid={`item-unit-price-${index}`}
+                            value={item.unit_price}
+                            onChange={(e) => handleItemChange(index, "unit_price", e.target.value)}
+                            min="0"
+                            step="0.01"
+                            className={`${INPUT_CLS} text-right`}
+                          />
+                        </div>
+                        {/* Shipment */}
+                        <div className="w-[120px]">
+                          <div className={LABEL_CLS}>Shipment</div>
+                          <select
+                            value={item.shipmentType || "WAREHOUSE"}
+                            onChange={(e) => handleItemChange(index, "shipmentType", e.target.value)}
+                            className={INPUT_CLS}
+                          >
+                            <option value="WAREHOUSE">Warehouse</option>
+                            <option value="DROP_SHIP">Drop-Ship</option>
+                          </select>
+                          {item.shipmentType === "WAREHOUSE" && (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenBatchAllocator(index)}
+                              className={`mt-1 w-full flex items-center justify-center gap-1 px-2 py-1 text-xs rounded transition-colors ${
+                                item.batchAllocations?.length > 0
+                                  ? "bg-teal-600 text-white hover:bg-teal-500"
+                                  : isDarkMode
+                                    ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                              }`}
+                            >
+                              <Layers className="w-3 h-3" />
+                              {item.batchAllocations?.length > 0
+                                ? `${item.batchAllocations.length} batch${item.batchAllocations.length !== 1 ? "es" : ""}`
+                                : "Allocate"}
+                            </button>
+                          )}
+                          {item.shipmentType === "DROP_SHIP" && (
+                            <select
+                              value={item.supplierDropShip || ""}
+                              onChange={(e) => handleItemChange(index, "supplierDropShip", e.target.value)}
+                              className={`mt-1 ${INPUT_CLS} ${errors[`item_${index}_supplier`] ? "border-red-500" : ""}`}
+                            >
+                              <option value="">Select Supplier</option>
+                              {suppliers.map((sup) => (
+                                <option key={sup.id} value={sup.id}>
+                                  {sup.name || sup.supplierName || `Supplier ${sup.id}`}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                          {errors[`item_${index}_batch`] && item.shipmentType === "WAREHOUSE" && (
+                            <p className="text-xs text-red-500">{errors[`item_${index}_batch`]}</p>
+                          )}
+                          {errors[`item_${index}_supplier`] && item.shipmentType === "DROP_SHIP" && (
+                            <p className="text-xs text-red-500">{errors[`item_${index}_supplier`]}</p>
+                          )}
+                        </div>
+                        {/* HS Code */}
+                        <div className="w-[110px]">
+                          <div className={LABEL_CLS}>HS Code *</div>
+                          <input
+                            type="text"
+                            value={item.hs_code}
+                            onChange={(e) => handleItemChange(index, "hs_code", e.target.value)}
+                            placeholder="7216.10.00"
+                            className={`${INPUT_CLS} ${errors[`item_${index}_hs_code`] ? "border-red-500" : ""}`}
+                          />
+                          {errors[`item_${index}_hs_code`] && <span className="text-xs text-red-500">Required</span>}
+                        </div>
+                        {/* Origin */}
+                        <div className="w-[60px]">
+                          <div className={LABEL_CLS}>Origin</div>
+                          <input
+                            type="text"
+                            value={item.country_of_origin}
+                            onChange={(e) => handleItemChange(index, "country_of_origin", e.target.value)}
+                            placeholder="AE"
+                            maxLength={2}
+                            className={`${INPUT_CLS} text-center`}
+                          />
+                        </div>
+                      </>
+                    }
+                  />
+                );
+              })}
+            </div>
+          )}
 
           <div className="mt-4 flex justify-between items-center">
             <Button variant="outline" size="sm" onClick={addLineItem} data-testid="add-item">

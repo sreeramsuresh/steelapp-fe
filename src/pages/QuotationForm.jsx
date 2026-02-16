@@ -9,11 +9,9 @@ import {
   Layers,
   Loader2,
   Package,
-  Pin,
   Plus,
   Save,
   Settings,
-  Trash2,
   User,
   X,
 } from "lucide-react";
@@ -32,6 +30,9 @@ import PriceValiditySelector from "../components/quotations/PriceValiditySelecto
 import QuotationPreview from "../components/quotations/QuotationPreview";
 import StockReservationToggle from "../components/quotations/StockReservationToggle";
 import VolumeDiscountTiersModal from "../components/quotations/VolumeDiscountTiersModal";
+import LineItemCard from "../components/shared/LineItemCard";
+import LineItemEmptyState from "../components/shared/LineItemEmptyState";
+import QuickAddChips from "../components/shared/QuickAddChips";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
 import { useTheme } from "../contexts/ThemeContext";
@@ -2204,471 +2205,390 @@ const QuotationForm = () => {
                   </button>
                 </div>
 
-                {/* Speed Buttons */}
+                {/* Quick Add Chips */}
                 {formPreferences.showSpeedButtons && sortedProducts.length > 0 && (
-                  <div className="mb-4">
-                    <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                      Quick Add (Pinned & Top Products)
-                    </p>
-                    <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
-                      {sortedProducts.map((product) => {
-                        const isPinned = pinnedProductIds.includes(product.id);
-                        return (
-                          <div key={product.id} className="relative group flex-shrink-0">
-                            <button
-                              type="button"
-                              onClick={() => quickAddItem(product)}
-                              className={`px-2 md:px-3 py-1.5 md:py-2 pr-6 md:pr-8 rounded-lg border-2 text-xs font-medium transition-all duration-200 hover:scale-105 whitespace-nowrap ${
-                                isPinned
-                                  ? isDarkMode
-                                    ? "border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/60 shadow-md hover:shadow-lg"
-                                    : "border-teal-600 bg-teal-100 text-teal-800 hover:bg-teal-200 shadow-md hover:shadow-lg"
-                                  : isDarkMode
-                                    ? "border-teal-600 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40 hover:shadow-md"
-                                    : "border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:shadow-md"
-                              }`}
-                            >
-                              {unescapeProductName(
-                                product.displayName ||
-                                  product.display_name ||
-                                  product.uniqueName ||
-                                  product.unique_name ||
-                                  "N/A"
-                              )}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(e) => handleTogglePin(e, product.id)}
-                              className={`absolute right-0.5 md:right-1 top-1/2 -translate-y-1/2 p-1 rounded transition-all duration-200 hover:scale-110 ${
-                                isPinned
-                                  ? isDarkMode
-                                    ? "text-teal-300 hover:text-teal-200"
-                                    : "text-teal-700 hover:text-teal-800"
-                                  : isDarkMode
-                                    ? "text-gray-400 hover:text-teal-400"
-                                    : "text-gray-500 hover:text-teal-600"
-                              }`}
-                              title={isPinned ? "Unpin product" : "Pin product"}
-                            >
-                              {isPinned ? (
-                                <Pin size={12} fill="currentColor" className="md:hidden" />
-                              ) : (
-                                <Pin size={12} className="md:hidden" />
-                              )}
-                              {isPinned ? (
-                                <Pin size={14} fill="currentColor" className="hidden md:block" />
-                              ) : (
-                                <Pin size={14} className="hidden md:block" />
-                              )}
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  <QuickAddChips
+                    products={sortedProducts}
+                    pinnedIds={pinnedProductIds}
+                    onSelect={quickAddItem}
+                    onTogglePin={handleTogglePin}
+                    label="Quick Add — Pinned & Top Products"
+                    getProductName={(p) =>
+                      unescapeProductName(p.displayName || p.display_name || p.uniqueName || p.unique_name || "N/A")
+                    }
+                  />
                 )}
 
                 {formData.items.length === 0 ? (
-                  <div className="text-center py-8 md:py-12">
-                    <Package
-                      size={40}
-                      className={`mx-auto mb-3 md:mb-4 md:hidden ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
-                    />
-                    <Package
-                      size={48}
-                      className={`mx-auto mb-3 md:mb-4 hidden md:block ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
-                    />
-                    <p
-                      className={`text-sm md:text-lg font-medium mb-1 md:mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                    >
-                      No items added yet
-                    </p>
-                    <p className={`text-xs md:text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                      Click &quot;Add Item&quot; or use Quick Add buttons
-                    </p>
-                  </div>
+                  <LineItemEmptyState
+                    title="No items added yet"
+                    description="Search for products or use Quick Add chips above to start adding items."
+                    buttonText="Add First Item"
+                    onAdd={addItem}
+                  />
                 ) : (
-                  <div className="space-y-3 md:space-y-4">
+                  <div className="space-y-3">
                     {formData.items.map((item, index) => (
-                      <div
+                      <LineItemCard
                         key={item.id || item.name || `item-${index}`}
-                        className={`p-3 md:p-4 border rounded-lg ${
-                          isDarkMode ? "border-gray-600 bg-gray-800/50" : "border-gray-200 bg-gray-50"
-                        }`}
-                      >
-                        {/* Stock Availability & Source Type Row */}
-                        <div className="flex items-center gap-3 mb-3">
-                          {/* Stock Availability Indicator - icon-only compact mode */}
-                          {item.productId && formData.warehouseId && (
-                            <div className="flex items-center gap-2">
-                              <span className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                                Stock:
-                              </span>
-                              <StockAvailabilityIndicator
-                                productId={item.productId}
-                                warehouseId={formData.warehouseId}
-                                requiredQty={item.quantity || 0}
-                                compact
-                                iconOnly
-                              />
-                            </div>
-                          )}
-
-                          {/* Source Type Selector */}
-                          <div className="flex items-center gap-2">
-                            <span className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                              Source:
-                            </span>
-                            <SourceTypeSelector
-                              value={item.sourceType || "WAREHOUSE"}
-                              onChange={(value) => updateItem(index, "sourceType", value)}
-                              id={`source-type-${index}`}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Steel Industry Action Buttons (STEEL-FORMS-PHASE1 Priority 2) */}
-                        <div
-                          className="flex flex-wrap items-center gap-2 mb-3 border-t border-b py-2 mt-2"
-                          style={{
-                            borderColor: isDarkMode ? "rgb(55, 65, 81)" : "rgb(229, 231, 235)",
-                          }}
-                        >
-                          {/* Stock Reservation */}
-                          <StockReservationToggle
-                            item={item}
-                            index={index}
-                            onToggleReservation={handleToggleStockReservation}
-                          />
-
-                          {/* View Batches */}
-                          {item.productId && (
-                            <button
-                              type="button"
-                              onClick={() => handleViewBatches(index)}
-                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                                isDarkMode
-                                  ? "bg-teal-900/30 text-teal-300 hover:bg-teal-900/50"
-                                  : "bg-teal-50 text-teal-700 hover:bg-teal-100"
-                              }`}
-                            >
-                              <Package className="h-4 w-4" />
-                              Batches
-                            </button>
-                          )}
-
-                          {/* Delivery Schedule */}
-                          <button
-                            type="button"
-                            onClick={() => handleOpenDeliverySchedule(index)}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                              isDarkMode
-                                ? "bg-teal-900/30 text-teal-300 hover:bg-teal-900/50"
-                                : "bg-teal-50 text-teal-700 hover:bg-teal-100"
-                            }`}
-                          >
-                            <Calendar className="h-4 w-4" />
-                            Schedule {item.deliverySchedule?.length > 0 && `(${item.deliverySchedule.length})`}
-                          </button>
-
-                          {/* Alternative Products */}
-                          <button
-                            type="button"
-                            onClick={() => handleOpenAlternativeProducts(index)}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border ${
-                              isDarkMode
-                                ? "bg-gray-800 text-gray-300 border-gray-600 hover:border-teal-500 hover:text-teal-400"
-                                : "bg-white text-gray-700 border-gray-300 hover:border-teal-500 hover:text-teal-600"
-                            }`}
-                          >
-                            <Layers className="h-4 w-4" />
-                            Alternatives{" "}
-                            {item.alternativeProducts?.length > 0 && `(${item.alternativeProducts.length})`}
-                          </button>
-
-                          {/* Lead Time Input */}
-                          <LeadTimeInput item={item} index={index} onUpdate={updateItem} />
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
-                          <div className="sm:col-span-2">
-                            <FormSelect
-                              label="Product"
-                              value={item.productId || "none"}
-                              onValueChange={(value) => updateItem(index, "productId", value === "none" ? "" : value)}
-                            >
-                              <SelectItem value="none">Select or enter manually</SelectItem>
-                              {products.map((product) => (
-                                <SelectItem key={product.id} value={product.id.toString()}>
-                                  {unescapeProductName(
-                                    product.displayName ||
-                                      product.display_name ||
-                                      product.uniqueName ||
-                                      product.unique_name ||
-                                      "N/A"
-                                  )}
-                                </SelectItem>
-                              ))}
-                            </FormSelect>
-                            <Input
-                              placeholder="Item name"
-                              value={item.name}
-                              onChange={(e) => updateItem(index, "name", e.target.value)}
-                              required
-                              className="mt-2"
-                            />
-                          </div>
-
-                          <FormSelect
-                            label="Grade"
-                            value={item.grade || "none"}
-                            onValueChange={(value) => updateItem(index, "grade", value === "none" ? "" : value)}
-                          >
-                            <SelectItem value="none">Select Grade</SelectItem>
-                            {STEEL_GRADES.map((g) => (
-                              <SelectItem key={g} value={g}>
-                                {g}
-                              </SelectItem>
-                            ))}
-                          </FormSelect>
-
-                          <FormSelect
-                            label="Finish"
-                            value={item.finish || "none"}
-                            onValueChange={(value) => updateItem(index, "finish", value === "none" ? "" : value)}
-                          >
-                            <SelectItem value="none">Select Finish</SelectItem>
-                            {FINISHES.map((f) => (
-                              <SelectItem key={f} value={f}>
-                                {f}
-                              </SelectItem>
-                            ))}
-                          </FormSelect>
-
-                          <Input
-                            label="Size"
-                            type="text"
-                            value={item.size || ""}
-                            onChange={(e) => updateItem(index, "size", e.target.value)}
-                            placeholder="e.g., 1220x2440"
-                          />
-
-                          <Input
-                            label="Thickness"
-                            type="text"
-                            value={item.thickness || ""}
-                            onChange={(e) => updateItem(index, "thickness", e.target.value)}
-                            placeholder="e.g., 1.2mm"
-                          />
-
+                        index={index}
+                        onDelete={() => removeItem(index)}
+                        amountDisplay={formatCurrency(item.netAmount)}
+                        amountBreakdown={
+                          item.quantity && item.rate
+                            ? `${item.quantity} ${item.quantityUom || "PCS"} × ${parseFloat(item.rate).toFixed(2)}/${getBasisLabel(item.pricingBasis || "PER_MT").replace("per ", "")}`
+                            : null
+                        }
+                        row1Content={
                           <div>
-                            <label
-                              htmlFor={`item-quantity-${index}`}
-                              className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                            >
-                              Quantity ({item.quantityUom || "PCS"})
-                            </label>
-                            <input
-                              id={`item-quantity-${index}`}
-                              type="number"
-                              value={item.quantity}
-                              onChange={(e) => {
-                                const allowDecimal = item.quantityUom === "MT" || item.quantityUom === "KG";
-                                const val = allowDecimal ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
-                                updateItem(index, "quantity", Number.isNaN(val) ? "" : val);
+                            {/* Stock & Source indicators */}
+                            <div className="flex items-center gap-3 mb-2">
+                              {item.productId && formData.warehouseId && (
+                                <div className="flex items-center gap-1.5">
+                                  <span
+                                    className={`text-[10.5px] font-semibold uppercase tracking-[0.05em] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                  >
+                                    Stock:
+                                  </span>
+                                  <StockAvailabilityIndicator
+                                    productId={item.productId}
+                                    warehouseId={formData.warehouseId}
+                                    requiredQty={item.quantity || 0}
+                                    compact
+                                    iconOnly
+                                  />
+                                </div>
+                              )}
+                              <div className="flex items-center gap-1.5">
+                                <span
+                                  className={`text-[10.5px] font-semibold uppercase tracking-[0.05em] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                >
+                                  Source:
+                                </span>
+                                <SourceTypeSelector
+                                  value={item.sourceType || "WAREHOUSE"}
+                                  onChange={(value) => updateItem(index, "sourceType", value)}
+                                  id={`source-type-${index}`}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Product + Quantity + UOM */}
+                            <div className="grid grid-cols-1 sm:grid-cols-[1fr_100px_90px_90px] gap-2 items-end">
+                              <div>
+                                <FormSelect
+                                  label="Product"
+                                  value={item.productId || "none"}
+                                  onValueChange={(value) =>
+                                    updateItem(index, "productId", value === "none" ? "" : value)
+                                  }
+                                >
+                                  <SelectItem value="none">Select or enter manually</SelectItem>
+                                  {products.map((product) => (
+                                    <SelectItem key={product.id} value={product.id.toString()}>
+                                      {unescapeProductName(
+                                        product.displayName ||
+                                          product.display_name ||
+                                          product.uniqueName ||
+                                          product.unique_name ||
+                                          "N/A"
+                                      )}
+                                    </SelectItem>
+                                  ))}
+                                </FormSelect>
+                                <Input
+                                  placeholder="Item name"
+                                  value={item.name}
+                                  onChange={(e) => updateItem(index, "name", e.target.value)}
+                                  required
+                                  className="mt-1.5"
+                                />
+                              </div>
+                              <div>
+                                <label
+                                  htmlFor={`item-quantity-${index}`}
+                                  className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400"
+                                >
+                                  Qty ({item.quantityUom || "PCS"})
+                                </label>
+                                <input
+                                  id={`item-quantity-${index}`}
+                                  type="number"
+                                  value={item.quantity}
+                                  onChange={(e) => {
+                                    const allowDecimal = item.quantityUom === "MT" || item.quantityUom === "KG";
+                                    const val = allowDecimal
+                                      ? parseFloat(e.target.value)
+                                      : parseInt(e.target.value, 10);
+                                    updateItem(index, "quantity", Number.isNaN(val) ? "" : val);
+                                  }}
+                                  min="0"
+                                  step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
+                                  className={`w-full px-3 py-2 text-sm border rounded-md ${
+                                    isDarkMode
+                                      ? "bg-gray-700 border-gray-600 text-white"
+                                      : "bg-white border-gray-300 text-gray-900"
+                                  }`}
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                                  Unit Wt
+                                </span>
+                                <input
+                                  id={`item-unit-weight-${index}`}
+                                  type="number"
+                                  value={item.unitWeightKg || ""}
+                                  onChange={(e) =>
+                                    updateItem(
+                                      index,
+                                      "unitWeightKg",
+                                      e.target.value === "" ? null : parseFloat(e.target.value)
+                                    )
+                                  }
+                                  min="0"
+                                  step="0.01"
+                                  placeholder="0.00"
+                                  className={`w-full px-3 py-2 text-sm border rounded-md ${
+                                    isDarkMode
+                                      ? "bg-gray-700 border-gray-600 text-white"
+                                      : "bg-white border-gray-300 text-gray-900"
+                                  } ${item.missingWeightWarning ? "border-red-500" : ""}`}
+                                />
+                              </div>
+                              <div>
+                                <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                                  Total Wt
+                                </span>
+                                <div
+                                  className={`px-3 py-2 text-sm border rounded-md ${
+                                    isDarkMode
+                                      ? "bg-gray-700/50 border-gray-600 text-gray-300"
+                                      : "bg-gray-100 border-gray-300 text-gray-600"
+                                  }`}
+                                >
+                                  {(() => {
+                                    const totalWt =
+                                      item.theoreticalWeightKg || item.quantity * (item.unitWeightKg || 0);
+                                    return totalWt ? totalWt.toFixed(2) : "-";
+                                  })()}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Steel Industry Action Buttons */}
+                            <div
+                              className="flex flex-wrap items-center gap-1.5 mt-2.5 pt-2"
+                              style={{
+                                borderTop: `1px solid ${isDarkMode ? "rgb(55, 65, 81)" : "rgb(229, 231, 235)"}`,
                               }}
-                              min="0"
-                              step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
-                              className={`w-full px-3 py-2 text-sm border rounded-md ${
-                                isDarkMode
-                                  ? "bg-gray-700 border-gray-600 text-white"
-                                  : "bg-white border-gray-300 text-gray-900"
-                              }`}
-                              required
-                            />
-                          </div>
-
-                          <div>
-                            <label
-                              htmlFor={`item-unit-weight-${index}`}
-                              className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                             >
-                              Unit Wt (kg)
-                            </label>
-                            <input
-                              id={`item-unit-weight-${index}`}
-                              type="number"
-                              value={item.unitWeightKg || ""}
-                              onChange={(e) =>
-                                updateItem(
-                                  index,
-                                  "unitWeightKg",
-                                  e.target.value === "" ? null : parseFloat(e.target.value)
-                                )
-                              }
-                              min="0"
-                              step="0.01"
-                              placeholder="0.00"
-                              className={`w-full px-3 py-2 text-sm border rounded-md ${
-                                isDarkMode
-                                  ? "bg-gray-700 border-gray-600 text-white"
-                                  : "bg-white border-gray-300 text-gray-900"
-                              } ${item.missingWeightWarning ? "border-red-500" : ""}`}
-                            />
-                          </div>
-
-                          <div>
-                            <div
-                              className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                            >
-                              Total Wt (kg)
-                            </div>
-                            <div
-                              className={`px-3 py-2 text-sm border rounded-md ${
-                                isDarkMode
-                                  ? "bg-gray-700/50 border-gray-600 text-gray-300"
-                                  : "bg-gray-100 border-gray-300 text-gray-600"
-                              }`}
-                            >
-                              {(() => {
-                                const totalWt = item.theoreticalWeightKg || item.quantity * (item.unitWeightKg || 0);
-                                return totalWt ? totalWt.toFixed(2) : "-";
-                              })()}
-                            </div>
-                          </div>
-
-                          <div>
-                            <label
-                              htmlFor={`item-rate-${index}`}
-                              className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
-                            >
-                              Rate ({formData.currency})
-                            </label>
-                            <div
-                              className={`flex rounded-md overflow-hidden border ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
-                            >
-                              <input
-                                id={`item-rate-${index}`}
-                                type="number"
-                                value={item.rate}
-                                onChange={(e) => updateItem(index, "rate", parseFloat(e.target.value) || 0)}
-                                min="0"
-                                step="0.01"
-                                className={`flex-1 px-3 py-2 text-sm border-0 ${
-                                  isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"
-                                }`}
-                                required
+                              <StockReservationToggle
+                                item={item}
+                                index={index}
+                                onToggleReservation={handleToggleStockReservation}
                               />
-                              <select
-                                value={item.pricingBasis || "PER_MT"}
-                                onChange={(e) => updateItem(index, "pricingBasis", e.target.value)}
-                                className={`text-[10px] font-bold px-1.5 border-l cursor-pointer outline-none ${
-                                  item.pricingBasis === "PER_KG"
-                                    ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
-                                    : item.pricingBasis === "PER_PCS"
-                                      ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700"
-                                      : "bg-gray-50 text-gray-600 border-gray-300"
-                                }`}
-                              >
-                                {getAllowedBases(item.productCategory).map((b) => (
-                                  <option key={b} value={b}>
-                                    /{getBasisLabel(b).replace("per ", "")}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                          </div>
-
-                          <Input
-                            label="VAT (%)"
-                            type="number"
-                            value={item.vatRate}
-                            onChange={(e) => updateItem(index, "vatRate", e.target.value)}
-                            min="0"
-                            max="100"
-                            step="0.01"
-                          />
-
-                          <div className="flex items-end gap-2">
-                            <div className="flex-1">
-                              <div
-                                className={`block text-xs font-medium mb-1 ${
-                                  isDarkMode ? "text-gray-400" : "text-gray-700"
-                                }`}
-                              >
-                                Total
-                              </div>
-                              <div
-                                className={`px-2 py-1.5 text-sm border rounded-md ${
+                              {item.productId && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleViewBatches(index)}
+                                  className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                                    isDarkMode
+                                      ? "bg-teal-900/30 text-teal-300 hover:bg-teal-900/50"
+                                      : "bg-teal-50 text-teal-700 hover:bg-teal-100"
+                                  }`}
+                                >
+                                  <Package className="h-3.5 w-3.5" />
+                                  Batches
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => handleOpenDeliverySchedule(index)}
+                                className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
                                   isDarkMode
-                                    ? "bg-gray-700 border-gray-600 text-gray-300"
-                                    : "bg-gray-100 border-gray-300 text-gray-600"
+                                    ? "bg-teal-900/30 text-teal-300 hover:bg-teal-900/50"
+                                    : "bg-teal-50 text-teal-700 hover:bg-teal-100"
                                 }`}
                               >
-                                {formatCurrency(item.netAmount)}
+                                <Calendar className="h-3.5 w-3.5" />
+                                Schedule {item.deliverySchedule?.length > 0 && `(${item.deliverySchedule.length})`}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenAlternativeProducts(index)}
+                                className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-colors border ${
+                                  isDarkMode
+                                    ? "bg-gray-800 text-gray-300 border-gray-600 hover:border-teal-500 hover:text-teal-400"
+                                    : "bg-white text-gray-700 border-gray-300 hover:border-teal-500 hover:text-teal-600"
+                                }`}
+                              >
+                                <Layers className="h-3.5 w-3.5" />
+                                Alternatives{" "}
+                                {item.alternativeProducts?.length > 0 && `(${item.alternativeProducts.length})`}
+                              </button>
+                              <LeadTimeInput item={item} index={index} onUpdate={updateItem} />
+                            </div>
+                          </div>
+                        }
+                        row2Content={
+                          <>
+                            <div className="flex items-end gap-2">
+                              <div>
+                                <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                                  Grade
+                                </span>
+                                <FormSelect
+                                  value={item.grade || "none"}
+                                  onValueChange={(value) => updateItem(index, "grade", value === "none" ? "" : value)}
+                                >
+                                  <SelectItem value="none">Grade</SelectItem>
+                                  {STEEL_GRADES.map((g) => (
+                                    <SelectItem key={g} value={g}>
+                                      {g}
+                                    </SelectItem>
+                                  ))}
+                                </FormSelect>
+                              </div>
+                              <div>
+                                <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                                  Finish
+                                </span>
+                                <FormSelect
+                                  value={item.finish || "none"}
+                                  onValueChange={(value) => updateItem(index, "finish", value === "none" ? "" : value)}
+                                >
+                                  <SelectItem value="none">Finish</SelectItem>
+                                  {FINISHES.map((f) => (
+                                    <SelectItem key={f} value={f}>
+                                      {f}
+                                    </SelectItem>
+                                  ))}
+                                </FormSelect>
+                              </div>
+                              <div className="w-[100px]">
+                                <Input
+                                  label="Size"
+                                  type="text"
+                                  value={item.size || ""}
+                                  onChange={(e) => updateItem(index, "size", e.target.value)}
+                                  placeholder="1220x2440"
+                                />
+                              </div>
+                              <div className="w-[90px]">
+                                <Input
+                                  label="Thickness"
+                                  type="text"
+                                  value={item.thickness || ""}
+                                  onChange={(e) => updateItem(index, "thickness", e.target.value)}
+                                  placeholder="1.2mm"
+                                />
                               </div>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => removeItem(index)}
-                              className={`p-1.5 text-red-500 hover:text-red-700 rounded-lg transition-colors ${isDarkMode ? "hover:bg-red-900/30" : "hover:bg-red-50"}`}
-                            >
-                              <Trash2 size={14} className="md:hidden" />
-                              <Trash2 size={16} className="hidden md:block" />
-                            </button>
-                          </div>
-                        </div>
 
-                        {/* Missing Weight Warning */}
-                        {item.missingWeightWarning && (
-                          <div
-                            className={`mt-2 p-2 rounded-md border ${isDarkMode ? "bg-amber-900/30 border-amber-600" : "bg-amber-50 border-amber-200"}`}
-                          >
-                            <p className={`text-xs ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}>
-                              <AlertCircle className="inline h-3 w-3 mr-1" />
-                              Unit weight missing for price calculation. Contact admin to update product master.
-                            </p>
-                          </div>
-                        )}
+                            <div className="w-[140px]">
+                              <label
+                                htmlFor={`item-rate-${index}`}
+                                className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400"
+                              >
+                                Rate ({formData.currency})
+                              </label>
+                              <div
+                                className={`flex rounded-md overflow-hidden border ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
+                              >
+                                <input
+                                  id={`item-rate-${index}`}
+                                  type="number"
+                                  value={item.rate}
+                                  onChange={(e) => updateItem(index, "rate", parseFloat(e.target.value) || 0)}
+                                  min="0"
+                                  step="0.01"
+                                  className={`flex-1 px-3 py-2 text-sm border-0 ${
+                                    isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"
+                                  }`}
+                                  required
+                                />
+                                <select
+                                  value={item.pricingBasis || "PER_MT"}
+                                  onChange={(e) => updateItem(index, "pricingBasis", e.target.value)}
+                                  className={`text-[10px] font-bold px-1.5 border-l cursor-pointer outline-none ${
+                                    item.pricingBasis === "PER_KG"
+                                      ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
+                                      : item.pricingBasis === "PER_PCS"
+                                        ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700"
+                                        : "bg-gray-50 text-gray-600 border-gray-300"
+                                  }`}
+                                >
+                                  {getAllowedBases(item.productCategory).map((b) => (
+                                    <option key={b} value={b}>
+                                      /{getBasisLabel(b).replace("per ", "")}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
 
-                        {/* Additional fields - collapsible on mobile */}
-                        <details className="mt-2 md:mt-3">
-                          <summary
-                            className={`text-xs cursor-pointer ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                          >
-                            More details
-                          </summary>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 mt-2">
-                            <Input
-                              label="Specification"
-                              type="text"
-                              value={item.specification}
-                              onChange={(e) => updateItem(index, "specification", e.target.value)}
-                            />
+                            <div className="w-[70px]">
+                              <Input
+                                label="VAT %"
+                                type="number"
+                                value={item.vatRate}
+                                onChange={(e) => updateItem(index, "vatRate", e.target.value)}
+                                min="0"
+                                max="100"
+                                step="0.01"
+                              />
+                            </div>
 
-                            <FormSelect
-                              label="Unit"
-                              value={item.unit || "pcs"}
-                              onValueChange={(value) => updateItem(index, "unit", value)}
-                            >
-                              <SelectItem value="pcs">Pieces</SelectItem>
-                              <SelectItem value="kg">Kilograms</SelectItem>
-                              <SelectItem value="tons">Tons</SelectItem>
-                              <SelectItem value="meters">Meters</SelectItem>
-                              <SelectItem value="sqm">Square Meters</SelectItem>
-                              <SelectItem value="feet">Feet</SelectItem>
-                              <SelectItem value="sqft">Square Feet</SelectItem>
-                            </FormSelect>
+                            {/* Missing Weight Warning */}
+                            {item.missingWeightWarning && (
+                              <div
+                                className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] ${isDarkMode ? "bg-amber-900/30 text-amber-300" : "bg-amber-50 text-amber-700"}`}
+                              >
+                                <AlertCircle className="h-3 w-3" />
+                                Wt missing
+                              </div>
+                            )}
 
-                            <Input
-                              label="HSN Code"
-                              type="text"
-                              value={item.hsnCode}
-                              onChange={(e) => updateItem(index, "hsnCode", e.target.value)}
-                            />
-                          </div>
-                        </details>
-                      </div>
+                            {/* More details expandable */}
+                            <details className="ml-1">
+                              <summary
+                                className={`text-[11px] cursor-pointer ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                              >
+                                More
+                              </summary>
+                              <div className="flex gap-2 mt-1.5">
+                                <Input
+                                  label="Specification"
+                                  type="text"
+                                  value={item.specification}
+                                  onChange={(e) => updateItem(index, "specification", e.target.value)}
+                                />
+                                <FormSelect
+                                  label="Unit"
+                                  value={item.unit || "pcs"}
+                                  onValueChange={(value) => updateItem(index, "unit", value)}
+                                >
+                                  <SelectItem value="pcs">Pieces</SelectItem>
+                                  <SelectItem value="kg">Kilograms</SelectItem>
+                                  <SelectItem value="tons">Tons</SelectItem>
+                                  <SelectItem value="meters">Meters</SelectItem>
+                                  <SelectItem value="sqm">Square Meters</SelectItem>
+                                  <SelectItem value="feet">Feet</SelectItem>
+                                  <SelectItem value="sqft">Square Feet</SelectItem>
+                                </FormSelect>
+                                <Input
+                                  label="HSN Code"
+                                  type="text"
+                                  value={item.hsnCode}
+                                  onChange={(e) => updateItem(index, "hsnCode", e.target.value)}
+                                />
+                              </div>
+                            </details>
+                          </>
+                        }
+                      />
                     ))}
                   </div>
                 )}
