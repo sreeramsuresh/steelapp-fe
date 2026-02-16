@@ -43,7 +43,10 @@ export default function POGRNList() {
   // Fetch full PO data (items needed for StockReceiptForm)
   useEffect(() => {
     if (!poId) return;
-    purchaseOrderService.getById(poId).then(setPoData).catch(() => {});
+    purchaseOrderService
+      .getById(poId)
+      .then(setPoData)
+      .catch(() => {});
   }, [poId]);
 
   const handleGRNCreated = () => {

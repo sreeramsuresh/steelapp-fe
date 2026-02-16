@@ -86,7 +86,9 @@ export default function POPaymentsList() {
       {summary?.payments?.count > 0 && (
         <div className={`mt-3 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
           Total paid: {formatCurrency(summary.payments.total_paid || summary.payments.totalPaid)}
-          {(summary.bills?.total_billed || summary.bills?.totalBilled) > 0 && <span> / Billed: {formatCurrency(summary.bills.total_billed || summary.bills.totalBilled)}</span>}
+          {(summary.bills?.total_billed || summary.bills?.totalBilled) > 0 && (
+            <span> / Billed: {formatCurrency(summary.bills.total_billed || summary.bills.totalBilled)}</span>
+          )}
         </div>
       )}
     </div>

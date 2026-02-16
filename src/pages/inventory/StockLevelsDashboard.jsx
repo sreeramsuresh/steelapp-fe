@@ -913,11 +913,7 @@ const StockLevelsDashboard = () => {
       </div>
 
       {/* Product Batch Drawer */}
-      <ProductBatchDrawer
-        open={!!drawerProduct}
-        onClose={() => setDrawerProduct(null)}
-        product={drawerProduct}
-      />
+      <ProductBatchDrawer open={!!drawerProduct} onClose={() => setDrawerProduct(null)} product={drawerProduct} />
     </div>
   );
 };
