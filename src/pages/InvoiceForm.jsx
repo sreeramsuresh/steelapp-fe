@@ -1804,7 +1804,11 @@ const InvoiceForm = ({ onSave }) => {
         }));
       }
 
-      notificationService.success(`Dropship PO ${result.po_number} created for "${item.name}"`);
+      if (result.already_exists) {
+        notificationService.info(`Dropship PO ${result.po_number} already exists`);
+      } else {
+        notificationService.success(`Dropship PO ${result.po_number} created for "${item.name}"`);
+      }
       setDropshipPOModal({ open: false, itemIndex: null });
     } catch (err) {
       notificationService.error(err.message || "Failed to create dropship PO");
@@ -2881,10 +2885,10 @@ const InvoiceForm = ({ onSave }) => {
                                         ) : id ? (
                                           <button
                                             type="button"
-                                            className="text-blue-700 underline hover:text-blue-900 font-medium"
+                                            className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-600 text-white rounded text-[10px] font-medium hover:bg-orange-500"
                                             onClick={() => handleOpenDropshipPOModal(index)}
                                           >
-                                            Create PO
+                                            Create Dropship PO
                                           </button>
                                         ) : null}
                                       </div>

@@ -71,6 +71,11 @@ export const purchaseOrderService = {
     });
   },
 
+  // Confirm dispatch of dropship goods to customer
+  confirmDispatch: (id, data) => {
+    return apiClient.post(`/purchase-orders/${id}/confirm-dispatch`, data);
+  },
+
   // Receive dropship goods to warehouse after customer rejection
   receiveToWarehouse: (id, data) => {
     return apiClient.post(`/purchase-orders/${id}/receive-to-warehouse`, data);

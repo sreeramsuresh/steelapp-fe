@@ -1,20 +1,32 @@
-import { Check, CircleDot, FileText, Package, Receipt, Wallet } from "lucide-react";
+import { Check, CircleDot, FileText, Package, Receipt, Truck, Wallet } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { useWorkspace } from "./WorkspaceContext";
 
-const STEPS = [
-  { key: "create_po", label: "Create PO", icon: FileText, route: "overview" },
-  { key: "confirm", label: "Confirm", icon: CircleDot, route: "overview?confirm=1" },
-  { key: "grn", label: "GRN", icon: Package, route: "grn" },
-  { key: "bill", label: "Supplier Bill", icon: Receipt, route: "bills" },
-  { key: "payment", label: "Payment", icon: Wallet, route: "payments" },
-];
+function getSteps(isDropship) {
+  if (isDropship) {
+    return [
+      { key: "create_po", label: "PO Created", icon: FileText, route: "overview" },
+      { key: "confirm", label: "Supplier Confirmed", icon: CircleDot, route: "overview?confirm=1" },
+      { key: "dispatch", label: "Dispatch to Customer", icon: Truck, route: "dispatch" },
+      { key: "bill", label: "Supplier Bill", icon: Receipt, route: "bills" },
+      { key: "payment", label: "Payment", icon: Wallet, route: "payments" },
+    ];
+  }
+  return [
+    { key: "create_po", label: "Create PO", icon: FileText, route: "overview" },
+    { key: "confirm", label: "Confirm", icon: CircleDot, route: "overview?confirm=1" },
+    { key: "grn", label: "GRN", icon: Package, route: "grn" },
+    { key: "bill", label: "Supplier Bill", icon: Receipt, route: "bills" },
+    { key: "payment", label: "Payment", icon: Wallet, route: "payments" },
+  ];
+}
 
 const COMPLETION_KEY = {
   create_po: "createPo",
   confirm: "confirmComplete",
   grn: "grnComplete",
+  dispatch: "dispatchComplete",
   bill: "billComplete",
   payment: "paymentComplete",
 };
@@ -23,33 +35,26 @@ const GATING = {
   create_po: () => true,
   confirm: () => true,
   grn: (wf) => wf?.grnEnabled,
+  dispatch: (wf) => wf?.dispatchEnabled,
   bill: (wf) => wf?.billEnabled,
   payment: (wf) => wf?.paymentEnabled,
 };
 
 const GATE_TOOLTIPS = {
   grn: () => "Confirm PO first",
-  bill: (wf) => (wf?.isDropship ? "Confirm PO and deliver goods first" : "Receive goods (GRN) first"),
+  dispatch: () => "Confirm PO with supplier first",
+  bill: (wf) => (wf?.isDropship ? "Confirm dispatch to customer first" : "Receive goods (GRN) first"),
   payment: () => "Create supplier bill first",
 };
 
-function getStepLabel(step, workflow) {
-  if (step.key === "grn" && workflow?.isDropship) {
-    return "Dropship - GRN (Optional)";
-  }
-  return step.label;
-}
-
-function getTooltip(step, workflow, enabled) {
-  if (step.key === "grn" && workflow?.isDropship && enabled) {
-    return "Dropship orders skip GRN unless customer rejects and goods are returned";
-  }
-  if (!enabled && GATE_TOOLTIPS[step.key]) {
-    const fn = GATE_TOOLTIPS[step.key];
-    return typeof fn === "function" ? fn(workflow) : fn;
-  }
-  return step.label;
-}
+const NEXT_STEP_COPY = {
+  create_po: "Create the purchase order.",
+  confirm: "Send to supplier and mark as confirmed.",
+  grn: "Receive goods into warehouse (create GRN).",
+  dispatch: "Confirm that goods have been dispatched to the customer.",
+  bill: "Record the supplier invoice for this order.",
+  payment: "Record payment against the supplier bill.",
+};
 
 export default function HorizontalWorkflowStepper() {
   const { isDarkMode } = useTheme();
@@ -61,11 +66,11 @@ export default function HorizontalWorkflowStepper() {
   const basePath = `/app/purchases/po/${poId}`;
   const currentPath = location.pathname + location.search;
 
+  const steps = getSteps(workflow?.isDropship);
+
   // Find the first incomplete, enabled step as "next"
-  // For dropship, skip GRN since it's optional — bill is the real next step
   const nextStepKey =
-    STEPS.find((s) => {
-      if (s.key === "grn" && workflow?.isDropship) return false;
+    steps.find((s) => {
       const done = workflow?.[COMPLETION_KEY[s.key]];
       const gate = GATING[s.key](workflow);
       return !done && gate;
@@ -88,24 +93,49 @@ export default function HorizontalWorkflowStepper() {
     navigate(`${basePath}/${path}${query ? `?${query}` : ""}`);
   }
 
+  function getTooltip(step, enabled) {
+    if (!enabled && GATE_TOOLTIPS[step.key]) {
+      return GATE_TOOLTIPS[step.key](workflow);
+    }
+    return step.label;
+  }
+
   return (
     <nav
       className={`border-b px-4 py-4 ${isDarkMode ? "bg-teal-900/20 border-teal-800/30" : "bg-teal-50/50 border-teal-200/50"}`}
     >
       <div className="max-w-[1400px] mx-auto">
-        <h2
-          className={`text-xs font-bold uppercase tracking-wider mb-3 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
-        >
-          Purchase Order Workflow
-        </h2>
+        <div className="flex items-center gap-2 mb-3">
+          <h2
+            className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+          >
+            Purchase Order Workflow
+          </h2>
+          <div className="text-[10px] uppercase tracking-wider flex items-center gap-2">
+            {workflow?.isDropship ? (
+              <>
+                <span className="px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500 font-bold">Dropship</span>
+                <span className={isDarkMode ? "text-gray-500" : "text-gray-400"}>
+                  Invoice → PO → Confirm → Dispatch → Bill → Payment
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="px-1.5 py-0.5 rounded bg-teal-500/10 text-teal-500 font-bold">Warehouse</span>
+                <span className={isDarkMode ? "text-gray-500" : "text-gray-400"}>
+                  PO → Confirm → GRN → Bill → Payment
+                </span>
+              </>
+            )}
+          </div>
+        </div>
         <div className="flex items-center gap-1 overflow-x-auto">
-          {STEPS.map((step, idx) => {
+          {steps.map((step, idx) => {
             const Icon = step.icon;
             const completed = workflow?.[COMPLETION_KEY[step.key]];
             const enabled = GATING[step.key](workflow);
             const active = isActive(step);
-            const label = getStepLabel(step, workflow);
-            const tooltip = getTooltip(step, workflow, enabled);
+            const tooltip = getTooltip(step, enabled);
             const isNext = step.key === nextStepKey && !active;
 
             return (
@@ -142,7 +172,7 @@ export default function HorizontalWorkflowStepper() {
                     }`}
                   >
                     {completed && !active ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
-                    {label}
+                    {step.label}
                   </button>
                   {isNext && <span className="text-[10px] font-bold uppercase text-red-500">Next</span>}
                 </div>
@@ -150,6 +180,11 @@ export default function HorizontalWorkflowStepper() {
             );
           })}
         </div>
+        {nextStepKey && (
+          <p className={`mt-2 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+            Next step: {NEXT_STEP_COPY[nextStepKey]}
+          </p>
+        )}
       </div>
     </nav>
   );

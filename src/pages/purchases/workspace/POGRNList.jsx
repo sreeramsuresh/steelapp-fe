@@ -1,6 +1,6 @@
 import { Eye, Loader2, Package, Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import StockReceiptForm from "../../../components/purchase-order/StockReceiptForm";
 import { useWorkspace } from "../../../components/purchase-order/workspace/WorkspaceContext";
 import { useTheme } from "../../../contexts/ThemeContext";
@@ -54,6 +54,11 @@ export default function POGRNList() {
     fetchGrns();
     refresh();
   };
+
+  // Redirect dropship POs to dispatch page (after all hooks)
+  if (summary?.workflow?.isDropship) {
+    return <Navigate to={`/app/purchases/po/${poId}/dispatch`} replace />;
+  }
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-4">

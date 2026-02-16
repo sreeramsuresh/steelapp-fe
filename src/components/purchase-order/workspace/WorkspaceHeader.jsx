@@ -19,6 +19,8 @@ function getNextAction(summary) {
 
   if (!workflow?.confirmComplete) return { label: "Confirm PO", route: "overview?confirm=1" };
 
+  if (isDropship && !workflow?.dispatchComplete) return { label: "Confirm Dispatch", route: "dispatch" };
+
   if (!isDropship && grns?.count === 0) return { label: "Create GRN", route: "grn" };
 
   if (bills?.count === 0) return { label: "Create Supplier Bill", route: "bills" };
