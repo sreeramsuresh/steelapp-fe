@@ -2,7 +2,6 @@ import {
   AlertCircle,
   ArrowLeft,
   Calendar,
-  CheckCircle,
   Copy,
   DollarSign,
   ExternalLink,
@@ -29,7 +28,6 @@ import { SelectItem } from "../components/ui/select";
 import { useTheme } from "../contexts/ThemeContext";
 // Phase 0 SSOT: Pricing policy from DB via hook (margin functions stay in pricingStrategyMatrix)
 import { usePricingPolicy } from "../hooks/usePricingPolicy";
-import { tokenUtils } from "../services/axiosApi";
 import { productService } from "../services/dataService";
 import exchangeRateService from "../services/exchangeRateService";
 import { notificationService } from "../services/notificationService";
@@ -725,12 +723,8 @@ export default function PriceListForm() {
     effectiveTo: "",
     pricingUnit: "PIECE_BASED", // Default pricing unit
     items: [],
-    // Audit trail fields (Epic 9 - PRICE-008)
-    approvalStatus: "draft", // draft | pending_approval | approved
     createdBy: null,
     createdDate: null,
-    approvedBy: null,
-    approvalDate: null,
   });
 
   const fetchProducts = useCallback(async () => {
@@ -759,12 +753,8 @@ export default function PriceListForm() {
         effectiveTo: pricelist.effectiveTo || "",
         pricingUnit: pricelist.pricingUnit || "PIECE_BASED",
         items,
-        // Audit trail fields (Epic 9 - PRICE-008)
-        approvalStatus: pricelist.approvalStatus || "draft",
         createdBy: pricelist.createdBy || null,
         createdDate: pricelist.createdDate || null,
-        approvedBy: pricelist.approvedBy || null,
-        approvalDate: pricelist.approvalDate || null,
       });
     } catch (error) {
       console.error("Error fetching pricelist:", error);
@@ -805,7 +795,7 @@ export default function PriceListForm() {
       // Get all pricelists to find the default one
       const response = await pricelistService.getAll();
       const pricelists = response.pricelists || [];
-      const defaultPricelist = pricelists.find((p) => p.status === "active");
+      const defaultPricelist = pricelists.find((p) => p.isActive);
 
       if (defaultPricelist) {
         // Fetch the default pricelist's items
@@ -838,11 +828,6 @@ export default function PriceListForm() {
   }, [copyFromId, copyPricelist, fetchPricelist, fetchProducts, isEdit, loadDefaultPrices]);
 
   const handleChange = (field, value) => {
-    // Epic 9 - PRICE-008: Prevent editing approved pricelists
-    if (formData.approvalStatus === "approved") {
-      notificationService.warning("Cannot edit approved price lists");
-      return;
-    }
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Epic 14 - PRICE-006: Validate dates when they change
@@ -1033,11 +1018,6 @@ export default function PriceListForm() {
   };
 
   const handlePriceChange = (productId, newPrice) => {
-    // Epic 9 - PRICE-008: Prevent editing approved pricelists
-    if (formData.approvalStatus === "approved") {
-      notificationService.warning("Cannot edit approved price lists");
-      return;
-    }
     setFormData((prev) => {
       const existingIndex = prev.items.findIndex((item) => item.productId === productId);
 
@@ -1191,44 +1171,6 @@ export default function PriceListForm() {
     } catch (error) {
       console.error("Error creating new pricelist:", error);
       notificationService.error(error.response?.data?.message || "Failed to create price list");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  // Approval workflow functions (Epic 9 - PRICE-008)
-  const handleSubmitForApproval = async () => {
-    if (!formData.name) {
-      notificationService.error("Price list name is required");
-      return;
-    }
-    try {
-      setSaving(true);
-      setFormData({ ...formData, approvalStatus: "pending_approval" });
-      notificationService.success("Submitted for approval");
-    } catch (error) {
-      console.error("Error submitting for approval:", error);
-      notificationService.error("Failed to submit for approval");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleApprove = async () => {
-    try {
-      setSaving(true);
-      const user = tokenUtils.getUser();
-      const currentUser = user?.name || "System";
-      setFormData({
-        ...formData,
-        approvalStatus: "approved",
-        approvedBy: currentUser,
-        approvalDate: new Date().toISOString(),
-      });
-      notificationService.success("Price list approved");
-    } catch (error) {
-      console.error("Error approving pricelist:", error);
-      notificationService.error("Failed to approve price list");
     } finally {
       setSaving(false);
     }
@@ -1388,60 +1330,11 @@ export default function PriceListForm() {
                 Active
               </span>
             )}
-            {/* Approval Status Badge (Epic 9 - PRICE-008) */}
-            <span
-              className={`px-2.5 py-1 text-xs rounded-full border ${
-                formData.approvalStatus === "approved"
-                  ? isDarkMode
-                    ? "border-green-600/35 text-green-400"
-                    : "border-green-300 text-green-700 bg-green-50"
-                  : formData.approvalStatus === "pending_approval"
-                    ? isDarkMode
-                      ? "border-amber-600/35 text-amber-400"
-                      : "border-amber-300 text-amber-700 bg-amber-50"
-                    : isDarkMode
-                      ? "border-gray-600/35 text-gray-400"
-                      : "border-gray-300 text-gray-700 bg-gray-50"
-              }`}
-            >
-              {formData.approvalStatus === "approved"
-                ? "Approved"
-                : formData.approvalStatus === "pending_approval"
-                  ? "Pending Approval"
-                  : "Draft"}
-            </span>
             {/* Header Action Buttons */}
             <button type="button" onClick={() => navigate("/app/pricelists")} className={BTN_CLASSES(isDarkMode)}>
               Cancel
             </button>
-            {/* Approval Workflow Buttons (Epic 9 - PRICE-008) */}
-            {formData.approvalStatus === "draft" && (
-              <button
-                type="button"
-                onClick={handleSubmitForApproval}
-                disabled={saving}
-                className={BTN_CLASSES(isDarkMode)}
-              >
-                Submit for Approval
-              </button>
-            )}
-            {formData.approvalStatus === "pending_approval" && (
-              <button
-                type="button"
-                onClick={handleApprove}
-                disabled={saving}
-                className="bg-green-600 border-transparent text-white font-semibold hover:bg-green-700 rounded-xl py-2.5 px-3 text-[13px] cursor-pointer transition-colors"
-              >
-                <CheckCircle size={16} className="inline mr-1.5" />
-                Approve
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={saving || formData.approvalStatus === "approved"}
-              className={BTN_PRIMARY}
-            >
+            <button type="button" onClick={handleSubmit} disabled={saving} className={BTN_PRIMARY}>
               <Save size={16} className="inline mr-1.5" />
               {saving ? "Saving..." : "Save"}
             </button>
@@ -1639,48 +1532,28 @@ export default function PriceListForm() {
                     </div>
                   )}
 
-                  {/* Audit Trail Section (Epic 9 - PRICE-008) */}
-                  <div className="col-span-12">
-                    <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-                      <div className="text-xs font-semibold mb-2 flex items-center gap-2">
-                        <History size={14} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
-                        <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Audit Trail</span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3 text-xs">
-                        {formData.createdBy && (
-                          <div>
-                            <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Created by:</span>
-                            <span className={`ml-2 font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                              {formData.createdBy}
+                  {/* Audit Trail Section */}
+                  {formData.createdBy && (
+                    <div className="col-span-12">
+                      <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                        <div className="text-xs font-semibold mb-2 flex items-center gap-2">
+                          <History size={14} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
+                          <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Audit Trail</span>
+                        </div>
+                        <div className="text-xs">
+                          <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Created by:</span>
+                          <span className={`ml-2 font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                            {formData.createdBy}
+                          </span>
+                          {formData.createdDate && (
+                            <span className={`ml-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                              on {formatDateDMY(formData.createdDate)}
                             </span>
-                            {formData.createdDate && (
-                              <span className={`ml-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                                on {formatDateDMY(formData.createdDate)}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                        {formData.approvedBy && (
-                          <div>
-                            <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Approved by:</span>
-                            <span className={`ml-2 font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                              {formData.approvedBy}
-                            </span>
-                            {formData.approvalDate && (
-                              <span className={`ml-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                                on {formatDateDMY(formData.approvalDate)}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                        {!formData.createdBy && !formData.approvedBy && (
-                          <div className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
-                            No audit information available yet
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </details>
