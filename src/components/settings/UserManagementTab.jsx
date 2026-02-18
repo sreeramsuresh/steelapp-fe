@@ -109,6 +109,7 @@ const Input = ({ placeholder, value, onChange, startIcon, className = "" }) => {
 
 const TextField = ({ label, value, onChange, placeholder, error, helperText, type = "text", multiline, rows }) => {
   const { isDarkMode } = useTheme();
+  const inputId = label ? `tf-${label.toLowerCase().replace(/\s+/g, "-")}` : undefined;
   const inputClass = `w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 ${
     error
       ? "border-red-500"
@@ -119,14 +120,31 @@ const TextField = ({ label, value, onChange, placeholder, error, helperText, typ
   return (
     <div>
       {label && (
-        <label className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
+        <label
+          htmlFor={inputId}
+          className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+        >
           {label}
         </label>
       )}
       {multiline ? (
-        <textarea value={value} onChange={onChange} placeholder={placeholder} rows={rows || 3} className={inputClass} />
+        <textarea
+          id={inputId}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          rows={rows || 3}
+          className={inputClass}
+        />
       ) : (
-        <input type={type} value={value} onChange={onChange} placeholder={placeholder} className={inputClass} />
+        <input
+          id={inputId}
+          type={type}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          className={inputClass}
+        />
       )}
       {helperText && (
         <p className={`text-xs mt-1 ${error ? "text-red-500" : isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
