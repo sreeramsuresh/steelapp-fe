@@ -62,7 +62,7 @@ export default function POReceiveReturn() {
   }`;
 
   // Gate: only available for dropship POs that have been dispatched but not yet received
-  const canReceive = workflow?.isDropship && workflow?.dispatchComplete && po?.stock_status !== "in_warehouse";
+  const canReceive = workflow?.isDropship && workflow?.dispatchComplete && po?.stockStatus !== "in_warehouse";
 
   if (!canReceive) {
     return (
