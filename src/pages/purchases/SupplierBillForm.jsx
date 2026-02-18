@@ -1342,7 +1342,10 @@ const SupplierBillForm = () => {
         await supplierBillService.update(id, billData);
         notificationService.success("Supplier bill updated successfully");
       } else {
-        await supplierBillService.create(billData);
+        const created = await supplierBillService.create({ ...billData, status: "draft" });
+        if (status === "approved" && created?.id) {
+          await supplierBillService.approve(created.id);
+        }
         notificationService.success("Supplier bill created successfully");
       }
 
