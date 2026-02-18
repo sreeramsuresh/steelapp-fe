@@ -22,7 +22,8 @@ export const REDIRECTS = {
 
   // Purchases (operational → /app)
   "/purchases": "/app/purchases",
-  "/purchase-orders": "/app/purchase-orders",
+  "/purchase-orders": "/app/purchases",
+  "/app/purchase-orders": "/app/purchases",
   "/supplier-bills": "/app/supplier-bills",
   "/vendor-bills": "/app/supplier-bills", // Legacy redirect
   "/purchases/vendor-bills": "/app/supplier-bills", // Legacy redirect (nested)

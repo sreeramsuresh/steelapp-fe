@@ -10,7 +10,7 @@ const ENTITY_ROUTES = {
   invoice: "/app/invoices",
   credit_note: "/app/credit-notes",
   delivery_note: "/app/delivery-notes",
-  purchase_order: "/app/purchase-orders",
+  purchase_order: "/app/purchases/po",
   quotation: "/app/quotations",
   warehouse: "/app/warehouses",
 };
@@ -226,7 +226,8 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
                   type="button"
                   onClick={() => {
                     onClose();
-                    navigate(`${entityRoute}/${log.entityId}`);
+                    const suffix = log.entityType === "purchase_order" ? "/overview" : "";
+                    navigate(`${entityRoute}/${log.entityId}${suffix}`);
                   }}
                   className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-600"
                 >

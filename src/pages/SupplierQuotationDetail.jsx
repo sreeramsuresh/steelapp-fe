@@ -119,7 +119,7 @@ export function SupplierQuotationDetail() {
       toast.success("Purchase order created");
       setShowConvertDialog(false);
       if (result.purchaseOrder?.id) {
-        navigate(`/app/purchase-orders/${result.purchaseOrder.id}`);
+        navigate(`/app/purchases/po/${result.purchaseOrder.id}/overview`);
       } else {
         loadQuotation();
       }

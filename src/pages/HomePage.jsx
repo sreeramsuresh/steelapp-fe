@@ -314,7 +314,7 @@ const HomePage = () => {
       {
         icon: ShoppingCart,
         name: "Purchases",
-        path: "/app/purchase-orders",
+        path: "/app/purchases",
         color: "from-orange-500 to-orange-600",
         perm: ["purchase_orders", "read"],
       },
