@@ -22,9 +22,9 @@ export const purchaseOrderService = {
     return apiClient.put(`/purchase-orders/${id}`, poData);
   },
 
-  // Update only transit status (if backend supports it)
+  // Update only transit status — backend uses the unified /status endpoint
   updateTransitStatus: (id, transit_status) => {
-    return apiClient.patch(`/purchase-orders/${id}/transit-status`, {
+    return apiClient.patch(`/purchase-orders/${id}/status`, {
       transit_status,
     });
   },
@@ -34,9 +34,9 @@ export const purchaseOrderService = {
     return apiClient.patch(`/purchase-orders/${id}/status`, { status });
   },
 
-  // Update purchase order stock status
+  // Update purchase order stock status — backend uses the unified /status endpoint
   updateStockStatus: (id, stock_status) => {
-    return apiClient.patch(`/purchase-orders/${id}/stock-status`, {
+    return apiClient.patch(`/purchase-orders/${id}/status`, {
       stock_status,
     });
   },
