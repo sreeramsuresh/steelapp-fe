@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import api from "../../services/api";
+import { authService } from "../../services/axiosAuthService";
 
 /**
  * WarehouseStockSelector Component
@@ -30,7 +31,7 @@ const WarehouseStockSelector = ({ productId, warehouses = [], selectedWarehouseI
    */
   useEffect(() => {
     const fetchStockForAllWarehouses = async () => {
-      if (!productId || !warehouses.length || !companyId) {
+      if (!productId || !warehouses.length || !companyId || !authService.hasPermission("stock_batches", "read")) {
         setStockData({});
         return;
       }

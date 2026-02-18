@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import api from "../../services/api";
+import { authService } from "../../services/axiosAuthService";
 
 /**
  * StockAvailabilityIndicator Component
@@ -30,7 +31,7 @@ const StockAvailabilityIndicator = ({ productId, warehouseId, requiredQty, compa
     const numericProductId = typeof productId === "number" ? productId : parseInt(productId, 10);
     const validProductId = numericProductId && numericProductId > 0;
 
-    if (!validProductId) {
+    if (!validProductId || !authService.hasPermission("stock_batches", "read")) {
       setStockData(null);
       return;
     }

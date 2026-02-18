@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import api from "../../services/api";
+import { authService } from "../../services/axiosAuthService";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "../ui/table";
@@ -65,7 +66,7 @@ const BatchPicker = ({
     //   warehouseId,
     // });
 
-    if (!validProductId) {
+    if (!validProductId || !authService.hasPermission("stock_batches", "read")) {
       // console.log('[BatchPicker] Invalid productId, skipping fetch');
       setBatches([]);
       return;

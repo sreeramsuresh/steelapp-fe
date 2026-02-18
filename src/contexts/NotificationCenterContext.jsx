@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { api } from "../services/api";
+import { authService } from "../services/axiosAuthService";
 import { uuid } from "../utils/uuid";
 
 const NotificationCenterContext = createContext(null);
@@ -150,7 +151,9 @@ export const NotificationCenterProvider = ({ children }) => {
   ]);
 
   useEffect(() => {
-    fetchNotifications();
+    if (authService.hasPermission("notifications", "read")) {
+      fetchNotifications();
+    }
     // Sync on mount to catch any storage corruption
     syncWithStorage();
   }, [

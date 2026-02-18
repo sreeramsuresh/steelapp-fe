@@ -2,6 +2,7 @@ import { Package, Ship } from "lucide-react";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
+import { authService } from "../services/axiosAuthService";
 import { stockBatchService } from "../services/stockBatchService";
 
 /**
@@ -31,7 +32,13 @@ const ProcurementBadge = ({
 
   // Fetch procurement summary if productId is provided and quantities not passed
   useEffect(() => {
-    if (productId && companyId && propLocalQty === undefined && propImportedQty === undefined) {
+    if (
+      productId &&
+      companyId &&
+      propLocalQty === undefined &&
+      propImportedQty === undefined &&
+      authService.hasPermission("stock_batches", "read")
+    ) {
       const fetchSummary = async () => {
         setLoading(true);
         try {

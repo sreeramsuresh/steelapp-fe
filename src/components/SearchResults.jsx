@@ -2,6 +2,7 @@ import { AlertCircle, ArrowRight, FileText, Search, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
+import { authService } from "../services/axiosAuthService";
 import { customerService, invoiceService } from "../services/dataService";
 import { formatCurrency, formatDate } from "../utils/invoiceUtils";
 
@@ -45,8 +46,12 @@ const SearchResults = () => {
       setError("");
       try {
         const [inv, cust] = await Promise.all([
-          q ? invoiceService.searchInvoices(q) : Promise.resolve({ invoices: [] }),
-          q ? customerService.searchCustomers(q) : Promise.resolve({ customers: [] }),
+          q && authService.hasPermission("invoices", "read")
+            ? invoiceService.searchInvoices(q)
+            : Promise.resolve({ invoices: [] }),
+          q && authService.hasPermission("customers", "read")
+            ? customerService.searchCustomers(q)
+            : Promise.resolve({ customers: [] }),
         ]);
         if (cancelled) return;
         const invoices = Array.isArray(inv?.invoices) ? inv.invoices : Array.isArray(inv) ? inv : [];
