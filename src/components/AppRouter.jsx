@@ -891,7 +891,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="pricelists"
               element={
-                <ProtectedRoute user={user} requiredPermission="products.read">
+                <ProtectedRoute user={user} requiredPermission="pricelists.read">
                   <PriceListList />
                 </ProtectedRoute>
               }
@@ -899,7 +899,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="pricelists/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="products.create">
+                <ProtectedRoute user={user} requiredPermission="pricelists.create">
                   <PriceListForm />
                 </ProtectedRoute>
               }
@@ -907,7 +907,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="pricelists/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="products.read">
+                <ProtectedRoute user={user} requiredPermission="pricelists.read">
                   <PriceListForm />
                 </ProtectedRoute>
               }
@@ -915,7 +915,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="pricelists/:id/edit"
               element={
-                <ProtectedRoute user={user} requiredPermission="products.update">
+                <ProtectedRoute user={user} requiredPermission="pricelists.update">
                   <PriceListForm />
                 </ProtectedRoute>
               }

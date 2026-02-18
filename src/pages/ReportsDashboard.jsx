@@ -1,6 +1,7 @@
 import { BarChart3, Loader2, PieChart, Receipt, TrendingUp } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
+import { authService } from "../services/axiosAuthService";
 
 // Lazy-load tab components for better initial load performance
 const SalesAnalytics = lazy(() => import("../components/SalesAnalytics"));
@@ -18,7 +19,7 @@ const ReportsDashboard = () => {
   const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState("analytics");
 
-  const tabs = [
+  const allTabs = [
     {
       id: "analytics",
       label: "Sales Analytics",
@@ -36,10 +37,13 @@ const ReportsDashboard = () => {
       label: "VAT Return (Form 201)",
       icon: Receipt,
       component: VATReturnReport,
+      permission: ["vat_return", "read"],
     },
   ];
+  const tabs = allTabs.filter((tab) => !tab.permission || authService.hasPermission(...tab.permission));
+  const effectiveTab = tabs.find((tab) => tab.id === activeTab) ? activeTab : tabs[0]?.id;
 
-  const ActiveComponent = tabs.find((tab) => tab.id === activeTab)?.component;
+  const ActiveComponent = tabs.find((tab) => tab.id === effectiveTab)?.component;
 
   return (
     <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
@@ -70,7 +74,7 @@ const ReportsDashboard = () => {
           <div className="flex space-x-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
+              const isActive = effectiveTab === tab.id;
 
               return (
                 <button

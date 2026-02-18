@@ -70,6 +70,7 @@ const FinanceDashboard = () => {
       label: "Commission Approvals",
       icon: DollarSign,
       component: CommissionApprovalWorkflow,
+      permission: ["commissions", "read"],
     },
     {
       id: "credit-management",

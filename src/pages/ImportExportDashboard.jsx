@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ImportExportOverview from "../components/ImportExportOverview";
 import { useTheme } from "../contexts/ThemeContext";
+import { authService } from "../services/axiosAuthService";
 import CountriesList from "./CountriesList";
 import CustomsDocumentList from "./CustomsDocumentList";
 import ExchangeRateList from "./ExchangeRateList";
@@ -61,7 +62,7 @@ const ImportExportDashboard = () => {
     }
   }, [searchParams]);
 
-  const tabs = [
+  const allTabs = [
     {
       id: "overview",
       label: "Overview",
@@ -79,36 +80,42 @@ const ImportExportDashboard = () => {
       label: "Export Orders",
       icon: ArrowUpFromLine,
       component: ExportOrderList,
+      permission: ["export_orders", "read"],
     },
     {
       id: "shipping",
       label: "Shipping",
       icon: Ship,
       component: ShippingDocumentList,
+      permission: ["shipping_documents", "read"],
     },
     {
       id: "certificates",
       label: "Certificates",
       icon: Award,
       component: MaterialCertificateList,
+      permission: ["material_certificates", "read"],
     },
     {
       id: "customs",
       label: "Customs",
       icon: Scroll,
       component: CustomsDocumentList,
+      permission: ["customs_documents", "read"],
     },
     {
       id: "finance",
       label: "Trade Finance",
       icon: CreditCard,
       component: TradeFinanceList,
+      permission: ["trade_finance", "read"],
     },
     {
       id: "rates",
       label: "Exchange Rates",
       icon: DollarSign,
       component: ExchangeRateList,
+      permission: ["exchange_rates", "read"],
     },
     {
       id: "countries",
@@ -117,8 +124,10 @@ const ImportExportDashboard = () => {
       component: CountriesList,
     },
   ];
+  const tabs = allTabs.filter((tab) => !tab.permission || authService.hasPermission(...tab.permission));
+  const effectiveTab = tabs.find((tab) => tab.id === activeTab) ? activeTab : tabs[0]?.id;
 
-  const ActiveComponent = tabs.find((tab) => tab.id === activeTab)?.component;
+  const ActiveComponent = tabs.find((tab) => tab.id === effectiveTab)?.component;
 
   return (
     <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
@@ -149,7 +158,7 @@ const ImportExportDashboard = () => {
           <div className="flex space-x-1 overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
+              const isActive = effectiveTab === tab.id;
 
               return (
                 <button

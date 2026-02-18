@@ -23,6 +23,7 @@ import {
   TransferList,
 } from "../components/stock-movement";
 import { useTheme } from "../contexts/ThemeContext";
+import { authService } from "../services/axiosAuthService";
 import StockMovementList from "./inventory/StockMovementList";
 
 const StockMovementPage = () => {
@@ -38,7 +39,7 @@ const StockMovementPage = () => {
   const [selectedReservation, setSelectedReservation] = useState(null);
 
   // Tab definitions - sentence case, matching Import/Export pattern
-  const tabs = [
+  const allTabs = [
     {
       id: "overview",
       label: "Overview",
@@ -56,12 +57,14 @@ const StockMovementPage = () => {
       label: "Reservations",
       icon: Bookmark,
       description: "Reserve stock for pending orders — prevents overselling allocated inventory",
+      permission: ["batch_reservations", "read"],
     },
     {
       id: "reconciliation",
       label: "Reconciliation",
       icon: ClipboardList,
       description: "Compare system quantities against physical counts and resolve discrepancies",
+      permission: ["reconciliations", "read"],
     },
     {
       id: "history",
@@ -70,6 +73,7 @@ const StockMovementPage = () => {
       description: "Full audit trail of every stock-in, stock-out, and adjustment recorded",
     },
   ];
+  const tabs = allTabs.filter((tab) => !tab.permission || authService.hasPermission(...tab.permission));
 
   // Handle navigation from overview to specific tabs
   const handleNavigateToTab = (tabId, action) => {

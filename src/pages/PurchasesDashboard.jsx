@@ -63,7 +63,7 @@ const PurchasesDashboard = () => {
     }
   }, [searchParams]);
 
-  const tabs = [
+  const allTabs = [
     {
       id: "purchase-orders",
       label: "Purchase Orders",
@@ -75,16 +75,22 @@ const PurchasesDashboard = () => {
       label: "Supplier Bills",
       icon: Receipt,
       component: SupplierBillList,
+      permission: ["supplier_bills", "read"],
     },
     {
       id: "debit-notes",
       label: "Debit Notes",
       icon: FileMinus,
       component: DebitNoteList,
+      permission: ["debit_notes", "read"],
     },
-    ...(authService.hasPermission("advance_payments", "read")
-      ? [{ id: "advance-payments", label: "Advance Payments", icon: Coins, component: AdvancePaymentList }]
-      : []),
+    {
+      id: "advance-payments",
+      label: "Advance Payments",
+      icon: Coins,
+      component: AdvancePaymentList,
+      permission: ["advance_payments", "read"],
+    },
     {
       id: "correction-guide",
       label: "Correction Guide",
@@ -93,8 +99,10 @@ const PurchasesDashboard = () => {
       isSuspense: true,
     },
   ];
+  const tabs = allTabs.filter((tab) => !tab.permission || authService.hasPermission(...tab.permission));
+  const effectiveTab = tabs.find((tab) => tab.id === activeTab) ? activeTab : tabs[0]?.id;
 
-  const ActiveComponent = tabs.find((tab) => tab.id === activeTab)?.component;
+  const ActiveComponent = tabs.find((tab) => tab.id === effectiveTab)?.component;
 
   return (
     <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
@@ -125,7 +133,7 @@ const PurchasesDashboard = () => {
           <div className="flex space-x-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
+              const isActive = effectiveTab === tab.id;
 
               return (
                 <button

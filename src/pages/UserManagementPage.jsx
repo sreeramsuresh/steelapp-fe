@@ -1,13 +1,14 @@
 import { TableProperties, Users } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
+import { authService } from "../services/axiosAuthService";
 
 const UserManagementTab = lazy(() => import("../components/settings/UserManagementTab"));
 const PermissionsMatrix = lazy(() => import("./PermissionsMatrix"));
 
-const tabs = [
+const allTabs = [
   { id: "users", label: "Users & Roles", icon: Users },
-  { id: "permissions", label: "Permissions Matrix", icon: TableProperties },
+  { id: "permissions", label: "Permissions Matrix", icon: TableProperties, permission: ["roles", "read"] },
 ];
 
 const LoadingSkeleton = () => {
@@ -26,6 +27,8 @@ const UserManagementPage = () => {
   const [activeTab, setActiveTab] = useState("users");
   const [mountedTabs, setMountedTabs] = useState({ users: true });
   const { isDarkMode } = useTheme();
+
+  const tabs = allTabs.filter((tab) => !tab.permission || authService.hasPermission(...tab.permission));
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
