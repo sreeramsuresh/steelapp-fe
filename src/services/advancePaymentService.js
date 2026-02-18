@@ -258,7 +258,7 @@ const advancePaymentService = {
   async getByCustomer(customerId, onlyAvailable = false) {
     try {
       const params = onlyAvailable ? { hasAvailableBalance: true } : {};
-      const response = await apiClient.get(`/advance-payments/by-customer/${customerId}`, params);
+      const response = await apiClient.get(`/advance-payments/customer/${customerId}`, params);
       const payments = Array.isArray(response) ? response : response.data || [];
       return payments.map(transformAdvancePaymentFromServer);
     } catch (error) {

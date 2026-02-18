@@ -19,7 +19,7 @@ export default function BatchesModal({ isOpen, onClose, productId, productName, 
         status: "active",
       });
 
-      const response = await apiClient.get(`/api/stock-batches?${params}`);
+      const response = await apiClient.get(`/stock-batches?${params}`);
       setBatches(response.data.batches || []);
     } catch (err) {
       console.error("Error fetching batches:", err);
