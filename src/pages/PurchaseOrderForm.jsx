@@ -56,7 +56,6 @@ const DRAWER_FOOTER_GRADIENT = (isDarkMode) =>
     : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))";
 
 import ValidatedInput from "../components/forms/ValidatedInput";
-import PurchaseWorkflowTimeline from "../components/purchase-order/PurchaseWorkflowTimeline";
 import StockReceiptForm from "../components/purchase-order/StockReceiptForm";
 import PurchaseOrderPreview from "../components/purchase-orders/PurchaseOrderPreview";
 import LineItemCard from "../components/shared/LineItemCard";
@@ -457,6 +456,10 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
 
   // Pinned products state (matching Invoice form)
   const [pinnedProductIds, setPinnedProductIds] = useState([]);
+  // Read procurement_channel from query param (set by POTypeSelection)
+  const searchParams = new URLSearchParams(location.search);
+  const procurementChannel = !id ? (searchParams.get("type") || "LOCAL").toUpperCase() : null;
+
   const { data: pinnedData, refetch: _refetchPinned } = useApiData(() => pinnedProductsService.getPinnedProducts(), []);
 
   // Form preferences state (with localStorage persistence)
@@ -605,6 +608,9 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
 
   // Dropship helpers
   const hasDropshipItems = useMemo(() => purchaseOrder.items.some((item) => item.isDropship), [purchaseOrder.items]);
+
+  // Price-lock: dropship PO confirmed — commercial terms are binding
+  const isPriceLocked = purchaseOrder.isPriceLocked && hasDropshipItems;
 
   const canReceiveToWarehouse = useMemo(
     () =>
@@ -923,6 +929,8 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
           terms: data.terms || "",
           paymentTerms: data.paymentTerms || data.payment_terms || prev.paymentTerms,
           dueDate: toDateInput(data.dueDate || data.due_date) || "",
+          isPriceLocked: data.is_price_locked || data.isPriceLocked || false,
+          confirmedAt: data.confirmed_at || data.confirmedAt || null,
         }));
 
         // Load existing payments
@@ -1664,6 +1672,8 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
           : "",
         notes: poData.notes || null,
         terms: poData.terms || null,
+        // PO-level procurement channel (set at creation time from type selection)
+        ...(procurementChannel ? { procurement_channel: procurementChannel } : {}),
         subtotal: parseFloat(poData.subtotal) || 0,
         vat_amount: parseFloat(poData.vatAmount) || 0,
         total: parseFloat(poData.total) || 0,
@@ -1908,9 +1918,6 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
 
       {/* ==================== MAIN CONTENT ==================== */}
       <div className="flex">
-        {/* Workflow Timeline — left sidebar panel (hidden in workspace mode) */}
-        {id && !workspaceMode && <PurchaseWorkflowTimeline currentStatus={purchaseOrder.status} />}
-
         <main className="max-w-[1400px] mx-auto px-4 py-4 flex-1 min-w-0">
           {/* Validation Errors Alert */}
           {validationErrors.length > 0 && (
@@ -2023,6 +2030,22 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                     <div className={DIVIDER_CLASSES(isDarkMode)} />
                   </div>
 
+                  {/* Price-lock banner — shown when dropship PO is confirmed */}
+                  {isPriceLocked && (
+                    <div className="col-span-12">
+                      <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-600 dark:text-amber-400 text-sm">
+                        <span className="text-base">🔒</span>
+                        <span>
+                          <span className="font-semibold">Price locked</span>
+                          {purchaseOrder.confirmedAt
+                            ? ` ${new Date(purchaseOrder.confirmedAt).toLocaleDateString()}`
+                            : ""}
+                          {" — commercial terms are binding. Contact admin to amend."}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Row 2: Supplier */}
                   <div className="col-span-12 sm:col-span-6">
                     <div className="flex gap-2 items-end">
@@ -2035,7 +2058,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                             setSelectedSupplierId(supplierId);
                             handleSupplierSelect(supplierId);
                           }}
-                          disabled={loadingSuppliers}
+                          disabled={loadingSuppliers || isPriceLocked}
                           required={true}
                           validationState={fieldValidation.supplier ?? null}
                           showValidation={formPreferences.showValidationHighlighting}
@@ -2112,10 +2135,12 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                   >
                     Line Items
                   </div>
-                  <button type="button" onClick={addItem} className={BTN_PRIMARY} data-testid="add-item">
-                    <Plus size={16} className="inline mr-1" />
-                    Add Item
-                  </button>
+                  {!isPriceLocked && (
+                    <button type="button" onClick={addItem} className={BTN_PRIMARY} data-testid="add-item">
+                      <Plus size={16} className="inline mr-1" />
+                      Add Item
+                    </button>
+                  )}
                 </div>
 
                 {/* Quick Add Chips */}
@@ -2142,7 +2167,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                         key={item.id || index}
                         index={index}
                         onDelete={() => removeItem(index)}
-                        disabled={purchaseOrder.items.length === 1}
+                        disabled={purchaseOrder.items.length === 1 || isPriceLocked}
                         amountDisplay={formatCurrency(item.amount)}
                         amountBreakdown={
                           item.quantity && item.rate
@@ -2259,7 +2284,8 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                                 }}
                                 min="0"
                                 step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
-                                className={`w-full h-[38px] px-3 text-[13px] font-mono font-medium text-right border-[1.5px] rounded-md outline-none transition-colors focus:border-teal-500 focus:shadow-[0_0_0_3px_rgba(13,148,136,0.1)] ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-200 text-gray-900"} ${invalidFields.has(`item.${index}.quantity`) ? "border-red-500" : ""}`}
+                                disabled={isPriceLocked}
+                                className={`w-full h-[38px] px-3 text-[13px] font-mono font-medium text-right border-[1.5px] rounded-md outline-none transition-colors focus:border-teal-500 focus:shadow-[0_0_0_3px_rgba(13,148,136,0.1)] ${isPriceLocked ? "opacity-60 cursor-not-allowed" : ""} ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-200 text-gray-900"} ${invalidFields.has(`item.${index}.quantity`) ? "border-red-500" : ""}`}
                               />
                               {item.quantityUom && (
                                 <span
@@ -2295,12 +2321,14 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                                   }
                                   min="0"
                                   step="0.01"
-                                  className={`w-[100px] h-[38px] px-3 text-[13px] font-mono font-medium text-right border-0 outline-none ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"} ${invalidFields.has(`item.${index}.rate`) ? "ring-1 ring-red-500" : ""}`}
+                                  disabled={isPriceLocked}
+                                  className={`w-[100px] h-[38px] px-3 text-[13px] font-mono font-medium text-right border-0 outline-none ${isPriceLocked ? "opacity-60 cursor-not-allowed" : ""} ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"} ${invalidFields.has(`item.${index}.rate`) ? "ring-1 ring-red-500" : ""}`}
                                   placeholder="0.00"
                                 />
                                 <select
                                   value={item.pricingBasis || "PER_MT"}
                                   onChange={(e) => handleItemChange(index, "pricingBasis", e.target.value)}
+                                  disabled={isPriceLocked}
                                   className={`h-[38px] px-2 text-[11px] font-bold uppercase tracking-[0.03em] border-l cursor-pointer outline-none ${
                                     item.pricingBasis === "PER_KG"
                                       ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"

@@ -34,7 +34,10 @@ export default function PODispatchConfirm() {
     }
     setSubmitting(true);
     try {
-      await purchaseOrderService.confirmDispatch(poId, form);
+      await purchaseOrderService.confirmDispatch(poId, {
+        ...form,
+        dispatch_delivery_address_json: summary?.po?.delivery_address ?? null,
+      });
       notificationService.success("Dispatch confirmed successfully");
       await refresh();
       setShowForm(false);
@@ -102,14 +105,23 @@ export default function PODispatchConfirm() {
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => navigate(`${basePath}/bills`)}
-            className="mt-6 inline-flex items-center gap-1.5 px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-500"
-          >
-            Next: Create Supplier Bill
-            <ArrowRight className="h-4 w-4" />
-          </button>
+          <div className="mt-6 flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => navigate(`${basePath}/bills`)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-500"
+            >
+              Next: Create Supplier Bill
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate(`${basePath}/receive`)}
+              className={`text-xs font-medium underline ${isDarkMode ? "text-amber-400 hover:text-amber-300" : "text-amber-600 hover:text-amber-500"}`}
+            >
+              Customer rejected goods? Receive to Warehouse
+            </button>
+          </div>
         </div>
       </div>
     );

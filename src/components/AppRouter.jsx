@@ -80,6 +80,7 @@ const POWorkspaceShell = lazy(() => import("./purchase-order/workspace/POWorkspa
 const POTypeSelection = lazy(() => import("../pages/purchases/POTypeSelection"));
 const POOverview = lazy(() => import("../pages/purchases/workspace/POOverview"));
 const PODispatchConfirm = lazy(() => import("../pages/purchases/workspace/PODispatchConfirm"));
+const POReceiveReturn = lazy(() => import("../pages/purchases/workspace/POReceiveReturn"));
 const POGRNList = lazy(() => import("../pages/purchases/workspace/POGRNList"));
 const POGRNDetail = lazy(() => import("../pages/purchases/workspace/POGRNDetail"));
 const POBillsList = lazy(() => import("../pages/purchases/workspace/POBillsList"));
@@ -506,6 +507,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               <Route index element={<Navigate to="overview" replace />} />
               <Route path="overview" element={<POOverview />} />
               <Route path="dispatch" element={<PODispatchConfirm />} />
+              <Route path="receive" element={<POReceiveReturn />} />
               <Route path="grn" element={<POGRNList />} />
               <Route path="grn/:grnId" element={<POGRNDetail />} />
               <Route path="bills" element={<POBillsList />} />

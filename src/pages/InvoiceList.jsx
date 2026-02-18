@@ -1587,7 +1587,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
       handleOpenDropshipPOModal(invoice);
     } else if (hasPOs && invoice.dropshipPOs.length === 1 && !needsPO) {
       // Single PO, all linked — navigate directly
-      navigate(`/app/purchase-orders/${invoice.dropshipPOs[0].id}/edit`);
+      navigate(`/app/purchases/po/${invoice.dropshipPOs[0].id}/overview`);
     } else {
       // Multiple POs or partial — toggle popover
       setDropshipPOPopover(dropshipPOPopover === invoice.id ? null : invoice.id);
@@ -1656,7 +1656,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             {pos.map((po) => (
               <Link
                 key={po.id}
-                to={`/app/purchase-orders/${po.id}/edit`}
+                to={`/app/purchases/po/${po.id}/overview`}
                 className={`flex items-center justify-between px-2 py-1.5 rounded text-sm hover:bg-opacity-80 transition-colors ${
                   isDarkMode ? "hover:bg-gray-700 text-gray-200" : "hover:bg-gray-50 text-gray-800"
                 }`}
