@@ -525,6 +525,9 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
                 </ProtectedRoute>
               }
             />
+            {/* Redirect bare /app/purchase-orders list route → new purchases dashboard */}
+            <Route path="purchase-orders" element={<Navigate to="/app/purchases" replace />} />
+
             <Route
               path="purchase-orders/new"
               element={
