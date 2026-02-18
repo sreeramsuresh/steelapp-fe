@@ -593,8 +593,8 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                               <Download className="h-4 w-4" />
                             )}
                           </button>
-                          {/* Edit Button - Only show for drafts */}
-                          {creditNote.status === "draft" && (
+                          {/* Edit Button - Only show for drafts with update permission */}
+                          {creditNote.status === "draft" && authService.hasPermission("invoices", "update") && (
                             <button
                               type="button"
                               onClick={() => navigate(`/app/credit-notes/${creditNote.id}`)}
@@ -604,8 +604,8 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                               <Edit className="h-4 w-4" />
                             </button>
                           )}
-                          {/* Delete Button - Only show for drafts */}
-                          {creditNote.status === "draft" && (
+                          {/* Delete Button - Only show for drafts with delete permission */}
+                          {creditNote.status === "draft" && authService.hasPermission("invoices", "delete") && (
                             <button
                               type="button"
                               onClick={() => handleDelete(creditNote)}

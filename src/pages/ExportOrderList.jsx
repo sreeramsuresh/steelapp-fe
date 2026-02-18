@@ -17,6 +17,7 @@ import { Link } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
+import { authService } from "../services/axiosAuthService";
 import { exportOrderService } from "../services/exportOrderService";
 
 // GCC Country codes for flag display
@@ -344,13 +345,15 @@ const ExportOrderList = () => {
             <Download size={20} />
             <span className="hidden sm:inline">Export</span>
           </button>
-          <Link
-            to="/app/export-orders/new"
-            className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-          >
-            <Plus size={20} />
-            New Export Order
-          </Link>
+          {authService.hasPermission("export_orders", "create") && (
+            <Link
+              to="/app/export-orders/new"
+              className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+            >
+              <Plus size={20} />
+              New Export Order
+            </Link>
+          )}
         </div>
       </div>
 
@@ -748,14 +751,16 @@ const ExportOrderList = () => {
                         >
                           <Edit size={16} />
                         </Link>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(order.id)}
-                          className="text-red-600 hover:text-red-900 p-1"
-                          title="Delete"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        {authService.hasPermission("export_orders", "delete") && (
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(order.id)}
+                            className="text-red-600 hover:text-red-900 p-1"
+                            title="Delete"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

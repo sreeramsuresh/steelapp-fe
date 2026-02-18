@@ -38,6 +38,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
+import { authService } from "../services/axiosAuthService";
 import { importOrderService } from "../services/importOrderService";
 
 // Status configuration
@@ -439,7 +440,7 @@ const ImportOrderDetails = () => {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-3">
-          {status === "draft" && (
+          {status === "draft" && authService.hasPermission("import_orders", "update") && (
             <Link
               to={`/import-orders/${id}/edit`}
               className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
@@ -467,7 +468,7 @@ const ImportOrderDetails = () => {
           </button>
 
           {/* Status Update Dropdown */}
-          {availableTransitions.length > 0 && (
+          {availableTransitions.length > 0 && authService.hasPermission("import_orders", "update") && (
             <div className="relative">
               <button
                 type="button"
@@ -512,14 +513,16 @@ const ImportOrderDetails = () => {
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            <Trash2 size={18} />
-            Delete
-          </button>
+          {authService.hasPermission("import_orders", "delete") && (
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              <Trash2 size={18} />
+              Delete
+            </button>
+          )}
         </div>
       </div>
 

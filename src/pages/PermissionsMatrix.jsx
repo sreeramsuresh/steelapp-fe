@@ -1,6 +1,7 @@
 import { Check, Loader2, Search, Shield, TableProperties, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
+import { authService } from "../services/axiosAuthService";
 import { notificationService } from "../services/notificationService";
 import { permissionsMatrixService } from "../services/permissionsMatrixService";
 import "./PermissionsMatrix.css";
@@ -291,6 +292,15 @@ export default function PermissionsMatrix() {
 
         await permissionsMatrixService.setCustomPermission(user.id, permKey, type, dialogReason);
         notificationService.success(`Permission ${type === "grant" ? "granted" : "denied"} successfully`);
+        // Refresh session if the affected user is the current user
+        const currentUser = authService.getUser();
+        if (currentUser?.id === user.id) {
+          await authService.refreshSession();
+        } else {
+          notificationService.info(
+            "Permission saved. The affected user will see the change after their next page refresh or re-login."
+          );
+        }
       } else {
         setData((d) => {
           const users = d.users.map((u) => {
@@ -304,6 +314,15 @@ export default function PermissionsMatrix() {
 
         await permissionsMatrixService.removeCustomPermission(user.id, permKey);
         notificationService.success("Custom override removed");
+        // Refresh session if the affected user is the current user
+        const currentUser = authService.getUser();
+        if (currentUser?.id === user.id) {
+          await authService.refreshSession();
+        } else {
+          notificationService.info(
+            "Permission saved. The affected user will see the change after their next page refresh or re-login."
+          );
+        }
       }
     } catch (err) {
       setData(prevData);

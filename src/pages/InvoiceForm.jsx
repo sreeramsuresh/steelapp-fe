@@ -47,6 +47,7 @@ import { useApi, useApiData } from "../hooks/useApi";
 import useInvoiceTemplates from "../hooks/useInvoiceTemplates";
 import useKeyboardShortcuts, { getShortcutDisplayString, INVOICE_SHORTCUTS } from "../hooks/useKeyboardShortcuts";
 import { invoicesAPI } from "../services/api";
+import { authService } from "../services/axiosAuthService";
 import { batchReservationService } from "../services/batchReservationService";
 import { commissionService } from "../services/commissionService";
 import { companyService } from "../services/companyService";
@@ -78,6 +79,11 @@ const InvoiceForm = ({ onSave }) => {
   const [searchParams] = useSearchParams();
   const duplicateFromId = searchParams.get("duplicateFrom");
   const { isDarkMode } = useTheme();
+
+  // Permission guard: can user create or edit invoices?
+  const canWrite = id
+    ? authService.hasPermission("invoices", "update")
+    : authService.hasPermission("invoices", "create");
 
   // Field refs for scroll-to-field functionality (Option C Hybrid UX)
   const customerRef = useRef(null);
@@ -2026,13 +2032,15 @@ const InvoiceForm = ({ onSave }) => {
                   <Button
                     ref={saveButtonRef}
                     onClick={handleSave}
-                    disabled={savingInvoice || updatingInvoice || isSaving || isLocked}
+                    disabled={!canWrite || savingInvoice || updatingInvoice || isSaving || isLocked}
                     title={
-                      isLocked
-                        ? "Invoice is locked (24h edit window expired)"
-                        : isRevisionMode
-                          ? `Save revision (${hoursRemainingInEditWindow}h remaining)`
-                          : `Save as draft (${getShortcutDisplayString(INVOICE_SHORTCUTS.SAVE)})`
+                      !canWrite
+                        ? "You do not have permission to save invoices"
+                        : isLocked
+                          ? "Invoice is locked (24h edit window expired)"
+                          : isRevisionMode
+                            ? `Save revision (${hoursRemainingInEditWindow}h remaining)`
+                            : `Save as draft (${getShortcutDisplayString(INVOICE_SHORTCUTS.SAVE)})`
                     }
                     data-testid="save-draft"
                   >
@@ -3133,9 +3141,11 @@ const InvoiceForm = ({ onSave }) => {
               <Button
                 ref={saveButtonRef}
                 onClick={handleSave}
-                disabled={savingInvoice || updatingInvoice || isSaving || (id && invoice.status === "issued")}
+                disabled={
+                  !canWrite || savingInvoice || updatingInvoice || isSaving || (id && invoice.status === "issued")
+                }
                 className="flex-1 min-h-[48px]"
-                title="Save invoice (Ctrl+S)"
+                title={!canWrite ? "You do not have permission to save invoices" : "Save invoice (Ctrl+S)"}
               >
                 {savingInvoice || updatingInvoice || isSaving ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

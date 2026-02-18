@@ -646,17 +646,19 @@ const UserManagementTab = () => {
                 >
                   Manage Roles
                 </Button>
-                <Button
-                  variant="primary"
-                  startIcon={<Mail size={16} />}
-                  onClick={() => {
-                    setNewUser({ name: "", email: "", password: "", role_ids: [] });
-                    setSelectedUserRoles([]);
-                    setShowAddUserModal(true);
-                  }}
-                >
-                  Invite User
-                </Button>
+                {authService.hasPermission("users", "create") && (
+                  <Button
+                    variant="primary"
+                    startIcon={<Mail size={16} />}
+                    onClick={() => {
+                      setNewUser({ name: "", email: "", password: "", role_ids: [] });
+                      setSelectedUserRoles([]);
+                      setShowAddUserModal(true);
+                    }}
+                  >
+                    Invite User
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -740,11 +742,13 @@ const UserManagementTab = () => {
                         </div>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <Switch
-                          checked={user.status === "active"}
-                          onChange={() => toggleUserStatus(user.id)}
-                          label={user.status === "active" ? "Active" : "Inactive"}
-                        />
+                        {authService.hasPermission("users", "update") && (
+                          <Switch
+                            checked={user.status === "active"}
+                            onChange={() => toggleUserStatus(user.id)}
+                            label={user.status === "active" ? "Active" : "Inactive"}
+                          />
+                        )}
                         <button
                           type="button"
                           onClick={async () => {
@@ -775,29 +779,31 @@ const UserManagementTab = () => {
                         >
                           <Eye size={16} />
                         </button>
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            try {
-                              const userPermissions = await roleService.getUserPermissions(user.id);
-                              setEditUserModal({
-                                open: true,
-                                user: {
-                                  ...user,
-                                  role_ids: userPermissions.roles.map((r) => r.id),
-                                  roles: userPermissions.roles,
-                                },
-                              });
-                              setSelectedUserRoles(userPermissions.roles.map((r) => r.id));
-                            } catch (error) {
-                              console.error("Error loading user data:", error);
-                              notificationService.error("Failed to load user data");
-                            }
-                          }}
-                          className={`p-2 rounded-lg transition-colors duration-200 ${isDarkMode ? "hover:bg-gray-700 text-gray-200" : "hover:bg-gray-100 text-gray-700"}`}
-                        >
-                          <Edit size={16} />
-                        </button>
+                        {authService.hasPermission("users", "update") && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                const userPermissions = await roleService.getUserPermissions(user.id);
+                                setEditUserModal({
+                                  open: true,
+                                  user: {
+                                    ...user,
+                                    role_ids: userPermissions.roles.map((r) => r.id),
+                                    roles: userPermissions.roles,
+                                  },
+                                });
+                                setSelectedUserRoles(userPermissions.roles.map((r) => r.id));
+                              } catch (error) {
+                                console.error("Error loading user data:", error);
+                                notificationService.error("Failed to load user data");
+                              }
+                            }}
+                            className={`p-2 rounded-lg transition-colors duration-200 ${isDarkMode ? "hover:bg-gray-700 text-gray-200" : "hover:bg-gray-100 text-gray-700"}`}
+                          >
+                            <Edit size={16} />
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={() =>
@@ -967,43 +973,47 @@ const UserManagementTab = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            try {
-                              await userAdminAPI.resendInvite(inv.email);
-                              notificationService.success(`Invitation resent to ${inv.email}`);
-                              const updated = await userAdminAPI.listInvitations();
-                              setInvitations(updated);
-                            } catch (err) {
-                              const errorCode = err.response?.data?.errorCode;
-                              notificationService.error(
-                                errorCode === "INVITE_EMAIL_FAILED"
-                                  ? "Email delivery failed. Check SMTP settings."
-                                  : err.response?.data?.error || "Failed to resend invitation"
-                              );
-                            }
-                          }}
-                          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${isDarkMode ? "bg-teal-900/30 text-teal-400 hover:bg-teal-900/50 border border-teal-700" : "bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200"}`}
-                        >
-                          Resend
-                        </button>
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            try {
-                              await userAdminAPI.revokeInvite(inv.id);
-                              notificationService.success("Invitation revoked");
-                              const updated = await userAdminAPI.listInvitations();
-                              setInvitations(updated);
-                            } catch (err) {
-                              notificationService.error(err.response?.data?.error || "Failed to revoke invitation");
-                            }
-                          }}
-                          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${isDarkMode ? "bg-red-900/30 text-red-400 hover:bg-red-900/50 border border-red-700" : "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"}`}
-                        >
-                          Revoke
-                        </button>
+                        {authService.hasPermission("users", "create") && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                await userAdminAPI.resendInvite(inv.email);
+                                notificationService.success(`Invitation resent to ${inv.email}`);
+                                const updated = await userAdminAPI.listInvitations();
+                                setInvitations(updated);
+                              } catch (err) {
+                                const errorCode = err.response?.data?.errorCode;
+                                notificationService.error(
+                                  errorCode === "INVITE_EMAIL_FAILED"
+                                    ? "Email delivery failed. Check SMTP settings."
+                                    : err.response?.data?.error || "Failed to resend invitation"
+                                );
+                              }
+                            }}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${isDarkMode ? "bg-teal-900/30 text-teal-400 hover:bg-teal-900/50 border border-teal-700" : "bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200"}`}
+                          >
+                            Resend
+                          </button>
+                        )}
+                        {authService.hasPermission("users", "delete") && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                await userAdminAPI.revokeInvite(inv.id);
+                                notificationService.success("Invitation revoked");
+                                const updated = await userAdminAPI.listInvitations();
+                                setInvitations(updated);
+                              } catch (err) {
+                                notificationService.error(err.response?.data?.error || "Failed to revoke invitation");
+                              }
+                            }}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${isDarkMode ? "bg-red-900/30 text-red-400 hover:bg-red-900/50 border border-red-700" : "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"}`}
+                          >
+                            Revoke
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}

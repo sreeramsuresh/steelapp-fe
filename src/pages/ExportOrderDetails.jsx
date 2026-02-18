@@ -48,6 +48,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
+import { authService } from "../services/axiosAuthService";
 import { exportOrderService } from "../services/exportOrderService";
 
 // ========================================
@@ -793,8 +794,8 @@ const ExportOrderDetails = () => {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Edit Button - Only for draft orders */}
-          {orderData.status === "draft" && (
+          {/* Edit Button - Only for draft orders with update permission */}
+          {orderData.status === "draft" && authService.hasPermission("export_orders", "update") && (
             <Link
               to={`/export-orders/${id}/edit`}
               className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
@@ -837,7 +838,7 @@ const ExportOrderDetails = () => {
           </button>
 
           {/* Status Update Dropdown */}
-          {availableTransitions.length > 0 && (
+          {availableTransitions.length > 0 && authService.hasPermission("export_orders", "update") && (
             <div className="relative">
               <button
                 type="button"
@@ -888,14 +889,16 @@ const ExportOrderDetails = () => {
           )}
 
           {/* Delete Button */}
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            <Trash2 size={18} />
-            Delete
-          </button>
+          {authService.hasPermission("export_orders", "delete") && (
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              <Trash2 size={18} />
+              Delete
+            </button>
+          )}
         </div>
       </div>
 

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { authService } from "../../services/axiosAuthService";
 
 const WarehouseCard = ({ warehouse, onView, onEdit, onDelete, onSetDefault }) => {
   const { isDarkMode } = useTheme();
@@ -141,19 +142,21 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete, onSetDefault }) =>
                       <Eye className="w-4 h-4" />
                       View Details
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMenuOpen(false);
-                        onEdit();
-                      }}
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${
-                        isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
-                      }`}
-                    >
-                      <Edit className="w-4 h-4" />
-                      Edit
-                    </button>
+                    {authService.hasPermission("warehouses", "update") && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuOpen(false);
+                          onEdit();
+                        }}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${
+                          isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        <Edit className="w-4 h-4" />
+                        Edit
+                      </button>
+                    )}
                     {!isDefault && onSetDefault && (
                       <button
                         type="button"
@@ -169,19 +172,21 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete, onSetDefault }) =>
                         Set as Default
                       </button>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMenuOpen(false);
-                        onDelete();
-                      }}
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 ${
-                        isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
-                      }`}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Delete
-                    </button>
+                    {authService.hasPermission("warehouses", "delete") && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuOpen(false);
+                          onDelete();
+                        }}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 ${
+                          isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                        }`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </>
               )}

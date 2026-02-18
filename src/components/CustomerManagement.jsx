@@ -913,23 +913,27 @@ const CustomerManagement = () => {
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setShowAddModal(true)}
-            className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
-          >
-            <FaPlus />
-            Add Customer
-          </button>
+          {authService.hasPermission("customers", "create") && (
+            <button
+              type="button"
+              onClick={() => setShowAddModal(true)}
+              className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
+            >
+              <FaPlus />
+              Add Customer
+            </button>
+          )}
 
-          <button
-            type="button"
-            onClick={() => setShowUploadModal(true)}
-            className="px-6 py-2 bg-gradient-to-r from-[#4CAF50] to-[#388E3C] text-white rounded-lg hover:from-[#66BB6A] hover:to-[#4CAF50] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
-          >
-            <FaUpload />
-            Upload Customers
-          </button>
+          {authService.hasPermission("customers", "create") && (
+            <button
+              type="button"
+              onClick={() => setShowUploadModal(true)}
+              className="px-6 py-2 bg-gradient-to-r from-[#4CAF50] to-[#388E3C] text-white rounded-lg hover:from-[#66BB6A] hover:to-[#4CAF50] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
+            >
+              <FaUpload />
+              Upload Customers
+            </button>
+          )}
 
           {/* Bulk Archive Button - shown when customers selected */}
           {selectedCustomerIds.size > 0 && (
@@ -1102,20 +1106,22 @@ const CustomerManagement = () => {
                   {/* Actions Column */}
                   <td className="px-3 py-2 text-right w-[100px]">
                     <div className="flex items-center justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigate(`/app/customers/${customer.id}/edit`);
-                        }}
-                        className={`p-1.5 rounded transition-colors ${
-                          isDarkMode
-                            ? "text-teal-400 hover:text-teal-300 hover:bg-gray-700"
-                            : "text-teal-600 hover:text-teal-700 hover:bg-gray-100"
-                        }`}
-                        title="Edit"
-                      >
-                        <FaEdit size={14} />
-                      </button>
+                      {authService.hasPermission("customers", "update") && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigate(`/app/customers/${customer.id}/edit`);
+                          }}
+                          className={`p-1.5 rounded transition-colors ${
+                            isDarkMode
+                              ? "text-teal-400 hover:text-teal-300 hover:bg-gray-700"
+                              : "text-teal-600 hover:text-teal-700 hover:bg-gray-100"
+                          }`}
+                          title="Edit"
+                        >
+                          <FaEdit size={14} />
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={() => openContactHistory(customer)}

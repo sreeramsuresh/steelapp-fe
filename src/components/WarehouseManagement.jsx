@@ -15,6 +15,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
 import { apiClient } from "../services/api";
+import { authService } from "../services/axiosAuthService";
 import { notificationService } from "../services/notificationService";
 import { warehouseService } from "../services/warehouseService";
 import ConfirmDialog from "./ConfirmDialog";
@@ -305,14 +306,16 @@ const WarehouseManagement = () => {
             <Search size={16} />
             Debug DB
           </button>
-          <button
-            type="button"
-            onClick={() => handleOpenDialog()}
-            className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
-          >
-            <Add size={16} />
-            Add Warehouse
-          </button>
+          {authService.hasPermission("warehouses", "create") && (
+            <button
+              type="button"
+              onClick={() => handleOpenDialog()}
+              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+            >
+              <Add size={16} />
+              Add Warehouse
+            </button>
+          )}
         </div>
       </div>
 
@@ -338,24 +341,28 @@ const WarehouseManagement = () => {
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  <button
-                    type="button"
-                    onClick={() => handleOpenDialog(warehouse)}
-                    className={`p-2 rounded transition-colors ${
-                      isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
-                    }`}
-                  >
-                    <Edit size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(warehouse.id)}
-                    className={`p-2 rounded transition-colors ${
-                      isDarkMode ? "hover:bg-gray-700 text-red-400" : "hover:bg-gray-100 text-red-600"
-                    }`}
-                  >
-                    <Delete size={16} />
-                  </button>
+                  {authService.hasPermission("warehouses", "update") && (
+                    <button
+                      type="button"
+                      onClick={() => handleOpenDialog(warehouse)}
+                      className={`p-2 rounded transition-colors ${
+                        isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
+                      }`}
+                    >
+                      <Edit size={16} />
+                    </button>
+                  )}
+                  {authService.hasPermission("warehouses", "delete") && (
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(warehouse.id)}
+                      className={`p-2 rounded transition-colors ${
+                        isDarkMode ? "hover:bg-gray-700 text-red-400" : "hover:bg-gray-100 text-red-600"
+                      }`}
+                    >
+                      <Delete size={16} />
+                    </button>
+                  )}
                 </div>
               </div>
 

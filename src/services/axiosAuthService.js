@@ -444,6 +444,32 @@ class AuthService {
     sessionStorage.removeItem("invoiceListPageSize");
   }
 
+  // Refresh session from /auth/me (picks up latest permissions from server)
+  async refreshSession() {
+    try {
+      const response = await apiService.get("/auth/me");
+      if (response?.user) {
+        tokenUtils.setUser(response.user);
+        return true;
+      }
+    } catch (err) {
+      console.error("[Auth] Session refresh failed:", err.message);
+    }
+    return false;
+  }
+
+  // Register window focus listener to auto-refresh session (max once per 60s)
+  initFocusRefresh() {
+    let lastRefresh = 0;
+    window.addEventListener("focus", async () => {
+      const now = Date.now();
+      if (now - lastRefresh > 60_000 && this.isAuthenticated()) {
+        lastRefresh = now;
+        await this.refreshSession();
+      }
+    });
+  }
+
   // Authentication status
   isAuthenticated() {
     const token = tokenUtils.getToken();

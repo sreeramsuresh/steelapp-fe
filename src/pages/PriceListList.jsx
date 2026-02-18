@@ -17,6 +17,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";
+import { authService } from "../services/axiosAuthService";
 import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
 
@@ -383,10 +384,12 @@ export default function PriceListList() {
               aria-label="Search price lists"
             />
           </div>
-          <Button onClick={() => navigate("/app/pricelists/new")} size="sm">
-            <Plus size={16} />
-            New Price List
-          </Button>
+          {authService.hasPermission("pricelists", "create") && (
+            <Button onClick={() => navigate("/app/pricelists/new")} size="sm">
+              <Plus size={16} />
+              New Price List
+            </Button>
+          )}
         </div>
 
         {/* Price Lists Grid */}
@@ -399,10 +402,12 @@ export default function PriceListList() {
             <Tag size={48} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg font-medium mb-2">No price lists found</p>
             <p className="text-sm mb-4">Create your first price list to manage product pricing</p>
-            <Button onClick={() => navigate("/app/pricelists/new")}>
-              <Plus size={16} />
-              Create Price List
-            </Button>
+            {authService.hasPermission("pricelists", "create") && (
+              <Button onClick={() => navigate("/app/pricelists/new")}>
+                <Plus size={16} />
+                Create Price List
+              </Button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-stretch">
@@ -498,20 +503,22 @@ export default function PriceListList() {
                                 <Eye size={14} />
                                 View Details
                               </button>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setOpenMenuId(null);
-                                  navigate(`/app/pricelists/${pricelist.id}/edit`);
-                                }}
-                                className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${
-                                  isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
-                                }`}
-                              >
-                                <Edit size={14} />
-                                Edit
-                              </button>
+                              {authService.hasPermission("pricelists", "update") && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenMenuId(null);
+                                    navigate(`/app/pricelists/${pricelist.id}/edit`);
+                                  }}
+                                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${
+                                    isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
+                                  }`}
+                                >
+                                  <Edit size={14} />
+                                  Edit
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 onClick={(e) => {
@@ -540,19 +547,21 @@ export default function PriceListList() {
                                   Set as Default
                                 </button>
                               )}
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  setOpenMenuId(null);
-                                  handleDelete(pricelist.id, pricelist.name, e);
-                                }}
-                                className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 ${
-                                  isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
-                                }`}
-                              >
-                                <Trash2 size={14} />
-                                Delete
-                              </button>
+                              {authService.hasPermission("pricelists", "delete") && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    setOpenMenuId(null);
+                                    handleDelete(pricelist.id, pricelist.name, e);
+                                  }}
+                                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 ${
+                                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                                  }`}
+                                >
+                                  <Trash2 size={14} />
+                                  Delete
+                                </button>
+                              )}
                             </div>
                           </>
                         )}

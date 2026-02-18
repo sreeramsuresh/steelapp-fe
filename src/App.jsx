@@ -12,6 +12,7 @@ import { authService } from "./services/axiosAuthService";
 
 // Initialize auth service on app load
 authService.initialize();
+authService.initFocusRefresh();
 
 /**
  * AppContent - Simplified wrapper for the router

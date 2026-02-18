@@ -24,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";
+import { authService } from "../services/axiosAuthService";
 import {
   approveSupplierQuotation,
   convertToPurchaseOrder,
@@ -213,25 +214,25 @@ export function SupplierQuotationDetail() {
           >
             {getStatusText(quotation.status)}
           </Badge>
-          {canEdit && (
+          {canEdit && authService.hasPermission("supplier_quotations", "update") && (
             <Button variant="outline" onClick={() => navigate(`/app/supplier-quotations/${id}/edit`)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </Button>
           )}
-          {canApprove && (
+          {canApprove && authService.hasPermission("supplier_quotations", "update") && (
             <Button onClick={handleApprove} disabled={processing} className="bg-green-600 hover:bg-green-700">
               <CheckCircle className="h-4 w-4 mr-2" />
               Approve
             </Button>
           )}
-          {canReject && (
+          {canReject && authService.hasPermission("supplier_quotations", "update") && (
             <Button variant="destructive" onClick={() => setShowRejectDialog(true)} disabled={processing}>
               <XCircle className="h-4 w-4 mr-2" />
               Reject
             </Button>
           )}
-          {canConvert && (
+          {canConvert && authService.hasPermission("purchase_orders", "create") && (
             <Button
               onClick={() => setShowConvertDialog(true)}
               disabled={processing}

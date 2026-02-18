@@ -77,6 +77,7 @@ const PurchasesDashboard = lazy(() => import("../pages/PurchasesDashboard"));
 
 // PO Workspace
 const POWorkspaceShell = lazy(() => import("./purchase-order/workspace/POWorkspaceShell"));
+const POTypeSelection = lazy(() => import("../pages/purchases/POTypeSelection"));
 const POOverview = lazy(() => import("../pages/purchases/workspace/POOverview"));
 const PODispatchConfirm = lazy(() => import("../pages/purchases/workspace/PODispatchConfirm"));
 const POGRNList = lazy(() => import("../pages/purchases/workspace/POGRNList"));
@@ -407,7 +408,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               path="invoices/:id"
               element={
                 <ErrorBoundary>
-                  <ProtectedRoute user={user} requiredPermission="invoices.update">
+                  <ProtectedRoute user={user} requiredPermission="invoices.read">
                     <Suspense fallback={<InvoiceFormLoadingFallback />}>
                       <InvoiceForm onSave={handleSaveInvoice} />
                     </Suspense>
@@ -478,7 +479,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="credit-notes/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="invoices.update">
+                <ProtectedRoute user={user} requiredPermission="invoices.read">
                   <CreditNoteForm />
                 </ProtectedRoute>
               }
@@ -513,6 +514,15 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               <Route path="payments/:paymentId" element={<POPaymentDetail />} />
             </Route>
 
+            {/* PO type selection — shown before the creation form */}
+            <Route
+              path="purchases/po/new"
+              element={
+                <ProtectedRoute user={user} requiredPermission="purchase_orders.create">
+                  <POTypeSelection />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="purchase-orders/new"
               element={
@@ -707,7 +717,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="warehouses"
               element={
-                <ProtectedRoute user={user}>
+                <ProtectedRoute user={user} requiredPermission="warehouses.read">
                   <WarehouseList />
                 </ProtectedRoute>
               }
@@ -715,7 +725,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="warehouses/:id"
               element={
-                <ProtectedRoute user={user}>
+                <ProtectedRoute user={user} requiredPermission="warehouses.read">
                   <WarehouseDetail />
                 </ProtectedRoute>
               }
@@ -723,7 +733,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="inventory"
               element={
-                <ProtectedRoute user={user}>
+                <ProtectedRoute user={user} requiredPermission="inventory.read">
                   <InventoryList />
                 </ProtectedRoute>
               }
@@ -731,7 +741,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="stock-movements"
               element={
-                <ProtectedRoute user={user}>
+                <ProtectedRoute user={user} requiredPermission="stock_movements.read">
                   <StockMovementPage />
                 </ProtectedRoute>
               }

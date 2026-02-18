@@ -12,6 +12,7 @@ import WarehouseFormDialog from "../../components/warehouses/WarehouseFormDialog
 import WarehouseSummaryCards from "../../components/warehouses/WarehouseSummaryCards";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useConfirm } from "../../hooks/useConfirm";
+import { authService } from "../../services/axiosAuthService";
 import { notificationService } from "../../services/notificationService";
 import { warehouseService } from "../../services/warehouseService";
 import { clearInventoryCache } from "../../utils/inventorySyncUtils";
@@ -207,14 +208,16 @@ const WarehouseList = () => {
             >
               <RefreshCw className={`w-5 h-5 ${loading ? "animate-spin" : ""}`} />
             </button>
-            <button
-              type="button"
-              onClick={handleAddWarehouse}
-              className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-              <span>Add Warehouse</span>
-            </button>
+            {authService.hasPermission("warehouses", "create") && (
+              <button
+                type="button"
+                onClick={handleAddWarehouse}
+                className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Add Warehouse</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -288,7 +291,7 @@ const WarehouseList = () => {
             <p className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               {searchTerm ? "Try adjusting your search" : "Get started by adding your first warehouse"}
             </p>
-            {!searchTerm && (
+            {!searchTerm && authService.hasPermission("warehouses", "create") && (
               <button
                 type="button"
                 onClick={handleAddWarehouse}

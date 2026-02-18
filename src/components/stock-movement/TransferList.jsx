@@ -9,6 +9,7 @@
 import { Eye, Loader2, Package, Plus, RotateCcw, Search, Truck, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { authService } from "../../services/axiosAuthService";
 import { stockMovementService, TRANSFER_STATUSES } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
 
@@ -214,17 +215,21 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
     actions.push({ type: "view", label: "View", icon: Eye });
 
     if (transfer.status === "DRAFT" || transfer.status === "PENDING") {
-      actions.push({ type: "ship", label: "Ship", icon: Truck });
-      actions.push({ type: "cancel", label: "Cancel", icon: X });
+      if (authService.hasPermission("stock_movements", "update")) {
+        actions.push({ type: "ship", label: "Ship", icon: Truck });
+        actions.push({ type: "cancel", label: "Cancel", icon: X });
+      }
     }
 
     if (transfer.status === "SHIPPED" || transfer.status === "IN_TRANSIT") {
-      actions.push({
-        type: "receive",
-        label: "Receive",
-        icon: Package,
-      });
-      actions.push({ type: "cancel", label: "Cancel", icon: X });
+      if (authService.hasPermission("stock_movements", "update")) {
+        actions.push({
+          type: "receive",
+          label: "Receive",
+          icon: Package,
+        });
+        actions.push({ type: "cancel", label: "Cancel", icon: X });
+      }
     }
 
     return actions;

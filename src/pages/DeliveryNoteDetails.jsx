@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApiData } from "../hooks/useApi";
 import { useStockValidation } from "../hooks/useStockValidation";
+import { authService } from "../services/axiosAuthService";
 import { companyService } from "../services/companyService";
 import { deliveryNoteService } from "../services/deliveryNoteService";
 import { formatDate } from "../utils/invoiceUtils";
@@ -283,18 +284,20 @@ const DeliveryNoteDetails = () => {
         </div>
 
         <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={() => navigate(`/app/delivery-notes/${id}/edit`)}
-            className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
-              isDarkMode
-                ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
-                : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
-            }`}
-          >
-            <Edit size={18} />
-            Edit
-          </button>
+          {authService.hasPermission("delivery_notes", "update") && (
+            <button
+              type="button"
+              onClick={() => navigate(`/app/delivery-notes/${id}/edit`)}
+              className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
+                isDarkMode
+                  ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+                  : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
+              }`}
+            >
+              <Edit size={18} />
+              Edit
+            </button>
+          )}
           <button
             type="button"
             onClick={handleDownloadPDF}
@@ -530,7 +533,8 @@ const DeliveryNoteDetails = () => {
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        {!item.isFullyDelivered &&
+                        {authService.hasPermission("delivery_notes", "update") &&
+                          !item.isFullyDelivered &&
                           deliveryNote.status !== "completed" &&
                           deliveryNote.status !== "cancelled" && (
                             <button
@@ -585,7 +589,7 @@ const DeliveryNoteDetails = () => {
               Quick Actions
             </h2>
             <div className="flex flex-col gap-3">
-              {deliveryNote.status === "pending" && (
+              {authService.hasPermission("delivery_notes", "update") && deliveryNote.status === "pending" && (
                 <>
                   <button
                     type="button"
@@ -614,7 +618,7 @@ const DeliveryNoteDetails = () => {
                 </>
               )}
 
-              {deliveryNote.status === "partial" && (
+              {authService.hasPermission("delivery_notes", "update") && deliveryNote.status === "partial" && (
                 <button
                   type="button"
                   onClick={() => handleStatusUpdate("completed")}
