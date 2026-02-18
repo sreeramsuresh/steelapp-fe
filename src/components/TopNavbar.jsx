@@ -141,6 +141,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
               <Search size={16} />
             </div>
             <input
+              id="global-search"
               type="text"
               placeholder={location.pathname.startsWith("/customers") ? "Search customers..." : "Search all items..."}
               style={{
