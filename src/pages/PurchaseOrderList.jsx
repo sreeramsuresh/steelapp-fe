@@ -264,7 +264,7 @@ const PurchaseOrderList = () => {
             Create your first purchase order to start tracking procurement
           </p>
           <Link
-            to="/app/purchase-orders/new"
+            to="/app/purchases/po/new"
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
           >
             <Plus size={20} />
@@ -296,7 +296,7 @@ const PurchaseOrderList = () => {
           </div>
           {authService.hasPermission("purchase_orders", "create") && (
             <Link
-              to="/app/purchase-orders/new"
+              to="/app/purchases/po/new"
               className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
             >
               <Plus size={18} />
@@ -464,8 +464,8 @@ const PurchaseOrderList = () => {
                             className={`p-2 rounded-lg transition-colors ${
                               isDarkMode ? "hover:bg-gray-700 text-teal-400" : "hover:bg-gray-100 text-teal-600"
                             }`}
-                            onClick={() => navigate(`/app/purchase-orders/${po.id}/edit`)}
-                            title="Legacy Edit"
+                            onClick={() => navigate(`/app/purchases/po/${po.id}/overview`)}
+                            title="View Purchase Order"
                           >
                             <Edit size={18} />
                           </button>

@@ -356,9 +356,9 @@ const TransitList = () => {
                       className={`p-2 rounded-lg transition-colors ${
                         isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
                       }`}
-                      title="Edit Purchase Order"
+                      title="View Purchase Order"
                       onClick={() => {
-                        navigate(`/app/purchase-orders/${item.id}/edit`);
+                        navigate(`/app/purchases/po/${item.id}/overview`);
                       }}
                     >
                       <Eye size={16} />

@@ -734,7 +734,7 @@ const POTab = ({ canManage }) => {
                       {!(filters.q || filters.status !== "all" || filters.start || filters.vendor) && (
                         <button
                           type="button"
-                          onClick={() => navigate("/app/purchase-orders/new")}
+                          onClick={() => navigate("/app/purchases/po/new")}
                           className="mt-3 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium transition-colors"
                         >
                           Create Purchase Order

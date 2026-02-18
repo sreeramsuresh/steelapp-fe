@@ -12,7 +12,6 @@ export default function POReceiveReturn() {
   const { summary, poId, refresh } = useWorkspace();
   const workflow = summary?.workflow;
   const po = summary?.po;
-  const _dispatch = summary?.dispatch;
 
   const [warehouses, setWarehouses] = useState([]);
   const [warehouseId, setWarehouseId] = useState("");
@@ -34,18 +33,27 @@ export default function POReceiveReturn() {
     };
   }, []);
 
-  // Initialise item quantities from dispatch/PO items
+  // Fetch full PO to get items (workspace-summary po is a slim DTO without items)
   useEffect(() => {
-    const sourceItems = summary?.items || po?.items || [];
-    setItems(
-      sourceItems.map((item) => ({
-        item_id: item.id || item.item_id,
-        product_name: item.product_name || item.description || "Item",
-        dispatched_qty: item.dispatched_qty ?? item.quantity ?? 0,
-        quantity: item.dispatched_qty ?? item.quantity ?? 0,
-      }))
-    );
-  }, [summary, po]);
+    if (!poId) return;
+    let cancelled = false;
+    purchaseOrderService.getById(poId).then((res) => {
+      if (cancelled) return;
+      const fullPo = res?.data || res || {};
+      const sourceItems = fullPo.items || [];
+      setItems(
+        sourceItems.map((item) => ({
+          item_id: item.id || item.item_id,
+          product_name: item.product_name || item.name || item.description || "Item",
+          dispatched_qty: item.dispatched_qty ?? item.quantity ?? 0,
+          quantity: item.dispatched_qty ?? item.quantity ?? 0,
+        }))
+      );
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [poId]);
 
   const cardClass = `rounded-lg border p-6 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`;
   const labelClass = `block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`;
