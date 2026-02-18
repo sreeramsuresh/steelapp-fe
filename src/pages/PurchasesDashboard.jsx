@@ -12,6 +12,7 @@ import { BookOpen, Coins, FileMinus, Receipt, ShoppingCart } from "lucide-react"
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
+import { authService } from "../services/axiosAuthService";
 
 import PurchaseOrderList from "./PurchaseOrderList";
 import { AdvancePaymentList } from "./payments";
@@ -81,12 +82,9 @@ const PurchasesDashboard = () => {
       icon: FileMinus,
       component: DebitNoteList,
     },
-    {
-      id: "advance-payments",
-      label: "Advance Payments",
-      icon: Coins,
-      component: AdvancePaymentList,
-    },
+    ...(authService.hasPermission("advance_payments", "read")
+      ? [{ id: "advance-payments", label: "Advance Payments", icon: Coins, component: AdvancePaymentList }]
+      : []),
     {
       id: "correction-guide",
       label: "Correction Guide",

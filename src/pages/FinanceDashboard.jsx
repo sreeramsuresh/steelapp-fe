@@ -2,6 +2,7 @@ import { Banknote, BookOpen, ClipboardCheck, DollarSign, FileText, RotateCcw, Sh
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
+import { authService } from "../services/axiosAuthService";
 import AccountStatementList from "./AccountStatementList";
 import CommissionApprovalWorkflow from "./CommissionApprovalWorkflow";
 import CreditNoteList from "./CreditNoteList";
@@ -18,6 +19,15 @@ const LazyJournalCorrectionGuide = lazy(() =>
   }))
 );
 
+const ALL_TAB_IDS = [
+  "credit-notes",
+  "statements",
+  "commission-approvals",
+  "credit-management",
+  "document-workflow",
+  "journal-correction-guide",
+];
+
 const FinanceDashboard = () => {
   const { isDarkMode } = useTheme();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -25,17 +35,7 @@ const FinanceDashboard = () => {
   // Initialize activeTab from URL parameter
   const [activeTab, setActiveTab] = useState(() => {
     const tabParam = searchParams.get("tab");
-    if (
-      tabParam &&
-      [
-        "credit-notes",
-        "statements",
-        "commission-approvals",
-        "credit-management",
-        "document-workflow",
-        "journal-correction-guide",
-      ].includes(tabParam)
-    ) {
+    if (tabParam && ALL_TAB_IDS.includes(tabParam)) {
       return tabParam;
     }
     return "credit-notes";
@@ -44,34 +44,26 @@ const FinanceDashboard = () => {
   // Update tab when URL parameter changes
   useEffect(() => {
     const tabParam = searchParams.get("tab");
-    if (
-      tabParam &&
-      [
-        "credit-notes",
-        "statements",
-        "commission-approvals",
-        "credit-management",
-        "document-workflow",
-        "journal-correction-guide",
-      ].includes(tabParam)
-    ) {
+    if (tabParam && ALL_TAB_IDS.includes(tabParam)) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveTab(tabParam);
     }
   }, [searchParams]);
 
-  const tabs = [
+  const allTabs = [
     {
       id: "credit-notes",
       label: "Credit Notes",
       icon: RotateCcw,
       component: CreditNoteList,
+      permission: ["credit_notes", "read"],
     },
     {
       id: "statements",
       label: "Account Statements",
       icon: FileText,
       component: AccountStatementList,
+      permission: ["account_statements", "read"],
     },
     {
       id: "commission-approvals",
@@ -84,6 +76,7 @@ const FinanceDashboard = () => {
       label: "Credit Management",
       icon: ShieldCheck,
       component: CustomerCreditManagement,
+      permission: ["customer_credit", "read"],
     },
     {
       id: "document-workflow",
@@ -98,8 +91,10 @@ const FinanceDashboard = () => {
       component: LazyJournalCorrectionGuide,
     },
   ];
+  const tabs = allTabs.filter((tab) => !tab.permission || authService.hasPermission(...tab.permission));
 
-  const ActiveComponent = tabs.find((tab) => tab.id === activeTab)?.component;
+  const effectiveTab = tabs.find((tab) => tab.id === activeTab) ? activeTab : tabs[0]?.id;
+  const ActiveComponent = tabs.find((tab) => tab.id === effectiveTab)?.component;
 
   return (
     <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
@@ -130,7 +125,7 @@ const FinanceDashboard = () => {
           <div className="flex space-x-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
+              const isActive = effectiveTab === tab.id;
 
               return (
                 <button

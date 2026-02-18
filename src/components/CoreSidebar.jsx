@@ -183,7 +183,7 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           path: "/app/warehouses",
           icon: MapPin,
           description: "Manage warehouse locations and capacity",
-          requiredPermission: "inventory.read",
+          requiredPermission: "warehouses.read",
         },
         {
           name: "Stock Levels",

@@ -28,6 +28,7 @@ import { useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApi, useApiData } from "../hooks/useApi";
 import { useConfirm } from "../hooks/useConfirm";
+import { authService } from "../services/axiosAuthService";
 import { productService } from "../services/dataService";
 import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
@@ -613,6 +614,7 @@ const SteelProducts = () => {
 
   // Phase 3: Fetch default pricelist ID on mount
   useEffect(() => {
+    if (!authService.hasPermission("pricelists", "read")) return;
     const fetchDefaultPricelist = async () => {
       try {
         const response = await pricelistService.getAll({ is_default: true });
