@@ -71,6 +71,7 @@ const ALLOWED_INVOICE_KEYS = new Set<keyof Invoice | string>([
   // Status
   "status",
   "paymentStatus",
+  "reminderCount",
 
   // Items & Payments
   "items",

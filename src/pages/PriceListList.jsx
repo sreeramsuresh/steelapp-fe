@@ -643,6 +643,7 @@ export default function PriceListList() {
         {/* Delete Confirmation Dialog */}
         {deleteConfirm.open && (
           <ConfirmDialog
+            open={deleteConfirm.open}
             title="Deactivate Price List?"
             message={`Are you sure you want to deactivate "${deleteConfirm.name}"?`}
             variant="danger"
