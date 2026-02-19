@@ -108,7 +108,7 @@ const pricelistService = {
 
   // Toggle pricelist active state
   async toggleActive(id, isActive) {
-    return api.patch(`/pricelists/${id}/state`, { isActive });
+    return api.patch(`/pricelists/${id}/state`, { is_active: isActive });
   },
 
   // Set company default pricelist

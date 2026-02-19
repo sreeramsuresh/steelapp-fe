@@ -550,12 +550,16 @@ export default function PriceListList() {
                               {authService.hasPermission("pricelists", "delete") && (
                                 <button
                                   type="button"
+                                  disabled={pricelist.isActive}
+                                  title={pricelist.isActive ? "Deactivate this price list before deleting" : undefined}
                                   onClick={(e) => {
                                     setOpenMenuId(null);
                                     handleDelete(pricelist.id, pricelist.name, e);
                                   }}
-                                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 ${
-                                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${
+                                    pricelist.isActive
+                                      ? "text-gray-400 cursor-not-allowed opacity-50"
+                                      : `text-red-500 ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`
                                   }`}
                                 >
                                   <Trash2 size={14} />
