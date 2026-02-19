@@ -108,7 +108,7 @@ export default function PriceListList() {
     try {
       setLoading(true);
       const [listResponse, resolveResponse] = await Promise.all([
-        pricelistService.getAll({ includeItems: false }),
+        pricelistService.getAll({ includeItems: false, include_inactive: true }),
         pricelistService.resolveDefault().catch(() => null),
       ]);
       setPricelists(listResponse.pricelists || []);

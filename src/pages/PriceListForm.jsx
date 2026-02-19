@@ -839,6 +839,21 @@ export default function PriceListForm() {
     }
   };
 
+  const handleToggleActive = async (val) => {
+    if (!isEdit) {
+      // For new pricelists, just update local state (no id yet)
+      setFormData((prev) => ({ ...prev, isActive: val }));
+      return;
+    }
+    try {
+      await pricelistService.toggleActive(id, val);
+      setFormData((prev) => ({ ...prev, isActive: val }));
+      notificationService.success(val ? "Price list activated" : "Price list deactivated");
+    } catch (err) {
+      notificationService.error(err?.response?.data?.error || "Failed to update active status");
+    }
+  };
+
   // Epic 14 - PRICE-006: Validate date range
   const validateDateRange = (fromDate, toDate) => {
     setDateValidationError("");
@@ -1414,10 +1429,9 @@ export default function PriceListForm() {
 
                   {/* Toggles */}
                   <div className="col-span-12 sm:col-span-6 flex items-end gap-4 pb-1">
-                    {/* TODO: isActive toggle should call PATCH /api/pricelists/:id/state endpoint separately */}
                     <Toggle
                       checked={formData.isActive}
-                      onChange={(val) => handleChange("isActive", val)}
+                      onChange={handleToggleActive}
                       label="Active"
                       isDarkMode={isDarkMode}
                     />
