@@ -13,7 +13,7 @@ export default defineConfig({
       "node_modules/**",
       "**/*.node.test.mjs",
     ],
-    pool: "vmThreads",
+    pool: "vmForks",
     server: {
       deps: {
         inline: ["html-encoding-sniffer", "@exodus/bytes"],
