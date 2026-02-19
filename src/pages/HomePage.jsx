@@ -15,6 +15,7 @@ import {
   Plus,
   Quote,
   Settings,
+  ShieldAlert,
   ShoppingCart,
   Trash2,
   Truck,
@@ -242,6 +243,102 @@ const RecentActivitySection = ({ recentActivity, handleNavigate, isDarkMode }) =
 );
 
 /**
+ * Integrity Summary Section — Data & Stock health indicator card.
+ * Renders 9 metrics as "incomplete / total" rows with severity badges.
+ */
+const INTEGRITY_LABELS = {
+  productsMissingData: "Products missing key data",
+  productsNoActivePrice: "Products with no active price",
+  customersMissingData: "Customers missing key data",
+  warehousesMissingData: "Warehouses missing key data",
+  purchaseOrdersIncomplete: "Purchase Orders pending GRN",
+  invoicesIncomplete: "Invoices pending Delivery Note",
+  importOrdersPendingGrn: "Import Orders pending GRN",
+  exportOrdersPendingDn: "Export Orders pending Delivery Note",
+  negativeStockBatches: "Negative stock batches",
+};
+
+function getIntegrityBadge(key, incomplete, total, isDarkMode) {
+  if (total === 0) {
+    return {
+      label: "No data",
+      className: isDarkMode ? "bg-gray-700 text-gray-400" : "bg-gray-100 text-gray-500",
+    };
+  }
+  // Negative stock is always critical if any exist
+  const isCriticalKey = key === "negativeStockBatches";
+  if (incomplete === 0) {
+    return {
+      label: "OK",
+      className: isDarkMode ? "bg-green-900/40 text-green-400" : "bg-green-50 text-green-700",
+    };
+  }
+  if (isCriticalKey || incomplete / total >= 0.1) {
+    return {
+      label: "Action Required",
+      className: isDarkMode ? "bg-red-900/40 text-red-400" : "bg-red-50 text-red-700",
+    };
+  }
+  return {
+    label: "Warning",
+    className: isDarkMode ? "bg-yellow-900/40 text-yellow-400" : "bg-yellow-50 text-yellow-700",
+  };
+}
+
+const IntegritySummarySection = ({ integritySummary, isDarkMode }) => {
+  if (integritySummary === null) {
+    return (
+      <div className={`text-center py-6 text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+        <ShieldAlert className="w-6 h-6 mx-auto mb-2 opacity-40" />
+        Integrity data unavailable
+      </div>
+    );
+  }
+
+  if (integritySummary === undefined) {
+    return (
+      <div className={`text-center py-6 text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-teal-500 mx-auto" />
+      </div>
+    );
+  }
+
+  const metrics = integritySummary.metrics || {};
+
+  return (
+    <div
+      className={`rounded-lg border divide-y ${isDarkMode ? "border-[#37474F] divide-[#37474F]" : "border-[#E0E0E0] divide-[#E0E0E0]"}`}
+    >
+      {Object.entries(INTEGRITY_LABELS).map(([key, label]) => {
+        const metric = metrics[key] || { incomplete: 0, total: 0 };
+        const { incomplete, total } = metric;
+        const badge = getIntegrityBadge(key, incomplete, total, isDarkMode);
+        const countText = total === 0 ? "—" : `${incomplete} / ${total}`;
+        return (
+          <div key={key} className="flex items-center justify-between px-4 py-2.5 gap-4">
+            <span className={`text-sm flex-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{label}</span>
+            <span
+              className={`text-sm font-mono font-semibold w-16 text-right ${incomplete > 0 ? (isDarkMode ? "text-white" : "text-gray-900") : isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+            >
+              {countText}
+            </span>
+            <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${badge.className}`}>
+              {badge.label}
+            </span>
+          </div>
+        );
+      })}
+      {integritySummary.generated_at && (
+        <div className={`px-4 py-2 text-[11px] ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}>
+          {integritySummary.cache_hit ? "Cached · " : ""}
+          Updated {new Date(integritySummary.generated_at).toLocaleTimeString()}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/**
  * Section configuration mapping
  */
 const SECTION_CONFIG = {
@@ -265,6 +362,11 @@ const SECTION_CONFIG = {
     title: "Recent Activity",
     Component: RecentActivitySection,
   },
+  integritySummary: {
+    id: "integritySummary",
+    title: "Data & Stock Integrity",
+    Component: IntegritySummarySection,
+  },
 };
 
 const HomePage = () => {
@@ -272,6 +374,7 @@ const HomePage = () => {
   const { isDarkMode } = useTheme();
   const [recentItems, setRecentItems] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
+  const [integritySummary, setIntegritySummary] = useState(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
   const { sectionOrder, reorderSections } = useHomeSectionOrder();
@@ -464,6 +567,14 @@ const HomePage = () => {
     fetchRecentItems();
   }, []);
 
+  // Fetch integrity summary once on mount (no polling — 5 min server cache)
+  useEffect(() => {
+    apiService
+      .get("/dashboard/integrity-summary")
+      .then((data) => setIntegritySummary(data))
+      .catch(() => setIntegritySummary(null));
+  }, []);
+
   // Fetch recent audit activity (only if user has permission)
   const fetchRecentActivity = useCallback(async () => {
     if (!authService.hasPermission("audit_logs", "read")) {
@@ -605,6 +716,7 @@ const HomePage = () => {
                   createNewItems={createNewItems}
                   recentItems={recentItems}
                   recentActivity={recentActivity}
+                  integritySummary={integritySummary}
                   handleNavigate={handleNavigate}
                   isDarkMode={isDarkMode}
                 />

@@ -95,7 +95,7 @@ const commissionService = {
   // Get commission audit trail
   getCommissionAuditTrail: async (invoiceId) => {
     try {
-      const response = await api.get(`/commissions/invoice/${invoiceId}/audit`);
+      const response = await api.get(`/commissions/invoice/${invoiceId}/audit-trail`);
       return response;
     } catch (error) {
       console.error("Error fetching audit trail:", error);

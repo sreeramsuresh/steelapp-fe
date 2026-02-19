@@ -147,7 +147,7 @@ class AuditHubService {
 
   async downloadExport(_companyId, datasetId, exportType) {
     try {
-      const response = await api.get(`/audit-hub/exports/download/${datasetId}/${exportType.toLowerCase()}`);
+      const response = await api.get(`/audit-hub/download/${datasetId}/${exportType.toLowerCase()}`);
       return response;
     } catch (error) {
       console.error("[AuditHub] Download export error:", error);
