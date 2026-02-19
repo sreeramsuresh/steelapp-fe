@@ -16,8 +16,6 @@
  */
 
 import { render, screen } from "@testing-library/react";
-// biome-ignore lint/correctness/noUnusedImports: needed for JSX transform
-import React from "react";
 import { describe, expect, it } from "vitest";
 
 // ─── Inline implementations mirroring the real logic in HomePage.jsx ─────────

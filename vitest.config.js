@@ -14,7 +14,6 @@ export default defineConfig({
       "node_modules/**",
       "**/*.node.test.mjs",
     ],
-    pool: "vmForks",
     server: {
       deps: {
         inline: ["html-encoding-sniffer", "@exodus/bytes"],
