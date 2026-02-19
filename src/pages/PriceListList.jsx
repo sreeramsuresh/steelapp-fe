@@ -7,6 +7,8 @@ import {
   Filter,
   MoreVertical,
   Plus,
+  Power,
+  PowerOff,
   Search,
   Star,
   Tag,
@@ -17,7 +19,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";
-import { authService } from "../services/axiosAuthService";
+import { authService } from "../services/authService";
+import { authService as axiosAuthService } from "../services/axiosAuthService";
 import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
 
@@ -96,7 +99,7 @@ export default function PriceListList() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [currencyFilter, setCurrencyFilter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState({
+  const [hardDeleteConfirm, setHardDeleteConfirm] = useState({
     open: false,
     id: null,
     name: null,
@@ -127,16 +130,28 @@ export default function PriceListList() {
     fetchPricelists();
   }, [fetchPricelists]);
 
-  const handleDelete = async (id, name, e) => {
+  const handleToggleActive = async (id, name, currentlyActive, e) => {
     e.stopPropagation();
-    setDeleteConfirm({ open: true, id, name });
+    try {
+      await pricelistService.toggleActive(id, !currentlyActive);
+      notificationService.success(currentlyActive ? `"${name}" deactivated` : `"${name}" activated`);
+      fetchPricelists();
+    } catch (error) {
+      console.error("Error toggling pricelist active state:", error);
+      notificationService.error(error.response?.data?.error || "Failed to update price list status");
+    }
   };
 
-  const confirmDelete = async () => {
-    const { id } = deleteConfirm;
+  const handleHardDelete = async (id, name, e) => {
+    e.stopPropagation();
+    setHardDeleteConfirm({ open: true, id, name });
+  };
+
+  const confirmHardDelete = async () => {
+    const { id } = hardDeleteConfirm;
     try {
-      await pricelistService.delete(id);
-      notificationService.success("Price list deactivated");
+      await pricelistService.delete(id, true);
+      notificationService.success("Price list permanently deleted");
       fetchPricelists();
     } catch (error) {
       console.error("Error deleting pricelist:", error);
@@ -145,7 +160,7 @@ export default function PriceListList() {
           error.response?.data?.message || "Cannot delete this price list — it is currently in use"
         );
       } else {
-        notificationService.error(error.response?.data?.message || "Failed to deactivate price list");
+        notificationService.error(error.response?.data?.message || "Failed to delete price list");
       }
     }
   };
@@ -384,7 +399,7 @@ export default function PriceListList() {
               aria-label="Search price lists"
             />
           </div>
-          {authService.hasPermission("pricelists", "create") && (
+          {axiosAuthService.hasPermission("pricelists", "create") && (
             <Button onClick={() => navigate("/app/pricelists/new")} size="sm">
               <Plus size={16} />
               New Price List
@@ -402,7 +417,7 @@ export default function PriceListList() {
             <Tag size={48} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg font-medium mb-2">No price lists found</p>
             <p className="text-sm mb-4">Create your first price list to manage product pricing</p>
-            {authService.hasPermission("pricelists", "create") && (
+            {axiosAuthService.hasPermission("pricelists", "create") && (
               <Button onClick={() => navigate("/app/pricelists/new")}>
                 <Plus size={16} />
                 Create Price List
@@ -503,7 +518,7 @@ export default function PriceListList() {
                                 <Eye size={14} />
                                 View Details
                               </button>
-                              {authService.hasPermission("pricelists", "update") && (
+                              {axiosAuthService.hasPermission("pricelists", "update") && (
                                 <button
                                   type="button"
                                   onClick={(e) => {
@@ -547,24 +562,40 @@ export default function PriceListList() {
                                   Set as Default
                                 </button>
                               )}
-                              {authService.hasPermission("pricelists", "delete") && (
+                              {axiosAuthService.hasPermission("pricelists", "update") && (
                                 <button
                                   type="button"
-                                  disabled={pricelist.isActive}
-                                  title={pricelist.isActive ? "Deactivate this price list before deleting" : undefined}
                                   onClick={(e) => {
                                     setOpenMenuId(null);
-                                    handleDelete(pricelist.id, pricelist.name, e);
+                                    handleToggleActive(pricelist.id, pricelist.name, pricelist.isActive, e);
                                   }}
                                   className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${
-                                    pricelist.isActive
-                                      ? "text-gray-400 cursor-not-allowed opacity-50"
-                                      : `text-red-500 ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`
+                                    isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"
                                   }`}
                                 >
-                                  <Trash2 size={14} />
-                                  Delete
+                                  {pricelist.isActive ? <PowerOff size={14} /> : <Power size={14} />}
+                                  {pricelist.isActive ? "Deactivate" : "Activate"}
                                 </button>
+                              )}
+                              {authService.isAdminOrDirector() && (
+                                <>
+                                  <div
+                                    className={`my-1 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      setOpenMenuId(null);
+                                      handleHardDelete(pricelist.id, pricelist.name, e);
+                                    }}
+                                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 ${
+                                      isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                                    }`}
+                                  >
+                                    <Trash2 size={14} />
+                                    Delete Permanently
+                                  </button>
+                                </>
                               )}
                             </div>
                           </>
@@ -644,18 +675,18 @@ export default function PriceListList() {
           </div>
         )}
 
-        {/* Delete Confirmation Dialog */}
-        {deleteConfirm.open && (
+        {/* Hard Delete Confirmation Dialog (admin/MD only) */}
+        {hardDeleteConfirm.open && (
           <ConfirmDialog
-            open={deleteConfirm.open}
-            title="Deactivate Price List?"
-            message={`Are you sure you want to deactivate "${deleteConfirm.name}"?`}
+            open={hardDeleteConfirm.open}
+            title="Permanently Delete Price List?"
+            message={`This will permanently delete "${hardDeleteConfirm.name}" and all its price history. This cannot be undone. Are you sure?`}
             variant="danger"
             onConfirm={() => {
-              confirmDelete();
-              setDeleteConfirm({ open: false, id: null, name: null });
+              confirmHardDelete();
+              setHardDeleteConfirm({ open: false, id: null, name: null });
             }}
-            onCancel={() => setDeleteConfirm({ open: false, id: null, name: null })}
+            onCancel={() => setHardDeleteConfirm({ open: false, id: null, name: null })}
           />
         )}
       </div>
