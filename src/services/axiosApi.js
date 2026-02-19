@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const IS_DEV = import.meta?.env?.DEV ?? false;
-const DISABLE_VALIDATION = import.meta?.env?.VITE_DISABLE_CONTRACT_VALIDATION === "true";
+const IS_DEV = import.meta.env.DEV;
+const DISABLE_VALIDATION = import.meta.env.VITE_DISABLE_CONTRACT_VALIDATION === "true";
 
 // ============================================================================
 // DEV-ONLY: Response Validator Import (Module Load Time - Correction #3)
@@ -28,6 +28,7 @@ if (IS_DEV && !DISABLE_VALIDATION) {
 
 // Helper function to get contract guard dynamically
 async function getContractGuard() {
+  if (!import.meta.env.DEV) return null;
   if (_contractGuard) {
     return _contractGuard;
   }
@@ -43,7 +44,7 @@ async function getContractGuard() {
 // Resolve API base URL with a LAN-safe fallback.
 // If the env points to localhost but the app is accessed via a LAN IP/hostname,
 // use relative "/api" so the Vite proxy handles requests correctly.
-let API_BASE_URL = import.meta?.env?.VITE_API_BASE_URL ?? "/api";
+let API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
 try {
   const host = typeof window !== "undefined" ? window.location.hostname : "";
   if (API_BASE_URL && /localhost|127\.0\.0\.1/.test(API_BASE_URL) && host && !/^(localhost|127\.0\.0\.1)$/.test(host)) {
@@ -53,7 +54,7 @@ try {
   // no-op; keep configured base URL
 }
 
-const REFRESH_ENDPOINT = import.meta?.env?.VITE_REFRESH_ENDPOINT ?? "/auth/refresh-token";
+const REFRESH_ENDPOINT = import.meta.env.VITE_REFRESH_ENDPOINT ?? "/auth/refresh-token";
 
 // Simple cookie helper (matching GigLabz approach)
 const Cookies = {
