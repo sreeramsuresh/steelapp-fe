@@ -19,7 +19,7 @@ export function getInvoiceActionButtonConfig(
   permissions,
   deliveryNoteStatus,
   getInvoiceReminderInfo,
-  validateInvoiceForDownload,
+  validateInvoiceForDownload
 ) {
   const isDeleted = invoice.deletedAt !== null;
   const {
@@ -33,17 +33,15 @@ export function getInvoiceActionButtonConfig(
   } = permissions;
 
   // Status lifecycle constants
-  const nonEditableStatuses = ['issued', 'sent', 'completed', 'cancelled'];
-  const creditNoteAllowedStatuses = ['issued', 'sent'];
-  const deliveryNoteAllowedStatuses = ['issued', 'sent'];
+  const nonEditableStatuses = ["issued", "sent", "completed", "cancelled"];
+  const creditNoteAllowedStatuses = ["issued", "sent"];
+  const deliveryNoteAllowedStatuses = ["issued", "sent"];
 
   // 24-hour edit window calculation for issued invoices
-  const isIssuedStatus = ['issued', 'sent'].includes(invoice.status);
+  const isIssuedStatus = ["issued", "sent"].includes(invoice.status);
   const issuedAt = invoice.issuedAt ? new Date(invoice.issuedAt) : null;
   const now = new Date();
-  const hoursSinceIssued = issuedAt
-    ? (now - issuedAt) / (1000 * 60 * 60)
-    : Infinity;
+  const hoursSinceIssued = issuedAt ? (now - issuedAt) / (1000 * 60 * 60) : Infinity;
   const withinEditWindow = hoursSinceIssued < 24;
 
   return {
@@ -55,35 +53,35 @@ export function getInvoiceActionButtonConfig(
       // Draft/proforma are always editable
       if (!isIssuedStatus && !isDeleted && canUpdate) {
         return {
-          type: 'edit',
+          type: "edit",
           enabled: true,
-          tooltip: 'Edit Invoice',
-          link: `/edit/${invoice.id}`,
+          tooltip: "Edit Invoice",
+          link: `/invoices/${invoice.id}`,
         };
       }
       // Issued/sent invoices: check 24-hour window
       if (isIssuedStatus && !isDeleted && canUpdate && withinEditWindow) {
         const hoursRemaining = Math.ceil(24 - hoursSinceIssued);
         return {
-          type: 'edit',
+          type: "edit",
           enabled: true,
           tooltip: `Edit Invoice (${hoursRemaining}h remaining)`,
-          link: `/edit/${invoice.id}`,
+          link: `/invoices/${invoice.id}`,
         };
       }
       // Locked: after 24h, deleted, cancelled, or no permission
       return {
-        type: 'lock',
+        type: "lock",
         enabled: false,
         tooltip: isDeleted
-          ? 'Deleted invoice'
+          ? "Deleted invoice"
           : !canUpdate
-            ? 'No permission to edit'
+            ? "No permission to edit"
             : isIssuedStatus && !withinEditWindow
-              ? 'Edit window expired (24h)'
-              : invoice.status === 'cancelled'
-                ? 'Cancelled invoice'
-                : 'Invoice locked',
+              ? "Edit window expired (24h)"
+              : invoice.status === "cancelled"
+                ? "Cancelled invoice"
+                : "Invoice locked",
         link: null,
       };
     })(),
@@ -91,149 +89,127 @@ export function getInvoiceActionButtonConfig(
       enabled:
         canUpdate &&
         !isDeleted &&
-        (!nonEditableStatuses.includes(invoice.status) ||
-          (isIssuedStatus && withinEditWindow)),
+        (!nonEditableStatuses.includes(invoice.status) || (isIssuedStatus && withinEditWindow)),
       tooltip: !canUpdate
-        ? 'No permission to edit'
+        ? "No permission to edit"
         : isDeleted
-          ? 'Cannot edit deleted invoice'
+          ? "Cannot edit deleted invoice"
           : isIssuedStatus && !withinEditWindow
-            ? 'Edit window expired (24h)'
+            ? "Edit window expired (24h)"
             : nonEditableStatuses.includes(invoice.status) && !withinEditWindow
               ? `Cannot edit ${invoice.status} invoice`
-              : 'Edit Invoice',
-      link: `/edit/${invoice.id}`,
+              : "Edit Invoice",
+      link: `/invoices/${invoice.id}`,
     },
     creditNote: {
-      enabled:
-        canCreateCreditNote &&
-        !isDeleted &&
-        creditNoteAllowedStatuses.includes(invoice.status),
+      enabled: canCreateCreditNote && !isDeleted && creditNoteAllowedStatuses.includes(invoice.status),
       tooltip: !canCreateCreditNote
-        ? 'No permission to create credit notes'
+        ? "No permission to create credit notes"
         : isDeleted
-          ? 'Cannot create credit note for deleted invoice'
+          ? "Cannot create credit note for deleted invoice"
           : !creditNoteAllowedStatuses.includes(invoice.status)
-            ? 'Only available for issued/sent invoices'
-            : 'Create Credit Note',
+            ? "Only available for issued/sent invoices"
+            : "Create Credit Note",
       link: `/finance?tab=credit-notes&invoiceId=${invoice.id}`,
     },
     view: {
       enabled: true,
-      tooltip: 'View Invoice',
+      tooltip: "View Invoice",
     },
     download: {
       enabled: canRead,
       tooltip: !canRead
-        ? 'No permission to download'
+        ? "No permission to download"
         : // Fully paid or issued invoices are considered complete - skip validation warning
-          invoice.paymentStatus === 'paid' ||
-            ['issued', 'sent'].includes(invoice.status)
-          ? 'Download PDF'
+          invoice.paymentStatus === "paid" || ["issued", "sent"].includes(invoice.status)
+          ? "Download PDF"
           : !validateInvoiceForDownload(invoice).isValid
-            ? `Incomplete ${invoice.status === 'draft' ? 'draft' : invoice.status === 'proforma' ? 'proforma' : 'invoice'} - Click to see missing fields`
-            : 'Download PDF',
+            ? `Incomplete ${invoice.status === "draft" ? "draft" : invoice.status === "proforma" ? "proforma" : "invoice"} - Click to see missing fields`
+            : "Download PDF",
       // Paid/issued invoices are always valid, otherwise check validation
       isValid:
-        invoice.paymentStatus === 'paid' ||
-        ['issued', 'sent'].includes(invoice.status) ||
+        invoice.paymentStatus === "paid" ||
+        ["issued", "sent"].includes(invoice.status) ||
         validateInvoiceForDownload(invoice).isValid,
     },
     recordPayment: {
       enabled: !isDeleted,
       tooltip: isDeleted
-        ? 'Cannot view payments for deleted invoice'
-        : invoice.paymentStatus === 'paid'
-          ? 'View Payment History'
-          : 'Record Payment',
-      isPaid: invoice.paymentStatus === 'paid',
+        ? "Cannot view payments for deleted invoice"
+        : invoice.paymentStatus === "paid"
+          ? "View Payment History"
+          : "Record Payment",
+      isPaid: invoice.paymentStatus === "paid",
       canAddPayment:
         canUpdate &&
-        invoice.paymentStatus !== 'paid' &&
-        invoice.status !== 'cancelled' &&
+        invoice.paymentStatus !== "paid" &&
+        invoice.status !== "cancelled" &&
         (invoice.balanceDue === undefined || invoice.balanceDue > 0),
     },
     commission: {
       enabled: !!(
-        invoice.paymentStatus === 'paid' &&
+        invoice.paymentStatus === "paid" &&
         invoice.salesAgentId &&
         parseInt(invoice.salesAgentId, 10) > 0 &&
         !isDeleted
       ),
       tooltip:
-        invoice.paymentStatus !== 'paid'
-          ? 'Only available for paid invoices'
+        invoice.paymentStatus !== "paid"
+          ? "Only available for paid invoices"
           : !invoice.salesAgentId || parseInt(invoice.salesAgentId, 10) === 0
-            ? 'No sales agent assigned'
+            ? "No sales agent assigned"
             : isDeleted
-              ? 'Cannot calculate for deleted invoice'
-              : 'Calculate Commission',
+              ? "Cannot calculate for deleted invoice"
+              : "Calculate Commission",
     },
     reminder: {
       enabled: getInvoiceReminderInfo(invoice)?.shouldShowReminder || false,
       tooltip: getInvoiceReminderInfo(invoice)?.shouldShowReminder
-        ? `Send payment reminder (${getInvoiceReminderInfo(invoice)?.config?.label || ''})`
-        : 'No reminder needed',
+        ? `Send payment reminder (${getInvoiceReminderInfo(invoice)?.config?.label || ""})`
+        : "No reminder needed",
     },
     phone: {
       // Disable for deleted invoices
       // For fully paid invoices: only enable if reminders exist (view-only mode)
       enabled:
         !isDeleted &&
-        !(
-          invoice.paymentStatus === 'paid' &&
-          (invoice.reminderCount === 0 || invoice.reminderCount === undefined)
-        ),
+        !(invoice.paymentStatus === "paid" && (invoice.reminderCount === 0 || invoice.reminderCount === undefined)),
       tooltip: isDeleted
-        ? 'Cannot add notes to deleted invoice'
-        : invoice.paymentStatus === 'paid' &&
-            (invoice.reminderCount === 0 || invoice.reminderCount === undefined)
-          ? 'No payment reminders for this paid invoice'
-          : invoice.paymentStatus === 'paid'
-            ? 'View Payment Reminder Notes (Read-only)'
-            : 'Payment Reminder - Phone Call Notes',
-      isViewOnly: invoice.paymentStatus === 'paid',
+        ? "Cannot add notes to deleted invoice"
+        : invoice.paymentStatus === "paid" && (invoice.reminderCount === 0 || invoice.reminderCount === undefined)
+          ? "No payment reminders for this paid invoice"
+          : invoice.paymentStatus === "paid"
+            ? "View Payment Reminder Notes (Read-only)"
+            : "Payment Reminder - Phone Call Notes",
+      isViewOnly: invoice.paymentStatus === "paid",
     },
     statement: {
       enabled: canReadCustomers,
-      tooltip: canReadCustomers
-        ? 'Generate Statement of Accounts'
-        : 'No permission to generate statements',
+      tooltip: canReadCustomers ? "Generate Statement of Accounts" : "No permission to generate statements",
     },
     deliveryNote: {
       enabled:
         deliveryNoteAllowedStatuses.includes(invoice.status) &&
-        (deliveryNoteStatus[invoice.id]?.hasNotes
-          ? canReadDeliveryNotes
-          : canCreateDeliveryNotes),
+        (deliveryNoteStatus[invoice.id]?.hasNotes ? canReadDeliveryNotes : canCreateDeliveryNotes),
       tooltip: !deliveryNoteAllowedStatuses.includes(invoice.status)
-        ? 'Only available for issued/sent invoices'
+        ? "Only available for issued/sent invoices"
         : deliveryNoteStatus[invoice.id]?.hasNotes
           ? `View Delivery Notes (${deliveryNoteStatus[invoice.id]?.count})`
           : !canCreateDeliveryNotes
-            ? 'No permission to create delivery notes'
-            : 'Create delivery note',
+            ? "No permission to create delivery notes"
+            : "Create delivery note",
       hasNotes: deliveryNoteStatus[invoice.id]?.hasNotes || false,
       count: deliveryNoteStatus[invoice.id]?.count || 0,
       firstId: deliveryNoteStatus[invoice.id]?.firstId || null,
-      isFullyDelivered:
-        deliveryNoteStatus[invoice.id]?.isFullyDelivered || false,
+      isFullyDelivered: deliveryNoteStatus[invoice.id]?.isFullyDelivered || false,
     },
     delete: {
       enabled: canDelete && !isDeleted,
-      tooltip: !canDelete
-        ? 'No permission to delete'
-        : isDeleted
-          ? 'Invoice already deleted'
-          : 'Delete Invoice',
+      tooltip: !canDelete ? "No permission to delete" : isDeleted ? "Invoice already deleted" : "Delete Invoice",
     },
     restore: {
       enabled: isDeleted && canUpdate,
-      tooltip: !isDeleted
-        ? 'Invoice not deleted'
-        : !canUpdate
-          ? 'No permission to restore'
-          : 'Restore Invoice',
+      tooltip: !isDeleted ? "Invoice not deleted" : !canUpdate ? "No permission to restore" : "Restore Invoice",
     },
 
     // DEPRECATED: Use editOrLock and creditNote separately
@@ -243,21 +219,20 @@ export function getInvoiceActionButtonConfig(
       if (
         canUpdate &&
         !isDeleted &&
-        (!nonEditableStatuses.includes(invoice.status) ||
-          (isIssuedStatus && withinEditWindow))
+        (!nonEditableStatuses.includes(invoice.status) || (isIssuedStatus && withinEditWindow))
       ) {
         return {
-          type: 'edit',
+          type: "edit",
           enabled: true,
-          tooltip: 'Edit Invoice',
-          link: `/edit/${invoice.id}`,
+          tooltip: "Edit Invoice",
+          link: `/invoices/${invoice.id}`,
         };
       }
       // Locked
       return {
-        type: 'lock',
+        type: "lock",
         enabled: false,
-        tooltip: 'Invoice locked',
+        tooltip: "Invoice locked",
         link: null,
       };
     })(),

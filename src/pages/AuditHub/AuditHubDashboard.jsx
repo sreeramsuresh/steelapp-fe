@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, Calendar, Lock, CheckCircle } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import { useAuditHub } from '../../contexts/AuditHubContext';
-import PeriodCard from '../../components/audit/PeriodCard';
-import PeriodFilters from '../../components/audit/PeriodFilters';
-import CreatePeriodModal from '../../components/audit/CreatePeriodModal';
-import toast from 'react-hot-toast';
+import { Calendar, CheckCircle, Lock, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import CreatePeriodModal from "../../components/audit/CreatePeriodModal";
+import PeriodCard from "../../components/audit/PeriodCard";
+import PeriodFilters from "../../components/audit/PeriodFilters";
+import { useAuditHub } from "../../contexts/AuditHubContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 /**
  * Audit Hub Dashboard
@@ -17,16 +17,7 @@ import toast from 'react-hot-toast';
 export default function AuditHubDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const {
-    periods,
-    loading,
-    error,
-    filters,
-    updateFilters,
-    createPeriod,
-    closePeriod,
-    lockPeriod,
-  } = useAuditHub();
+  const { periods, loading, error, filters, updateFilters, createPeriod, closePeriod, lockPeriod } = useAuditHub();
 
   const [creatingPeriod, setCreatingPeriod] = useState(false);
   const [closingPeriodId, setClosingPeriodId] = useState(null);
@@ -35,7 +26,7 @@ export default function AuditHubDashboard() {
   // Guard: Redirect if no company context
   useEffect(() => {
     if (!user?.companyId) {
-      navigate('/select-company');
+      navigate("/select-company");
       return;
     }
   }, [user?.companyId, navigate]);
@@ -45,7 +36,7 @@ export default function AuditHubDashboard() {
     try {
       await createPeriod(periodType, year, month);
       setCreatingPeriod(false);
-      toast.success('Period created successfully!');
+      toast.success("Period created successfully!");
     } catch (err) {
       toast.error(`Failed to create period: ${err.message}`);
     }
@@ -56,9 +47,7 @@ export default function AuditHubDashboard() {
     setClosingPeriodId(periodId);
     try {
       await closePeriod(periodId);
-      toast.success(
-        'Period closed successfully. Snapshots are being generated...',
-      );
+      toast.success("Period closed successfully. Snapshots are being generated...");
     } catch (err) {
       toast.error(`Failed to close period: ${err.message}`);
     } finally {
@@ -71,7 +60,7 @@ export default function AuditHubDashboard() {
     setLockingPeriodId(periodId);
     try {
       await lockPeriod(periodId);
-      toast.success('Period locked successfully!');
+      toast.success("Period locked successfully!");
     } catch (err) {
       toast.error(`Failed to lock period: ${err.message}`);
     } finally {
@@ -85,9 +74,9 @@ export default function AuditHubDashboard() {
 
   // Count periods by status
   const statusCounts = {
-    OPEN: periods.filter((p) => p.status === 'OPEN').length,
-    REVIEW: periods.filter((p) => p.status === 'REVIEW').length,
-    LOCKED: periods.filter((p) => p.status === 'LOCKED').length,
+    OPEN: periods.filter((p) => p.status === "OPEN").length,
+    REVIEW: periods.filter((p) => p.status === "REVIEW").length,
+    LOCKED: periods.filter((p) => p.status === "LOCKED").length,
   };
 
   return (
@@ -114,6 +103,7 @@ export default function AuditHubDashboard() {
               </p>
             </div>
             <button
+              type="button"
               onClick={() => setCreatingPeriod(true)}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
@@ -140,12 +130,8 @@ export default function AuditHubDashboard() {
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                  Open Periods
-                </p>
-                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
-                  {statusCounts.OPEN}
-                </p>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Open Periods</p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{statusCounts.OPEN}</p>
               </div>
               <Calendar className="w-8 h-8 text-blue-500 opacity-20" />
             </div>
@@ -154,12 +140,8 @@ export default function AuditHubDashboard() {
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border-l-4 border-amber-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                  In Review
-                </p>
-                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
-                  {statusCounts.REVIEW}
-                </p>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">In Review</p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{statusCounts.REVIEW}</p>
               </div>
               <CheckCircle className="w-8 h-8 text-amber-500 opacity-20" />
             </div>
@@ -168,12 +150,8 @@ export default function AuditHubDashboard() {
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border-l-4 border-green-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                  Locked
-                </p>
-                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
-                  {statusCounts.LOCKED}
-                </p>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Locked</p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{statusCounts.LOCKED}</p>
               </div>
               <Lock className="w-8 h-8 text-green-500 opacity-20" />
             </div>
@@ -227,17 +205,14 @@ export default function AuditHubDashboard() {
               <div className="animate-spin">
                 <Calendar className="w-8 h-8 text-blue-600 dark:text-blue-400 mx-auto" />
               </div>
-              <p className="mt-4 text-slate-600 dark:text-slate-400">
-                Loading periods...
-              </p>
+              <p className="mt-4 text-slate-600 dark:text-slate-400">Loading periods...</p>
             </div>
           ) : periods.length === 0 ? (
             <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-12 text-center">
               <Calendar className="w-12 h-12 text-slate-400 dark:text-slate-600 mx-auto mb-4" />
-              <p className="text-slate-600 dark:text-slate-400">
-                No periods found
-              </p>
+              <p className="text-slate-600 dark:text-slate-400">No periods found</p>
               <button
+                type="button"
                 onClick={() => setCreatingPeriod(true)}
                 className="mt-4 text-blue-600 dark:text-blue-400 hover:underline"
               >

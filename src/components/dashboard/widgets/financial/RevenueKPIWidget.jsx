@@ -1,6 +1,6 @@
-import { DollarSign, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { useTheme } from '../../../../contexts/ThemeContext';
-import BaseWidget, { MetricValue } from '../BaseWidget';
+import { ArrowDownRight, ArrowUpRight, DollarSign } from "lucide-react";
+import { useTheme } from "../../../../contexts/ThemeContext";
+import BaseWidget, { MetricValue } from "../BaseWidget";
 
 /**
  * RevenueKPIWidget - Displays total revenue with trend
@@ -34,9 +34,11 @@ export const RevenueKPIWidget = ({
         size="sm"
       >
         <div
-          className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+          className={`flex flex-col items-center justify-center h-32 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
         >
+          <DollarSign className="w-6 h-6 mb-2 opacity-40" />
           <span className="text-sm">No data available</span>
+          <span className="text-xs mt-1 opacity-70">Create invoices to see revenue data</span>
         </div>
       </BaseWidget>
     );
@@ -58,14 +60,10 @@ export const RevenueKPIWidget = ({
         <MetricValue value={formatCurrency(totalRevenue)} size="md" />
         <div
           className={`flex items-center gap-1 text-sm font-medium ${
-            displayChange >= 0 ? 'text-green-500' : 'text-red-500'
+            displayChange >= 0 ? "text-green-500" : "text-red-500"
           }`}
         >
-          {displayChange >= 0 ? (
-            <ArrowUpRight size={16} />
-          ) : (
-            <ArrowDownRight size={16} />
-          )}
+          {displayChange >= 0 ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
           <span>{Math.abs(displayChange).toFixed(1)}%</span>
         </div>
       </div>

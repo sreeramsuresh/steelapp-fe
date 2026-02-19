@@ -1,11 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import {
-  getErrorMessage,
-  ErrorTypes,
-  DisplayTypes,
-} from '../utils/errorHandler';
-import notificationService from '../services/notificationService';
-import { reportApiUnhealthy } from '../contexts/ApiHealthContext';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { reportApiUnhealthy } from "../contexts/ApiHealthContext";
+import notificationService from "../services/notificationService";
+import { DisplayTypes, ErrorTypes, getErrorMessage } from "../utils/errorHandler";
 
 /**
  * useApi - Hook for API calls with centralized error handling
@@ -69,15 +65,13 @@ export const useApi = (apiFunction, _dependencies = [], options = {}) => {
             // Set appError for full-page display
             setAppError(errorInfo);
             // Optionally redirect to login
-            if (errorInfo.action === 'LOGIN') {
+            if (errorInfo.action === "LOGIN") {
               // Give time for the user to see the error before redirect
               setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = "/login";
               }, 2000);
             }
             break;
-
-          case ErrorTypes.SYSTEM:
           default:
             // System errors are displayed via ErrorState or ErrorBanner
             setAppError(errorInfo);
@@ -98,7 +92,7 @@ export const useApi = (apiFunction, _dependencies = [], options = {}) => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [showToasts],
+    [showToasts, apiFunction]
   );
 
   const reset = useCallback(() => {
@@ -149,15 +143,9 @@ export const useApi = (apiFunction, _dependencies = [], options = {}) => {
  */
 export const useApiData = (apiFunction, dependencies = [], options = true) => {
   // Support backward compatibility: options can be boolean (immediate) or object
-  const normalizedOptions =
-    typeof options === 'boolean' ? { immediate: options } : options;
+  const normalizedOptions = typeof options === "boolean" ? { immediate: options } : options;
 
-  const {
-    immediate = true,
-    initialData = null,
-    skipInitialLoading = false,
-    showToasts = true,
-  } = normalizedOptions;
+  const { immediate = true, initialData = null, skipInitialLoading = false, showToasts = true } = normalizedOptions;
 
   const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(!skipInitialLoading);
@@ -168,11 +156,18 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
   // Track if initial fetch has been done to prevent double-fetch in React Strict Mode
   const hasFetchedRef = useRef(false);
 
+  const dataRef = useRef(data);
+
+  // Keep dataRef in sync without causing execute to change
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
+
   const execute = useCallback(
     async (...args) => {
       try {
         // Only show loading if we don't have data yet or skipInitialLoading is false
-        if (!data || !skipInitialLoading) {
+        if (!dataRef.current || !skipInitialLoading) {
           setLoading(true);
         }
         setError(null);
@@ -203,14 +198,12 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
 
           case ErrorTypes.AUTH:
             setAppError(errorInfo);
-            if (errorInfo.action === 'LOGIN') {
+            if (errorInfo.action === "LOGIN") {
               setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = "/login";
               }, 2000);
             }
             break;
-
-          case ErrorTypes.SYSTEM:
           default:
             setAppError(errorInfo);
             // Report to ApiHealthContext for instant banner display
@@ -228,10 +221,10 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
         setLoading(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [apiFunction, skipInitialLoading, showToasts],
+    [apiFunction, skipInitialLoading, showToasts]
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: execute is stable (useCallback) — only immediate should trigger mount effect
   useEffect(() => {
     // Only fetch on mount if immediate is true and haven't fetched yet
     if (immediate && !hasFetchedRef.current) {
@@ -240,11 +233,11 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
         // Error already handled in execute
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [immediate]);
 
   // Separate effect for dependency changes (after initial mount)
   const isFirstRenderRef = useRef(true);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: execute is stable (useCallback) — including it would cause infinite re-render loops
   useEffect(() => {
     // Skip first render (already handled above)
     if (isFirstRenderRef.current) {
@@ -258,8 +251,7 @@ export const useApiData = (apiFunction, dependencies = [], options = true) => {
         // Error already handled in execute
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, dependencies);
+  }, [immediate, ...dependencies]);
 
   const reset = useCallback(() => {
     setData(initialData);

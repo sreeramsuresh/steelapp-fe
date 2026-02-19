@@ -1,8 +1,8 @@
-import { apiClient } from './api';
+import { apiClient } from "./api.js";
 
 export const templateService = {
   async getTemplates() {
-    return apiClient.get('/templates');
+    return apiClient.get("/templates");
   },
 
   async getTemplate(id) {
@@ -10,7 +10,7 @@ export const templateService = {
   },
 
   async createTemplate(templateData) {
-    return apiClient.post('/templates', templateData);
+    return apiClient.post("/templates", templateData);
   },
 
   async updateTemplate(id, templateData) {

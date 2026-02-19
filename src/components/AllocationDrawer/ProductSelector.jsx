@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
-import { productsAPI } from '../../services/api';
-import { normalizeProduct } from '../../utils/fieldAccessors';
+import PropTypes from "prop-types";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { productsAPI } from "../../services/api";
+import { getProductDisplayName, normalizeProduct } from "../../utils/fieldAccessors";
 
 /**
  * ProductSelector Component
@@ -9,12 +9,8 @@ import { normalizeProduct } from '../../utils/fieldAccessors';
  * Autocomplete search for products with debounced API calls.
  * Displays product name in standard format with grade, form, and dimensions.
  */
-const ProductSelector = ({
-  companyId: _companyId,
-  selectedProduct,
-  onSelectProduct,
-}) => {
-  const [searchTerm, setSearchTerm] = useState('');
+const ProductSelector = ({ companyId: _companyId, selectedProduct, onSelectProduct }) => {
+  const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -39,7 +35,7 @@ const ProductSelector = ({
       const productList = response?.data?.products || response?.products || [];
       setProducts(productList.slice(0, 20)); // Limit to 20 results
     } catch (error) {
-      console.error('Failed to search products:', error);
+      console.warn("Failed to search products:", error);
       setProducts([]);
     } finally {
       setLoading(false);
@@ -64,7 +60,7 @@ const ProductSelector = ({
         searchProducts(value);
       }, 200);
     },
-    [searchProducts],
+    [searchProducts]
   );
 
   // Handle product selection
@@ -72,7 +68,7 @@ const ProductSelector = ({
     (product) => {
       // Guard: Ensure product has required fields before passing to parent
       if (!product || !product.id) {
-        console.error('[ProductSelector] Invalid product selected:', product);
+        console.error("[ProductSelector] Invalid product selected:", product);
         return;
       }
 
@@ -81,16 +77,11 @@ const ProductSelector = ({
       const normalized = normalizeProduct(product);
 
       onSelectProduct(normalized);
-      setSearchTerm(
-        normalized.displayName ||
-          normalized.uniqueName ||
-          normalized.name ||
-          '',
-      );
+      setSearchTerm(normalized.displayName || normalized.uniqueName || normalized.name || "");
       setShowDropdown(false);
       setProducts([]);
     },
-    [onSelectProduct],
+    [onSelectProduct]
   );
 
   // Handle keyboard navigation
@@ -99,32 +90,28 @@ const ProductSelector = ({
       if (!showDropdown || products.length === 0) return;
 
       switch (e.key) {
-        case 'ArrowDown':
+        case "ArrowDown":
           e.preventDefault();
-          setHighlightedIndex((prev) =>
-            prev < products.length - 1 ? prev + 1 : 0,
-          );
+          setHighlightedIndex((prev) => (prev < products.length - 1 ? prev + 1 : 0));
           break;
-        case 'ArrowUp':
+        case "ArrowUp":
           e.preventDefault();
-          setHighlightedIndex((prev) =>
-            prev > 0 ? prev - 1 : products.length - 1,
-          );
+          setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : products.length - 1));
           break;
-        case 'Enter':
+        case "Enter":
           e.preventDefault();
           if (highlightedIndex >= 0 && products[highlightedIndex]) {
             handleSelect(products[highlightedIndex]);
           }
           break;
-        case 'Escape':
+        case "Escape":
           setShowDropdown(false);
           break;
         default:
           break;
       }
     },
-    [showDropdown, products, highlightedIndex, handleSelect],
+    [showDropdown, products, highlightedIndex, handleSelect]
   );
 
   // Close dropdown when clicking outside
@@ -140,21 +127,16 @@ const ProductSelector = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Sync search term with selected product
   useEffect(() => {
     if (selectedProduct) {
-      setSearchTerm(
-        selectedProduct.displayName ||
-          selectedProduct.uniqueName ||
-          selectedProduct.name ||
-          '',
-      );
+      setSearchTerm(selectedProduct.displayName || selectedProduct.uniqueName || selectedProduct.name || "");
     } else {
-      setSearchTerm('');
+      setSearchTerm("");
     }
   }, [selectedProduct]);
 
@@ -170,13 +152,9 @@ const ProductSelector = ({
   // Format product display name
   const formatProductDisplay = (product) => {
     // Use display_name or unique_name if available
-    if (product.displayName || product.display_name) {
-      return product.displayName || product.display_name;
-    }
-    if (product.uniqueName || product.unique_name) {
-      return product.uniqueName || product.unique_name;
-    }
-    return product.name || 'Unknown Product';
+    const name = getProductDisplayName(product);
+    if (name) return name;
+    return product.name || "Unknown Product";
   };
 
   // Format product details for dropdown
@@ -187,7 +165,7 @@ const ProductSelector = ({
     if (product.width && product.thickness) {
       details.push(`${product.width}x${product.thickness}mm`);
     }
-    return details.join(' | ');
+    return details.join(" | ");
   };
 
   return (
@@ -219,40 +197,32 @@ const ProductSelector = ({
           role="listbox"
         >
           {products.map((product, index) => (
-            <div
+            <button
+              type="button"
               key={product.id || `product-${index}`}
-              role="button"
-              tabIndex={0}
               data-testid={`drawer-product-option-${index}`}
-              className={`product-option ${index === highlightedIndex ? 'highlighted' : ''}`}
+              className={`product-option ${index === highlightedIndex ? "highlighted" : ""}`}
               onClick={() => handleSelect(product)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
                   handleSelect(product);
                 }
               }}
               onMouseEnter={() => setHighlightedIndex(index)}
             >
-              <div className="product-name">
-                {formatProductDisplay(product)}
-              </div>
-              <div className="product-details">
-                {formatProductDetails(product)}
-              </div>
-            </div>
+              <div className="product-name">{formatProductDisplay(product)}</div>
+              <div className="product-details">{formatProductDetails(product)}</div>
+            </button>
           ))}
         </div>
       )}
 
-      {showDropdown &&
-        searchTerm.length >= 2 &&
-        products.length === 0 &&
-        !loading && (
-          <div ref={dropdownRef} className="product-dropdown empty">
-            <div className="product-option disabled">No products found</div>
-          </div>
-        )}
+      {showDropdown && searchTerm.length >= 2 && products.length === 0 && !loading && (
+        <div ref={dropdownRef} className="product-dropdown empty">
+          <div className="product-option disabled">No products found</div>
+        </div>
+      )}
     </div>
   );
 };

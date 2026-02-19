@@ -12,12 +12,12 @@
 // These keys match the actual axios call paths (relative to baseURL)
 // CRITICAL: Keys must match how axios/apiClient actually makes the calls
 const CONTRACT_REGISTRY = {
-  '/invoices': { arrayKey: 'invoices', hasPagination: true },
-  '/customers': { arrayKey: 'customers', hasPagination: true },
-  '/suppliers': { arrayKey: 'suppliers', hasPagination: true },
-  '/products': { arrayKey: 'products', hasPagination: true },
-  '/stock-batches': { arrayKey: 'batches', hasPagination: true },
-  '/warehouses': { arrayKey: 'warehouses', hasPagination: true },
+  "/invoices": { arrayKey: "invoices", hasPagination: true },
+  "/customers": { arrayKey: "customers", hasPagination: true },
+  "/suppliers": { arrayKey: "suppliers", hasPagination: true },
+  "/products": { arrayKey: "products", hasPagination: true },
+  "/stock-batches": { arrayKey: "batches", hasPagination: true },
+  "/warehouses": { arrayKey: "warehouses", hasPagination: true },
   // Add more endpoints as they're implemented
 };
 
@@ -28,7 +28,7 @@ const CONTRACT_REGISTRY = {
 class ContractViolationError extends Error {
   constructor(endpoint, expected, received) {
     super(`Contract violation: ${endpoint}`);
-    this.name = 'ContractViolationError';
+    this.name = "ContractViolationError";
     this.endpoint = endpoint;
     this.expected = expected;
     this.received = received;
@@ -47,12 +47,12 @@ class ContractViolationError extends Error {
  */
 export function validateResponse(url, response) {
   // Only validate in development (Correction #3: not in production)
-  if (import.meta.env.MODE === 'production') {
+  if (import.meta.env.MODE === "production") {
     return response;
   }
 
   // Feature flag: allow disabling validation per environment
-  if (import.meta.env.VITE_DISABLE_CONTRACT_VALIDATION === 'true') {
+  if (import.meta.env.VITE_DISABLE_CONTRACT_VALIDATION === "true") {
     return response;
   }
 
@@ -70,7 +70,7 @@ export function validateResponse(url, response) {
   } catch (error) {
     if (error instanceof ContractViolationError) {
       // Log detailed diagnostics for debugging
-      console.error('🚨 CONTRACT VIOLATION DETECTED:', {
+      console.error("🚨 CONTRACT VIOLATION DETECTED:", {
         endpoint: error.endpoint,
         expected: error.expected,
         received: error.received,
@@ -94,7 +94,7 @@ export function validateResponse(url, response) {
  */
 function findContract(url) {
   // Remove query string for matching (e.g., "/invoices?page=1" → "/invoices")
-  const cleanUrl = url.split('?')[0];
+  const cleanUrl = url.split("?")[0];
 
   // Exact match (fastest)
   if (CONTRACT_REGISTRY[cleanUrl]) {
@@ -128,24 +128,20 @@ function validateEnvelope(response, contract, url) {
   const { arrayKey, hasPagination } = contract;
 
   // Assert top-level object exists (not array, not null)
-  if (
-    typeof response !== 'object' ||
-    response === null ||
-    Array.isArray(response)
-  ) {
+  if (typeof response !== "object" || response === null || Array.isArray(response)) {
     throw new ContractViolationError(
       url,
-      'Response must be an object (not array or null)',
-      typeof response === 'object' ? 'array' : typeof response,
+      "Response must be an object (not array or null)",
+      typeof response === "object" ? "array" : typeof response
     );
   }
 
   // Assert array field exists with correct key
-  if (!Object.prototype.hasOwnProperty.call(response, arrayKey)) {
+  if (!Object.hasOwn(response, arrayKey)) {
     throw new ContractViolationError(
       url,
       `Response must have "${arrayKey}" key`,
-      `Keys present: ${Object.keys(response).join(', ')}`,
+      `Keys present: ${Object.keys(response).join(", ")}`
     );
   }
 
@@ -154,7 +150,7 @@ function validateEnvelope(response, contract, url) {
     throw new ContractViolationError(
       url,
       `${arrayKey} must be an array`,
-      `Type received: ${typeof response[arrayKey]}`,
+      `Type received: ${typeof response[arrayKey]}`
     );
   }
 
@@ -173,66 +169,39 @@ function validateEnvelope(response, contract, url) {
  * @throws {ContractViolationError} if structure is wrong
  */
 function validatePageInfo(pageInfo, url) {
-  if (!pageInfo || typeof pageInfo !== 'object') {
-    throw new ContractViolationError(
-      url,
-      'pageInfo object required',
-      typeof pageInfo,
-    );
+  if (!pageInfo || typeof pageInfo !== "object") {
+    throw new ContractViolationError(url, "pageInfo object required", typeof pageInfo);
   }
 
   // Check all required keys (pageSize OR perPage - API uses perPage but contract says pageSize)
-  const requiredKeys = [
-    'totalItems',
-    'totalPages',
-    'currentPage',
-    'hasNext',
-    'hasPrev',
-  ];
+  const requiredKeys = ["totalItems", "totalPages", "currentPage", "hasNext", "hasPrev"];
   for (const key of requiredKeys) {
-    if (!Object.prototype.hasOwnProperty.call(pageInfo, key)) {
-      throw new ContractViolationError(
-        url,
-        `pageInfo.${key} required`,
-        `Missing key: ${key}`,
-      );
+    if (!Object.hasOwn(pageInfo, key)) {
+      throw new ContractViolationError(url, `pageInfo.${key} required`, `Missing key: ${key}`);
     }
   }
   // pageSize/perPage - accept either (API returns perPage, legacy expects pageSize)
-  if (
-    !Object.prototype.hasOwnProperty.call(pageInfo, 'pageSize') &&
-    !Object.prototype.hasOwnProperty.call(pageInfo, 'perPage')
-  ) {
+  if (!Object.hasOwn(pageInfo, "pageSize") && !Object.hasOwn(pageInfo, "perPage")) {
     throw new ContractViolationError(
       url,
-      'pageInfo.pageSize or pageInfo.perPage required',
-      'Missing key: pageSize/perPage',
+      "pageInfo.pageSize or pageInfo.perPage required",
+      "Missing key: pageSize/perPage"
     );
   }
 
   // Type validation
   const typeErrors = [];
-  if (typeof pageInfo.totalItems !== 'number')
-    typeErrors.push('pageInfo.totalItems must be number');
-  if (typeof pageInfo.totalPages !== 'number')
-    typeErrors.push('pageInfo.totalPages must be number');
-  if (typeof pageInfo.currentPage !== 'number')
-    typeErrors.push('pageInfo.currentPage must be number');
+  if (typeof pageInfo.totalItems !== "number") typeErrors.push("pageInfo.totalItems must be number");
+  if (typeof pageInfo.totalPages !== "number") typeErrors.push("pageInfo.totalPages must be number");
+  if (typeof pageInfo.currentPage !== "number") typeErrors.push("pageInfo.currentPage must be number");
   // Check pageSize OR perPage (API uses perPage)
   const pageSizeValue = pageInfo.pageSize ?? pageInfo.perPage;
-  if (typeof pageSizeValue !== 'number')
-    typeErrors.push('pageInfo.pageSize/perPage must be number');
-  if (typeof pageInfo.hasNext !== 'boolean')
-    typeErrors.push('pageInfo.hasNext must be boolean');
-  if (typeof pageInfo.hasPrev !== 'boolean')
-    typeErrors.push('pageInfo.hasPrev must be boolean');
+  if (typeof pageSizeValue !== "number") typeErrors.push("pageInfo.pageSize/perPage must be number");
+  if (typeof pageInfo.hasNext !== "boolean") typeErrors.push("pageInfo.hasNext must be boolean");
+  if (typeof pageInfo.hasPrev !== "boolean") typeErrors.push("pageInfo.hasPrev must be boolean");
 
   if (typeErrors.length > 0) {
-    throw new ContractViolationError(
-      url,
-      'pageInfo type validation',
-      typeErrors.join('; '),
-    );
+    throw new ContractViolationError(url, "pageInfo type validation", typeErrors.join("; "));
   }
 }
 

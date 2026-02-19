@@ -24,13 +24,13 @@ export const isSystemError = (status) => {
 export const isNetworkError = (error) => {
   return (
     !error.response &&
-    (error.code === 'ECONNREFUSED' ||
-      error.code === 'ECONNABORTED' ||
-      error.code === 'ETIMEDOUT' ||
-      error.code === 'ERR_NETWORK' ||
-      error.message?.includes('Network Error') ||
-      error.message?.includes('timeout') ||
-      error.message?.includes('Failed to fetch'))
+    (error.code === "ECONNREFUSED" ||
+      error.code === "ECONNABORTED" ||
+      error.code === "ETIMEDOUT" ||
+      error.code === "ERR_NETWORK" ||
+      error.message?.includes("Network Error") ||
+      error.message?.includes("timeout") ||
+      error.message?.includes("Failed to fetch"))
   );
 };
 
@@ -38,20 +38,20 @@ export const isNetworkError = (error) => {
  * Error type constants
  */
 export const ErrorTypes = {
-  SYSTEM: 'SYSTEM',
-  BUSINESS: 'BUSINESS',
-  VALIDATION: 'VALIDATION',
-  AUTH: 'AUTH',
+  SYSTEM: "SYSTEM",
+  BUSINESS: "BUSINESS",
+  VALIDATION: "VALIDATION",
+  AUTH: "AUTH",
 };
 
 /**
  * Display type constants
  */
 export const DisplayTypes = {
-  PAGE: 'page', // Full page error state
-  BANNER: 'banner', // Persistent top banner
-  TOAST: 'toast', // Transient notification
-  INLINE: 'inline', // Field-level errors
+  PAGE: "page", // Full page error state
+  BANNER: "banner", // Persistent top banner
+  TOAST: "toast", // Transient notification
+  INLINE: "inline", // Field-level errors
 };
 
 /**
@@ -62,17 +62,13 @@ export const DisplayTypes = {
 const getSystemErrorMessage = (error) => {
   // Network/connection errors
   if (isNetworkError(error)) {
-    if (error.code === 'ECONNREFUSED') {
-      return 'Cannot connect to server. Please ensure the backend is running.';
+    if (error.code === "ECONNREFUSED") {
+      return "Cannot connect to server. Please ensure the backend is running.";
     }
-    if (
-      error.code === 'ECONNABORTED' ||
-      error.code === 'ETIMEDOUT' ||
-      error.message?.includes('timeout')
-    ) {
-      return 'Request timed out. Please try again.';
+    if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT" || error.message?.includes("timeout")) {
+      return "Request timed out. Please try again.";
     }
-    return 'Network error. Please check your internet connection.';
+    return "Network error. Please check your internet connection.";
   }
 
   // Server errors with response
@@ -80,15 +76,15 @@ const getSystemErrorMessage = (error) => {
 
   switch (status) {
     case 500:
-      return 'Internal server error. Our team has been notified.';
+      return "Internal server error. Our team has been notified.";
     case 502:
-      return 'Bad gateway. Please try again in a moment.';
+      return "Bad gateway. Please try again in a moment.";
     case 503:
-      return 'Service temporarily unavailable. Please try again shortly.';
+      return "Service temporarily unavailable. Please try again shortly.";
     case 504:
-      return 'Gateway timeout. The server is taking too long to respond.';
+      return "Gateway timeout. The server is taking too long to respond.";
     default:
-      return 'An unexpected error occurred. Please try again.';
+      return "An unexpected error occurred. Please try again.";
   }
 };
 
@@ -100,12 +96,12 @@ const getSystemErrorMessage = (error) => {
  */
 const getErrorIcon = (errorType, status) => {
   if (errorType === ErrorTypes.SYSTEM) {
-    if (!status) return 'WifiOff';
-    return 'ServerOff';
+    if (!status) return "WifiOff";
+    return "ServerOff";
   }
-  if (errorType === ErrorTypes.AUTH) return 'LogOut';
-  if (errorType === ErrorTypes.VALIDATION) return 'AlertCircle';
-  return 'AlertTriangle';
+  if (errorType === ErrorTypes.AUTH) return "LogOut";
+  if (errorType === ErrorTypes.VALIDATION) return "AlertCircle";
+  return "AlertTriangle";
 };
 
 /**
@@ -125,13 +121,13 @@ const getErrorIcon = (errorType, status) => {
  */
 export const getErrorMessage = (error) => {
   // Handle non-axios errors
-  if (!error || typeof error === 'string') {
+  if (!error || typeof error === "string") {
     return {
       type: ErrorTypes.SYSTEM,
-      title: 'Error',
-      message: error || 'An unknown error occurred',
+      title: "Error",
+      message: error || "An unknown error occurred",
       displayAs: DisplayTypes.TOAST,
-      icon: 'AlertTriangle',
+      icon: "AlertTriangle",
       canRetry: true,
     };
   }
@@ -140,10 +136,10 @@ export const getErrorMessage = (error) => {
   if (isNetworkError(error)) {
     return {
       type: ErrorTypes.SYSTEM,
-      title: 'Connection Error',
+      title: "Connection Error",
       message: getSystemErrorMessage(error),
       displayAs: DisplayTypes.BANNER,
-      icon: 'WifiOff',
+      icon: "WifiOff",
       canRetry: true,
       isNetworkError: true,
     };
@@ -153,10 +149,10 @@ export const getErrorMessage = (error) => {
   if (!error.response) {
     return {
       type: ErrorTypes.SYSTEM,
-      title: 'Request Failed',
-      message: error.message || 'Failed to complete request',
+      title: "Request Failed",
+      message: error.message || "Failed to complete request",
       displayAs: DisplayTypes.PAGE,
-      icon: 'AlertTriangle',
+      icon: "AlertTriangle",
       canRetry: true,
     };
   }
@@ -168,7 +164,7 @@ export const getErrorMessage = (error) => {
   if (isSystemError(status)) {
     return {
       type: ErrorTypes.SYSTEM,
-      title: 'Server Error',
+      title: "Server Error",
       message: getSystemErrorMessage(error),
       displayAs: DisplayTypes.PAGE,
       icon: getErrorIcon(ErrorTypes.SYSTEM, status),
@@ -181,12 +177,12 @@ export const getErrorMessage = (error) => {
   if (status === 401) {
     return {
       type: ErrorTypes.AUTH,
-      title: 'Session Expired',
-      message: 'Your session has expired. Please log in again.',
+      title: "Session Expired",
+      message: "Your session has expired. Please log in again.",
       displayAs: DisplayTypes.PAGE,
-      icon: 'LogOut',
+      icon: "LogOut",
       canRetry: false,
-      action: 'LOGIN',
+      action: "LOGIN",
       status,
     };
   }
@@ -195,11 +191,10 @@ export const getErrorMessage = (error) => {
   if (status === 403) {
     return {
       type: ErrorTypes.BUSINESS,
-      title: 'Access Denied',
-      message:
-        data?.error || "You don't have permission to perform this action.",
+      title: "Access Denied",
+      message: data?.error || "You don't have permission to perform this action.",
       displayAs: DisplayTypes.PAGE,
-      icon: 'ShieldOff',
+      icon: "ShieldOff",
       canRetry: false,
       status,
     };
@@ -209,12 +204,12 @@ export const getErrorMessage = (error) => {
   if (status === 400 && data?.fields && Object.keys(data.fields).length > 0) {
     return {
       type: ErrorTypes.VALIDATION,
-      title: 'Validation Error',
-      message: data?.error || 'Please correct the errors below.',
+      title: "Validation Error",
+      message: data?.error || "Please correct the errors below.",
       code: data?.code,
       fields: data.fields, // { email: "Invalid email", amount: "Required" }
       displayAs: DisplayTypes.INLINE,
-      icon: 'AlertCircle',
+      icon: "AlertCircle",
       canRetry: false,
       status,
     };
@@ -224,10 +219,10 @@ export const getErrorMessage = (error) => {
   if (status === 404) {
     return {
       type: ErrorTypes.BUSINESS,
-      title: 'Not Found',
-      message: data?.error || 'The requested resource was not found.',
+      title: "Not Found",
+      message: data?.error || "The requested resource was not found.",
       displayAs: DisplayTypes.PAGE,
-      icon: 'FileQuestion',
+      icon: "FileQuestion",
       canRetry: false,
       status,
     };
@@ -237,11 +232,11 @@ export const getErrorMessage = (error) => {
   if (status === 409) {
     return {
       type: ErrorTypes.BUSINESS,
-      title: 'Conflict',
-      message: data?.error || 'This operation conflicts with existing data.',
+      title: "Conflict",
+      message: data?.error || "This operation conflicts with existing data.",
       code: data?.code,
       displayAs: DisplayTypes.TOAST,
-      icon: 'AlertTriangle',
+      icon: "AlertTriangle",
       canRetry: false,
       status,
     };
@@ -253,23 +248,23 @@ export const getErrorMessage = (error) => {
     if (data?.fields && Object.keys(data.fields).length > 0) {
       return {
         type: ErrorTypes.VALIDATION,
-        title: 'Validation Error',
-        message: data?.error || 'Please correct the errors below.',
+        title: "Validation Error",
+        message: data?.error || "Please correct the errors below.",
         code: data?.code,
         fields: data.fields,
         displayAs: DisplayTypes.INLINE,
-        icon: 'AlertCircle',
+        icon: "AlertCircle",
         canRetry: false,
         status,
       };
     }
     return {
       type: ErrorTypes.BUSINESS,
-      title: 'Invalid Request',
-      message: data?.error || 'The request could not be processed.',
+      title: "Invalid Request",
+      message: data?.error || "The request could not be processed.",
       code: data?.code,
       displayAs: DisplayTypes.TOAST,
-      icon: 'AlertTriangle',
+      icon: "AlertTriangle",
       canRetry: false,
       status,
     };
@@ -279,12 +274,11 @@ export const getErrorMessage = (error) => {
   if (status >= 400 && status < 500) {
     return {
       type: ErrorTypes.BUSINESS,
-      title: 'Request Failed',
-      message:
-        data?.error || data?.message || `Request failed with status ${status}`,
+      title: "Request Failed",
+      message: data?.error || data?.message || `Request failed with status ${status}`,
       code: data?.code,
       displayAs: DisplayTypes.TOAST,
-      icon: 'AlertTriangle',
+      icon: "AlertTriangle",
       canRetry: false,
       status,
     };
@@ -293,10 +287,10 @@ export const getErrorMessage = (error) => {
   // 11. Fallback for any other errors
   return {
     type: ErrorTypes.SYSTEM,
-    title: 'Error',
-    message: data?.error || error.message || 'An unexpected error occurred',
+    title: "Error",
+    message: data?.error || error.message || "An unexpected error occurred",
     displayAs: DisplayTypes.TOAST,
-    icon: 'AlertTriangle',
+    icon: "AlertTriangle",
     canRetry: true,
     status,
   };
@@ -308,13 +302,8 @@ export const getErrorMessage = (error) => {
  * @returns {string}
  */
 export const getRawErrorMessage = (error) => {
-  if (typeof error === 'string') return error;
-  return (
-    error.response?.data?.error ||
-    error.response?.data?.message ||
-    error.message ||
-    'An error occurred'
-  );
+  if (typeof error === "string") return error;
+  return error.response?.data?.error || error.response?.data?.message || error.message || "An error occurred";
 };
 
 export default {

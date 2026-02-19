@@ -18,38 +18,36 @@
  * @property {boolean} hasAnyTabAccess - True if user can access at least one tab
  */
 
-// TODO: Replace with actual auth context once implemented
-// For now, using mock permissions for development
-const useMockAuth = () => {
-  // Mock user with full permissions for development
-  // In production, replace with: const { user } = useAuth();
-  return {
-    user: {
-      id: 1,
-      name: 'Developer',
-      permissions: [
-        'customers.read',
-        'finance.view',
-        'invoices.read',
-        'payments.read',
-        'credit_notes.read',
-        'activity.read',
-      ],
-    },
-  };
-};
+import { useAuth } from "../contexts/AuthContext";
+import { authService } from "../services/axiosAuthService";
 
 export function useCustomerTabPermissions() {
-  const { user } = useMockAuth();
+  const { user } = useAuth();
 
   /**
-   * Helper to check if user has a specific permission
-   * @param {string} permission - Permission string to check
+   * Helper to check if user has a specific permission.
+   * Uses authService.hasPermission for role-based checks,
+   * falling back to user.permissions array if available.
+   * @param {string} permission - Permission string (e.g. "customers.read")
    * @returns {boolean} True if user has permission
    */
   const hasPermission = (permission) => {
-    if (!user || !user.permissions) return false;
-    return user.permissions.includes(permission);
+    if (!user) return false;
+    // Parse "resource.action" format for authService check
+    const [resource, action] = permission.split(".");
+    if (resource && action) {
+      try {
+        return authService.hasPermission(resource, action) || authService.hasRole("admin");
+      } catch {
+        // authService not available, fall back to permissions array
+      }
+    }
+    // Fallback: check user.permissions array directly
+    if (user.permissions && Array.isArray(user.permissions)) {
+      return user.permissions.includes(permission);
+    }
+    // Default: admin role has all permissions
+    return user.role === "admin" || user.role === "Administrator";
   };
 
   /**
@@ -57,13 +55,12 @@ export function useCustomerTabPermissions() {
    * Tabs are only visible if ALL required permissions are present
    */
   const tabPermissions = {
-    overview: hasPermission('customers.read'), // Always visible if can read customers
-    'ar-aging':
-      hasPermission('customers.read') && hasPermission('finance.view'), // Finance only
-    invoices: hasPermission('invoices.read'),
-    payments: hasPermission('payments.read'),
-    'credit-notes': hasPermission('credit_notes.read'),
-    activity: hasPermission('customers.read'), // All customer viewers can see activity
+    overview: hasPermission("customers.read"), // Always visible if can read customers
+    "ar-aging": hasPermission("customers.read") && hasPermission("finance.view"), // Finance only
+    invoices: hasPermission("invoices.read"),
+    payments: hasPermission("payments.read"),
+    "credit-notes": hasPermission("credit_notes.read"),
+    activity: hasPermission("customers.read"), // All customer viewers can see activity
   };
 
   /**
@@ -83,9 +80,7 @@ export function useCustomerTabPermissions() {
    * Check if user has access to at least one tab
    * Used to show "Access Denied" message if no tabs are available
    */
-  const hasAnyTabAccess = Object.values(tabPermissions).some(
-    (allowed) => allowed,
-  );
+  const hasAnyTabAccess = Object.values(tabPermissions).some((allowed) => allowed);
 
   return {
     tabPermissions,

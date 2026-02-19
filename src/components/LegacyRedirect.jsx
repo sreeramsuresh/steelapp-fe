@@ -3,8 +3,8 @@
  * Handles redirects from old routes to new prefixed routes
  * Preserves query strings and hash fragments
  */
-import { Navigate, useLocation } from 'react-router-dom';
-import { getRedirectPath } from '../config/redirects';
+import { Navigate, useLocation } from "react-router-dom";
+import { getRedirectPath } from "../config/redirects";
 
 const LegacyRedirect = () => {
   const location = useLocation();

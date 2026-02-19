@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from "./api.js";
 
 /**
  * Transform quotation from server to frontend format
@@ -21,7 +21,7 @@ export const transformQuotationFromServer = (data) => {
     paymentTerms: data.paymentTerms,
     incoterms: data.incoterms,
     notes: data.notes,
-    currency: data.currency || 'AED',
+    currency: data.currency || "AED",
     exchangeRate: Number(data.exchangeRate) || 1,
     subtotal: Number(data.subtotal) || 0,
     discountType: data.discountType,
@@ -32,7 +32,7 @@ export const transformQuotationFromServer = (data) => {
     otherCharges: Number(data.otherCharges) || 0,
     vatAmount: Number(data.vatAmount) || 0,
     total: Number(data.total) || 0,
-    status: data.status || 'draft',
+    status: data.status || "draft",
     statusNotes: data.statusNotes,
     pdfFilePath: data.pdfFilePath,
     pdfOriginalFilename: data.pdfOriginalFilename,
@@ -70,28 +70,28 @@ export const transformItemFromServer = (item) => {
     productId: item.productId,
     productMatched: item.productMatched || false,
     productMatchConfidence: Number(item.productMatchConfidence) || 0,
-    description: item.description || '',
-    specifications: item.specifications || '',
-    grade: item.grade || '',
-    finish: item.finish || '',
-    thickness: item.thickness || '',
-    width: item.width || '',
-    length: item.length || '',
-    size: item.size || '',
-    dimensions: item.dimensions || '',
-    originCountry: item.originCountry || '',
+    description: item.description || "",
+    specifications: item.specifications || "",
+    grade: item.grade || "",
+    finish: item.finish || "",
+    thickness: item.thickness || "",
+    width: item.width || "",
+    length: item.length || "",
+    size: item.size || "",
+    dimensions: item.dimensions || "",
+    originCountry: item.originCountry || "",
     quantity: Number(item.quantity) || 0,
-    unit: item.unit || 'KG',
+    unit: item.unit || "KG",
     unitPrice: Number(item.unitPrice) || 0,
     amount: Number(item.amount) || 0,
     vatRate: Number(item.vatRate) || 5,
     vatAmount: Number(item.vatAmount) || 0,
     netAmount: Number(item.netAmount) || 0,
     extractionConfidence: Number(item.extractionConfidence) || 0,
-    originalText: item.originalText || '',
+    originalText: item.originalText || "",
     extractionWarnings: item.extractionWarnings || [],
     userCorrected: item.userCorrected || false,
-    correctionNotes: item.correctionNotes || '',
+    correctionNotes: item.correctionNotes || "",
   };
 };
 
@@ -111,8 +111,8 @@ export const transformTemplateFromServer = (template) => {
     lineItemPatterns: template.lineItemPatterns || {},
     summaryPatterns: template.summaryPatterns || {},
     fieldMappings: template.fieldMappings || {},
-    dateFormat: template.dateFormat || 'DD/MM/YYYY',
-    currencyDefault: template.currencyDefault || 'AED',
+    dateFormat: template.dateFormat || "DD/MM/YYYY",
+    currencyDefault: template.currencyDefault || "AED",
     confidenceThreshold: Number(template.confidenceThreshold) || 70,
     isActive: template.isActive !== false,
     isDefault: template.isDefault || false,
@@ -135,7 +135,7 @@ export const transformQuotationToServer = (data) => {
     paymentTerms: data.paymentTerms,
     incoterms: data.incoterms,
     notes: data.notes,
-    currency: data.currency || 'AED',
+    currency: data.currency || "AED",
     exchangeRate: data.exchangeRate || 1,
     discountType: data.discountType,
     discountPercentage: data.discountPercentage,
@@ -157,7 +157,7 @@ export const transformQuotationToServer = (data) => {
       dimensions: item.dimensions,
       originCountry: item.originCountry,
       quantity: item.quantity,
-      unit: item.unit || 'KG',
+      unit: item.unit || "KG",
       unitPrice: item.unitPrice,
       vatRate: item.vatRate || 5,
       userCorrected: item.userCorrected,
@@ -174,42 +174,29 @@ export const transformQuotationToServer = (data) => {
  * List supplier quotations with filters
  */
 export const listSupplierQuotations = async (params = {}) => {
-  const {
-    page = 1,
-    limit = 50,
-    status,
-    supplierId,
-    fromDate,
-    toDate,
-    search,
-    includeDeleted,
-  } = params;
+  const { page = 1, limit = 50, status, supplierId, fromDate, toDate, search, includeDeleted } = params;
 
   const queryParams = new URLSearchParams({
     page: String(page),
     limit: String(limit),
   });
 
-  if (status) queryParams.set('status', status);
-  if (supplierId) queryParams.set('supplierId', String(supplierId));
-  if (fromDate) queryParams.set('fromDate', fromDate);
-  if (toDate) queryParams.set('toDate', toDate);
-  if (search) queryParams.set('search', search);
-  if (includeDeleted) queryParams.set('includeDeleted', 'true');
+  if (status) queryParams.set("status", status);
+  if (supplierId) queryParams.set("supplierId", String(supplierId));
+  if (fromDate) queryParams.set("fromDate", fromDate);
+  if (toDate) queryParams.set("toDate", toDate);
+  if (search) queryParams.set("search", search);
+  if (includeDeleted) queryParams.set("includeDeleted", "true");
 
   try {
-    const response = await apiClient.get(
-      `/supplier-quotations?${queryParams.toString()}`,
-    );
+    const response = await apiClient.get(`/supplier-quotations?${queryParams.toString()}`);
 
     return {
-      quotations: (response?.quotations || []).map(
-        transformQuotationFromServer,
-      ),
+      quotations: (response?.quotations || []).map(transformQuotationFromServer),
       pageInfo: response?.pageInfo || { totalPages: 0, totalCount: 0 },
     };
   } catch (error) {
-    console.error('Failed to load supplier quotations:', error);
+    console.error("Failed to load supplier quotations:", error);
     // Return empty result on error to prevent UI crash
     return {
       quotations: [],
@@ -230,10 +217,7 @@ export const getSupplierQuotation = async (id) => {
  * Create supplier quotation (manual entry)
  */
 export const createSupplierQuotation = async (data) => {
-  const response = await apiClient.post(
-    '/supplier-quotations',
-    transformQuotationToServer(data),
-  );
+  const response = await apiClient.post("/supplier-quotations", transformQuotationToServer(data));
   return transformQuotationFromServer(response.quotation);
 };
 
@@ -241,10 +225,7 @@ export const createSupplierQuotation = async (data) => {
  * Update supplier quotation
  */
 export const updateSupplierQuotation = async (id, data) => {
-  const response = await apiClient.put(
-    `/supplier-quotations/${id}`,
-    transformQuotationToServer(data),
-  );
+  const response = await apiClient.put(`/supplier-quotations/${id}`, transformQuotationToServer(data));
   return transformQuotationFromServer(response.quotation);
 };
 
@@ -267,19 +248,15 @@ export const uploadAndExtractPDF = async (file, options = {}) => {
   const { supplierId, templateId } = options;
 
   const formData = new FormData();
-  formData.append('pdf', file);
-  if (supplierId) formData.append('supplierId', String(supplierId));
-  if (templateId) formData.append('templateId', String(templateId));
+  formData.append("pdf", file);
+  if (supplierId) formData.append("supplierId", String(supplierId));
+  if (templateId) formData.append("templateId", String(templateId));
 
-  const response = await apiClient.post(
-    '/supplier-quotations/upload',
-    formData,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+  const response = await apiClient.post("/supplier-quotations/upload", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
     },
-  );
+  });
 
   return {
     success: response.success,
@@ -292,9 +269,7 @@ export const uploadAndExtractPDF = async (file, options = {}) => {
  * Get upload processing status
  */
 export const getUploadStatus = async (uploadId) => {
-  const response = await apiClient.get(
-    `/supplier-quotations/uploads/${uploadId}/status`,
-  );
+  const response = await apiClient.get(`/supplier-quotations/uploads/${uploadId}/status`);
   return response;
 };
 
@@ -305,7 +280,7 @@ export const getUploadStatus = async (uploadId) => {
 /**
  * Approve supplier quotation
  */
-export const approveSupplierQuotation = async (id, notes = '') => {
+export const approveSupplierQuotation = async (id, notes = "") => {
   const response = await apiClient.post(`/supplier-quotations/${id}/approve`, {
     notes,
   });
@@ -315,7 +290,7 @@ export const approveSupplierQuotation = async (id, notes = '') => {
 /**
  * Reject supplier quotation
  */
-export const rejectSupplierQuotation = async (id, reason, notes = '') => {
+export const rejectSupplierQuotation = async (id, reason, notes = "") => {
   const response = await apiClient.post(`/supplier-quotations/${id}/reject`, {
     reason,
     notes,
@@ -333,10 +308,7 @@ export const rejectSupplierQuotation = async (id, reason, notes = '') => {
 export const convertToPurchaseOrder = async (id, options = {}) => {
   const { notes, adjustments } = options;
 
-  const response = await apiClient.post(
-    `/supplier-quotations/${id}/convert-to-po`,
-    { notes, adjustments },
-  );
+  const response = await apiClient.post(`/supplier-quotations/${id}/convert-to-po`, { notes, adjustments });
   return response;
 };
 
@@ -351,12 +323,10 @@ export const listExtractionTemplates = async (params = {}) => {
   const { supplierId, includeInactive } = params;
 
   const queryParams = new URLSearchParams();
-  if (supplierId) queryParams.set('supplierId', String(supplierId));
-  if (includeInactive) queryParams.set('includeInactive', 'true');
+  if (supplierId) queryParams.set("supplierId", String(supplierId));
+  if (includeInactive) queryParams.set("includeInactive", "true");
 
-  const response = await apiClient.get(
-    `/supplier-quotations/templates?${queryParams.toString()}`,
-  );
+  const response = await apiClient.get(`/supplier-quotations/templates?${queryParams.toString()}`);
 
   return (response.templates || []).map(transformTemplateFromServer);
 };
@@ -373,7 +343,7 @@ export const getExtractionTemplate = async (id) => {
  * Create extraction template
  */
 export const createExtractionTemplate = async (data) => {
-  const response = await apiClient.post('/supplier-quotations/templates', {
+  const response = await apiClient.post("/supplier-quotations/templates", {
     supplierId: data.supplierId,
     templateName: data.templateName,
     description: data.description,
@@ -414,9 +384,7 @@ export const updateExtractionTemplate = async (id, data) => {
  * Delete extraction template
  */
 export const deleteExtractionTemplate = async (id) => {
-  const response = await apiClient.delete(
-    `/supplier-quotations/templates/${id}`,
-  );
+  const response = await apiClient.delete(`/supplier-quotations/templates/${id}`);
   return response;
 };
 
@@ -429,15 +397,15 @@ export const deleteExtractionTemplate = async (id) => {
  */
 export const getStatusColor = (status) => {
   const colors = {
-    draft: 'gray',
-    pending_review: 'yellow',
-    approved: 'green',
-    rejected: 'red',
-    expired: 'orange',
-    converted_to_po: 'blue',
-    cancelled: 'gray',
+    draft: "gray",
+    pending_review: "yellow",
+    approved: "green",
+    rejected: "red",
+    expired: "orange",
+    converted_to_po: "blue",
+    cancelled: "gray",
   };
-  return colors[status] || 'gray';
+  return colors[status] || "gray";
 };
 
 /**
@@ -445,13 +413,13 @@ export const getStatusColor = (status) => {
  */
 export const getStatusText = (status) => {
   const texts = {
-    draft: 'Draft',
-    pending_review: 'Pending Review',
-    approved: 'Approved',
-    rejected: 'Rejected',
-    expired: 'Expired',
-    converted_to_po: 'Converted to PO',
-    cancelled: 'Cancelled',
+    draft: "Draft",
+    pending_review: "Pending Review",
+    approved: "Approved",
+    rejected: "Rejected",
+    expired: "Expired",
+    converted_to_po: "Converted to PO",
+    cancelled: "Cancelled",
   };
   return texts[status] || status;
 };
@@ -460,18 +428,18 @@ export const getStatusText = (status) => {
  * Get confidence level (low/medium/high)
  */
 export const getConfidenceLevel = (confidence) => {
-  if (confidence >= 80) return 'high';
-  if (confidence >= 50) return 'medium';
-  return 'low';
+  if (confidence >= 80) return "high";
+  if (confidence >= 50) return "medium";
+  return "low";
 };
 
 /**
  * Get confidence color
  */
 export const getConfidenceColor = (confidence) => {
-  if (confidence >= 80) return 'green';
-  if (confidence >= 50) return 'yellow';
-  return 'red';
+  if (confidence >= 80) return "green";
+  if (confidence >= 50) return "yellow";
+  return "red";
 };
 
 export default {

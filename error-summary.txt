@@ -1,0 +1,10 @@
+    113 useExhaustiveDependencies
+     65 useSemanticElements
+     46 noInvalidUseBeforeDeclaration
+     27 useIterableCallbackReturn
+     21 noExplicitAny
+     20 useKeyWithClickEvents
+     13 noStaticElementInteractions
+      4 noDocumentCookie
+      4 noAssignInExpressions
+      4 no-explicit-any

@@ -1,4 +1,4 @@
-import { apiClient } from './api.js';
+import { apiClient } from "./api.js";
 
 /**
  * Warehouse Service
@@ -12,27 +12,30 @@ import { apiClient } from './api.js';
 // Map server response to UI model (camelCase)
 const fromServer = (warehouse = {}) => ({
   id: warehouse.id,
-  companyId: warehouse.companyId,
-  name: warehouse.name || '',
-  code: warehouse.code || '',
-  description: warehouse.description || '',
-  address: warehouse.address || '',
-  city: warehouse.city || '',
-  state: warehouse.state || '',
-  country: warehouse.country || '',
-  postalCode: warehouse.postalCode || '',
-  phone: warehouse.phone || '',
-  email: warehouse.email || '',
-  contactPerson: warehouse.contactPerson || '',
-  isDefault: warehouse.isDefault || false,
-  isActive: warehouse.isActive !== false,
-  type: warehouse.type || 'WAREHOUSE',
+  companyId: warehouse.companyId || warehouse.company_id,
+  name: warehouse.name || "",
+  code: warehouse.code || "",
+  description: warehouse.description || "",
+  address: warehouse.address || "",
+  city: warehouse.city || "",
+  state: warehouse.state || "",
+  country: warehouse.country || "",
+  postalCode: warehouse.postalCode || warehouse.postal_code || "",
+  phone: warehouse.phone || "",
+  email: warehouse.email || "",
+  contactPerson: warehouse.contactPerson || warehouse.contact_person || "",
+  isDefault:
+    (warehouse.isDefault !== undefined ? warehouse.isDefault : warehouse.is_default) !== undefined
+      ? warehouse.isDefault || warehouse.is_default
+      : false,
+  isActive: warehouse.isActive !== undefined ? warehouse.isActive !== false : warehouse.is_active !== false,
+  type: warehouse.type || "WAREHOUSE",
   capacity: parseFloat(warehouse.capacity) || 0,
-  capacityUnit: warehouse.capacityUnit || 'MT',
-  inventoryCount: warehouse.inventoryCount || 0,
-  utilizationPercent: warehouse.utilizationPercent || 0,
-  createdAt: warehouse.createdAt,
-  updatedAt: warehouse.updatedAt,
+  capacityUnit: warehouse.capacityUnit || warehouse.capacity_unit || "MT",
+  inventoryCount: warehouse.inventoryCount || warehouse.inventory_count || 0,
+  utilizationPercent: warehouse.utilizationPercent || warehouse.utilization_percent || 0,
+  createdAt: warehouse.createdAt || warehouse.created_at,
+  updatedAt: warehouse.updatedAt || warehouse.updated_at,
 });
 
 // Map UI model to server payload (snake_case)
@@ -57,7 +60,7 @@ const toServer = (warehouse = {}) => ({
 
 class WarehouseService {
   constructor() {
-    this.endpoint = '/warehouses';
+    this.endpoint = "/warehouses";
   }
 
   /**
@@ -72,9 +75,9 @@ class WarehouseService {
     };
 
     // Remove undefined params
-    Object.keys(params).forEach(
-      (key) => params[key] === undefined && delete params[key],
-    );
+    Object.keys(params).forEach((key) => {
+      if (params[key] === undefined) delete params[key];
+    });
 
     const response = await apiClient.get(this.endpoint, params);
     const rows = response?.data || response?.warehouses || response || [];
@@ -143,36 +146,52 @@ class WarehouseService {
   /**
    * Get warehouse summary stats (for list page KPIs)
    * This method always fetches fresh data from the server
+   * SYNC: Uses inventory health endpoint for low stock data to match products/dashboard module
    */
   async getSummary() {
     try {
       const response = await apiClient.get(`${this.endpoint}/summary`);
       const summary = {
-        totalWarehouses: response?.totalWarehouses || 0,
-        activeWarehouses: response?.activeWarehouses || 0,
-        totalInventoryItems: response?.totalInventoryItems || 0,
-        totalStockValue: response?.totalStockValue || 0,
-        lowStockItems: response?.lowStockItems || 0,
+        totalWarehouses: response?.totalWarehouses ?? response?.total_warehouses ?? 0,
+        activeWarehouses: response?.activeWarehouses ?? response?.active_warehouses ?? 0,
+        totalInventoryItems: response?.totalInventoryItems ?? response?.total_inventory_items ?? 0,
+        totalStockValue: response?.totalStockValue ?? response?.total_stock_value ?? 0,
+        lowStockItems: response?.lowStockItems ?? response?.low_stock_items ?? 0,
       };
 
       return summary;
-    } catch (error) {
-      // Fallback to calculating from list if summary endpoint not available
-      console.warn('Summary endpoint not available, calculating from list');
-      const result = await this.getAll();
-      const warehouses = result.data || [];
-      const summary = {
-        totalWarehouses: warehouses.length,
-        activeWarehouses: warehouses.filter((w) => w.isActive).length,
-        totalInventoryItems: warehouses.reduce(
-          (sum, w) => sum + (w.inventoryCount || 0),
-          0,
-        ),
-        totalStockValue: 0,
-        lowStockItems: 0,
-      };
-
-      return summary;
+    } catch (_error) {
+      // Fallback: Fetch from inventory health endpoint for data synchronization
+      try {
+        const inventoryHealth = await apiClient.get("/dashboard/inventory-health");
+        const result = await this.getAll();
+        const warehouses = result.data || [];
+        const summary = {
+          totalWarehouses: warehouses.length,
+          activeWarehouses: warehouses.filter((w) => w.isActive).length,
+          totalInventoryItems: warehouses.reduce((sum, w) => sum + (w.inventoryCount || 0), 0),
+          totalStockValue: 0,
+          // Use lowStockCount from inventory health (same source as products/dashboard)
+          // Fallback ensures consistency even if inventory health endpoint is missing data
+          lowStockItems:
+            typeof inventoryHealth?.summary?.lowStockCount === "number" ? inventoryHealth.summary.lowStockCount : 0,
+        };
+        // Log if low stock count looks inconsistent
+        if (process.env.NODE_ENV === "development" && inventoryHealth?.summary?.lowStockCount === undefined) {
+          console.warn("Low stock count undefined from inventory health endpoint - using 0");
+        }
+        return summary;
+      } catch (fallbackError) {
+        // Final fallback
+        console.warn("Unable to fetch warehouse summary:", fallbackError);
+        return {
+          totalWarehouses: 0,
+          activeWarehouses: 0,
+          totalInventoryItems: 0,
+          totalStockValue: 0,
+          lowStockItems: 0,
+        };
+      }
     }
   }
 
@@ -180,63 +199,33 @@ class WarehouseService {
    * Get warehouse dashboard data
    */
   async getDashboard(warehouseId) {
-    try {
-      const response = await apiClient.get(
-        `${this.endpoint}/${warehouseId}/dashboard`,
-      );
-      return response;
-    } catch (error) {
-      // Return mock data if endpoint not available
-      console.warn('Dashboard endpoint not available');
-      return {
-        totalQuantity: 0,
-        reservedQuantity: 0,
-        availableQuantity: 0,
-        totalValue: 0,
-        productCount: 0,
-        lowStockCount: 0,
-        utilizationPercent: 0,
-        recentActivities: [],
-        lowStockAlerts: [],
-      };
-    }
+    const response = await apiClient.get(`${this.endpoint}/${warehouseId}/dashboard`);
+    return response;
   }
 
   /**
    * Get warehouse stock (products in warehouse)
    */
   async getStock(warehouseId, filters = {}) {
-    try {
-      const params = {
-        page: filters.page || 1,
-        limit: filters.limit || 50,
-        search: filters.search,
-        product_type: filters.productType,
-        low_stock_only: filters.lowStockOnly,
-      };
+    const params = {
+      page: filters.page || 1,
+      limit: filters.limit || 50,
+      search: filters.search,
+      product_type: filters.productType,
+      low_stock_only: filters.lowStockOnly,
+    };
 
-      // Remove undefined params
-      Object.keys(params).forEach(
-        (key) => params[key] === undefined && delete params[key],
-      );
+    // Remove undefined params
+    Object.keys(params).forEach((key) => {
+      if (params[key] === undefined) delete params[key];
+    });
 
-      const response = await apiClient.get(
-        `${this.endpoint}/${warehouseId}/stock`,
-        params,
-      );
-      return {
-        data: response?.items || response?.data || [],
-        pagination: response?.pageInfo || response?.pagination || {},
-        summary: response?.summary || {},
-      };
-    } catch (error) {
-      console.warn('Stock endpoint not available');
-      return {
-        data: [],
-        pagination: {},
-        summary: {},
-      };
-    }
+    const response = await apiClient.get(`${this.endpoint}/${warehouseId}/stock`, params);
+    return {
+      data: response?.items || response?.data || [],
+      pagination: response?.pageInfo || response?.pagination || {},
+      summary: response?.summary || {},
+    };
   }
 
   /**
@@ -252,26 +241,12 @@ class WarehouseService {
    * Get warehouse analytics
    */
   async getAnalytics(warehouseId, filters = {}) {
-    try {
-      const response = await apiClient.get(
-        `${this.endpoint}/${warehouseId}/analytics`,
-        {
-          period: filters.period || 'MONTHLY',
-          start_date: filters.startDate,
-          end_date: filters.endDate,
-        },
-      );
-      return response;
-    } catch (error) {
-      console.warn('Analytics endpoint not available');
-      return {
-        inboundTrend: [],
-        outboundTrend: [],
-        topInboundProducts: [],
-        topOutboundProducts: [],
-        utilizationHistory: [],
-      };
-    }
+    const response = await apiClient.get(`${this.endpoint}/${warehouseId}/analytics`, {
+      period: filters.period || "MONTHLY",
+      start_date: filters.startDate,
+      end_date: filters.endDate,
+    });
+    return response;
   }
 }
 

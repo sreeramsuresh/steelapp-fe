@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from "./api.js";
 
 /**
  * Transform customer data from server (snake_case) to frontend (camelCase)
@@ -10,94 +10,60 @@ export const transformCustomerFromServer = (serverData) => {
   return {
     id: serverData.id,
     companyId: serverData.companyId || serverData.company_id,
-    name: serverData.name || '',
+    name: serverData.name || "",
     address: serverData.address, // JSONB object
-    phone: serverData.phone || '',
-    email: serverData.email || '',
-    trn: serverData.trn || '',
+    phone: serverData.phone || "",
+    email: serverData.email || "",
+    trn: serverData.trn || "",
     paymentTerms: serverData.paymentTerms || serverData.payment_terms || 0,
-    creditLimit:
-      parseFloat(serverData.creditLimit || serverData.credit_limit) || 0,
-    currentBalance:
-      parseFloat(serverData.currentBalance || serverData.current_balance) || 0,
-    status: serverData.status || 'ACTIVE',
-    notes: serverData.notes || '',
+    creditLimit: parseFloat(serverData.creditLimit || serverData.credit_limit) || 0,
+    currentBalance: parseFloat(serverData.currentBalance || serverData.current_balance) || 0,
+    status: serverData.status || "ACTIVE",
+    notes: serverData.notes || "",
     // Additional fields
-    company: serverData.company || '',
-    alternatePhone:
-      serverData.alternatePhone || serverData.alternate_phone || '',
-    contactPerson: serverData.contactPerson || serverData.contact_person || '',
-    website: serverData.website || '',
-    vatNumber: serverData.vatNumber || serverData.vat_number || '',
-    panNumber: serverData.panNumber || serverData.pan_number || '',
+    company: serverData.company || "",
+    alternatePhone: serverData.alternatePhone || serverData.alternate_phone || "",
+    contactPerson: serverData.contactPerson || serverData.contact_person || "",
+    website: serverData.website || "",
+    vatNumber: serverData.vatNumber || serverData.vat_number || "",
+    panNumber: serverData.panNumber || serverData.pan_number || "",
     pricelistId: serverData.pricelistId || serverData.pricelist_id,
     // Compliance fields
-    cinNumber: serverData.cinNumber || serverData.cin_number || '',
-    tradeLicenseNumber:
-      serverData.tradeLicenseNumber || serverData.trade_license_number || '',
-    tradeLicenseExpiry:
-      serverData.tradeLicenseExpiry || serverData.trade_license_expiry,
-    isDesignatedZone:
-      serverData.isDesignatedZone || serverData.is_designated_zone || false,
+    cinNumber: serverData.cinNumber || serverData.cin_number || "",
+    tradeLicenseNumber: serverData.tradeLicenseNumber || serverData.trade_license_number || "",
+    tradeLicenseExpiry: serverData.tradeLicenseExpiry || serverData.trade_license_expiry,
+    isDesignatedZone: serverData.isDesignatedZone || serverData.is_designated_zone || false,
     // Credit management
     creditUtilizationPercentage:
-      parseFloat(
-        serverData.creditUtilizationPercentage ||
-          serverData.credit_utilization_percentage,
-      ) || 0,
-    paymentHistoryScore:
-      parseFloat(
-        serverData.paymentHistoryScore || serverData.payment_history_score,
-      ) || 1.0,
-    creditUsed:
-      parseFloat(serverData.creditUsed || serverData.credit_used) || 0,
-    creditAvailable:
-      parseFloat(serverData.creditAvailable || serverData.credit_available) ||
-      0,
-    creditScore:
-      parseFloat(serverData.creditScore || serverData.credit_score) || 0,
-    creditGrade: serverData.creditGrade || serverData.credit_grade || '',
-    paymentTermsDays:
-      serverData.paymentTermsDays || serverData.payment_terms_days || 0,
+      parseFloat(serverData.creditUtilizationPercentage || serverData.credit_utilization_percentage) || 0,
+    paymentHistoryScore: parseFloat(serverData.paymentHistoryScore || serverData.payment_history_score) || 1.0,
+    creditUsed: parseFloat(serverData.creditUsed || serverData.credit_used) || 0,
+    creditAvailable: parseFloat(serverData.creditAvailable || serverData.credit_available) || 0,
+    creditScore: parseFloat(serverData.creditScore || serverData.credit_score) || 0,
+    creditGrade: serverData.creditGrade || serverData.credit_grade || "",
+    paymentTermsDays: serverData.paymentTermsDays || serverData.payment_terms_days || 0,
     dsoDays: serverData.dsoDays || serverData.dso_days || 0,
     // Aging buckets
-    agingCurrent:
-      parseFloat(serverData.agingCurrent || serverData.aging_current) || 0,
+    agingCurrent: parseFloat(serverData.agingCurrent || serverData.aging_current) || 0,
     aging1To30: parseFloat(serverData.aging1To30 || serverData.aging_1_30) || 0,
-    aging31To60:
-      parseFloat(serverData.aging31To60 || serverData.aging_31_60) || 0,
-    aging61To90:
-      parseFloat(serverData.aging61To90 || serverData.aging_61_90) || 0,
-    aging90Plus:
-      parseFloat(serverData.aging90Plus || serverData.aging_90_plus) || 0,
+    aging31To60: parseFloat(serverData.aging31To60 || serverData.aging_31_60) || 0,
+    aging61To90: parseFloat(serverData.aging61To90 || serverData.aging_61_90) || 0,
+    aging90Plus: parseFloat(serverData.aging90Plus || serverData.aging_90_plus) || 0,
     // Dates
     lastPaymentDate: serverData.lastPaymentDate || serverData.last_payment_date,
-    creditReviewDate:
-      serverData.creditReviewDate || serverData.credit_review_date,
-    lastCreditUpdated:
-      serverData.lastCreditUpdated || serverData.last_credit_updated,
+    creditReviewDate: serverData.creditReviewDate || serverData.credit_review_date,
+    lastCreditUpdated: serverData.lastCreditUpdated || serverData.last_credit_updated,
     // Analytics
-    customerCode: serverData.customerCode || serverData.customer_code || '',
-    code:
-      serverData.code ||
-      serverData.customerCode ||
-      serverData.customer_code ||
-      '',
+    customerCode: serverData.customerCode || serverData.customer_code || "",
+    code: serverData.code || serverData.customerCode || serverData.customer_code || "",
     dsoValue: parseFloat(serverData.dsoValue || serverData.dso_value) || 0,
-    creditUtilization:
-      parseFloat(
-        serverData.creditUtilization || serverData.credit_utilization,
-      ) || 0,
-    totalOutstanding:
-      parseFloat(serverData.totalOutstanding || serverData.total_outstanding) ||
-      0,
-    trnNumber:
-      serverData.trnNumber || serverData.trn_number || serverData.trn || '',
-    currentCredit:
-      parseFloat(serverData.currentCredit || serverData.current_credit) || 0,
+    creditUtilization: parseFloat(serverData.creditUtilization || serverData.credit_utilization) || 0,
+    totalOutstanding: parseFloat(serverData.totalOutstanding || serverData.total_outstanding) || 0,
+    trnNumber: serverData.trnNumber || serverData.trn_number || serverData.trn || "",
+    currentCredit: parseFloat(serverData.currentCredit || serverData.current_credit) || 0,
     // Generated columns
-    city: serverData.city || '',
-    country: serverData.country || '',
+    city: serverData.city || "",
+    country: serverData.country || "",
     // Audit
     createdAt: serverData.createdAt || serverData.created_at,
     updatedAt: serverData.updatedAt || serverData.updated_at,
@@ -106,7 +72,7 @@ export const transformCustomerFromServer = (serverData) => {
 
 export const customerService = {
   async getCustomers(params = {}) {
-    return apiClient.get('/customers', params);
+    return apiClient.get("/customers", params);
   },
 
   async getCustomer(id) {
@@ -114,7 +80,7 @@ export const customerService = {
   },
 
   async createCustomer(customerData) {
-    return apiClient.post('/customers', customerData);
+    return apiClient.post("/customers", customerData);
   },
 
   async updateCustomer(id, customerData) {
@@ -131,7 +97,7 @@ export const customerService = {
     // 1) Preferred: dedicated status endpoint
     try {
       return await apiClient.patch(`/customers/${id}/status`, {
-        status: 'archived',
+        status: "archived",
       });
     } catch (e1) {
       if (e1?.response?.status !== 404) throw e1;
@@ -139,38 +105,36 @@ export const customerService = {
 
     // 2) Generic PATCH on resource
     try {
-      return await apiClient.patch(`/customers/${id}`, { status: 'archived' });
+      return await apiClient.patch(`/customers/${id}`, { status: "archived" });
     } catch (e2) {
       if (e2?.response?.status !== 404) throw e2;
     }
 
     // 3) Minimal PUT with status-only (some servers accept partial PUT)
     try {
-      return await apiClient.put(`/customers/${id}`, { status: 'archived' });
+      return await apiClient.put(`/customers/${id}`, { status: "archived" });
     } catch (e3) {
       // 4) Full PUT with curated payload (only allowed fields)
       if (e3?.response?.status === 400 || e3?.response?.status === 404) {
         const current = await apiClient.get(`/customers/${id}`);
         const address =
-          typeof current?.address === 'string' || current?.address == null
-            ? current?.address || ''
-            : current.address; // backend accepts object per UI usage
+          typeof current?.address === "string" || current?.address == null ? current?.address || "" : current.address; // backend accepts object per UI usage
 
         const payload = {
-          name: current?.name ?? '',
-          email: current?.email ?? '',
-          phone: current?.phone ?? '',
+          name: current?.name ?? "",
+          email: current?.email ?? "",
+          phone: current?.phone ?? "",
           address,
-          company: current?.company ?? '',
+          company: current?.company ?? "",
           credit_limit: Number(current?.creditLimit) || 0,
           current_credit: Number(current?.currentCredit) || 0,
-          status: 'archived',
-          trn_number: current?.trnNumber ?? '',
-          payment_terms: current?.paymentTerms ?? '',
-          default_currency: current?.defaultCurrency ?? 'AED',
-          contact_name: current?.contactName ?? '',
-          contact_email: current?.contactEmail ?? '',
-          contact_phone: current?.contactPhone ?? '',
+          status: "archived",
+          trn_number: current?.trnNumber ?? "",
+          payment_terms: current?.paymentTerms ?? "",
+          default_currency: current?.defaultCurrency ?? "AED",
+          contact_name: current?.contactName ?? "",
+          contact_email: current?.contactEmail ?? "",
+          contact_phone: current?.contactPhone ?? "",
         };
 
         return await apiClient.put(`/customers/${id}`, payload);
@@ -180,10 +144,7 @@ export const customerService = {
   },
 
   async addContactHistory(customerId, contactData) {
-    return apiClient.post(
-      `/customers/${customerId}/contact-history`,
-      contactData,
-    );
+    return apiClient.post(`/customers/${customerId}/contact-history`, contactData);
   },
 
   async getCustomerAnalytics(customerId) {
@@ -191,7 +152,7 @@ export const customerService = {
   },
 
   async searchCustomers(searchTerm, filters = {}) {
-    return apiClient.get('/customers', {
+    return apiClient.get("/customers", {
       search: searchTerm,
       ...filters,
     });

@@ -15,37 +15,37 @@
  * Frontend (camelCase) -> API Gateway (auto-converts) -> gRPC Backend (snake_case)
  */
 
-import { apiClient } from './api';
+import { apiClient } from "./api.js";
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
 export const AMENDMENT_TYPES = {
-  VOLUNTARY_DISCLOSURE: 'VOLUNTARY_DISCLOSURE', // Self-discovered error
-  FTA_ASSESSMENT: 'FTA_ASSESSMENT', // FTA-initiated correction
-  AUDIT_FINDING: 'AUDIT_FINDING', // Result of FTA audit
+  VOLUNTARY_DISCLOSURE: "VOLUNTARY_DISCLOSURE", // Self-discovered error
+  FTA_ASSESSMENT: "FTA_ASSESSMENT", // FTA-initiated correction
+  AUDIT_FINDING: "AUDIT_FINDING", // Result of FTA audit
 };
 
 export const ERROR_CATEGORIES = {
-  OUTPUT_VAT_UNDERREPORTED: 'OUTPUT_VAT_UNDERREPORTED', // Sales VAT too low
-  OUTPUT_VAT_OVERREPORTED: 'OUTPUT_VAT_OVERREPORTED', // Sales VAT too high
-  INPUT_VAT_OVERCLAIMED: 'INPUT_VAT_OVERCLAIMED', // Purchase VAT too high
-  INPUT_VAT_UNDERCLAIMED: 'INPUT_VAT_UNDERCLAIMED', // Purchase VAT too low
-  INCORRECT_RATE: 'INCORRECT_RATE', // Wrong VAT rate applied
-  INCORRECT_CATEGORY: 'INCORRECT_CATEGORY', // Wrong VAT category
-  CALCULATION_ERROR: 'CALCULATION_ERROR', // Math error
-  TIMING_ERROR: 'TIMING_ERROR', // Wrong period
-  OTHER: 'OTHER',
+  OUTPUT_VAT_UNDERREPORTED: "OUTPUT_VAT_UNDERREPORTED", // Sales VAT too low
+  OUTPUT_VAT_OVERREPORTED: "OUTPUT_VAT_OVERREPORTED", // Sales VAT too high
+  INPUT_VAT_OVERCLAIMED: "INPUT_VAT_OVERCLAIMED", // Purchase VAT too high
+  INPUT_VAT_UNDERCLAIMED: "INPUT_VAT_UNDERCLAIMED", // Purchase VAT too low
+  INCORRECT_RATE: "INCORRECT_RATE", // Wrong VAT rate applied
+  INCORRECT_CATEGORY: "INCORRECT_CATEGORY", // Wrong VAT category
+  CALCULATION_ERROR: "CALCULATION_ERROR", // Math error
+  TIMING_ERROR: "TIMING_ERROR", // Wrong period
+  OTHER: "OTHER",
 };
 
 export const AMENDMENT_STATUSES = {
-  DRAFT: 'draft',
-  PENDING_REVIEW: 'pending_review',
-  SUBMITTED: 'submitted',
-  ACKNOWLEDGED: 'acknowledged',
-  REJECTED_BY_FTA: 'rejected_by_fta',
-  CANCELLED: 'cancelled',
+  DRAFT: "draft",
+  PENDING_REVIEW: "pending_review",
+  SUBMITTED: "submitted",
+  ACKNOWLEDGED: "acknowledged",
+  REJECTED_BY_FTA: "rejected_by_fta",
+  CANCELLED: "cancelled",
 };
 
 // ============================================================================
@@ -57,23 +57,21 @@ export const AMENDMENT_STATUSES = {
  */
 const transformAmendmentForServer = (amendmentData) => {
   return {
-    amendmentType: amendmentData.amendmentType || 'VOLUNTARY_DISCLOSURE',
+    amendmentType: amendmentData.amendmentType || "VOLUNTARY_DISCLOSURE",
     // Original return reference
     originalVatReturnId: amendmentData.originalVatReturnId || null,
-    originalReturnPeriod: amendmentData.originalReturnPeriod || '',
+    originalReturnPeriod: amendmentData.originalReturnPeriod || "",
     originalFilingDate: amendmentData.originalFilingDate || null,
     // Error details
-    errorCategory: amendmentData.errorCategory || 'OTHER',
-    errorDescription: amendmentData.errorDescription || '',
+    errorCategory: amendmentData.errorCategory || "OTHER",
+    errorDescription: amendmentData.errorDescription || "",
     discoveryDate: amendmentData.discoveryDate || null,
-    discoveryMethod: amendmentData.discoveryMethod || '',
+    discoveryMethod: amendmentData.discoveryMethod || "",
     // Original values
     originalTaxableAmount: parseFloat(amendmentData.originalTaxableAmount || 0),
     originalVatAmount: parseFloat(amendmentData.originalVatAmount || 0),
     // Corrected values
-    correctedTaxableAmount: parseFloat(
-      amendmentData.correctedTaxableAmount || 0,
-    ),
+    correctedTaxableAmount: parseFloat(amendmentData.correctedTaxableAmount || 0),
     correctedVatAmount: parseFloat(amendmentData.correctedVatAmount || 0),
     // Difference
     differenceAmount: parseFloat(amendmentData.differenceAmount || 0),
@@ -85,8 +83,8 @@ const transformAmendmentForServer = (amendmentData) => {
     penaltyRate: parseFloat(amendmentData.penaltyRate || 0),
     penaltyMonths: amendmentData.penaltyMonths || 0,
     // Supporting information
-    reason: amendmentData.reason || '',
-    preventiveMeasures: amendmentData.preventiveMeasures || '',
+    reason: amendmentData.reason || "",
+    preventiveMeasures: amendmentData.preventiveMeasures || "",
     supportingDocuments: amendmentData.supportingDocuments || [],
     attachmentUrls: amendmentData.attachmentUrls || [],
     // Related transactions
@@ -94,8 +92,8 @@ const transformAmendmentForServer = (amendmentData) => {
     relatedCreditNoteIds: amendmentData.relatedCreditNoteIds || [],
     relatedSupplierBillIds: amendmentData.relatedSupplierBillIds || [],
     // Status
-    status: amendmentData.status || 'draft',
-    notes: amendmentData.notes || '',
+    status: amendmentData.status || "draft",
+    notes: amendmentData.notes || "",
   };
 };
 
@@ -108,18 +106,18 @@ const transformAmendmentFromServer = (serverData) => {
   return {
     id: serverData.id,
     companyId: serverData.companyId,
-    amendmentNumber: serverData.amendmentNumber || '',
-    amendmentType: serverData.amendmentType || 'VOLUNTARY_DISCLOSURE',
+    amendmentNumber: serverData.amendmentNumber || "",
+    amendmentType: serverData.amendmentType || "VOLUNTARY_DISCLOSURE",
     // Original return reference
     originalVatReturnId: serverData.originalVatReturnId || null,
-    originalReturnPeriod: serverData.originalReturnPeriod || '',
+    originalReturnPeriod: serverData.originalReturnPeriod || "",
     originalFilingDate: serverData.originalFilingDate || null,
-    originalReturnNumber: serverData.originalReturnNumber || '',
+    originalReturnNumber: serverData.originalReturnNumber || "",
     // Error details
-    errorCategory: serverData.errorCategory || 'OTHER',
-    errorDescription: serverData.errorDescription || '',
+    errorCategory: serverData.errorCategory || "OTHER",
+    errorDescription: serverData.errorDescription || "",
     discoveryDate: serverData.discoveryDate || null,
-    discoveryMethod: serverData.discoveryMethod || '',
+    discoveryMethod: serverData.discoveryMethod || "",
     // Original values
     originalTaxableAmount: parseFloat(serverData.originalTaxableAmount || 0),
     originalVatAmount: parseFloat(serverData.originalVatAmount || 0),
@@ -139,8 +137,8 @@ const transformAmendmentFromServer = (serverData) => {
     penaltyPaid: serverData.penaltyPaid || false,
     penaltyPaidDate: serverData.penaltyPaidDate || null,
     // Supporting information
-    reason: serverData.reason || '',
-    preventiveMeasures: serverData.preventiveMeasures || '',
+    reason: serverData.reason || "",
+    preventiveMeasures: serverData.preventiveMeasures || "",
     supportingDocuments: serverData.supportingDocuments || [],
     attachmentUrls: serverData.attachmentUrls || [],
     // Related transactions
@@ -148,12 +146,12 @@ const transformAmendmentFromServer = (serverData) => {
     relatedCreditNoteIds: serverData.relatedCreditNoteIds || [],
     relatedSupplierBillIds: serverData.relatedSupplierBillIds || [],
     // Status
-    status: serverData.status || 'draft',
-    notes: serverData.notes || '',
+    status: serverData.status || "draft",
+    notes: serverData.notes || "",
     // FTA response
-    ftaReferenceNumber: serverData.ftaReferenceNumber || '',
+    ftaReferenceNumber: serverData.ftaReferenceNumber || "",
     ftaResponseDate: serverData.ftaResponseDate || null,
-    ftaResponseNotes: serverData.ftaResponseNotes || '',
+    ftaResponseNotes: serverData.ftaResponseNotes || "",
     // Timestamps and audit
     createdAt: serverData.createdAt || null,
     createdBy: serverData.createdBy || null,
@@ -197,16 +195,16 @@ const vatAmendmentService = {
         search: params.search || undefined,
       };
 
-      Object.keys(queryParams).forEach(
-        (key) => queryParams[key] === undefined && delete queryParams[key],
-      );
+      Object.keys(queryParams).forEach((key) => {
+        if (queryParams[key] === undefined) delete queryParams[key];
+      });
 
       const axiosConfig = { ...queryParams };
       if (signal) {
         axiosConfig.signal = signal;
       }
 
-      const response = await apiClient.get('/vat-amendments', axiosConfig);
+      const response = await apiClient.get("/vat-amendments", axiosConfig);
 
       // Handle paginated response
       if (response.data && Array.isArray(response.data)) {
@@ -234,7 +232,7 @@ const vatAmendmentService = {
 
       return { data: [], pagination: null };
     } catch (error) {
-      console.error('[VATAmendmentService] getAll failed:', error);
+      console.error("[VATAmendmentService] getAll failed:", error);
       throw error;
     }
   },
@@ -249,7 +247,7 @@ const vatAmendmentService = {
       const response = await apiClient.get(`/vat-amendments/${id}`);
       return transformAmendmentFromServer(response);
     } catch (error) {
-      console.error('[VATAmendmentService] getById failed:', error);
+      console.error("[VATAmendmentService] getById failed:", error);
       throw error;
     }
   },
@@ -261,15 +259,11 @@ const vatAmendmentService = {
    */
   async getByVatReturn(vatReturnId) {
     try {
-      const response = await apiClient.get(
-        `/vat-amendments/by-return/${vatReturnId}`,
-      );
-      const amendments = Array.isArray(response)
-        ? response
-        : response.data || [];
+      const response = await apiClient.get(`/vat-amendments/by-return/${vatReturnId}`);
+      const amendments = Array.isArray(response) ? response : response.data || [];
       return amendments.map(transformAmendmentFromServer);
     } catch (error) {
-      console.error('[VATAmendmentService] getByVatReturn failed:', error);
+      console.error("[VATAmendmentService] getByVatReturn failed:", error);
       throw error;
     }
   },
@@ -280,13 +274,11 @@ const vatAmendmentService = {
    */
   async getPending() {
     try {
-      const response = await apiClient.get('/vat-amendments/pending');
-      const amendments = Array.isArray(response)
-        ? response
-        : response.data || [];
+      const response = await apiClient.get("/vat-amendments/pending");
+      const amendments = Array.isArray(response) ? response : response.data || [];
       return amendments.map(transformAmendmentFromServer);
     } catch (error) {
-      console.error('[VATAmendmentService] getPending failed:', error);
+      console.error("[VATAmendmentService] getPending failed:", error);
       throw error;
     }
   },
@@ -299,10 +291,10 @@ const vatAmendmentService = {
   async create(amendmentData) {
     try {
       const transformedData = transformAmendmentForServer(amendmentData);
-      const response = await apiClient.post('/vat-amendments', transformedData);
+      const response = await apiClient.post("/vat-amendments", transformedData);
       return transformAmendmentFromServer(response);
     } catch (error) {
-      console.error('[VATAmendmentService] create failed:', error);
+      console.error("[VATAmendmentService] create failed:", error);
       throw error;
     }
   },
@@ -316,13 +308,10 @@ const vatAmendmentService = {
   async update(id, amendmentData) {
     try {
       const transformedData = transformAmendmentForServer(amendmentData);
-      const response = await apiClient.put(
-        `/vat-amendments/${id}`,
-        transformedData,
-      );
+      const response = await apiClient.put(`/vat-amendments/${id}`, transformedData);
       return transformAmendmentFromServer(response);
     } catch (error) {
-      console.error('[VATAmendmentService] update failed:', error);
+      console.error("[VATAmendmentService] update failed:", error);
       throw error;
     }
   },
@@ -337,7 +326,7 @@ const vatAmendmentService = {
       const response = await apiClient.delete(`/vat-amendments/${id}`);
       return response;
     } catch (error) {
-      console.error('[VATAmendmentService] delete failed:', error);
+      console.error("[VATAmendmentService] delete failed:", error);
       throw error;
     }
   },
@@ -352,7 +341,7 @@ const vatAmendmentService = {
       const response = await apiClient.post(`/vat-amendments/${id}/submit`);
       return transformAmendmentFromServer(response);
     } catch (error) {
-      console.error('[VATAmendmentService] submit failed:', error);
+      console.error("[VATAmendmentService] submit failed:", error);
       throw error;
     }
   },
@@ -369,16 +358,10 @@ const vatAmendmentService = {
    */
   async recordAcknowledgement(id, acknowledgement) {
     try {
-      const response = await apiClient.post(
-        `/vat-amendments/${id}/acknowledge`,
-        acknowledgement,
-      );
+      const response = await apiClient.post(`/vat-amendments/${id}/acknowledge`, acknowledgement);
       return transformAmendmentFromServer(response);
     } catch (error) {
-      console.error(
-        '[VATAmendmentService] recordAcknowledgement failed:',
-        error,
-      );
+      console.error("[VATAmendmentService] recordAcknowledgement failed:", error);
       throw error;
     }
   },
@@ -391,13 +374,10 @@ const vatAmendmentService = {
    */
   async recordRejection(id, rejection) {
     try {
-      const response = await apiClient.post(
-        `/vat-amendments/${id}/reject`,
-        rejection,
-      );
+      const response = await apiClient.post(`/vat-amendments/${id}/reject`, rejection);
       return transformAmendmentFromServer(response);
     } catch (error) {
-      console.error('[VATAmendmentService] recordRejection failed:', error);
+      console.error("[VATAmendmentService] recordRejection failed:", error);
       throw error;
     }
   },
@@ -408,14 +388,14 @@ const vatAmendmentService = {
    * @param {string} reason - Cancellation reason
    * @returns {Promise<Object>}
    */
-  async cancel(id, reason = '') {
+  async cancel(id, reason = "") {
     try {
       const response = await apiClient.post(`/vat-amendments/${id}/cancel`, {
         cancellationReason: reason,
       });
       return transformAmendmentFromServer(response);
     } catch (error) {
-      console.error('[VATAmendmentService] cancel failed:', error);
+      console.error("[VATAmendmentService] cancel failed:", error);
       throw error;
     }
   },
@@ -430,12 +410,10 @@ const vatAmendmentService = {
    */
   async calculatePenalty(id) {
     try {
-      const response = await apiClient.get(
-        `/vat-amendments/${id}/calculate-penalty`,
-      );
+      const response = await apiClient.get(`/vat-amendments/${id}/calculate-penalty`);
       return response;
     } catch (error) {
-      console.error('[VATAmendmentService] calculatePenalty failed:', error);
+      console.error("[VATAmendmentService] calculatePenalty failed:", error);
       throw error;
     }
   },
@@ -450,16 +428,10 @@ const vatAmendmentService = {
    */
   async calculatePenaltyPreview(params) {
     try {
-      const response = await apiClient.post(
-        '/vat-amendments/calculate-penalty-preview',
-        params,
-      );
+      const response = await apiClient.post("/vat-amendments/calculate-penalty-preview", params);
       return response;
     } catch (error) {
-      console.error(
-        '[VATAmendmentService] calculatePenaltyPreview failed:',
-        error,
-      );
+      console.error("[VATAmendmentService] calculatePenaltyPreview failed:", error);
       throw error;
     }
   },
@@ -472,16 +444,10 @@ const vatAmendmentService = {
    */
   async recordPenaltyPayment(id, paymentData) {
     try {
-      const response = await apiClient.post(
-        `/vat-amendments/${id}/pay-penalty`,
-        paymentData,
-      );
+      const response = await apiClient.post(`/vat-amendments/${id}/pay-penalty`, paymentData);
       return transformAmendmentFromServer(response);
     } catch (error) {
-      console.error(
-        '[VATAmendmentService] recordPenaltyPayment failed:',
-        error,
-      );
+      console.error("[VATAmendmentService] recordPenaltyPayment failed:", error);
       throw error;
     }
   },
@@ -492,10 +458,10 @@ const vatAmendmentService = {
    */
   async getNextNumber() {
     try {
-      const response = await apiClient.get('/vat-amendments/number/next');
+      const response = await apiClient.get("/vat-amendments/number/next");
       return response;
     } catch (error) {
-      console.error('[VATAmendmentService] getNextNumber failed:', error);
+      console.error("[VATAmendmentService] getNextNumber failed:", error);
       throw error;
     }
   },
@@ -507,10 +473,10 @@ const vatAmendmentService = {
    */
   async getSummary(params = {}) {
     try {
-      const response = await apiClient.get('/vat-amendments/summary', params);
+      const response = await apiClient.get("/vat-amendments/summary", params);
       return response;
     } catch (error) {
-      console.error('[VATAmendmentService] getSummary failed:', error);
+      console.error("[VATAmendmentService] getSummary failed:", error);
       throw error;
     }
   },
@@ -523,9 +489,9 @@ const vatAmendmentService = {
   async getAuditTrail(id) {
     try {
       const response = await apiClient.get(`/vat-amendments/${id}/audit-trail`);
-      return response.data || response || [];
+      return response || [];
     } catch (error) {
-      console.error('[VATAmendmentService] getAuditTrail failed:', error);
+      console.error("[VATAmendmentService] getAuditTrail failed:", error);
       throw error;
     }
   },
@@ -537,16 +503,13 @@ const vatAmendmentService = {
    */
   async downloadDisclosureForm(id) {
     try {
-      const response = await apiClient.get(
-        `/vat-amendments/${id}/disclosure-form`,
-        {
-          responseType: 'blob',
-        },
-      );
+      const response = await apiClient.get(`/vat-amendments/${id}/disclosure-form`, {
+        responseType: "blob",
+      });
 
-      const blob = new Blob([response], { type: 'application/pdf' });
+      const blob = new Blob([response], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = `voluntary-disclosure-${id}.pdf`;
       document.body.appendChild(link);
@@ -556,10 +519,7 @@ const vatAmendmentService = {
 
       return true;
     } catch (error) {
-      console.error(
-        '[VATAmendmentService] downloadDisclosureForm failed:',
-        error,
-      );
+      console.error("[VATAmendmentService] downloadDisclosureForm failed:", error);
       throw error;
     }
   },
@@ -572,16 +532,14 @@ const vatAmendmentService = {
    */
   async search(searchTerm, filters = {}) {
     try {
-      const response = await apiClient.get('/vat-amendments', {
+      const response = await apiClient.get("/vat-amendments", {
         search: searchTerm,
         ...filters,
       });
       const amendments = response.data || response.items || response;
-      return Array.isArray(amendments)
-        ? amendments.map(transformAmendmentFromServer)
-        : [];
+      return Array.isArray(amendments) ? amendments.map(transformAmendmentFromServer) : [];
     } catch (error) {
-      console.error('[VATAmendmentService] search failed:', error);
+      console.error("[VATAmendmentService] search failed:", error);
       throw error;
     }
   },
@@ -594,15 +552,10 @@ const vatAmendmentService = {
    */
   async checkAmendmentRequired(vatReturnId) {
     try {
-      const response = await apiClient.get(
-        `/vat-amendments/check-required/${vatReturnId}`,
-      );
+      const response = await apiClient.get(`/vat-amendments/check-required/${vatReturnId}`);
       return response;
     } catch (error) {
-      console.error(
-        '[VATAmendmentService] checkAmendmentRequired failed:',
-        error,
-      );
+      console.error("[VATAmendmentService] checkAmendmentRequired failed:", error);
       throw error;
     }
   },

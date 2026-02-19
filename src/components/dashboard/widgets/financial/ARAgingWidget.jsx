@@ -1,15 +1,15 @@
-import { Clock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import BaseWidget from '../BaseWidget';
-import { useTheme } from '../../../../contexts/ThemeContext';
+import { Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "../../../../contexts/ThemeContext";
+import BaseWidget from "../BaseWidget";
 
 // Mock data for Phase 1 - used when no API data available
 const MOCK_AR_AGING = {
   buckets: [
-    { label: '0-30 Days', amount: 1250000, percentage: 45 },
-    { label: '31-60 Days', amount: 680000, percentage: 24 },
-    { label: '61-90 Days', amount: 450000, percentage: 16 },
-    { label: '90+ Days', amount: 420000, percentage: 15 },
+    { label: "0-30 Days", amount: 1250000, percentage: 45 },
+    { label: "31-60 Days", amount: 680000, percentage: 24 },
+    { label: "61-90 Days", amount: 450000, percentage: 16 },
+    { label: "90+ Days", amount: 420000, percentage: 15 },
   ],
   total_ar: 2800000,
   overdue_ar: 870000,
@@ -59,16 +59,13 @@ export const ARAgingWidget = ({
     };
   };
 
-  const data =
-    propData && propData.buckets && propData.buckets.length > 0
-      ? normalizeData(propData)
-      : MOCK_AR_AGING;
+  const data = propData?.buckets && propData.buckets.length > 0 ? normalizeData(propData) : MOCK_AR_AGING;
 
   const bucketColors = [
-    { bg: 'bg-green-500', text: 'text-green-600' },
-    { bg: 'bg-yellow-500', text: 'text-yellow-600' },
-    { bg: 'bg-orange-500', text: 'text-orange-600' },
-    { bg: 'bg-red-500', text: 'text-red-600' },
+    { bg: "bg-green-500", text: "text-green-600" },
+    { bg: "bg-yellow-500", text: "text-yellow-600" },
+    { bg: "bg-orange-500", text: "text-orange-600" },
+    { bg: "bg-red-500", text: "text-red-600" },
   ];
 
   // With mock fallback, we always have data
@@ -90,24 +87,18 @@ export const ARAgingWidget = ({
             {data.buckets.map((bucket, index) => (
               <div key={bucket.label} className="flex items-center gap-3">
                 <div className="w-24 sm:w-32">
-                  <span
-                    className={`text-xs sm:text-sm ${
-                      isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                    }`}
-                  >
+                  <span className={`text-xs sm:text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                     {bucket.label}
                   </span>
                 </div>
                 <div className="flex-1">
                   <div
                     className={`h-4 rounded-full overflow-hidden border ${
-                      isDarkMode
-                        ? 'bg-gray-700 border-gray-600'
-                        : 'bg-gray-100 border-gray-300'
+                      isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-100 border-gray-300"
                     }`}
                   >
                     <div
-                      className={`h-full ${bucketColors[index]?.bg || 'bg-gray-500'} rounded-full transition-all duration-500`}
+                      className={`h-full ${bucketColors[index]?.bg || "bg-gray-500"} rounded-full transition-all duration-500`}
                       style={{
                         width: `${Math.min(parseFloat(bucket.percentage) || 0, 100)}%`,
                       }}
@@ -115,11 +106,7 @@ export const ARAgingWidget = ({
                   </div>
                 </div>
                 <div className="w-20 sm:w-28 text-right">
-                  <span
-                    className={`text-xs sm:text-sm font-medium ${
-                      isDarkMode ? 'text-white' : 'text-gray-900'
-                    }`}
-                  >
+                  <span className={`text-xs sm:text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     {formatCurrency(bucket.amount)}
                   </span>
                 </div>
@@ -128,48 +115,27 @@ export const ARAgingWidget = ({
           </div>
 
           <div
-            className={`mt-4 pt-4 border-t flex justify-between ${
-              isDarkMode ? 'border-gray-700' : 'border-gray-200'
-            }`}
+            className={`mt-4 pt-4 border-t flex justify-between ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
           >
             <div>
-              <span
-                className={`text-xs ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}
-              >
-                Total AR
-              </span>
-              <p
-                className={`text-lg font-bold ${
-                  isDarkMode ? 'text-white' : 'text-gray-900'
-                }`}
-              >
+              <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Total AR</span>
+              <p className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                 {formatCurrency(data.total_ar)}
               </p>
             </div>
             <div className="text-right">
-              <span
-                className={`text-xs ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}
-              >
-                Overdue
-              </span>
-              <p className="text-lg font-bold text-red-500">
-                {formatCurrency(data.overdue_ar)}
-              </p>
+              <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Overdue</span>
+              <p className="text-lg font-bold text-red-500">{formatCurrency(data.overdue_ar)}</p>
             </div>
           </div>
 
           {/* View Full Report Button */}
           <div className="mt-4">
             <button
-              onClick={() => navigate('/dashboards/ar-aging')}
+              type="button"
+              onClick={() => navigate("/app/dashboards/ar-aging")}
               className={`w-full px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                isDarkMode
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                  : 'bg-blue-50 hover:bg-blue-100 text-blue-700'
+                isDarkMode ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-blue-50 hover:bg-blue-100 text-blue-700"
               }`}
             >
               View Full AR Aging Report
@@ -178,19 +144,8 @@ export const ARAgingWidget = ({
         </>
       ) : (
         <div className="flex flex-col items-center justify-center py-8 text-center">
-          <Clock
-            size={32}
-            className={`mb-3 opacity-50 ${
-              isDarkMode ? 'text-gray-400' : 'text-gray-500'
-            }`}
-          />
-          <p
-            className={`text-sm ${
-              isDarkMode ? 'text-gray-400' : 'text-gray-600'
-            }`}
-          >
-            No receivables data available
-          </p>
+          <Clock size={32} className={`mb-3 opacity-50 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`} />
+          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>No receivables data available</p>
         </div>
       )}
     </BaseWidget>

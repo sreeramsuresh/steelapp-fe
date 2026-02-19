@@ -1,0 +1,500 @@
+
+> ultimate-steels-app@0.0.0 test
+> npm run typecheck && vitest run
+
+
+> ultimate-steels-app@0.0.0 typecheck
+> tsc --noEmit
+
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90m/mnt/d/Ultimate Steel/steelapp-fe[39m
+
+ [31m❯[39m src/services/__tests__/productsAPI.contract.test.js [2m([22m[2m9 tests[22m[2m | [22m[31m9 failed[39m[2m)[22m[33m 4043[2mms[22m[39m
+[31m       [31m×[31m should automatically normalize product array responses[39m[33m 741[2mms[22m[39m
+[31m       [31m×[31m should handle empty product arrays[39m[33m 479[2mms[22m[39m
+[31m       [31m×[31m should automatically normalize single product response[39m[32m 300[2mms[22m[39m
+[31m       [31m×[31m should automatically normalize search results[39m[33m 363[2mms[22m[39m
+[31m       [31m×[31m should automatically normalize category results[39m[32m 12[2mms[22m[39m
+[31m       [31m×[31m should throw if backend returns invalid product data[39m[33m 563[2mms[22m[39m
+[31m       [31m×[31m should throw if product is missing required fields[39m[33m 357[2mms[22m[39m
+[31m       [31m×[31m should handle null response data gracefully[39m[33m 730[2mms[22m[39m
+[31m       [31m×[31m should handle missing products array[39m[33m 496[2mms[22m[39m
+[90mstderr[2m | src/__tests__/credit-note-integration.test.jsx[2m > [22m[2mCredit Note Integration Tests[2m > [22m[2mDraft Resume Workflow[2m > [22m[2mshould resume draft, modify amount, and save
+[22m[39mA component is changing a controlled input to be uncontrolled. This is likely caused by the value changing from a defined to undefined, which should not happen. Decide between using a controlled or uncontrolled input element for the lifetime of the component. More info: https://react.dev/link/controlled-components
+
+ [31m❯[39m src/__tests__/credit-note-integration.test.jsx [2m([22m[2m6 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 4913[2mms[22m[39m
+[31m       [31m×[31m should create credit note with manual amount from start to finish[39m[33m 569[2mms[22m[39m
+       [33m[2m✓[22m[39m should resume draft, modify amount, and save [33m 1995[2mms[22m[39m
+[31m       [31m×[31m should maintain correct date format from load to save[39m[33m 1579[2mms[22m[39m
+       [33m[2m✓[22m[39m should prevent save without required fields [33m 445[2mms[22m[39m
+[31m       [31m×[31m should allow save with manual credit amount and reason[39m[32m 176[2mms[22m[39m
+[31m       [31m×[31m should issue credit note immediately (skip draft)[39m[32m 145[2mms[22m[39m
+ [31m❯[39m src/services/__tests__/debitNoteService.test.js [2m([22m[2m35 tests[22m[2m | [22m[31m35 failed[39m[2m)[22m[32m 31[2mms[22m[39m
+[31m       [31m×[31m should fetch debit notes with pagination[39m[32m 10[2mms[22m[39m
+[31m       [31m×[31m should support pagination parameters[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should filter debit notes by status[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should filter debit notes by supplier[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should filter debit notes by supplier bill[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should support date range filtering[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should support search parameter[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should handle abort signal for cancellation[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should transform snake_case to camelCase[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should fetch single debit note by ID[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should return null for non-existent debit note[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should transform returned items[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should create debit note with valid data[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should transform camelCase to snake_case on create[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should validate required fields on create[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should parse numeric fields as floats[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should handle items with VAT categories[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should update debit note with valid data[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should prevent update of issued debit notes[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should delete debit note[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should handle deletion of non-existent debit note[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should calculate VAT at 5% for standard rated items[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should handle exempt items with 0% VAT[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should separate standard and exempt items[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should accept ADDITIONAL_CHARGES reason[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should accept PRICE_ADJUSTMENT reason[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should accept CORRECTION reason[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should handle network errors gracefully[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should handle server validation errors[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should handle authorization errors[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should handle empty debit note list[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should handle null/undefined fields gracefully[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should handle numeric string conversions[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should handle large quantities[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should handle decimal prices[39m[32m 1[2mms[22m[39m
+[90mstderr[2m | src/services/__tests__/authService.test.js[2m > [22m[2mauthService[2m > [22m[2mLogout[2m > [22m[2mshould clear tokens even if API call fails
+[22m[39mLogout API call failed: Error: Network error
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/authService.test.js:207:44
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+    at Traces.$ [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.CCmnQaNT.js:142:27[90m)[39m
+    at trace [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
+    at runTest [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:12[90m)[39m
+
+ [31m❯[39m src/services/__tests__/authService.test.js [2m([22m[2m33 tests[22m[2m | [22m[31m17 failed[39m[2m)[22m[32m 48[2mms[22m[39m
+[31m       [31m×[31m should login user with email and password[39m[32m 9[2mms[22m[39m
+[31m       [31m×[31m should store token in localStorage after login[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should store refresh token after login[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should call tokenUtils.setToken with JWT token[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should handle login without refresh token[39m[32m 1[2mms[22m[39m
+       [32m✓[39m should reject login with invalid credentials[32m 2[2mms[22m[39m
+[31m       [31m×[31m should register new user[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should store token after registration[39m[32m 1[2mms[22m[39m
+       [32m✓[39m should reject duplicate email[32m 1[2mms[22m[39m
+[31m       [31m×[31m should logout user and clear tokens[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should clear tokens even if API call fails[39m[32m 3[2mms[22m[39m
+[31m       [31m×[31m should remove refresh token on logout[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should clear user data on logout[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should set token in localStorage[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should call tokenUtils.setToken[39m[32m 1[2mms[22m[39m
+       [32m✓[39m should set refresh token[32m 2[2mms[22m[39m
+       [32m✓[39m should get current token[32m 3[2mms[22m[39m
+       [32m✓[39m should get refresh token[32m 0[2mms[22m[39m
+[31m       [31m×[31m should remove token[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should check if user is authenticated[39m[32m 4[2mms[22m[39m
+       [32m✓[39m should return false if not authenticated[32m 0[2mms[22m[39m
+       [32m✓[39m should set user in localStorage[32m 0[2mms[22m[39m
+       [32m✓[39m should get current user[32m 0[2mms[22m[39m
+       [32m✓[39m should remove user data[32m 0[2mms[22m[39m
+       [32m✓[39m should get current user profile from API[32m 0[2mms[22m[39m
+       [32m✓[39m should change password with current and new password[32m 1[2mms[22m[39m
+       [32m✓[39m should handle incorrect current password[32m 1[2mms[22m[39m
+       [32m✓[39m should handle network errors during login[32m 0[2mms[22m[39m
+       [32m✓[39m should handle server errors[32m 1[2mms[22m[39m
+       [32m✓[39m should handle invalid session token[32m 1[2mms[22m[39m
+[31m       [31m×[31m should include company context in user data[39m[32m 1[2mms[22m[39m
+       [32m✓[39m should verify user belongs to correct company[32m 0[2mms[22m[39m
+[31m       [31m×[31m should enforce company_id in API calls[39m[32m 1[2mms[22m[39m
+[90mstderr[2m | src/services/__tests__/exportOrderService.test.js[2m > [22m[2mexportOrderService[2m > [22m[2mgetExportOrders[2m > [22m[2mshould fetch export orders
+[22m[39mError fetching export orders: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.getExportOrders [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/exportOrderService.js:8:26[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/exportOrderService.test.js:28:47
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/services/__tests__/exportOrderService.test.js[2m > [22m[2mexportOrderService[2m > [22m[2mgetExportOrders[2m > [22m[2mshould filter by customer
+[22m[39mError fetching export orders: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.getExportOrders [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/exportOrderService.js:8:26[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/exportOrderService.test.js:37:32
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/services/__tests__/exportOrderService.test.js[2m > [22m[2mexportOrderService[2m > [22m[2mgetExportOrder[2m > [22m[2mshould fetch single export order
+[22m[39mError fetching export order: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.getExportOrder [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/exportOrderService.js:19:26[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/exportOrderService.test.js:54:47
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/services/__tests__/exportOrderService.test.js[2m > [22m[2mexportOrderService[2m > [22m[2mcreateExportOrder[2m > [22m[2mshould create export order
+[22m[39mError creating export order: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.createExportOrder [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/exportOrderService.js:30:28[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/exportOrderService.test.js:66:47
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/services/__tests__/exportOrderService.test.js[2m > [22m[2mexportOrderService[2m > [22m[2mupdateExportOrder[2m > [22m[2mshould update export order
+[22m[39mError updating export order: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.updateExportOrder [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/exportOrderService.js:41:28[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/exportOrderService.test.js:77:47
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/services/__tests__/exportOrderService.test.js[2m > [22m[2mexportOrderService[2m > [22m[2mExport Status[2m > [22m[2mshould track export status
+[22m[39mError fetching export order: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.getExportOrder [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/exportOrderService.js:19:26[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/exportOrderService.test.js:88:47
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/services/__tests__/exportOrderService.test.js[2m > [22m[2mexportOrderService[2m > [22m[2mError Handling[2m > [22m[2mshould handle errors
+[22m[39mError fetching export orders: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.getExportOrders [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/exportOrderService.js:8:26[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/exportOrderService.test.js:98:39
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/services/__tests__/exportOrderService.test.js[2m > [22m[2mexportOrderService[2m > [22m[2mEdge Cases[2m > [22m[2mshould handle empty list
+[22m[39mError fetching export orders: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.getExportOrders [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/exportOrderService.js:8:26[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/exportOrderService.test.js:106:47
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+ [31m❯[39m src/services/__tests__/exportOrderService.test.js [2m([22m[2m8 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[32m 25[2mms[22m[39m
+[31m       [31m×[31m should fetch export orders[39m[32m 11[2mms[22m[39m
+[31m       [31m×[31m should filter by customer[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should fetch single export order[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should create export order[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should update export order[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should track export status[39m[32m 2[2mms[22m[39m
+       [32m✓[39m should handle errors[32m 3[2mms[22m[39m
+[31m       [31m×[31m should handle empty list[39m[32m 1[2mms[22m[39m
+[90mstderr[2m | src/services/__tests__/importOrderService.test.js[2m > [22m[2mimportOrderService[2m > [22m[2mgetImportOrders[2m > [22m[2mshould fetch import orders
+[22m[39mError fetching import orders: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.getImportOrders [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/importOrderService.js:8:26[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/importOrderService.test.js:28:47
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/services/__tests__/importOrderService.test.js[2m > [22m[2mimportOrderService[2m > [22m[2mgetImportOrders[2m > [22m[2mshould filter by status
+[22m[39mError fetching import orders: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.getImportOrders [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/importOrderService.js:8:26[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/importOrderService.test.js:37:32
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/services/__tests__/importOrderService.test.js[2m > [22m[2mimportOrderService[2m > [22m[2mgetImportOrder[2m > [22m[2mshould fetch single import order
+[22m[39mError fetching import order: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.getImportOrder [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/importOrderService.js:19:26[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/importOrderService.test.js:54:47
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/services/__tests__/importOrderService.test.js[2m > [22m[2mimportOrderService[2m > [22m[2mcreateImportOrder[2m > [22m[2mshould create import order
+[22m[39mError creating import order: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.createImportOrder [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/importOrderService.js:30:28[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/importOrderService.test.js:66:47
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/services/__tests__/importOrderService.test.js[2m > [22m[2mimportOrderService[2m > [22m[2mupdateImportOrder[2m > [22m[2mshould update import order
+[22m[39mError updating import order: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.updateImportOrder [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/importOrderService.js:41:28[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/importOrderService.test.js:78:47
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/services/__tests__/importOrderService.test.js[2m > [22m[2mimportOrderService[2m > [22m[2mImport Order Status[2m > [22m[2mshould track order status transitions
+[22m[39mError fetching import order: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.getImportOrder [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/importOrderService.js:19:26[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/importOrderService.test.js:89:47
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/services/__tests__/importOrderService.test.js[2m > [22m[2mimportOrderService[2m > [22m[2mError Handling[2m > [22m[2mshould handle network errors
+[22m[39mError fetching import orders: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.getImportOrders [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/importOrderService.js:8:26[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/importOrderService.test.js:99:39
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/services/__tests__/importOrderService.test.js[2m > [22m[2mimportOrderService[2m > [22m[2mEdge Cases[2m > [22m[2mshould handle empty order items
+[22m[39mError fetching import order: Error: [vitest] No "api" export is defined on the "../api.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17[90m)[39m
+    at Object.get [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4mvitest[24m/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16[90m)[39m
+    at Object.getImportOrder [90m(/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/importOrderService.js:19:26[90m)[39m
+    at [90m/mnt/d/Ultimate Steel/steelapp-fe/[39msrc/services/__tests__/importOrderService.test.js:108:47
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///mnt/d/Ultimate%20Steel/steelapp-fe/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37 {
+  codeFrame: [32m'vi.mock(import("../api.js"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+ [31m❯[39m src/services/__tests__/importOrderService.test.js [2m([22m[2m8 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[32m 29[2mms[22m[39m
+[31m       [31m×[31m should fetch import orders[39m[32m 9[2mms[22m[39m
+[31m       [31m×[31m should filter by status[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should fetch single import order[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should create import order[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should update import order[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should track order status transitions[39m[32m 1[2mms[22m[39m
+       [32m✓[39m should handle network errors[32m 6[2mms[22m[39m
+[31m       [31m×[31m should handle empty order items[39m[32m 2[2mms[22m[39m

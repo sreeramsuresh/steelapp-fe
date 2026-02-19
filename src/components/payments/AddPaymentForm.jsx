@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Banknote, AlertTriangle, CheckCircle } from 'lucide-react';
-import { PAYMENT_MODES } from '../../services/dataService';
-import { formatCurrency } from '../../utils/invoiceUtils';
-import { toUAEDateForInput } from '../../utils/timezone';
-import CurrencyInput from '../forms/CurrencyInput';
-import { customerCreditService } from '../../services/customerCreditService';
+import { AlertTriangle, Banknote, CheckCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useTheme } from "../../contexts/ThemeContext";
+import { customerCreditService } from "../../services/customerCreditService";
+import { PAYMENT_MODES } from "../../services/dataService";
+import { formatCurrency } from "../../utils/invoiceUtils";
+import { toUAEDateForInput } from "../../utils/timezone";
+import CurrencyInput from "../forms/CurrencyInput";
 
 /**
  * AddPaymentForm - Unified payment form component with multi-currency support
@@ -29,24 +30,25 @@ const AddPaymentForm = ({
   onSave,
   isSaving = false,
   onCancel,
-  entityType = 'invoice',
-  defaultCurrency = 'AED',
+  entityType = "invoice",
+  defaultCurrency = "AED",
   customerId = null,
   invoiceVatAmount: _invoiceVatAmount = null,
 }) => {
+  const { isDarkMode } = useTheme();
   // Initialize with today's date in UAE timezone
   const [date, setDate] = useState(() => toUAEDateForInput(new Date()));
-  const [amount, setAmount] = useState('');
-  const [method, setMethod] = useState('cash');
-  const [reference, setReference] = useState('');
-  const [notes, setNotes] = useState('');
+  const [amount, setAmount] = useState("");
+  const [method, setMethod] = useState("cash");
+  const [reference, setReference] = useState("");
+  const [notes, setNotes] = useState("");
 
   // Multi-currency fields (Phase 1 Enhancement)
   const [currency, setCurrency] = useState(defaultCurrency);
-  const [exchangeRate, setExchangeRate] = useState('1.0000');
+  const [exchangeRate, setExchangeRate] = useState("1.0000");
 
   // VAT tracking fields (Epic 9 - PAYM-003)
-  const [vatRate, setVatRate] = useState('5');
+  const [vatRate, setVatRate] = useState("5");
   const [reverseCharge, setReverseCharge] = useState(false);
 
   // Credit limit state (Epic 2 - PAYM-001)
@@ -69,12 +71,11 @@ const AddPaymentForm = ({
       try {
         setLoadingCredit(true);
         setCreditError(null);
-        const summary =
-          await customerCreditService.getCustomerCreditSummary(customerId);
+        const summary = await customerCreditService.getCustomerCreditSummary(customerId);
         setCreditSummary(summary);
       } catch (error) {
-        console.error('Error fetching customer credit summary:', error);
-        setCreditError('Unable to load credit information');
+        console.error("Error fetching customer credit summary:", error);
+        setCreditError("Unable to load credit information");
         setCreditSummary(null);
       } finally {
         setLoadingCredit(false);
@@ -88,22 +89,19 @@ const AddPaymentForm = ({
   const modeConfig = PAYMENT_MODES[method] || PAYMENT_MODES.cash;
 
   // Helper for number input
-  const _numberInput = (v) => (v === '' || isNaN(Number(v)) ? '' : v);
+  const _numberInput = (v) => (v === "" || Number.isNaN(Number(v)) ? "" : v);
 
   // Check if using foreign currency (non-AED)
-  const isForeignCurrency = currency !== 'AED';
+  const isForeignCurrency = currency !== "AED";
 
   // Calculate AED equivalent when using foreign currency
-  const amountInAed = isForeignCurrency
-    ? (Number(amount) || 0) * (parseFloat(exchangeRate) || 1)
-    : Number(amount) || 0;
+  const amountInAed = isForeignCurrency ? (Number(amount) || 0) * (parseFloat(exchangeRate) || 1) : Number(amount) || 0;
 
   // VAT calculations (Epic 9 - PAYM-003)
   const paymentAmount = Number(amount) || 0;
   const calculatedVatAmount = reverseCharge
     ? 0
-    : (paymentAmount * (parseFloat(vatRate) || 0)) /
-      (100 + (parseFloat(vatRate) || 0));
+    : (paymentAmount * (parseFloat(vatRate) || 0)) / (100 + (parseFloat(vatRate) || 0));
   const taxableAmount = paymentAmount - calculatedVatAmount;
 
   // Credit limit calculations (Epic 2 - PAYM-001)
@@ -118,18 +116,12 @@ const AddPaymentForm = ({
 
   // Check if payment would improve or worsen credit position
   const _creditImpactPositive = paymentAmount > 0; // Payment always improves credit
-  const creditUtilizationAfterPayment =
-    creditLimit > 0
-      ? ((newUsageAfterPayment / creditLimit) * 100).toFixed(1)
-      : 0;
+  const creditUtilizationAfterPayment = creditLimit > 0 ? ((newUsageAfterPayment / creditLimit) * 100).toFixed(1) : 0;
 
   // Warning threshold: if available credit after payment falls below 10% of limit
   const creditWarningThreshold = creditLimit * 0.1;
   const showCreditWarning =
-    customerId &&
-    creditSummary &&
-    newAvailableCredit < creditWarningThreshold &&
-    newAvailableCredit > 0;
+    customerId && creditSummary && newAvailableCredit < creditWarningThreshold && newAvailableCredit > 0;
 
   // Validation: amount must be > 0, <= outstanding, reference required for non-cash,
   // exchange rate required for foreign currency, and not already saving
@@ -137,7 +129,7 @@ const AddPaymentForm = ({
     !isSaving &&
     Number(amount) > 0 &&
     Number(amount) <= Number(outstanding || 0) &&
-    (!modeConfig.requiresRef || (reference && reference.trim() !== '')) &&
+    (!modeConfig.requiresRef || (reference && reference.trim() !== "")) &&
     (!isForeignCurrency || parseFloat(exchangeRate) > 0);
 
   // Validate and collect all errors for user feedback
@@ -145,18 +137,16 @@ const AddPaymentForm = ({
     const errors = [];
 
     if (!amount || Number(amount) <= 0) {
-      errors.push('Amount must be greater than 0');
+      errors.push("Amount must be greater than 0");
     }
     if (Number(amount) > Number(outstanding || 0)) {
-      errors.push(
-        `Amount cannot exceed outstanding balance of ${formatCurrency(outstanding)}`,
-      );
+      errors.push(`Amount cannot exceed outstanding balance of ${formatCurrency(outstanding)}`);
     }
-    if (modeConfig.requiresRef && (!reference || reference.trim() === '')) {
+    if (modeConfig.requiresRef && (!reference || reference.trim() === "")) {
       errors.push(`${modeConfig.label} requires a reference number`);
     }
     if (isForeignCurrency && (!exchangeRate || parseFloat(exchangeRate) <= 0)) {
-      errors.push('Exchange rate is required for foreign currency payments');
+      errors.push("Exchange rate is required for foreign currency payments");
     }
 
     return errors;
@@ -199,17 +189,17 @@ const AddPaymentForm = ({
 
     // Clear form after successful save - reset to today's date in UAE timezone
     setDate(toUAEDateForInput(new Date()));
-    setAmount('');
-    setMethod('cash');
-    setReference('');
-    setNotes('');
+    setAmount("");
+    setMethod("cash");
+    setReference("");
+    setNotes("");
     setCurrency(defaultCurrency);
-    setExchangeRate('1.0000');
-    setVatRate('5');
+    setExchangeRate("1.0000");
+    setVatRate("5");
     setReverseCharge(false);
   };
 
-  const balanceLabel = entityType === 'po' ? 'Balance' : 'Outstanding Balance';
+  const balanceLabel = entityType === "po" ? "Balance" : "Outstanding Balance";
 
   return (
     <div className="p-4 rounded-lg border-2 border-teal-200 bg-teal-50">
@@ -229,9 +219,7 @@ const AddPaymentForm = ({
               title="Click to apply this amount to payment"
             >
               {formatCurrency(outstanding)}
-              <span className="ml-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-                Apply
-              </span>
+              <span className="ml-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">Apply</span>
             </button>
           </div>
 
@@ -239,49 +227,56 @@ const AddPaymentForm = ({
           {customerId && (
             <div className="mb-3">
               {loadingCredit ? (
-                <div className="px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-600">
+                <div
+                  className={`px-3 py-2 rounded-lg border text-sm ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-300" : "bg-gray-100 border-gray-200 text-gray-600"}`}
+                >
                   Loading credit information...
                 </div>
               ) : creditError ? (
-                <div className="px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 flex items-center gap-2">
+                <div
+                  className={`px-3 py-2 rounded-lg border text-sm flex items-center gap-2 ${isDarkMode ? "bg-amber-900/20 border-amber-700 text-amber-300" : "bg-amber-50 border-amber-200 text-amber-800"}`}
+                >
                   <AlertTriangle size={16} />
                   <span>{creditError}</span>
                 </div>
               ) : creditSummary ? (
-                <div className="px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="text-xs font-semibold text-green-900 mb-2 flex items-center gap-1">
+                <div
+                  className={`px-3 py-2 rounded-lg border ${isDarkMode ? "bg-green-900/20 border-green-700" : "bg-green-50 border-green-200"}`}
+                >
+                  <div
+                    className={`text-xs font-semibold mb-2 flex items-center gap-1 ${isDarkMode ? "text-green-300" : "text-green-900"}`}
+                  >
                     <CheckCircle size={14} />
                     Customer Credit Status
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     <div>
-                      <div className="text-gray-600">Credit Limit</div>
-                      <div className="font-bold text-green-900">
+                      <div className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Credit Limit</div>
+                      <div className={`font-bold ${isDarkMode ? "text-green-300" : "text-green-900"}`}>
                         {formatCurrency(creditLimit)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-gray-600">Current Usage</div>
-                      <div className="font-bold text-green-900">
+                      <div className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Current Usage</div>
+                      <div className={`font-bold ${isDarkMode ? "text-green-300" : "text-green-900"}`}>
                         {formatCurrency(currentUsage)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-gray-600">Available</div>
-                      <div className="font-bold text-green-900">
+                      <div className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Available</div>
+                      <div className={`font-bold ${isDarkMode ? "text-green-300" : "text-green-900"}`}>
                         {formatCurrency(availableCredit)}
                       </div>
                     </div>
                   </div>
                   {paymentAmount > 0 && (
-                    <div className="mt-2 pt-2 border-t border-green-200 text-xs">
+                    <div
+                      className={`mt-2 pt-2 border-t text-xs ${isDarkMode ? "border-green-700" : "border-green-200"}`}
+                    >
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">
-                          After This Payment:
-                        </span>
-                        <span className="font-bold text-green-700">
-                          {formatCurrency(newAvailableCredit)} available (
-                          {creditUtilizationAfterPayment}% used)
+                        <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>After This Payment:</span>
+                        <span className={`font-bold ${isDarkMode ? "text-green-300" : "text-green-700"}`}>
+                          {formatCurrency(newAvailableCredit)} available ({creditUtilizationAfterPayment}% used)
                         </span>
                       </div>
                     </div>
@@ -297,11 +292,9 @@ const AddPaymentForm = ({
               <div className="text-xs text-amber-800 flex items-start gap-2">
                 <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" />
                 <div>
-                  <strong>Low Credit Warning:</strong> This payment will leave
-                  the customer with only {formatCurrency(newAvailableCredit)}{' '}
-                  available credit (
-                  {((newAvailableCredit / creditLimit) * 100).toFixed(1)}% of
-                  limit).
+                  <strong>Low Credit Warning:</strong> This payment will leave the customer with only{" "}
+                  {formatCurrency(newAvailableCredit)} available credit (
+                  {((newAvailableCredit / creditLimit) * 100).toFixed(1)}% of limit).
                 </div>
               </div>
             </div>
@@ -309,9 +302,8 @@ const AddPaymentForm = ({
 
           <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
             <div className="text-xs text-amber-800">
-              <strong>Note:</strong> All payment details are required for proper
-              accounting records. Click the balance amount above to auto-fill
-              the payment amount.
+              <strong>Note:</strong> All payment details are required for proper accounting records. Click the balance
+              amount above to auto-fill the payment amount.
             </div>
           </div>
         </>
@@ -319,14 +311,18 @@ const AddPaymentForm = ({
 
       {/* Validation Errors Display */}
       {showValidationErrors && validationErrors.length > 0 && (
-        <div className="mb-3 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
-          <div className="text-xs font-semibold text-red-900 mb-1 flex items-center gap-1">
+        <div
+          className={`mb-3 px-3 py-2 rounded-lg border ${isDarkMode ? "bg-red-900/20 border-red-700" : "bg-red-50 border-red-200"}`}
+        >
+          <div
+            className={`text-xs font-semibold mb-1 flex items-center gap-1 ${isDarkMode ? "text-red-300" : "text-red-900"}`}
+          >
             <AlertTriangle size={14} />
             Please fix the following errors:
           </div>
-          <ul className="list-disc list-inside text-xs text-red-800 space-y-0.5">
-            {validationErrors.map((error, idx) => (
-              <li key={idx}>{error}</li>
+          <ul className={`list-disc list-inside text-xs space-y-0.5 ${isDarkMode ? "text-red-400" : "text-red-800"}`}>
+            {validationErrors.map((error, _idx) => (
+              <li key={error}>{error}</li>
             ))}
           </ul>
         </div>
@@ -365,7 +361,7 @@ const AddPaymentForm = ({
             value={method}
             onChange={(e) => {
               setMethod(e.target.value);
-              setReference('');
+              setReference("");
             }}
           >
             {Object.values(PAYMENT_MODES).map((m) => (
@@ -377,26 +373,19 @@ const AddPaymentForm = ({
         </div>
         <div>
           <div className="text-xs opacity-70 mb-1">
-            {modeConfig.refLabel || 'Reference #'}
+            {modeConfig.refLabel || "Reference #"}
             {modeConfig.requiresRef && <span className="text-red-500"> *</span>}
           </div>
           <input
             className="px-2 py-2 rounded border w-full"
             value={reference}
             onChange={(e) => setReference(e.target.value)}
-            placeholder={
-              modeConfig.requiresRef
-                ? `Enter ${modeConfig.refLabel || 'reference'}`
-                : 'Optional'
-            }
+            placeholder={modeConfig.requiresRef ? `Enter ${modeConfig.refLabel || "reference"}` : "Optional"}
             required={modeConfig.requiresRef}
           />
-          {modeConfig.requiresRef &&
-            (!reference || reference.trim() === '') && (
-              <div className="text-xs text-red-600 mt-1">
-                Reference is required for {modeConfig.label}
-              </div>
-            )}
+          {modeConfig.requiresRef && (!reference || reference.trim() === "") && (
+            <div className="text-xs text-red-600 mt-1">Reference is required for {modeConfig.label}</div>
+          )}
         </div>
         <div className="sm:col-span-2">
           <div className="text-xs opacity-70 mb-1">Notes</div>
@@ -413,9 +402,7 @@ const AddPaymentForm = ({
       {paymentAmount > 0 && (
         <div className="mt-4 px-3 py-3 bg-purple-50 border border-purple-200 rounded-lg">
           <div className="flex justify-between items-center mb-2">
-            <div className="text-xs font-semibold text-purple-900">
-              UAE VAT Breakdown (Form 201 Reference)
-            </div>
+            <div className="text-xs font-semibold text-purple-900">UAE VAT Breakdown (Form 201 Reference)</div>
             <label className="flex items-center gap-2 text-xs cursor-pointer">
               <input
                 type="checkbox"
@@ -429,33 +416,24 @@ const AddPaymentForm = ({
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="flex justify-between">
               <span className="text-purple-700">Taxable Amount:</span>
-              <span className="font-bold text-purple-900">
-                {formatCurrency(taxableAmount)}
-              </span>
+              <span className="font-bold text-purple-900">{formatCurrency(taxableAmount)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-purple-700">VAT Rate:</span>
-              <span className="font-bold text-purple-900">
-                {reverseCharge ? '0%' : `${vatRate}%`}
-              </span>
+              <span className="font-bold text-purple-900">{reverseCharge ? "0%" : `${vatRate}%`}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-purple-700">VAT Amount:</span>
-              <span className="font-bold text-purple-900">
-                {formatCurrency(calculatedVatAmount)}
-              </span>
+              <span className="font-bold text-purple-900">{formatCurrency(calculatedVatAmount)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-purple-700">Total Payment:</span>
-              <span className="font-bold text-purple-900">
-                {formatCurrency(paymentAmount)}
-              </span>
+              <span className="font-bold text-purple-900">{formatCurrency(paymentAmount)}</span>
             </div>
           </div>
           {reverseCharge && (
             <div className="mt-2 text-xs text-purple-800 bg-purple-100 px-2 py-1 rounded">
-              <strong>Note:</strong> Reverse charge applied. VAT = 0% for
-              import/reverse charge scenarios.
+              <strong>Note:</strong> Reverse charge applied. VAT = 0% for import/reverse charge scenarios.
             </div>
           )}
         </div>
@@ -464,23 +442,25 @@ const AddPaymentForm = ({
       <div className="mt-4 flex justify-end gap-3">
         {onCancel && (
           <button
+            type="button"
             onClick={onCancel}
             disabled={isSaving}
-            className="px-4 py-2.5 rounded-lg font-semibold transition-all border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`px-4 py-2.5 rounded-lg font-semibold transition-all border disabled:opacity-50 disabled:cursor-not-allowed ${isDarkMode ? "border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600" : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"}`}
           >
             Close
           </button>
         )}
         <button
+          type="button"
           disabled={!canSave}
           onClick={handleSave}
           className={`px-4 py-2.5 rounded-lg font-semibold transition-all ${
             canSave
-              ? 'bg-teal-600 text-white hover:bg-teal-700 shadow-md hover:shadow-lg'
-              : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+              ? "bg-teal-600 text-white hover:bg-teal-700 shadow-md hover:shadow-lg"
+              : "bg-gray-300 text-gray-600 cursor-not-allowed"
           }`}
         >
-          {isSaving ? 'Saving...' : 'Save Payment'}
+          {isSaving ? "Saving..." : "Save Payment"}
         </button>
       </div>
     </div>

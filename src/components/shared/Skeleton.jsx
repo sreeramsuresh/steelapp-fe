@@ -8,27 +8,16 @@
  *   <ListSkeleton />
  */
 
-export const Skeleton = ({
-  className = '',
-  width = 'w-full',
-  height = 'h-4',
-}) => (
-  <div
-    className={`bg-gray-300 dark:bg-gray-700 rounded animate-pulse ${width} ${height} ${className}`}
-  />
+export const Skeleton = ({ className = "", width = "w-full", height = "h-4" }) => (
+  <div className={`bg-gray-300 dark:bg-gray-700 rounded animate-pulse ${width} ${height} ${className}`} />
 );
 
 export const TableSkeleton = ({ rows = 5, cols = 4 }) => (
   <div className="space-y-3 p-4">
-    {Array.from({ length: rows }).map((_row, i) => (
-      <div key={i} className="flex gap-4">
-        {Array.from({ length: cols }).map((_col, j) => (
-          <Skeleton
-            key={`${i}-${j}`}
-            width="flex-1"
-            height="h-8"
-            className="rounded-md"
-          />
+    {Array.from({ length: rows }, (_, i) => `row-${i}`).map((rowKey) => (
+      <div key={rowKey} className="flex gap-4">
+        {Array.from({ length: cols }, (_, j) => `${rowKey}-col-${j}`).map((colKey) => (
+          <Skeleton key={colKey} width="flex-1" height="h-8" className="rounded-md" />
         ))}
       </div>
     ))}
@@ -46,11 +35,8 @@ export const CardSkeleton = () => (
 
 export const ListSkeleton = ({ items = 3 }) => (
   <div className="space-y-3">
-    {Array.from({ length: items }).map((_item, i) => (
-      <div
-        key={i}
-        className="bg-white dark:bg-gray-800 rounded-lg p-4 space-y-3"
-      >
+    {Array.from({ length: items }, (_, i) => `list-item-${i}`).map((itemKey) => (
+      <div key={itemKey} className="bg-white dark:bg-gray-800 rounded-lg p-4 space-y-3">
         <Skeleton width="w-2/3" height="h-5" className="rounded-md" />
         <Skeleton width="w-full" height="h-3" className="rounded-md" />
         <Skeleton width="w-1/2" height="h-3" className="rounded-md" />

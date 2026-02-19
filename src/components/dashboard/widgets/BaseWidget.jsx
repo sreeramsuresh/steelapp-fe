@@ -1,5 +1,5 @@
-import { Info, RefreshCw, AlertCircle } from 'lucide-react';
-import { useTheme } from '../../../contexts/ThemeContext';
+import { AlertCircle, Info, RefreshCw } from "lucide-react";
+import { useTheme } from "../../../contexts/ThemeContext";
 
 // ============================================================================
 // BASE WIDGET COMPONENT
@@ -32,15 +32,15 @@ const BaseWidget = ({
   description,
   tooltip,
   icon: Icon,
-  iconColor = 'from-teal-600 to-teal-700',
+  iconColor = "from-teal-600 to-teal-700",
   children,
   headerAction,
   loading = false,
   error = false, // Can be boolean or string message
   errorMessage, // Optional separate error message (deprecated, use error string instead)
   onRefresh,
-  size = 'md',
-  className = '',
+  size = "md",
+  className = "",
   noPadding = false,
   isStale = false,
   isMockData = false,
@@ -49,10 +49,10 @@ const BaseWidget = ({
 
   // Size-based min heights
   const sizeClasses = {
-    sm: 'min-h-32',
-    md: 'min-h-64',
-    lg: 'min-h-80',
-    xl: 'min-h-96',
+    sm: "min-h-32",
+    md: "min-h-64",
+    lg: "min-h-80",
+    xl: "min-h-96",
   };
 
   return (
@@ -60,14 +60,12 @@ const BaseWidget = ({
       data-testid="base-widget"
       className={`rounded-xl border transition-all duration-300 hover:shadow-lg ${
         isDarkMode
-          ? 'bg-[#1E2328] border-[#37474F] hover:border-teal-500/50'
-          : 'bg-white border-[#E0E0E0] hover:border-teal-500/50'
+          ? "bg-[#1E2328] border-[#37474F] hover:border-teal-500/50"
+          : "bg-white border-[#E0E0E0] hover:border-teal-500/50"
       } ${sizeClasses[size]} ${className}`}
     >
       {/* Header */}
-      <div
-        className={`flex items-start justify-between ${noPadding ? 'p-4' : 'p-4 pb-0'}`}
-      >
+      <div className={`flex items-start justify-between ${noPadding ? "p-4" : "p-4 pb-0"}`}>
         <div className="flex items-start gap-3">
           {Icon && (
             <div
@@ -79,21 +77,18 @@ const BaseWidget = ({
           <div>
             <h3
               className={`text-base font-semibold flex items-center gap-1.5 ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
+                isDarkMode ? "text-white" : "text-gray-900"
               }`}
             >
               {title}
               {tooltip && (
                 <span className="relative group">
-                  <Info
-                    size={14}
-                    className="cursor-help opacity-50 hover:opacity-100"
-                  />
+                  <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
                   <span
                     className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs rounded shadow-md whitespace-nowrap normal-case ${
                       isDarkMode
-                        ? 'bg-gray-700 text-white border border-gray-600'
-                        : 'bg-yellow-100 text-gray-800 border border-yellow-300'
+                        ? "bg-gray-700 text-white border border-gray-600"
+                        : "bg-yellow-100 text-gray-800 border border-yellow-300"
                     }`}
                   >
                     {tooltip}
@@ -103,9 +98,7 @@ const BaseWidget = ({
               {isStale && (
                 <span
                   className={`text-xs px-1.5 py-0.5 rounded ${
-                    isDarkMode
-                      ? 'bg-yellow-900/50 text-yellow-400'
-                      : 'bg-yellow-100 text-yellow-700'
+                    isDarkMode ? "bg-yellow-900/50 text-yellow-400" : "bg-yellow-100 text-yellow-700"
                   }`}
                 >
                   Stale
@@ -114,9 +107,7 @@ const BaseWidget = ({
               {isMockData && (
                 <span
                   className={`text-xs px-1.5 py-0.5 rounded ${
-                    isDarkMode
-                      ? 'bg-blue-900/50 text-blue-400'
-                      : 'bg-blue-100 text-blue-700'
+                    isDarkMode ? "bg-blue-900/50 text-blue-400" : "bg-blue-100 text-blue-700"
                   }`}
                 >
                   Demo
@@ -124,26 +115,21 @@ const BaseWidget = ({
               )}
             </h3>
             {description && (
-              <p
-                className={`text-sm mt-0.5 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}
-              >
-                {description}
-              </p>
+              <p className={`text-sm mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{description}</p>
             )}
           </div>
         </div>
         <div className="flex items-center gap-2">
           {onRefresh && (
             <button
+              type="button"
               onClick={onRefresh}
               disabled={loading}
               className={`p-1.5 rounded-lg transition-colors ${
                 isDarkMode
-                  ? 'hover:bg-gray-700 text-gray-400 hover:text-white'
-                  : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
-              } ${loading ? 'animate-spin' : ''}`}
+                  ? "hover:bg-gray-700 text-gray-400 hover:text-white"
+                  : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+              } ${loading ? "animate-spin" : ""}`}
               title="Refresh"
             >
               <RefreshCw size={16} />
@@ -154,16 +140,12 @@ const BaseWidget = ({
       </div>
 
       {/* Content */}
-      <div className={noPadding ? '' : 'p-4'}>
+      <div className={noPadding ? "" : "p-4"}>
         {loading ? (
           <WidgetLoadingState size={size} isDarkMode={isDarkMode} />
         ) : error ? (
           <WidgetErrorState
-            message={
-              typeof error === 'string'
-                ? error
-                : errorMessage || 'Failed to load data'
-            }
+            message={typeof error === "string" ? error : errorMessage || "Failed to load data"}
             onRetry={onRefresh}
             isDarkMode={isDarkMode}
           />
@@ -181,33 +163,23 @@ const BaseWidget = ({
 
 const WidgetLoadingState = ({ size, isDarkMode }) => {
   const heightClasses = {
-    sm: 'h-16',
-    md: 'h-32',
-    lg: 'h-48',
-    xl: 'h-64',
+    sm: "h-16",
+    md: "h-32",
+    lg: "h-48",
+    xl: "h-64",
   };
 
   return (
-    <div
-      data-testid="loading"
-      role="status"
-      className={`flex items-center justify-center ${heightClasses[size]}`}
-    >
+    <output data-testid="loading" className={`flex items-center justify-center ${heightClasses[size]}`}>
       <div className="flex items-center gap-3">
         <div
           className={`animate-spin rounded-full h-6 w-6 border-b-2 ${
-            isDarkMode ? 'border-teal-400' : 'border-teal-600'
+            isDarkMode ? "border-teal-400" : "border-teal-600"
           }`}
         />
-        <span
-          className={`text-sm ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-500'
-          }`}
-        >
-          Loading...
-        </span>
+        <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Loading...</span>
       </div>
-    </div>
+    </output>
   );
 };
 
@@ -217,29 +189,16 @@ const WidgetLoadingState = ({ size, isDarkMode }) => {
 
 const WidgetErrorState = ({ message, onRetry, isDarkMode }) => {
   return (
-    <div
-      data-testid="error"
-      className="flex flex-col items-center justify-center py-8 px-4 text-center"
-    >
-      <AlertCircle
-        size={32}
-        className={`mb-3 ${isDarkMode ? 'text-red-400' : 'text-red-500'}`}
-      />
-      <p
-        className={`text-sm mb-3 ${
-          isDarkMode ? 'text-gray-400' : 'text-gray-600'
-        }`}
-      >
-        {message}
-      </p>
+    <div data-testid="error" className="flex flex-col items-center justify-center py-8 px-4 text-center">
+      <AlertCircle size={32} className={`mb-3 ${isDarkMode ? "text-red-400" : "text-red-500"}`} />
+      <p className={`text-sm mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{message}</p>
       {onRetry && (
         <button
+          type="button"
           onClick={onRetry}
           aria-label="Retry"
           className={`text-sm px-3 py-1.5 rounded-lg transition-colors ${
-            isDarkMode
-              ? 'bg-gray-700 hover:bg-gray-600 text-white'
-              : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+            isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
           }`}
         >
           Try Again
@@ -267,38 +226,17 @@ export const WidgetEmptyState = ({
   const handleAction = action || onAction;
 
   return (
-    <div
-      data-testid="empty"
-      className="flex flex-col items-center justify-center py-8 px-4 text-center"
-    >
-      {Icon && (
-        <Icon
-          size={48}
-          className={`mb-4 opacity-50 ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-500'
-          }`}
-        />
-      )}
+    <div data-testid="empty" className="flex flex-col items-center justify-center py-8 px-4 text-center">
+      {Icon && <Icon size={48} className={`mb-4 opacity-50 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`} />}
       {displayTitle && (
-        <h4
-          className={`text-base font-semibold mb-1 ${
-            isDarkMode ? 'text-white' : 'text-gray-900'
-          }`}
-        >
+        <h4 className={`text-base font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
           {displayTitle}
         </h4>
       )}
-      {description && (
-        <p
-          className={`text-sm mb-4 ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-600'
-          }`}
-        >
-          {description}
-        </p>
-      )}
+      {description && <p className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{description}</p>}
       {handleAction && actionLabel && (
         <button
+          type="button"
           onClick={handleAction}
           className="text-sm px-4 py-2 rounded-lg bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 transition-all"
         >
@@ -313,56 +251,34 @@ export const WidgetEmptyState = ({
 // METRIC DISPLAY COMPONENTS
 // ============================================================================
 
-export const MetricValue = ({
-  value,
-  label,
-  change,
-  changeLabel,
-  size = 'md',
-}) => {
+export const MetricValue = ({ value, label, change, changeLabel, size = "md" }) => {
   const { isDarkMode } = useTheme();
 
   const sizeClasses = {
-    sm: { value: 'text-lg', label: 'text-xs' },
-    md: { value: 'text-2xl', label: 'text-sm' },
-    lg: { value: 'text-3xl', label: 'text-base' },
+    sm: { value: "text-lg", label: "text-xs" },
+    md: { value: "text-2xl", label: "text-sm" },
+    lg: { value: "text-3xl", label: "text-base" },
   };
 
   const isPositive = change >= 0;
 
   return (
     <div>
-      <p
-        className={`${sizeClasses[size].value} font-bold ${
-          isDarkMode ? 'text-white' : 'text-gray-900'
-        }`}
-      >
-        {value}
-      </p>
+      <p className={`${sizeClasses[size].value} font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{value}</p>
       {label && (
-        <p
-          className={`${sizeClasses[size].label} ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-500'
-          }`}
-        >
-          {label}
-        </p>
+        <p className={`${sizeClasses[size].label} ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{label}</p>
       )}
       {change !== undefined && (
         <div
           className={`flex items-center gap-1 mt-1 text-sm font-medium ${
-            isPositive ? 'text-green-500' : 'text-red-500'
+            isPositive ? "text-green-500" : "text-red-500"
           }`}
         >
           <span>
-            {isPositive ? '+' : ''}
+            {isPositive ? "+" : ""}
             {change.toFixed(1)}%
           </span>
-          {changeLabel && (
-            <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>
-              {changeLabel}
-            </span>
-          )}
+          {changeLabel && <span className={isDarkMode ? "text-gray-500" : "text-gray-400"}>{changeLabel}</span>}
         </div>
       )}
     </div>
@@ -375,7 +291,7 @@ export const MetricValue = ({
 
 export const WidgetListItem = ({
   icon: Icon,
-  iconColor = 'from-teal-600 to-teal-700',
+  iconColor = "from-teal-600 to-teal-700",
   title,
   subtitle,
   value,
@@ -386,35 +302,23 @@ export const WidgetListItem = ({
   const { isDarkMode } = useTheme();
 
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onKeyDown={
-        onClick
-          ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onClick();
-              }
-            }
-          : undefined
-      }
-      className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
-        onClick ? 'cursor-pointer hover:translate-x-1' : ''
+      disabled={!onClick}
+      className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 w-full text-left ${
+        onClick ? "hover:translate-x-1" : ""
       } ${
         isDarkMode
-          ? 'hover:bg-[#2E3B4E] border-b border-[#37474F] last:border-b-0'
-          : 'hover:bg-gray-50 border-b border-gray-100 last:border-b-0'
+          ? "hover:bg-[#2E3B4E] border-b border-[#37474F] last:border-b-0"
+          : "hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
       }`}
     >
       <div className="flex items-center gap-3">
         {rank && (
           <span
             className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-              isDarkMode
-                ? 'bg-gray-700 text-gray-300'
-                : 'bg-gray-200 text-gray-600'
+              isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-600"
             }`}
           >
             #{rank}
@@ -428,47 +332,19 @@ export const WidgetListItem = ({
           </div>
         )}
         <div className="min-w-0">
-          <p
-            className={`text-sm font-semibold truncate ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
-            }`}
-          >
-            {title}
-          </p>
+          <p className={`text-sm font-semibold truncate ${isDarkMode ? "text-white" : "text-gray-900"}`}>{title}</p>
           {subtitle && (
-            <p
-              className={`text-xs truncate ${
-                isDarkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}
-            >
-              {subtitle}
-            </p>
+            <p className={`text-xs truncate ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{subtitle}</p>
           )}
         </div>
       </div>
       {(value || subValue) && (
         <div className="text-right ml-3">
-          {value && (
-            <p
-              className={`text-sm font-semibold ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
-              }`}
-            >
-              {value}
-            </p>
-          )}
-          {subValue && (
-            <p
-              className={`text-xs ${
-                isDarkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}
-            >
-              {subValue}
-            </p>
-          )}
+          {value && <p className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{value}</p>}
+          {subValue && <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{subValue}</p>}
         </div>
       )}
-    </div>
+    </button>
   );
 };
 

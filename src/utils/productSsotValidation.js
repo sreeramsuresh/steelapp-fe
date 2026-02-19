@@ -14,59 +14,22 @@
  * SSOT Pattern Regex
  * Validates product naming follows the standard pattern
  */
-const SSOT_PATTERN_REGEX =
-  /^SS-[A-Z0-9]+-[A-Z]+-[A-Z0-9]+-\d+mm-\d+(\.\d+)?mm-(\d+mm|COIL)$/i;
+const SSOT_PATTERN_REGEX = /^SS-[A-Z0-9]+-[A-Z]+-[A-Z0-9]+-\d+mm-\d+(\.\d+)?mm-(\d+mm|COIL)$/i;
 
 /**
  * Valid product forms
  */
-const VALID_FORMS = [
-  'SHEET',
-  'COIL',
-  'PIPE',
-  'TUBE',
-  'ROD',
-  'BAR',
-  'FITTING',
-  'FASTENER',
-  'ANGLE',
-  'CHANNEL',
-  'BEAM',
-];
+const VALID_FORMS = ["SHEET", "COIL", "PIPE", "TUBE", "ROD", "BAR", "FITTING", "FASTENER", "ANGLE", "CHANNEL", "BEAM"];
 
 /**
  * Valid stainless steel grades
  */
-const VALID_GRADES = [
-  '201',
-  '304',
-  '304L',
-  '316',
-  '316L',
-  '321',
-  '310S',
-  '409',
-  '410',
-  '420',
-  '430',
-  '904L',
-];
+const VALID_GRADES = ["201", "304", "304L", "316", "316L", "321", "310S", "409", "410", "420", "430", "904L"];
 
 /**
  * Valid surface finishes
  */
-const VALID_FINISHES = [
-  '2B',
-  'BA',
-  'NO1',
-  'NO4',
-  'HL',
-  'MIRROR',
-  'BRUSHED',
-  'SATIN',
-  'BRIGHT',
-  'MILL',
-];
+const VALID_FINISHES = ["2B", "BA", "NO1", "NO4", "HL", "MIRROR", "BRUSHED", "SATIN", "BRIGHT", "MILL"];
 
 /**
  * Validate if a product name follows SSOT pattern
@@ -74,40 +37,40 @@ const VALID_FINISHES = [
  * @returns {Object} Validation result with isValid and error message
  */
 export function validateSsotPattern(productName) {
-  if (!productName || typeof productName !== 'string') {
+  if (!productName || typeof productName !== "string") {
     return {
       isValid: false,
-      error: 'Product name is required',
-      pattern: 'SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm',
+      error: "Product name is required",
+      pattern: "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
     };
   }
 
   const trimmedName = productName.trim();
 
-  if (!trimmedName.startsWith('SS-')) {
+  if (!trimmedName.startsWith("SS-")) {
     return {
       isValid: false,
       error: 'Product name must start with "SS-"',
-      pattern: 'SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm',
+      pattern: "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
     };
   }
 
   if (!SSOT_PATTERN_REGEX.test(trimmedName)) {
     return {
       isValid: false,
-      error: 'Product name does not follow SSOT pattern',
-      pattern: 'SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm',
-      example: 'SS-304-SHEET-2B-1250mm-2.0mm-2500mm',
+      error: "Product name does not follow SSOT pattern",
+      pattern: "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
+      example: "SS-304-SHEET-2B-1250mm-2.0mm-2500mm",
     };
   }
 
   // Parse components
-  const parts = trimmedName.split('-');
+  const parts = trimmedName.split("-");
   if (parts.length < 7) {
     return {
       isValid: false,
-      error: 'Product name missing required components',
-      pattern: 'SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm',
+      error: "Product name missing required components",
+      pattern: "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
     };
   }
 
@@ -117,8 +80,8 @@ export function validateSsotPattern(productName) {
   if (!VALID_GRADES.includes(grade.toUpperCase())) {
     return {
       isValid: false,
-      error: `Invalid grade "${grade}". Valid grades: ${VALID_GRADES.join(', ')}`,
-      pattern: 'SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm',
+      error: `Invalid grade "${grade}". Valid grades: ${VALID_GRADES.join(", ")}`,
+      pattern: "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
     };
   }
 
@@ -126,8 +89,8 @@ export function validateSsotPattern(productName) {
   if (!VALID_FORMS.includes(form.toUpperCase())) {
     return {
       isValid: false,
-      error: `Invalid form "${form}". Valid forms: ${VALID_FORMS.join(', ')}`,
-      pattern: 'SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm',
+      error: `Invalid form "${form}". Valid forms: ${VALID_FORMS.join(", ")}`,
+      pattern: "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
     };
   }
 
@@ -135,15 +98,15 @@ export function validateSsotPattern(productName) {
   if (!VALID_FINISHES.includes(finish.toUpperCase())) {
     return {
       isValid: false,
-      error: `Invalid finish "${finish}". Valid finishes: ${VALID_FINISHES.join(', ')}`,
-      pattern: 'SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm',
+      error: `Invalid finish "${finish}". Valid finishes: ${VALID_FINISHES.join(", ")}`,
+      pattern: "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
     };
   }
 
   return {
     isValid: true,
     error: null,
-    pattern: 'SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm',
+    pattern: "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
   };
 }
 
@@ -158,12 +121,12 @@ export function parseSsotName(productName) {
     return null;
   }
 
-  const parts = productName.split('-');
+  const parts = productName.split("-");
 
   // Extract dimensions (remove 'mm' suffix)
-  const width = parts[4].replace('mm', '');
-  const thickness = parts[5].replace('mm', '');
-  const length = parts[6].replace('mm', '');
+  const width = parts[4].replace("mm", "");
+  const thickness = parts[5].replace("mm", "");
+  const length = parts[6].replace("mm", "");
 
   return {
     prefix: parts[0],
@@ -172,7 +135,7 @@ export function parseSsotName(productName) {
     finish: parts[3],
     width: parseFloat(width),
     thickness: parseFloat(thickness),
-    length: length === 'COIL' ? 'COIL' : parseFloat(length),
+    length: length === "COIL" ? "COIL" : parseFloat(length),
     raw: productName,
   };
 }
@@ -182,19 +145,12 @@ export function parseSsotName(productName) {
  * @param {Object} components - Product components
  * @returns {string} SSOT-formatted product name
  */
-export function generateSsotName({
-  grade,
-  form,
-  finish,
-  width,
-  thickness,
-  length,
-}) {
+export function generateSsotName({ grade, form, finish, width, thickness, length }) {
   if (!grade || !form || !finish || !width || !thickness || !length) {
-    throw new Error('All components are required to generate SSOT name');
+    throw new Error("All components are required to generate SSOT name");
   }
 
-  return `SS-${grade.toUpperCase()}-${form.toUpperCase()}-${finish.toUpperCase()}-${width}mm-${thickness}mm-${length === 'COIL' ? 'COIL' : `${length}mm`}`;
+  return `SS-${grade.toUpperCase()}-${form.toUpperCase()}-${finish.toUpperCase()}-${width}mm-${thickness}mm-${length === "COIL" ? "COIL" : `${length}mm`}`;
 }
 
 /**
@@ -205,7 +161,7 @@ export function generateSsotName({
 export function getSsotErrorMessage(productName) {
   const validation = validateSsotPattern(productName);
   if (validation.isValid) {
-    return '';
+    return "";
   }
 
   return `${validation.error}\n\nExpected pattern: ${validation.pattern}\nExample: SS-304-SHEET-2B-1250mm-2.0mm-2500mm`;

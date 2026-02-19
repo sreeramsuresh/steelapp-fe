@@ -19,13 +19,10 @@
  * where errors originate (network, API Gateway, gRPC backend).
  */
 
-import api from './axiosApi';
-import {
-  toSnakeCaseDeep,
-  toCamelCaseDeep,
-  findSnakeCaseKeys,
-} from '../utils/caseConverters';
-import { generateRequestId } from '../utils/requestId';
+import env from "../config/env.js";
+import { findSnakeCaseKeys, toCamelCaseDeep, toSnakeCaseDeep } from "../utils/caseConverters";
+import { generateRequestId } from "../utils/requestId";
+import api from "./axiosApi";
 
 /**
  * Import contract validation library
@@ -33,10 +30,10 @@ import { generateRequestId } from '../utils/requestId';
  * Zero overhead in production
  */
 let contracts = null;
-if (import.meta.env.DEV) {
+if (env.DEV) {
   try {
-    contracts = require('@steelapp/contracts');
-  } catch (e) {
+    contracts = require("@steelapp/contracts");
+  } catch (_e) {
     // @steelapp/contracts not installed yet, validation disabled
   }
 }
@@ -46,23 +43,23 @@ if (import.meta.env.DEV) {
  */
 export const ERROR_CODES = {
   // Client errors
-  INVALID_ARGUMENT: 'INVALID_ARGUMENT',
-  NOT_FOUND: 'NOT_FOUND',
-  ALREADY_EXISTS: 'ALREADY_EXISTS',
-  PERMISSION_DENIED: 'PERMISSION_DENIED',
-  UNAUTHENTICATED: 'UNAUTHENTICATED',
-  RESOURCE_EXHAUSTED: 'RESOURCE_EXHAUSTED',
-  FAILED_PRECONDITION: 'FAILED_PRECONDITION',
+  INVALID_ARGUMENT: "INVALID_ARGUMENT",
+  NOT_FOUND: "NOT_FOUND",
+  ALREADY_EXISTS: "ALREADY_EXISTS",
+  PERMISSION_DENIED: "PERMISSION_DENIED",
+  UNAUTHENTICATED: "UNAUTHENTICATED",
+  RESOURCE_EXHAUSTED: "RESOURCE_EXHAUSTED",
+  FAILED_PRECONDITION: "FAILED_PRECONDITION",
 
   // Server errors
-  INTERNAL: 'INTERNAL',
-  UNAVAILABLE: 'UNAVAILABLE',
-  DEADLINE_EXCEEDED: 'DEADLINE_EXCEEDED',
+  INTERNAL: "INTERNAL",
+  UNAVAILABLE: "UNAVAILABLE",
+  DEADLINE_EXCEEDED: "DEADLINE_EXCEEDED",
 
   // Network/Client-side errors
-  NETWORK_ERROR: 'NETWORK_ERROR',
-  REQUEST_CANCELLED: 'REQUEST_CANCELLED',
-  UNKNOWN: 'UNKNOWN',
+  NETWORK_ERROR: "NETWORK_ERROR",
+  REQUEST_CANCELLED: "REQUEST_CANCELLED",
+  UNKNOWN: "UNKNOWN",
 };
 
 /**
@@ -80,7 +77,7 @@ export class ApiError extends Error {
    */
   constructor(requestId, errorCode, message, details = {}, httpStatus = null) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.requestId = requestId;
     this.errorCode = errorCode;
     this.details = details;
@@ -159,39 +156,32 @@ function normalizeError(error, requestId) {
     const { data, status, headers } = error.response;
 
     // Use server's requestId if available
-    const serverRequestId =
-      headers?.['x-request-id'] || data?.requestId || requestId;
+    const serverRequestId = headers?.["x-request-id"] || data?.requestId || requestId;
 
     // Server returned standard error format
-    if (data && data.errorCode) {
+    if (data?.errorCode) {
       return new ApiError(
         serverRequestId,
         data.errorCode,
-        data.message || 'An error occurred',
+        data.message || "An error occurred",
         data.details || {},
-        status,
+        status
       );
     }
 
     // Legacy format with 'code' instead of 'errorCode'
-    if (data && data.code) {
-      return new ApiError(
-        serverRequestId,
-        data.code,
-        data.message || 'An error occurred',
-        data.details || {},
-        status,
-      );
+    if (data?.code) {
+      return new ApiError(serverRequestId, data.code, data.message || "An error occurred", data.details || {}, status);
     }
 
     // Server returned non-standard error
-    if (data && typeof data === 'object') {
+    if (data && typeof data === "object") {
       return new ApiError(
         serverRequestId,
         mapHttpStatusToErrorCode(status),
-        data.message || data.error || 'An error occurred',
+        data.message || data.error || "An error occurred",
         data,
-        status,
+        status
       );
     }
 
@@ -199,9 +189,9 @@ function normalizeError(error, requestId) {
     return new ApiError(
       serverRequestId,
       mapHttpStatusToErrorCode(status),
-      typeof data === 'string' ? data : `HTTP ${status} Error`,
+      typeof data === "string" ? data : `HTTP ${status} Error`,
       {},
-      status,
+      status
     );
   }
 
@@ -210,30 +200,24 @@ function normalizeError(error, requestId) {
     return new ApiError(
       requestId,
       ERROR_CODES.NETWORK_ERROR,
-      'Unable to connect to server. Please check your network connection.',
+      "Unable to connect to server. Please check your network connection.",
       { originalMessage: error.message },
-      null,
+      null
     );
   }
 
   // Request cancelled
-  if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
-    return new ApiError(
-      requestId,
-      ERROR_CODES.REQUEST_CANCELLED,
-      'Request was cancelled',
-      {},
-      null,
-    );
+  if (error.name === "CanceledError" || error.code === "ERR_CANCELED") {
+    return new ApiError(requestId, ERROR_CODES.REQUEST_CANCELLED, "Request was cancelled", {}, null);
   }
 
   // Request setup error or other error
   return new ApiError(
     requestId,
     ERROR_CODES.UNKNOWN,
-    error.message || 'An unexpected error occurred',
+    error.message || "An unexpected error occurred",
     { originalError: error.name },
-    null,
+    null
   );
 }
 
@@ -268,14 +252,14 @@ function mapHttpStatusToErrorCode(status) {
  * @param {object} data - Request data
  */
 function devValidateRequest(method, url, data) {
-  if (import.meta.env.PROD || !data) return;
+  if (env.PROD || !data) return;
 
   const snakeCaseKeys = findSnakeCaseKeys(data);
   if (snakeCaseKeys.length > 0) {
     console.warn(
       `[httpClient] Request to ${method.toUpperCase()} ${url} contains snake_case keys:`,
       snakeCaseKeys,
-      '\nFrontend should use camelCase. Auto-converting, but please fix the source.',
+      "\nFrontend should use camelCase. Auto-converting, but please fix the source."
     );
   }
 }
@@ -290,7 +274,7 @@ function devValidateRequest(method, url, data) {
  * @returns {Object} { valid: boolean, errors?: Array }
  */
 function validateRequestContract(method, url, data) {
-  if (!contracts || import.meta.env.PROD) return { valid: true };
+  if (!contracts || env.PROD) return { valid: true };
 
   const routeKey = `${method.toUpperCase()} ${url}`;
   const route = contracts.routes?.[routeKey];
@@ -323,7 +307,7 @@ function validateRequestContract(method, url, data) {
  * @returns {Object} { valid: boolean, errors?: Array, leakage?: Array }
  */
 function validateResponseContract(method, url, data) {
-  if (!contracts || import.meta.env.PROD) return { valid: true };
+  if (!contracts || env.PROD) return { valid: true };
 
   const routeKey = `${method.toUpperCase()} ${url}`;
   const route = contracts.routes?.[routeKey];
@@ -350,7 +334,7 @@ function validateResponseContract(method, url, data) {
     return {
       valid: true, // Still valid, but leakage detected
       leakage,
-      message: `Response contains camelCase keys (expected snake_case): ${leakage.join(', ')}`,
+      message: `Response contains camelCase keys (expected snake_case): ${leakage.join(", ")}`,
     };
   }
 
@@ -375,20 +359,20 @@ export async function apiRequest(method, url, data = null, options = {}) {
   devValidateRequest(method, url, data);
 
   // Contract validation: validate request against schema (camelCase)
-  if (data && import.meta.env.DEV) {
+  if (data && env.DEV) {
     const validation = validateRequestContract(method, url, data);
     if (!validation.valid) {
-      const errorMsg = `[Contract Guard] Request validation failed for ${validation.routeKey}: ${validation.errors.map((e) => `${e.path.join('.')} - ${e.message}`).join('; ')}`;
+      const errorMsg = `[Contract Guard] Request validation failed for ${validation.routeKey}: ${validation.errors.map((e) => `${e.path.join(".")} - ${e.message}`).join("; ")}`;
       console.error(errorMsg);
 
       // Throw error if strict mode enabled
-      if (import.meta.env.VITE_CONTRACT_STRICT === 'true') {
+      if (env.VITE_CONTRACT_STRICT === "true") {
         throw new ApiError(
           options.requestId || generateRequestId(),
           ERROR_CODES.INVALID_ARGUMENT,
-          'Request contract validation failed',
+          "Request contract validation failed",
           { validationErrors: validation.errors },
-          null,
+          null
         );
       }
     }
@@ -402,7 +386,7 @@ export async function apiRequest(method, url, data = null, options = {}) {
     ...options,
     headers: {
       ...options.headers,
-      'X-Request-Id': requestId,
+      "X-Request-Id": requestId,
     },
   };
 
@@ -414,19 +398,19 @@ export async function apiRequest(method, url, data = null, options = {}) {
 
   try {
     switch (method.toLowerCase()) {
-      case 'get':
+      case "get":
         response = await api.get(url, config);
         break;
-      case 'post':
+      case "post":
         response = await api.post(url, payload, config);
         break;
-      case 'put':
+      case "put":
         response = await api.put(url, payload, config);
         break;
-      case 'patch':
+      case "patch":
         response = await api.patch(url, payload, config);
         break;
-      case 'delete':
+      case "delete":
         response = await api.delete(url, config);
         break;
       default:
@@ -438,20 +422,20 @@ export async function apiRequest(method, url, data = null, options = {}) {
   }
 
   // Contract validation: validate response against schema (snake_case from server)
-  if (import.meta.env.DEV) {
+  if (env.DEV) {
     const validation = validateResponseContract(method, url, response.data);
     if (!validation.valid) {
-      const errorMsg = `[Contract Guard] Response validation failed for ${validation.routeKey}: ${validation.errors.map((e) => `${e.path.join('.')} - ${e.message}`).join('; ')}`;
+      const errorMsg = `[Contract Guard] Response validation failed for ${validation.routeKey}: ${validation.errors.map((e) => `${e.path.join(".")} - ${e.message}`).join("; ")}`;
       console.error(errorMsg);
 
       // Throw error if strict mode enabled
-      if (import.meta.env.VITE_CONTRACT_STRICT === 'true') {
+      if (env.VITE_CONTRACT_STRICT === "true") {
         throw new ApiError(
           requestId,
           ERROR_CODES.INVALID_ARGUMENT,
-          'Response contract validation failed',
+          "Response contract validation failed",
           { validationErrors: validation.errors },
-          response.status,
+          response.status
         );
       }
     } else if (validation.leakage) {
@@ -477,7 +461,7 @@ export const httpClient = {
    * @returns {Promise<any>} Response data (camelCase)
    * @throws {ApiError}
    */
-  get: (url, config) => apiRequest('get', url, null, config),
+  get: (url, config) => apiRequest("get", url, null, config),
 
   /**
    * POST request
@@ -487,7 +471,7 @@ export const httpClient = {
    * @returns {Promise<any>} Response data (camelCase)
    * @throws {ApiError}
    */
-  post: (url, data, config) => apiRequest('post', url, data, config),
+  post: (url, data, config) => apiRequest("post", url, data, config),
 
   /**
    * PUT request
@@ -497,7 +481,7 @@ export const httpClient = {
    * @returns {Promise<any>} Response data (camelCase)
    * @throws {ApiError}
    */
-  put: (url, data, config) => apiRequest('put', url, data, config),
+  put: (url, data, config) => apiRequest("put", url, data, config),
 
   /**
    * PATCH request
@@ -507,7 +491,7 @@ export const httpClient = {
    * @returns {Promise<any>} Response data (camelCase)
    * @throws {ApiError}
    */
-  patch: (url, data, config) => apiRequest('patch', url, data, config),
+  patch: (url, data, config) => apiRequest("patch", url, data, config),
 
   /**
    * DELETE request
@@ -516,7 +500,7 @@ export const httpClient = {
    * @returns {Promise<any>} Response data (camelCase)
    * @throws {ApiError}
    */
-  delete: (url, config) => apiRequest('delete', url, null, config),
+  delete: (url, config) => apiRequest("delete", url, null, config),
 };
 
 /**
@@ -546,7 +530,7 @@ export function getErrorMessage(error) {
   if (error instanceof ApiError) {
     return error.message;
   }
-  return error?.message || 'An unexpected error occurred';
+  return error?.message || "An unexpected error occurred";
 }
 
 /**

@@ -1,10 +1,10 @@
-import { apiClient } from './api';
+import { apiClient } from "./api.js";
 
 export const transitService = {
   // Get all items in transit
   getAll: (params = {}) => {
     // This combines data from invoices and purchase orders that are in transit
-    return apiClient.get('/transit', params);
+    return apiClient.get("/transit", params);
   },
 
   // Get transit tracking for specific item

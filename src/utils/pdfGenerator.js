@@ -1,128 +1,516 @@
-import {
-  formatCurrency,
-  formatDate,
-  calculateTRN,
-  calculateSubtotal,
-  calculateTotalTRN,
-  calculateTotal,
-  titleCase,
-  formatNumber,
-  formatDateDMY,
-  calculateDiscountedTRN,
-} from "./invoiceUtils";
-import logoCompany from "../assets/logocompany.png";
-import sealImage from "../assets/Seal.png";
+/**
+ * @deprecated This frontend PDF generator is DEPRECATED.
+ *
+ * MIGRATION NOTICE:
+ * -----------------
+ * PDF generation has been unified using React SSR + Puppeteer on the backend.
+ * This ensures pixel-perfect consistency between preview and PDF download.
+ *
+ * For PDF downloads, use the backend API endpoints instead:
+ * - POST /api/invoices/:id/pdf
+ * - POST /api/quotations/:id/pdf
+ * - POST /api/purchase-orders/:id/pdf
+ * - POST /api/credit-notes/:id/pdf
+ * - POST /api/delivery-notes/:id/pdf
+ * - POST /api/payments/:id/receipt-pdf
+ * - POST /api/customers/:id/statement-pdf
+ *
+ * The backend uses React SSR to render the SAME React components used for preview,
+ * ensuring the PDF matches what users see on screen.
+ *
+ * This file is kept for backwards compatibility but will be removed in a future version.
+ *
+ * @see steelapprnp/services/pdfService.js
+ * @see steelapprnp/templates/ssrRenderer.js
+ */
 
-// Measurement‑based pagination generator
+import { mergeTemplateSettings } from "../constants/defaultTemplateSettings.js";
+import {
+  calculateDiscountedTRN,
+  calculateSubtotal,
+  calculateTotal,
+  calculateTRN,
+  formatNumber,
+  getCompanyImages,
+  TIMEZONE_DISCLAIMER,
+  titleCase,
+  toUAEDateProfessional,
+  toUAEPaymentDateTime,
+} from "./invoiceUtils.js";
+
+/**
+ * Convert hex color to RGB array
+ * @param {string} hex - Hex color (e.g., "#5B6DB5")
+ * @returns {number[]} RGB array [r, g, b]
+ */
+const hexToRgb = (hex) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : [0, 0, 0];
+};
+
+/**
+ * Layer 1: Pure data transformation (testable, no DOM/browser dependencies)
+ * DEPRECATED: This generator is maintained for backwards compatibility only
+ * Use generateConfigurablePDF or backend API instead
+ */
+export function buildDeprecatedInvoiceDocumentStructure(invoice, company) {
+  const inv = invoice || {};
+  const comp = company || {};
+  const compAddr = comp.address || {};
+  const cust = inv.customer || {};
+  const custAddr = cust.address || {};
+
+  // Transform items
+  const items = Array.isArray(inv.items)
+    ? inv.items.map((item) => ({
+        name: item.name || "",
+        quantity: parseFloat(item.quantity) || 0,
+        rate: parseFloat(item.rate) || 0,
+        amount: parseFloat(item.amount) || 0,
+        vatRate: parseFloat(item.vatRate) || 0,
+      }))
+    : [];
+
+  // Calculate totals
+  const subtotal = calculateSubtotal(items);
+  const discountPerc = parseFloat(inv.discountPercentage) || 0;
+  const discountFlat = parseFloat(inv.discountAmount) || 0;
+  const discountValue = inv.discountType === "percentage" ? (subtotal * discountPerc) / 100 : discountFlat;
+  const vatAmount = calculateDiscountedTRN(items, inv.discountType, inv.discountPercentage, inv.discountAmount);
+  const total = calculateTotal(Math.max(0, subtotal - discountValue), vatAmount);
+
+  return {
+    invoice: {
+      number: inv.invoiceNumber || "",
+      date: inv.date || "",
+      status: inv.status || "draft",
+      dueDate: inv.dueDate || "",
+      notes: inv.notes || "",
+      terms: inv.terms || "",
+    },
+    company: {
+      name: comp.name || "",
+      address: {
+        street: compAddr.street || "",
+        city: compAddr.city || "",
+        country: compAddr.country || "",
+      },
+      phone: comp.phone || "",
+      email: comp.email || "",
+      trn: comp.vatNumber || "",
+    },
+    customer: {
+      name: cust.name || "",
+      address: {
+        street: custAddr.street || "",
+        city: custAddr.city || "",
+        country: custAddr.country || "",
+      },
+      email: cust.email || "",
+      phone: cust.phone || "",
+      trn: cust.vatNumber || "",
+    },
+    items: items,
+    calculations: {
+      subtotal: subtotal,
+      discountValue: discountValue,
+      vatAmount: vatAmount,
+      total: total,
+    },
+    metadata: {
+      isDeprecated: true,
+      isDraft: inv.status === "draft",
+      isProforma: inv.status === "proforma",
+    },
+  };
+}
+
+/**
+ * Layer 2: Browser-dependent PDF generation
+ * @deprecated Use backend API endpoint instead: POST /api/invoices/:id/pdf
+ */
 export const generateInvoicePDF = async (invoice, company) => {
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF("p", "mm", "a4");
 
-  // Base margins (mm) — adequate spacing for A4 layout
-  const M = { top: 15, bottom: 15, left: 15, right: 15 };
-  const page = {
-    w: pdf.internal.pageSize.getWidth(),
-    h: pdf.internal.pageSize.getHeight(),
-  };
+  // Get company images from company profile
+  const { logoUrl: logoCompany, sealUrl: sealImage } = getCompanyImages(company);
 
-  // Fonts
-  const setBody = () => {
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(11);
-  };
-  const setBold = () => {
+  // Get template settings (merge company settings with defaults)
+  const templateSettings = mergeTemplateSettings(company?.settings?.invoiceTemplate || {});
+  const {
+    colors,
+    layout,
+    typography,
+    branding,
+    visibility: _visibility,
+    table: _table,
+    formatting: _formatting,
+    labels: _labels,
+  } = templateSettings;
+
+  // Page dimensions
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = layout.marginLeft;
+
+  // Color scheme from settings
+  const primaryColor = hexToRgb(colors.primary);
+  const primaryBlue = hexToRgb(colors.primary); // Alias for primaryColor
+  const textPrimaryColor = hexToRgb(colors.textPrimary);
+  const textSecondaryColor = hexToRgb(colors.textSecondary);
+  const textLightColor = hexToRgb(colors.textLight);
+
+  // Helper functions for colors
+  const setTextPrimary = () => pdf.setTextColor(...textPrimaryColor);
+  const setTextSecondary = () => pdf.setTextColor(...textSecondaryColor);
+  const _setTextLight = () => pdf.setTextColor(...textLightColor);
+  const _setPrimaryColor = () => pdf.setTextColor(...primaryColor);
+  const setBlack = () => pdf.setTextColor(0, 0, 0);
+  const setDarkGray = () => pdf.setTextColor(80, 80, 80);
+
+  let currentY = layout.marginTop;
+
+  // ==================== HEADER SECTION ====================
+  // Company name and info (left side)
+  if (branding.companyNameInHeader) {
+    pdf.setFontSize(typography.fontSize.xlarge);
+    pdf.setFont(typography.fontFamily, "bold");
+    setTextPrimary();
+    const companyName = company?.name || "Ultimate Steels Building Materials Trading";
+    pdf.text(companyName, margin, currentY);
+    currentY += layout.lineSpacing + 1;
+  }
+
+  // Company address and contact
+  pdf.setFontSize(typography.fontSize.base);
+  pdf.setFont(typography.fontFamily, "normal");
+  setTextSecondary();
+
+  const compAddr = company?.address || {};
+  if (compAddr.street) {
+    pdf.text(compAddr.street, margin, currentY);
+    currentY += 4;
+  }
+
+  const cityCountry = [compAddr.city, compAddr.country].filter(Boolean).join(", ");
+  if (cityCountry) {
+    pdf.text(cityCountry, margin, currentY);
+    currentY += 4;
+  }
+
+  if (company?.phone) {
+    pdf.text(`Mobile: ${company.phone}`, margin, currentY);
+    currentY += 4;
+  }
+
+  if (company?.email) {
+    pdf.text(`Email: ${company.email}`, margin, currentY);
+    currentY += 4;
+  }
+
+  // VAT Registration
+  pdf.setFont("helvetica", "bold");
+  pdf.text("VAT Reg No: 104858252000003", margin, currentY);
+  currentY += 2;
+
+  // Add logo on the right side of header (maintain aspect ratio)
+  try {
+    // Load image to get actual dimensions
+    const img = new Image();
+    img.src = logoCompany;
+
+    // Set max dimensions
+    const maxLogoWidth = 50;
+    const maxLogoHeight = 15;
+
+    // Calculate aspect ratio
+    let logoWidth = maxLogoWidth;
+    let logoHeight = (img.height / img.width) * logoWidth;
+
+    // If height exceeds max, scale down based on height
+    if (logoHeight > maxLogoHeight) {
+      logoHeight = maxLogoHeight;
+      logoWidth = (img.width / img.height) * logoHeight;
+    }
+
+    const logoX = pageWidth - margin - logoWidth;
+    pdf.addImage(logoCompany, "PNG", logoX, margin, logoWidth, logoHeight);
+  } catch {
+    // Logo loading failed - continue without logo
+  }
+
+  currentY += 3;
+
+  // Horizontal line separator
+  pdf.setDrawColor(91, 109, 181);
+  pdf.setLineWidth(0.5);
+  pdf.line(margin, currentY, pageWidth - margin, currentY);
+  currentY += 5;
+
+  // ==================== INVOICE TITLE BANNER ====================
+  // Determine invoice title based on status
+  const invoiceTitle =
+    invoice.status === "draft" ? "DRAFT INVOICE" : invoice.status === "proforma" ? "PROFORMA INVOICE" : "TAX INVOICE";
+
+  // Draw title banner (6mm height - industry standard for A4)
+  const titleBannerHeight = 6;
+  pdf.setFillColor(...primaryColor);
+  pdf.rect(margin, currentY, pageWidth - 2 * margin, titleBannerHeight, "F");
+
+  // Add centered title text (use template fontSize.title - 10pt industry standard)
+  pdf.setFontSize(typography.fontSize.title);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(255, 255, 255);
+  const titleWidth = pdf.getTextWidth(invoiceTitle);
+  const titleX = (pageWidth - titleWidth) / 2;
+  pdf.text(invoiceTitle, titleX, currentY + 4.2);
+
+  currentY += titleBannerHeight + 4;
+
+  // ==================== INVOICE TO & INVOICE INFO SECTION ====================
+  const leftColX = margin;
+  const rightColX = pageWidth / 2 + 5;
+  const invoiceInfoStartY = currentY;
+
+  // LEFT SIDE - Invoice To
+  pdf.setFontSize(typography.fontSize.large);
+  pdf.setFont("helvetica", "bold");
+  setBlack();
+  pdf.text("Invoice To:", leftColX, currentY);
+  currentY += 5;
+
+  pdf.setFontSize(typography.fontSize.base);
+  pdf.setFont("helvetica", "normal");
+  const cust = invoice.customer || {};
+  const custAddr = cust.address || {};
+
+  if (cust.name) {
+    pdf.text(titleCase(cust.name), leftColX, currentY);
+    currentY += 4;
+  }
+
+  if (custAddr.street) {
+    pdf.text(custAddr.street, leftColX, currentY);
+    currentY += 4;
+  }
+
+  const custCityCountry = [custAddr.city, custAddr.country].filter(Boolean).join(", ");
+  if (custCityCountry) {
+    pdf.text(custCityCountry, leftColX, currentY);
+    currentY += 4;
+  }
+
+  if (cust.email) {
     pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(11);
-  };
-  const gray = (v = 140) => pdf.setTextColor(v);
-  const black = () => pdf.setTextColor(0);
+    pdf.text(`Email: `, leftColX, currentY);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(cust.email, leftColX + 11, currentY);
+    currentY += 4;
+  }
 
-  const textWidth = (txt, fontSize = 11, fontStyle = "normal") => {
-    const prevSize = pdf.getFontSize();
-    const prev = pdf.getFont();
-    pdf.setFont("helvetica", fontStyle || "normal");
-    pdf.setFontSize(fontSize);
-    const w = pdf.getTextDimensions(txt).w;
-    pdf.setFont(prev.fontName, prev.fontStyle);
-    pdf.setFontSize(prevSize);
-    return w;
-  };
-  const split = (txt, maxW) => pdf.splitTextToSize(txt || "", maxW);
+  if (cust.phone) {
+    pdf.text(`Phone: ${cust.phone}`, leftColX, currentY);
+    currentY += 4;
+  }
 
-  const measureHeader = (isFirstPage = true) => {
-    if (isFirstPage) {
-      const companyNameH = 6;
-      const taxInvoiceH = 8;
-      const customerInfoH = 20; // Increased for customer details
-      const invoiceInfoH = 15;  // Increased for invoice details
-      const spacing = 5;
-      return (
-        companyNameH +
-        taxInvoiceH +
-        Math.max(customerInfoH, invoiceInfoH) +
-        spacing
-      );
-    } else {
-      return 12;
+  if (cust.vatNumber) {
+    pdf.text(`TRN: ${cust.vatNumber}`, leftColX, currentY);
+  }
+
+  // RIGHT SIDE - Invoice Info Box with Blue Header
+  let rightY = invoiceInfoStartY;
+  const boxWidth = pageWidth - rightColX - margin;
+  const boxHeaderHeight = 7;
+
+  // Blue header box
+  pdf.setFillColor(...primaryBlue);
+  pdf.rect(rightColX, rightY, boxWidth, boxHeaderHeight, "F");
+
+  pdf.setFontSize(typography.fontSize.large);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(255, 255, 255);
+  pdf.text("Invoice No:", rightColX + 2, rightY + 5);
+
+  // Invoice number (right aligned in blue box)
+  const invNum = invoice.invoiceNumber || "";
+  const invNumWidth = pdf.getTextWidth(invNum);
+  pdf.text(invNum, rightColX + boxWidth - invNumWidth - 2, rightY + 5);
+
+  rightY += boxHeaderHeight + 1;
+
+  // Invoice details in white box with border
+  const detailsStartY = rightY;
+  pdf.setFillColor(255, 255, 255);
+  pdf.setDrawColor(...primaryBlue);
+
+  // Invoice Date - Professional format
+  pdf.setFontSize(typography.fontSize.base);
+  setBlack();
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Invoice Date:", rightColX + 2, rightY + 4);
+  pdf.setFont("helvetica", "normal");
+  const invoiceDateStr = toUAEDateProfessional(invoice.date || new Date());
+  const invoiceDateWidth = pdf.getTextWidth(invoiceDateStr);
+  pdf.text(invoiceDateStr, rightColX + boxWidth - invoiceDateWidth - 2, rightY + 4);
+  rightY += 6;
+
+  // Issued Date/Time - Split into two rows for better readability
+  // Row 1: "Issued:" with just the date
+  const issuedDateTime = invoice.createdAt || invoice.date || new Date();
+  const issuedDateStr = toUAEDateProfessional(issuedDateTime);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Issued:", rightColX + 2, rightY + 4);
+  pdf.setFont("helvetica", "normal");
+  const issuedDateWidth = pdf.getTextWidth(issuedDateStr);
+  pdf.text(issuedDateStr, rightColX + boxWidth - issuedDateWidth - 2, rightY + 4);
+  rightY += 5;
+
+  // Row 2: Time portion on separate line (right-aligned)
+  // Extract time from the full datetime format
+  const issuedDateObj = new Date(issuedDateTime);
+  const timeFormatter = new Intl.DateTimeFormat("en-GB", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Dubai",
+  });
+  const timeStr = `${timeFormatter.format(issuedDateObj).toUpperCase()} GST (UTC+4)`;
+  const timeStrWidth = pdf.getTextWidth(timeStr);
+  pdf.setFontSize(typography.fontSize.small);
+  setTextSecondary();
+  pdf.text(timeStr, rightColX + boxWidth - timeStrWidth - 2, rightY + 3);
+  rightY += 5;
+
+  // Reset font settings for next rows
+  pdf.setFontSize(typography.fontSize.base);
+  setBlack();
+
+  // SO (Sales Order)
+  if (invoice.customerPurchaseOrderNumber) {
+    pdf.setFont("helvetica", "bold");
+    pdf.text("SO:", rightColX + 2, rightY + 4);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(invoice.customerPurchaseOrderNumber, rightColX + boxWidth - 20, rightY + 4);
+    rightY += 6;
+  }
+
+  // Order Date - Professional format
+  if (invoice.customerPurchaseOrderDate) {
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Order Date:", rightColX + 2, rightY + 4);
+    pdf.setFont("helvetica", "normal");
+    const orderDateStr = toUAEDateProfessional(invoice.customerPurchaseOrderDate);
+    const orderDateWidth = pdf.getTextWidth(orderDateStr);
+    pdf.text(orderDateStr, rightColX + boxWidth - orderDateWidth - 2, rightY + 4);
+    rightY += 6;
+  }
+
+  // Due Date - Professional format (if available)
+  if (invoice.dueDate) {
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Due Date:", rightColX + 2, rightY + 4);
+    pdf.setFont("helvetica", "normal");
+    const dueDateStr = toUAEDateProfessional(invoice.dueDate);
+    const dueDateWidth = pdf.getTextWidth(dueDateStr);
+    pdf.text(dueDateStr, rightColX + boxWidth - dueDateWidth - 2, rightY + 4);
+    rightY += 6;
+  }
+
+  // Draw border around the details box
+  const detailsBoxHeight = rightY - detailsStartY;
+  pdf.setDrawColor(...primaryBlue);
+  pdf.setLineWidth(0.3);
+  pdf.rect(rightColX, invoiceInfoStartY + boxHeaderHeight, boxWidth, detailsBoxHeight);
+
+  currentY = Math.max(currentY, rightY) + 5;
+
+  // ==================== CURRENCY INFO (Compact one-liner) ====================
+  if (invoice.currency && invoice.currency !== "AED") {
+    pdf.setFontSize(8);
+    pdf.setFont("helvetica", "italic");
+    pdf.setTextColor(100, 100, 100); // Gray text
+    pdf.text(
+      `Exchange Rate: 1 ${invoice.currency} = ${formatNumber(invoice.exchangeRate || 1)} AED`,
+      margin,
+      currentY + 3
+    );
+
+    // Reset text color
+    setTextPrimary();
+    currentY += 6;
+  }
+
+  // ==================== TABLE SECTION (UAE VAT Compliant) ====================
+  const _tableStartY = currentY;
+
+  // Table column configuration - Updated for UAE VAT compliance
+  // Matches preview proportions: 4%, 44%, 6%, 10%, 10%, 16%, 10%
+  const tableWidth = pageWidth - 2 * margin;
+  const colWidths = {
+    sr: tableWidth * 0.04, // 4% - Sr. No
+    description: tableWidth * 0.44, // 44% - Description
+    quantity: tableWidth * 0.06, // 6% - Quantity
+    unitPrice: tableWidth * 0.1, // 10% - Unit Price
+    netAmt: tableWidth * 0.1, // 10% - Net Amount
+    vat: tableWidth * 0.16, // 16% - VAT (combined amount and rate)
+    total: tableWidth * 0.1, // 10% - Total with VAT
+  };
+
+  // Table header with blue background (6mm height - industry standard)
+  const tableHeaderHeight = 6;
+  pdf.setFillColor(...primaryColor);
+  pdf.rect(margin, currentY, pageWidth - 2 * margin, tableHeaderHeight, "F");
+
+  pdf.setFontSize(typography.fontSize.tableHeader);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(255, 255, 255);
+
+  let colX = margin + 2;
+  pdf.text("Sr.", colX, currentY + 4.2);
+  colX += colWidths.sr;
+  pdf.text("Description", colX, currentY + 4.2);
+  colX += colWidths.description;
+  pdf.text("Qty", colX + colWidths.quantity / 2, currentY + 4.2, {
+    align: "center",
+  });
+  colX += colWidths.quantity;
+  pdf.text("Unit Price", colX + colWidths.unitPrice / 2, currentY + 4.2, {
+    align: "center",
+  });
+  colX += colWidths.unitPrice;
+  pdf.text("Net Amt", colX + colWidths.netAmt - 2, currentY + 4.2, {
+    align: "right",
+  });
+  colX += colWidths.netAmt;
+  pdf.text("VAT", colX + colWidths.vat - 2, currentY + 4.2, { align: "right" });
+  colX += colWidths.vat;
+  pdf.text("Total", colX + colWidths.total - 2, currentY + 4.2, {
+    align: "right",
+  });
+
+  currentY += tableHeaderHeight;
+
+  // Table rows
+  const items = invoice.items || [];
+  pdf.setFont("helvetica", "normal");
+  setBlack();
+
+  items.forEach((item, index) => {
+    // Check if we need a new page
+    if (currentY > pageHeight - 60) {
+      pdf.addPage();
+      currentY = margin;
     }
   };
 
   const drawHeader = (pageIdx, pageCount, isFirstPage = true) => {
     let y = M.top;
 
-    if (isFirstPage) {
-      setBody();
-      black();
-
-      const compName =
-        company?.name || "Ultimate Steels Building Materials Trading";
-      pdf.text(compName, M.left, y);
-      y += 6; // Increased spacing
-
-      pdf.setFillColor(0, 128, 128);
-      pdf.rect(M.left, y, page.w - M.left - M.right, 6, "F");
-      setBold();
-      pdf.setTextColor(255);
-      const titleWidth = textWidth("TAX INVOICE", 12, "bold");
-      const centerX = M.left + (page.w - M.left - M.right) / 2 - titleWidth / 2;
-      pdf.setFontSize(12);
-      pdf.text("TAX INVOICE", centerX, y + 4);
-      pdf.setFontSize(11);
-      y += 8; // Increased spacing
-
-      setBody();
-      black();
-      const leftColX = M.left;
-      const rightColX = page.w - M.right - 70;
-
-      const cust = invoice.customer || {};
-      // Show invoice date above Bill To in DMY format
-      pdf.text(`INVOICE Date : ${formatDateDMY(invoice.date || new Date())}`, leftColX, y);
-      y += 5; // Increased spacing
-      pdf.text(`Bill To: ${titleCase(cust.name || "")}`, leftColX, y);
-
-      const invNo = `Invoice #: ${invoice.invoiceNumber || ""}`;
-      pdf.text(invNo, rightColX, y);
-      y += 5; // Increased spacing
-      if (invoice.modeOfPayment) {
-        pdf.text(`Payment Mode: ${invoice.modeOfPayment}`, rightColX, y);
-        y += 5; // Increased spacing
-      }
-      if (invoice.chequeNumber) {
-        pdf.text(`Cheque No: ${invoice.chequeNumber}`, rightColX, y);
-        y += 5; // Increased spacing
-      }
-      y += 5; // Extra spacing after customer info
-    } else {
-      setBody();
-      black();
-      const compName =
-        company?.name || "Ultimate Steels Building Materials Trading";
-      pdf.text(compName, M.left, y);
-
-      const invInfo = `Invoice #: ${invoice.invoiceNumber || ""} (Continued)`;
-      pdf.text(invInfo, page.w - M.right, y, { align: "right" });
-      y += 4;
+    // Alternating row colors (very light gray for even rows)
+    if (index % 2 === 0) {
+      pdf.setFillColor(250, 250, 250);
+      pdf.rect(margin, currentY, pageWidth - 2 * margin, rowHeight, "F");
     }
   };
 
@@ -147,48 +535,40 @@ export const generateInvoicePDF = async (invoice, company) => {
     const footerH = measureFooter(isLastPage);
     const yTop = customFooterY || page.h - M.bottom - footerH;
 
-    pdf.setDrawColor(60);
-    pdf.rect(M.left, yTop + 2, 35, 22);
-    setBody();
-    gray(100);
-    pdf.text("Company Seal", M.left + 2, yTop + 6);
+    // Description
+    const desc = item.name || "";
+    const descLines = pdf.splitTextToSize(desc, colWidths.description - 4);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(descLines[0] || "", colX, currentY + 5);
+    pdf.setFont("helvetica", "normal");
+    colX += colWidths.description;
 
-    setBody();
-    gray(80);
-    pdf.setFontSize(9);
-    pdf.text("Ultimate Steels", M.left + 2, yTop + 11);
-    pdf.text("Building Materials", M.left + 2, yTop + 15);
-    pdf.text("Trading LLC", M.left + 2, yTop + 19);
-    pdf.setFontSize(11);
+    // Quantity
+    pdf.text(String(item.quantity || 0), colX + colWidths.quantity / 2, currentY + 5, { align: "center" });
+    colX += colWidths.quantity;
 
-    black();
-    setBold();
-    pdf.text("Authorized Signatory", page.w - M.right - 70, yTop + 5);
+    // Unit Price
+    pdf.text(formatNumber(item.rate || 0), colX + colWidths.unitPrice - 2, currentY + 5, { align: "right" });
+    colX += colWidths.unitPrice;
 
-    pdf.setDrawColor(0);
-    pdf.line(
-      page.w - M.right - 70,
-      yTop + 16,
-      page.w - M.right - 15,
-      yTop + 16
-    );
+    // Net Amount (excluding VAT)
+    const amountNum = parseFloat(item.amount) || 0;
+    pdf.text(formatNumber(amountNum), colX + colWidths.netAmt - 2, currentY + 5, { align: "right" });
+    colX += colWidths.netAmt;
 
-    setBody();
-    gray(80);
-    pdf.setFontSize(9);
-    pdf.text("ULTIMATE STEELS", page.w - M.right - 60, yTop + 20);
-    pdf.text("BUILDING MATERIALS TRADING", page.w - M.right - 75, yTop + 23);
-    pdf.setFontSize(11);
-
-    setBody();
-    gray(120);
-    pdf.text(`Page ${pageIdx} of ${pageCount}`, page.w - M.right, page.h - 4, {
+    // VAT (combined amount and rate)
+    const vatRate = item.vatRate || 0;
+    const vatAmount = calculateTRN(amountNum, vatRate);
+    const vatText = `${formatNumber(vatAmount)} (${vatRate > 0 ? `${vatRate}%` : "0%"})`;
+    pdf.text(vatText, colX + colWidths.vat - 2, currentY + 5, {
       align: "right",
     });
 
-    pdf.setDrawColor(200);
-    pdf.line(M.left, yTop, page.w - M.right, yTop);
-  };
+    // Total (including VAT)
+    const totalWithVAT = amountNum + vatAmount;
+    pdf.setFont("helvetica", "bold");
+    pdf.text(formatNumber(totalWithVAT), colX + colWidths.total - 2, currentY + 5, { align: "right" });
+    pdf.setFont("helvetica", "normal");
 
   const renderRows = (startIndex, isFirstPage = true, isLastPage = false) => {
     const headerH = measureHeader(isFirstPage);
@@ -211,215 +591,310 @@ export const generateInvoicePDF = async (invoice, company) => {
 
     const remainingItems = items.length - idx;
 
-    const footerMinSpace = 25;
-    const maxAvailableHeight = frame.h - footerMinSpace;
-
-    while (idx < items.length) {
-      const it = items[idx];
-      const descW = col.desc - 4;
-      const descLines = split(it.name || "", descW);
-      const baseHeight = 6; // Increased base height
-      const lineHeight = 4; // Increased line height
-      const padding = 2; // Increased padding
-      const rowH =
-        baseHeight + Math.max(0, descLines.length - 1) * lineHeight + padding;
-
-      const contentHeightAfterItem = y + rowH - frame.y;
-      const spaceNeededForFooter = measureFooter(idx === items.length - 1) + 3;
-      const totalSpaceNeeded = contentHeightAfterItem + spaceNeededForFooter;
-
-      if (totalSpaceNeeded > maxAvailableHeight && idx < items.length - 1) {
-        break;
-      }
-      setBody();
-      black();
-      pdf.text(String(idx + 1), M.left + col.sno - 2, y + 4, {
-        align: "right",
-      });
-      let ty = y + 3;
-      descLines.forEach((ln, lineIndex) => {
-        pdf.text(ln, M.left + col.sno + 2, ty);
-        ty += lineIndex < descLines.length - 1 ? 3 : 0;
-      });
-      const xQty = M.left + col.sno + col.desc + col.qty;
-      const xRate = M.left + col.sno + col.desc + col.qty + col.rate;
-      pdf.text(String(it.quantity ?? ""), xQty - 2, y + 4, { align: "right" });
-      pdf.text(formatNumber(it.rate ?? 0), xRate - 2, y + 4, {
-        align: "right",
-      });
-      pdf.text(formatNumber(it.amount ?? 0), M.left + frame.w - 2, y + 4, {
-        align: "right",
-      });
-
-      y += rowH;
-      idx++;
-      itemsOnThisPage++;
-    }
-
-    const actualContentHeight = y - frame.y;
-    const remainingSpace = frame.h - actualContentHeight;
-
-    return {
-      nextIndex: idx,
-      frame,
-      headerH,
-      footerH: measureFooter(idx >= items.length),
-      actualContentHeight: y - frame.y,
-      remainingSpace: frame.h - (y - frame.y),
-      lastItemY: y,
-    };
-  };
-
-  let index = 0;
-  const items = invoice.items || [];
-  const pagesMeta = [];
-  let pageCount = 0;
-
-  while (index < items.length) {
-    pageCount++;
-    const isFirstPage = pageCount === 1;
-    const isLastPage = index + 15 >= items.length;
-    const startPage = pdf.getCurrentPageInfo().pageNumber;
-    const res = renderRows(index, isFirstPage, isLastPage);
-    index = res.nextIndex;
-
-    const minFooterGap = 1;
-    const footerY = res.lastItemY + minFooterGap;
-
-    pagesMeta.push({
-      pageNumber: pdf.getCurrentPageInfo().pageNumber,
-      lastIndex: index,
-      isFirstPage,
-      footerY: footerY,
-      actualContentHeight: res.actualContentHeight,
-    });
-
-    if (index < items.length) {
-      setBody();
-      gray(120);
-      pdf.text("Items continue on next page.", M.left, footerY - 2);
-      pdf.addPage();
-    }
-  }
-
-  const totalPages = pdf.getNumberOfPages();
-  for (let p = 1; p <= totalPages; p++) {
-    pdf.setPage(p);
-    const isLastPg = p === totalPages;
-    const pageMeta = pagesMeta[p - 1];
-    const customFooterY = pageMeta ? pageMeta.footerY : null;
-    drawFooter(p, totalPages, customFooterY);
-  }
-
-  pdf.setPage(totalPages);
-  setBold();
-  black();
-  const lastPageMeta = pagesMeta[totalPages - 1];
-  let totalsY = lastPageMeta
-    ? lastPageMeta.lastItemY + 2
-    : page.h - M.bottom - measureFooter(true) - 3;
-  
-  // Ensure totalsY is a valid number within page bounds
-  if (isNaN(totalsY) || totalsY < M.top + 20) {
-    totalsY = page.h - M.bottom - measureFooter(true) - 20;
-  }
-  if (totalsY > page.h - M.bottom - 10) {
-    totalsY = page.h - M.bottom - 10;
-  }
-  
-  pdf.setDrawColor(200);
-  pdf.line(M.left, totalsY - 2, page.w - M.right, totalsY - 2);
-  setBody();
-
-  const subtotalValForTotals = calculateSubtotal(items);
-  const addChargesValForTotals =
-    (parseFloat(invoice.packingCharges) || 0) +
-    (parseFloat(invoice.freightCharges) || 0) +
-    (parseFloat(invoice.loadingCharges) || 0) +
-    (parseFloat(invoice.otherCharges) || 0);
+  const subtotalVal = calculateSubtotal(items);
   const discountPerc = parseFloat(invoice.discountPercentage) || 0;
   const discountFlat = parseFloat(invoice.discountAmount) || 0;
-  const discountValForTotals =
-    invoice.discountType === "percentage"
-      ? (subtotalValForTotals * discountPerc) / 100
-      : discountFlat;
-
-  pdf.text("Subtotal (AED):", page.w - M.right - 60, totalsY);
-  pdf.text(formatNumber(subtotalValForTotals), page.w - M.right, totalsY, {
-    align: "right",
-  });
-  if (discountValForTotals > 0) {
-    pdf.text("Discount (AED):", page.w - M.right - 60, totalsY + 3);
-    pdf.text("-" + formatNumber(discountValForTotals), page.w - M.right, totalsY + 3, { align: "right" });
-  }
-
-  const vatLineY = discountValForTotals > 0 ? totalsY + 6 : totalsY + 3;
-  const vatAfterDiscount = calculateDiscountedTRN(
+  const discountVal = invoice.discountType === "percentage" ? (subtotalVal * discountPerc) / 100 : discountFlat;
+  const vatVal = calculateDiscountedTRN(
     items,
     invoice.discountType,
     invoice.discountPercentage,
     invoice.discountAmount
   );
-  pdf.text("VAT (AED):", page.w - M.right - 60, vatLineY);
-  pdf.text(formatNumber(vatAfterDiscount), page.w - M.right, vatLineY, { align: "right" });
+  const additionalCharges =
+    (parseFloat(invoice.packingCharges) || 0) +
+    (parseFloat(invoice.freightCharges) || 0) +
+    (parseFloat(invoice.loadingCharges) || 0) +
+    (parseFloat(invoice.otherCharges) || 0);
+  const totalVal = calculateTotal(Math.max(0, subtotalVal - discountVal) + additionalCharges, vatVal);
 
-  setBold();
-  const totalLineY = vatLineY + 3;
-  pdf.text("Total (AED):", page.w - M.right - 60, totalLineY);
-  pdf.text(
-    formatNumber(
-      calculateTotal(
-        Math.max(0, subtotalValForTotals - discountValForTotals) + addChargesValForTotals,
-        vatAfterDiscount
-      )
-    ),
-    page.w - M.right,
-    totalLineY,
-    { align: "right" }
-  );
+  pdf.setFontSize(typography.fontSize.base);
+  pdf.setFont("helvetica", "normal");
+  setBlack();
 
-  let currentY = totalsY + 12; // Increased spacing after totals
-  setBody();
-  black();
+  // SubTotal
+  pdf.text("SubTotal", totalsX, currentY);
+  pdf.text(`AED ${formatNumber(subtotalVal)}`, pageWidth - margin, currentY, {
+    align: "right",
+  });
+  currentY += 5;
 
-  if (invoice.notes) {
-    pdf.text("Notes:", M.left, currentY);
-    currentY += 4; // Increased spacing
-    const notesLines = split(invoice.notes, page.w - M.left - M.right - 10);
-    notesLines.forEach((line) => {
-      pdf.text(line, M.left, currentY);
-      currentY += 4; // Increased line spacing
-    });
-    currentY += 3; // Increased section spacing
+  // Discount (if applicable)
+  if (discountVal > 0) {
+    pdf.text("Discount", totalsX, currentY);
+    pdf.text(`- AED ${formatNumber(discountVal)}`, pageWidth - margin, currentY, { align: "right" });
+    currentY += 5;
   }
 
-  if (invoice.terms) {
-    pdf.text("Payment as per payment terms:", M.left, currentY);
-    currentY += 4; // Increased spacing
-    
-    // First split by manual line breaks (\n), then by width
-    const manualLines = invoice.terms.split('\n');
-    manualLines.forEach((manualLine) => {
-      if (manualLine.trim()) {
-        // Split each manual line by width if it's too long
-        const termsLines = split(manualLine, page.w - M.left - M.right - 10);
-        termsLines.forEach((line) => {
-          pdf.text(line, M.left, currentY);
-          currentY += 4; // Increased line spacing
-        });
-      } else {
-        // Empty line - just add spacing
-        currentY += 4; // Increased empty line spacing
-      }
+  // VAT
+  pdf.text("VAT", totalsX, currentY);
+  pdf.text(`AED ${formatNumber(vatVal)}`, pageWidth - margin, currentY, {
+    align: "right",
+  });
+  currentY += 5;
+
+  // TOTAL (bold)
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(typography.fontSize.large);
+  pdf.text("TOTAL", totalsX, currentY);
+  pdf.text(`AED ${formatNumber(totalVal)}`, pageWidth - margin, currentY, {
+    align: "right",
+  });
+  currentY += 8;
+
+  // ==================== BALANCE DUE (from payments array) ====================
+  // Calculate total paid from payments array (industry standard - no separate advance field)
+  const totalPaidFromPayments = (invoice.payments || []).reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+  if (totalPaidFromPayments > 0) {
+    // Draw separator line
+    pdf.setLineWidth(0.2);
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(totalsX, currentY, pageWidth - margin, currentY);
+    currentY += 4;
+
+    // Show payments received
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(typography.fontSize.base);
+    pdf.setTextColor(34, 139, 34); // Green color for payments
+    pdf.text("Less: Payments Received", totalsX, currentY);
+    pdf.text(`- AED ${formatNumber(totalPaidFromPayments)}`, pageWidth - margin, currentY, { align: "right" });
+    currentY += 6;
+
+    // Calculate and show balance due
+    const balanceDue = Math.max(0, totalVal - totalPaidFromPayments);
+    pdf.setLineWidth(0.5);
+    pdf.setDrawColor(...primaryColor);
+    pdf.line(totalsX, currentY, pageWidth - margin, currentY);
+    currentY += 5;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(typography.fontSize.large);
+    pdf.setTextColor(...textPrimaryColor);
+    pdf.text("Balance Due", totalsX, currentY);
+    pdf.text(`AED ${formatNumber(balanceDue)}`, pageWidth - margin, currentY, {
+      align: "right",
     });
+    currentY += 10;
+  }
+
+  // ==================== PAYMENT HISTORY SECTION (Optional) ====================
+  // Only show if there are payments
+  if (invoice.payments && invoice.payments.length > 0) {
+    pdf.setFontSize(typography.fontSize.large);
+    pdf.setFont("helvetica", "bold");
+    setBlack();
+    pdf.text("Payment History", margin, currentY);
+    currentY += 6;
+
+    // Payment table header (6mm height - consistent with main table)
+    pdf.setFillColor(...primaryBlue);
+    pdf.rect(margin, currentY, pageWidth - 2 * margin, tableHeaderHeight, "F");
+
+    pdf.setFontSize(typography.fontSize.tableHeader);
+    pdf.setTextColor(255, 255, 255);
+
+    const payColWidths = {
+      sr: 15,
+      date: 35,
+      method: 40,
+      ref: 50,
+      amount: 35,
+    };
+
+    colX = margin + 2;
+    pdf.text("Sr.", colX, currentY + 4.2);
+    colX += payColWidths.sr;
+    pdf.text("Date", colX, currentY + 4.2);
+    colX += payColWidths.date;
+    pdf.text("Method", colX, currentY + 4.2);
+    colX += payColWidths.method;
+    pdf.text("Ref.", colX, currentY + 4.2);
+    colX += payColWidths.ref;
+    pdf.text("Amount", colX + payColWidths.amount - 2, currentY + 4.2, {
+      align: "right",
+    });
+
+    currentY += tableHeaderHeight;
+
+    // Payment rows
+    pdf.setFont("helvetica", "normal");
+    setBlack();
+
+    invoice.payments.forEach((payment, index) => {
+      if (index % 2 === 0) {
+        pdf.setFillColor(250, 250, 250);
+        pdf.rect(margin, currentY, pageWidth - 2 * margin, 6, "F");
+      }
+
+      colX = margin + 2;
+      pdf.text(String(index + 1), colX, currentY + 4);
+      colX += payColWidths.sr;
+      // Use professional payment datetime format with GST indicator
+      pdf.text(toUAEPaymentDateTime(payment.date || new Date()), colX, currentY + 4);
+      colX += payColWidths.date;
+      pdf.text(payment.method || "", colX, currentY + 4);
+      colX += payColWidths.method;
+      pdf.text(payment.reference || "", colX, currentY + 4);
+      colX += payColWidths.ref;
+      pdf.text(`AED ${formatNumber(payment.amount || 0)}`, colX + payColWidths.amount - 2, currentY + 4, {
+        align: "right",
+      });
+
+      currentY += 6;
+    });
+
+    currentY += 5;
+  }
+
+  // ==================== FOOTER SECTION ====================
+  pdf.setFontSize(typography.fontSize.base);
+  pdf.setFont("helvetica", "normal");
+  setDarkGray();
+
+  // Payment Terms
+  if (invoice.terms) {
+    pdf.text("\u2022 Payment Term: ", margin, currentY);
+    const termsText = pdf.splitTextToSize(invoice.terms, pageWidth - margin - 40);
+    pdf.text(termsText[0] || "", margin + 26, currentY);
+    currentY += 5;
+  }
+
+  // Notes/Comments
+  if (invoice.notes) {
+    pdf.text("\u2022 Comment: ", margin, currentY);
+    const notesText = pdf.splitTextToSize(invoice.notes, pageWidth - margin - 40);
+    pdf.text(notesText[0] || "", margin + 20, currentY);
+    currentY += 5;
+  }
+
+  // Place of Supply (Warehouse) - UAE VAT Compliance
+  if (invoice.warehouseName || invoice.warehouseCode || invoice.warehouseCity) {
+    const warehouseInfo = [invoice.warehouseName, invoice.warehouseCode, invoice.warehouseCity]
+      .filter(Boolean)
+      .join(", ");
+    pdf.text("\u2022 Place of Supply (Warehouse): ", margin, currentY);
+    pdf.text(warehouseInfo, margin + 45, currentY);
+    currentY += 5;
   }
 
   const finalContentY = currentY + 5; // Increased final spacing
 
-  pdf.setPage(totalPages);
-  drawFooter(totalPages, totalPages, finalContentY);
+  // Tax Notes Section - UAE VAT Compliance (highlighted)
+  if (invoice.taxNotes) {
+    const taxNotesLines = pdf.splitTextToSize(invoice.taxNotes, pageWidth - 2 * margin - 8);
+    const taxNotesHeight = Math.max(14, 6 + taxNotesLines.length * 4);
 
-  pdf.save(`${invoice.invoiceNumber}.pdf`);
+    // Light yellow background box (bg-yellow-50)
+    pdf.setFillColor(254, 252, 232);
+    pdf.rect(margin, currentY, pageWidth - 2 * margin, taxNotesHeight, "F");
+
+    // Thick left border (border-yellow-500)
+    pdf.setDrawColor(234, 179, 8);
+    pdf.setLineWidth(2);
+    pdf.line(margin, currentY, margin, currentY + taxNotesHeight);
+
+    // Reset line width
+    pdf.setLineWidth(0.3);
+
+    pdf.setFontSize(typography.fontSize.base);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(113, 63, 18); // text-yellow-900
+    pdf.text("Tax Notes:", margin + 3, currentY + 5);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(typography.fontSize.small);
+    pdf.setTextColor(133, 77, 14); // text-yellow-800
+    pdf.text(taxNotesLines, margin + 3, currentY + 10);
+
+    // Reset text color
+    setTextPrimary();
+
+    currentY += taxNotesHeight + 2;
+  }
+
+  currentY += 4;
+
+  // ==================== FOOTER SPACE CHECK ====================
+  // Ensure we have enough space for signature/seal section + contact footer
+  const footerRequiredSpace = 50; // Minimum space needed for seal + signature + contact info
+  const availableSpace = pageHeight - currentY - layout.marginBottom;
+
+  if (availableSpace < footerRequiredSpace) {
+    pdf.addPage();
+    currentY = layout.marginTop;
+  }
+
+  // ==================== SIGNATURE AND SEAL SECTION ====================
+  const signatureY = currentY;
+
+  // Company Seal/Stamp - Left Side
+  try {
+    const sealSize = 20; // 20mm x 20mm seal
+    pdf.addImage(sealImage, "PNG", margin, signatureY, sealSize, sealSize);
+
+    // Seal label
+    pdf.setFontSize(8);
+    setDarkGray();
+    pdf.text("Company Seal", margin + sealSize + 3, signatureY + 5);
+    pdf.setFontSize(7);
+    pdf.text("Ultimate Steels", margin + sealSize + 3, signatureY + 9);
+    pdf.text("Building Materials", margin + sealSize + 3, signatureY + 12);
+    pdf.text("Trading LLC", margin + sealSize + 3, signatureY + 15);
+  } catch (_error) {
+    // Fallback: just show text if seal image fails
+    pdf.setDrawColor(60);
+    pdf.rect(margin, signatureY, 20, 20);
+    pdf.setFontSize(8);
+    setDarkGray();
+    pdf.text("Company Seal", margin + 2, signatureY + 5);
+  }
+
+  // Authorized Signatory - Right Side
+  const signatoryX = pageWidth - margin - 60;
+  pdf.setFontSize(typography.fontSize.base);
+  setBlack();
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Authorized Signatory", signatoryX, signatureY + 5);
+
+  // Signature line
+  pdf.setDrawColor(0);
+  pdf.setLineWidth(0.3);
+  pdf.line(signatoryX, signatureY + 16, signatoryX + 55, signatureY + 16);
+
+  // Company name under signature
+  pdf.setFontSize(typography.fontSize.small);
+  setDarkGray();
+  pdf.text("ULTIMATE STEELS", signatoryX + 5, signatureY + 19);
+  pdf.text("BUILDING MATERIALS TRADING", signatoryX, signatureY + 22);
+
+  currentY = signatureY + 24;
+
+  // Bottom footer line
+  const footerY = currentY;
+  pdf.setDrawColor(91, 109, 181);
+  pdf.setLineWidth(0.5);
+  pdf.line(margin, footerY, pageWidth - margin, footerY);
+
+  // Contact information
+  pdf.setFontSize(typography.fontSize.small);
+  setDarkGray();
+  const contactInfo = `Phone: ${company?.phone || "+971 XXX XXX"} | Email: ${company?.email || "info@example.com"} | Website: www.ultimatesteels.com`;
+  const contactWidth = pdf.getTextWidth(contactInfo);
+  pdf.text(contactInfo, (pageWidth - contactWidth) / 2, footerY + 3);
+
+  // Timezone disclaimer - Important for international business
+  pdf.setFontSize(6);
+  pdf.setFont("helvetica", "italic");
+  const disclaimerWidth = pdf.getTextWidth(TIMEZONE_DISCLAIMER);
+  pdf.text(TIMEZONE_DISCLAIMER, (pageWidth - disclaimerWidth) / 2, footerY + 6);
+
+  // Page number
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(typography.fontSize.small);
+  pdf.text(`Page: 1 / 1`, pageWidth / 2, footerY + 9, { align: "center" });
+
+  // Save the PDF
+  pdf.save(`${invoice.invoiceNumber || "invoice"}.pdf`);
   return true;
 };
 

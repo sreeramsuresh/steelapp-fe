@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { useTheme } from '../../../../contexts/ThemeContext';
 import {
-  CreditCard,
+  AlertCircle,
   AlertTriangle,
   CheckCircle,
-  AlertCircle,
-  RefreshCw,
+  CreditCard,
   Info,
-  TrendingUp,
+  RefreshCw,
   TrendingDown,
+  TrendingUp,
   Users,
-} from 'lucide-react';
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useTheme } from "../../../../contexts/ThemeContext";
 
 const CreditManagementWidget = ({ data: propData, onRefresh }) => {
   const { isDarkMode } = useTheme();
@@ -37,27 +37,29 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
 
   const formatCurrency = (amount) => {
     const numericAmount = parseFloat(amount);
-    const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
-    return new Intl.NumberFormat('en-AE', {
-      style: 'currency',
-      currency: 'AED',
+    const safeAmount = Number.isNaN(numericAmount) ? 0 : numericAmount;
+    return new Intl.NumberFormat("en-AE", {
+      style: "currency",
+      currency: "AED",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(safeAmount);
   };
 
-  // Check if we have valid data
+  // Check if we have valid data (include risk data even if limits are zero)
   const hasData =
-    data && (data.totalCreditLimit > 0 || data.totalCreditUsed > 0);
+    data &&
+    (data.totalCreditLimit > 0 ||
+      data.totalCreditUsed > 0 ||
+      (data.atRiskAccounts && data.atRiskAccounts.length > 0) ||
+      (data.overLimitCustomers && data.overLimitCustomers.length > 0));
 
   // Show "No Data" state when no valid data is available
   if (!hasData) {
     return (
       <div
         className={`rounded-xl border p-4 sm:p-6 transition-all duration-300 hover:shadow-lg ${
-          isDarkMode
-            ? 'bg-[#1E2328] border-[#37474F]'
-            : 'bg-white border-[#E0E0E0]'
+          isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
         }`}
       >
         {/* Header */}
@@ -65,73 +67,73 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
           <div className="flex items-center gap-2">
             <CreditCard size={20} className="text-purple-500" />
             <h3
-              className={`text-lg font-semibold flex items-center gap-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              className={`text-lg font-semibold flex items-center gap-1.5 ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
               Credit Management
               <span className="relative group">
-                <Info
-                  size={14}
-                  className="cursor-help opacity-50 hover:opacity-100"
-                />
-                <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+                <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
+                <span
+                  className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs ${isDarkMode ? "text-yellow-200 bg-yellow-900/90 border border-yellow-700" : "text-gray-800 bg-yellow-100 border border-yellow-300"} rounded shadow-md whitespace-nowrap normal-case`}
+                >
                   Customer credit utilization and risk monitoring
                 </span>
               </span>
             </h3>
           </div>
           <button
+            type="button"
             onClick={handleRefresh}
             disabled={loading}
             className={`p-1.5 rounded-lg transition-colors ${
               isDarkMode
-                ? 'hover:bg-gray-700 text-gray-400 hover:text-white'
-                : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
-            } ${loading ? 'animate-spin' : ''}`}
+                ? "hover:bg-gray-700 text-gray-400 hover:text-white"
+                : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+            } ${loading ? "animate-spin" : ""}`}
           >
             <RefreshCw size={16} />
           </button>
         </div>
         <div
-          className={`flex flex-col items-center justify-center h-48 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+          className={`flex flex-col items-center justify-center h-48 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
         >
           <span className="text-sm">No data available</span>
+          <span className="text-xs mt-1 opacity-70">Set credit limits on customers to track utilisation</span>
         </div>
       </div>
     );
   }
 
   const getUtilizationColor = (percent) => {
-    if (percent >= 90)
-      return { bg: 'bg-red-500', text: 'text-red-500', ring: 'ring-red-500' };
+    if (percent >= 90) return { bg: "bg-red-500", text: "text-red-500", ring: "ring-red-500" };
     if (percent >= 75)
       return {
-        bg: 'bg-orange-500',
-        text: 'text-orange-500',
-        ring: 'ring-orange-500',
+        bg: "bg-orange-500",
+        text: "text-orange-500",
+        ring: "ring-orange-500",
       };
     if (percent >= 50)
       return {
-        bg: 'bg-yellow-500',
-        text: 'text-yellow-500',
-        ring: 'ring-yellow-500',
+        bg: "bg-yellow-500",
+        text: "text-yellow-500",
+        ring: "ring-yellow-500",
       };
     return {
-      bg: 'bg-green-500',
-      text: 'text-green-500',
-      ring: 'ring-green-500',
+      bg: "bg-green-500",
+      text: "text-green-500",
+      ring: "ring-green-500",
     };
   };
 
   const getRiskBadge = (level) => {
     switch (level) {
-      case 'high':
+      case "high":
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 border border-red-200">
             <AlertTriangle size={10} />
             High
           </span>
         );
-      case 'medium':
+      case "medium":
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border border-yellow-200">
             <AlertCircle size={10} />
@@ -156,9 +158,7 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
   return (
     <div
       className={`rounded-xl border p-4 sm:p-6 transition-all duration-300 hover:shadow-lg ${
-        isDarkMode
-          ? 'bg-[#1E2328] border-[#37474F]'
-          : 'bg-white border-[#E0E0E0]'
+        isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
       }`}
     >
       {/* Header */}
@@ -166,28 +166,28 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
         <div className="flex items-center gap-2">
           <CreditCard size={20} className="text-purple-500" />
           <h3
-            className={`text-lg font-semibold flex items-center gap-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+            className={`text-lg font-semibold flex items-center gap-1.5 ${isDarkMode ? "text-white" : "text-gray-900"}`}
           >
             Credit Management
             <span className="relative group">
-              <Info
-                size={14}
-                className="cursor-help opacity-50 hover:opacity-100"
-              />
-              <span className="hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-gray-800 bg-yellow-100 border border-yellow-300 rounded shadow-md whitespace-nowrap normal-case">
+              <Info size={14} className="cursor-help opacity-50 hover:opacity-100" />
+              <span
+                className={`hidden group-hover:block absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs ${isDarkMode ? "text-yellow-200 bg-yellow-900/90 border border-yellow-700" : "text-gray-800 bg-yellow-100 border border-yellow-300"} rounded shadow-md whitespace-nowrap normal-case`}
+              >
                 Customer credit utilization and risk monitoring
               </span>
             </span>
           </h3>
         </div>
         <button
+          type="button"
           onClick={handleRefresh}
           disabled={loading}
           className={`p-1.5 rounded-lg transition-colors ${
             isDarkMode
-              ? 'hover:bg-gray-700 text-gray-400 hover:text-white'
-              : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
-          } ${loading ? 'animate-spin' : ''}`}
+              ? "hover:bg-gray-700 text-gray-400 hover:text-white"
+              : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+          } ${loading ? "animate-spin" : ""}`}
         >
           <RefreshCw size={16} />
         </button>
@@ -198,8 +198,8 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
         <div className="relative w-40 h-20 overflow-hidden">
           {/* Background arc */}
           <div
-            className={`absolute inset-0 rounded-t-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}
-            style={{ transform: 'rotate(0deg)' }}
+            className={`absolute inset-0 rounded-t-full ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}
+            style={{ transform: "rotate(0deg)" }}
           />
           {/* Filled arc */}
           <div
@@ -212,82 +212,42 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
           {/* Center cover */}
           <div
             className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-28 h-14 rounded-t-full ${
-              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
+              isDarkMode ? "bg-[#1E2328]" : "bg-white"
             }`}
           />
           {/* Value display */}
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-center">
-            <p className={`text-2xl font-bold ${utilizationColors.text}`}>
-              {data.utilizationPercent || 0}%
-            </p>
-            <p
-              className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              Utilized
-            </p>
+            <p className={`text-2xl font-bold ${utilizationColors.text}`}>{data.utilizationPercent || 0}%</p>
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Utilized</p>
           </div>
         </div>
       </div>
 
       {/* Credit Summary */}
       <div className="grid grid-cols-2 gap-3 mb-4">
-        <div
-          className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}
-        >
-          <span
-            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-          >
-            Total Limit
-          </span>
-          <p
-            className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-          >
+        <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}>
+          <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Total Limit</span>
+          <p className={`text-sm font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
             {formatCurrency(data.totalCreditLimit)}
           </p>
         </div>
-        <div
-          className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}
-        >
-          <span
-            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-          >
-            Used
-          </span>
-          <p className={`text-sm font-bold ${utilizationColors.text}`}>
-            {formatCurrency(data.totalCreditUsed)}
-          </p>
+        <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}>
+          <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Used</span>
+          <p className={`text-sm font-bold ${utilizationColors.text}`}>{formatCurrency(data.totalCreditUsed)}</p>
         </div>
-        <div
-          className={`p-3 rounded-lg ${isDarkMode ? 'bg-green-900/20' : 'bg-green-50'}`}
-        >
-          <span
-            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-          >
-            Available
-          </span>
-          <p className="text-sm font-bold text-green-500">
-            {formatCurrency(data.availableCredit)}
-          </p>
+        <div className={`p-3 rounded-lg ${isDarkMode ? "bg-green-900/20" : "bg-green-50"}`}>
+          <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Available</span>
+          <p className="text-sm font-bold text-green-500">{formatCurrency(data.availableCredit)}</p>
         </div>
-        <div
-          className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}
-        >
-          <span
-            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-          >
-            Trend
-          </span>
+        <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}>
+          <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Trend</span>
           <p
             className={`text-sm font-bold flex items-center gap-1 ${
-              (data.trend || 0) > 0 ? 'text-red-500' : 'text-green-500'
+              (data.trend || 0) > 0 ? "text-red-500" : "text-green-500"
             }`}
           >
-            {(data.trend || 0) > 0 ? (
-              <TrendingUp size={14} />
-            ) : (
-              <TrendingDown size={14} />
-            )}
-            {(data.trend || 0) > 0 ? '+' : ''}
+            {(data.trend || 0) > 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+            {(data.trend || 0) > 0 ? "+" : ""}
             {data.trend || 0}%
           </p>
         </div>
@@ -295,23 +255,17 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
 
       {/* At-Risk Accounts */}
       {data.atRiskAccounts && data.atRiskAccounts.length > 0 && (
-        <div
-          className={`border-t pt-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-        >
+        <div className={`border-t pt-4 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
           <div className="flex items-center justify-between mb-3">
             <h4
-              className={`text-sm font-semibold flex items-center gap-2 ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
-              }`}
+              className={`text-sm font-semibold flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
             >
               <AlertTriangle size={14} className="text-red-500" />
               At-Risk Accounts
             </h4>
             <span
               className={`text-xs px-2 py-0.5 rounded-full ${
-                isDarkMode
-                  ? 'bg-red-900/20 text-red-400'
-                  : 'bg-red-100 text-red-700'
+                isDarkMode ? "bg-red-900/20 text-red-400" : "bg-red-100 text-red-700"
               }`}
             >
               {data.atRiskAccounts.length} accounts
@@ -323,15 +277,13 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
               <div
                 key={account.id}
                 className={`p-3 rounded-lg border ${
-                  isDarkMode
-                    ? 'bg-gray-800 border-gray-700'
-                    : 'bg-gray-50 border-gray-200'
+                  isDarkMode ? "bg-gray-800 border-gray-700" : "bg-gray-50 border-gray-200"
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <span
                     className={`text-sm font-medium truncate max-w-[150px] ${
-                      isDarkMode ? 'text-white' : 'text-gray-900'
+                      isDarkMode ? "text-white" : "text-gray-900"
                     }`}
                   >
                     {account.name}
@@ -339,19 +291,13 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
                   {getRiskBadge(account.riskLevel)}
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span
-                    className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
-                  >
+                  <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
                     {account.utilization}% utilized
                   </span>
-                  <span className="text-red-500 font-medium">
-                    {formatCurrency(account.overdue)} overdue
-                  </span>
+                  <span className="text-red-500 font-medium">{formatCurrency(account.overdue)} overdue</span>
                 </div>
                 {/* Mini progress bar */}
-                <div
-                  className={`h-1.5 rounded-full mt-2 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}
-                >
+                <div className={`h-1.5 rounded-full mt-2 ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}>
                   <div
                     className={`h-full rounded-full ${getUtilizationColor(account.utilization).bg}`}
                     style={{ width: `${Math.min(account.utilization, 100)}%` }}
@@ -365,45 +311,26 @@ const CreditManagementWidget = ({ data: propData, onRefresh }) => {
 
       {/* Risk Summary */}
       {data.summary && (
-        <div
-          className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-        >
+        <div className={`mt-4 pt-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Users
-                size={16}
-                className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
-              />
-              <span
-                className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              >
+              <Users size={16} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
+              <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 {data.summary.totalCustomers} customers
               </span>
             </div>
             <div className="flex items-center gap-3 text-xs">
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                <span
-                  className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
-                >
-                  {data.summary.highRisk} high
-                </span>
+                <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>{data.summary.highRisk} high</span>
               </span>
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
-                <span
-                  className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
-                >
-                  {data.summary.mediumRisk} med
-                </span>
+                <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>{data.summary.mediumRisk} med</span>
               </span>
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                <span
-                  className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
-                >
-                  {data.summary.lowRisk} low
-                </span>
+                <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>{data.summary.lowRisk} low</span>
               </span>
             </div>
           </div>

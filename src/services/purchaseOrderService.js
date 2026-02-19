@@ -1,10 +1,10 @@
-import { apiClient } from './api';
-import { apiService } from './axiosApi';
+import { apiClient } from "./api.js";
+import { apiService } from "./axiosApi.js";
 
 export const purchaseOrderService = {
   // Get all purchase orders with pagination and filters
   getAll: (params = {}) => {
-    return apiClient.get('/purchase-orders', params);
+    return apiClient.get("/purchase-orders", params);
   },
 
   // Get purchase order by ID
@@ -14,7 +14,7 @@ export const purchaseOrderService = {
 
   // Create purchase order
   create: (poData) => {
-    return apiClient.post('/purchase-orders', poData);
+    return apiClient.post("/purchase-orders", poData);
   },
 
   // Update purchase order
@@ -22,9 +22,9 @@ export const purchaseOrderService = {
     return apiClient.put(`/purchase-orders/${id}`, poData);
   },
 
-  // Update only transit status (if backend supports it)
+  // Update only transit status — backend uses the unified /status endpoint
   updateTransitStatus: (id, transit_status) => {
-    return apiClient.patch(`/purchase-orders/${id}/transit-status`, {
+    return apiClient.patch(`/purchase-orders/${id}/status`, {
       transit_status,
     });
   },
@@ -34,9 +34,9 @@ export const purchaseOrderService = {
     return apiClient.patch(`/purchase-orders/${id}/status`, { status });
   },
 
-  // Update purchase order stock status
+  // Update purchase order stock status — backend uses the unified /status endpoint
   updateStockStatus: (id, stock_status) => {
-    return apiClient.patch(`/purchase-orders/${id}/stock-status`, {
+    return apiClient.patch(`/purchase-orders/${id}/status`, {
       stock_status,
     });
   },
@@ -48,29 +48,54 @@ export const purchaseOrderService = {
 
   // Get next PO number
   getNextNumber: () => {
-    return apiClient.get('/purchase-orders/number/next');
+    return apiClient.get("/purchase-orders/number/next");
   },
 
   // Get warehouses
   getWarehouses: () => {
-    return apiClient.get('/warehouses');
+    return apiClient.get("/warehouses");
   },
 
   // Seed warehouses
   seedWarehouses: () => {
-    return apiClient.post('/warehouses/seed');
+    return apiClient.post("/warehouses/seed");
+  },
+
+  // Create dropship PO from invoice items
+  createDropshipPO: ({ invoiceId, itemIds, supplierId, supplierDetails }) => {
+    return apiClient.post("/purchase-orders/from-invoice", {
+      invoiceId,
+      itemIds,
+      supplierId,
+      supplierDetails,
+    });
+  },
+
+  // Confirm dispatch of dropship goods to customer
+  confirmDispatch: (id, data) => {
+    return apiClient.post(`/purchase-orders/${id}/confirm-dispatch`, data);
+  },
+
+  // Receive dropship goods to warehouse after customer rejection
+  receiveToWarehouse: (id, data) => {
+    return apiClient.post(`/purchase-orders/${id}/receive-to-warehouse`, data);
+  },
+
+  // Get workspace summary (stepper state, GRN/bill/payment previews)
+  getWorkspaceSummary: (id) => {
+    return apiClient.get(`/purchase-orders/${id}/workspace-summary`);
   },
 
   // Generate and download PDF
   downloadPDF: async (id) => {
     const blob = await apiService.request({
-      method: 'GET',
+      method: "GET",
       url: `/purchase-orders/${id}/pdf`,
-      responseType: 'blob',
+      responseType: "blob",
     });
     const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.style.display = 'none';
+    const a = document.createElement("a");
+    a.style.display = "none";
     a.href = blobUrl;
     a.download = `PurchaseOrder-${id}.pdf`;
     document.body.appendChild(a);

@@ -1,23 +1,64 @@
-import { useState, useEffect } from 'react';
-import { useTheme } from '../contexts/ThemeContext';
-import { apiService } from '../services/axiosApi';
 import {
-  FileText,
-  Filter,
-  Download,
-  Calendar,
-  User,
   Activity,
   AlertCircle,
   CheckCircle,
   ChevronLeft,
   ChevronRight,
-  Search,
+  Download,
+  FileText,
+  Filter,
+  User,
   X,
-} from 'lucide-react';
-import { toUAETime, toUAEDateForInput } from '../utils/timezone';
-import { FormSelect } from '../components/ui/form-select';
-import { SelectItem } from '../components/ui/select';
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import AuditDetailDrawer from "../components/audit/AuditDetailDrawer";
+import { FormSelect } from "../components/ui/form-select";
+import { SelectItem } from "../components/ui/select";
+import { useTheme } from "../contexts/ThemeContext";
+import { apiService } from "../services/axiosApi";
+import { toUAEDateForInput, toUAETime } from "../utils/timezone";
+
+const CATEGORIES = [
+  "AUTH",
+  "INVOICE",
+  "PAYMENT",
+  "CUSTOMER",
+  "SUPPLIER",
+  "PRODUCT",
+  "PURCHASE_ORDER",
+  "DELIVERY_NOTE",
+  "CREDIT_NOTE",
+  "QUOTATION",
+  "INVENTORY",
+  "WAREHOUSE",
+  "SETTINGS",
+  "EXPORT",
+  "STATEMENT",
+  "USER",
+  "ROLE",
+  "PERMISSIONS",
+];
+
+const CATEGORY_COLORS = {
+  AUTH: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+  INVOICE: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+  PAYMENT: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+  CUSTOMER: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+  SUPPLIER: "bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300",
+  PRODUCT: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300",
+  PURCHASE_ORDER: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+  DELIVERY_NOTE: "bg-lime-100 text-lime-800 dark:bg-lime-900/30 dark:text-lime-300",
+  CREDIT_NOTE: "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300",
+  QUOTATION: "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300",
+  INVENTORY: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
+  WAREHOUSE: "bg-slate-100 text-slate-800 dark:bg-slate-700/50 dark:text-slate-300",
+  SETTINGS: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+  EXPORT: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
+  STATEMENT: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300",
+  USER: "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300",
+  ROLE: "bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-900/30 dark:text-fuchsia-300",
+  PERMISSIONS: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+};
 
 const AuditLogs = () => {
   const { isDarkMode } = useTheme();
@@ -25,15 +66,18 @@ const AuditLogs = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedLog, setSelectedLog] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Filters
   const [filters, setFilters] = useState({
-    category: '',
-    action: '',
-    status: '',
-    startDate: '',
-    endDate: '',
-    search: '',
+    category: "",
+    action: "",
+    status: "",
+    startDate: "",
+    endDate: "",
+    search: "",
+    userId: "",
   });
 
   // Pagination
@@ -42,25 +86,17 @@ const AuditLogs = () => {
   const [totalLogs, setTotalLogs] = useState(0);
   const itemsPerPage = 50;
 
-  // Categories and actions for filters
-  const categories = [
-    'AUTH',
-    'INVOICE',
-    'PAYMENT',
-    'CUSTOMER',
-    'STATEMENT',
-    'SETTINGS',
-    'EXPORT',
-  ];
-  const statuses = ['success', 'failed'];
+  // Users list for filter
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    fetchLogs();
-    fetchStats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, filters]); // fetchLogs and fetchStats are stable
+    apiService
+      .get("/admin/users")
+      .then((res) => setUsers(res.users || res || []))
+      .catch(() => {});
+  }, []);
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -69,82 +105,101 @@ const AuditLogs = () => {
         ...(filters.category && { category: filters.category }),
         ...(filters.action && { action: filters.action }),
         ...(filters.status && { status: filters.status }),
+        ...(filters.search && { search: filters.search }),
         ...(filters.startDate && { start_date: filters.startDate }),
         ...(filters.endDate && { end_date: filters.endDate }),
+        ...(filters.userId && { user_id: filters.userId }),
       };
 
-      const response = await apiService.get('/audit-logs', { params });
+      const response = await apiService.get("/audit-logs", { params });
 
       setLogs(response.logs || []);
       setTotalPages(response.pagination?.totalPages || 1);
       setTotalLogs(response.pagination?.total || 0);
       setError(null);
     } catch (err) {
-      console.error('Error fetching audit logs:', err);
-      setError('Failed to load audit logs');
+      console.error("Error fetching audit logs:", err);
+      setError("Failed to load audit logs");
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, filters]);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
-      const response = await apiService.get('/audit-logs/stats');
+      const response = await apiService.get("/audit-logs/stats");
       setStats(response);
     } catch (err) {
-      console.error('Error fetching stats:', err);
+      console.error("Error fetching stats:", err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchLogs();
+    fetchStats();
+  }, [fetchLogs, fetchStats]);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   };
 
   const clearFilters = () => {
     setFilters({
-      category: '',
-      action: '',
-      status: '',
-      startDate: '',
-      endDate: '',
-      search: '',
+      category: "",
+      action: "",
+      status: "",
+      startDate: "",
+      endDate: "",
+      search: "",
+      userId: "",
     });
     setCurrentPage(1);
+  };
+
+  const handleRowClick = async (log) => {
+    try {
+      const fullLog = await apiService.get(`/audit-logs/${log.id}`);
+      setSelectedLog(fullLog);
+    } catch {
+      setSelectedLog(log);
+    }
+    setDrawerOpen(true);
   };
 
   const exportToCSV = () => {
     if (logs.length === 0) return;
 
     const headers = [
-      'Date/Time (UAE)',
-      'User',
-      'Email',
-      'Category',
-      'Action',
-      'Description',
-      'Status',
-      'IP Address',
+      "Date/Time (UAE)",
+      "User",
+      "Email",
+      "Category",
+      "Action",
+      "Entity",
+      "Description",
+      "Status",
+      "IP Address",
     ];
     const csvData = logs.map((log) => [
-      toUAETime(log.createdAt, { format: 'datetime' }),
-      log.username || '-',
-      log.userEmail || '-',
-      log.category,
+      toUAETime(log.createdAt, { format: "datetime" }),
+      log.username || (log.source === "trigger" ? "System" : "-"),
+      log.userEmail || (log.source === "trigger" ? "DB trigger" : "-"),
+      log.category || "-",
       log.action,
-      log.description || '-',
-      log.status,
-      log.ipAddress || '-',
+      log.entityName || (log.entityId ? `#${log.entityId}` : "-"),
+      log.description || "-",
+      log.status || "-",
+      log.ipAddress || "-",
     ]);
 
-    const csvContent = [
-      headers.join(','),
-      ...csvData.map((row) => row.map((cell) => `"${cell}"`).join(',')),
-    ].join('\n');
+    const csvContent = [headers.join(","), ...csvData.map((row) => row.map((cell) => `"${cell}"`).join(","))].join(
+      "\n"
+    );
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `audit-logs-${toUAEDateForInput(new Date())}.csv`;
     document.body.appendChild(a);
@@ -154,21 +209,12 @@ const AuditLogs = () => {
   };
 
   const formatDate = (dateString) => {
-    // Use UAE timezone for display
-    return toUAETime(dateString, { format: 'datetime' });
+    return toUAETime(dateString, { format: "datetime" });
   };
 
-  const getCategoryColor = (category) => {
-    const colors = {
-      AUTH: 'blue',
-      INVOICE: 'green',
-      PAYMENT: 'purple',
-      CUSTOMER: 'orange',
-      STATEMENT: 'indigo',
-      SETTINGS: 'red',
-      EXPORT: 'pink',
-    };
-    return colors[category] || 'gray';
+  const getCategoryBadge = (category) => {
+    const colorClass = CATEGORY_COLORS[category] || "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+    return colorClass;
   };
 
   const filteredLogs = logs.filter((log) => {
@@ -178,45 +224,39 @@ const AuditLogs = () => {
       log.username?.toLowerCase().includes(search) ||
       log.userEmail?.toLowerCase().includes(search) ||
       log.description?.toLowerCase().includes(search) ||
-      log.action?.toLowerCase().includes(search)
+      log.action?.toLowerCase().includes(search) ||
+      log.entityName?.toLowerCase().includes(search)
     );
   });
 
+  const hasActiveFilters =
+    filters.category || filters.status || filters.startDate || filters.endDate || filters.search || filters.userId;
+
   return (
-    <div
-      className={`min-h-screen p-6 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
-    >
+    <div className={`min-h-screen p-6 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <FileText
-                className={isDarkMode ? 'text-blue-400' : 'text-blue-600'}
-                size={32}
-              />
+              <FileText className={isDarkMode ? "text-blue-400" : "text-blue-600"} size={32} />
               <div>
-                <h1
-                  className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
-                  Audit Logs
-                </h1>
-                <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                >
-                  Track all user activities and system events
+                <h1 className={`text-3xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Audit Trail</h1>
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  Track all user activities and system changes
                 </p>
               </div>
             </div>
             <button
+              type="button"
               onClick={exportToCSV}
               disabled={logs.length === 0}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                 logs.length === 0
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : isDarkMode
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
             >
               <Download size={18} />
@@ -228,102 +268,67 @@ const AuditLogs = () => {
         {/* Statistics Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div
-              className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow`}
+            <button
+              type="button"
+              onClick={() => handleFilterChange("status", "")}
+              className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-white hover:bg-gray-50"} shadow text-left cursor-pointer transition-colors`}
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                  >
-                    Total Logs
-                  </p>
-                  <p
-                    className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                  >
-                    {totalLogs}
-                  </p>
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Total Logs</p>
+                  <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{totalLogs}</p>
                 </div>
-                <Activity
-                  className={isDarkMode ? 'text-blue-400' : 'text-blue-600'}
-                  size={32}
-                />
+                <Activity className={isDarkMode ? "text-blue-400" : "text-blue-600"} size={32} />
               </div>
-            </div>
+            </button>
 
-            <div
-              className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow`}
+            <button
+              type="button"
+              onClick={() => handleFilterChange("status", "failed")}
+              className={`p-4 rounded-lg ${filters.status === "failed" ? (isDarkMode ? "bg-red-900/30 ring-2 ring-red-500" : "bg-red-50 ring-2 ring-red-400") : isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-white hover:bg-gray-50"} shadow text-left cursor-pointer transition-colors`}
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                  >
-                    Failed Actions
-                  </p>
-                  <p
-                    className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                  >
-                    {stats.categoryStats?.reduce(
-                      (sum, cat) => sum + parseInt(cat.failedCount || 0),
-                      0,
-                    ) || 0}
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Failed Actions</p>
+                  <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    {stats.categoryStats?.reduce((sum, cat) => sum + parseInt(cat.failedCount || 0, 10), 0) || 0}
                   </p>
                 </div>
                 <AlertCircle className="text-red-500" size={32} />
               </div>
-            </div>
+            </button>
 
-            <div
-              className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow`}
+            <button
+              type="button"
+              onClick={() => handleFilterChange("status", "success")}
+              className={`p-4 rounded-lg ${filters.status === "success" ? (isDarkMode ? "bg-green-900/30 ring-2 ring-green-500" : "bg-green-50 ring-2 ring-green-400") : isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-white hover:bg-gray-50"} shadow text-left cursor-pointer transition-colors`}
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                  >
-                    Categories
-                  </p>
-                  <p
-                    className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                  >
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Active Categories</p>
+                  <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     {stats.categoryStats?.length || 0}
                   </p>
                 </div>
-                <Filter
-                  className={isDarkMode ? 'text-green-400' : 'text-green-600'}
-                  size={32}
-                />
+                <Filter className={isDarkMode ? "text-green-400" : "text-green-600"} size={32} />
               </div>
-            </div>
+            </button>
           </div>
         )}
 
         {/* Filters */}
-        <div
-          className={`p-4 rounded-lg mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow`}
-        >
+        <div className={`p-4 rounded-lg mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow`}>
           <div className="flex items-center gap-2 mb-4">
-            <Filter
-              size={20}
-              className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
-            />
-            <h2
-              className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
-              Filters
-            </h2>
-            {(filters.category ||
-              filters.status ||
-              filters.startDate ||
-              filters.endDate ||
-              filters.search) && (
+            <Filter size={20} className={isDarkMode ? "text-gray-400" : "text-gray-600"} />
+            <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Filters</h2>
+            {hasActiveFilters && (
               <button
+                type="button"
                 onClick={clearFilters}
                 className={`ml-auto text-sm flex items-center gap-1 px-3 py-1 rounded ${
                   isDarkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
                 }`}
               >
                 <X size={14} />
@@ -332,281 +337,212 @@ const AuditLogs = () => {
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
             {/* Search */}
-            <div>
+            <div className="space-y-0.5">
               <label
                 htmlFor="audit-search"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                className={`block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
               >
-                <Search size={16} className="inline mr-1" />
                 Search
               </label>
               <input
                 id="audit-search"
                 type="text"
                 value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-                placeholder="User, email, action..."
-                className={`w-full px-3 py-2 rounded-lg border ${
+                onChange={(e) => handleFilterChange("search", e.target.value)}
+                placeholder="User, action, entity..."
+                className={`w-full h-[38px] px-3 text-sm rounded-md border ${
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                 }`}
               />
             </div>
 
             {/* Category */}
-            <div>
-              <FormSelect
-                label="Category"
-                value={filters.category || 'none'}
-                onValueChange={(value) =>
-                  handleFilterChange('category', value === 'none' ? '' : value)
-                }
-                showValidation={false}
-              >
-                <SelectItem value="none">All Categories</SelectItem>
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </FormSelect>
-            </div>
+            <FormSelect
+              label="Category"
+              value={filters.category || "none"}
+              onValueChange={(value) => handleFilterChange("category", value === "none" ? "" : value)}
+              showValidation={false}
+            >
+              <SelectItem value="none">All Categories</SelectItem>
+              {CATEGORIES.map((cat) => (
+                <SelectItem key={cat} value={cat}>
+                  {cat.replace(/_/g, " ")}
+                </SelectItem>
+              ))}
+            </FormSelect>
 
-            {/* Status */}
-            <div>
-              <FormSelect
-                label="Status"
-                value={filters.status || 'none'}
-                onValueChange={(value) =>
-                  handleFilterChange('status', value === 'none' ? '' : value)
-                }
-                showValidation={false}
-              >
-                <SelectItem value="none">All Status</SelectItem>
-                {statuses.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </SelectItem>
-                ))}
-              </FormSelect>
-            </div>
+            {/* User Filter */}
+            <FormSelect
+              label="User"
+              value={filters.userId || "none"}
+              onValueChange={(value) => handleFilterChange("userId", value === "none" ? "" : value)}
+              showValidation={false}
+            >
+              <SelectItem value="none">All Users</SelectItem>
+              {users.map((u) => (
+                <SelectItem key={u.id} value={String(u.id)}>
+                  {u.name || u.email}
+                </SelectItem>
+              ))}
+            </FormSelect>
 
             {/* Start Date */}
-            <div>
+            <div className="space-y-0.5">
               <label
                 htmlFor="audit-start-date"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                className={`block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
               >
-                <Calendar size={16} className="inline mr-1" />
                 Start Date
               </label>
               <input
                 id="audit-start-date"
                 type="date"
                 value={filters.startDate}
-                onChange={(e) =>
-                  handleFilterChange('startDate', e.target.value)
-                }
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
+                onChange={(e) => handleFilterChange("startDate", e.target.value)}
+                className={`w-full h-[38px] px-3 text-sm rounded-md border ${
+                  isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               />
             </div>
 
             {/* End Date */}
-            <div>
+            <div className="space-y-0.5">
               <label
                 htmlFor="audit-end-date"
-                className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                className={`block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
               >
-                <Calendar size={16} className="inline mr-1" />
                 End Date
               </label>
               <input
                 id="audit-end-date"
                 type="date"
                 value={filters.endDate}
-                onChange={(e) => handleFilterChange('endDate', e.target.value)}
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
+                onChange={(e) => handleFilterChange("endDate", e.target.value)}
+                className={`w-full h-[38px] px-3 text-sm rounded-md border ${
+                  isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               />
             </div>
+
+            {/* Status */}
+            <FormSelect
+              label="Status"
+              value={filters.status || "none"}
+              onValueChange={(value) => handleFilterChange("status", value === "none" ? "" : value)}
+              showValidation={false}
+            >
+              <SelectItem value="none">All Status</SelectItem>
+              <SelectItem value="success">Success</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
+            </FormSelect>
           </div>
         </div>
 
         {/* Logs Table */}
-        <div
-          className={`rounded-lg shadow overflow-hidden ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-        >
+        <div className={`rounded-lg shadow overflow-hidden ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
           {loading ? (
             <div className="p-12 text-center">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-              <p
-                className={`mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-              >
-                Loading audit logs...
-              </p>
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+              <p className={`mt-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Loading audit logs...</p>
             </div>
           ) : error ? (
             <div className="p-12 text-center">
               <AlertCircle className="mx-auto mb-4 text-red-500" size={48} />
-              <p
-                className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                {error}
-              </p>
+              <p className={`text-lg ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{error}</p>
             </div>
           ) : filteredLogs.length === 0 ? (
             <div className="p-12 text-center">
-              <FileText
-                className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
-                size={48}
-              />
-              <p
-                className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-              >
-                No audit logs found
-              </p>
+              <FileText className={`mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} size={48} />
+              <p className={`text-lg ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>No audit logs found</p>
             </div>
           ) : (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                  <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                     <tr>
-                      <th
-                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                        }`}
-                      >
-                        Date/Time
-                      </th>
-                      <th
-                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                        }`}
-                      >
-                        User
-                      </th>
-                      <th
-                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                        }`}
-                      >
-                        Category
-                      </th>
-                      <th
-                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                        }`}
-                      >
-                        Action
-                      </th>
-                      <th
-                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                        }`}
-                      >
-                        Description
-                      </th>
-                      <th
-                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                        }`}
-                      >
-                        Status
-                      </th>
-                      <th
-                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                        }`}
-                      >
-                        IP Address
-                      </th>
+                      {["Date/Time", "User", "Category", "Action", "Entity", "Description", "Status"].map((h) => (
+                        <th
+                          key={h}
+                          className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                            isDarkMode ? "text-gray-300" : "text-gray-700"
+                          }`}
+                        >
+                          {h}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
-                  <tbody
-                    className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
-                  >
-                    {filteredLogs.map((log) => (
-                      <tr
-                        key={log.id}
-                        className={`${
-                          isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
-                        } transition-colors`}
-                      >
-                        <td
-                          className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
+                  <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
+                    {filteredLogs.map((log) => {
+                      return (
+                        // biome-ignore lint/a11y/useSemanticElements: clickable table row with keyboard support
+                        <tr
+                          key={log.id}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => handleRowClick(log)}
+                          onKeyDown={(e) => e.key === "Enter" && handleRowClick(log)}
+                          className={`cursor-pointer ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-50"} transition-colors`}
                         >
-                          {formatDate(log.createdAt)}
-                        </td>
-                        <td
-                          className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <User
-                              size={16}
-                              className={
-                                isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                              }
-                            />
-                            <div>
-                              <div className="font-medium">
-                                {log.username || '-'}
-                              </div>
-                              <div
-                                className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}
-                              >
-                                {log.userEmail || '-'}
+                          <td
+                            className={`px-4 py-3 text-sm whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
+                          >
+                            {formatDate(log.createdAt)}
+                          </td>
+                          <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
+                            <div className="flex items-center gap-2">
+                              <User size={16} className={isDarkMode ? "text-gray-500" : "text-gray-400"} />
+                              <div>
+                                <div className="font-medium">
+                                  {log.username || (log.source === "trigger" ? "System" : "-")}
+                                </div>
+                                <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
+                                  {log.userEmail || (log.source === "trigger" ? "DB trigger" : "-")}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-sm">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium bg-${getCategoryColor(log.category)}-100 text-${getCategoryColor(log.category)}-800`}
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryBadge(log.category)}`}
+                            >
+                              {log.category?.replace(/_/g, " ")}
+                            </span>
+                          </td>
+                          <td
+                            className={`px-4 py-3 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
                           >
-                            {log.category}
-                          </span>
-                        </td>
-                        <td
-                          className={`px-4 py-3 text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
-                        >
-                          {log.action}
-                        </td>
-                        <td
-                          className={`px-4 py-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                        >
-                          {log.description || '-'}
-                        </td>
-                        <td className="px-4 py-3 text-sm">
-                          {log.status === 'success' ? (
-                            <span className="flex items-center gap-1 text-green-600">
-                              <CheckCircle size={16} />
-                              Success
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1 text-red-600">
-                              <AlertCircle size={16} />
-                              Failed
-                            </span>
-                          )}
-                        </td>
-                        <td
-                          className={`px-4 py-3 text-sm font-mono ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                        >
-                          {log.ipAddress || '-'}
-                        </td>
-                      </tr>
-                    ))}
+                            {log.action}
+                          </td>
+                          <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                            {log.entityName || "-"}
+                          </td>
+                          <td
+                            className={`px-4 py-3 text-sm max-w-xs truncate ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          >
+                            {log.description || "-"}
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            {log.status === "success" ? (
+                              <span className="flex items-center gap-1 text-green-600">
+                                <CheckCircle size={16} />
+                                Success
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1 text-red-600">
+                                <AlertCircle size={16} />
+                                Failed
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -614,43 +550,38 @@ const AuditLogs = () => {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div
-                  className={`px-4 py-3 border-t ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'}`}
+                  className={`px-4 py-3 border-t ${isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-gray-50"}`}
                 >
                   <div className="flex items-center justify-between">
-                    <p
-                      className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
-                    >
-                      Showing page {currentPage} of {totalPages} ({totalLogs}{' '}
-                      total logs)
+                    <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
+                      Showing page {currentPage} of {totalPages} ({totalLogs} total logs)
                     </p>
                     <div className="flex gap-2">
                       <button
-                        onClick={() =>
-                          setCurrentPage((p) => Math.max(1, p - 1))
-                        }
+                        type="button"
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
                         className={`flex items-center gap-1 px-3 py-2 rounded-lg ${
                           currentPage === 1
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                             : isDarkMode
-                              ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                              : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'
+                              ? "bg-gray-700 hover:bg-gray-600 text-white"
+                              : "bg-white hover:bg-gray-100 text-gray-700 border border-gray-300"
                         }`}
                       >
                         <ChevronLeft size={16} />
                         Previous
                       </button>
                       <button
-                        onClick={() =>
-                          setCurrentPage((p) => Math.min(totalPages, p + 1))
-                        }
+                        type="button"
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                         disabled={currentPage === totalPages}
                         className={`flex items-center gap-1 px-3 py-2 rounded-lg ${
                           currentPage === totalPages
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                             : isDarkMode
-                              ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                              : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'
+                              ? "bg-gray-700 hover:bg-gray-600 text-white"
+                              : "bg-white hover:bg-gray-100 text-gray-700 border border-gray-300"
                         }`}
                       >
                         Next
@@ -664,6 +595,9 @@ const AuditLogs = () => {
           )}
         </div>
       </div>
+
+      {/* Detail Drawer */}
+      <AuditDetailDrawer log={selectedLog} isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </div>
   );
 };

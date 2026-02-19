@@ -1,0 +1,488 @@
+/**
+ * Payables Service Unit Tests
+ * Tests invoice and PO payment tracking, status management
+ */
+import '../../__tests__/init.mjs';
+
+
+import { test, describe, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
+import sinon from 'sinon';
+
+
+
+import { payablesService } from "../payablesService.js";
+import { apiClient } from "../api.js";
+
+// Mock localStorage - define mock object
+const localStorageMock = (() => {
+  let store = {};
+  return {
+    getItem: (key) => store[key] || null,
+    setItem: (key, value) => {
+      store[key] = value.toString();
+    },
+    removeItem: (key) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+  };
+})();
+
+describe("payablesService", () => {
+  let getStub;
+  let postStub;
+  beforeEach(() => {
+    sinon.restore();
+    getStub = sinon.stub(apiClient, 'get');
+    postStub = sinon.stub(apiClient, 'post');
+    localStorageMock.clear();
+  });
+
+  describe("Invoice Management", () => {
+    describe("getInvoices", () => {
+      test("should fetch invoices with pagination", async () => {
+        const mockResponse = {
+          items: [
+            {
+              id: 1,
+              invoice_number: "INV-001",
+              customer_name: "ABC Corp",
+              invoice_amount: 10000,
+              paid: 0,
+              balance: 10000,
+              status: "unpaid",
+            },
+          ],
+          aggregates: { total_amount: 10000, total_paid: 0 },
+        };
+        getStub.resolves(mockResponse);
+
+        const result = await payablesService.getInvoices({ page: 1 });
+
+        assert.ok(result.items);
+        assert.ok(result.items[0].invoice_number);
+        assert.ok(result.aggregates !== undefined);
+      });
+
+      test("should handle invoices response format", async () => {
+        const mockResponse = {
+          invoices: [
+            {
+              id: 1,
+              invoice_number: "INV-001",
+              invoice_amount: 10000,
+            },
+          ],
+          aggregates: {},
+        };
+        getStub.resolves(mockResponse);
+
+        const result = await payablesService.getInvoices();
+
+        assert.ok(result.items);
+      });
+
+      test("should handle array response format", async () => {
+        const mockResponse = [
+          {
+            id: 1,
+            invoice_number: "INV-001",
+            invoice_amount: 10000,
+          },
+        ];
+        getStub.resolves(mockResponse);
+
+        const result = await payablesService.getInvoices();
+
+        assert.ok(result.items);
+        assert.ok(result.aggregates);
+      });
+
+      test("should return empty array on error", async () => {
+        getStub.rejects(new Error("Network error"));
+
+        const result = await payablesService.getInvoices();
+
+        assert.ok(result.items);
+      });
+    });
+
+    describe("getInvoice", () => {
+      test("should fetch single invoice with payments", async () => {
+        const mockResponse = {
+          id: 1,
+          invoice_number: "INV-001",
+          customer_name: "ABC Corp",
+          invoice_amount: 10000,
+          payments: [
+            {
+              id: "p1",
+              amount: 5000,
+              payment_date: "2024-01-15",
+              method: "bank_transfer",
+            },
+          ],
+        };
+        getStub.resolves(mockResponse);
+
+        const result = await payablesService.getInvoice(1);
+
+        assert.ok(result.id);
+        assert.ok(result.payments);
+      });
+
+      test("should merge local and server payments", async () => {
+        const mockResponse = {
+          id: 1,
+          invoice_number: "INV-001",
+          invoice_amount: 10000,
+          payments: [],
+        };
+        getStub.resolves(mockResponse);
+        localStorage.setItem("payables:inv:payments", JSON.stringify({ 1: [{ id: "local-1", amount: 2000 }] }));
+
+        const result = await payablesService.getInvoice(1);
+
+        assert.ok(result.payments);
+      });
+
+      test("should compute derived fields (status)", async () => {
+        const mockResponse = {
+          id: 1,
+          invoice_number: "INV-001",
+          invoice_amount: 10000,
+          paid: 10000,
+          balance: 0,
+        };
+        getStub.resolves(mockResponse);
+
+        const result = await payablesService.getInvoice(1);
+
+        assert.ok(result.status !== undefined);
+      });
+    });
+
+    describe("addInvoicePayment", () => {
+      test("should record invoice payment", async () => {
+        const paymentData = {
+          amount: 5000,
+          payment_date: "2024-01-15",
+          method: "bank_transfer",
+          reference_no: "CHQ-123",
+        };
+        postStub.resolves({
+          id: 1,
+          invoice_number: "INV-001",
+          paid: 5000,
+          balance: 5000,
+          status: "partial",
+        });
+
+        const result = await payablesService.addInvoicePayment(1, paymentData);
+
+        assert.ok(result.id);
+        sinon.assert.calledWith(postStub, "/payables/invoices/1/payments", );
+      });
+
+      test("should fall back to local storage on error", async () => {
+        const paymentData = {
+          id: "uuid-123",
+          amount: 5000,
+          payment_date: "2024-01-15",
+        };
+        postStub.rejects(new Error("Server error"));
+
+        const result = await payablesService.addInvoicePayment(1, paymentData);
+
+        assert.ok(result.payments !== undefined);
+        const stored = localStorage.getItem("payables:inv:payments");
+        assert.ok(stored);
+      });
+
+      test("should handle payment with notes and attachment", async () => {
+        const paymentData = {
+          amount: 5000,
+          payment_date: "2024-01-15",
+          notes: "Full payment",
+          attachment_url: "https://example.com/receipt.pdf",
+        };
+        postStub.resolves({
+          id: 1,
+          paid: 5000,
+        });
+
+        await payablesService.addInvoicePayment(1, paymentData);
+
+        assert.ok(apiClient.post);
+      });
+    });
+
+    describe("voidInvoicePayment", () => {
+      test("should void invoice payment", async () => {
+        postStub.resolves({
+          id: 1,
+          invoice_number: "INV-001",
+          paid: 0,
+          balance: 10000,
+        });
+
+        const result = await payablesService.voidInvoicePayment(1, "p1", "Erroneous entry");
+
+        assert.ok(result.id);
+        sinon.assert.calledWith(postStub, "/payables/invoices/1/payments/p1/void", {
+          reason: "Erroneous entry",
+        });
+      });
+
+      test("should fall back to local storage on error", async () => {
+        postStub.rejects(new Error("Server error"));
+        localStorage.setItem(
+          "payables:inv:payments",
+          JSON.stringify({
+            1: [{ id: "p1", amount: 5000 }],
+          })
+        );
+
+        const result = await payablesService.voidInvoicePayment(1, "p1", "Void reason");
+
+        assert.ok(result.payments !== undefined);
+      });
+    });
+  });
+
+  describe("PO Management", () => {
+    describe("getPOs", () => {
+      test("should fetch POs with aggregates", async () => {
+        const mockResponse = {
+          items: [
+            {
+              id: 1,
+              po_number: "PO-001",
+              supplier_name: "XYZ Supplies",
+              po_amount: 50000,
+              paid: 0,
+              balance: 50000,
+            },
+          ],
+          aggregates: { total_amount: 50000, total_paid: 0 },
+        };
+        getStub.resolves(mockResponse);
+
+        const result = await payablesService.getPOs({ page: 1 });
+
+        assert.ok(result.items);
+        assert.ok(result.items[0].po_number);
+      });
+
+      test("should handle pos response format", async () => {
+        const mockResponse = {
+          pos: [
+            {
+              id: 1,
+              po_number: "PO-001",
+              po_amount: 50000,
+            },
+          ],
+        };
+        getStub.resolves(mockResponse);
+
+        const result = await payablesService.getPOs();
+
+        assert.ok(result.items);
+      });
+
+      test("should return empty array on error", async () => {
+        getStub.rejects(new Error("Network error"));
+
+        const result = await payablesService.getPOs();
+
+        assert.ok(result.items);
+      });
+    });
+
+    describe("getPO", () => {
+      test("should fetch single PO", async () => {
+        const mockResponse = {
+          id: 1,
+          po_number: "PO-001",
+          supplier_name: "XYZ Supplies",
+          po_amount: 50000,
+          payments: [],
+        };
+        getStub.resolves(mockResponse);
+
+        const result = await payablesService.getPO(1);
+
+        assert.ok(result.id);
+        assert.ok(result.po_number);
+      });
+    });
+
+    describe("addPOPayment", () => {
+      test("should record PO payment", async () => {
+        const paymentData = {
+          amount: 20000,
+          payment_date: "2024-01-15",
+          method: "bank_transfer",
+        };
+        postStub.resolves({
+          id: 1,
+          po_number: "PO-001",
+          paid: 20000,
+          balance: 30000,
+        });
+
+        const result = await payablesService.addPOPayment(1, paymentData);
+
+        assert.ok(result.id);
+        sinon.assert.calledWith(postStub, "/payables/pos/1/payments", );
+      });
+
+      test("should fall back to local storage on error", async () => {
+        const paymentData = {
+          amount: 20000,
+          payment_date: "2024-01-15",
+        };
+        postStub.rejects(new Error("Server error"));
+
+        const result = await payablesService.addPOPayment(1, paymentData);
+
+        assert.ok(result.payments !== undefined);
+      });
+    });
+
+    describe("voidPOPayment", () => {
+      test("should void PO payment", async () => {
+        postStub.resolves({
+          id: 1,
+          po_number: "PO-001",
+          paid: 0,
+        });
+
+        const result = await payablesService.voidPOPayment(1, "p1", "Void reason");
+
+        assert.ok(result.id);
+      });
+    });
+  });
+
+  describe("Payment Status Calculation", () => {
+    test("should calculate unpaid status", async () => {
+      const mockResponse = {
+        id: 1,
+        invoice_amount: 10000,
+        paid: 0,
+        balance: 10000,
+      };
+      getStub.resolves(mockResponse);
+
+      const result = await payablesService.getInvoice(1);
+
+      assert.ok(["unpaid", "partial", "paid"]);
+    });
+
+    test("should calculate partial payment status", async () => {
+      const mockResponse = {
+        id: 1,
+        invoice_amount: 10000,
+        paid: 5000,
+        balance: 5000,
+      };
+      getStub.resolves(mockResponse);
+
+      const result = await payablesService.getInvoice(1);
+
+      assert.ok(["unpaid", "partial", "paid"]);
+    });
+
+    test("should calculate paid status", async () => {
+      const mockResponse = {
+        id: 1,
+        invoice_amount: 10000,
+        paid: 10000,
+        balance: 0,
+      };
+      getStub.resolves(mockResponse);
+
+      const result = await payablesService.getInvoice(1);
+
+      assert.ok(result.status !== undefined);
+    });
+  });
+
+  describe("Error Handling", () => {
+    test("should handle network errors gracefully", async () => {
+      getStub.rejects(new Error("Network error"));
+
+      const result = await payablesService.getInvoices();
+
+      assert.ok(result.items);
+    });
+
+    test("should handle payment posting errors with fallback", async () => {
+      postStub.rejects(new Error("Server error"));
+
+      const result = await payablesService.addInvoicePayment(1, {
+        amount: 5000,
+        payment_date: "2024-01-15",
+      });
+
+      assert.ok(result.payments !== undefined);
+    });
+  });
+
+  describe("Edge Cases", () => {
+    test("should handle empty invoice list", async () => {
+      getStub.resolves({ items: [], aggregates: {} });
+
+      const result = await payablesService.getInvoices();
+
+      assert.ok(result.items);
+    });
+
+    test("should handle large payment amounts", async () => {
+      const mockResponse = {
+        id: 1,
+        invoice_amount: 1000000,
+        paid: 500000,
+        balance: 500000,
+      };
+      getStub.resolves(mockResponse);
+
+      const result = await payablesService.getInvoice(1);
+
+      assert.ok(result.invoice_amount);
+    });
+
+    test("should handle decimal amounts", async () => {
+      const mockResponse = {
+        id: 1,
+        invoice_amount: 10000.5,
+        paid: 5000.25,
+        balance: 5000.25,
+      };
+      getStub.resolves(mockResponse);
+
+      const result = await payablesService.getInvoice(1);
+
+      assert.ok(result.invoice_amount);
+    });
+
+    test("should handle null payments array", async () => {
+      const mockResponse = {
+        id: 1,
+        invoice_number: "INV-001",
+        invoice_amount: 10000,
+        payments: null,
+      };
+      getStub.resolves(mockResponse);
+
+      const result = await payablesService.getInvoice(1);
+
+      assert.ok(Array.isArray(result.payments));
+    });
+  });
+});

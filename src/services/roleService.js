@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from "./api.js";
 
 /**
  * Role and Permission Service
@@ -10,7 +10,7 @@ export const roleService = {
    * Get all roles
    */
   async getRoles() {
-    const response = await apiClient.get('/roles');
+    const response = await apiClient.get("/roles");
     return response;
   },
 
@@ -18,7 +18,7 @@ export const roleService = {
    * Get available roles (for dropdowns)
    */
   async getAvailableRoles() {
-    const response = await apiClient.get('/roles/list/available');
+    const response = await apiClient.get("/roles/list/available");
     return response;
   },
 
@@ -34,7 +34,7 @@ export const roleService = {
    * Create new role (Director only)
    */
   async createRole(roleData) {
-    const response = await apiClient.post('/roles', roleData);
+    const response = await apiClient.post("/roles", roleData);
     return response;
   },
 
@@ -58,7 +58,7 @@ export const roleService = {
    * Get all permissions grouped by module
    */
   async getAllPermissions() {
-    const response = await apiClient.get('/roles/permissions/all');
+    const response = await apiClient.get("/roles/permissions/all");
     return response;
   },
 
@@ -94,9 +94,7 @@ export const roleService = {
    * Remove role from user (Director only)
    */
   async removeRole(userId, roleId) {
-    const response = await apiClient.delete(
-      `/roles/users/${userId}/roles/${roleId}`,
-    );
+    const response = await apiClient.delete(`/roles/users/${userId}/roles/${roleId}`);
     return response;
   },
 
@@ -104,14 +102,11 @@ export const roleService = {
    * Grant custom permission to user (Director only)
    */
   async grantCustomPermission(userId, permissionKey, reason, expiresAt = null) {
-    const response = await apiClient.post(
-      `/roles/users/${userId}/permissions/grant`,
-      {
-        permission_key: permissionKey,
-        reason,
-        expires_at: expiresAt,
-      },
-    );
+    const response = await apiClient.post(`/roles/users/${userId}/permissions/grant`, {
+      permission_key: permissionKey,
+      reason,
+      expires_at: expiresAt,
+    });
     return response;
   },
 
@@ -119,12 +114,9 @@ export const roleService = {
    * Revoke custom permission from user (Director only)
    */
   async revokeCustomPermission(userId, permissionKey, reason = null) {
-    const response = await apiClient.delete(
-      `/roles/users/${userId}/permissions/${permissionKey}`,
-      {
-        data: { reason },
-      },
-    );
+    const response = await apiClient.delete(`/roles/users/${userId}/permissions/${permissionKey}`, {
+      data: { reason },
+    });
     return response;
   },
 

@@ -8,7 +8,7 @@
  * Note: company_id is extracted from authenticated user context (JWT token).
  */
 
-import { api } from './api';
+import { api } from "./api.js";
 
 export const unitConversionService = {
   /**
@@ -17,10 +17,10 @@ export const unitConversionService = {
    */
   async listConversionFormulas() {
     try {
-      const response = await api.get('/unit-conversions/formulas');
-      return response.data;
+      const response = await api.get("/unit-conversions/formulas");
+      return response;
     } catch (error) {
-      console.error('Error fetching conversion formulas:', error);
+      console.error("Error fetching conversion formulas:", error);
       throw error;
     }
   },
@@ -33,7 +33,7 @@ export const unitConversionService = {
   async getConversionFormula(category) {
     try {
       const response = await api.get(`/unit-conversions/formulas/${category}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error(`Error fetching formula for category ${category}:`, error);
       throw error;
@@ -49,14 +49,14 @@ export const unitConversionService = {
    */
   async calculateWeight(productId, quantity, unitCode) {
     try {
-      const response = await api.post('/unit-conversions/calculate-weight', {
+      const response = await api.post("/unit-conversions/calculate-weight", {
         product_id: productId,
         quantity,
         unit_code: unitCode,
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error calculating weight:', error);
+      console.error("Error calculating weight:", error);
       throw error;
     }
   },
@@ -72,15 +72,15 @@ export const unitConversionService = {
    */
   async convertUnits(productId, fromQuantity, fromUnit, toUnit) {
     try {
-      const response = await api.post('/unit-conversions/convert', {
+      const response = await api.post("/unit-conversions/convert", {
         product_id: productId,
         from_quantity: fromQuantity,
         from_unit: fromUnit,
         to_unit: toUnit,
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error converting units:', error);
+      console.error("Error converting units:", error);
       throw error;
     }
   },
@@ -92,15 +92,10 @@ export const unitConversionService = {
    */
   async getProductWeightSpec(productId) {
     try {
-      const response = await api.get(
-        `/unit-conversions/weight-specs/${productId}`,
-      );
-      return response.data;
+      const response = await api.get(`/unit-conversions/weight-specs/${productId}`);
+      return response;
     } catch (error) {
-      console.error(
-        `Error fetching weight spec for product ${productId}:`,
-        error,
-      );
+      console.error(`Error fetching weight spec for product ${productId}:`, error);
       throw error;
     }
   },
@@ -113,17 +108,17 @@ export const unitConversionService = {
    * @returns {Promise<{spec: Object}>}
    */
   async saveProductWeightSpec(spec, changeReason) {
-    if (!changeReason || changeReason.trim() === '') {
-      throw new Error('change_reason is required for audit trail');
+    if (!changeReason || changeReason.trim() === "") {
+      throw new Error("change_reason is required for audit trail");
     }
     try {
-      const response = await api.post('/unit-conversions/weight-specs', {
+      const response = await api.post("/unit-conversions/weight-specs", {
         spec,
         change_reason: changeReason,
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error saving weight spec:', error);
+      console.error("Error saving weight spec:", error);
       throw error;
     }
   },
@@ -135,13 +130,10 @@ export const unitConversionService = {
    */
   async batchCalculateWeight(items) {
     try {
-      const response = await api.post(
-        '/unit-conversions/batch-calculate-weight',
-        { items },
-      );
-      return response.data;
+      const response = await api.post("/unit-conversions/batch-calculate-weight", { items });
+      return response;
     } catch (error) {
-      console.error('Error batch calculating weights:', error);
+      console.error("Error batch calculating weights:", error);
       throw error;
     }
   },

@@ -1,39 +1,21 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { format } from "date-fns";
+import { ChevronLeft, ChevronRight, Edit, Eye, FileText, Loader2, Plus, Search, Trash2, Upload } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { useTheme } from "../contexts/ThemeContext";
 import {
-  listSupplierQuotations,
   deleteSupplierQuotation,
   getStatusColor,
   getStatusText,
-  getConfidenceColor,
-} from '../services/supplierQuotationService';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import ConfirmDialog from '../components/ConfirmDialog';
-import {
-  Loader2,
-  Plus,
-  Eye,
-  Edit,
-  Trash2,
-  Upload,
-  FileText,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
-import { format } from 'date-fns';
-import toast from 'react-hot-toast';
+  listSupplierQuotations,
+} from "../services/supplierQuotationService";
 
 /**
  * Supplier Quotation List Page
@@ -41,15 +23,16 @@ import toast from 'react-hot-toast';
  */
 export function SupplierQuotationList() {
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [pageInfo, setPageInfo] = useState({ totalPages: 0, totalCount: 0 });
-  const [statusFilter, setStatusFilter] = useState('');
-  const [search, setSearch] = useState('');
-  const [searchDebounce, setSearchDebounce] = useState('');
+  const [statusFilter, setStatusFilter] = useState("");
+  const [search, setSearch] = useState("");
+  const [searchDebounce, setSearchDebounce] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null });
 
   // Debounce search
@@ -74,8 +57,8 @@ export function SupplierQuotationList() {
       setQuotations(result.quotations || []);
       setPageInfo(result.pageInfo || { totalPages: 0, totalCount: 0 });
     } catch (err) {
-      console.error('Failed to load quotations:', err);
-      setError(err.message || 'Failed to load quotations');
+      console.error("Failed to load quotations:", err);
+      setError(err.message || "Failed to load quotations");
     } finally {
       setLoading(false);
     }
@@ -93,25 +76,25 @@ export function SupplierQuotationList() {
     const { id } = deleteConfirm;
     try {
       await deleteSupplierQuotation(id);
-      toast.success('Quotation deleted successfully');
+      toast.success("Quotation deleted successfully");
       loadQuotations();
-    } catch (err) {
-      toast.error('Failed to delete quotation');
+    } catch (_err) {
+      toast.error("Failed to delete quotation");
     }
   };
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return '-';
+    if (!dateStr) return "-";
     try {
-      return format(new Date(dateStr), 'dd/MM/yyyy');
+      return format(new Date(dateStr), "dd/MM/yyyy");
     } catch {
       return dateStr;
     }
   };
 
-  const formatCurrency = (amount, currency = 'AED') => {
-    return new Intl.NumberFormat('en-AE', {
-      style: 'currency',
+  const formatCurrency = (amount, currency = "AED") => {
+    return new Intl.NumberFormat("en-AE", {
+      style: "currency",
       currency,
       minimumFractionDigits: 2,
     }).format(amount || 0);
@@ -141,7 +124,7 @@ export function SupplierQuotationList() {
           <div className="flex gap-2">
             <Button
               variant="outline"
-              onClick={() => navigate('/app/supplier-quotations/upload')}
+              onClick={() => navigate("/app/supplier-quotations/upload")}
               className="flex items-center gap-2"
               data-testid="upload-pdf-btn"
             >
@@ -149,7 +132,7 @@ export function SupplierQuotationList() {
               Upload PDF
             </Button>
             <Button
-              onClick={() => navigate('/app/supplier-quotations/new')}
+              onClick={() => navigate("/app/supplier-quotations/new")}
               className="flex items-center gap-2"
               data-testid="new-quotation-btn"
             >
@@ -171,14 +154,17 @@ export function SupplierQuotationList() {
               />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">Status:</span>
+              <span className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Status:</span>
               <select
+                id="quotation-status-filter"
+                name="status"
                 value={statusFilter}
                 onChange={(e) => {
                   setStatusFilter(e.target.value);
                   setPage(1);
                 }}
-                className="px-3 py-1.5 border rounded-md text-sm"
+                className={`px-3 py-1.5 border rounded-md text-sm ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : ""}`}
+                aria-label="Filter by status"
               >
                 <option value="">All Statuses</option>
                 <option value="draft">Draft</option>
@@ -197,8 +183,9 @@ export function SupplierQuotationList() {
               <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
             </div>
           ) : quotations.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No quotations found
+            <div className={`text-center py-12 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+              <p className="font-medium">No supplier quotations found</p>
+              <p className="text-sm mt-1">Upload or create a supplier quotation to get started.</p>
             </div>
           ) : (
             <>
@@ -220,23 +207,27 @@ export function SupplierQuotationList() {
                     <TableRow key={q.id}>
                       <TableCell className="font-medium">
                         <div>
-                          <div>{q.internalReference || '-'}</div>
+                          <div>{q.internalReference || "-"}</div>
                           {q.supplierReference && (
-                            <div className="text-xs text-gray-500">
-                              Supplier: {q.supplierReference}
-                            </div>
+                            <div className="text-xs text-gray-500">Supplier: {q.supplierReference}</div>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{q.supplierName || '-'}</TableCell>
+                      <TableCell>{q.supplierName || "-"}</TableCell>
                       <TableCell>{formatDate(q.quoteDate)}</TableCell>
                       <TableCell>{formatDate(q.validityDate)}</TableCell>
-                      <TableCell className="text-right font-medium">
-                        {formatCurrency(q.total, q.currency)}
-                      </TableCell>
+                      <TableCell className="text-right font-medium">{formatCurrency(q.total, q.currency)}</TableCell>
                       <TableCell>
                         <Badge
-                          className={`bg-${getStatusColor(q.status)}-100 text-${getStatusColor(q.status)}-800`}
+                          className={(() => {
+                            const c = getStatusColor(q.status);
+                            if (c === "green") return "bg-green-100 text-green-800";
+                            if (c === "yellow") return "bg-yellow-100 text-yellow-800";
+                            if (c === "red") return "bg-red-100 text-red-800";
+                            if (c === "orange") return "bg-orange-100 text-orange-800";
+                            if (c === "blue") return "bg-blue-100 text-blue-800";
+                            return "bg-gray-100 text-gray-800";
+                          })()}
                         >
                           {getStatusText(q.status)}
                         </Badge>
@@ -245,11 +236,15 @@ export function SupplierQuotationList() {
                         {q.extractionConfidence > 0 ? (
                           <div className="flex items-center gap-1">
                             <div
-                              className={`w-2 h-2 rounded-full bg-${getConfidenceColor(q.extractionConfidence)}-500`}
+                              className={`w-2 h-2 rounded-full ${
+                                q.extractionConfidence >= 80
+                                  ? "bg-green-500"
+                                  : q.extractionConfidence >= 50
+                                    ? "bg-yellow-500"
+                                    : "bg-red-500"
+                              }`}
                             />
-                            <span className="text-sm">
-                              {Math.round(q.extractionConfidence)}%
-                            </span>
+                            <span className="text-sm">{Math.round(q.extractionConfidence)}%</span>
                           </div>
                         ) : (
                           <span className="text-gray-400 text-sm">Manual</span>
@@ -260,29 +255,22 @@ export function SupplierQuotationList() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() =>
-                              navigate(`/app/supplier-quotations/${q.id}`)
-                            }
+                            onClick={() => navigate(`/app/supplier-quotations/${q.id}`)}
                             title="View"
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          {q.status === 'draft' && (
+                          {q.status === "draft" && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() =>
-                                navigate(
-                                  `/app/supplier-quotations/${q.id}/edit`,
-                                )
-                              }
+                              onClick={() => navigate(`/app/supplier-quotations/${q.id}/edit`)}
                               title="Edit"
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
                           )}
-                          {(q.status === 'draft' ||
-                            q.status === 'rejected') && (
+                          {(q.status === "draft" || q.status === "rejected") && (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -302,15 +290,17 @@ export function SupplierQuotationList() {
 
               {/* Pagination */}
               <div className="flex items-center justify-between mt-4">
-                <div className="text-sm text-gray-500">
-                  Showing {(page - 1) * pageSize + 1} to{' '}
-                  {Math.min(page * pageSize, pageInfo.totalCount)} of{' '}
+                <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, pageInfo.totalCount)} of{" "}
                   {pageInfo.totalCount} quotations
                 </div>
                 <div className="flex gap-4 items-center">
                   {/* Page Size Selector */}
                   <div className="flex items-center gap-2">
-                    <label htmlFor="page-size-select" className="text-sm text-gray-500">
+                    <label
+                      htmlFor="page-size-select"
+                      className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                    >
                       Per page:
                     </label>
                     <select
@@ -320,7 +310,7 @@ export function SupplierQuotationList() {
                         setPageSize(Number(e.target.value));
                         setPage(1); // Reset to first page
                       }}
-                      className="px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`px-2 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : "border-gray-300"}`}
                     >
                       <option value={10}>10</option>
                       <option value={20}>20</option>
@@ -342,9 +332,7 @@ export function SupplierQuotationList() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() =>
-                        setPage((p) => Math.min(pageInfo.totalPages, p + 1))
-                      }
+                      onClick={() => setPage((p) => Math.min(pageInfo.totalPages, p + 1))}
                       disabled={page >= pageInfo.totalPages}
                     >
                       Next

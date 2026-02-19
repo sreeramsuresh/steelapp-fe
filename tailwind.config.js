@@ -1,6 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "!./src/**/__tests__/**",
+    "!./src/**/*.test.{js,ts,jsx,tsx}",
+  ],
   // Use class-based dark mode (controlled by .dark class on html element)
   darkMode: 'class',
   // Optimize for production
@@ -93,6 +98,15 @@ export default {
           "Roboto",
           "sans-serif",
         ],
+      },
+      keyframes: {
+        'line-item-slide-in': {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'line-item-slide-in': 'line-item-slide-in 0.3s ease both',
       },
     },
   },

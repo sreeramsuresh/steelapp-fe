@@ -1,20 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { X, Phone, Calendar, Trash2, Edit2, Plus, Loader2 } from 'lucide-react';
-import { formatDateTime, formatCurrency } from '../utils/invoiceUtils';
-import { apiService, tokenUtils } from '../services/axiosApi';
-import ConfirmDialog from './ConfirmDialog';
-import { notificationService } from '../services/notificationService';
+import { Calendar, Edit2, Loader2, Phone, Plus, Trash2, X } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+import { apiService, tokenUtils } from "../services/axiosApi";
+import { notificationService } from "../services/notificationService";
+import { formatCurrency, formatDateTime } from "../utils/invoiceUtils";
+import ConfirmDialog from "./ConfirmDialog";
+
+// Format a Date to local datetime-local input value (YYYY-MM-DDTHH:mm)
+// Uses the browser's local timezone (GST/UTC+4 for UAE)
+const toLocalDateTimeValue = (date = new Date()) => {
+  const d = new Date(date);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
 
 // Helper function to get first name from full name
 const getFirstName = (name) => {
-  if (!name) return 'N/A';
+  if (!name) return "N/A";
 
   const parts = name
     .trim()
-    .split(' ')
+    .split(" ")
     .filter((p) => p.length > 0);
 
-  if (parts.length === 0) return 'N/A';
+  if (parts.length === 0) return "N/A";
 
   // Return first name only, capitalized
   return parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
@@ -26,22 +34,16 @@ const formatPromisedDate = (dateString) => {
 
   const date = new Date(dateString);
   // Check if date is valid
-  if (isNaN(date.getTime())) return null;
+  if (Number.isNaN(date.getTime())) return null;
 
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 };
 
-const PaymentReminderModal = ({
-  isOpen,
-  onClose,
-  invoice,
-  onSave,
-  isViewOnly = false,
-}) => {
+const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = false }) => {
   const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -49,51 +51,47 @@ const PaymentReminderModal = ({
   const [currentUser, setCurrentUser] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null); // For custom confirmation dialog
   const [formData, setFormData] = useState({
-    contact_date: new Date().toISOString().slice(0, 16), // YYYY-MM-DDTHH:mm
-    notes: '',
-    promised_amount: '',
-    promised_date: '',
+    contact_date: toLocalDateTimeValue(), // YYYY-MM-DDTHH:mm
+    notes: "",
+    promised_amount: "",
+    promised_date: "",
   });
   const notesTextareaRef = React.useRef(null);
 
   // Get current user info
   useEffect(() => {
-    const user =
-      tokenUtils.getUser() ||
-      JSON.parse(localStorage.getItem('steel-app-user') || 'null');
+    const user = tokenUtils.getUser() || JSON.parse(localStorage.getItem("steel-app-user") || "null");
     setCurrentUser(user);
   }, []);
 
   // Fetch existing reminders when drawer opens
+  const fetchReminders = useCallback(async () => {
+    if (!invoice?.id) return;
+    try {
+      setLoading(true);
+      const data = await apiService.get(`/invoices/${invoice.id}/payment-reminders`);
+      setReminders(data);
+    } catch (err) {
+      // Silently fail - just show empty list
+      console.error("Failed to fetch reminders:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [invoice?.id]);
+
   useEffect(() => {
     if (isOpen && invoice?.id) {
       fetchReminders();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, invoice?.id]); // fetchReminders is stable within component lifecycle
+  }, [isOpen, invoice?.id, fetchReminders]);
 
   // Auto-resize textarea as user types
   useEffect(() => {
     if (notesTextareaRef.current) {
-      notesTextareaRef.current.style.height = 'auto';
+      notesTextareaRef.current.style.height = "auto";
       notesTextareaRef.current.style.height = `${notesTextareaRef.current.scrollHeight}px`;
     }
-  }, [formData.notes]);
-
-  const fetchReminders = async () => {
-    try {
-      setLoading(true);
-      const data = await apiService.get(
-        `/invoices/${invoice.id}/payment-reminders`,
-      );
-      setReminders(data);
-    } catch (err) {
-      // Silently fail - just show empty list
-      console.error('Failed to fetch reminders:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -107,40 +105,32 @@ const PaymentReminderModal = ({
     try {
       if (editingId) {
         // Update existing reminder
-        const updatedReminder = await apiService.put(
-          `/invoices/payment-reminders/${editingId}`,
-          formData,
-        );
+        const updatedReminder = await apiService.put(`/invoices/payment-reminders/${editingId}`, formData);
 
-        setReminders(
-          reminders.map((r) => (r.id === editingId ? updatedReminder : r)),
-        );
+        setReminders(reminders.map((r) => (r.id === editingId ? updatedReminder : r)));
 
         // Reset form
         setFormData({
-          contact_date: new Date().toISOString().slice(0, 16),
-          notes: '',
-          promised_amount: '',
-          promised_date: '',
+          contact_date: toLocalDateTimeValue(),
+          notes: "",
+          promised_amount: "",
+          promised_date: "",
         });
         setEditingId(null);
-        notificationService.success('Note updated successfully');
+        notificationService.success("Note updated successfully");
       } else {
         // Create new reminder
-        const newReminder = await apiService.post(
-          `/invoices/${invoice.id}/payment-reminders`,
-          formData,
-        );
+        const newReminder = await apiService.post(`/invoices/${invoice.id}/payment-reminders`, formData);
 
         // Add new reminder to the TOP of the list
         setReminders([newReminder, ...reminders]);
 
         // Reset form
         setFormData({
-          contact_date: new Date().toISOString().slice(0, 16),
-          notes: '',
-          promised_amount: '',
-          promised_date: '',
+          contact_date: toLocalDateTimeValue(),
+          notes: "",
+          promised_amount: "",
+          promised_date: "",
         });
         setEditingId(null);
 
@@ -152,10 +142,10 @@ const PaymentReminderModal = ({
         if (onSave) {
           onSave(newReminder);
         }
-        notificationService.success('Note saved successfully');
+        notificationService.success("Note saved successfully");
       }
     } catch (err) {
-      console.error('Error saving reminder:', err);
+      console.error("Error saving reminder:", err);
       notificationService.error(`Error saving note: ${err.message}`);
     } finally {
       setIsSaving(false);
@@ -165,10 +155,10 @@ const PaymentReminderModal = ({
   const handleEdit = (reminder) => {
     setEditingId(reminder.id);
     setFormData({
-      contact_date: new Date(reminder.contactDate).toISOString().slice(0, 16),
+      contact_date: toLocalDateTimeValue(reminder.contactDate),
       notes: reminder.notes,
-      promised_amount: reminder.promisedAmount || '',
-      promised_date: reminder.promisedDate || '',
+      promised_amount: reminder.promisedAmount || "",
+      promised_date: reminder.promisedDate || "",
     });
   };
 
@@ -183,11 +173,11 @@ const PaymentReminderModal = ({
     try {
       await apiService.delete(`/invoices/payment-reminders/${deleteConfirmId}`);
       setReminders(reminders.filter((r) => r.id !== deleteConfirmId));
-      notificationService.success('Note deleted successfully');
+      notificationService.success("Note deleted successfully");
       // console.log('Note deleted successfully');
       setDeleteConfirmId(null); // Close confirmation dialog
     } catch (err) {
-      console.error('Failed to delete note:', err);
+      console.error("Failed to delete note:", err);
       notificationService.error(`Error deleting note: ${err.message}`);
       setDeleteConfirmId(null);
     }
@@ -200,10 +190,10 @@ const PaymentReminderModal = ({
   const handleCancel = () => {
     setEditingId(null);
     setFormData({
-      contact_date: new Date().toISOString().slice(0, 16),
-      notes: '',
-      promised_amount: '',
-      promised_date: '',
+      contact_date: toLocalDateTimeValue(),
+      notes: "",
+      promised_amount: "",
+      promised_date: "",
     });
   };
 
@@ -212,13 +202,12 @@ const PaymentReminderModal = ({
   return (
     <div className="fixed inset-0 z-[1100] flex">
       {/* Backdrop */}
-      <div
+      <button
+        type="button"
         className="flex-1 bg-black/30"
         onClick={onClose}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === 'Enter' && onClose()}
-      ></div>
+        onKeyDown={(e) => e.key === "Enter" && onClose()}
+      ></button>
 
       {/* Drawer */}
       <div className="w-full max-w-lg h-full overflow-auto bg-gradient-to-br from-orange-50 to-amber-50 dark:from-[#2A1E1A] dark:to-[#221A16] text-gray-900 dark:text-white shadow-xl border-l-2 border-orange-300 dark:border-orange-700">
@@ -227,13 +216,8 @@ const PaymentReminderModal = ({
           <div className="flex justify-between items-start">
             <div>
               <div className="flex items-center gap-2">
-                <Phone
-                  className="text-orange-700 dark:text-orange-400"
-                  size={24}
-                />
-                <h2 className="text-xl font-bold text-orange-900 dark:text-orange-100">
-                  Payment Reminder Calls
-                </h2>
+                <Phone className="text-orange-700 dark:text-orange-400" size={24} />
+                <h2 className="text-xl font-bold text-orange-900 dark:text-orange-100">Payment Reminder Calls</h2>
                 {isViewOnly && (
                   <span className="px-2 py-0.5 text-xs font-semibold bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">
                     View Only
@@ -241,11 +225,11 @@ const PaymentReminderModal = ({
                 )}
               </div>
               <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
-                Invoice: {invoice?.invoiceNumber} | Customer:{' '}
-                {invoice?.customer?.name || 'N/A'}
+                Invoice: {invoice?.invoiceNumber} | Customer: {invoice?.customer?.name || "N/A"}
               </p>
             </div>
             <button
+              type="button"
               onClick={onClose}
               className="p-2 rounded hover:bg-orange-200 dark:hover:bg-orange-800/50 text-orange-700 dark:text-orange-300 hover:text-orange-900 dark:hover:text-orange-100 transition-colors"
             >
@@ -273,48 +257,36 @@ const PaymentReminderModal = ({
             <div className="text-sm font-semibold text-orange-900 dark:text-orange-100 mb-3 flex items-center gap-2">
               <span>📊</span> Invoice Summary
             </div>
-            <div className="grid grid-cols-3 gap-4 text-sm">
-              <div>
-                <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">
-                  Total Amount
-                </div>
-                <div className="font-bold text-lg text-orange-900 dark:text-orange-100">
-                  {formatCurrency(
-                    invoice?.invoiceAmount || invoice?.total || 0,
-                  )}
+            <div className="grid grid-cols-3 gap-2 text-sm">
+              <div className="min-w-0">
+                <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">Total Amount</div>
+                <div className="font-bold text-sm text-orange-900 dark:text-orange-100 truncate">
+                  {formatCurrency(invoice?.invoiceAmount || invoice?.total || 0)}
                 </div>
               </div>
-              <div>
-                <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">
-                  Paid Amount
-                </div>
-                <div className="font-bold text-lg text-green-600 dark:text-green-400">
+              <div className="min-w-0">
+                <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">Paid Amount</div>
+                <div className="font-bold text-sm text-green-600 dark:text-green-400 truncate">
                   {formatCurrency(invoice?.received || 0)}
                 </div>
               </div>
-              <div>
-                <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">
-                  Balance Due
-                </div>
-                <div className="font-bold text-lg text-red-600 dark:text-red-400">
-                  {formatCurrency(
-                    invoice?.outstanding || invoice?.balanceDue || 0,
-                  )}
+              <div className="min-w-0">
+                <div className="text-xs text-orange-700 dark:text-orange-300 mb-1">Balance Due</div>
+                <div className="font-bold text-sm text-red-600 dark:text-red-400 truncate">
+                  {formatCurrency(invoice?.outstanding || invoice?.balanceDue || 0)}
                 </div>
               </div>
             </div>
             <div className="mt-3 pt-3 border-t border-orange-300 dark:border-orange-700">
               <div className="text-xs text-orange-700 dark:text-orange-300">
-                <strong>Customer:</strong> {invoice?.customer?.name || 'N/A'}
+                <strong>Customer:</strong> {invoice?.customer?.name || "N/A"}
               </div>
             </div>
           </div>
 
           {/* Saved Notes List */}
           {loading ? (
-            <div className="text-center py-4 text-orange-700 dark:text-orange-300">
-              Loading...
-            </div>
+            <div className="text-center py-4 text-orange-700 dark:text-orange-300">Loading...</div>
           ) : (
             reminders.length > 0 && (
               <div className="space-y-3">
@@ -326,9 +298,7 @@ const PaymentReminderModal = ({
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <Calendar size={14} />
-                        <span className="font-medium">
-                          {formatDateTime(reminder.contactDate)}
-                        </span>
+                        <span className="font-medium">{formatDateTime(reminder.contactDate)}</span>
                         {/* User First Name */}
                         <span className="ml-2 px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 rounded text-xs font-semibold">
                           {getFirstName(currentUser?.name)}
@@ -337,6 +307,7 @@ const PaymentReminderModal = ({
                       {!isViewOnly && (
                         <div className="flex gap-1">
                           <button
+                            type="button"
                             onClick={() => handleEdit(reminder)}
                             className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
                             title="Edit"
@@ -344,6 +315,7 @@ const PaymentReminderModal = ({
                             <Edit2 size={16} />
                           </button>
                           <button
+                            type="button"
                             onClick={() => handleDelete(reminder.id)}
                             className="p-1 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
                             title="Delete"
@@ -354,9 +326,7 @@ const PaymentReminderModal = ({
                       )}
                     </div>
 
-                    <p className="text-gray-800 dark:text-gray-200 text-sm">
-                      {reminder.notes}
-                    </p>
+                    <p className="text-gray-800 dark:text-gray-200 text-sm">{reminder.notes}</p>
 
                     {/* Show promised payment info if available */}
                     {(reminder.promisedAmount || reminder.promisedDate) && (
@@ -364,21 +334,16 @@ const PaymentReminderModal = ({
                         {reminder.promisedAmount && (
                           <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                             <span>💰</span>
-                            <span className="font-semibold">
-                              Promised Amount:
-                            </span>
+                            <span className="font-semibold">Promised Amount:</span>
                             <span className="text-green-600 dark:text-green-400 font-bold">
-                              AED{' '}
-                              {parseFloat(reminder.promisedAmount).toFixed(2)}
+                              AED {parseFloat(reminder.promisedAmount).toFixed(2)}
                             </span>
                           </div>
                         )}
                         {formatPromisedDate(reminder.promisedDate) && (
                           <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                             <span>📅</span>
-                            <span className="font-semibold">
-                              Promised Date:
-                            </span>
+                            <span className="font-semibold">Promised Date:</span>
                             <span className="text-blue-600 dark:text-blue-400 font-bold">
                               {formatPromisedDate(reminder.promisedDate)}
                             </span>
@@ -400,17 +365,11 @@ const PaymentReminderModal = ({
             >
               <h3 className="font-semibold text-orange-900 dark:text-orange-100 mb-4 flex items-center gap-2">
                 {editingId ? (
-                  <Edit2
-                    size={18}
-                    className="text-orange-600 dark:text-orange-400"
-                  />
+                  <Edit2 size={18} className="text-orange-600 dark:text-orange-400" />
                 ) : (
-                  <Plus
-                    size={18}
-                    className="text-orange-600 dark:text-orange-400"
-                  />
+                  <Plus size={18} className="text-orange-600 dark:text-orange-400" />
                 )}
-                {editingId ? 'Edit Call Note' : 'New Call Note'}
+                {editingId ? "Edit Call Note" : "New Call Note"}
               </h3>
 
               <div className="space-y-4">
@@ -427,9 +386,7 @@ const PaymentReminderModal = ({
                     id="contact-date-input"
                     type="datetime-local"
                     value={formData.contact_date}
-                    onChange={(e) =>
-                      setFormData({ ...formData, contact_date: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, contact_date: e.target.value })}
                     onClick={(e) => e.target.showPicker?.()}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-transparent cursor-pointer"
                     required
@@ -448,9 +405,7 @@ const PaymentReminderModal = ({
                     id="call-notes-textarea"
                     ref={notesTextareaRef}
                     value={formData.notes}
-                    onChange={(e) =>
-                      setFormData({ ...formData, notes: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                     placeholder="Enter call notes - what was discussed, customer response, concerns, etc..."
                     rows={3}
                     maxLength={200}
@@ -458,11 +413,9 @@ const PaymentReminderModal = ({
                     required
                   />
                   <div className="flex justify-between items-center text-xs mt-1">
-                    <span className="text-gray-500 dark:text-gray-400">
-                      Auto-expands as you type
-                    </span>
+                    <span className="text-gray-500 dark:text-gray-400">Auto-expands as you type</span>
                     <span
-                      className={`font-medium ${formData.notes.length > 180 ? 'text-orange-600 dark:text-orange-400' : 'text-gray-500 dark:text-gray-400'}`}
+                      className={`font-medium ${formData.notes.length > 180 ? "text-orange-600 dark:text-orange-400" : "text-gray-500 dark:text-gray-400"}`}
                     >
                       {formData.notes.length}/200
                     </span>
@@ -471,12 +424,15 @@ const PaymentReminderModal = ({
 
                 {/* Promised Amount (Optional) */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
+                  <label
+                    htmlFor="promised-amount-input"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1"
+                  >
                     <span>💰</span>
-                    Promised Amount{' '}
-                    <span className="text-gray-500 text-xs">(Optional)</span>
+                    Promised Amount <span className="text-gray-500 text-xs">(Optional)</span>
                   </label>
                   <input
+                    id="promised-amount-input"
                     type="number"
                     step="0.01"
                     min="0"
@@ -494,14 +450,16 @@ const PaymentReminderModal = ({
 
                 {/* Promised Payment Date (Important) */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
+                  <label
+                    htmlFor="promised-date-input"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1"
+                  >
                     <span>📅</span>
-                    When Will Customer Pay?{' '}
-                    <span className="text-blue-600 dark:text-blue-400 text-xs font-semibold">
-                      (Important)
-                    </span>
+                    When Will Customer Pay?{" "}
+                    <span className="text-blue-600 dark:text-blue-400 text-xs font-semibold">(Important)</span>
                   </label>
                   <input
+                    id="promised-date-input"
                     type="date"
                     value={formData.promised_date}
                     onChange={(e) =>
@@ -525,9 +483,7 @@ const PaymentReminderModal = ({
                   type="submit"
                   disabled={isSaving}
                   className={`flex-1 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 dark:from-orange-600 dark:to-amber-600 text-white rounded-lg hover:from-orange-600 hover:to-amber-600 dark:hover:from-orange-700 dark:hover:to-amber-700 transition-all font-medium shadow-md hover:shadow-lg inline-flex items-center justify-center ${
-                    isSaving
-                      ? 'opacity-60 cursor-not-allowed pointer-events-none'
-                      : ''
+                    isSaving ? "opacity-60 cursor-not-allowed pointer-events-none" : ""
                   }`}
                 >
                   {isSaving ? (
@@ -536,7 +492,7 @@ const PaymentReminderModal = ({
                       Saving...
                     </>
                   ) : (
-                    `${editingId ? 'Update' : 'Save'} Note`
+                    `${editingId ? "Update" : "Save"} Note`
                   )}
                 </button>
                 {editingId && (
@@ -545,7 +501,7 @@ const PaymentReminderModal = ({
                     onClick={handleCancel}
                     disabled={isSaving}
                     className={`flex-1 px-4 py-2.5 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors font-medium shadow ${
-                      isSaving ? 'opacity-50 cursor-not-allowed' : ''
+                      isSaving ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
                     Cancel

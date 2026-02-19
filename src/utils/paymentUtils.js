@@ -8,155 +8,155 @@
 // Payment mode configuration (UAE Standard Business Practices)
 export const PAYMENT_MODES = {
   cash: {
-    value: 'cash',
-    label: 'Cash',
-    icon: '💵',
+    value: "cash",
+    label: "Cash",
+    icon: "💵",
     requiresRef: false,
-    color: 'green',
+    color: "green",
   },
   cheque: {
-    value: 'cheque',
-    label: 'Cheque',
-    icon: '🧾',
+    value: "cheque",
+    label: "Cheque",
+    icon: "🧾",
     requiresRef: true,
-    refLabel: 'Cheque Number',
-    color: 'blue',
+    refLabel: "Cheque Number",
+    color: "blue",
   },
   pdc: {
-    value: 'pdc',
-    label: 'PDC (Post-Dated Cheque)',
-    icon: '📅',
+    value: "pdc",
+    label: "PDC (Post-Dated Cheque)",
+    icon: "📅",
     requiresRef: true,
-    refLabel: 'PDC Number',
-    color: 'orange',
+    refLabel: "PDC Number",
+    color: "orange",
   },
   bank_transfer: {
-    value: 'bank_transfer',
-    label: 'Bank Transfer',
-    icon: '🏦',
+    value: "bank_transfer",
+    label: "Bank Transfer",
+    icon: "🏦",
     requiresRef: true,
-    refLabel: 'Transaction/Reference Number',
-    color: 'teal',
+    refLabel: "Transaction/Reference Number",
+    color: "teal",
   },
   credit_card: {
-    value: 'credit_card',
-    label: 'Credit Card',
-    icon: '💳',
+    value: "credit_card",
+    label: "Credit Card",
+    icon: "💳",
     requiresRef: true,
-    refLabel: 'Transaction ID',
-    color: 'purple',
+    refLabel: "Transaction ID",
+    color: "purple",
   },
   debit_card: {
-    value: 'debit_card',
-    label: 'Debit Card',
-    icon: '💳',
+    value: "debit_card",
+    label: "Debit Card",
+    icon: "💳",
     requiresRef: true,
-    refLabel: 'Transaction ID',
-    color: 'indigo',
+    refLabel: "Transaction ID",
+    color: "indigo",
   },
   online: {
-    value: 'online',
-    label: 'Online Payment Gateway',
-    icon: '🌐',
+    value: "online",
+    label: "Online Payment Gateway",
+    icon: "🌐",
     requiresRef: true,
-    refLabel: 'Transaction ID',
-    color: 'cyan',
+    refLabel: "Transaction ID",
+    color: "cyan",
   },
   wire_transfer: {
-    value: 'wire_transfer',
-    label: 'Wire Transfer (International)',
-    icon: '🌍',
+    value: "wire_transfer",
+    label: "Wire Transfer (International)",
+    icon: "🌍",
     requiresRef: true,
-    refLabel: 'Swift/Reference Number',
-    color: 'blue',
+    refLabel: "Swift/Reference Number",
+    color: "blue",
   },
   mobile_wallet: {
-    value: 'mobile_wallet',
-    label: 'Mobile Wallet (Apple Pay/Google Pay)',
-    icon: '📱',
+    value: "mobile_wallet",
+    label: "Mobile Wallet (Apple Pay/Google Pay)",
+    icon: "📱",
     requiresRef: true,
-    refLabel: 'Transaction ID',
-    color: 'green',
+    refLabel: "Transaction ID",
+    color: "green",
   },
   other: {
-    value: 'other',
-    label: 'Other',
-    icon: '📝',
+    value: "other",
+    label: "Other",
+    icon: "📝",
     requiresRef: false,
-    refLabel: 'Reference',
-    color: 'gray',
+    refLabel: "Reference",
+    color: "gray",
   },
 };
 
 // Payment status configuration
 export const PAYMENT_STATUS = {
   unpaid: {
-    value: 'unpaid',
-    label: 'UNPAID',
-    color: 'red',
-    bgLight: 'bg-red-100',
-    bgDark: 'bg-red-900/30',
-    textLight: 'text-red-800',
-    textDark: 'text-red-300',
-    borderLight: 'border-red-300',
-    borderDark: 'border-red-600',
+    value: "unpaid",
+    label: "UNPAID",
+    color: "red",
+    bgLight: "bg-red-100",
+    bgDark: "bg-red-900/30",
+    textLight: "text-red-800",
+    textDark: "text-red-300",
+    borderLight: "border-red-300",
+    borderDark: "border-red-600",
   },
   partially_paid: {
-    value: 'partially_paid',
-    label: 'PARTIALLY PAID',
-    color: 'yellow',
-    bgLight: 'bg-yellow-100',
-    bgDark: 'bg-yellow-900/30',
-    textLight: 'text-yellow-800',
-    textDark: 'text-yellow-300',
-    borderLight: 'border-yellow-300',
-    borderDark: 'border-yellow-600',
+    value: "partially_paid",
+    label: "PARTIALLY PAID",
+    color: "yellow",
+    bgLight: "bg-yellow-100",
+    bgDark: "bg-yellow-900/30",
+    textLight: "text-yellow-800",
+    textDark: "text-yellow-300",
+    borderLight: "border-yellow-300",
+    borderDark: "border-yellow-600",
   },
   // Backend uses 'paid' - map it to fully_paid config
   paid: {
-    value: 'paid',
-    label: 'FULLY PAID',
-    color: 'green',
-    bgLight: 'bg-green-100',
-    bgDark: 'bg-green-900/30',
-    textLight: 'text-green-800',
-    textDark: 'text-green-300',
-    borderLight: 'border-green-300',
-    borderDark: 'border-green-600',
+    value: "paid",
+    label: "FULLY PAID",
+    color: "green",
+    bgLight: "bg-green-100",
+    bgDark: "bg-green-900/30",
+    textLight: "text-green-800",
+    textDark: "text-green-300",
+    borderLight: "border-green-300",
+    borderDark: "border-green-600",
   },
   fully_paid: {
-    value: 'fully_paid',
-    label: 'FULLY PAID',
-    color: 'green',
-    bgLight: 'bg-green-100',
-    bgDark: 'bg-green-900/30',
-    textLight: 'text-green-800',
-    textDark: 'text-green-300',
-    borderLight: 'border-green-300',
-    borderDark: 'border-green-600',
+    value: "fully_paid",
+    label: "FULLY PAID",
+    color: "green",
+    bgLight: "bg-green-100",
+    bgDark: "bg-green-900/30",
+    textLight: "text-green-800",
+    textDark: "text-green-300",
+    borderLight: "border-green-300",
+    borderDark: "border-green-600",
   },
   // Backend uses 'overdue' - add config for it
   overdue: {
-    value: 'overdue',
-    label: 'OVERDUE',
-    color: 'red',
-    bgLight: 'bg-red-100',
-    bgDark: 'bg-red-900/30',
-    textLight: 'text-red-800',
-    textDark: 'text-red-300',
-    borderLight: 'border-red-300',
-    borderDark: 'border-red-600',
+    value: "overdue",
+    label: "OVERDUE",
+    color: "red",
+    bgLight: "bg-red-100",
+    bgDark: "bg-red-900/30",
+    textLight: "text-red-800",
+    textDark: "text-red-300",
+    borderLight: "border-red-300",
+    borderDark: "border-red-600",
   },
   overpaid: {
-    value: 'overpaid',
-    label: 'OVERPAID',
-    color: 'blue',
-    bgLight: 'bg-blue-100',
-    bgDark: 'bg-blue-900/30',
-    textLight: 'text-blue-800',
-    textDark: 'text-blue-300',
-    borderLight: 'border-blue-300',
-    borderDark: 'border-blue-600',
+    value: "overpaid",
+    label: "OVERPAID",
+    color: "blue",
+    bgLight: "bg-blue-100",
+    bgDark: "bg-blue-900/30",
+    textLight: "text-blue-800",
+    textDark: "text-blue-300",
+    borderLight: "border-blue-300",
+    borderDark: "border-blue-600",
   },
 };
 
@@ -187,10 +187,10 @@ export const calculatePaymentStatus = (invoiceTotal, payments = []) => {
   const total = parseFloat(invoiceTotal) || 0;
   const totalPaid = calculateTotalPaid(payments);
 
-  if (total === 0) return 'unpaid';
-  if (totalPaid === 0) return 'unpaid';
-  if (totalPaid >= total) return 'fully_paid';
-  return 'partially_paid';
+  if (total === 0) return "unpaid";
+  if (totalPaid === 0) return "unpaid";
+  if (totalPaid >= total) return "fully_paid";
+  return "partially_paid";
 };
 
 /**
@@ -201,10 +201,7 @@ export const getPaymentModeConfig = (modeValue) => {
   if (!modeValue) return PAYMENT_MODES.other;
 
   // Convert to lowercase and replace spaces with underscores
-  const normalizedValue = String(modeValue)
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, '_');
+  const normalizedValue = String(modeValue).toLowerCase().trim().replace(/\s+/g, "_");
 
   // Direct match
   if (PAYMENT_MODES[normalizedValue]) {
@@ -213,8 +210,7 @@ export const getPaymentModeConfig = (modeValue) => {
 
   // Try to match by label (case-insensitive)
   const modeByLabel = Object.values(PAYMENT_MODES).find(
-    (mode) =>
-      mode.label.toLowerCase() === String(modeValue).toLowerCase().trim(),
+    (mode) => mode.label.toLowerCase() === String(modeValue).toLowerCase().trim()
   );
 
   if (modeByLabel) {
@@ -236,27 +232,23 @@ export const getPaymentStatusConfig = (statusValue) => {
  * Validate payment data
  * Accepts both paymentMethod (standard) and paymentMode (legacy) field names
  */
-export const validatePayment = (
-  payment,
-  invoiceTotal,
-  existingPayments = [],
-) => {
+export const validatePayment = (payment, invoiceTotal, existingPayments = []) => {
   const errors = [];
 
   // Amount validation
   if (!payment.amount || payment.amount <= 0) {
-    errors.push('Amount must be greater than 0');
+    errors.push("Amount must be greater than 0");
   }
 
   // Date validation
   if (!payment.date) {
-    errors.push('Payment date is required');
+    errors.push("Payment date is required");
   }
 
   // Payment mode/method validation - accept both field names
   const paymentMethodValue = payment.paymentMethod || payment.paymentMode;
   if (!paymentMethodValue) {
-    errors.push('Payment mode is required');
+    errors.push("Payment mode is required");
   }
 
   // Reference number validation (for certain payment modes)
@@ -269,9 +261,7 @@ export const validatePayment = (
   const currentTotalPaid = calculateTotalPaid(existingPayments);
   const balanceDue = invoiceTotal - currentTotalPaid;
   if (payment.amount > balanceDue) {
-    errors.push(
-      `Warning: Amount exceeds balance due (${balanceDue.toFixed(2)})`,
-    );
+    errors.push(`Warning: Amount exceeds balance due (${balanceDue.toFixed(2)})`);
   }
 
   return errors;
@@ -283,37 +273,36 @@ export const validatePayment = (
  */
 export const formatPaymentDisplay = (payment) => {
   // Handle different payment method field names
-  const methodValue =
-    payment.paymentMethod || payment.paymentMode || payment.method;
+  const methodValue = payment.paymentMethod || payment.paymentMode || payment.method;
   const modeConfig = getPaymentModeConfig(methodValue);
 
   // Handle different date field names and formats
   const dateValue = payment.paymentDate || payment.date;
-  let formattedDate = 'N/A';
+  let formattedDate = "N/A";
 
   try {
     if (dateValue) {
       const dateObj = new Date(dateValue);
-      if (!isNaN(dateObj.getTime())) {
-        formattedDate = dateObj.toLocaleDateString('en-AE', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
+      if (!Number.isNaN(dateObj.getTime())) {
+        formattedDate = dateObj.toLocaleDateString("en-AE", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
         });
       }
     }
   } catch (e) {
-    console.error('Date formatting error:', e);
-    formattedDate = 'Invalid Date';
+    console.error("Date formatting error:", e);
+    formattedDate = "Invalid Date";
   }
 
   return {
     ...payment,
     modeLabel: modeConfig.label,
     modeIcon: modeConfig.icon,
-    formattedAmount: new Intl.NumberFormat('en-AE', {
-      style: 'currency',
-      currency: 'AED',
+    formattedAmount: new Intl.NumberFormat("en-AE", {
+      style: "currency",
+      currency: "AED",
     }).format(payment.amount || 0),
     formattedDate,
   };
@@ -325,9 +314,7 @@ export const formatPaymentDisplay = (payment) => {
 export const getLastPaymentDate = (payments = []) => {
   if (!Array.isArray(payments) || payments.length === 0) return null;
 
-  const sorted = [...payments].sort(
-    (a, b) => new Date(b.date) - new Date(a.date),
-  );
+  const sorted = [...payments].sort((a, b) => new Date(b.date) - new Date(a.date));
 
   return sorted[0]?.date || null;
 };

@@ -11,7 +11,7 @@
  * });
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from "react";
 
 /**
  * Custom hook for drag-and-drop reordering
@@ -39,17 +39,17 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
       setIsDragging(true);
 
       // Set drag image and data
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', index.toString());
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", index.toString());
 
       // Add slight delay for visual feedback
       setTimeout(() => {
         if (dragNodeRef.current) {
-          dragNodeRef.current.style.opacity = '0.5';
+          dragNodeRef.current.style.opacity = "0.5";
         }
       }, 0);
     },
-    [enabled],
+    [enabled]
   );
 
   // Handle drag end
@@ -58,7 +58,7 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
       if (!enabled) return;
 
       if (dragNodeRef.current) {
-        dragNodeRef.current.style.opacity = '1';
+        dragNodeRef.current.style.opacity = "1";
       }
 
       setIsDragging(false);
@@ -67,7 +67,7 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
       dragNodeRef.current = null;
       dragIndexRef.current = null;
     },
-    [enabled],
+    [enabled]
   );
 
   // Handle drag over
@@ -76,13 +76,13 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
       if (!enabled) return;
 
       e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
+      e.dataTransfer.dropEffect = "move";
 
       if (index !== dragOverIndex) {
         setDragOverIndex(index);
       }
     },
-    [enabled, dragOverIndex],
+    [enabled, dragOverIndex]
   );
 
   // Handle drag enter
@@ -95,7 +95,7 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
         setDragOverIndex(index);
       }
     },
-    [enabled],
+    [enabled]
   );
 
   // Handle drag leave
@@ -104,7 +104,7 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
       if (!enabled) return;
       // Only clear if leaving the container entirely
     },
-    [enabled],
+    [enabled]
   );
 
   // Handle drop
@@ -133,7 +133,7 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
       // Reset state
       setDragOverIndex(null);
     },
-    [enabled, items, onReorder],
+    [enabled, items, onReorder]
   );
 
   // Get props for a draggable item
@@ -153,15 +153,7 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
         onDrop: (e) => handleDrop(e, index),
       };
     },
-    [
-      enabled,
-      handleDragStart,
-      handleDragEnd,
-      handleDragOver,
-      handleDragEnter,
-      handleDragLeave,
-      handleDrop,
-    ],
+    [enabled, handleDragStart, handleDragEnd, handleDragOver, handleDragEnter, handleDragLeave, handleDrop]
   );
 
   // Get drag handle props (for a specific drag handle element)
@@ -178,12 +170,12 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
           e.stopPropagation();
           handleDragStart(e, index);
         },
-        style: { cursor: 'grab' },
-        title: 'Drag to reorder',
-        'aria-label': `Drag to reorder item ${index + 1}`,
+        style: { cursor: "grab" },
+        title: "Drag to reorder",
+        "aria-label": `Drag to reorder item ${index + 1}`,
       };
     },
-    [enabled, handleDragStart],
+    [enabled, handleDragStart]
   );
 
   // Check if an index is being dragged over
@@ -191,7 +183,7 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
     (index) => {
       return dragOverIndex === index && dragIndex !== index;
     },
-    [dragOverIndex, dragIndex],
+    [dragOverIndex, dragIndex]
   );
 
   // Check if an index is being dragged
@@ -199,7 +191,7 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
     (index) => {
       return dragIndex === index;
     },
-    [dragIndex],
+    [dragIndex]
   );
 
   // Move item up
@@ -208,16 +200,13 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
       if (index <= 0 || !enabled) return;
 
       const newItems = [...items];
-      [newItems[index - 1], newItems[index]] = [
-        newItems[index],
-        newItems[index - 1],
-      ];
+      [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
 
       if (onReorder) {
         onReorder(newItems);
       }
     },
-    [items, onReorder, enabled],
+    [items, onReorder, enabled]
   );
 
   // Move item down
@@ -226,16 +215,13 @@ const useDragReorder = ({ items = [], onReorder, enabled = true } = {}) => {
       if (index >= items.length - 1 || !enabled) return;
 
       const newItems = [...items];
-      [newItems[index], newItems[index + 1]] = [
-        newItems[index + 1],
-        newItems[index],
-      ];
+      [newItems[index], newItems[index + 1]] = [newItems[index + 1], newItems[index]];
 
       if (onReorder) {
         onReorder(newItems);
       }
     },
-    [items, onReorder, enabled],
+    [items, onReorder, enabled]
   );
 
   return {
@@ -272,7 +258,7 @@ export default useDragReorder;
  * Drag handle icon component (GripVertical)
  * Inline SVG to avoid additional dependencies
  */
-export const DragHandleIcon = ({ size = 16, className = '' }) => (
+export const DragHandleIcon = ({ size = 16, className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={size}
@@ -285,6 +271,7 @@ export const DragHandleIcon = ({ size = 16, className = '' }) => (
     strokeLinejoin="round"
     className={className}
   >
+    <title>Drag handle</title>
     <circle cx="9" cy="5" r="1" fill="currentColor" />
     <circle cx="9" cy="12" r="1" fill="currentColor" />
     <circle cx="9" cy="19" r="1" fill="currentColor" />

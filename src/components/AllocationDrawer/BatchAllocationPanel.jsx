@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import PropTypes from 'prop-types';
-import { batchReservationService } from '../../services/batchReservationService';
-import useBulkActions, { BulkCheckbox } from '../../hooks/useBulkActions';
+import PropTypes from "prop-types";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import useBulkActions, { BulkCheckbox } from "../../hooks/useBulkActions";
+import { batchReservationService } from "../../services/batchReservationService";
+import { formatDateDMY } from "../../utils/invoiceUtils";
 
 /**
  * BatchAllocationPanel Component (PCS-CENTRIC)
@@ -25,7 +26,7 @@ const BatchAllocationPanel = ({
   draftInvoiceId,
   _lineItemTempId,
   requiredQuantity, // Now interpreted as PCS (integer)
-  unit = 'PCS', // Default to PCS (industry standard)
+  unit = "PCS", // Default to PCS (industry standard)
   _companyId,
   _onAllocationsChange,
   reserveFIFO,
@@ -71,8 +72,8 @@ const BatchAllocationPanel = ({
 
       setBatches(response.batches || []);
     } catch (err) {
-      console.error('Failed to fetch available batches:', err);
-      setFetchError('Failed to load available batches');
+      console.error("Failed to fetch available batches:", err);
+      setFetchError("Failed to load available batches");
       setBatches([]);
     } finally {
       setFetchingBatches(false);
@@ -87,7 +88,7 @@ const BatchAllocationPanel = ({
   // Clear errors when user changes product or quantity (fixes stale error messages)
   useEffect(() => {
     setFetchError(null);
-  }, [productId, requiredQuantity]);
+  }, []);
 
   // Handle Auto-Fill FIFO
   const handleAutoFIFO = useCallback(async () => {
@@ -98,36 +99,29 @@ const BatchAllocationPanel = ({
     const errors = [];
 
     if (!productId) {
-      errors.push('• Product: Please select a product first.');
+      errors.push("• Product: Please select a product first.");
     }
     if (!warehouseId) {
-      errors.push(
-        '• Warehouse: Please select a warehouse from the list above.',
-      );
+      errors.push("• Warehouse: Please select a warehouse from the list above.");
     }
     if (!requiredQuantity || requiredQuantity <= 0) {
-      errors.push('• Quantity: Please enter a quantity greater than 0.');
+      errors.push("• Quantity: Please enter a quantity greater than 0.");
     }
     if (!unit) {
-      errors.push('• Unit: Please select a unit (KG/PCS/MT/M).');
+      errors.push("• Unit: Please select a unit (KG/PCS/MT/M).");
     }
 
     if (errors.length > 0) {
-      setFetchError(
-        `Cannot allocate - Missing required fields:\n\n${errors.join('\n')}`,
-      );
+      setFetchError(`Cannot allocate - Missing required fields:\n\n${errors.join("\n")}`);
       return;
     }
 
     // Check if selected warehouse has stock
-    const totalAvailable = batches.reduce(
-      (sum, batch) => sum + parseFloat(batch.quantityAllocatable || 0),
-      0,
-    );
+    const totalAvailable = batches.reduce((sum, batch) => sum + parseFloat(batch.quantityAllocatable || 0), 0);
 
     if (totalAvailable === 0) {
       setFetchError(
-        'Cannot allocate - Selected warehouse has 0 stock available.\n\nPlease select a different warehouse or use drop-ship source type.',
+        "Cannot allocate - Selected warehouse has 0 stock available.\n\nPlease select a different warehouse or use drop-ship source type."
       );
       return;
     }
@@ -136,45 +130,33 @@ const BatchAllocationPanel = ({
     try {
       // PCS-CENTRIC: Pass integer PCS to backend (industry standard)
       const requestedPcs = Math.floor(requiredQuantity);
-      await reserveFIFO(requestedPcs, 'PCS');
+      await reserveFIFO(requestedPcs, "PCS");
       // Refresh batches to get updated availability
       await fetchBatches();
     } catch (err) {
-      console.error('FIFO allocation failed:', err);
+      console.error("FIFO allocation failed:", err);
       // Format backend error nicely
-      const backendError =
-        err.response?.data?.message || err.message || 'Unknown error';
+      const backendError = err.response?.data?.message || err.message || "Unknown error";
       setFetchError(`Allocation failed:\n\n${backendError}`);
     } finally {
       setIsAllocating(false);
     }
-  }, [
-    productId,
-    warehouseId,
-    requiredQuantity,
-    unit,
-    batches,
-    reserveFIFO,
-    fetchBatches,
-  ]);
+  }, [productId, warehouseId, requiredQuantity, unit, batches, reserveFIFO, fetchBatches]);
 
   // Handle manual allocation change for a batch (PCS-CENTRIC: integer only)
   const handleManualAllocationChange = useCallback(
     (batchId, value) => {
       // Parse and validate value (INTEGER PCS ONLY)
       let pcs = 0;
-      if (value !== '') {
+      if (value !== "") {
         pcs = parseInt(value, 10);
-        if (isNaN(pcs) || pcs < 0) return;
+        if (Number.isNaN(pcs) || pcs < 0) return;
       }
 
       // Find the batch to check max allocatable PCS
       const batch = batches.find((b) => b.id === batchId);
       // Use pcsAvailable (new PCS field) or fall back to quantityAllocatable
-      const maxAllocatablePcs = parseInt(
-        batch?.pcsAvailable || batch?.quantityAllocatable || 0,
-        10,
-      );
+      const maxAllocatablePcs = parseInt(batch?.pcsAvailable || batch?.quantityAllocatable || 0, 10);
 
       // Clamp to max
       if (pcs > maxAllocatablePcs) {
@@ -186,7 +168,7 @@ const BatchAllocationPanel = ({
         [batchId]: pcs > 0 ? pcs : undefined,
       }));
     },
-    [batches],
+    [batches]
   );
 
   // Apply manual allocations (only for selected batches with quantities)
@@ -194,11 +176,11 @@ const BatchAllocationPanel = ({
     const allocs = Object.entries(manualAllocations)
       .filter(([batchId, qty]) => {
         // Only include batches that are selected AND have a quantity
-        const batch = batches.find((b) => b.id === parseInt(batchId));
+        const batch = batches.find((b) => b.id === parseInt(batchId, 10));
         return batch && isSelected(batch) && qty && qty > 0;
       })
       .map(([batchId, qty]) => ({
-        batchId: parseInt(batchId),
+        batchId: parseInt(batchId, 10),
         quantity: qty,
       }));
 
@@ -213,26 +195,16 @@ const BatchAllocationPanel = ({
       clearSelection(); // Clear selection after successful allocation
       await fetchBatches();
     } catch (err) {
-      console.error('Manual allocation failed:', err);
+      console.error("Manual allocation failed:", err);
     } finally {
       setIsAllocating(false);
     }
-  }, [
-    manualAllocations,
-    batches,
-    isSelected,
-    reserveManual,
-    fetchBatches,
-    clearSelection,
-  ]);
+  }, [manualAllocations, batches, isSelected, reserveManual, fetchBatches, clearSelection]);
 
   // Calculate totals from current allocations
   // Note: totalCost (COGS) is calculated in parent for per-unit margin display
   const { totalAllocated } = useMemo(() => {
-    const allocated = (allocations || []).reduce(
-      (sum, a) => sum + parseFloat(a.quantity || 0),
-      0,
-    );
+    const allocated = (allocations || []).reduce((sum, a) => sum + parseFloat(a.quantity || 0), 0);
     return { totalAllocated: allocated };
   }, [allocations]);
 
@@ -247,11 +219,11 @@ const BatchAllocationPanel = ({
 
   // Format date for display
   const _formatDate = (dateStr) => {
-    if (!dateStr) return 'N/A';
+    if (!dateStr) return "N/A";
     try {
-      return new Date(dateStr).toLocaleDateString();
+      return formatDateDMY(dateStr);
     } catch (_e) {
-      return 'N/A';
+      return "N/A";
     }
   };
 
@@ -269,10 +241,7 @@ const BatchAllocationPanel = ({
   }
 
   return (
-    <div
-      className="batch-allocation-panel"
-      data-testid="batch-allocation-panel"
-    >
+    <div className="batch-allocation-panel" data-testid="batch-allocation-panel">
       <div className="panel-header">
         <h4>Batch Allocation</h4>
         <button
@@ -282,7 +251,7 @@ const BatchAllocationPanel = ({
           onClick={handleAutoFIFO}
           disabled={loading || isAllocating}
         >
-          {isAllocating ? 'Allocating...' : 'Auto-Fill FIFO'}
+          {isAllocating ? "Allocating..." : "Auto-Fill FIFO"}
         </button>
       </div>
 
@@ -290,9 +259,7 @@ const BatchAllocationPanel = ({
       {error && <div className="panel-error">{error}</div>}
 
       {batches.length === 0 && !fetchingBatches ? (
-        <div className="panel-empty">
-          No available batches for this product in this warehouse.
-        </div>
+        <div className="panel-empty">No available batches for this product in this warehouse.</div>
       ) : (
         <>
           <div className="batch-table-container">
@@ -318,17 +285,15 @@ const BatchAllocationPanel = ({
               <tbody>
                 {batches.map((batch) => {
                   const currentAlloc = getAllocationForBatch(batch.id);
-                  const allocatedQty = currentAlloc
-                    ? parseFloat(currentAlloc.quantity)
-                    : 0;
-                  const manualQty = manualAllocations[batch.id] || '';
+                  const allocatedQty = currentAlloc ? parseFloat(currentAlloc.quantity) : 0;
+                  const manualQty = manualAllocations[batch.id] || "";
                   const batchSelected = isSelected(batch);
                   const canEnterQty = batchSelected && allocatedQty === 0;
 
                   return (
                     <tr
                       key={batch.id}
-                      className={`${allocatedQty > 0 ? 'allocated-row' : ''} ${batchSelected ? 'selected-row' : ''}`}
+                      className={`${allocatedQty > 0 ? "allocated-row" : ""} ${batchSelected ? "selected-row" : ""}`}
                     >
                       <td className="checkbox-col">
                         <BulkCheckbox
@@ -341,92 +306,49 @@ const BatchAllocationPanel = ({
                       </td>
                       <td>
                         <div className="batch-info">
-                          <span className="batch-number">
-                            {batch.batchNumber || 'N/A'}
-                          </span>
-                          <span className="batch-channel">
-                            {batch.procurementChannel || 'LOCAL'}
-                          </span>
-                          {batch.daysInStock !== undefined && (
-                            <span className="batch-age">
-                              {batch.daysInStock}d
-                            </span>
-                          )}
+                          <span className="batch-number">{batch.batchNumber || "N/A"}</span>
+                          <span className="batch-channel">{batch.procurementChannel || "LOCAL"}</span>
+                          {batch.daysInStock !== undefined && <span className="batch-age">{batch.daysInStock}d</span>}
                         </div>
                       </td>
                       <td className="qty-cell">
                         {/* PCS-CENTRIC: Show PCS as primary, weight as derived */}
                         <div className="pcs-primary">
                           <span className="pcs-value">
-                            {parseInt(
-                              batch.pcsAvailable ||
-                                batch.quantityAllocatable ||
-                                0,
-                              10,
-                            )}
+                            {parseInt(batch.pcsAvailable || batch.quantityAllocatable || 0, 10)}
                           </span>
                           <span className="pcs-label">PCS</span>
                         </div>
                         {batch.weightKgAvailable && (
-                          <div className="weight-derived">
-                            ≈ {parseFloat(batch.weightKgAvailable).toFixed(1)}{' '}
-                            KG
-                          </div>
+                          <div className="weight-derived">≈ {parseFloat(batch.weightKgAvailable).toFixed(1)} KG</div>
                         )}
                       </td>
                       <td className="qty-cell">
                         {/* PCS-CENTRIC: Show reserved PCS */}
-                        {parseInt(
-                          batch.pcsReservedOthers ||
-                            batch.quantityReservedOthers ||
-                            0,
-                          10,
-                        ) > 0 && (
+                        {parseInt(batch.pcsReservedOthers || batch.quantityReservedOthers || 0, 10) > 0 && (
                           <span className="reserved-indicator">
-                            {parseInt(
-                              batch.pcsReservedOthers ||
-                                batch.quantityReservedOthers ||
-                                0,
-                              10,
-                            )}{' '}
-                            PCS
+                            {parseInt(batch.pcsReservedOthers || batch.quantityReservedOthers || 0, 10)} PCS
                           </span>
                         )}
-                        {allocatedQty > 0 && (
-                          <span className="my-allocation">
-                            {Math.floor(allocatedQty)} PCS
-                          </span>
-                        )}
+                        {allocatedQty > 0 && <span className="my-allocation">{Math.floor(allocatedQty)} PCS</span>}
                       </td>
                       <td className="input-cell">
                         {allocatedQty > 0 ? (
-                          <span className="allocated-qty">
-                            {Math.floor(allocatedQty)} PCS
-                          </span>
+                          <span className="allocated-qty">{Math.floor(allocatedQty)} PCS</span>
                         ) : (
                           <input
                             type="number"
                             step="1"
                             min="0"
-                            max={parseInt(
-                              batch.pcsAvailable ||
-                                batch.quantityAllocatable ||
-                                0,
-                              10,
-                            )}
+                            max={parseInt(batch.pcsAvailable || batch.quantityAllocatable || 0, 10)}
                             value={manualQty}
-                            onChange={(e) =>
-                              handleManualAllocationChange(
-                                batch.id,
-                                e.target.value,
-                              )
-                            }
-                            placeholder={canEnterQty ? '0' : '-'}
+                            onChange={(e) => handleManualAllocationChange(batch.id, e.target.value)}
+                            placeholder={canEnterQty ? "0" : "-"}
                             disabled={loading || isAllocating || !canEnterQty}
                             title={
                               canEnterQty
-                                ? 'Enter PCS to allocate (integer only)'
-                                : 'Select batch first to enter quantity'
+                                ? "Enter PCS to allocate (integer only)"
+                                : "Select batch first to enter quantity"
                             }
                             className="pcs-input"
                           />
@@ -435,23 +357,10 @@ const BatchAllocationPanel = ({
                       <td className="cost-cell">
                         <div className="cost-per-piece">
                           <span className="unit-cost">
-                            {parseFloat(batch.unitCost || 0).toLocaleString(
-                              'en-AE',
-                              { maximumFractionDigits: 0 },
-                            )}
+                            {parseFloat(batch.unitCost || 0).toLocaleString("en-AE", { maximumFractionDigits: 0 })}
                           </span>
-                          <span className="cost-unit">AED/PCS</span>
+                          <span className="cost-unit">AED/pc</span>
                         </div>
-                        {parseFloat(batch.weightPerPieceKg || 0) > 0 && (
-                          <div className="cost-per-kg-derived">
-                            (
-                            {(
-                              parseFloat(batch.unitCost || 0) /
-                              parseFloat(batch.weightPerPieceKg || 1)
-                            ).toFixed(2)}{' '}
-                            AED/KG)
-                          </div>
-                        )}
                       </td>
                     </tr>
                   );
@@ -465,8 +374,7 @@ const BatchAllocationPanel = ({
             <div className="manual-actions">
               {hasSelection && (
                 <span className="selection-info">
-                  {selectedCount} batch{selectedCount !== 1 ? 'es' : ''}{' '}
-                  selected
+                  {selectedCount} batch{selectedCount !== 1 ? "es" : ""} selected
                   <button
                     type="button"
                     className="btn-clear-selection"
@@ -495,8 +403,7 @@ const BatchAllocationPanel = ({
             <div className="total-row">
               <span>Allocated:</span>
               <strong>
-                {Math.floor(totalAllocated)} / {Math.floor(requiredQuantity)}{' '}
-                PCS
+                {Math.floor(totalAllocated)} / {Math.floor(requiredQuantity)} PCS
               </strong>
             </div>
           </div>
@@ -505,10 +412,7 @@ const BatchAllocationPanel = ({
           {isPartialAllocation && requiredQuantity > 0 && (
             <div className="shortfall-warning">
               <span className="warning-icon">⚠</span>
-              <span>
-                Shortfall: {Math.floor(shortfall)} PCS - Insufficient stock
-                available
-              </span>
+              <span>Shortfall: {Math.floor(shortfall)} PCS - Insufficient stock available</span>
             </div>
           )}
         </>

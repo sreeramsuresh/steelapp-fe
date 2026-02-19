@@ -1,10 +1,10 @@
-import InvoiceHeader from './InvoiceHeader';
-import InvoiceFooter from './InvoiceFooter';
-import InvoiceItemsTable from './InvoiceItemsTable';
-import InvoiceTotalsSection from './InvoiceTotalsSection';
-import InvoiceFooterNotes from './InvoiceFooterNotes';
-import InvoiceSignatureSection from './InvoiceSignatureSection';
-import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
+import { DEFAULT_TEMPLATE_SETTINGS } from "../../constants/defaultTemplateSettings";
+import InvoiceFooter from "./InvoiceFooter";
+import InvoiceFooterNotes from "./InvoiceFooterNotes";
+import InvoiceHeader from "./InvoiceHeader";
+import InvoiceItemsTable from "./InvoiceItemsTable";
+import InvoiceSignatureSection from "./InvoiceSignatureSection";
+import InvoiceTotalsSection from "./InvoiceTotalsSection";
 
 /**
  * Invoice Template Component
@@ -34,30 +34,25 @@ const InvoiceTemplate = ({
   showSignature = false,
   showTotals = false,
   template = null,
-  documentType = 'invoice',
+  documentType = "invoice",
 }) => {
   // Get template colors - prioritize passed template, then company settings (camelCase or snake_case), then defaults
   const templateSettings =
-    template ||
-    company?.settings?.invoiceTemplate ||
-    company?.settings?.invoice_template ||
-    DEFAULT_TEMPLATE_SETTINGS;
-  const primaryColor =
-    templateSettings.colors?.primary ||
-    DEFAULT_TEMPLATE_SETTINGS.colors.primary;
+    template || company?.settings?.invoiceTemplate || company?.settings?.invoice_template || DEFAULT_TEMPLATE_SETTINGS;
+  const primaryColor = templateSettings.colors?.primary || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
 
   return (
     <div
       className="invoice-page"
       style={{
-        width: '210mm',
-        minHeight: '297mm',
-        margin: '0 auto',
-        padding: '15mm',
-        boxSizing: 'border-box',
-        background: 'white',
-        position: 'relative',
-        pageBreakAfter: isLastPage ? 'avoid' : 'always',
+        width: "210mm",
+        minHeight: "297mm",
+        margin: "0 auto",
+        padding: "15mm",
+        boxSizing: "border-box",
+        background: "white",
+        position: "relative",
+        pageBreakAfter: isLastPage ? "avoid" : "always",
       }}
     >
       {/* Header - appears on every page */}
@@ -82,11 +77,7 @@ const InvoiceTemplate = ({
 
       {/* Totals - only on last page */}
       {isLastPage && showTotals && (
-        <InvoiceTotalsSection
-          invoice={invoice}
-          primaryColor={primaryColor}
-          template={templateSettings}
-        />
+        <InvoiceTotalsSection invoice={invoice} primaryColor={primaryColor} template={templateSettings} />
       )}
 
       {/* Last Page Footer Group - Keep together to prevent orphaned sections */}
@@ -94,20 +85,15 @@ const InvoiceTemplate = ({
         <div
           className="invoice-last-page-group"
           style={{
-            pageBreakInside: 'avoid',
-            breakInside: 'avoid',
+            pageBreakInside: "avoid",
+            breakInside: "avoid",
           }}
         >
           {/* Terms & Notes - only on last page */}
           <InvoiceFooterNotes invoice={invoice} template={templateSettings} />
 
           {/* Signature - only on last page */}
-          {showSignature && (
-            <InvoiceSignatureSection
-              company={company}
-              template={templateSettings}
-            />
-          )}
+          {showSignature && <InvoiceSignatureSection company={company} template={templateSettings} />}
         </div>
       )}
 

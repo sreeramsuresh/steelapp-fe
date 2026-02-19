@@ -5,7 +5,7 @@
  * Validates quantities before form submission to provide instant feedback.
  */
 
-import { apiClient } from './api';
+import { apiClient } from "./api.js";
 
 export const uomValidationService = {
   /**
@@ -18,14 +18,14 @@ export const uomValidationService = {
    */
   async validateQuantity(quantity, unit) {
     try {
-      const response = await apiClient.post('/uom/validate-quantity', {
+      const response = await apiClient.post("/uom/validate-quantity", {
         quantity,
-        unit: unit || 'PCS',
+        unit: unit || "PCS",
       });
       return response;
     } catch (error) {
       // Fail open - let backend catch it during save
-      console.warn('UOM validation API error:', error);
+      console.warn("UOM validation API error:", error);
       return { valid: true };
     }
   },
@@ -41,7 +41,7 @@ export const uomValidationService = {
    */
   async convert(quantity, fromUnit, toUnit, unitWeightKg = null) {
     try {
-      const response = await apiClient.post('/uom/convert', {
+      const response = await apiClient.post("/uom/convert", {
         quantity,
         fromUnit,
         toUnit,
@@ -49,7 +49,7 @@ export const uomValidationService = {
       });
       return response;
     } catch (error) {
-      console.warn('UOM conversion API error:', error);
+      console.warn("UOM conversion API error:", error);
       return { success: false, error: error.message };
     }
   },
@@ -62,26 +62,22 @@ export const uomValidationService = {
    * @param {string} productCategory - PLATES, COILS, PIPES, FITTINGS
    * @returns {Promise<{valid: boolean, varianceKg: number, variancePct: number, tolerancePct: number, message: string}>}
    */
-  async validateWeightTolerance(
-    actualWeightKg,
-    theoreticalWeightKg,
-    productCategory = 'PLATES',
-  ) {
+  async validateWeightTolerance(actualWeightKg, theoreticalWeightKg, productCategory = "PLATES") {
     try {
-      const response = await apiClient.post('/uom/validate-weight-tolerance', {
+      const response = await apiClient.post("/uom/validate-weight-tolerance", {
         actualWeightKg,
         theoreticalWeightKg,
         productCategory,
       });
       return response;
     } catch (error) {
-      console.warn('Weight tolerance validation error:', error);
+      console.warn("Weight tolerance validation error:", error);
       return {
         valid: true,
         varianceKg: 0,
         variancePct: 0,
         tolerancePct: 5,
-        message: 'Validation unavailable',
+        message: "Validation unavailable",
       };
     }
   },
@@ -95,13 +91,13 @@ export const uomValidationService = {
    */
   async calculateVariance(actualWeightKg, theoreticalWeightKg) {
     try {
-      const response = await apiClient.post('/uom/calculate-variance', {
+      const response = await apiClient.post("/uom/calculate-variance", {
         actualWeightKg,
         theoreticalWeightKg,
       });
       return response;
     } catch (error) {
-      console.warn('Variance calculation error:', error);
+      console.warn("Variance calculation error:", error);
       return { varianceKg: 0, variancePct: 0 };
     }
   },
@@ -113,11 +109,11 @@ export const uomValidationService = {
    */
   async getValidUnits() {
     try {
-      const response = await apiClient.get('/uom/valid-units');
+      const response = await apiClient.get("/uom/valid-units");
       return response;
     } catch (error) {
-      console.warn('Failed to fetch valid units:', error);
-      return { units: ['PCS', 'KG', 'MT', 'BUNDLE', 'METER'] };
+      console.warn("Failed to fetch valid units:", error);
+      return { units: ["PCS", "KG", "MT", "BUNDLE", "METER"] };
     }
   },
 
@@ -130,12 +126,12 @@ export const uomValidationService = {
    */
   async validateInvoiceItems(items) {
     try {
-      const response = await apiClient.post('/uom/validate-invoice-items', {
+      const response = await apiClient.post("/uom/validate-invoice-items", {
         items,
       });
       return response;
     } catch (error) {
-      console.warn('Batch validation API error:', error);
+      console.warn("Batch validation API error:", error);
       // Fail open - let backend catch during save
       return {
         valid: true,

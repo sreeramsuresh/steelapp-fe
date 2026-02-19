@@ -11,34 +11,25 @@
  * @param source - Source of the data for debugging
  * @returns Normalized Customer with camelCase fields
  */
-export function normalizeCustomer(
-  rawCustomer: any,
-  source = 'unknown',
-): any | null {
-  if (!rawCustomer || typeof rawCustomer !== 'object') {
-    console.error(
-      `❌ [Customer Normalizer] Invalid customer data from ${source}:`,
-      rawCustomer,
-    );
+export function normalizeCustomer(rawCustomer: unknown, source = "unknown"): unknown | null {
+  if (!rawCustomer || typeof rawCustomer !== "object") {
+    console.error(`❌ [Customer Normalizer] Invalid customer data from ${source}:`, rawCustomer);
     return null;
   }
 
   try {
     // Helper to safely parse numbers
-    const parseNumber = (
-      value: any,
-      fallback: any = undefined,
-    ): number | undefined => {
+    const parseNumber = (value: unknown, fallback: unknown = undefined): number | undefined => {
       if (value === null || value === undefined) return fallback;
       const parsed = parseFloat(value);
-      return isNaN(parsed) ? fallback : parsed;
+      return Number.isNaN(parsed) ? fallback : parsed;
     };
 
     // Build the normalized Customer object
-    const normalized: any = {
+    const normalized: unknown = {
       // Core identifiers
       id: rawCustomer.id || 0,
-      name: rawCustomer.name || rawCustomer.customer_name || '',
+      name: rawCustomer.name || rawCustomer.customer_name || "",
       company: rawCustomer.company || rawCustomer.company_name || undefined,
 
       // Contact information
@@ -48,26 +39,14 @@ export function normalizeCustomer(
 
       // Tax & Compliance
       vatNumber:
-        rawCustomer.vatNumber ||
-        rawCustomer.vat_number ||
-        rawCustomer.gstNumber ||
-        rawCustomer.gst_number ||
-        undefined,
+        rawCustomer.vatNumber || rawCustomer.vat_number || rawCustomer.gstNumber || rawCustomer.gst_number || undefined,
       trn: rawCustomer.trn || rawCustomer.tax_registration_number || undefined,
-      isDesignatedZone:
-        rawCustomer.isDesignatedZone || rawCustomer.is_designated_zone || false,
+      isDesignatedZone: rawCustomer.isDesignatedZone || rawCustomer.is_designated_zone || false,
 
       // Financial
-      creditLimit: parseNumber(
-        rawCustomer.creditLimit || rawCustomer.credit_limit,
-        undefined,
-      ),
-      currentCredit: parseNumber(
-        rawCustomer.currentCredit || rawCustomer.current_credit,
-        undefined,
-      ),
-      paymentTerms:
-        rawCustomer.paymentTerms || rawCustomer.payment_terms || undefined,
+      creditLimit: parseNumber(rawCustomer.creditLimit || rawCustomer.credit_limit, undefined),
+      currentCredit: parseNumber(rawCustomer.currentCredit || rawCustomer.current_credit, undefined),
+      paymentTerms: rawCustomer.paymentTerms || rawCustomer.payment_terms || undefined,
       revenue: parseNumber(rawCustomer.revenue, undefined),
 
       // Metadata
@@ -78,11 +57,8 @@ export function normalizeCustomer(
 
     return normalized;
   } catch (error) {
-    console.error(
-      `❌ [Customer Normalizer] Failed to normalize customer from ${source}:`,
-      error,
-    );
-    console.error('   Raw data:', rawCustomer);
+    console.error(`❌ [Customer Normalizer] Failed to normalize customer from ${source}:`, error);
+    console.error("   Raw data:", rawCustomer);
     return null;
   }
 }
@@ -93,20 +69,13 @@ export function normalizeCustomer(
  * @param source - Source identifier for debugging
  * @returns Array of normalized Customer objects
  */
-export function normalizeCustomers(
-  rawCustomers: any[],
-  source = 'list',
-): any[] {
+export function normalizeCustomers(rawCustomers: unknown[], source = "list"): unknown[] {
   if (!Array.isArray(rawCustomers)) {
-    console.error(
-      `❌ [Customer Normalizer] Expected array, got ${typeof rawCustomers}`,
-    );
+    console.error(`❌ [Customer Normalizer] Expected array, got ${typeof rawCustomers}`);
     return [];
   }
 
   return rawCustomers
-    .map((customer, index) =>
-      normalizeCustomer(customer, `${source}[${index}]`),
-    )
-    .filter((customer): customer is any => customer !== null);
+    .map((customer, index) => normalizeCustomer(customer, `${source}[${index}]`))
+    .filter((customer): customer is NonNullable<unknown> => customer !== null);
 }

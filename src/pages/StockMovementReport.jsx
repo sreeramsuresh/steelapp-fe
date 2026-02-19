@@ -1,44 +1,26 @@
-import { useState, useEffect } from 'react';
-import {
-  Search,
-  Download,
-  FileText,
-  Package,
-  AlertCircle,
-  Loader2,
-  Check,
-} from 'lucide-react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import {
-  stockMovementService,
-  MOVEMENT_TYPES,
-} from '../services/stockMovementService';
-import { warehouseService } from '../services/warehouseService';
-import { productService } from '../services/dataService';
-import toast from 'react-hot-toast';
-import { toUAETime } from '../utils/timezone';
+import { AlertCircle, Check, Download, FileText, Loader2, Package, Search } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { productService } from "../services/dataService";
+import { MOVEMENT_TYPES, stockMovementService } from "../services/stockMovementService";
+import { warehouseService } from "../services/warehouseService";
+import { toUAETime } from "../utils/timezone";
 
 const PROCUREMENT_CHANNELS = [
-  { value: 'ALL', label: 'All Channels' },
-  { value: 'LOCAL', label: 'Local' },
-  { value: 'IMPORTED', label: 'Imported' },
+  { value: "ALL", label: "All Channels" },
+  { value: "LOCAL", label: "Local" },
+  { value: "IMPORTED", label: "Imported" },
 ];
 
 /**
  * Clean warehouse name by removing timestamps and test suffixes
  */
 const cleanWarehouseName = (name) => {
-  if (!name) return 'Unknown Warehouse';
+  if (!name) return "Unknown Warehouse";
   // Remove timestamp suffixes (e.g., "Warehouse 1768234260965")
-  return name.replace(/\s+\d{10,}$/, '').trim();
+  return name.replace(/\s+\d{10,}$/, "").trim();
 };
 
 /**
@@ -70,12 +52,12 @@ export default function StockMovementReport() {
   const [productError, setProductError] = useState(null);
 
   // Filters
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
-  const [selectedWarehouse, setSelectedWarehouse] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState('');
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [selectedWarehouse, setSelectedWarehouse] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState("");
   const [selectedMovementTypes, setSelectedMovementTypes] = useState([]);
-  const [procurementChannel, setProcurementChannel] = useState('ALL');
+  const [procurementChannel, setProcurementChannel] = useState("ALL");
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -91,12 +73,7 @@ export default function StockMovementReport() {
     totalValue: 0,
   });
 
-  useEffect(() => {
-    fetchWarehouses();
-    fetchProducts();
-  }, []);
-
-  const fetchWarehouses = async () => {
+  const fetchWarehouses = useCallback(async () => {
     try {
       setLoadingWarehouses(true);
       setWarehouseError(null);
@@ -106,32 +83,38 @@ export default function StockMovementReport() {
       const uniqueWarehouses = deduplicateWarehouses(rawWarehouses);
       setWarehouses(uniqueWarehouses);
     } catch (error) {
-      console.error('Error fetching warehouses:', error);
-      setWarehouseError('Failed to load warehouses');
-      toast.error('Failed to load warehouses');
+      console.error("Error fetching warehouses:", error);
+      setWarehouseError("Failed to load warehouses");
+      toast.error("Failed to load warehouses");
     } finally {
       setLoadingWarehouses(false);
     }
-  };
+  }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoadingProducts(true);
       setProductError(null);
       const response = await productService.getAll();
-      setProducts(response.data || []);
+      const raw = response && (response.data || response.products || response.items || response);
+      setProducts(Array.isArray(raw) ? raw : []);
     } catch (error) {
-      console.error('Error fetching products:', error);
-      setProductError('Failed to load products');
-      toast.error('Failed to load products');
+      console.error("Error fetching products:", error);
+      setProductError("Failed to load products");
+      toast.error("Failed to load products");
     } finally {
       setLoadingProducts(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchWarehouses();
+    fetchProducts();
+  }, [fetchWarehouses, fetchProducts]);
 
   const fetchMovements = async (pageNum = 1) => {
     if (!dateFrom || !dateTo) {
-      toast.error('Please select both start and end dates');
+      toast.error("Please select both start and end dates");
       return;
     }
 
@@ -146,24 +129,13 @@ export default function StockMovementReport() {
         dateTo,
         warehouseId: selectedWarehouse || undefined,
         productId: selectedProduct || undefined,
-        movementType:
-          selectedMovementTypes.length > 0
-            ? selectedMovementTypes.join(',')
-            : undefined,
+        movementType: selectedMovementTypes.length > 0 ? selectedMovementTypes.join(",") : undefined,
+        procurementChannel: procurementChannel !== "ALL" ? procurementChannel : undefined,
       };
 
       const response = await stockMovementService.getAll(filters);
 
-      let filteredMovements = response.data || [];
-
-      // Apply procurement channel filter if needed (client-side for now)
-      if (procurementChannel !== 'ALL') {
-        filteredMovements = filteredMovements.filter(() => {
-          // This would require product procurement info - placeholder logic
-          // In reality, you'd add this to the backend filter
-          return true;
-        });
-      }
+      const filteredMovements = response.data || [];
 
       setMovements(filteredMovements);
       setPage(pageNum);
@@ -173,8 +145,8 @@ export default function StockMovementReport() {
       // Calculate summary
       calculateSummary(filteredMovements);
     } catch (error) {
-      console.error('Error fetching stock movements:', error);
-      toast.error('Failed to load stock movements');
+      console.error("Error fetching stock movements:", error);
+      toast.error("Failed to load stock movements");
     } finally {
       setLoading(false);
     }
@@ -189,15 +161,9 @@ export default function StockMovementReport() {
       const qty = movement.quantity || 0;
       const cost = movement.totalCost || 0;
 
-      if (
-        movement.movementType === 'IN' ||
-        movement.movementType === 'TRANSFER_IN'
-      ) {
+      if (movement.movementType === "IN" || movement.movementType === "TRANSFER_IN") {
         totalIn += qty;
-      } else if (
-        movement.movementType === 'OUT' ||
-        movement.movementType === 'TRANSFER_OUT'
-      ) {
+      } else if (movement.movementType === "OUT" || movement.movementType === "TRANSFER_OUT") {
         totalOut += qty;
       }
 
@@ -222,9 +188,7 @@ export default function StockMovementReport() {
   };
 
   const toggleMovementType = (type) => {
-    setSelectedMovementTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
-    );
+    setSelectedMovementTypes((prev) => (prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]));
   };
 
   const selectAllMovementTypes = () => {
@@ -237,77 +201,71 @@ export default function StockMovementReport() {
 
   const handleExportCSV = () => {
     if (movements.length === 0) {
-      toast.warning('No data to export');
+      toast("No data to export", { icon: "\u26A0\uFE0F" });
       return;
     }
 
     try {
       // CSV Headers
       const headers = [
-        'Date',
-        'Product',
-        'SKU',
-        'Batch #',
-        'Type',
-        'Quantity',
-        'UOM',
-        'Unit Cost',
-        'Total Cost',
-        'Reference',
-        'Warehouse',
-        'Notes',
+        "Date",
+        "Product",
+        "SKU",
+        "Batch #",
+        "Type",
+        "Quantity",
+        "UOM",
+        "Unit Cost",
+        "Total Cost",
+        "Reference",
+        "Warehouse",
+        "Notes",
       ];
 
       // CSV Rows
       const rows = movements.map((m) => [
-        toUAETime(m.movementDate || m.createdAt, { format: 'datetime' }),
-        m.productName || m.productDisplayName || '',
-        m.productSku || '',
-        m.batchNumber || '',
+        toUAETime(m.movementDate || m.createdAt, { format: "datetime" }),
+        m.productName || m.productDisplayName || "",
+        m.productSku || "",
+        m.batchNumber || "",
         MOVEMENT_TYPES[m.movementType]?.label || m.movementType,
-        m.quantity?.toFixed(2) || '0.00',
-        m.unit || 'KG',
-        m.unitCost?.toFixed(2) || '0.00',
-        m.totalCost?.toFixed(2) || '0.00',
-        m.referenceNumber || '',
-        m.warehouseName || '',
-        m.notes || '',
+        m.quantity?.toFixed(2) || "0.00",
+        m.unit || "KG",
+        m.unitCost?.toFixed(2) || "0.00",
+        m.totalCost?.toFixed(2) || "0.00",
+        m.referenceNumber || "",
+        m.warehouseName || "",
+        m.notes || "",
       ]);
 
       // Build CSV content
-      const csvContent = [
-        headers.join(','),
-        ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
-      ].join('\n');
+      const csvContent = [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n");
 
       // Download
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
       const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute(
-        'download',
-        `stock-movements-${dateFrom}-to-${dateTo}.csv`,
-      );
-      link.style.visibility = 'hidden';
+      link.setAttribute("href", url);
+      link.setAttribute("download", `stock-movements-${dateFrom}-to-${dateTo}.csv`);
+      link.style.visibility = "hidden";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      toast.success('CSV exported successfully');
+      toast.success("CSV exported successfully");
     } catch (error) {
-      console.error('Error exporting CSV:', error);
-      toast.error('Failed to export CSV');
+      console.error("Error exporting CSV:", error);
+      toast.error("Failed to export CSV");
     }
   };
 
   const handleExportPDF = () => {
-    toast.info('PDF export coming soon');
+    toast("PDF export coming soon", { icon: "\u2139\uFE0F" });
     // Placeholder for PDF export functionality
   };
 
   const getMovementTypeColor = (type) => {
-    return MOVEMENT_TYPES[type]?.color || 'default';
+    return MOVEMENT_TYPES[type]?.color || "default";
   };
 
   const getMovementTypeLabel = (type) => {
@@ -320,8 +278,8 @@ export default function StockMovementReport() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Stock Movement Report</h1>
         <p className="text-gray-600 dark:text-gray-400">
-          View and analyze inventory movements across warehouses. Select a date
-          range to search for stock ins, outs, and transfers.
+          View and analyze inventory movements across warehouses. Select a date range to search for stock ins, outs, and
+          transfers.
         </p>
       </div>
 
@@ -330,10 +288,7 @@ export default function StockMovementReport() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Date From */}
           <div>
-            <label
-              htmlFor="stock-movement-start-date"
-              className="block text-sm font-medium mb-2"
-            >
+            <label htmlFor="stock-movement-start-date" className="block text-sm font-medium mb-2">
               Start Date <span className="text-red-500">*</span>
             </label>
             <input
@@ -348,10 +303,7 @@ export default function StockMovementReport() {
 
           {/* Date To */}
           <div>
-            <label
-              htmlFor="stock-movement-end-date"
-              className="block text-sm font-medium mb-2"
-            >
+            <label htmlFor="stock-movement-end-date" className="block text-sm font-medium mb-2">
               End Date <span className="text-red-500">*</span>
             </label>
             <input
@@ -366,10 +318,7 @@ export default function StockMovementReport() {
 
           {/* Warehouse */}
           <div>
-            <label
-              htmlFor="stock-movement-warehouse"
-              className="block text-sm font-medium mb-2"
-            >
+            <label htmlFor="stock-movement-warehouse" className="block text-sm font-medium mb-2">
               Warehouse
             </label>
             <div className="relative">
@@ -384,8 +333,8 @@ export default function StockMovementReport() {
                 {warehouses.map((warehouse) => (
                   <option key={warehouse.id} value={warehouse.id}>
                     {cleanWarehouseName(warehouse.name)}
-                    {warehouse.code ? ` (${warehouse.code})` : ''}
-                    {warehouse.location ? ` - ${warehouse.location}` : ''}
+                    {warehouse.code ? ` (${warehouse.code})` : ""}
+                    {warehouse.location ? ` - ${warehouse.location}` : ""}
                   </option>
                 ))}
               </select>
@@ -405,10 +354,7 @@ export default function StockMovementReport() {
 
           {/* Product */}
           <div>
-            <label
-              htmlFor="stock-movement-product"
-              className="block text-sm font-medium mb-2"
-            >
+            <label htmlFor="stock-movement-product" className="block text-sm font-medium mb-2">
               Product
             </label>
             <div className="relative">
@@ -422,10 +368,7 @@ export default function StockMovementReport() {
                 <option value="">All Products</option>
                 {products.map((product) => (
                   <option key={product.id} value={product.id}>
-                    {product.uniqueName ||
-                      product.displayName ||
-                      product.name ||
-                      'N/A'}
+                    {product.uniqueName || product.displayName || product.name || "N/A"}
                   </option>
                 ))}
               </select>
@@ -442,9 +385,7 @@ export default function StockMovementReport() {
               </p>
             )}
             {!loadingProducts && !productError && products.length === 0 && (
-              <p className="text-xs text-gray-500 mt-1">
-                No products available
-              </p>
+              <p className="text-xs text-gray-500 mt-1">No products available</p>
             )}
           </div>
 
@@ -452,9 +393,7 @@ export default function StockMovementReport() {
           <div className="lg:col-span-2">
             <span className="block text-sm font-medium mb-2">
               Movement Type
-              <span className="text-gray-500 font-normal ml-1">
-                (select multiple)
-              </span>
+              <span className="text-gray-500 font-normal ml-1">(select multiple)</span>
             </span>
             <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-3 bg-white dark:bg-gray-700">
               <div className="flex flex-wrap gap-2">
@@ -463,16 +402,12 @@ export default function StockMovementReport() {
                   type="button"
                   onClick={selectAllMovementTypes}
                   className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
-                    selectedMovementTypes.length ===
-                    Object.keys(MOVEMENT_TYPES).length
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500'
+                    selectedMovementTypes.length === Object.keys(MOVEMENT_TYPES).length
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500"
                   }`}
                 >
-                  {selectedMovementTypes.length ===
-                  Object.keys(MOVEMENT_TYPES).length
-                    ? 'Deselect All'
-                    : 'Select All'}
+                  {selectedMovementTypes.length === Object.keys(MOVEMENT_TYPES).length ? "Deselect All" : "Select All"}
                 </button>
                 <div className="w-px bg-gray-300 dark:bg-gray-500 mx-1" />
                 {Object.entries(MOVEMENT_TYPES).map(([key, type]) => (
@@ -482,13 +417,11 @@ export default function StockMovementReport() {
                     onClick={() => toggleMovementType(key)}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
                       selectedMovementTypes.includes(key)
-                        ? 'bg-blue-50 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700'
-                        : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500'
+                        ? "bg-blue-50 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700"
+                        : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500"
                     }`}
                   >
-                    {selectedMovementTypes.includes(key) && (
-                      <Check className="w-3.5 h-3.5" />
-                    )}
+                    {selectedMovementTypes.includes(key) && <Check className="w-3.5 h-3.5" />}
                     {type.label}
                   </button>
                 ))}
@@ -497,17 +430,14 @@ export default function StockMovementReport() {
             {selectedMovementTypes.length > 0 && (
               <p className="text-xs text-gray-500 mt-1">
                 {selectedMovementTypes.length} type
-                {selectedMovementTypes.length !== 1 ? 's' : ''} selected
+                {selectedMovementTypes.length !== 1 ? "s" : ""} selected
               </p>
             )}
           </div>
 
           {/* Procurement Channel */}
           <div>
-            <label
-              htmlFor="stock-movement-procurement-channel"
-              className="block text-sm font-medium mb-2"
-            >
+            <label htmlFor="stock-movement-procurement-channel" className="block text-sm font-medium mb-2">
               Procurement Channel
             </label>
             <select
@@ -526,28 +456,16 @@ export default function StockMovementReport() {
 
           {/* Action buttons */}
           <div className="flex items-end gap-2">
-            <Button
-              onClick={handleSearch}
-              disabled={loading || !dateFrom || !dateTo}
-              className="flex-1 gap-2"
-            >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Search className="w-4 h-4" />
-              )}
-              {loading ? 'Searching...' : 'Search'}
+            <Button onClick={handleSearch} disabled={loading || !dateFrom || !dateTo} className="flex-1 gap-2">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+              {loading ? "Searching..." : "Search"}
             </Button>
             <Button
               variant="outline"
               onClick={handleExportCSV}
               disabled={movements.length === 0}
               className="gap-2"
-              title={
-                movements.length === 0
-                  ? 'Search for data first to export'
-                  : 'Export to CSV'
-              }
+              title={movements.length === 0 ? "Search for data first to export" : "Export to CSV"}
             >
               <Download className="w-4 h-4" />
               CSV
@@ -557,11 +475,7 @@ export default function StockMovementReport() {
               onClick={handleExportPDF}
               disabled={movements.length === 0}
               className="gap-2"
-              title={
-                movements.length === 0
-                  ? 'Search for data first to export'
-                  : 'Export to PDF'
-              }
+              title={movements.length === 0 ? "Search for data first to export" : "Export to PDF"}
             >
               <FileText className="w-4 h-4" />
               PDF
@@ -574,41 +488,23 @@ export default function StockMovementReport() {
       {movements.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              Total In
-            </p>
-            <p className="text-2xl font-bold text-green-600">
-              {summary.totalIn.toFixed(2)} KG
-            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Total In</p>
+            <p className="text-2xl font-bold text-green-600">{summary.totalIn.toFixed(2)} KG</p>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              Total Out
-            </p>
-            <p className="text-2xl font-bold text-red-600">
-              {summary.totalOut.toFixed(2)} KG
-            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Total Out</p>
+            <p className="text-2xl font-bold text-red-600">{summary.totalOut.toFixed(2)} KG</p>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              Net Movement
-            </p>
-            <p
-              className={`text-2xl font-bold ${
-                summary.netMovement >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}
-            >
-              {summary.netMovement >= 0 ? '+' : ''}
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Net Movement</p>
+            <p className={`text-2xl font-bold ${summary.netMovement >= 0 ? "text-green-600" : "text-red-600"}`}>
+              {summary.netMovement >= 0 ? "+" : ""}
               {summary.netMovement.toFixed(2)} KG
             </p>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              Total Value
-            </p>
-            <p className="text-2xl font-bold text-blue-600">
-              AED {summary.totalValue.toFixed(2)}
-            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Total Value</p>
+            <p className="text-2xl font-bold text-blue-600">AED {summary.totalValue.toFixed(2)}</p>
           </div>
         </div>
       )}
@@ -618,9 +514,7 @@ export default function StockMovementReport() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12">
           <div className="flex flex-col items-center justify-center">
             <Loader2 className="w-12 h-12 animate-spin text-blue-600 mb-4" />
-            <p className="text-gray-600 dark:text-gray-400">
-              Loading stock movements...
-            </p>
+            <p className="text-gray-600 dark:text-gray-400">Loading stock movements...</p>
           </div>
         </div>
       ) : !hasSearched ? (
@@ -634,8 +528,7 @@ export default function StockMovementReport() {
               Select Date Range to Get Started
             </h3>
             <p className="text-gray-600 dark:text-gray-400 max-w-md">
-              Choose a start and end date above, then click{' '}
-              <strong>Search</strong> to view stock movements. You can
+              Choose a start and end date above, then click <strong>Search</strong> to view stock movements. You can
               optionally filter by warehouse, product, or movement type.
             </p>
           </div>
@@ -647,12 +540,9 @@ export default function StockMovementReport() {
             <div className="w-16 h-16 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mb-4">
               <AlertCircle className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              No Stock Movements Found
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Stock Movements Found</h3>
             <p className="text-gray-600 dark:text-gray-400 max-w-md mb-4">
-              No movements match your search criteria for{' '}
-              <strong>{dateFrom}</strong> to <strong>{dateTo}</strong>.
+              No movements match your search criteria for <strong>{dateFrom}</strong> to <strong>{dateTo}</strong>.
             </p>
             <ul className="text-sm text-gray-500 dark:text-gray-400 text-left list-disc list-inside">
               <li>Try expanding the date range</li>
@@ -689,74 +579,64 @@ export default function StockMovementReport() {
               </TableHeader>
               <TableBody>
                 {movements.map((movement) => (
-                  <TableRow
-                    key={movement.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                  >
+                  <TableRow key={movement.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <TableCell>
                       <div className="text-sm">
-                        {toUAETime(
-                          movement.movementDate || movement.createdAt,
-                          {
-                            format: 'date',
-                          },
-                        )}
+                        {toUAETime(movement.movementDate || movement.createdAt, {
+                          format: "date",
+                        })}
                       </div>
                       <div className="text-xs text-gray-600 dark:text-gray-400">
-                        {toUAETime(
-                          movement.movementDate || movement.createdAt,
-                          {
-                            format: 'time',
-                          },
-                        )}
+                        {toUAETime(movement.movementDate || movement.createdAt, {
+                          format: "time",
+                        })}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="font-medium text-sm">
-                        {movement.productName ||
-                          movement.productDisplayName ||
-                          'N/A'}
+                        {movement.productName || movement.productDisplayName || "N/A"}
                       </div>
                       {movement.productSku && (
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
-                          SKU: {movement.productSku}
-                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">SKU: {movement.productSku}</div>
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">
-                        {movement.batchNumber || '-'}
-                      </div>
+                      <div className="text-sm">{movement.batchNumber || "-"}</div>
                       {movement.coilNumber && (
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
-                          Coil: {movement.coilNumber}
-                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">Coil: {movement.coilNumber}</div>
                       )}
                     </TableCell>
                     <TableCell>
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                          getMovementTypeColor(movement.movementType) ===
-                          'success'
-                            ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200'
-                            : 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200'
-                        }`}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${(() => {
+                          const color = getMovementTypeColor(movement.movementType);
+                          if (color === "green")
+                            return "bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-200";
+                          if (color === "red")
+                            return "bg-red-50 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-200";
+                          if (color === "blue")
+                            return "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-200";
+                          if (color === "orange")
+                            return "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900 dark:text-orange-200";
+                          if (color === "purple")
+                            return "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900 dark:text-purple-200";
+                          if (color === "yellow")
+                            return "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200";
+                          if (color === "teal")
+                            return "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-900 dark:text-teal-200";
+                          return "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200";
+                        })()}`}
                       >
                         {getMovementTypeLabel(movement.movementType)}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="font-medium text-sm">
-                        {movement.quantity?.toFixed(2) || '0.00'}{' '}
-                        {movement.unit || 'KG'}
+                        {movement.quantity?.toFixed(2) || "0.00"} {movement.unit || "KG"}
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="text-sm">
-                        {movement.unitCost
-                          ? `AED ${movement.unitCost.toFixed(2)}`
-                          : '-'}
-                      </div>
+                      <div className="text-sm">{movement.unitCost ? `AED ${movement.unitCost.toFixed(2)}` : "-"}</div>
                       {movement.totalCost && movement.totalCost > 0 && (
                         <div className="text-xs text-gray-600 dark:text-gray-400">
                           Total: AED {movement.totalCost.toFixed(2)}
@@ -764,25 +644,16 @@ export default function StockMovementReport() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">
-                        {movement.referenceNumber || '-'}
-                      </div>
+                      <div className="text-sm">{movement.referenceNumber || "-"}</div>
                       {movement.referenceType && (
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
-                          {movement.referenceType}
-                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">{movement.referenceType}</div>
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">
-                        {cleanWarehouseName(movement.warehouseName) || 'N/A'}
-                      </div>
+                      <div className="text-sm">{cleanWarehouseName(movement.warehouseName) || "N/A"}</div>
                       {movement.destinationWarehouseName && (
                         <div className="text-xs text-gray-600 dark:text-gray-400">
-                          →{' '}
-                          {cleanWarehouseName(
-                            movement.destinationWarehouseName,
-                          )}
+                          → {cleanWarehouseName(movement.destinationWarehouseName)}
                         </div>
                       )}
                     </TableCell>
@@ -797,6 +668,7 @@ export default function StockMovementReport() {
             <div className="flex justify-center items-center py-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex gap-1">
                 <button
+                  type="button"
                   onClick={() => handlePageChange(null, 1)}
                   disabled={page === 1}
                   className="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
@@ -804,15 +676,17 @@ export default function StockMovementReport() {
                   First
                 </button>
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const pageNum = Math.max(1, page - 2) + i;
+                  const start = Math.max(1, Math.min(page - 2, totalPages - 4));
+                  const pageNum = start + i;
                   return pageNum <= totalPages ? (
                     <button
+                      type="button"
                       key={pageNum}
                       onClick={() => handlePageChange(null, pageNum)}
                       className={`px-3 py-1 rounded text-sm ${
                         page === pageNum
-                          ? 'bg-blue-600 text-white'
-                          : 'border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                          ? "bg-blue-600 text-white"
+                          : "border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                       }`}
                     >
                       {pageNum}
@@ -820,6 +694,7 @@ export default function StockMovementReport() {
                   ) : null;
                 })}
                 <button
+                  type="button"
                   onClick={() => handlePageChange(null, totalPages)}
                   disabled={page === totalPages}
                   className="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"

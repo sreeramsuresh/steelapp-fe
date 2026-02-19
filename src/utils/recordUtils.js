@@ -15,7 +15,7 @@ export const isNewRecord = (createdAt, hoursThreshold = 2) => {
 
   let timeMs;
 
-  if (typeof createdAt === 'object' && createdAt.seconds) {
+  if (typeof createdAt === "object" && createdAt.seconds) {
     timeMs = createdAt.seconds * 1000;
   } else if (createdAt instanceof Date) {
     timeMs = createdAt.getTime();
@@ -23,7 +23,7 @@ export const isNewRecord = (createdAt, hoursThreshold = 2) => {
     timeMs = new Date(createdAt).getTime();
   }
 
-  if (isNaN(timeMs)) return false;
+  if (Number.isNaN(timeMs)) return false;
 
   const now = Date.now();
   const thresholdMs = hoursThreshold * 60 * 60 * 1000;
@@ -49,43 +49,34 @@ export const validateCreditNoteForDownload = (creditNote) => {
   const hasInvoice =
     creditNote.invoice_id ||
     creditNote.invoiceId ||
-    (creditNote.invoice &&
-      (creditNote.invoice.id || creditNote.invoice.invoice_number));
+    (creditNote.invoice && (creditNote.invoice.id || creditNote.invoice.invoice_number));
   if (!hasInvoice) {
     missing.invoice = true;
-    warnings.push('Linked Invoice');
+    warnings.push("Linked Invoice");
   }
 
   // Check for items with actual returned quantities
-  const hasValidItems =
-    creditNote.items &&
-    creditNote.items.some(
-      (item) => (item.quantityReturned || item.quantity_returned || 0) > 0,
-    );
-  const hasManualAmount =
-    (creditNote.manual_credit_amount || creditNote.manualCreditAmount || 0) > 0;
-  const hasTotalCredit =
-    (creditNote.totalCredit || creditNote.total_credit || 0) > 0;
+  const hasValidItems = creditNote.items?.some((item) => (item.quantityReturned || item.quantity_returned || 0) > 0);
+  const hasManualAmount = (creditNote.manual_credit_amount || creditNote.manualCreditAmount || 0) > 0;
+  const hasTotalCredit = (creditNote.totalCredit || creditNote.total_credit || 0) > 0;
 
   if (!hasValidItems && !hasManualAmount && !hasTotalCredit) {
     missing.items = true;
-    warnings.push('Items or Manual Credit Amount');
+    warnings.push("Items or Manual Credit Amount");
   }
 
   // Check reason
-  const hasReason =
-    creditNote.reason_for_return?.trim() || creditNote.reasonForReturn?.trim();
+  const hasReason = creditNote.reason_for_return?.trim() || creditNote.reasonForReturn?.trim();
   if (!hasReason) {
     missing.reason = true;
-    warnings.push('Reason for Return');
+    warnings.push("Reason for Return");
   }
 
   // Check date
-  const hasDate =
-    creditNote.credit_note_date || creditNote.creditNoteDate || creditNote.date;
+  const hasDate = creditNote.credit_note_date || creditNote.creditNoteDate || creditNote.date;
   if (!hasDate) {
     missing.date = true;
-    warnings.push('Credit Note Date');
+    warnings.push("Credit Note Date");
   }
 
   return {
@@ -111,42 +102,38 @@ export const validateQuotationForDownload = (quotation) => {
 
   // Check customer
   const hasCustomer =
-    quotation.customer?.name?.trim() ||
-    quotation.customer_name?.trim() ||
-    quotation.customerName?.trim();
+    quotation.customer?.name?.trim() || quotation.customer_name?.trim() || quotation.customerName?.trim();
   if (!hasCustomer) {
     missing.customer = true;
-    warnings.push('Customer');
+    warnings.push("Customer");
   }
 
-  // Check items
+  // Check items - only validate if items exist
   const hasItems = quotation.items && quotation.items.length > 0;
   const hasValidItems =
     hasItems &&
     quotation.items.every(
       (item) =>
-        (item.name?.trim() || item.product_name?.trim()) &&
-        item.quantity > 0 &&
-        (item.rate > 0 || item.unit_price > 0),
+        (item.name?.trim() || item.product_name?.trim()) && item.quantity > 0 && (item.rate > 0 || item.unit_price > 0)
     );
-  if (!hasItems || !hasValidItems) {
+  // Only show error if items exist but are malformed (not if items are missing)
+  if (hasItems && !hasValidItems) {
     missing.items = true;
-    warnings.push('Items (with name, quantity, and rate)');
+    warnings.push("Items (with name, quantity, and rate)");
   }
 
   // Check date
-  const hasDate =
-    quotation.quotation_date || quotation.quotationDate || quotation.date;
+  const hasDate = quotation.quotation_date || quotation.quotationDate || quotation.date;
   if (!hasDate) {
     missing.date = true;
-    warnings.push('Quotation Date');
+    warnings.push("Quotation Date");
   }
 
   // Check valid until
   const hasValidUntil = quotation.valid_until || quotation.validUntil;
   if (!hasValidUntil) {
     missing.validUntil = true;
-    warnings.push('Valid Until Date');
+    warnings.push("Valid Until Date");
   }
 
   return {
@@ -172,12 +159,10 @@ export const validatePurchaseOrderForDownload = (purchaseOrder) => {
 
   // Check supplier
   const hasSupplier =
-    purchaseOrder.supplier?.name?.trim() ||
-    purchaseOrder.supplier_name?.trim() ||
-    purchaseOrder.supplierName?.trim();
+    purchaseOrder.supplier?.name?.trim() || purchaseOrder.supplier_name?.trim() || purchaseOrder.supplierName?.trim();
   if (!hasSupplier) {
     missing.supplier = true;
-    warnings.push('Supplier');
+    warnings.push("Supplier");
   }
 
   // Check items
@@ -186,31 +171,26 @@ export const validatePurchaseOrderForDownload = (purchaseOrder) => {
     hasItems &&
     purchaseOrder.items.every(
       (item) =>
-        (item.name?.trim() || item.product_name?.trim()) &&
-        item.quantity > 0 &&
-        (item.rate > 0 || item.unit_price > 0),
+        (item.name?.trim() || item.product_name?.trim()) && item.quantity > 0 && (item.rate > 0 || item.unit_price > 0)
     );
   if (!hasItems || !hasValidItems) {
     missing.items = true;
-    warnings.push('Items (with name, quantity, and rate)');
+    warnings.push("Items (with name, quantity, and rate)");
   }
 
   // Check PO date
-  const hasDate =
-    purchaseOrder.po_date || purchaseOrder.poDate || purchaseOrder.date;
+  const hasDate = purchaseOrder.po_date || purchaseOrder.poDate || purchaseOrder.date;
   if (!hasDate) {
     missing.date = true;
-    warnings.push('PO Date');
+    warnings.push("PO Date");
   }
 
   // Check expected delivery
   const hasExpectedDelivery =
-    purchaseOrder.expected_delivery_date ||
-    purchaseOrder.expectedDeliveryDate ||
-    purchaseOrder.expected_delivery;
+    purchaseOrder.expected_delivery_date || purchaseOrder.expectedDeliveryDate || purchaseOrder.expected_delivery;
   if (!hasExpectedDelivery) {
     missing.expectedDelivery = true;
-    warnings.push('Expected Delivery Date');
+    warnings.push("Expected Delivery Date");
   }
 
   return {
@@ -236,42 +216,35 @@ export const validateDeliveryNoteForDownload = (deliveryNote) => {
 
   // Check linked invoice
   const hasInvoice =
-    deliveryNote.invoice_id ||
-    deliveryNote.invoiceId ||
-    deliveryNote.invoiceNumber ||
-    deliveryNote.invoice_number;
+    deliveryNote.invoice_id || deliveryNote.invoiceId || deliveryNote.invoiceNumber || deliveryNote.invoice_number;
   if (!hasInvoice) {
     missing.invoice = true;
-    warnings.push('Linked Invoice');
+    warnings.push("Linked Invoice");
   }
 
   // Check items
   const hasItems = deliveryNote.items && deliveryNote.items.length > 0;
   if (!hasItems) {
     missing.items = true;
-    warnings.push('Delivery Items');
+    warnings.push("Delivery Items");
   }
 
   // Check delivery date
-  const hasDate =
-    deliveryNote.delivery_date ||
-    deliveryNote.deliveryDate ||
-    deliveryNote.date;
+  const hasDate = deliveryNote.delivery_date || deliveryNote.deliveryDate || deliveryNote.date;
   if (!hasDate) {
     missing.date = true;
-    warnings.push('Delivery Date');
+    warnings.push("Delivery Date");
   }
 
   // Check vehicle (optional but recommended)
   const hasVehicle = deliveryNote.vehicle_number || deliveryNote.vehicleNumber;
   if (!hasVehicle) {
     missing.vehicle = true;
-    warnings.push('Vehicle Number (recommended)');
+    warnings.push("Vehicle Number (recommended)");
   }
 
   return {
-    isValid:
-      warnings.length === 0 || (warnings.length === 1 && missing.vehicle), // Vehicle is optional
+    isValid: warnings.length === 0 || (warnings.length === 1 && missing.vehicle), // Vehicle is optional
     missing,
     warnings,
   };
@@ -292,13 +265,10 @@ export const validateAccountStatementForDownload = (statement) => {
 
   // Check customer
   const hasCustomer =
-    statement.customer_id ||
-    statement.customerId ||
-    statement.customerName ||
-    statement.customer_name;
+    statement.customer_id || statement.customerId || statement.customerName || statement.customer_name;
   if (!hasCustomer) {
     missing.customer = true;
-    warnings.push('Customer Information');
+    warnings.push("Customer Information");
   }
 
   // Check date range
@@ -306,15 +276,14 @@ export const validateAccountStatementForDownload = (statement) => {
   const hasToDate = statement.to_date || statement.toDate;
   if (!hasFromDate || !hasToDate) {
     missing.dateRange = true;
-    warnings.push('Statement Period');
+    warnings.push("Statement Period");
   }
 
   // Check statement number
-  const hasStatementNumber =
-    statement.statement_number || statement.statementNumber;
+  const hasStatementNumber = statement.statement_number || statement.statementNumber;
   if (!hasStatementNumber) {
     missing.statementNumber = true;
-    warnings.push('Statement Number');
+    warnings.push("Statement Number");
   }
 
   return {
@@ -342,31 +311,28 @@ export const validateInvoiceForDownload = (invoice) => {
   const hasCustomer = invoice.customer?.name?.trim();
   if (!hasCustomer) {
     missing.customer = true;
-    warnings.push('Customer');
+    warnings.push("Customer");
   }
 
   // Check items
   const hasItems = invoice.items && invoice.items.length > 0;
   const hasValidItems =
-    hasItems &&
-    invoice.items.every(
-      (item) => item.name?.trim() && item.quantity > 0 && item.rate > 0,
-    );
+    hasItems && invoice.items.every((item) => item.name?.trim() && item.quantity > 0 && item.rate > 0);
   if (!hasItems || !hasValidItems) {
     missing.items = true;
-    warnings.push('Items (with name, quantity, and rate)');
+    warnings.push("Items (with name, quantity, and rate)");
   }
 
   // Check date
   if (!invoice.date) {
     missing.date = true;
-    warnings.push('Invoice Date');
+    warnings.push("Invoice Date");
   }
 
   // Check due date
   if (!invoice.dueDate && !invoice.due_date) {
     missing.dueDate = true;
-    warnings.push('Due Date');
+    warnings.push("Due Date");
   }
 
   return {
@@ -386,27 +352,20 @@ export const validateInvoiceForDownload = (invoice) => {
  * @param {Function} options.onError - Called on error
  * @param {Function} options.onFinally - Called after completion
  */
-export const downloadPDF = async ({
-  url,
-  filename,
-  onStart,
-  onSuccess,
-  onError,
-  onFinally,
-}) => {
+export const downloadPDF = async ({ url, filename, onStart, onSuccess, onError, onFinally }) => {
   try {
     if (onStart) onStart();
 
-    const { apiClient } = await import('../services/api');
+    const { apiClient } = await import("../services/api");
     const response = await apiClient.get(url, {
-      responseType: 'blob',
+      responseType: "blob",
     });
 
-    const blob = new Blob([response], { type: 'application/pdf' });
+    const blob = new Blob([response], { type: "application/pdf" });
     const downloadUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = downloadUrl;
-    link.setAttribute('download', filename);
+    link.setAttribute("download", filename);
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -415,7 +374,7 @@ export const downloadPDF = async ({
     if (onSuccess) onSuccess();
     return true;
   } catch (error) {
-    console.error('PDF download error:', error);
+    console.error("PDF download error:", error);
     if (onError) onError(error);
     return false;
   } finally {

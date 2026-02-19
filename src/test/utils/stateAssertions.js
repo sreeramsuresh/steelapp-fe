@@ -16,8 +16,8 @@
  * ```
  */
 
-import { screen, within, waitFor } from '@testing-library/react';
-import { expect } from 'vitest';
+import { screen, waitFor, within } from "@testing-library/react";
+import { expect } from "vitest";
 
 /**
  * Assert modal/dialog opens with optional title check
@@ -35,7 +35,7 @@ export async function assertModalOpens(titleRegex = null, timeout = 5000) {
 
   await waitFor(
     () => {
-      modal = screen.getByRole('dialog');
+      modal = screen.getByRole("dialog");
       expect(modal).toBeInTheDocument();
 
       if (titleRegex) {
@@ -43,7 +43,7 @@ export async function assertModalOpens(titleRegex = null, timeout = 5000) {
         expect(title).toBeInTheDocument();
       }
     },
-    { timeout },
+    { timeout }
   );
 
   return modal;
@@ -62,10 +62,10 @@ export async function assertModalOpens(titleRegex = null, timeout = 5000) {
 export async function assertModalCloses(timeout = 5000) {
   await waitFor(
     () => {
-      const modal = screen.queryByRole('dialog');
+      const modal = screen.queryByRole("dialog");
       expect(modal).not.toBeInTheDocument();
     },
-    { timeout },
+    { timeout }
   );
 }
 
@@ -81,34 +81,25 @@ export async function assertModalCloses(timeout = 5000) {
  * await assertToastAppears(/saved successfully/i, 'success');
  * await assertToastAppears(/error occurred/i, 'error', 3000);
  */
-export async function assertToastAppears(
-  messageRegex,
-  type = null,
-  timeout = 5000,
-) {
+export async function assertToastAppears(messageRegex, type = null, timeout = 5000) {
   let toast;
 
   await waitFor(
     () => {
-      const messagePattern =
-        messageRegex instanceof RegExp
-          ? messageRegex
-          : new RegExp(messageRegex, 'i');
+      const messagePattern = messageRegex instanceof RegExp ? messageRegex : new RegExp(messageRegex, "i");
 
       // Try multiple toast selectors
-      let toasts = screen.queryAllByRole('status');
+      let toasts = screen.queryAllByRole("status");
 
       if (toasts.length === 0) {
         // Try custom toast selectors
         toasts = Array.from(
-          document.querySelectorAll(
-            '[class*="toast"], [class*="notification"], [class*="alert"], [role="alert"]',
-          ),
+          document.querySelectorAll('[class*="toast"], [class*="notification"], [class*="alert"], [role="alert"]')
         );
       }
 
       if (toasts.length === 0) {
-        throw new Error('No toasts found');
+        throw new Error("No toasts found");
       }
 
       toast = toasts.find((t) => messagePattern.test(t.textContent));
@@ -119,19 +110,15 @@ export async function assertToastAppears(
       if (type) {
         // Check for type indicators (icon, class, data-type attribute)
         const hasTypeClass = toast.className.includes(type);
-        const hasTypeAttr = toast.getAttribute('data-type') === type;
-        const hasTypeIcon = toast.querySelector(
-          `[data-type="${type}"], [class*="${type}"]`,
-        );
+        const hasTypeAttr = toast.getAttribute("data-type") === type;
+        const hasTypeIcon = toast.querySelector(`[data-type="${type}"], [class*="${type}"]`);
 
         if (!hasTypeClass && !hasTypeAttr && !hasTypeIcon) {
-          throw new Error(
-            `Toast type "${type}" not found. Toast classes: ${toast.className}`,
-          );
+          throw new Error(`Toast type "${type}" not found. Toast classes: ${toast.className}`);
         }
       }
     },
-    { timeout },
+    { timeout }
   );
 
   return toast;
@@ -147,7 +134,7 @@ export async function assertToastAppears(
  * await assertSuccessToast(/saved/i);
  */
 export async function assertSuccessToast(messageRegex, timeout = 5000) {
-  return assertToastAppears(messageRegex, 'success', timeout);
+  return assertToastAppears(messageRegex, "success", timeout);
 }
 
 /**
@@ -160,7 +147,7 @@ export async function assertSuccessToast(messageRegex, timeout = 5000) {
  * await assertErrorToast(/failed to save/i);
  */
 export async function assertErrorToast(messageRegex, timeout = 5000) {
-  return assertToastAppears(messageRegex, 'error', timeout);
+  return assertToastAppears(messageRegex, "error", timeout);
 }
 
 /**
@@ -174,11 +161,7 @@ export async function assertErrorToast(messageRegex, timeout = 5000) {
  * @example
  * await assertFormErrorAppears('Email', /invalid email/i);
  */
-export async function assertFormErrorAppears(
-  fieldNameOrLabel,
-  errorMessage,
-  timeout = 5000,
-) {
+export async function assertFormErrorAppears(fieldNameOrLabel, errorMessage, timeout = 5000) {
   let error;
 
   await waitFor(
@@ -186,25 +169,23 @@ export async function assertFormErrorAppears(
       // Try to find field by label
       let field;
       try {
-        field = screen.getByLabelText(new RegExp(fieldNameOrLabel, 'i'));
+        field = screen.getByLabelText(new RegExp(fieldNameOrLabel, "i"));
       } catch {
         // Try by placeholder
-        field = screen.getByPlaceholderText(new RegExp(fieldNameOrLabel, 'i'));
+        field = screen.getByPlaceholderText(new RegExp(fieldNameOrLabel, "i"));
       }
 
       // Look for error sibling or parent error message
-      let errorElement = field?.parentElement?.querySelector(
-        '[role="alert"], .error, .text-red-500',
-      );
+      let errorElement = field?.parentElement?.querySelector('[role="alert"], .error, .text-red-500');
 
       if (!errorElement) {
-        errorElement = screen.getByText(new RegExp(errorMessage, 'i'));
+        errorElement = screen.getByText(new RegExp(errorMessage, "i"));
       }
 
       expect(errorElement).toBeInTheDocument();
       error = errorElement;
     },
-    { timeout },
+    { timeout }
   );
 
   return error;
@@ -220,27 +201,22 @@ export async function assertFormErrorAppears(
  * await fillForm({ email: 'valid@example.com' });
  * await assertFormErrorDisappears('Email');
  */
-export async function assertFormErrorDisappears(
-  fieldNameOrLabel,
-  timeout = 5000,
-) {
+export async function assertFormErrorDisappears(fieldNameOrLabel, timeout = 5000) {
   await waitFor(
     () => {
       // Try to find field
       let field;
       try {
-        field = screen.getByLabelText(new RegExp(fieldNameOrLabel, 'i'));
+        field = screen.getByLabelText(new RegExp(fieldNameOrLabel, "i"));
       } catch {
-        field = screen.getByPlaceholderText(new RegExp(fieldNameOrLabel, 'i'));
+        field = screen.getByPlaceholderText(new RegExp(fieldNameOrLabel, "i"));
       }
 
       // Confirm error is gone
-      const errorElement = field?.parentElement?.querySelector(
-        '[role="alert"], .error, .text-red-500',
-      );
+      const errorElement = field?.parentElement?.querySelector('[role="alert"], .error, .text-red-500');
       expect(errorElement).not.toBeInTheDocument();
     },
-    { timeout },
+    { timeout }
   );
 }
 
@@ -257,10 +233,10 @@ export function assertFormFieldValue(fieldNameOrLabel, expectedValue) {
   let field;
 
   try {
-    field = screen.getByLabelText(new RegExp(fieldNameOrLabel, 'i'));
+    field = screen.getByLabelText(new RegExp(fieldNameOrLabel, "i"));
   } catch {
     try {
-      field = screen.getByPlaceholderText(new RegExp(fieldNameOrLabel, 'i'));
+      field = screen.getByPlaceholderText(new RegExp(fieldNameOrLabel, "i"));
     } catch {
       field = screen.getByDisplayValue(expectedValue);
     }
@@ -279,24 +255,17 @@ export function assertFormFieldValue(fieldNameOrLabel, expectedValue) {
  * @example
  * await assertListItemAdded(/New Customer/i);
  */
-export async function assertListItemAdded(
-  itemMatcher,
-  container = screen,
-  timeout = 5000,
-) {
+export async function assertListItemAdded(itemMatcher, container = screen, timeout = 5000) {
   let item;
 
   await waitFor(
     () => {
-      const itemPattern =
-        itemMatcher instanceof RegExp
-          ? itemMatcher
-          : new RegExp(itemMatcher, 'i');
+      const itemPattern = itemMatcher instanceof RegExp ? itemMatcher : new RegExp(itemMatcher, "i");
 
       item = container.getByText(itemPattern);
       expect(item).toBeInTheDocument();
     },
-    { timeout },
+    { timeout }
   );
 
   return item;
@@ -312,22 +281,15 @@ export async function assertListItemAdded(
  * @example
  * await assertListItemRemoved(/Old Customer/i);
  */
-export async function assertListItemRemoved(
-  itemMatcher,
-  container = screen,
-  timeout = 5000,
-) {
+export async function assertListItemRemoved(itemMatcher, container = screen, timeout = 5000) {
   await waitFor(
     () => {
-      const itemPattern =
-        itemMatcher instanceof RegExp
-          ? itemMatcher
-          : new RegExp(itemMatcher, 'i');
+      const itemPattern = itemMatcher instanceof RegExp ? itemMatcher : new RegExp(itemMatcher, "i");
 
       const item = container.queryByText(itemPattern);
       expect(item).not.toBeInTheDocument();
     },
-    { timeout },
+    { timeout }
   );
 }
 
@@ -345,32 +307,32 @@ export async function assertListItemRemoved(
  */
 export async function assertTableRowCountChanges(
   expectedCount,
-  operator = '=',
-  _tableSelector = 'table',
-  timeout = 5000,
+  operator = "=",
+  _tableSelector = "table",
+  timeout = 5000
 ) {
   let table;
 
   await waitFor(
     () => {
-      table = screen.getByRole('table');
-      const rows = within(table).getAllByRole('row');
+      table = screen.getByRole("table");
+      const rows = within(table).getAllByRole("row");
       // Only subtract 1 if there's a header row
-      const hasHeader = table.querySelector('thead');
+      const hasHeader = table.querySelector("thead");
       const count = hasHeader ? rows.length - 1 : rows.length;
 
       let condition;
       switch (operator) {
-        case '>':
+        case ">":
           condition = count > expectedCount;
           break;
-        case '<':
+        case "<":
           condition = count < expectedCount;
           break;
-        case '>=':
+        case ">=":
           condition = count >= expectedCount;
           break;
-        case '<=':
+        case "<=":
           condition = count <= expectedCount;
           break;
         default:
@@ -379,7 +341,7 @@ export async function assertTableRowCountChanges(
 
       expect(condition).toBe(true);
     },
-    { timeout },
+    { timeout }
   );
 
   return table;
@@ -396,38 +358,26 @@ export async function assertTableRowCountChanges(
  * await assertTableContainsRow(/Product A/i);
  * await assertTableContainsRow('100.00', 'Price');  // Find in Price column
  */
-export async function assertTableContainsRow(
-  textMatcher,
-  columnName = null,
-  timeout = 5000,
-) {
+export async function assertTableContainsRow(textMatcher, columnName = null, timeout = 5000) {
   let row;
 
   await waitFor(
     () => {
-      const table = screen.getByRole('table');
-      const textPattern =
-        textMatcher instanceof RegExp
-          ? textMatcher
-          : new RegExp(textMatcher, 'i');
+      const table = screen.getByRole("table");
+      const textPattern = textMatcher instanceof RegExp ? textMatcher : new RegExp(textMatcher, "i");
 
-      let rows = within(table).getAllByRole('row');
+      let rows = within(table).getAllByRole("row");
 
       if (columnName) {
         // Filter by column header
-        const columnRegex = new RegExp(columnName, 'i');
-        const headers = within(table).getAllByRole('columnheader');
-        const columnIndex = headers.findIndex((h) =>
-          columnRegex.test(h.textContent),
-        );
+        const columnRegex = new RegExp(columnName, "i");
+        const headers = within(table).getAllByRole("columnheader");
+        const columnIndex = headers.findIndex((h) => columnRegex.test(h.textContent));
 
         if (columnIndex >= 0) {
           rows = rows.filter((r) => {
-            const cells = within(r).queryAllByRole('cell');
-            return (
-              cells[columnIndex] &&
-              textPattern.test(cells[columnIndex].textContent)
-            );
+            const cells = within(r).queryAllByRole("cell");
+            return cells[columnIndex] && textPattern.test(cells[columnIndex].textContent);
           });
         }
       } else {
@@ -437,7 +387,7 @@ export async function assertTableContainsRow(
       expect(rows.length).toBeGreaterThan(0);
       row = rows[0];
     },
-    { timeout },
+    { timeout }
   );
 
   return row;
@@ -456,17 +406,15 @@ export async function assertTableContainsRow(
  * await assertLoadingStateChanges(true, false);  // Loading -> not loading
  */
 export async function assertLoadingStateChanges(
-  fromLoading,
+  _fromLoading,
   toLoading,
   loadingSelector = '[class*="loading"], [class*="spinner"]',
-  timeout = 5000,
+  timeout = 5000
 ) {
   await waitFor(
     () => {
       const loadingElement =
-        screen.queryByRole('progressbar') ||
-        screen.queryByText(/loading/i) ||
-        document.querySelector(loadingSelector);
+        screen.queryByRole("progressbar") || screen.queryByText(/loading/i) || document.querySelector(loadingSelector);
 
       if (toLoading) {
         expect(loadingElement).toBeInTheDocument();
@@ -474,7 +422,7 @@ export async function assertLoadingStateChanges(
         expect(loadingElement).not.toBeInTheDocument();
       }
     },
-    { timeout },
+    { timeout }
   );
 }
 
@@ -491,11 +439,10 @@ export async function assertLoadingStateChanges(
 export async function waitForLoadingComplete(timeout = 10000) {
   await waitFor(
     () => {
-      const loading =
-        screen.queryByRole('progressbar') || screen.queryByText(/loading/i);
+      const loading = screen.queryByRole("progressbar") || screen.queryByText(/loading/i);
       expect(loading).not.toBeInTheDocument();
     },
-    { timeout },
+    { timeout }
   );
 }
 
@@ -511,13 +458,10 @@ export async function waitForLoadingComplete(timeout = 10000) {
 export async function assertNavigationOccurred(pathPattern, timeout = 5000) {
   await waitFor(
     () => {
-      const pathRegex =
-        pathPattern instanceof RegExp
-          ? pathPattern
-          : new RegExp(pathPattern, 'i');
+      const pathRegex = pathPattern instanceof RegExp ? pathPattern : new RegExp(pathPattern, "i");
       expect(window.location.pathname).toMatch(pathRegex);
     },
-    { timeout },
+    { timeout }
   );
 }
 
@@ -532,13 +476,9 @@ export async function assertNavigationOccurred(pathPattern, timeout = 5000) {
  * let formData = { name: '' };
  * await assertStateChange(() => formData.name, 'John');
  */
-export async function assertStateChange(
-  stateGetter,
-  expectedValue,
-  timeout = 5000,
-) {
-  if (typeof stateGetter !== 'function') {
-    throw new Error('assertStateChange: stateGetter must be a function');
+export async function assertStateChange(stateGetter, expectedValue, timeout = 5000) {
+  if (typeof stateGetter !== "function") {
+    throw new Error("assertStateChange: stateGetter must be a function");
   }
 
   await waitFor(
@@ -546,6 +486,6 @@ export async function assertStateChange(
       const currentValue = stateGetter();
       expect(currentValue).toEqual(expectedValue);
     },
-    { timeout },
+    { timeout }
   );
 }

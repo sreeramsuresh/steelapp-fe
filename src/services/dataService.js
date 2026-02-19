@@ -6,20 +6,17 @@
  *   import { invoiceService, customerService, productService } from '../services/dataService';
  */
 
+import { accountStatementService as realAccountStatementService } from "./accountStatementService";
+import { companyService as realCompanyService } from "./companyService";
+import { customerService as realCustomerService } from "./customerService";
+import { deliveryNoteService as realDeliveryNoteService } from "./deliveryNoteService";
 // Import real services
-import { invoiceService as realInvoiceService } from './invoiceService';
-import { customerService as realCustomerService } from './customerService';
-import { productService as realProductService } from './productService';
-import { companyService as realCompanyService } from './companyService';
-import {
-  payablesService as realPayablesService,
-  PAYMENT_MODES as realPaymentModes,
-} from './payablesService';
-import { quotationService as realQuotationService } from './quotationService';
-import { deliveryNoteService as realDeliveryNoteService } from './deliveryNoteService';
-import { purchaseOrderService as realPurchaseOrderService } from './purchaseOrderService';
-import { accountStatementService as realAccountStatementService } from './accountStatementService';
-import { transitService as realTransitService } from './transitService';
+import { invoiceService as realInvoiceService } from "./invoiceService";
+import { payablesService as realPayablesService, PAYMENT_MODES as realPaymentModes } from "./payablesService";
+import { productService as realProductService } from "./productService";
+import { purchaseOrderService as realPurchaseOrderService } from "./purchaseOrderService";
+import { quotationService as realQuotationService } from "./quotationService";
+import { transitService as realTransitService } from "./transitService";
 
 /**
  * Invoice Service
@@ -39,7 +36,7 @@ export const productService = realProductService;
 /**
  * Company Service
  */
-export const companyService = realCompanyService.companyService;
+export const companyService = realCompanyService;
 
 /**
  * Quotation Service
@@ -81,10 +78,10 @@ export const PAYMENT_MODES = realPaymentModes;
  */
 export {
   createPaymentPayload,
-  validatePayment as validatePaymentPayload,
   normalizePayment,
   PAYMENT_METHOD_OPTIONS,
-} from './paymentService';
+  validatePayment as validatePaymentPayload,
+} from "./paymentService";
 
 /**
  * Export all services as default

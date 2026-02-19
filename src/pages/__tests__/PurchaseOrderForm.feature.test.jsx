@@ -3,25 +3,19 @@
  * Tests PO creation, GRN receipt, supplier management, and payment integration
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import React from 'react';
-import {
-  findButtonByRole,
-  clickAndWait,
-  assertSuccessToast,
-  assertFormErrorAppears,
-  assertListItemAdded,
-} from '../../test/utils';
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React from "react";
+import { describe, expect, it } from "vitest";
+import { assertListItemAdded, assertSuccessToast, findButtonByRole } from "../../test/utils";
 
-describe('Purchase Order Feature', () => {
-  describe('Creating Purchase Orders', () => {
-    it('should create PO with supplier and line items', async () => {
+describe("Purchase Order Feature", () => {
+  describe("Creating Purchase Orders", () => {
+    it("should create PO with supplier and line items", async () => {
       const MockPOForm = () => {
         const [po, setPO] = React.useState({
-          supplierId: '',
-          supplierName: '',
+          supplierId: "",
+          supplierName: "",
           items: [],
           subtotal: 0,
           tax: 0,
@@ -31,10 +25,7 @@ describe('Purchase Order Feature', () => {
         const handleAddItem = () => {
           setPO({
             ...po,
-            items: [
-              ...po.items,
-              { product: 'SS-304-Sheet', qty: 100, unitCost: 50 },
-            ],
+            items: [...po.items, { product: "SS-304-Sheet", qty: 100, unitCost: 50 }],
             subtotal: 5000,
             tax: 500,
             total: 5500,
@@ -48,41 +39,43 @@ describe('Purchase Order Feature', () => {
               value={po.supplierName}
               onChange={(e) => setPO({ ...po, supplierName: e.target.value })}
             />
-            <button onClick={handleAddItem}>Add Line Item</button>
+            <button type="button" onClick={handleAddItem}>
+              Add Line Item
+            </button>
             <div className="items-list">
               {po.items.map((item, idx) => (
-                <div key={idx}>
+                <div key={item.id || item.name || `item-${idx}`}>
                   {item.product} - {item.qty} units @ {item.unitCost}
                 </div>
               ))}
             </div>
             <div>Total: {po.total}</div>
             {/* eslint-disable-next-line local-rules/no-dead-button */}
-            <button>Save PO</button>
+            <button type="button">Save PO</button>
           </>
         );
       };
 
       render(<MockPOForm />);
 
-      const supplierInput = screen.getByPlaceholderText('Supplier Name');
-      await userEvent.type(supplierInput, 'Steel Supplier LLC');
+      const supplierInput = screen.getByPlaceholderText("Supplier Name");
+      await userEvent.type(supplierInput, "Steel Supplier LLC");
 
-      const addBtn = findButtonByRole('Add Line Item');
+      const addBtn = findButtonByRole("Add Line Item");
       await userEvent.click(addBtn);
 
       await assertListItemAdded(/SS-304-Sheet/);
-      expect(screen.getByText('Total: 5500')).toBeInTheDocument();
+      expect(screen.getByText("Total: 5500")).toBeInTheDocument();
     });
 
-    it('should prevent PO creation without supplier', async () => {
+    it("should prevent PO creation without supplier", async () => {
       const MockPOForm = () => {
         const [errors, setErrors] = React.useState({});
 
         const handleSave = () => {
           const newErrors = {};
-          if (!screen.getByPlaceholderText('Supplier').value) {
-            newErrors.supplier = 'Supplier is required';
+          if (!screen.getByPlaceholderText("Supplier").value) {
+            newErrors.supplier = "Supplier is required";
           }
           setErrors(newErrors);
         };
@@ -90,25 +83,25 @@ describe('Purchase Order Feature', () => {
         return (
           <>
             <input placeholder="Supplier" />
-            {errors.supplier && (
-              <div className="alert-error">{errors.supplier}</div>
-            )}
-            <button onClick={handleSave}>Save PO</button>
+            {errors.supplier && <div className="alert-error">{errors.supplier}</div>}
+            <button type="button" onClick={handleSave}>
+              Save PO
+            </button>
           </>
         );
       };
 
       render(<MockPOForm />);
 
-      const saveBtn = findButtonByRole('Save PO');
+      const saveBtn = findButtonByRole("Save PO");
       await userEvent.click(saveBtn);
 
       expect(screen.getByText(/Supplier is required/)).toBeInTheDocument();
     });
   });
 
-  describe('Goods Receipt (GRN) Process', () => {
-    it('should receive goods and update inventory', async () => {
+  describe("Goods Receipt (GRN) Process", () => {
+    it("should receive goods and update inventory", async () => {
       const MockGRNForm = () => {
         const [stockLevel, setStockLevel] = React.useState(100);
         const [received, setReceived] = React.useState(false);
@@ -121,28 +114,26 @@ describe('Purchase Order Feature', () => {
         return (
           <>
             <div>Current Stock: {stockLevel}</div>
-            <button onClick={handleReceiveGoods}>Receive 50 Units</button>
-            {received && (
-              <div className="alert-success">
-                Goods received and added to inventory
-              </div>
-            )}
+            <button type="button" onClick={handleReceiveGoods}>
+              Receive 50 Units
+            </button>
+            {received && <div className="alert-success">Goods received and added to inventory</div>}
           </>
         );
       };
 
       render(<MockGRNForm />);
 
-      expect(screen.getByText('Current Stock: 100')).toBeInTheDocument();
+      expect(screen.getByText("Current Stock: 100")).toBeInTheDocument();
 
-      const receiveBtn = findButtonByRole('Receive 50 Units');
+      const receiveBtn = findButtonByRole("Receive 50 Units");
       await userEvent.click(receiveBtn);
 
       await assertSuccessToast(/Goods received/i);
-      expect(screen.getByText('Current Stock: 150')).toBeInTheDocument();
+      expect(screen.getByText("Current Stock: 150")).toBeInTheDocument();
     });
 
-    it('should handle partial receipts', async () => {
+    it("should handle partial receipts", async () => {
       const MockPartialGRN = () => {
         const [originalQty] = React.useState(100);
         const [receivedQty, setReceivedQty] = React.useState(0);
@@ -159,51 +150,53 @@ describe('Purchase Order Feature', () => {
               Received: {receivedQty} / {originalQty}
             </div>
             <div>Pending: {pendingQty}</div>
-            <button onClick={() => handleReceive(50)}>Receive 50</button>
-            <button onClick={() => handleReceive(50)}>Receive Remaining</button>
+            <button type="button" onClick={() => handleReceive(50)}>
+              Receive 50
+            </button>
+            <button type="button" onClick={() => handleReceive(50)}>
+              Receive Remaining
+            </button>
           </>
         );
       };
 
       render(<MockPartialGRN />);
 
-      expect(screen.getByText('Received: 0 / 100')).toBeInTheDocument();
-      expect(screen.getByText('Pending: 100')).toBeInTheDocument();
+      expect(screen.getByText("Received: 0 / 100")).toBeInTheDocument();
+      expect(screen.getByText("Pending: 100")).toBeInTheDocument();
 
-      let receiveBtn = findButtonByRole('Receive 50');
+      let receiveBtn = findButtonByRole("Receive 50");
       await userEvent.click(receiveBtn);
 
-      expect(screen.getByText('Received: 50 / 100')).toBeInTheDocument();
-      expect(screen.getByText('Pending: 50')).toBeInTheDocument();
+      expect(screen.getByText("Received: 50 / 100")).toBeInTheDocument();
+      expect(screen.getByText("Pending: 50")).toBeInTheDocument();
 
-      receiveBtn = findButtonByRole('Receive Remaining');
+      receiveBtn = findButtonByRole("Receive Remaining");
       await userEvent.click(receiveBtn);
 
-      expect(screen.getByText('Received: 100 / 100')).toBeInTheDocument();
-      expect(screen.getByText('Pending: 0')).toBeInTheDocument();
+      expect(screen.getByText("Received: 100 / 100")).toBeInTheDocument();
+      expect(screen.getByText("Pending: 0")).toBeInTheDocument();
     });
   });
 
-  describe('Supplier Bill Matching', () => {
-    it('should match supplier bill with PO and GRN (3-way match)', async () => {
+  describe("Supplier Bill Matching", () => {
+    it("should match supplier bill with PO and GRN (3-way match)", async () => {
       const MockThreeWayMatch = () => {
-        const [matches, setMatches] = React.useState({
+        const [matches, _setMatches] = React.useState({
           poAmount: 5000,
           grnAmount: 5000,
           billAmount: 5000,
         });
 
-        const isMatched =
-          matches.poAmount === matches.grnAmount &&
-          matches.grnAmount === matches.billAmount;
+        const isMatched = matches.poAmount === matches.grnAmount && matches.grnAmount === matches.billAmount;
 
         return (
           <>
             <div>PO Amount: {matches.poAmount}</div>
             <div>GRN Amount: {matches.grnAmount}</div>
             <div>Bill Amount: {matches.billAmount}</div>
-            <div className={isMatched ? 'alert-success' : 'alert-error'}>
-              {isMatched ? 'All amounts match' : 'Amounts do not match'}
+            <div className={isMatched ? "alert-success" : "alert-error"}>
+              {isMatched ? "All amounts match" : "Amounts do not match"}
             </div>
           </>
         );
@@ -214,7 +207,7 @@ describe('Purchase Order Feature', () => {
       expect(screen.getByText(/All amounts match/)).toBeInTheDocument();
     });
 
-    it('should flag discrepancies in 3-way match', async () => {
+    it("should flag discrepancies in 3-way match", async () => {
       const MockThreeWayMatchFail = () => {
         const [amounts] = React.useState({
           poAmount: 5000,
@@ -222,21 +215,14 @@ describe('Purchase Order Feature', () => {
           billAmount: 5000,
         });
 
-        const hasDiscrepancy = !(
-          amounts.poAmount === amounts.grnAmount &&
-          amounts.grnAmount === amounts.billAmount
-        );
+        const hasDiscrepancy = !(amounts.poAmount === amounts.grnAmount && amounts.grnAmount === amounts.billAmount);
 
         return (
           <>
             <div>PO: {amounts.poAmount}</div>
             <div>GRN: {amounts.grnAmount}</div>
             <div>Bill: {amounts.billAmount}</div>
-            {hasDiscrepancy && (
-              <div className="alert-error">
-                Discrepancy detected: GRN (4950) vs PO (5000)
-              </div>
-            )}
+            {hasDiscrepancy && <div className="alert-error">Discrepancy detected: GRN (4950) vs PO (5000)</div>}
           </>
         );
       };
@@ -247,30 +233,21 @@ describe('Purchase Order Feature', () => {
     });
   });
 
-  describe('PO Status Workflow', () => {
-    it('should transition PO through states: Draft → Approved → Received → Invoiced', async () => {
+  describe("PO Status Workflow", () => {
+    it("should transition PO through states: Draft → Approved → Received → Invoiced", async () => {
       const MockPOWorkflow = () => {
-        const [status, setStatus] = React.useState('draft');
+        const [status, setStatus] = React.useState("draft");
 
         return (
           <>
             <div>Status: {status}</div>
-            <button
-              onClick={() => setStatus('approved')}
-              disabled={status !== 'draft'}
-            >
+            <button type="button" onClick={() => setStatus("approved")} disabled={status !== "draft"}>
               Approve
             </button>
-            <button
-              onClick={() => setStatus('received')}
-              disabled={status !== 'approved'}
-            >
+            <button type="button" onClick={() => setStatus("received")} disabled={status !== "approved"}>
               Mark Received
             </button>
-            <button
-              onClick={() => setStatus('invoiced')}
-              disabled={status !== 'received'}
-            >
+            <button type="button" onClick={() => setStatus("invoiced")} disabled={status !== "received"}>
               Mark Invoiced
             </button>
           </>
@@ -279,32 +256,32 @@ describe('Purchase Order Feature', () => {
 
       render(<MockPOWorkflow />);
 
-      const approveBtn = findButtonByRole('Approve', { disabled: false });
+      const approveBtn = findButtonByRole("Approve", { disabled: false });
       await userEvent.click(approveBtn);
-      expect(screen.getByText('Status: approved')).toBeInTheDocument();
+      expect(screen.getByText("Status: approved")).toBeInTheDocument();
 
-      const receivedBtn = findButtonByRole('Mark Received', {
+      const receivedBtn = findButtonByRole("Mark Received", {
         disabled: false,
       });
       await userEvent.click(receivedBtn);
-      expect(screen.getByText('Status: received')).toBeInTheDocument();
+      expect(screen.getByText("Status: received")).toBeInTheDocument();
 
-      const invoicedBtn = findButtonByRole('Mark Invoiced', {
+      const invoicedBtn = findButtonByRole("Mark Invoiced", {
         disabled: false,
       });
       await userEvent.click(invoicedBtn);
-      expect(screen.getByText('Status: invoiced')).toBeInTheDocument();
+      expect(screen.getByText("Status: invoiced")).toBeInTheDocument();
     });
   });
 
-  describe('Batch Tracking in PO', () => {
-    it('should assign batch information to received goods', async () => {
+  describe("Batch Tracking in PO", () => {
+    it("should assign batch information to received goods", async () => {
       const MockBatchPO = () => {
-        const [batch, setBatch] = React.useState({
-          batchNo: 'B-2025-001',
-          supplier: 'Steel Supplier',
+        const [batch, _setBatch] = React.useState({
+          batchNo: "B-2025-001",
+          supplier: "Steel Supplier",
           quantity: 100,
-          dateReceived: '2025-12-19',
+          dateReceived: "2025-12-19",
         });
 
         return (
@@ -314,16 +291,16 @@ describe('Purchase Order Feature', () => {
             <div>Qty: {batch.quantity}</div>
             <div>Received: {batch.dateReceived}</div>
             {/* eslint-disable-next-line local-rules/no-dead-button */}
-            <button>Save Batch</button>
+            <button type="button">Save Batch</button>
           </>
         );
       };
 
       render(<MockBatchPO />);
 
-      expect(screen.getByText('Batch: B-2025-001')).toBeInTheDocument();
-      expect(screen.getByText('Supplier: Steel Supplier')).toBeInTheDocument();
-      expect(screen.getByText('Qty: 100')).toBeInTheDocument();
+      expect(screen.getByText("Batch: B-2025-001")).toBeInTheDocument();
+      expect(screen.getByText("Supplier: Steel Supplier")).toBeInTheDocument();
+      expect(screen.getByText("Qty: 100")).toBeInTheDocument();
     });
   });
 });

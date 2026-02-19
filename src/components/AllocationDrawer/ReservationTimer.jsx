@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 /**
  * ReservationTimer Component
@@ -57,22 +57,22 @@ const ReservationTimer = ({
 
   // Format time as MM:SS
   const formatTime = useCallback((ms) => {
-    if (ms === null || ms <= 0) return '00:00';
+    if (ms === null || ms <= 0) return "00:00";
 
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
 
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   }, []);
 
   // Determine timer state for styling
   const timerState = useMemo(() => {
-    if (timeRemaining === null) return 'inactive';
-    if (timeRemaining <= 0) return 'expired';
-    if (timeRemaining <= criticalThresholdMs) return 'critical';
-    if (timeRemaining <= warningThresholdMs) return 'warning';
-    return 'normal';
+    if (timeRemaining === null) return "inactive";
+    if (timeRemaining <= 0) return "expired";
+    if (timeRemaining <= criticalThresholdMs) return "critical";
+    if (timeRemaining <= warningThresholdMs) return "warning";
+    return "normal";
   }, [timeRemaining, warningThresholdMs, criticalThresholdMs]);
 
   // Handle extend button click
@@ -83,7 +83,7 @@ const ReservationTimer = ({
     try {
       await onExtend();
     } catch (err) {
-      console.error('Failed to extend reservation:', err);
+      console.error("Failed to extend reservation:", err);
     } finally {
       setIsExtending(false);
     }
@@ -97,21 +97,21 @@ const ReservationTimer = ({
   // Get status message based on state
   const getStatusMessage = () => {
     switch (timerState) {
-      case 'expired':
-        return 'Reservation expired';
-      case 'critical':
-        return 'Expiring soon!';
-      case 'warning':
-        return 'Time running low';
+      case "expired":
+        return "Reservation expired";
+      case "critical":
+        return "Expiring soon!";
+      case "warning":
+        return "Time running low";
       default:
-        return 'Reservation active';
+        return "Reservation active";
     }
   };
 
   return (
     <div className={`reservation-timer timer-${timerState}`}>
       <div className="timer-icon">
-        {timerState === 'expired' ? (
+        {timerState === "expired" ? (
           <span className="icon-expired">!</span>
         ) : (
           <span className="icon-clock">&#x23F1;</span>
@@ -122,13 +122,11 @@ const ReservationTimer = ({
         <div className="timer-label">{getStatusMessage()}</div>
         <div className="timer-countdown">
           <span className="timer-value">{formatTime(timeRemaining)}</span>
-          {timerState !== 'expired' && (
-            <span className="timer-unit">remaining</span>
-          )}
+          {timerState !== "expired" && <span className="timer-unit">remaining</span>}
         </div>
       </div>
 
-      {onExtend && timerState !== 'expired' && (
+      {onExtend && timerState !== "expired" && (
         <button
           type="button"
           className="timer-extend-btn"
@@ -136,7 +134,7 @@ const ReservationTimer = ({
           disabled={isExtending}
           title="Extend reservation by 30 minutes"
         >
-          {isExtending ? '...' : '+30m'}
+          {isExtending ? "..." : "+30m"}
         </button>
       )}
     </div>

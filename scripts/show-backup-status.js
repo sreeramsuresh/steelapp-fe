@@ -14,8 +14,6 @@
  * Non-blocking: Continues even if backup API is unreachable
  */
 
-import http from "http";
-import { URL } from "url";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -23,19 +21,13 @@ import { spawn } from "child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Configuration
-const API_HOST = process.env.API_HOST || "localhost";
-const API_PORT = process.env.API_PORT || 3000;
-const API_URL = `http://${API_HOST}:${API_PORT}/api/ops/backup-status`;
-const TIMEOUT_MS = 3000; // 3 second timeout
-
 // Backup catch-up configuration
 const BACKUP_INTERVAL_HOURS = 4; // Must match cron schedule
 const BACKUP_INTERVAL_MS = BACKUP_INTERVAL_HOURS * 60 * 60 * 1000;
-const BACKUP_ROOT = process.env.BACKUP_ROOT || "/mnt/d/DB Backup";
+const BACKUP_ROOT = process.env.BACKUP_ROOT || "D:\\DB Backup";
 const BACKUP_GUARD_SCRIPT =
   process.env.BACKUP_GUARD_SCRIPT ||
-  "/mnt/d/Ultimate Steel/steelapprnp/backup-system/scripts/backup_guard.sh";
+  "D:\\Ultimate Steel\\steelapprnp\\backup-system\\scripts\\backup_guard.sh";
 const CATCHUP_LOG_FILE = path.join(BACKUP_ROOT, "logs", "backup_catchup.log");
 
 /**
@@ -85,94 +77,47 @@ function formatTime(isoTimestamp) {
 }
 
 /**
- * Get JWT token from .env.local or environment
- */
-function getAuthToken() {
-  // Try to get from environment variable
-  if (process.env.VITE_AUTH_TOKEN) {
-    return process.env.VITE_AUTH_TOKEN;
-  }
-
-  // Try to read from .env.local if it exists
-  try {
-    const envPath = path.join(__dirname, "../.env.local");
-
-    if (fs.existsSync(envPath)) {
-      const content = fs.readFileSync(envPath, "utf8");
-      const match = content.match(/VITE_AUTH_TOKEN\s*=\s*["']?([^"'\n]+)["']?/);
-      if (match && match[1]) {
-        return match[1];
-      }
-    }
-  } catch (error) {
-    // Silently fail - token may not be available
-  }
-
-  return null;
-}
-
-/**
- * Fetch backup status from API
+ * Fetch backup status by reading the status file directly.
+ * This avoids needing API auth since the script runs locally pre-startup.
  */
 function fetchBackupStatus() {
   return new Promise((resolve) => {
-    // Build request options
-    const reqUrl = new URL(API_URL);
-    const options = {
-      hostname: reqUrl.hostname,
-      port: reqUrl.port,
-      path: reqUrl.pathname + reqUrl.search,
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "User-Agent": "show-backup-status/1.0",
-      },
-      timeout: TIMEOUT_MS,
-    };
+    try {
+      // Read the backup status file directly (same file the API reads)
+      const BACKUP_STATUS_FILE = path.resolve(BACKUP_ROOT, "backup_status.json");
+      const statusData = fs.readFileSync(BACKUP_STATUS_FILE, "utf8");
+      const status = JSON.parse(statusData);
 
-    // Add auth token if available
-    const token = getAuthToken();
-    if (token) {
-      options.headers.Authorization = `Bearer ${token}`;
+      resolve({
+        status: status.status,
+        lastSuccessAt: status.last_success_at || null,
+        lastAttemptAt: status.last_attempt_at || null,
+        blocked: status.blocked || false,
+        blockedReason: status.blocked_reason || null,
+        artifact: status.artifact || null,
+        sha256: status.sha256 || null,
+        durationSec: status.duration_sec || 0,
+        environment: status.environment || "unknown",
+        dbHost: status.db_host || null,
+      });
+    } catch (error) {
+      if (error.code === "ENOENT") {
+        resolve({
+          status: "UNKNOWN",
+          message: "No backup status file found",
+        });
+      } else if (error instanceof SyntaxError) {
+        resolve({
+          status: "ERROR",
+          message: "Backup status file is corrupted",
+        });
+      } else {
+        resolve({
+          status: "UNKNOWN",
+          message: `Cannot read backup status (${error.message})`,
+        });
+      }
     }
-
-    const req = http.request(options, (res) => {
-      let data = "";
-
-      res.on("data", (chunk) => {
-        data += chunk;
-      });
-
-      res.on("end", () => {
-        try {
-          const json = JSON.parse(data);
-          resolve(json);
-        } catch (error) {
-          resolve({
-            status: "ERROR",
-            message: "Failed to parse API response",
-          });
-        }
-      });
-    });
-
-    req.on("error", (error) => {
-      // API unreachable - return UNKNOWN
-      resolve({
-        status: "UNKNOWN",
-        message: `API unreachable (${error.message})`,
-      });
-    });
-
-    req.on("timeout", () => {
-      req.destroy();
-      resolve({
-        status: "UNKNOWN",
-        message: "API timeout",
-      });
-    });
-
-    req.end();
   });
 }
 

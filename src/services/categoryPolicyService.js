@@ -10,19 +10,7 @@
  * backwards compatibility during Phase 0 transition.
  */
 
-import { api } from './api';
-
-// Dev-only warning for deprecated _companyId parameter usage
-const IS_DEV = import.meta.env?.DEV || process.env.NODE_ENV === 'development';
-
-function warnDeprecatedCompanyId(methodName, companyId) {
-  if (IS_DEV && companyId !== undefined && companyId !== null) {
-    console.warn(
-      `[categoryPolicyService.${methodName}] DEPRECATED: _companyId parameter is ignored. ` +
-        `company_id is extracted from auth context. Passed value: ${companyId}`,
-    );
-  }
-}
+import { api } from "./api.js";
 
 export const categoryPolicyService = {
   /**
@@ -33,16 +21,17 @@ export const categoryPolicyService = {
    * @returns {Promise<{policies: Array, taxonomy_status: Object}>}
    */
   async listCategoryPolicies(_companyId, activeOnly = true) {
-    warnDeprecatedCompanyId('listCategoryPolicies', _companyId);
+    // Note: _companyId parameter is deprecated and ignored - company_id is extracted from auth context
+    // warnDeprecatedCompanyId('listCategoryPolicies', _companyId);
     try {
-      const response = await api.get('/category-policies', {
+      const response = await api.get("/category-policies", {
         params: {
           active_only: activeOnly,
         },
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error fetching category policies:', error);
+      console.error("Error fetching category policies:", error);
       throw error;
     }
   },
@@ -55,10 +44,11 @@ export const categoryPolicyService = {
    * @returns {Promise<{policy: Object, is_frozen: boolean}>}
    */
   async getCategoryPolicy(_companyId, category) {
-    warnDeprecatedCompanyId('getCategoryPolicy', _companyId);
+    // Note: _companyId parameter is deprecated and ignored - company_id is extracted from auth context
+    // warnDeprecatedCompanyId('getCategoryPolicy', _companyId);
     try {
       const response = await api.get(`/category-policies/${category}`);
-      return response.data;
+      return response;
     } catch (error) {
       console.error(`Error fetching policy for category ${category}:`, error);
       throw error;
@@ -73,18 +63,19 @@ export const categoryPolicyService = {
    * @returns {Promise<{subtypes: Array}>}
    */
   async getProductSubtypes(_companyId, category = null) {
-    warnDeprecatedCompanyId('getProductSubtypes', _companyId);
+    // Note: _companyId parameter is deprecated and ignored - company_id is extracted from auth context
+    // warnDeprecatedCompanyId('getProductSubtypes', _companyId);
     try {
       const params = {};
       if (category) {
         params.category = category;
       }
-      const response = await api.get('/category-policies/subtypes/list', {
+      const response = await api.get("/category-policies/subtypes/list", {
         params,
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error fetching product subtypes:', error);
+      console.error("Error fetching product subtypes:", error);
       throw error;
     }
   },
@@ -96,12 +87,13 @@ export const categoryPolicyService = {
    * @returns {Promise<{status: Object, is_frozen: boolean}>}
    */
   async getTaxonomyStatus(_companyId) {
-    warnDeprecatedCompanyId('getTaxonomyStatus', _companyId);
+    // Note: _companyId parameter is deprecated and ignored - company_id is extracted from auth context
+    // warnDeprecatedCompanyId('getTaxonomyStatus', _companyId);
     try {
-      const response = await api.get('/category-policies/taxonomy/status');
-      return response.data;
+      const response = await api.get("/category-policies/taxonomy/status");
+      return response;
     } catch (error) {
-      console.error('Error fetching taxonomy status:', error);
+      console.error("Error fetching taxonomy status:", error);
       throw error;
     }
   },
@@ -124,9 +116,9 @@ export const categoryPolicyService = {
     }
 
     const modeMap = {
-      MT_ONLY: 'WEIGHT',
-      PCS_ONLY: 'PIECE',
-      CONVERTIBLE: 'WEIGHT', // Default to weight for convertible
+      MT_ONLY: "WEIGHT",
+      PCS_ONLY: "PIECE",
+      CONVERTIBLE: "WEIGHT", // Default to weight for convertible
     };
 
     return modeMap[policy.pricing_mode] || null;
@@ -152,7 +144,7 @@ export const categoryPolicyService = {
    * @returns {boolean}
    */
   isConvertible(policy) {
-    return policy?.pricing_mode === 'CONVERTIBLE';
+    return policy?.pricing_mode === "CONVERTIBLE";
   },
 
   /**

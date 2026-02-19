@@ -1,14 +1,14 @@
 /**
  * Canonical Product Type (camelCase only)
- * This is the NORMALIZED frontend schema after productNormalizer processes API data.
+ * This is the NORMALIZED frontend schema after normalizeProduct (fieldAccessors.js) processes API data.
  *
  * IMPORTANT: Backend/API uses snake_case. Frontend MUST use camelCase.
- * The productNormalizer converts snake_case → camelCase.
+ * normalizeProduct() converts snake_case → camelCase.
  */
 
 /**
  * Main Product interface - CAMELCASE ONLY
- * All fields that exist after productNormalizer processing
+ * All fields that exist after normalizeProduct processing
  */
 export interface Product {
   // Core identifiers
@@ -98,7 +98,7 @@ export interface Product {
  * Type guard to check if object is a valid Product
  */
 export function isProduct(obj: unknown): obj is Product {
-  if (!obj || typeof obj !== 'object') return false;
+  if (!obj || typeof obj !== "object") return false;
   const record = obj as Record<string, unknown>;
-  return typeof record.id === 'number' && typeof record.name === 'string';
+  return typeof record.id === "number" && typeof record.name === "string";
 }

@@ -1,14 +1,14 @@
-import { stockMovementService } from '../services/stockMovementService';
-import { inventoryService } from '../services/inventoryService';
+import { inventoryService } from "../services/inventoryService.js";
+import { stockMovementService } from "../services/stockMovementService.js";
 
 /**
  * Stock status constants
  */
 export const STOCK_STATUS = {
-  OUT_OF_STOCK: 'out_of_stock',
-  LOW: 'low',
-  NORMAL: 'normal',
-  HIGH: 'high',
+  OUT_OF_STOCK: "out_of_stock",
+  LOW: "low",
+  NORMAL: "normal",
+  HIGH: "high",
 };
 
 /**
@@ -59,13 +59,13 @@ export const getStockStatus = (currentStock, minStock = 0, maxStock = 0) => {
 export const getStockStatusLabel = (status) => {
   switch (status) {
     case STOCK_STATUS.OUT_OF_STOCK:
-      return 'OUT OF STOCK';
+      return "OUT OF STOCK";
     case STOCK_STATUS.LOW:
-      return 'LOW';
+      return "LOW";
     case STOCK_STATUS.HIGH:
-      return 'HIGH';
+      return "HIGH";
     default:
-      return 'NORMAL';
+      return "NORMAL";
   }
 };
 
@@ -78,32 +78,26 @@ export const getStockStatusLabel = (status) => {
 export const getStockStatusStyles = (status, isDarkMode = false) => {
   const styles = {
     [STOCK_STATUS.OUT_OF_STOCK]: {
-      bgClass: isDarkMode
-        ? 'bg-red-950/50 text-red-400 border-red-800'
-        : 'bg-red-100 text-red-800 border-red-300',
-      color: '#7f1d1d',
-      progressClass: 'bg-red-900',
+      bgClass: isDarkMode ? "bg-red-950/50 text-red-400 border-red-800" : "bg-red-100 text-red-800 border-red-300",
+      color: "#7f1d1d",
+      progressClass: "bg-red-900",
     },
     [STOCK_STATUS.LOW]: {
-      bgClass: isDarkMode
-        ? 'bg-red-900/30 text-red-300 border-red-700'
-        : 'bg-red-50 text-red-700 border-red-200',
-      color: '#dc2626',
-      progressClass: 'bg-red-500',
+      bgClass: isDarkMode ? "bg-red-900/30 text-red-300 border-red-700" : "bg-red-50 text-red-700 border-red-200",
+      color: "#dc2626",
+      progressClass: "bg-red-500",
     },
     [STOCK_STATUS.HIGH]: {
       bgClass: isDarkMode
-        ? 'bg-green-900/30 text-green-300 border-green-700'
-        : 'bg-green-50 text-green-700 border-green-200',
-      color: '#059669',
-      progressClass: 'bg-green-500',
+        ? "bg-green-900/30 text-green-300 border-green-700"
+        : "bg-green-50 text-green-700 border-green-200",
+      color: "#059669",
+      progressClass: "bg-green-500",
     },
     [STOCK_STATUS.NORMAL]: {
-      bgClass: isDarkMode
-        ? 'bg-blue-900/30 text-blue-300 border-blue-700'
-        : 'bg-blue-50 text-blue-700 border-blue-200',
-      color: '#2563eb',
-      progressClass: 'bg-blue-500',
+      bgClass: isDarkMode ? "bg-blue-900/30 text-blue-300 border-blue-700" : "bg-blue-50 text-blue-700 border-blue-200",
+      color: "#2563eb",
+      progressClass: "bg-blue-500",
     },
   };
 
@@ -121,22 +115,20 @@ export const createStockMovementsFromInvoice = async (invoice) => {
   try {
     for (const item of invoice.items) {
       // Extract product details from item specification or name
-      const productDetails = parseProductSpecification(
-        item.specification || item.name,
-      );
+      const productDetails = parseProductSpecification(item.specification || item.name);
 
       const movement = {
-        date: invoice.date || new Date().toISOString().split('T')[0],
-        movement: 'OUT', // Invoice items are outgoing
-        productType: productDetails.productType || '',
-        grade: productDetails.grade || '',
-        thickness: productDetails.thickness || '',
-        size: productDetails.size || '',
-        finish: productDetails.finish || '',
+        date: invoice.date || new Date().toISOString().split("T")[0],
+        movement: "OUT", // Invoice items are outgoing
+        productType: productDetails.productType || "",
+        grade: productDetails.grade || "",
+        thickness: productDetails.thickness || "",
+        size: productDetails.size || "",
+        finish: productDetails.finish || "",
         invoiceNo: invoice.invoiceNumber,
         quantity: item.quantity,
         currentStock: 0, // Will be updated after checking current inventory
-        seller: invoice.customer?.name || '',
+        seller: invoice.customer?.name || "",
       };
 
       // Get current stock for this product
@@ -146,29 +138,25 @@ export const createStockMovementsFromInvoice = async (invoice) => {
           movement.grade,
           movement.size,
           movement.thickness,
-          movement.finish,
+          movement.finish
         );
-        movement.currentStock = Math.max(
-          0,
-          (stockResponse.currentStock || 0) - movement.quantity,
-        );
+        movement.currentStock = Math.max(0, (stockResponse.currentStock || 0) - movement.quantity);
       } catch (error) {
-        console.warn('Could not fetch current stock:', error);
+        console.warn("Could not fetch current stock:", error);
       }
 
-      const createdMovement =
-        await stockMovementService.createMovement(movement);
+      const createdMovement = await stockMovementService.createMovement(movement);
       movements.push(createdMovement);
 
       // Update inventory quantity if matching item exists
       try {
         await updateInventoryFromMovement(movement);
       } catch (error) {
-        console.warn('Could not update inventory:', error);
+        console.warn("Could not update inventory:", error);
       }
     }
   } catch (error) {
-    console.error('Error creating stock movements from invoice:', error);
+    console.error("Error creating stock movements from invoice:", error);
     throw error;
   }
 
@@ -182,28 +170,22 @@ export const createStockMovementsFromInvoice = async (invoice) => {
 export const updateInventoryFromMovement = async (movement) => {
   try {
     // Find matching inventory items
-    const inventoryResponse = await inventoryService.getItemsByProduct(
-      movement.productType,
-      movement.grade,
-    );
+    const inventoryResponse = await inventoryService.getItemsByProduct(movement.productType, movement.grade);
 
     const matchingItems =
       inventoryResponse.data?.filter(
         (item) =>
-          item.size === movement.size &&
-          item.thickness === movement.thickness &&
-          item.finish === movement.finish,
+          item.size === movement.size && item.thickness === movement.thickness && item.finish === movement.finish
       ) || [];
 
     for (const item of matchingItems) {
-      const quantityChange =
-        movement.movement === 'IN' ? movement.quantity : -movement.quantity;
+      const quantityChange = movement.movement === "IN" ? movement.quantity : -movement.quantity;
       const newQuantity = Math.max(0, item.quantity + quantityChange);
 
-      await inventoryService.updateQuantity(item.id, newQuantity, 'set');
+      await inventoryService.updateQuantity(item.id, newQuantity, "set");
     }
   } catch (error) {
-    console.error('Error updating inventory from movement:', error);
+    console.error("Error updating inventory from movement:", error);
     throw error;
   }
 };
@@ -216,46 +198,40 @@ export const updateInventoryFromMovement = async (movement) => {
 export const parseProductSpecification = (specification) => {
   const spec = specification.toLowerCase();
   const details = {
-    productType: '',
-    grade: '',
-    thickness: '',
-    size: '',
-    finish: '',
+    productType: "",
+    grade: "",
+    thickness: "",
+    size: "",
+    finish: "",
   };
 
   // Product type detection
-  if (spec.includes('sheet')) details.productType = 'Sheet';
-  else if (spec.includes('round bar') || spec.includes('rod'))
-    details.productType = 'Round Bar';
-  else if (spec.includes('rect') || spec.includes('rectangular'))
-    details.productType = 'Rect. Tube';
-  else if (spec.includes('pipe')) details.productType = 'Pipe';
-  else if (spec.includes('angle')) details.productType = 'Angle';
-  else if (spec.includes('channel')) details.productType = 'Channel';
-  else if (spec.includes('flat')) details.productType = 'Flat Bar';
+  if (spec.includes("sheet")) details.productType = "Sheet";
+  else if (spec.includes("round bar") || spec.includes("rod")) details.productType = "Round Bar";
+  else if (spec.includes("rect") || spec.includes("rectangular")) details.productType = "Rect. Tube";
+  else if (spec.includes("pipe")) details.productType = "Pipe";
+  else if (spec.includes("angle")) details.productType = "Angle";
+  else if (spec.includes("channel")) details.productType = "Channel";
+  else if (spec.includes("flat")) details.productType = "Flat Bar";
 
   // Grade detection
   const gradeMatch = spec.match(/\b(201|304|316|316l|310|321|347)\b/);
   if (gradeMatch) details.grade = gradeMatch[1].toUpperCase();
 
   // Thickness detection (e.g., 0.8mm, 1.2, 2.0mm)
-  const thicknessMatch = spec.match(
-    /(\d+\.?\d*)\s*mm|\b(\d+\.?\d*)\b(?=\s*(mm|thick))/,
-  );
-  if (thicknessMatch)
-    details.thickness = thicknessMatch[1] || thicknessMatch[2];
+  const thicknessMatch = spec.match(/(\d+\.?\d*)\s*mm|\b(\d+\.?\d*)\b(?=\s*(mm|thick))/);
+  if (thicknessMatch) details.thickness = thicknessMatch[1] || thicknessMatch[2];
 
   // Size detection (e.g., 4x8, 4x10)
   const sizeMatch = spec.match(/(\d+)\s*[x×]\s*(\d+)/);
   if (sizeMatch) details.size = `${sizeMatch[1]}x${sizeMatch[2]}`;
 
   // Finish detection
-  if (spec.includes('brush')) details.finish = 'Brush';
-  else if (spec.includes('mirror')) details.finish = 'Mirror';
-  else if (spec.includes('hl') || spec.includes('hair line'))
-    details.finish = 'HL';
-  else if (spec.includes('ba')) details.finish = 'BA';
-  else if (spec.includes('matt')) details.finish = 'Matt';
+  if (spec.includes("brush")) details.finish = "Brush";
+  else if (spec.includes("mirror")) details.finish = "Mirror";
+  else if (spec.includes("hl") || spec.includes("hair line")) details.finish = "HL";
+  else if (spec.includes("ba")) details.finish = "BA";
+  else if (spec.includes("matt")) details.finish = "Matt";
 
   return details;
 };
@@ -270,7 +246,7 @@ export const getLowStockAlerts = async (threshold = 5) => {
     const response = await inventoryService.getLowStockItems(threshold);
     return response.data || [];
   } catch (error) {
-    console.error('Error fetching low stock alerts:', error);
+    console.error("Error fetching low stock alerts:", error);
     return [];
   }
 };
@@ -291,7 +267,7 @@ export const getInventorySummary = async () => {
       }
     );
   } catch (error) {
-    console.error('Error fetching inventory summary:', error);
+    console.error("Error fetching inventory summary:", error);
     return {
       totalItems: 0,
       totalValue: 0,

@@ -1,30 +1,25 @@
-import { useState, useEffect } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { ThemeProvider, useTheme } from './contexts/ThemeContext';
-import AppRouter from './components/AppRouter';
-import NotificationProvider from './components/NotificationProvider';
-import { NotificationCenterProvider } from './contexts/NotificationCenterContext';
-import { ApiHealthProvider } from './contexts/ApiHealthContext';
-import { AuthProvider } from './contexts/AuthContext';
-import { AuditHubProvider } from './contexts/AuditHubContext';
-import { authService } from './services/axiosAuthService';
-import ApiStatusBanner from './components/common/ApiStatusBanner';
+import { useEffect, useState } from "react";
+import { BrowserRouter as Router } from "react-router-dom";
+import AppRouter from "./components/AppRouter";
+import ApiStatusBanner from "./components/common/ApiStatusBanner";
+import NotificationProvider from "./components/NotificationProvider";
+import { ApiHealthProvider } from "./contexts/ApiHealthContext";
+import { AuditHubProvider } from "./contexts/AuditHubContext";
+import { AuthProvider } from "./contexts/AuthContext";
+import { NotificationCenterProvider } from "./contexts/NotificationCenterContext";
+import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
+import { authService } from "./services/axiosAuthService";
 
 // Initialize auth service on app load
 authService.initialize();
+authService.initFocusRefresh();
 
 /**
  * AppContent - Simplified wrapper for the router
  * Layouts (CoreERPLayout, AnalyticsLayout) now handle sidebar/topnavbar
  */
 const AppContent = ({ user, handleSaveInvoice, onLoginSuccess }) => {
-  return (
-    <AppRouter
-      user={user}
-      handleSaveInvoice={handleSaveInvoice}
-      onLoginSuccess={onLoginSuccess}
-    />
-  );
+  return <AppRouter user={user} handleSaveInvoice={handleSaveInvoice} onLoginSuccess={onLoginSuccess} />;
 };
 
 // Themed App wrapper that uses the theme context
@@ -34,23 +29,15 @@ const ThemedApp = ({ isLoading, user, handleSaveInvoice, onLoginSuccess }) => {
   if (isLoading) {
     return (
       <div
-        className={`flex items-center justify-center min-h-screen gap-4 ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
+        className={`flex items-center justify-center min-h-screen gap-4 ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
       >
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
-        <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>
-          Loading ULTIMATE STEELS...
-        </span>
+        <span className={isDarkMode ? "text-white" : "text-gray-900"}>Loading ULTIMATE STEELS...</span>
       </div>
     );
   }
 
-  return (
-    <AppContent
-      user={user}
-      handleSaveInvoice={handleSaveInvoice}
-      onLoginSuccess={onLoginSuccess}
-    />
-  );
+  return <AppContent user={user} handleSaveInvoice={handleSaveInvoice} onLoginSuccess={onLoginSuccess} />;
 };
 
 function App() {
@@ -72,7 +59,7 @@ function App() {
           setUser(null);
         }
       } catch (error) {
-        if (mounted) console.error('Failed to initialize app:', error);
+        if (mounted) console.error("Failed to initialize app:", error);
       } finally {
         if (mounted) {
           setLoading(false);
@@ -123,11 +110,7 @@ function App() {
                 <NotificationCenterProvider>
                   <NotificationProvider>
                     <ApiStatusBanner />
-                    <ThemedApp
-                      user={user}
-                      handleSaveInvoice={handleSaveInvoice}
-                      onLoginSuccess={handleLoginSuccess}
-                    />
+                    <ThemedApp user={user} handleSaveInvoice={handleSaveInvoice} onLoginSuccess={handleLoginSuccess} />
                   </NotificationProvider>
                 </NotificationCenterProvider>
               </Router>

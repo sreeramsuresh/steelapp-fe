@@ -1,0 +1,290 @@
+import '../../__tests__/init.mjs';
+
+import { test, describe, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
+import sinon from 'sinon';
+import { apiClient } from "../api.js";
+import vatAdjustmentService from "../vatAdjustmentService.js";
+
+
+describe("vatAdjustmentService", () => {
+  beforeEach(() => {
+    sinon.restore();
+  });
+
+  afterEach(() => {});
+
+  describe("getAll", () => {
+    test("should fetch all VAT adjustments with pagination", async () => {
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves({
+        data: [{ id: 1, adjustmentNumber: "VA001", status: "draft" }],
+        pagination: { page: 1, totalPages: 1 },
+      });
+
+      const result = await vatAdjustmentService.getAll({ page: 1, pageSize: 50 });
+
+      assert.ok(result && result.data);
+      assert.ok(result && result.pagination);
+      assert.ok(Array.isArray(result.data));
+    });
+
+    test("should handle array response", async () => {
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves([{ id: 1, adjustmentNumber: "VA001" }]);
+
+      const result = await vatAdjustmentService.getAll();
+
+      assert.ok(Array.isArray(result.data));
+    });
+
+    test("should handle error", async () => {
+      const getStub = sinon.stub(apiClient, 'get'); getStub.rejects(new Error("API Error"));
+
+      await assert.rejects(() => vatAdjustmentService.getAll(), Error);
+    });
+  });
+
+  describe("getById", () => {
+    test("should fetch adjustment by ID", async () => {
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves({ id: 1, adjustmentNumber: "VA001" });
+
+      const result = await vatAdjustmentService.getById(1);
+
+      sinon.assert.calledWith(apiClient.get, "/vat-adjustments/1");
+      assert.strictEqual(result.id, 1);
+    });
+  });
+
+  describe("getByPeriod", () => {
+    test("should fetch adjustments for a period", async () => {
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves([{ id: 1, adjustmentNumber: "VA001" }]);
+
+      const result = await vatAdjustmentService.getByPeriod("2024-01-01", "2024-12-31");
+
+      assert.ok(Array.isArray(result));
+      sinon.assert.calledWith(apiClient.get, "/vat-adjustments/by-period", {
+        startDate: "2024-01-01",
+        endDate: "2024-12-31",
+      });
+    });
+  });
+
+  describe("getPendingApproval", () => {
+    test("should fetch pending adjustments", async () => {
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves([{ id: 1, status: "pending_approval" }]);
+
+      const result = await vatAdjustmentService.getPendingApproval();
+
+      assert.ok(Array.isArray(result));
+      sinon.assert.calledWith(apiClient.get, "/vat-adjustments/pending-approval");
+    });
+  });
+
+  describe("create", () => {
+    test("should create new VAT adjustment", async () => {
+      const adjustmentData = {
+        adjustmentType: "BAD_DEBT_RELIEF",
+        direction: "DECREASE",
+        status: "draft",
+      };
+
+      const postStub = sinon.stub(apiClient, 'post'); postStub.resolves({
+        id: 1,
+        ...adjustmentData,
+      });
+
+      const result = await vatAdjustmentService.create(adjustmentData);
+
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments");
+      assert.ok(result && result.id);
+    });
+  });
+
+  describe("update", () => {
+    test("should update existing adjustment", async () => {
+      const adjustmentData = { status: "pending_approval" };
+
+      const putStub = sinon.stub(apiClient, 'put'); putStub.resolves({
+        id: 1,
+        ...adjustmentData,
+      });
+
+      const result = await vatAdjustmentService.update(1, adjustmentData);
+
+      sinon.assert.calledWith(apiClient.put, "/vat-adjustments/1");
+      assert.ok(result && result.id);
+    });
+  });
+
+  describe("delete", () => {
+    test("should delete adjustment", async () => {
+      const deleteStub = sinon.stub(apiClient, 'delete'); deleteStub.resolves({ success: true });
+
+      await vatAdjustmentService.delete(1);
+
+      sinon.assert.calledWith(apiClient.delete, "/vat-adjustments/1");
+    });
+  });
+
+  describe("submitForApproval", () => {
+    test("should submit adjustment for approval", async () => {
+      const postStub = sinon.stub(apiClient, 'post'); postStub.resolves({
+        id: 1,
+        status: "pending_approval",
+      });
+
+      const result = await vatAdjustmentService.submitForApproval(1);
+
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/submit");
+      assert.strictEqual(result.status, "pending_approval");
+    });
+  });
+
+  describe("approve", () => {
+    test("should approve adjustment", async () => {
+      const postStub = sinon.stub(apiClient, 'post'); postStub.resolves({
+        id: 1,
+        status: "approved",
+      });
+
+      const result = await vatAdjustmentService.approve(1, "Approved");
+
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/approve", {
+        notes: "Approved",
+      });
+      assert.strictEqual(result.status, "approved");
+    });
+  });
+
+  describe("reject", () => {
+    test("should reject adjustment", async () => {
+      const postStub = sinon.stub(apiClient, 'post'); postStub.resolves({
+        id: 1,
+        status: "rejected",
+      });
+
+      const result = await vatAdjustmentService.reject(1, "Incomplete");
+
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/reject", {
+        rejectionReason: "Incomplete",
+      });
+      assert.strictEqual(result.status, "rejected");
+    });
+  });
+
+  describe("applyToVatReturn", () => {
+    test("should apply adjustment to VAT return", async () => {
+      const postStub = sinon.stub(apiClient, 'post'); postStub.resolves({
+        id: 1,
+        status: "applied",
+      });
+
+      const result = await vatAdjustmentService.applyToVatReturn(1, 100);
+
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/apply", {
+        vatReturnId: 100,
+      });
+      assert.strictEqual(result.status, "applied");
+    });
+  });
+
+  describe("cancel", () => {
+    test("should cancel adjustment", async () => {
+      const postStub = sinon.stub(apiClient, 'post'); postStub.resolves({
+        id: 1,
+        status: "cancelled",
+      });
+
+      const result = await vatAdjustmentService.cancel(1, "Changed mind");
+
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments/1/cancel", {
+        cancellationReason: "Changed mind",
+      });
+      assert.strictEqual(result.status, "cancelled");
+    });
+  });
+
+  describe("getNextNumber", () => {
+    test("should get next adjustment number", async () => {
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves({
+        adjustmentNumber: "VA025",
+      });
+
+      const result = await vatAdjustmentService.getNextNumber();
+
+      sinon.assert.calledWith(apiClient.get, "/vat-adjustments/number/next");
+      assert.ok(result && result.adjustmentNumber);
+    });
+  });
+
+  describe("checkBadDebtEligibility", () => {
+    test("should check bad debt eligibility", async () => {
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves({
+        eligible: true,
+        debtAgeDays: 180,
+      });
+
+      const result = await vatAdjustmentService.checkBadDebtEligibility(1);
+
+      sinon.assert.calledWith(apiClient.get, "/vat-adjustments/bad-debt-eligibility/1");
+      assert.strictEqual(result.eligible, true);
+    });
+  });
+
+  describe("createBadDebtRelief", () => {
+    test("should create bad debt relief adjustment", async () => {
+      const postStub = sinon.stub(apiClient, 'post'); postStub.resolves({
+        id: 1,
+        adjustmentType: "BAD_DEBT_RELIEF",
+      });
+
+      const result = await vatAdjustmentService.createBadDebtRelief(1, { notes: "Test" });
+
+      sinon.assert.calledWith(apiClient.post, "/vat-adjustments/bad-debt-relief", {
+        invoiceId: 1,
+        notes: "Test",
+        supportingDocuments: [],
+      });
+      assert.ok(result && result.id);
+    });
+  });
+
+  describe("getSummary", () => {
+    test("should get adjustment summary", async () => {
+      const params = { startDate: "2024-01-01", endDate: "2024-12-31" };
+
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves({
+        totalAdjustments: 10,
+        totalAmount: 50000,
+      });
+
+      const result = await vatAdjustmentService.getSummary(params);
+
+      sinon.assert.calledWith(apiClient.get, "/vat-adjustments/summary", params);
+      assert.ok(result && result.totalAdjustments);
+    });
+  });
+
+  describe("getAuditTrail", () => {
+    test("should get audit trail", async () => {
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves([{ action: "created", timestamp: "2024-01-15" }]);
+
+      const result = await vatAdjustmentService.getAuditTrail(1);
+
+      sinon.assert.calledWith(apiClient.get, "/vat-adjustments/1/audit-trail");
+      assert.ok(Array.isArray(result));
+    });
+  });
+
+  describe("search", () => {
+    test("should search adjustments", async () => {
+      const getStub = sinon.stub(apiClient, 'get'); getStub.resolves({
+        data: [{ id: 1, adjustmentNumber: "VA001" }],
+      });
+
+      const result = await vatAdjustmentService.search("VA", { status: "draft" });
+
+      assert.ok(Array.isArray(result));
+      assert.ok(apiClient.get);
+    });
+  });
+});

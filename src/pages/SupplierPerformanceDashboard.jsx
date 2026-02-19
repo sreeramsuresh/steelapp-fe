@@ -1,177 +1,160 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { AlertCircle, TrendingUp } from 'lucide-react';
+import { AlertCircle, TrendingUp } from "lucide-react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 // Lazy-load chart components for better initial load performance
-import { ChartSkeleton } from '../components/charts';
-const LazyLineChart = lazy(() => import('../components/charts/LazyLineChart'));
+import { ChartSkeleton } from "../components/charts";
+import { useTheme } from "../contexts/ThemeContext";
+import { suppliersAPI } from "../services/api";
+
+const LazyLineChart = lazy(() => import("../components/charts/LazyLineChart"));
 /**
  * SupplierPerformanceDashboard - Phase 6 Analytics
  * Shows supplier rankings, OTD%, variance trends, at-risk suppliers
  */
 function SupplierPerformanceDashboard() {
+  const { isDarkMode } = useTheme();
   const [suppliers, setSuppliers] = useState([]);
   const [atRiskSuppliers, setAtRiskSuppliers] = useState([]);
   const [trends, setTrends] = useState([]);
-  const [_loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [kpis, setKpis] = useState({
     otdPercent: 0,
     avgVariance: 0,
     consistencyScore: 0,
-    overallRating: 'N/A',
+    overallRating: "N/A",
   });
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true);
-      // Load suppliers from existing API or mock
-      const mockSuppliers = [
-        {
-          id: 1,
-          name: 'Premium Steel Inc',
-          onTimeDeliveryPct: 96.5,
-          avgVarianceDays: 1.2,
-          lateDeliveryCount: 2,
-          score: 94,
-          rating: 'CERTIFIED',
-        },
-        {
-          id: 2,
-          name: 'Global Trading Co',
-          onTimeDeliveryPct: 87.3,
-          avgVarianceDays: 3.8,
-          lateDeliveryCount: 8,
-          score: 82,
-          rating: 'PREFERRED',
-        },
-        {
-          id: 3,
-          name: 'Standard Metals Ltd',
-          onTimeDeliveryPct: 75.2,
-          avgVarianceDays: 5.6,
-          lateDeliveryCount: 15,
-          score: 72,
-          rating: 'ACCEPTABLE',
-        },
-      ];
 
-      const mockTrends = [
-        { week: 'Week 1', otd: 92, variance: 2.1 },
-        { week: 'Week 2', otd: 93, variance: 2.0 },
-        { week: 'Week 3', otd: 94, variance: 1.8 },
-        { week: 'Week 4', otd: 95, variance: 1.5 },
-      ];
+      const response = await suppliersAPI.getAll({ limit: 100 });
+      const allSuppliers = response?.suppliers || [];
 
-      const mockAtRisk = [
-        {
-          id: 4,
-          name: 'Budget Supplier LLC',
-          score: 58,
-          reason: 'Low OTD% and high variance',
-        },
-      ];
+      // Map suppliers to performance format using available fields
+      const supplierData = allSuppliers.map((s) => ({
+        id: s.id,
+        name: s.name,
+        onTimeDeliveryPct: s.onTimeDeliveryPct || 0,
+        avgVarianceDays: s.avgDeliveryVarianceDays || 0,
+        lateDeliveryCount: s.lateDeliveryCount || 0,
+        score: s.supplierScore || 0,
+        rating: s.supplierRating || "UNRATED",
+      }));
 
-      setSuppliers(mockSuppliers);
-      setAtRiskSuppliers(mockAtRisk);
-      setTrends(mockTrends);
+      // Sort by score descending
+      supplierData.sort((a, b) => b.score - a.score);
 
-      const avgScore =
-        mockSuppliers.reduce((sum, s) => sum + s.score, 0) /
-        mockSuppliers.length;
-      setKpis({
-        otdPercent: (
-          mockSuppliers.reduce((sum, s) => sum + s.onTimeDeliveryPct, 0) /
-          mockSuppliers.length
-        ).toFixed(1),
-        avgVariance: (
-          mockSuppliers.reduce((sum, s) => sum + s.avgVarianceDays, 0) /
-          mockSuppliers.length
-        ).toFixed(1),
-        consistencyScore: Math.round(avgScore),
-        overallRating: 'GOOD',
-      });
+      // At-risk = score below 70
+      const atRisk = supplierData
+        .filter((s) => s.score > 0 && s.score < 70)
+        .map((s) => ({ id: s.id, name: s.name, score: s.score, reason: `Score ${s.score} below threshold` }));
+
+      setSuppliers(supplierData);
+      setAtRiskSuppliers(atRisk);
+      setTrends([]); // Trend data requires a dedicated endpoint
+
+      if (supplierData.length > 0) {
+        const scored = supplierData.filter((s) => s.score > 0);
+        if (scored.length > 0) {
+          const avgScore = scored.reduce((sum, s) => sum + s.score, 0) / scored.length;
+          setKpis({
+            otdPercent: (scored.reduce((sum, s) => sum + s.onTimeDeliveryPct, 0) / scored.length).toFixed(1),
+            avgVariance: (scored.reduce((sum, s) => sum + s.avgVarianceDays, 0) / scored.length).toFixed(1),
+            consistencyScore: Math.round(avgScore),
+            overallRating: avgScore >= 85 ? "GOOD" : avgScore >= 70 ? "FAIR" : "POOR",
+          });
+        }
+      }
     } catch (error) {
-      console.error('Error loading dashboard:', error);
+      console.warn("Error loading supplier performance:", error.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   const getRatingColor = (rating) => {
     const colors = {
-      CERTIFIED: 'bg-green-100 text-green-800',
-      PREFERRED: 'bg-emerald-100 text-emerald-800',
-      ACCEPTABLE: 'bg-yellow-100 text-yellow-800',
-      AT_RISK: 'bg-red-100 text-red-800',
+      CERTIFIED: "bg-green-100 text-green-800",
+      PREFERRED: "bg-emerald-100 text-emerald-800",
+      ACCEPTABLE: "bg-yellow-100 text-yellow-800",
+      AT_RISK: "bg-red-100 text-red-800",
+      PENDING: "bg-gray-100 text-gray-800",
+      UNRATED: "bg-gray-100 text-gray-800",
     };
-    return colors[rating] || 'bg-gray-100 text-gray-800';
+    return colors[rating] || "bg-gray-100 text-gray-800";
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
+          <p className={`mt-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+            Loading supplier performance data...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
+      <h1 className={`text-2xl font-bold ${isDarkMode ? "text-gray-100" : "text-gray-900"}`}>Supplier Performance</h1>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
+            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
               On-Time Delivery
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{kpis.otdPercent}%</div>
-            <p className="text-xs text-gray-500">Average across suppliers</p>
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Average across suppliers</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
+            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
               Avg Variance
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{kpis.avgVariance} days</div>
-            <p className="text-xs text-gray-500">Days from expected</p>
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Days from expected</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
+            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
               Consistency Score
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {kpis.consistencyScore}/100
-            </div>
-            <p className="text-xs text-gray-500">Supplier reliability</p>
+            <div className="text-2xl font-bold">{kpis.consistencyScore}/100</div>
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Supplier reliability</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
+            <CardTitle className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
               Overall Rating
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Badge className="bg-blue-100 text-blue-800">
-              {kpis.overallRating}
-            </Badge>
-            <p className="text-xs text-gray-500 mt-2">
+            <Badge className="bg-blue-100 text-blue-800">{kpis.overallRating}</Badge>
+            <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} mt-2`}>
               Supplier portfolio health
             </p>
           </CardContent>
@@ -202,23 +185,13 @@ function SupplierPerformanceDashboard() {
                 .map((supplier, idx) => (
                   <TableRow key={supplier.id}>
                     <TableCell className="font-bold">{idx + 1}</TableCell>
-                    <TableCell className="font-medium">
-                      {supplier.name}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {supplier.score}/100
-                    </TableCell>
+                    <TableCell className="font-medium">{supplier.name}</TableCell>
+                    <TableCell className="text-right">{supplier.score}/100</TableCell>
                     <TableCell>
-                      <Badge className={getRatingColor(supplier.rating)}>
-                        {supplier.rating}
-                      </Badge>
+                      <Badge className={getRatingColor(supplier.rating)}>{supplier.rating}</Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                      {supplier.onTimeDeliveryPct}%
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {supplier.lateDeliveryCount}
-                    </TableCell>
+                    <TableCell className="text-right">{supplier.onTimeDeliveryPct}%</TableCell>
+                    <TableCell className="text-right">{supplier.lateDeliveryCount}</TableCell>
                   </TableRow>
                 ))}
             </TableBody>
@@ -243,9 +216,9 @@ function SupplierPerformanceDashboard() {
                 height={300}
                 lines={[
                   {
-                    dataKey: 'otd',
-                    color: '#10b981',
-                    name: 'OTD %',
+                    dataKey: "otd",
+                    color: "#10b981",
+                    name: "OTD %",
                   },
                 ]}
               />
@@ -268,9 +241,9 @@ function SupplierPerformanceDashboard() {
                 height={300}
                 lines={[
                   {
-                    dataKey: 'variance',
-                    color: '#f59e0b',
-                    name: 'Variance (days)',
+                    dataKey: "variance",
+                    color: "#f59e0b",
+                    name: "Variance (days)",
                   },
                 ]}
               />
@@ -281,9 +254,9 @@ function SupplierPerformanceDashboard() {
 
       {/* At-Risk Suppliers Alert */}
       {atRiskSuppliers.length > 0 && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className={isDarkMode ? "border-red-800 bg-red-900/30" : "border-red-200 bg-red-50"}>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-900">
+            <CardTitle className={`flex items-center gap-2 ${isDarkMode ? "text-red-300" : "text-red-900"}`}>
               <AlertCircle className="h-4 w-4" />
               At-Risk Suppliers Alert
             </CardTitle>
@@ -293,20 +266,17 @@ function SupplierPerformanceDashboard() {
               {atRiskSuppliers.map((supplier) => (
                 <div
                   key={supplier.id}
-                  className="flex justify-between items-start p-3 bg-white rounded border border-red-200"
+                  className={`flex justify-between items-start p-3 rounded border ${isDarkMode ? "bg-gray-800 border-red-800" : "bg-white border-red-200"}`}
                 >
                   <div>
-                    <p className="font-medium text-red-900">{supplier.name}</p>
-                    <p className="text-sm text-red-700">{supplier.reason}</p>
+                    <p className={`font-medium ${isDarkMode ? "text-red-300" : "text-red-900"}`}>{supplier.name}</p>
+                    <p className={`text-sm ${isDarkMode ? "text-red-400" : "text-red-700"}`}>{supplier.reason}</p>
                   </div>
-                  <Badge className="bg-red-100 text-red-800">
-                    Score: {supplier.score}
-                  </Badge>
+                  <Badge className="bg-red-100 text-red-800">Score: {supplier.score}</Badge>
                 </div>
               ))}
-              <p className="text-sm text-red-700 font-medium">
-                ⚠️ Recommendation: Consider finding alternative suppliers or
-                schedule performance review meetings.
+              <p className={`text-sm font-medium ${isDarkMode ? "text-red-400" : "text-red-700"}`}>
+                ⚠️ Recommendation: Consider finding alternative suppliers or schedule performance review meetings.
               </p>
             </div>
           </CardContent>

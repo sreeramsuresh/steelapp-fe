@@ -3,18 +3,14 @@
  * Loading state displayed while Analytics Hub bundle is being loaded
  * Used as Suspense fallback for lazy-loaded AnalyticsLayout
  */
-import { BarChart3 } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
+import { BarChart3 } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
 
 const AnalyticsLoadingScreen = () => {
   const { isDarkMode } = useTheme();
 
   return (
-    <div
-      className={`flex items-center justify-center min-h-screen ${
-        isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'
-      }`}
-    >
+    <div className={`flex items-center justify-center min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
       <div className="text-center">
         {/* Analytics Icon */}
         <div className="mb-6 flex justify-center">
@@ -29,20 +25,10 @@ const AnalyticsLoadingScreen = () => {
         </div>
 
         {/* Loading Text */}
-        <h2
-          className={`text-xl font-semibold mb-2 ${
-            isDarkMode ? 'text-white' : 'text-gray-900'
-          }`}
-        >
+        <h2 className={`text-xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
           Loading Analytics Hub
         </h2>
-        <p
-          className={`text-sm ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-600'
-          }`}
-        >
-          Preparing insights and reports...
-        </p>
+        <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Preparing insights and reports...</p>
       </div>
     </div>
   );

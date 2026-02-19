@@ -1,64 +1,67 @@
-import { useState, useEffect, useCallback } from 'react';
 import {
   Plus as AddIcon,
-  Download as DownloadIcon,
-  Eye as ViewIcon,
-  Edit as EditIcon,
-  Trash2 as DeleteIcon,
-  Truck as TruckIcon,
-  Search,
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  X,
-  AlertCircle,
-  CheckCircle,
-  AlertTriangle,
   Clock,
-  RefreshCw,
-  XCircle,
+  Trash2 as DeleteIcon,
   FileText as DetailsIcon,
-} from 'lucide-react';
-import { deliveryNoteService } from '../services/deliveryNoteService';
-import { authService } from '../services/axiosAuthService';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useTheme } from '../contexts/ThemeContext';
-import DeliveryNotePreview from '../components/delivery-notes/DeliveryNotePreview';
-import NewBadge from '../components/shared/NewBadge';
-import { validateDeliveryNoteForDownload } from '../utils/recordUtils';
-import { toUAETime } from '../utils/timezone';
+  Download as DownloadIcon,
+  Edit as EditIcon,
+  RefreshCw,
+  Search,
+  Truck as TruckIcon,
+  Eye as ViewIcon,
+  X,
+  XCircle,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import DeliveryNotePreview from "../components/delivery-notes/DeliveryNotePreview";
+import NewBadge from "../components/shared/NewBadge";
+import { useTheme } from "../contexts/ThemeContext";
+import { authService } from "../services/axiosAuthService";
+import { companyService } from "../services/companyService";
+import { deliveryNoteService } from "../services/deliveryNoteService";
+import { validateDeliveryNoteForDownload } from "../utils/recordUtils";
+import { toUAETime } from "../utils/timezone";
 
 const DeliveryNoteList = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   const [searchParams] = useSearchParams();
   // Support both camelCase (invoiceId) and snake_case (invoice_id) for flexibility
-  const invoiceIdFromUrl =
-    searchParams.get('invoiceId') || searchParams.get('invoice_id');
+  const invoiceIdFromUrl = searchParams.get("invoiceId") || searchParams.get("invoice_id");
 
   // Initialize state
   const [deliveryNotes, setDeliveryNotes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // Pagination and filtering
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalCount, setTotalCount] = useState(0);
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
 
   // Dialog states
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
     id: null,
-    number: '',
+    number: "",
   });
 
   // Preview modal state
   const [previewDeliveryNote, setPreviewDeliveryNote] = useState(null);
+
+  // Company data for preview
+  const [company, setCompany] = useState(null);
 
   // Download validation warning state
   const [downloadWarning, setDownloadWarning] = useState({
@@ -71,44 +74,42 @@ const DeliveryNoteList = () => {
     const statusConfig = {
       pending: {
         className: isDarkMode
-          ? 'bg-amber-900/30 text-amber-300 border-amber-600'
-          : 'bg-amber-100 text-amber-800 border-amber-300',
-        label: 'Pending',
+          ? "bg-amber-900/30 text-amber-300 border-amber-600"
+          : "bg-amber-100 text-amber-800 border-amber-300",
+        label: "Pending",
         icon: <Clock size={12} />,
       },
       in_transit: {
         className: isDarkMode
-          ? 'bg-orange-900/30 text-orange-300 border-orange-600'
-          : 'bg-orange-100 text-orange-800 border-orange-300',
-        label: 'In Transit',
+          ? "bg-orange-900/30 text-orange-300 border-orange-600"
+          : "bg-orange-100 text-orange-800 border-orange-300",
+        label: "In Transit",
         icon: <TruckIcon size={12} />,
       },
       partial: {
         className: isDarkMode
-          ? 'bg-blue-900/30 text-blue-300 border-blue-600'
-          : 'bg-blue-100 text-blue-800 border-blue-300',
-        label: 'Partial Delivery',
+          ? "bg-blue-900/30 text-blue-300 border-blue-600"
+          : "bg-blue-100 text-blue-800 border-blue-300",
+        label: "Partial Delivery",
         icon: <RefreshCw size={12} />,
       },
       delivered: {
         className: isDarkMode
-          ? 'bg-green-900/30 text-green-300 border-green-600'
-          : 'bg-green-100 text-green-800 border-green-300',
-        label: 'Delivered',
+          ? "bg-green-900/30 text-green-300 border-green-600"
+          : "bg-green-100 text-green-800 border-green-300",
+        label: "Delivered",
         icon: <CheckCircle size={12} />,
       },
       completed: {
         className: isDarkMode
-          ? 'bg-green-900/30 text-green-300 border-green-600'
-          : 'bg-green-100 text-green-800 border-green-300',
-        label: 'Completed',
+          ? "bg-green-900/30 text-green-300 border-green-600"
+          : "bg-green-100 text-green-800 border-green-300",
+        label: "Completed",
         icon: <CheckCircle size={12} />,
       },
       cancelled: {
-        className: isDarkMode
-          ? 'bg-red-900/30 text-red-300 border-red-600'
-          : 'bg-red-100 text-red-800 border-red-300',
-        label: 'Cancelled',
+        className: isDarkMode ? "bg-red-900/30 text-red-300 border-red-600" : "bg-red-100 text-red-800 border-red-300",
+        label: "Cancelled",
         icon: <XCircle size={12} />,
       },
     };
@@ -141,27 +142,22 @@ const DeliveryNoteList = () => {
       const response = await deliveryNoteService.getAll(params);
 
       // Handle different response formats (camelCase from API Gateway auto-conversion)
-      const notes =
-        response.deliveryNotes ||
-        response.delivery_notes ||
-        response.data ||
-        [];
+      const notes = response.deliveryNotes || response.delivery_notes || response.data || [];
 
       // Transform to ensure consistent camelCase in frontend
       const transformedNotes = notes.map((note) => ({
         id: note.id,
-        deliveryNoteNumber:
-          note.deliveryNoteNumber || note.delivery_note_number,
+        deliveryNoteNumber: note.deliveryNoteNumber || note.delivery_note_number,
         invoiceId: note.invoiceId || note.invoice_id,
         invoiceNumber: note.invoiceNumber || note.invoice_number,
         customerId: note.customerId || note.customer_id,
         customerDetails:
-          typeof note.customerDetails === 'string'
+          typeof note.customerDetails === "string"
             ? JSON.parse(note.customerDetails)
             : note.customerDetails || note.customer_details || {},
         deliveryDate: note.deliveryDate || note.delivery_date,
         deliveryAddress:
-          typeof note.deliveryAddress === 'string'
+          typeof note.deliveryAddress === "string"
             ? JSON.parse(note.deliveryAddress)
             : note.deliveryAddress || note.delivery_address || {},
         vehicleNumber: note.vehicleNumber || note.vehicle_number,
@@ -178,10 +174,8 @@ const DeliveryNoteList = () => {
       setDeliveryNotes(transformedNotes);
 
       // Handle pagination - support both camelCase and snake_case
-      const pageInfo =
-        response.pageInfo || response.page_info || response.pagination;
-      const total =
-        pageInfo?.totalItems || pageInfo?.total_items || pageInfo?.total || 0;
+      const pageInfo = response.pageInfo || response.page_info || response.pagination;
+      const total = pageInfo?.totalItems || pageInfo?.total_items || pageInfo?.total || 0;
       setTotalCount(total);
     } catch (err) {
       setError(`Failed to fetch delivery notes: ${err.message}`);
@@ -194,6 +188,34 @@ const DeliveryNoteList = () => {
   useEffect(() => {
     fetchDeliveryNotes();
   }, [fetchDeliveryNotes]);
+
+  // Fetch company data for preview modal
+  useEffect(() => {
+    const fetchCompany = async () => {
+      try {
+        const data = await companyService.getCompany();
+        setCompany(data);
+      } catch (_err) {
+        // Company data is optional for preview
+      }
+    };
+    fetchCompany();
+  }, []);
+
+  // Auto-dismiss notifications after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
   const handleDownloadPDF = async (deliveryNote) => {
     // Validate before download
@@ -209,7 +231,7 @@ const DeliveryNoteList = () => {
 
     try {
       await deliveryNoteService.downloadPDF(deliveryNote.id);
-      setSuccess('PDF downloaded successfully');
+      setSuccess("PDF downloaded successfully");
     } catch (err) {
       setError(`Failed to download PDF: ${err.message}`);
     }
@@ -220,7 +242,7 @@ const DeliveryNoteList = () => {
     if (!downloadWarning.deliveryNote) return;
     try {
       await deliveryNoteService.downloadPDF(downloadWarning.deliveryNote.id);
-      setSuccess('PDF downloaded successfully');
+      setSuccess("PDF downloaded successfully");
     } catch (err) {
       setError(`Failed to download PDF: ${err.message}`);
     } finally {
@@ -231,15 +253,15 @@ const DeliveryNoteList = () => {
   const handleDelete = async () => {
     try {
       await deliveryNoteService.delete(deleteDialog.id);
-      setSuccess('Delivery note deleted successfully');
-      setDeleteDialog({ open: false, id: null, number: '' });
+      setSuccess("Delivery note deleted successfully");
+      setDeleteDialog({ open: false, id: null, number: "" });
       fetchDeliveryNotes();
     } catch (err) {
       setError(`Failed to delete delivery note: ${err.message}`);
     }
   };
 
-  const handlePageChange = (event, newPage) => {
+  const handlePageChange = (_event, newPage) => {
     setPage(newPage);
   };
 
@@ -250,27 +272,32 @@ const DeliveryNoteList = () => {
 
   const formatDate = (dateValue) => {
     // Use centralized timezone utility for UAE timezone consistency
-    return toUAETime(dateValue, { format: 'long' });
+    return toUAETime(dateValue, { format: "long" });
   };
 
   return (
-    <div
-      className={`p-6 min-h-screen ${isDarkMode ? 'bg-[#121418]' : 'bg-[#FAFAFA]'}`}
-    >
-      <div className="flex justify-between items-center mb-6">
-        <h1
-          className={`text-2xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-        >
-          🚚 Delivery Notes
-        </h1>
-        {authService.hasPermission('delivery_notes', 'create') && (
-          <button
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
-            onClick={() => navigate('/delivery-notes/new')}
+    <div className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <h1 className={`text-2xl font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+            🚚 Delivery Notes
+          </h1>
+          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+            Track shipments and deliveries for issued invoices
+          </p>
+        </div>
+        {authService.hasPermission("delivery_notes", "create") && (
+          <a
+            href="/app/delivery-notes/new"
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md no-underline"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/app/delivery-notes/new");
+            }}
           >
             <AddIcon size={20} />
             Create Delivery Note
-          </button>
+          </a>
         )}
       </div>
 
@@ -278,21 +305,20 @@ const DeliveryNoteList = () => {
       {invoiceIdFromUrl && (
         <div
           className={`mb-4 p-4 rounded-lg border ${
-            isDarkMode
-              ? 'bg-blue-900/20 border-blue-700 text-blue-300'
-              : 'bg-blue-50 border-blue-200 text-blue-800'
+            isDarkMode ? "bg-blue-900/20 border-blue-700 text-blue-300" : "bg-blue-50 border-blue-200 text-blue-800"
           }`}
         >
           <div className="flex items-center gap-2">
             <AlertCircle size={20} />
             Showing delivery notes for Invoice ID: {invoiceIdFromUrl}
             <button
+              type="button"
               className={`ml-4 px-3 py-1 text-sm rounded transition-colors ${
                 isDarkMode
-                  ? 'bg-blue-800 hover:bg-blue-700 text-blue-200'
-                  : 'bg-blue-200 hover:bg-blue-300 text-blue-800'
+                  ? "bg-blue-800 hover:bg-blue-700 text-blue-200"
+                  : "bg-blue-200 hover:bg-blue-300 text-blue-800"
               }`}
-              onClick={() => navigate('/delivery-notes')}
+              onClick={() => navigate("/app/delivery-notes")}
             >
               View All Delivery Notes
             </button>
@@ -303,41 +329,40 @@ const DeliveryNoteList = () => {
       {/* Filters */}
       <div
         className={`p-4 mb-6 rounded-xl border ${
-          isDarkMode
-            ? 'bg-[#1E2328] border-[#37474F]'
-            : 'bg-white border-[#E0E0E0]'
+          isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
         }`}
       >
         <div className="flex gap-4 flex-wrap items-center">
           <div className="min-w-[300px] relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search
-                size={20}
-                className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
-              />
+              <Search size={20} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
             </div>
             <input
+              id="delivery-note-search"
+              name="search"
               type="text"
-              placeholder="Search by delivery note number, invoice, or customer..."
+              placeholder="Search delivery notes..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                 isDarkMode
-                  ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
-                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
               }`}
+              aria-label="Search delivery notes"
             />
           </div>
 
           <div className="min-w-[150px] relative">
             <select
+              id="delivery-note-status"
+              name="status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
-                isDarkMode
-                  ? 'bg-gray-800 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
+              aria-label="Filter by status"
             >
               <option value="">All Status</option>
               <option value="pending">Pending</option>
@@ -348,36 +373,35 @@ const DeliveryNoteList = () => {
               <option value="cancelled">Cancelled</option>
             </select>
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <ChevronDown
-                size={20}
-                className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
-              />
+              <ChevronDown size={20} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
             </div>
           </div>
 
           <div className="min-w-[150px]">
             <input
+              id="delivery-note-date"
+              name="dateFilter"
               type="date"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                isDarkMode
-                  ? 'bg-gray-800 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
+              aria-label="Filter by date"
             />
           </div>
 
           <button
+            type="button"
             className={`px-4 py-3 border rounded-lg transition-colors duration-200 ${
               isDarkMode
-                ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700'
-                : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+                : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
             }`}
             onClick={() => {
-              setSearch('');
-              setStatusFilter('');
-              setDateFilter('');
+              setSearch("");
+              setStatusFilter("");
+              setDateFilter("");
               setPage(0);
             }}
           >
@@ -389,58 +413,57 @@ const DeliveryNoteList = () => {
       {/* Delivery Notes Table */}
       <div
         className={`rounded-2xl border overflow-hidden ${
-          isDarkMode
-            ? 'bg-[#1E2328] border-[#37474F]'
-            : 'bg-white border-[#E0E0E0]'
+          isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
         }`}
       >
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto pb-2">
           <table className="w-full">
-            <thead className={isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'}>
+            <thead className={isDarkMode ? "bg-[#2E3B4E]" : "bg-gray-50"}>
               <tr>
                 <th
-                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
+                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                 >
                   Delivery Note #
                 </th>
                 <th
-                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
+                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                 >
                   Invoice #
                 </th>
                 <th
-                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
+                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                 >
                   Customer
                 </th>
                 <th
-                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
+                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                 >
                   Delivery Date
                 </th>
                 <th
-                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
+                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                >
+                  Status
+                </th>
+                <th
+                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                 >
                   Vehicle
                 </th>
                 <th
-                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
+                  className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                 >
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody
-              className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
-            >
+            <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center">
+                  <td colSpan={7} className="px-6 py-8 text-center">
                     <div className="flex items-center justify-center">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600"></div>
-                      <span
-                        className={`ml-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
-                      >
+                      <span className={`ml-3 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                         Loading delivery notes...
                       </span>
                     </div>
@@ -449,106 +472,91 @@ const DeliveryNoteList = () => {
               ) : deliveryNotes.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
-                    className={`px-6 py-8 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    colSpan={7}
+                    className={`px-6 py-12 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                   >
-                    No delivery notes found
+                    <div className="flex flex-col items-center gap-2">
+                      <TruckIcon className={`w-10 h-10 ${isDarkMode ? "text-gray-600" : "text-gray-300"}`} />
+                      <p className="font-medium">No delivery notes found</p>
+                      <p className="text-sm">Create a delivery note from an issued invoice to get started.</p>
+                    </div>
                   </td>
                 </tr>
               ) : (
                 deliveryNotes.map((deliveryNote) => (
                   <tr
                     key={deliveryNote.id}
-                    className={`hover:${isDarkMode ? 'bg-[#2E3B4E]' : 'bg-gray-50'} transition-colors`}
+                    className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div
-                        className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'} flex items-center gap-2`}
+                        className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"} flex items-center gap-2`}
                       >
                         {deliveryNote.deliveryNoteNumber}
-                        <NewBadge
-                          createdAt={
-                            deliveryNote.audit?.createdAt ||
-                            deliveryNote.createdAt
-                          }
-                        />
+                        <NewBadge createdAt={deliveryNote.audit?.createdAt || deliveryNote.createdAt} />
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div
-                        className={`text-sm font-medium ${
-                          deliveryNote.invoiceNumber
-                            ? 'text-teal-600'
-                            : isDarkMode
-                              ? 'text-gray-400'
-                              : 'text-gray-500'
-                        }`}
-                      >
-                        {deliveryNote.invoiceNumber || '—'}
-                      </div>
+                      {deliveryNote.invoiceNumber && deliveryNote.invoiceId ? (
+                        <a
+                          href={`/app/invoices/${deliveryNote.invoiceId}`}
+                          className={`text-sm font-medium text-teal-600 hover:underline`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            navigate(`/app/invoices/${deliveryNote.invoiceId}`);
+                          }}
+                        >
+                          {deliveryNote.invoiceNumber}
+                        </a>
+                      ) : (
+                        <div className={`text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                          {deliveryNote.invoiceNumber || "—"}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div
-                        className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                      >
+                      <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                         {deliveryNote.customerDetails?.name}
                       </div>
-                      <div
-                        className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                      >
+                      <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                         {deliveryNote.customerDetails?.company}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div
-                        className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
-                      >
+                      <div className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                         {formatDate(deliveryNote.deliveryDate)}
                       </div>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap">{_getStatusBadge(deliveryNote.status)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div
-                        className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
-                      >
-                        {deliveryNote.vehicleNumber || '-'}
+                      <div className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                        {deliveryNote.vehicleNumber || "-"}
                       </div>
                       {deliveryNote.driverName && (
-                        <div
-                          className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                        >
+                        <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                           {deliveryNote.driverName}
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex gap-2">
-                        {authService.hasPermission(
-                          'delivery_notes',
-                          'read',
-                        ) && (
+                        {authService.hasPermission("delivery_notes", "read") && (
                           <button
+                            type="button"
                             className={`p-2 rounded transition-colors bg-transparent ${
-                              isDarkMode
-                                ? 'text-purple-400 hover:text-purple-300'
-                                : 'hover:bg-gray-100 text-purple-600'
+                              isDarkMode ? "text-purple-400 hover:text-purple-300" : "hover:bg-gray-100 text-purple-600"
                             }`}
-                            onClick={() =>
-                              navigate(`/delivery-notes/${deliveryNote.id}`)
-                            }
+                            onClick={() => navigate(`/app/delivery-notes/${deliveryNote.id}`)}
                             title="View Details & Confirm Delivery"
                           >
                             <DetailsIcon size={16} />
                           </button>
                         )}
-                        {authService.hasPermission(
-                          'delivery_notes',
-                          'read',
-                        ) && (
+                        {authService.hasPermission("delivery_notes", "read") && (
                           <button
+                            type="button"
                             className={`p-2 rounded transition-colors bg-transparent ${
-                              isDarkMode
-                                ? 'text-blue-400 hover:text-blue-300'
-                                : 'hover:bg-gray-100 text-blue-600'
+                              isDarkMode ? "text-blue-400 hover:text-blue-300" : "hover:bg-gray-100 text-blue-600"
                             }`}
                             onClick={() => setPreviewDeliveryNote(deliveryNote)}
                             title="Quick Preview"
@@ -556,35 +564,23 @@ const DeliveryNoteList = () => {
                             <ViewIcon size={16} />
                           </button>
                         )}
-                        {authService.hasPermission(
-                          'delivery_notes',
-                          'update',
-                        ) && (
+                        {authService.hasPermission("delivery_notes", "update") && (
                           <button
+                            type="button"
                             className={`p-2 rounded transition-colors bg-transparent ${
-                              isDarkMode
-                                ? 'text-teal-400 hover:text-teal-300'
-                                : 'hover:bg-gray-100 text-teal-600'
+                              isDarkMode ? "text-teal-400 hover:text-teal-300" : "hover:bg-gray-100 text-teal-600"
                             }`}
-                            onClick={() =>
-                              navigate(
-                                `/delivery-notes/${deliveryNote.id}/edit`,
-                              )
-                            }
+                            onClick={() => navigate(`/app/delivery-notes/${deliveryNote.id}/edit`)}
                             title="Edit"
                           >
                             <EditIcon size={16} />
                           </button>
                         )}
-                        {authService.hasPermission(
-                          'delivery_notes',
-                          'read',
-                        ) && (
+                        {authService.hasPermission("delivery_notes", "read") && (
                           <button
+                            type="button"
                             className={`p-2 rounded transition-colors bg-transparent ${
-                              isDarkMode
-                                ? 'text-green-400 hover:text-green-300'
-                                : 'hover:bg-gray-100 text-green-600'
+                              isDarkMode ? "text-green-400 hover:text-green-300" : "hover:bg-gray-100 text-green-600"
                             }`}
                             onClick={() => handleDownloadPDF(deliveryNote)}
                             title="Download PDF"
@@ -592,15 +588,11 @@ const DeliveryNoteList = () => {
                             <DownloadIcon size={16} />
                           </button>
                         )}
-                        {authService.hasPermission(
-                          'delivery_notes',
-                          'delete',
-                        ) && (
+                        {authService.hasPermission("delivery_notes", "delete") && (
                           <button
+                            type="button"
                             className={`p-2 rounded transition-colors bg-transparent ${
-                              isDarkMode
-                                ? 'text-red-400 hover:text-red-300'
-                                : 'hover:bg-gray-100 text-red-600'
+                              isDarkMode ? "text-red-400 hover:text-red-300" : "hover:bg-gray-100 text-red-600"
                             }`}
                             onClick={() =>
                               setDeleteDialog({
@@ -626,33 +618,26 @@ const DeliveryNoteList = () => {
         {/* Pagination */}
         <div
           className={`px-6 py-4 border-t flex items-center justify-between ${
-            isDarkMode
-              ? 'border-gray-700 bg-[#1E2328]'
-              : 'border-gray-200 bg-white'
+            isDarkMode ? "border-gray-700 bg-[#1E2328]" : "border-gray-200 bg-white"
           }`}
         >
-          <div
-            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
-          >
-            Showing {page * rowsPerPage + 1} to{' '}
-            {Math.min((page + 1) * rowsPerPage, totalCount)} of {totalCount}{' '}
-            results
+          <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
+            {totalCount === 0
+              ? ""
+              : `Showing ${page * rowsPerPage + 1} to ${Math.min((page + 1) * rowsPerPage, totalCount)} of ${totalCount} results`}
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <span
-                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
-              >
-                Rows per page:
-              </span>
+              <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>Rows per page:</span>
               <select
+                id="delivery-note-rows-per-page"
+                name="rowsPerPage"
                 value={rowsPerPage}
                 onChange={handleRowsPerPageChange}
                 className={`px-2 py-1 border rounded transition-colors ${
-                  isDarkMode
-                    ? 'bg-gray-800 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
+                  isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
+                aria-label="Rows per page"
               >
                 <option value={10}>10</option>
                 <option value={25}>25</option>
@@ -662,36 +647,40 @@ const DeliveryNoteList = () => {
             </div>
             <div className="flex items-center gap-1">
               <button
+                type="button"
                 onClick={(e) => handlePageChange(e, page - 1)}
                 disabled={page === 0}
+                aria-label="Previous page"
                 className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
                   page === 0
                     ? isDarkMode
-                      ? 'text-gray-600 cursor-not-allowed'
-                      : 'text-gray-400 cursor-not-allowed'
+                      ? "text-gray-600 cursor-not-allowed"
+                      : "text-gray-400 cursor-not-allowed"
                     : isDarkMode
-                      ? 'text-gray-300 hover:text-white'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? "text-gray-300 hover:text-white"
+                      : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
                 <ChevronLeft size={20} />
               </button>
-              <span
-                className={`px-3 py-1 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
-              >
-                Page {page + 1} of {Math.ceil(totalCount / rowsPerPage)}
-              </span>
+              {totalCount > 0 && (
+                <span className={`px-3 py-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Page {page + 1} of {Math.ceil(totalCount / rowsPerPage)}
+                </span>
+              )}
               <button
+                type="button"
                 onClick={(e) => handlePageChange(e, page + 1)}
                 disabled={page >= Math.ceil(totalCount / rowsPerPage) - 1}
+                aria-label="Next page"
                 className={`p-2 rounded transition-colors bg-transparent disabled:bg-transparent ${
                   page >= Math.ceil(totalCount / rowsPerPage) - 1
                     ? isDarkMode
-                      ? 'text-gray-600 cursor-not-allowed'
-                      : 'text-gray-400 cursor-not-allowed'
+                      ? "text-gray-600 cursor-not-allowed"
+                      : "text-gray-400 cursor-not-allowed"
                     : isDarkMode
-                      ? 'text-gray-300 hover:text-white'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? "text-gray-300 hover:text-white"
+                      : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
                 <ChevronRight size={20} />
@@ -704,49 +693,32 @@ const DeliveryNoteList = () => {
       {/* Delete Confirmation Dialog */}
       {deleteDialog.open && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div
-            className={`rounded-xl max-w-md w-full ${
-              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
-            }`}
-          >
-            <div
-              className={`p-6 border-b ${
-                isDarkMode ? 'border-gray-700' : 'border-gray-200'
-              }`}
-            >
-              <h3
-                className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-              >
+          <div className={`rounded-xl max-w-md w-full ${isDarkMode ? "bg-[#1E2328]" : "bg-white"}`}>
+            <div className={`p-6 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+              <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                 Delete Delivery Note
               </h3>
             </div>
             <div className="p-6">
-              <p
-                className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
-              >
-                Are you sure you want to delete delivery note{' '}
-                <strong>{deleteDialog.number}</strong>? This action cannot be
-                undone.
+              <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                Are you sure you want to delete delivery note <strong>{deleteDialog.number}</strong>? This action cannot
+                be undone.
               </p>
             </div>
             <div
-              className={`p-6 border-t flex justify-end gap-3 ${
-                isDarkMode ? 'border-gray-700' : 'border-gray-200'
-              }`}
+              className={`p-6 border-t flex justify-end gap-3 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
             >
               <button
-                onClick={() =>
-                  setDeleteDialog({ open: false, id: null, number: '' })
-                }
+                type="button"
+                onClick={() => setDeleteDialog({ open: false, id: null, number: "" })}
                 className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
-                  isDarkMode
-                    ? 'text-white hover:text-gray-300'
-                    : 'hover:bg-gray-100 text-gray-800'
+                  isDarkMode ? "text-white hover:text-gray-300" : "hover:bg-gray-100 text-gray-800"
                 }`}
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleDelete}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
               >
@@ -761,7 +733,7 @@ const DeliveryNoteList = () => {
       {previewDeliveryNote && (
         <DeliveryNotePreview
           deliveryNote={previewDeliveryNote}
-          company={{}}
+          company={company || {}}
           onClose={() => setPreviewDeliveryNote(null)}
         />
       )}
@@ -769,50 +741,33 @@ const DeliveryNoteList = () => {
       {/* Download Warning Dialog */}
       {downloadWarning.open && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div
-            className={`rounded-xl max-w-md w-full ${
-              isDarkMode ? 'bg-[#1E2328]' : 'bg-white'
-            }`}
-          >
-            <div
-              className={`p-6 border-b ${
-                isDarkMode ? 'border-gray-700' : 'border-gray-200'
-              }`}
-            >
+          <div className={`rounded-xl max-w-md w-full ${isDarkMode ? "bg-[#1E2328]" : "bg-white"}`}>
+            <div className={`p-6 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
               <div className="flex items-center gap-3">
                 <AlertTriangle className="text-yellow-500" size={24} />
-                <h3
-                  className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
+                <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Incomplete Delivery Note
                 </h3>
               </div>
             </div>
             <div className="p-6">
-              <p
-                className={`mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
-              >
+              <p className={`mb-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                 This delivery note is missing required information:
               </p>
-              <ul
-                className={`list-disc list-inside mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
-              >
-                {downloadWarning.warnings.map((warning, index) => (
-                  <li key={index}>{warning}</li>
+              <ul className={`list-disc list-inside mb-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                {downloadWarning.warnings.map((warning, _index) => (
+                  <li key={warning}>{warning}</li>
                 ))}
               </ul>
-              <p
-                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              >
+              <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                 You can still download, but the PDF may be incomplete.
               </p>
             </div>
             <div
-              className={`p-6 border-t flex justify-end gap-3 ${
-                isDarkMode ? 'border-gray-700' : 'border-gray-200'
-              }`}
+              className={`p-6 border-t flex justify-end gap-3 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
             >
               <button
+                type="button"
                 onClick={() =>
                   setDownloadWarning({
                     open: false,
@@ -821,14 +776,13 @@ const DeliveryNoteList = () => {
                   })
                 }
                 className={`px-4 py-2 rounded-lg transition-colors bg-transparent ${
-                  isDarkMode
-                    ? 'text-white hover:text-gray-300'
-                    : 'hover:bg-gray-100 text-gray-800'
+                  isDarkMode ? "text-white hover:text-gray-300" : "hover:bg-gray-100 text-gray-800"
                 }`}
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleForceDownload}
                 className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
               >
@@ -844,17 +798,16 @@ const DeliveryNoteList = () => {
         <div className="fixed top-4 right-4 z-50">
           <div
             className={`p-4 rounded-lg border shadow-lg ${
-              isDarkMode
-                ? 'bg-red-900/20 border-red-700 text-red-300'
-                : 'bg-red-50 border-red-200 text-red-800'
+              isDarkMode ? "bg-red-900/20 border-red-700 text-red-300" : "bg-red-50 border-red-200 text-red-800"
             }`}
           >
             <div className="flex items-center gap-2">
               <AlertCircle size={20} />
               <span>{error}</span>
               <button
-                onClick={() => setError('')}
-                className={`ml-2 ${isDarkMode ? 'text-red-400 hover:text-red-300' : 'text-red-600 hover:text-red-700'}`}
+                type="button"
+                onClick={() => setError("")}
+                className={`ml-2 ${isDarkMode ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-700"}`}
               >
                 <X size={16} />
               </button>
@@ -868,16 +821,17 @@ const DeliveryNoteList = () => {
           <div
             className={`p-4 rounded-lg border shadow-lg ${
               isDarkMode
-                ? 'bg-green-900/20 border-green-700 text-green-300'
-                : 'bg-green-50 border-green-200 text-green-800'
+                ? "bg-green-900/20 border-green-700 text-green-300"
+                : "bg-green-50 border-green-200 text-green-800"
             }`}
           >
             <div className="flex items-center gap-2">
               <CheckCircle size={20} />
               <span>{success}</span>
               <button
-                onClick={() => setSuccess('')}
-                className={`ml-2 ${isDarkMode ? 'text-green-400 hover:text-green-300' : 'text-green-600 hover:text-green-700'}`}
+                type="button"
+                onClick={() => setSuccess("")}
+                className={`ml-2 ${isDarkMode ? "text-green-400 hover:text-green-300" : "text-green-600 hover:text-green-700"}`}
               >
                 <X size={16} />
               </button>

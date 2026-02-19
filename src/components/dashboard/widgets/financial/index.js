@@ -8,17 +8,16 @@
  * import { RevenueKPIWidget, ARAgingWidget, ... } from './components/dashboard/widgets/financial';
  */
 
-// Core KPI widgets
-export { RevenueKPIWidget } from './RevenueKPIWidget';
-export { ARAgingWidget } from './ARAgingWidget';
-export { GrossMarginWidget } from './GrossMarginWidget';
-export { DSOWidget } from './DSOWidget';
-export { CreditUtilizationWidget } from './CreditUtilizationWidget';
-
 // Legacy exports (for backward compatibility if these files exist)
-export { default as APAgingWidget } from './APAgingWidget';
-export { default as CashFlowWidget } from './CashFlowWidget';
-export { default as ProfitSummaryWidget } from './ProfitSummaryWidget';
-export { default as FinancialKPICards } from './FinancialKPICards';
-export { default as RevenueAnalyticsWidget } from './RevenueAnalyticsWidget';
-export { default as CreditManagementWidget } from './CreditManagementWidget';
+export { default as APAgingWidget } from "./APAgingWidget";
+export { default as ARAgingWidget } from "./ARAgingWidget";
+export { default as CashFlowWidget } from "./CashFlowWidget";
+export { default as CreditManagementWidget } from "./CreditManagementWidget";
+export { default as CreditUtilizationWidget } from "./CreditUtilizationWidget";
+export { default as DSOWidget } from "./DSOWidget";
+export { default as FinancialKPICards } from "./FinancialKPICards";
+export { default as GrossMarginWidget } from "./GrossMarginWidget";
+export { default as ProfitSummaryWidget } from "./ProfitSummaryWidget";
+export { default as RevenueAnalyticsWidget } from "./RevenueAnalyticsWidget";
+// Core KPI widgets
+export { default as RevenueKPIWidget } from "./RevenueKPIWidget";

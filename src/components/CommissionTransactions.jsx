@@ -1,32 +1,32 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useTheme } from '../contexts/ThemeContext';
 import {
-  FileText,
-  Search,
+  AlertCircle,
   CheckCircle,
-  DollarSign,
-  User,
-  RefreshCw,
   ChevronLeft,
   ChevronRight,
+  DollarSign,
   Download,
-  XCircle,
-  RotateCcw,
-  AlertCircle,
+  FileText,
   MoreHorizontal,
-} from 'lucide-react';
-import { commissionService } from '../services/commissionService';
-import { formatCurrency, formatDate } from '../utils/invoiceUtils';
-import { notificationService } from '../services/notificationService';
+  RefreshCw,
+  RotateCcw,
+  Search,
+  User,
+  XCircle,
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTheme } from "../contexts/ThemeContext";
+import { commissionService } from "../services/commissionService";
+import { notificationService } from "../services/notificationService";
+import { formatCurrency, formatDate, formatDateDMY } from "../utils/invoiceUtils";
 
 const CommissionTransactions = () => {
   const { isDarkMode } = useTheme();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [selectedAgent, setSelectedAgent] = useState('all');
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedAgent, setSelectedAgent] = useState("all");
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [agents, setAgents] = useState([]);
   const [selectedTransactions, setSelectedTransactions] = useState(new Set());
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
@@ -38,23 +38,15 @@ const CommissionTransactions = () => {
   // Reversal modal state
   const [showReversalModal, setShowReversalModal] = useState(false);
   const [reversalTarget, setReversalTarget] = useState(null);
-  const [reversalReason, setReversalReason] = useState('');
-  const [reversalNotes, setReversalNotes] = useState('');
+  const [reversalReason, setReversalReason] = useState("");
+  const [reversalNotes, setReversalNotes] = useState("");
   const [reversing, setReversing] = useState(false);
 
   // Action menu state
   const [actionMenuOpen, setActionMenuOpen] = useState(null);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, selectedStatus, selectedAgent, dateRange]);
-
-  const loadData = async () => {
+  // Load commission transaction data
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [transactionsRes, agentsRes] = await Promise.all([
@@ -64,37 +56,37 @@ const CommissionTransactions = () => {
       setTransactions(transactionsRes?.transactions || []);
       setAgents(agentsRes?.agents || []);
     } catch (error) {
-      console.error('Error loading data:', error);
-      notificationService.error('Failed to load commission transactions');
+      console.error("Error loading data:", error);
+      notificationService.error("Failed to load commission transactions");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, []);
 
   // Filter transactions
   const filteredTransactions = useMemo(() => {
     return transactions.filter((transaction) => {
       const matchesSearch =
-        transaction.agentName
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        transaction.invoiceNumber
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase());
+        transaction.agentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        transaction.invoiceNumber?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesStatus =
-        selectedStatus === 'all' || transaction.status === selectedStatus;
-      const matchesAgent =
-        selectedAgent === 'all' ||
-        transaction.agentId === parseInt(selectedAgent);
+      const matchesStatus = selectedStatus === "all" || transaction.status === selectedStatus;
+      const matchesAgent = selectedAgent === "all" || transaction.agentId === parseInt(selectedAgent, 10);
 
       const matchesDateRange = (() => {
         if (!dateRange.start && !dateRange.end) return true;
         const transactionDate = new Date(transaction.createdAt);
-        if (dateRange.start && transactionDate < new Date(dateRange.start))
-          return false;
-        if (dateRange.end && transactionDate > new Date(dateRange.end))
-          return false;
+        if (dateRange.start && transactionDate < new Date(dateRange.start)) return false;
+        if (dateRange.end && transactionDate > new Date(dateRange.end)) return false;
         return true;
       })();
 
@@ -112,21 +104,19 @@ const CommissionTransactions = () => {
 
   const handleBulkApprove = async () => {
     if (selectedTransactions.size === 0) {
-      notificationService.warning('Please select transactions to approve');
+      notificationService.warning("Please select transactions to approve");
       return;
     }
     try {
       setBulkActionLoading(true);
       const transactionIds = Array.from(selectedTransactions);
       await commissionService.bulkApprove(transactionIds);
-      notificationService.success(
-        `Approved ${transactionIds.length} transaction(s)`,
-      );
+      notificationService.success(`Approved ${transactionIds.length} transaction(s)`);
       setSelectedTransactions(new Set());
       loadData();
     } catch (error) {
-      console.error('Error bulk approving:', error);
-      notificationService.error('Failed to approve transactions');
+      console.error("Error bulk approving:", error);
+      notificationService.error("Failed to approve transactions");
     } finally {
       setBulkActionLoading(false);
     }
@@ -134,21 +124,19 @@ const CommissionTransactions = () => {
 
   const handleBulkMarkPaid = async () => {
     if (selectedTransactions.size === 0) {
-      notificationService.warning('Please select transactions to mark as paid');
+      notificationService.warning("Please select transactions to mark as paid");
       return;
     }
     try {
       setBulkActionLoading(true);
       const transactionIds = Array.from(selectedTransactions);
       await commissionService.bulkMarkPaid(transactionIds);
-      notificationService.success(
-        `Marked ${transactionIds.length} transaction(s) as paid`,
-      );
+      notificationService.success(`Marked ${transactionIds.length} transaction(s) as paid`);
       setSelectedTransactions(new Set());
       loadData();
     } catch (error) {
-      console.error('Error bulk marking paid:', error);
-      notificationService.error('Failed to mark transactions as paid');
+      console.error("Error bulk marking paid:", error);
+      notificationService.error("Failed to mark transactions as paid");
     } finally {
       setBulkActionLoading(false);
     }
@@ -157,33 +145,27 @@ const CommissionTransactions = () => {
   // Reversal handler
   const openReversalModal = (transaction) => {
     setReversalTarget(transaction);
-    setReversalReason('');
-    setReversalNotes('');
+    setReversalReason("");
+    setReversalNotes("");
     setShowReversalModal(true);
     setActionMenuOpen(null);
   };
 
   const handleReversal = async () => {
     if (!reversalTarget || !reversalReason.trim()) {
-      notificationService.warning('Please provide a reason for the reversal');
+      notificationService.warning("Please provide a reason for the reversal");
       return;
     }
     try {
       setReversing(true);
-      await commissionService.reverseCommission(
-        reversalTarget.id,
-        reversalReason,
-        reversalNotes,
-      );
-      notificationService.success('Commission reversed successfully');
+      await commissionService.reverseCommission(reversalTarget.id, reversalReason, reversalNotes);
+      notificationService.success("Commission reversed successfully");
       setShowReversalModal(false);
       setReversalTarget(null);
       loadData();
     } catch (error) {
-      console.error('Error reversing commission:', error);
-      notificationService.error(
-        error.message || 'Failed to reverse commission',
-      );
+      console.error("Error reversing commission:", error);
+      notificationService.error(error.message || "Failed to reverse commission");
     } finally {
       setReversing(false);
     }
@@ -192,52 +174,37 @@ const CommissionTransactions = () => {
   // CSV Export
   const exportToCSV = () => {
     if (filteredTransactions.length === 0) {
-      notificationService.warning('No transactions to export');
+      notificationService.warning("No transactions to export");
       return;
     }
 
-    const headers = [
-      'Agent',
-      'Invoice',
-      'Sale Amount',
-      'Rate (%)',
-      'Commission',
-      'Date',
-      'Status',
-    ];
+    const headers = ["Agent", "Invoice", "Sale Amount", "Rate (%)", "Commission", "Date", "Status"];
     const rows = filteredTransactions.map((t) => [
-      t.agentName || '',
-      t.invoiceNumber || '',
+      t.agentName || "",
+      t.invoiceNumber || "",
       parseFloat(t.saleAmount || 0).toFixed(2),
       t.commissionRate || 0,
       parseFloat(t.commissionAmount || 0).toFixed(2),
-      t.createdAt ? new Date(t.createdAt).toLocaleDateString() : '',
-      t.status || 'pending',
+      t.createdAt ? formatDateDMY(t.createdAt) : "",
+      t.status || "pending",
     ]);
 
     const csvContent = [
-      headers.join(','),
-      ...rows.map((row) =>
-        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','),
-      ),
-    ].join('\n');
+      headers.join(","),
+      ...rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")),
+    ].join("\n");
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute(
-      'download',
-      `commission_transactions_${new Date().toISOString().split('T')[0]}.csv`,
-    );
-    link.style.visibility = 'hidden';
+    link.setAttribute("href", url);
+    link.setAttribute("download", `commission_transactions_${new Date().toISOString().split("T")[0]}.csv`);
+    link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
-    notificationService.success(
-      `Exported ${filteredTransactions.length} transactions`,
-    );
+    notificationService.success(`Exported ${filteredTransactions.length} transactions`);
   };
 
   const toggleTransaction = (id) => {
@@ -259,35 +226,35 @@ const CommissionTransactions = () => {
   };
 
   const getStatusBadge = (status) => {
-    const statusLower = (status || 'pending').toLowerCase();
+    const statusLower = (status || "pending").toLowerCase();
     const statusConfig = {
       pending: {
-        bg: 'bg-yellow-100',
-        darkBg: 'bg-yellow-900/30',
-        text: 'text-yellow-800',
-        darkText: 'text-yellow-400',
-        label: 'Pending',
+        bg: "bg-yellow-100",
+        darkBg: "bg-yellow-900/30",
+        text: "text-yellow-800",
+        darkText: "text-yellow-400",
+        label: "Pending",
       },
       approved: {
-        bg: 'bg-blue-100',
-        darkBg: 'bg-blue-900/30',
-        text: 'text-blue-800',
-        darkText: 'text-blue-400',
-        label: 'Approved',
+        bg: "bg-blue-100",
+        darkBg: "bg-blue-900/30",
+        text: "text-blue-800",
+        darkText: "text-blue-400",
+        label: "Approved",
       },
       paid: {
-        bg: 'bg-green-100',
-        darkBg: 'bg-green-900/30',
-        text: 'text-green-800',
-        darkText: 'text-green-400',
-        label: 'Paid',
+        bg: "bg-green-100",
+        darkBg: "bg-green-900/30",
+        text: "text-green-800",
+        darkText: "text-green-400",
+        label: "Paid",
       },
       reversed: {
-        bg: 'bg-red-100',
-        darkBg: 'bg-red-900/30',
-        text: 'text-red-800',
-        darkText: 'text-red-400',
-        label: 'Reversed',
+        bg: "bg-red-100",
+        darkBg: "bg-red-900/30",
+        text: "text-red-800",
+        darkText: "text-red-400",
+        label: "Reversed",
       },
     };
     const config = statusConfig[statusLower] || statusConfig.pending;
@@ -305,11 +272,7 @@ const CommissionTransactions = () => {
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p
-            className={`mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-          >
-            Loading transactions...
-          </p>
+          <p className={`mt-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Loading transactions...</p>
         </div>
       </div>
     );
@@ -320,36 +283,32 @@ const CommissionTransactions = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2
-            className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-          >
+          <h2 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
             Commission Transactions
           </h2>
-          <p
-            className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-          >
+          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
             Manage and track commission transactions
           </p>
         </div>
         <div className="flex items-center space-x-2">
           <button
+            type="button"
             onClick={exportToCSV}
             disabled={filteredTransactions.length === 0}
             className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
               isDarkMode
-                ? 'bg-green-700 hover:bg-green-600 text-white disabled:bg-gray-700 disabled:text-gray-500'
-                : 'bg-green-600 hover:bg-green-700 text-white disabled:bg-gray-200 disabled:text-gray-400'
+                ? "bg-green-700 hover:bg-green-600 text-white disabled:bg-gray-700 disabled:text-gray-500"
+                : "bg-green-600 hover:bg-green-700 text-white disabled:bg-gray-200 disabled:text-gray-400"
             } disabled:cursor-not-allowed`}
           >
             <Download className="h-4 w-4" />
             <span>Export CSV</span>
           </button>
           <button
+            type="button"
             onClick={loadData}
             className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
-              isDarkMode
-                ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+              isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
             }`}
           >
             <RefreshCw className="h-4 w-4" />
@@ -360,12 +319,12 @@ const CommissionTransactions = () => {
 
       {/* Filters */}
       <div
-        className={`rounded-lg p-4 border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
+        className={`rounded-lg p-4 border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
       >
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="relative">
             <Search
-              className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+              className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             />
             <input
               type="text"
@@ -374,8 +333,8 @@ const CommissionTransactions = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
           </div>
@@ -383,9 +342,7 @@ const CommissionTransactions = () => {
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
             className={`px-4 py-2 rounded-lg border ${
-              isDarkMode
-                ? 'bg-gray-700 border-gray-600 text-white'
-                : 'bg-white border-gray-300 text-gray-900'
+              isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
             } focus:outline-none focus:ring-2 focus:ring-blue-500`}
           >
             <option value="all">All Statuses</option>
@@ -399,9 +356,7 @@ const CommissionTransactions = () => {
             value={selectedAgent}
             onChange={(e) => setSelectedAgent(e.target.value)}
             className={`px-4 py-2 rounded-lg border ${
-              isDarkMode
-                ? 'bg-gray-700 border-gray-600 text-white'
-                : 'bg-white border-gray-300 text-gray-900'
+              isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
             } focus:outline-none focus:ring-2 focus:ring-blue-500`}
           >
             <option value="all">All Agents</option>
@@ -415,28 +370,18 @@ const CommissionTransactions = () => {
             <input
               type="date"
               value={dateRange.start}
-              onChange={(e) =>
-                setDateRange({ ...dateRange, start: e.target.value })
-              }
+              onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
               className={`flex-1 px-3 py-2 rounded-lg border ${
-                isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
-            <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-              -
-            </span>
+            <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>-</span>
             <input
               type="date"
               value={dateRange.end}
-              onChange={(e) =>
-                setDateRange({ ...dateRange, end: e.target.value })
-              }
+              onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
               className={`flex-1 px-3 py-2 rounded-lg border ${
-                isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
+                isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
           </div>
@@ -446,16 +391,15 @@ const CommissionTransactions = () => {
       {/* Bulk Actions */}
       {selectedTransactions.size > 0 && (
         <div
-          className={`rounded-lg p-4 border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
+          className={`rounded-lg p-4 border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
         >
           <div className="flex items-center justify-between">
-            <p
-              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-            >
+            <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               {selectedTransactions.size} transaction(s) selected
             </p>
             <div className="flex space-x-2">
               <button
+                type="button"
                 onClick={handleBulkApprove}
                 disabled={bulkActionLoading}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
@@ -464,6 +408,7 @@ const CommissionTransactions = () => {
                 <span>Approve Selected</span>
               </button>
               <button
+                type="button"
                 onClick={handleBulkMarkPaid}
                 disabled={bulkActionLoading}
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
@@ -478,98 +423,88 @@ const CommissionTransactions = () => {
 
       {/* Transactions Table */}
       <div
-        className={`rounded-lg border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} overflow-hidden`}
+        className={`rounded-lg border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} overflow-hidden`}
       >
         {paginatedTransactions.length === 0 ? (
           <div className="text-center py-12">
-            <FileText
-              className={`h-16 w-16 mx-auto ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
-            />
-            <h3
-              className={`mt-4 text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
-              {searchTerm || selectedStatus !== 'all' || selectedAgent !== 'all'
-                ? 'No transactions found'
-                : 'No transactions yet'}
+            <FileText className={`h-16 w-16 mx-auto ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />
+            <h3 className={`mt-4 text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+              {searchTerm || selectedStatus !== "all" || selectedAgent !== "all"
+                ? "No transactions found"
+                : "No transactions yet"}
             </h3>
-            <p
-              className={`mt-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-            >
-              {searchTerm || selectedStatus !== 'all' || selectedAgent !== 'all'
-                ? 'Try adjusting your filters'
-                : 'Transactions will appear here once commissions are generated'}
+            <p className={`mt-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+              {searchTerm || selectedStatus !== "all" || selectedAgent !== "all"
+                ? "Try adjusting your filters"
+                : "Transactions will appear here once commissions are generated"}
             </p>
           </div>
         ) : (
           <>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                   <tr>
                     <th className="px-4 py-3 text-left">
                       <input
                         type="checkbox"
                         checked={
-                          selectedTransactions.size ===
-                            paginatedTransactions.length &&
-                          paginatedTransactions.length > 0
+                          selectedTransactions.size === paginatedTransactions.length && paginatedTransactions.length > 0
                         }
                         onChange={toggleAllTransactions}
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        aria-label="Select all transactions"
                       />
                     </th>
                     <th
-                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Agent
                     </th>
                     <th
-                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Invoice
                     </th>
                     <th
-                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Sale Amount
                     </th>
                     <th
-                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Rate
                     </th>
                     <th
-                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Commission
                     </th>
                     <th
-                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Date
                     </th>
                     <th
-                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Status
                     </th>
                     <th
-                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody
-                  className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
-                >
+                <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
                   {paginatedTransactions.map((transaction) => {
-                    const isReversed =
-                      (transaction.status || '').toLowerCase() === 'reversed';
+                    const isReversed = (transaction.status || "").toLowerCase() === "reversed";
                     return (
                       <tr
                         key={transaction.id}
-                        className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} ${isReversed ? 'opacity-60' : ''}`}
+                        className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} ${isReversed ? "opacity-60" : ""}`}
                       >
                         <td className="px-4 py-3 whitespace-nowrap">
                           <input
@@ -578,10 +513,11 @@ const CommissionTransactions = () => {
                             onChange={() => toggleTransaction(transaction.id)}
                             disabled={isReversed}
                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
+                            aria-label={`Select transaction ${transaction.invoice_number || transaction.id}`}
                           />
                         </td>
                         <td
-                          className={`px-4 py-3 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'} ${isReversed ? 'line-through' : ''}`}
+                          className={`px-4 py-3 whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"} ${isReversed ? "line-through" : ""}`}
                         >
                           <div className="flex items-center space-x-2">
                             <User className="h-4 w-4" />
@@ -589,81 +525,60 @@ const CommissionTransactions = () => {
                           </div>
                         </td>
                         <td
-                          className={`px-4 py-3 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'} ${isReversed ? 'line-through' : ''}`}
+                          className={`px-4 py-3 whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"} ${isReversed ? "line-through" : ""}`}
                         >
-                          {transaction.invoiceNumber || '-'}
+                          {transaction.invoiceNumber || "-"}
                         </td>
-                        <td
-                          className={`px-4 py-3 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
-                        >
-                          {formatCurrency(
-                            parseFloat(transaction.saleAmount || 0),
-                          )}
+                        <td className={`px-4 py-3 whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
+                          {formatCurrency(parseFloat(transaction.saleAmount || 0))}
                         </td>
-                        <td
-                          className={`px-4 py-3 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
-                        >
+                        <td className={`px-4 py-3 whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
                           {transaction.commissionRate}%
                         </td>
                         <td
-                          className={`px-4 py-3 whitespace-nowrap font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'} ${isReversed ? 'line-through text-red-500' : ''}`}
+                          className={`px-4 py-3 whitespace-nowrap font-semibold ${isDarkMode ? "text-white" : "text-gray-900"} ${isReversed ? "line-through text-red-500" : ""}`}
                         >
-                          {formatCurrency(
-                            parseFloat(transaction.commissionAmount || 0),
-                          )}
+                          {formatCurrency(parseFloat(transaction.commissionAmount || 0))}
                         </td>
                         <td
-                          className={`px-4 py-3 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                          className={`px-4 py-3 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                         >
                           {formatDate(transaction.createdAt)}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          {getStatusBadge(transaction.status)}
-                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">{getStatusBadge(transaction.status)}</td>
 
                         <td className="px-4 py-3 whitespace-nowrap">
                           <div className="relative">
                             <button
+                              type="button"
                               onClick={() =>
-                                setActionMenuOpen(
-                                  actionMenuOpen === transaction.id
-                                    ? null
-                                    : transaction.id,
-                                )
+                                setActionMenuOpen(actionMenuOpen === transaction.id ? null : transaction.id)
                               }
                               disabled={isReversed}
                               className={`p-2 rounded-lg ${
-                                isDarkMode
-                                  ? 'hover:bg-gray-600 text-gray-400'
-                                  : 'hover:bg-gray-100 text-gray-600'
+                                isDarkMode ? "hover:bg-gray-600 text-gray-400" : "hover:bg-gray-100 text-gray-600"
                               } disabled:opacity-50 disabled:cursor-not-allowed`}
                             >
                               <MoreHorizontal className="h-4 w-4" />
                             </button>
-                            {actionMenuOpen === transaction.id &&
-                              !isReversed && (
-                                <div
-                                  className={`absolute right-0 mt-1 w-48 rounded-lg shadow-lg z-10 border ${
-                                    isDarkMode
-                                      ? 'bg-gray-700 border-gray-600'
-                                      : 'bg-white border-gray-200'
+                            {actionMenuOpen === transaction.id && !isReversed && (
+                              <div
+                                className={`absolute right-0 mt-1 w-48 rounded-lg shadow-lg z-10 border ${
+                                  isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-200"
+                                }`}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => openReversalModal(transaction)}
+                                  className={`w-full px-4 py-2 text-left text-sm flex items-center space-x-2 ${
+                                    isDarkMode ? "hover:bg-gray-600 text-red-400" : "hover:bg-gray-50 text-red-600"
                                   }`}
                                 >
-                                  <button
-                                    onClick={() =>
-                                      openReversalModal(transaction)
-                                    }
-                                    className={`w-full px-4 py-2 text-left text-sm flex items-center space-x-2 ${
-                                      isDarkMode
-                                        ? 'hover:bg-gray-600 text-red-400'
-                                        : 'hover:bg-gray-50 text-red-600'
-                                    }`}
-                                  >
-                                    <RotateCcw className="h-4 w-4" />
-                                    <span>Reverse Commission</span>
-                                  </button>
-                                </div>
-                              )}
+                                  <RotateCcw className="h-4 w-4" />
+                                  <span>Reverse Commission</span>
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -676,14 +591,11 @@ const CommissionTransactions = () => {
             {/* Pagination */}
             {totalPages > 1 && (
               <div
-                className={`px-4 py-3 border-t ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'} flex items-center justify-between`}
+                className={`px-4 py-3 border-t ${isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-gray-50"} flex items-center justify-between`}
               >
                 <div className="flex items-center space-x-2">
-                  <span
-                    className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                  >
-                    Showing {(currentPage - 1) * pageSize + 1} to{' '}
-                    {Math.min(currentPage * pageSize, totalCount)} of{' '}
+                  <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                    Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of{" "}
                     {totalCount}
                   </span>
                   <select
@@ -693,9 +605,7 @@ const CommissionTransactions = () => {
                       setCurrentPage(1);
                     }}
                     className={`px-2 py-1 rounded border text-sm ${
-                      isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-900'
+                      isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   >
                     <option value={10}>10</option>
@@ -706,23 +616,21 @@ const CommissionTransactions = () => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
+                    type="button"
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
-                    className={`p-2 rounded ${isDarkMode ? 'hover:bg-gray-700 text-gray-400 disabled:text-gray-600' : 'hover:bg-gray-200 text-gray-600 disabled:text-gray-300'} disabled:cursor-not-allowed`}
+                    className={`p-2 rounded ${isDarkMode ? "hover:bg-gray-700 text-gray-400 disabled:text-gray-600" : "hover:bg-gray-200 text-gray-600 disabled:text-gray-300"} disabled:cursor-not-allowed`}
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
-                  <span
-                    className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                  >
+                  <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                     Page {currentPage} of {totalPages}
                   </span>
                   <button
-                    onClick={() =>
-                      setCurrentPage((p) => Math.min(totalPages, p + 1))
-                    }
+                    type="button"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
-                    className={`p-2 rounded ${isDarkMode ? 'hover:bg-gray-700 text-gray-400 disabled:text-gray-600' : 'hover:bg-gray-200 text-gray-600 disabled:text-gray-300'} disabled:cursor-not-allowed`}
+                    className={`p-2 rounded ${isDarkMode ? "hover:bg-gray-700 text-gray-400 disabled:text-gray-600" : "hover:bg-gray-200 text-gray-600 disabled:text-gray-300"} disabled:cursor-not-allowed`}
                   >
                     <ChevronRight className="w-5 h-5" />
                   </button>
@@ -737,55 +645,25 @@ const CommissionTransactions = () => {
       {filteredTransactions.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div
-            className={`rounded-lg p-4 border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
+            className={`rounded-lg p-4 border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
           >
-            <p
-              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-            >
-              Total Transactions
-            </p>
-            <p
-              className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
-              {totalCount}
+            <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Total Transactions</p>
+            <p className={`text-2xl font-bold mt-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>{totalCount}</p>
+          </div>
+          <div
+            className={`rounded-lg p-4 border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+          >
+            <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Total Sales</p>
+            <p className={`text-2xl font-bold mt-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+              {formatCurrency(filteredTransactions.reduce((sum, t) => sum + parseFloat(t.saleAmount || 0), 0))}
             </p>
           </div>
           <div
-            className={`rounded-lg p-4 border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
+            className={`rounded-lg p-4 border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
           >
-            <p
-              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-            >
-              Total Sales
-            </p>
-            <p
-              className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
-              {formatCurrency(
-                filteredTransactions.reduce(
-                  (sum, t) => sum + parseFloat(t.saleAmount || 0),
-                  0,
-                ),
-              )}
-            </p>
-          </div>
-          <div
-            className={`rounded-lg p-4 border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
-          >
-            <p
-              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-            >
-              Total Commission
-            </p>
-            <p
-              className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
-              {formatCurrency(
-                filteredTransactions.reduce(
-                  (sum, t) => sum + parseFloat(t.commissionAmount || 0),
-                  0,
-                ),
-              )}
+            <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Total Commission</p>
+            <p className={`text-2xl font-bold mt-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+              {formatCurrency(filteredTransactions.reduce((sum, t) => sum + parseFloat(t.commissionAmount || 0), 0))}
             </p>
           </div>
         </div>
@@ -794,43 +672,28 @@ const CommissionTransactions = () => {
       {/* Reversal Modal */}
       {showReversalModal && reversalTarget && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div
-            className={`rounded-lg max-w-md w-full ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-          >
-            <div
-              className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-            >
+          <div className={`rounded-lg max-w-md w-full ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+            <div className={`p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
               <div className="flex items-center space-x-2">
                 <AlertCircle className="w-5 h-5 text-red-500" />
-                <h3
-                  className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
+                <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Reverse Commission
                 </h3>
               </div>
             </div>
             <div className="p-4 space-y-4">
-              <div
-                className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}
-              >
-                <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                >
+              <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}>
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                   Invoice: {reversalTarget.invoiceNumber}
                 </p>
-                <p
-                  className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
-                  Amount:{' '}
-                  {formatCurrency(
-                    parseFloat(reversalTarget.commissionAmount || 0),
-                  )}
+                <p className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                  Amount: {formatCurrency(parseFloat(reversalTarget.commissionAmount || 0))}
                 </p>
               </div>
               <div>
                 <label
                   htmlFor="reversal-reason"
-                  className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                  className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                 >
                   Reason for Reversal <span className="text-red-500">*</span>
                 </label>
@@ -839,9 +702,7 @@ const CommissionTransactions = () => {
                   value={reversalReason}
                   onChange={(e) => setReversalReason(e.target.value)}
                   className={`w-full px-3 py-2 rounded-lg border ${
-                    isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white'
-                      : 'bg-white border-gray-300 text-gray-900'
+                    isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                   } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 >
                   <option value="">Select reason...</option>
@@ -855,7 +716,7 @@ const CommissionTransactions = () => {
               <div>
                 <label
                   htmlFor="reversal-notes"
-                  className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                  className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                 >
                   Additional Notes
                 </label>
@@ -867,17 +728,18 @@ const CommissionTransactions = () => {
                   placeholder="Optional notes..."
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                      : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                   } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
               </div>
             </div>
 
             <div
-              className={`p-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} flex justify-end space-x-3`}
+              className={`p-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"} flex justify-end space-x-3`}
             >
               <button
+                type="button"
                 onClick={() => {
                   setShowReversalModal(false);
                   setReversalTarget(null);
@@ -885,13 +747,14 @@ const CommissionTransactions = () => {
                 disabled={reversing}
                 className={`px-4 py-2 rounded-lg ${
                   isDarkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                    ? "bg-gray-700 hover:bg-gray-600 text-white"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                 } disabled:opacity-50`}
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleReversal}
                 disabled={reversing || !reversalReason}
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg disabled:opacity-50 flex items-center space-x-2"
@@ -915,12 +778,10 @@ const CommissionTransactions = () => {
 
       {/* Click outside to close action menu */}
       {actionMenuOpen && (
-        <div
+        <button
+          type="button"
           className="fixed inset-0 z-0"
           onClick={() => setActionMenuOpen(null)}
-          onKeyDown={(e) => e.key === 'Escape' && setActionMenuOpen(null)}
-          role="button"
-          tabIndex={0}
           aria-label="Close action menu"
         />
       )}

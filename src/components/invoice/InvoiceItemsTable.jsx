@@ -1,14 +1,14 @@
-import { calculateTRN, formatNumber } from '../../utils/invoiceUtils';
-import { DEFAULT_TEMPLATE_SETTINGS } from '../../constants/defaultTemplateSettings';
+import { DEFAULT_TEMPLATE_SETTINGS } from "../../constants/defaultTemplateSettings";
+import { calculateTRN, formatNumber } from "../../utils/invoiceUtils";
 
 /**
  * Get display name for invoice line item
  */
 const getItemDisplayName = (item) => {
-  const name = item.name || item.displayName || item.display_name || '';
-  const origin = item.origin || item.productOrigin || '';
+  const name = item.name || item.displayName || item.display_name || "";
+  const origin = item.origin || item.productOrigin || "";
 
-  if (!origin || origin.toUpperCase() === 'UAE') {
+  if (!origin || origin.toUpperCase() === "UAE") {
     return name;
   }
 
@@ -19,90 +19,79 @@ const getItemDisplayName = (item) => {
  * Invoice Items Table Component
  * Displays line items for current page
  */
-const InvoiceItemsTable = ({
-  items,
-  startingIndex = 0,
-  isFirstPage,
-  isContinued,
-  primaryColor,
-  template = null,
-}) => {
+const InvoiceItemsTable = ({ items, startingIndex = 0, isFirstPage, isContinued, primaryColor, template = null }) => {
   const color = primaryColor || DEFAULT_TEMPLATE_SETTINGS.colors.primary;
   const layout = template?.layout || {};
   const colors = template?.colors || {};
   const fonts = template?.fonts || {};
 
-  const itemsStyle = layout.itemsStyle || 'full-grid';
+  const itemsStyle = layout.itemsStyle || "full-grid";
   const alternatingRows = layout.alternatingRows !== false;
   const headerBg = colors.primary || color;
-  const borderColor = colors.border || '#e5e7eb';
-  const accentColor = colors.accent || '#f9fafb';
+  const borderColor = colors.border || "#e5e7eb";
+  const accentColor = colors.accent || "#f9fafb";
 
-  const isLightHeader =
-    itemsStyle === 'no-borders' || itemsStyle === 'bold-header';
-  const headerTextColor = isLightHeader ? colors.primary || color : '#ffffff';
+  const isLightHeader = itemsStyle === "no-borders" || itemsStyle === "bold-header";
+  const headerTextColor = isLightHeader ? colors.primary || color : "#ffffff";
 
   const getTableStyles = () => {
     switch (itemsStyle) {
-      case 'horizontal-lines':
+      case "horizontal-lines":
         return {
-          table: { borderCollapse: 'collapse' },
+          table: { borderCollapse: "collapse" },
           headerRow: {
             backgroundColor: headerBg,
             borderBottom: `2px solid ${headerBg}`,
           },
-          headerCell: { border: 'none', borderBottom: `2px solid ${headerBg}` },
+          headerCell: { border: "none", borderBottom: `2px solid ${headerBg}` },
           bodyRow: () => ({
-            backgroundColor: '#ffffff',
-            borderBottom: '1px solid #e5e7eb',
+            backgroundColor: "#ffffff",
+            borderBottom: "1px solid #e5e7eb",
           }),
-          bodyCell: { border: 'none' },
+          bodyCell: { border: "none" },
         };
-      case 'no-borders':
+      case "no-borders":
         return {
-          table: { borderCollapse: 'collapse' },
+          table: { borderCollapse: "collapse" },
           headerRow: {
-            backgroundColor: 'transparent',
+            backgroundColor: "transparent",
             borderBottom: `2px solid ${headerBg}`,
           },
-          headerCell: { border: 'none', fontWeight: 'bold' },
+          headerCell: { border: "none", fontWeight: "bold" },
           bodyRow: () => ({
-            backgroundColor: 'transparent',
+            backgroundColor: "transparent",
           }),
-          bodyCell: { border: 'none', borderBottom: '1px solid #eeeeee' },
+          bodyCell: { border: "none", borderBottom: "1px solid #eeeeee" },
         };
-      case 'bold-header':
+      case "bold-header":
         return {
           table: {
-            borderCollapse: 'collapse',
+            borderCollapse: "collapse",
             border: `1px solid ${borderColor}`,
           },
           headerRow: {
-            backgroundColor: colors.headerBg || '#e0e0e0',
+            backgroundColor: colors.headerBg || "#e0e0e0",
             borderBottom: `2px solid ${borderColor}`,
           },
           headerCell: {
             border: `1px solid ${borderColor}`,
-            fontWeight: 'bold',
+            fontWeight: "bold",
           },
           bodyRow: (idx) => ({
-            backgroundColor:
-              alternatingRows && idx % 2 === 1 ? accentColor : '#ffffff',
+            backgroundColor: alternatingRows && idx % 2 === 1 ? accentColor : "#ffffff",
           }),
           bodyCell: { border: `1px solid ${borderColor}` },
         };
-      case 'full-grid':
       default:
         return {
           table: {
-            borderCollapse: 'collapse',
+            borderCollapse: "collapse",
             border: `1px solid ${borderColor}`,
           },
           headerRow: { backgroundColor: headerBg },
           headerCell: { border: `1px solid ${borderColor}` },
           bodyRow: (idx) => ({
-            backgroundColor:
-              alternatingRows && idx % 2 === 1 ? accentColor : '#ffffff',
+            backgroundColor: alternatingRows && idx % 2 === 1 ? accentColor : "#ffffff",
           }),
           bodyCell: { border: `1px solid ${borderColor}` },
         };
@@ -110,37 +99,34 @@ const InvoiceItemsTable = ({
   };
 
   const styles = getTableStyles();
-  const fontFamily = fonts.body || 'Inter, system-ui, sans-serif';
+  const fontFamily = fonts.body || "Inter, system-ui, sans-serif";
 
   return (
-    <div
-      className="invoice-items-table"
-      style={{ fontFamily, marginBottom: '20px' }}
-    >
+    <div className="invoice-items-table" style={{ fontFamily, marginBottom: "20px" }}>
       {isContinued && !isFirstPage && (
         <div
           style={{
-            marginBottom: '8px',
-            fontSize: '10px',
-            fontStyle: 'italic',
-            color: colors.secondary || '#666',
+            marginBottom: "8px",
+            fontSize: "10px",
+            fontStyle: "italic",
+            color: colors.secondary || "#666",
           }}
         >
           (Continued from previous page)
         </div>
       )}
 
-      <table style={{ ...styles.table, width: '100%', fontSize: '10px' }}>
+      <table style={{ ...styles.table, width: "100%", fontSize: "10px" }}>
         <thead>
           <tr style={styles.headerRow}>
             <th
               style={{
                 ...styles.headerCell,
-                padding: '12px 10px',
-                textAlign: 'left',
-                fontSize: '10.5px',
-                fontWeight: 'bold',
-                width: '4%',
+                padding: "12px 10px",
+                textAlign: "left",
+                fontSize: "10.5px",
+                fontWeight: "bold",
+                width: "4%",
                 color: headerTextColor,
               }}
             >
@@ -149,11 +135,11 @@ const InvoiceItemsTable = ({
             <th
               style={{
                 ...styles.headerCell,
-                padding: '12px 10px',
-                textAlign: 'left',
-                fontSize: '10.5px',
-                fontWeight: 'bold',
-                width: '44%',
+                padding: "12px 10px",
+                textAlign: "left",
+                fontSize: "10.5px",
+                fontWeight: "bold",
+                width: "44%",
                 color: headerTextColor,
               }}
             >
@@ -162,11 +148,11 @@ const InvoiceItemsTable = ({
             <th
               style={{
                 ...styles.headerCell,
-                padding: '12px 10px',
-                textAlign: 'center',
-                fontSize: '10.5px',
-                fontWeight: 'bold',
-                width: '6%',
+                padding: "12px 10px",
+                textAlign: "center",
+                fontSize: "10.5px",
+                fontWeight: "bold",
+                width: "6%",
                 color: headerTextColor,
               }}
             >
@@ -175,11 +161,11 @@ const InvoiceItemsTable = ({
             <th
               style={{
                 ...styles.headerCell,
-                padding: '12px 10px',
-                textAlign: 'right',
-                fontSize: '10.5px',
-                fontWeight: 'bold',
-                width: '10%',
+                padding: "12px 10px",
+                textAlign: "right",
+                fontSize: "10.5px",
+                fontWeight: "bold",
+                width: "10%",
                 color: headerTextColor,
               }}
             >
@@ -188,11 +174,11 @@ const InvoiceItemsTable = ({
             <th
               style={{
                 ...styles.headerCell,
-                padding: '12px 10px',
-                textAlign: 'right',
-                fontSize: '10.5px',
-                fontWeight: 'bold',
-                width: '10%',
+                padding: "12px 10px",
+                textAlign: "right",
+                fontSize: "10.5px",
+                fontWeight: "bold",
+                width: "10%",
                 color: headerTextColor,
               }}
             >
@@ -201,11 +187,11 @@ const InvoiceItemsTable = ({
             <th
               style={{
                 ...styles.headerCell,
-                padding: '12px 10px',
-                textAlign: 'right',
-                fontSize: '10.5px',
-                fontWeight: 'bold',
-                width: '16%',
+                padding: "12px 10px",
+                textAlign: "right",
+                fontSize: "10.5px",
+                fontWeight: "bold",
+                width: "16%",
                 color: headerTextColor,
               }}
             >
@@ -214,11 +200,11 @@ const InvoiceItemsTable = ({
             <th
               style={{
                 ...styles.headerCell,
-                padding: '12px 10px',
-                textAlign: 'right',
-                fontSize: '10.5px',
-                fontWeight: 'bold',
-                width: '10%',
+                padding: "12px 10px",
+                textAlign: "right",
+                fontSize: "10.5px",
+                fontWeight: "bold",
+                width: "10%",
                 color: headerTextColor,
               }}
             >
@@ -235,13 +221,13 @@ const InvoiceItemsTable = ({
             const globalIndex = startingIndex + index;
 
             return (
-              <tr key={index} style={styles.bodyRow(index)}>
+              <tr key={item.id || item.name || `item-${index}`} style={styles.bodyRow(index)}>
                 <td
                   style={{
                     ...styles.bodyCell,
-                    padding: '12px 10px',
-                    fontSize: '10px',
-                    verticalAlign: 'top',
+                    padding: "12px 10px",
+                    fontSize: "10px",
+                    verticalAlign: "top",
                     lineHeight: 1.5,
                   }}
                 >
@@ -250,10 +236,10 @@ const InvoiceItemsTable = ({
                 <td
                   style={{
                     ...styles.bodyCell,
-                    padding: '12px 10px',
-                    fontSize: '10px',
+                    padding: "12px 10px",
+                    fontSize: "10px",
                     fontWeight: 500,
-                    verticalAlign: 'top',
+                    verticalAlign: "top",
                     lineHeight: 1.5,
                   }}
                 >
@@ -262,10 +248,10 @@ const InvoiceItemsTable = ({
                 <td
                   style={{
                     ...styles.bodyCell,
-                    padding: '12px 10px',
-                    fontSize: '10px',
-                    textAlign: 'center',
-                    verticalAlign: 'top',
+                    padding: "12px 10px",
+                    fontSize: "10px",
+                    textAlign: "center",
+                    verticalAlign: "top",
                     lineHeight: 1.5,
                   }}
                 >
@@ -274,10 +260,10 @@ const InvoiceItemsTable = ({
                 <td
                   style={{
                     ...styles.bodyCell,
-                    padding: '12px 10px',
-                    fontSize: '10px',
-                    textAlign: 'right',
-                    verticalAlign: 'top',
+                    padding: "12px 10px",
+                    fontSize: "10px",
+                    textAlign: "right",
+                    verticalAlign: "top",
                     lineHeight: 1.5,
                   }}
                 >
@@ -286,10 +272,10 @@ const InvoiceItemsTable = ({
                 <td
                   style={{
                     ...styles.bodyCell,
-                    padding: '12px 10px',
-                    fontSize: '10px',
-                    textAlign: 'right',
-                    verticalAlign: 'top',
+                    padding: "12px 10px",
+                    fontSize: "10px",
+                    textAlign: "right",
+                    verticalAlign: "top",
                     lineHeight: 1.5,
                   }}
                 >
@@ -298,24 +284,23 @@ const InvoiceItemsTable = ({
                 <td
                   style={{
                     ...styles.bodyCell,
-                    padding: '12px 10px',
-                    fontSize: '10px',
-                    textAlign: 'right',
-                    verticalAlign: 'top',
+                    padding: "12px 10px",
+                    fontSize: "10px",
+                    textAlign: "right",
+                    verticalAlign: "top",
                     lineHeight: 1.5,
                   }}
                 >
-                  {formatNumber(vatAmount)} (
-                  {vatRate > 0 ? `${vatRate}%` : '0%'})
+                  {formatNumber(vatAmount)} ({vatRate > 0 ? `${vatRate}%` : "0%"})
                 </td>
                 <td
                   style={{
                     ...styles.bodyCell,
-                    padding: '12px 10px',
-                    fontSize: '10px',
-                    textAlign: 'right',
+                    padding: "12px 10px",
+                    fontSize: "10px",
+                    textAlign: "right",
                     fontWeight: 500,
-                    verticalAlign: 'top',
+                    verticalAlign: "top",
                     lineHeight: 1.5,
                   }}
                 >
@@ -326,12 +311,12 @@ const InvoiceItemsTable = ({
           })}
         </tbody>
       </table>
-      {itemsStyle !== 'no-borders' && (
+      {itemsStyle !== "no-borders" && (
         <div
           style={{
-            borderTop: '2px solid #d1d5db',
-            marginTop: '5px',
-            marginBottom: '15px',
+            borderTop: "2px solid #d1d5db",
+            marginTop: "5px",
+            marginBottom: "15px",
           }}
         ></div>
       )}

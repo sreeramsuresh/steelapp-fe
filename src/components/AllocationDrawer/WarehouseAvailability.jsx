@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { productService } from '../../services/productService';
+import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
+import { productService } from "../../services/productService";
 
 /**
  * WarehouseAvailability Component
@@ -39,8 +39,8 @@ const WarehouseAvailability = ({
         // productService returns { data: [...] } via axios
         setWarehouses(response.data || []);
       } catch (err) {
-        console.error('Failed to fetch warehouse stock:', err);
-        setError('Failed to load warehouse availability');
+        console.error("Failed to fetch warehouse stock:", err);
+        setError("Failed to load warehouse availability");
         setWarehouses([]);
       } finally {
         setLoading(false);
@@ -52,15 +52,8 @@ const WarehouseAvailability = ({
 
   // Auto-select first warehouse with stock if enabled and no selection exists
   useEffect(() => {
-    if (
-      autoSelectFirst &&
-      warehouses.length > 0 &&
-      !selectedWarehouseId &&
-      onWarehouseSelect
-    ) {
-      const firstWithStock = warehouses.find(
-        (wh) => parseFloat(wh.availableQuantity || 0) > 0,
-      );
+    if (autoSelectFirst && warehouses.length > 0 && !selectedWarehouseId && onWarehouseSelect) {
+      const firstWithStock = warehouses.find((wh) => parseFloat(wh.availableQuantity || 0) > 0);
       if (firstWithStock) {
         onWarehouseSelect(firstWithStock.warehouseId);
       }
@@ -105,60 +98,47 @@ const WarehouseAvailability = ({
   };
 
   return (
-    <div
-      className="warehouse-availability"
-      data-testid="warehouse-availability"
-    >
-      <label className="availability-label">
+    <div className="warehouse-availability" data-testid="warehouse-availability">
+      <label htmlFor="warehouse-list" className="availability-label">
         Warehouse Availability
-        {selectedWarehouseId && onWarehouseSelect && (
-          <span className="selection-hint"> (Click to change)</span>
-        )}
+        {selectedWarehouseId && onWarehouseSelect && <span className="selection-hint"> (Click to change)</span>}
       </label>
-      <div className="warehouse-list" data-testid="warehouse-list">
+      <div id="warehouse-list" className="warehouse-list" data-testid="warehouse-list">
         {warehouses.map((warehouse, index) => {
           const hasStock = parseFloat(warehouse.availableQuantity || 0) > 0;
           const isSelected = warehouse.warehouseId === selectedWarehouseId;
 
           return (
-            <div
+            <button
+              type="button"
               key={warehouse.warehouseId}
-              className={`warehouse-item ${isSelected ? 'selected' : ''} ${hasStock ? 'has-stock' : 'no-stock'}`}
+              className={`warehouse-item ${isSelected ? "selected" : ""} ${hasStock ? "has-stock" : "no-stock"}`}
               data-testid={`warehouse-item-${index}`}
               data-warehouse-id={warehouse.warehouseId}
               data-has-stock={hasStock}
               data-selected={isSelected}
               onClick={() => handleWarehouseClick(warehouse)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
                   handleWarehouseClick(warehouse);
                 }
               }}
-              role="button"
-              tabIndex={0}
-              style={{ cursor: onWarehouseSelect ? 'pointer' : 'default' }}
+              style={{ cursor: onWarehouseSelect ? "pointer" : "default" }}
             >
               <div className="warehouse-info">
-                <span className="warehouse-name">
-                  {warehouse.warehouseName}
-                </span>
-                {warehouse.warehouseCode && (
-                  <span className="warehouse-code">
-                    ({warehouse.warehouseCode})
-                  </span>
-                )}
+                <span className="warehouse-name">{warehouse.warehouseName}</span>
+                {warehouse.warehouseCode && <span className="warehouse-code">({warehouse.warehouseCode})</span>}
               </div>
               <div className="warehouse-stock">
-                <span
-                  className="stock-quantity"
-                  data-testid={`warehouse-stock-${index}`}
-                >
-                  {parseFloat(warehouse.availableQuantity || 0).toFixed(2)}
+                <span className="stock-quantity" data-testid={`warehouse-stock-${index}`}>
+                  {warehouse.unit === "PCS"
+                    ? Math.round(parseFloat(warehouse.availableQuantity || 0))
+                    : parseFloat(warehouse.availableQuantity || 0).toFixed(2)}
                 </span>
                 <span className="stock-unit">{warehouse.unit}</span>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

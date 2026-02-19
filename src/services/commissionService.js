@@ -1,13 +1,13 @@
-import api from './api';
+import api from "./api.js";
 
 const commissionService = {
   // Get invoice commission
   getInvoiceCommission: async (invoiceId) => {
     try {
       const response = await api.get(`/commissions/invoice/${invoiceId}`);
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error fetching invoice commission:', error);
+      console.error("Error fetching invoice commission:", error);
       throw error;
     }
   },
@@ -15,16 +15,13 @@ const commissionService = {
   // Adjust commission amount (during 15-day grace period)
   adjustCommissionAmount: async (invoiceId, newAmount, reason) => {
     try {
-      const response = await api.put(
-        `/commissions/invoice/${invoiceId}/adjust`,
-        {
-          newCommissionAmount: newAmount,
-          reason,
-        },
-      );
-      return response.data;
+      const response = await api.put(`/commissions/invoice/${invoiceId}/adjust`, {
+        newCommissionAmount: newAmount,
+        reason,
+      });
+      return response;
     } catch (error) {
-      console.error('Error adjusting commission:', error);
+      console.error("Error adjusting commission:", error);
       throw error;
     }
   },
@@ -32,15 +29,26 @@ const commissionService = {
   // Approve commission (manager action)
   approveCommission: async (invoiceId, approvedByUserId) => {
     try {
-      const response = await api.post(
-        `/commissions/invoice/${invoiceId}/approve`,
-        {
-          approvedByUserId,
-        },
-      );
-      return response.data;
+      const response = await api.post(`/commissions/invoice/${invoiceId}/approve`, {
+        approvedByUserId,
+      });
+      return response;
     } catch (error) {
-      console.error('Error approving commission:', error);
+      console.error("Error approving commission:", error);
+      throw error;
+    }
+  },
+
+  // Reject commission (manager action)
+  rejectCommission: async (invoiceId, rejectedByUserId, reason = "") => {
+    try {
+      const response = await api.post(`/commissions/invoice/${invoiceId}/reject`, {
+        rejected_by_user_id: rejectedByUserId,
+        reason,
+      });
+      return response;
+    } catch (error) {
+      console.error("Error rejecting commission:", error);
       throw error;
     }
   },
@@ -51,29 +59,22 @@ const commissionService = {
       const response = await api.post(`/commissions/invoice/${invoiceId}/pay`, {
         paymentReference,
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error marking commission as paid:', error);
+      console.error("Error marking commission as paid:", error);
       throw error;
     }
   },
 
   // Get commissions for a sales person
-  getSalesPersonCommissions: async (
-    salesPersonId,
-    status = 'PENDING',
-    daysBack = 90,
-  ) => {
+  getSalesPersonCommissions: async (salesPersonId, status = "PENDING", daysBack = 90) => {
     try {
-      const response = await api.get(
-        `/commissions/sales-person/${salesPersonId}`,
-        {
-          params: { status, daysBack },
-        },
-      );
-      return response.data;
+      const response = await api.get(`/commissions/sales-person/${salesPersonId}`, {
+        params: { status, daysBack },
+      });
+      return response;
     } catch (error) {
-      console.error('Error fetching sales person commissions:', error);
+      console.error("Error fetching sales person commissions:", error);
       throw error;
     }
   },
@@ -81,15 +82,12 @@ const commissionService = {
   // Get commission statistics for a sales person
   getSalesPersonCommissionStats: async (salesPersonId, daysBack = 90) => {
     try {
-      const response = await api.get(
-        `/commissions/sales-person/${salesPersonId}/stats`,
-        {
-          params: { daysBack },
-        },
-      );
-      return response.data;
+      const response = await api.get(`/commissions/sales-person/${salesPersonId}/stats`, {
+        params: { daysBack },
+      });
+      return response;
     } catch (error) {
-      console.error('Error fetching commission stats:', error);
+      console.error("Error fetching commission stats:", error);
       throw error;
     }
   },
@@ -97,10 +95,10 @@ const commissionService = {
   // Get commission audit trail
   getCommissionAuditTrail: async (invoiceId) => {
     try {
-      const response = await api.get(`/commissions/invoice/${invoiceId}/audit`);
-      return response.data;
+      const response = await api.get(`/commissions/invoice/${invoiceId}/audit-trail`);
+      return response;
     } catch (error) {
-      console.error('Error fetching audit trail:', error);
+      console.error("Error fetching audit trail:", error);
       throw error;
     }
   },
@@ -108,7 +106,7 @@ const commissionService = {
   // Get pending approvals (manager dashboard)
   getPendingApprovals: async (limit = 50) => {
     try {
-      const response = await api.get('/commissions/pending-approvals', {
+      const response = await api.get("/commissions/pending-approvals", {
         params: { limit },
       });
 
@@ -116,23 +114,20 @@ const commissionService = {
 
       return data;
     } catch (error) {
-      console.error(
-        '[commissionService] Error fetching pending approvals:',
-        error,
-      );
+      console.error("[commissionService] Error fetching pending approvals:", error);
       throw error;
     }
   },
 
   // Get commission dashboard data
-  getDashboard: async (period = 'month') => {
+  getDashboard: async (period = "month") => {
     try {
-      const response = await api.get('/commissions/dashboard', {
+      const response = await api.get("/commissions/dashboard", {
         params: { period },
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error fetching commission dashboard:', error);
+      console.error("Error fetching commission dashboard:", error);
       throw error;
     }
   },
@@ -140,12 +135,12 @@ const commissionService = {
   // Get list of commission agents
   getAgents: async (page = 1, limit = 20, activeOnly = false) => {
     try {
-      const response = await api.get('/commissions/agents', {
+      const response = await api.get("/commissions/agents", {
         params: { page, limit, active_only: activeOnly },
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error fetching commission agents:', error);
+      console.error("Error fetching commission agents:", error);
       throw error;
     }
   },
@@ -156,7 +151,7 @@ const commissionService = {
       // Support both userId and agent_id for backwards compatibility
       const { status, userId, agent_id, dateFrom, dateTo } = filters;
       const effectiveUserId = userId || agent_id;
-      const response = await api.get('/commissions/transactions', {
+      const response = await api.get("/commissions/transactions", {
         params: {
           ...(status && { status }),
           ...(effectiveUserId && { user_id: effectiveUserId }),
@@ -164,9 +159,9 @@ const commissionService = {
           ...(dateTo && { date_to: dateTo }),
         },
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error fetching commission transactions:', error);
+      console.error("Error fetching commission transactions:", error);
       throw error;
     }
   },
@@ -174,10 +169,21 @@ const commissionService = {
   // Get list of commission plans
   getPlans: async () => {
     try {
-      const response = await api.get('/commissions/plans');
-      return response.data;
+      const response = await api.get("/commissions/plans");
+      return response;
     } catch (error) {
-      console.error('Error fetching commission plans:', error);
+      console.error("Error fetching commission plans:", error);
+      throw error;
+    }
+  },
+
+  // Calculate commission for a single invoice
+  calculateCommission: async (invoiceId) => {
+    try {
+      const response = await api.post(`/commissions/calculate/${invoiceId}`);
+      return response;
+    } catch (error) {
+      console.error("Error calculating commission:", error);
       throw error;
     }
   },
@@ -185,24 +191,24 @@ const commissionService = {
   // Batch calculate commissions for all eligible invoices
   batchCalculateCommissions: async () => {
     try {
-      const response = await api.post('/commissions/batch-calculate');
-      return response.data;
+      const response = await api.post("/commissions/batch-calculate");
+      return response;
     } catch (error) {
-      console.error('Error batch calculating commissions:', error);
+      console.error("Error batch calculating commissions:", error);
       throw error;
     }
   },
 
   // Reverse a commission (e.g., invoice cancelled, credit note issued)
-  reverseCommission: async (commissionId, reversalReason, notes = '') => {
+  reverseCommission: async (commissionId, reversalReason, notes = "") => {
     try {
       const response = await api.post(`/commissions/${commissionId}/reverse`, {
         reversalReason,
         notes,
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error reversing commission:', error);
+      console.error("Error reversing commission:", error);
       throw error;
     }
   },
@@ -211,28 +217,24 @@ const commissionService = {
   getCommissionEligibility: async (invoiceId) => {
     try {
       const response = await api.get(`/commissions/eligibility/${invoiceId}`);
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error checking commission eligibility:', error);
+      console.error("Error checking commission eligibility:", error);
       throw error;
     }
   },
 
   // Adjust commission when a credit note is issued
-  adjustCommissionForCreditNote: async (
-    creditNoteId,
-    invoiceId,
-    notes = '',
-  ) => {
+  adjustCommissionForCreditNote: async (creditNoteId, invoiceId, notes = "") => {
     try {
-      const response = await api.post('/commissions/credit-note-adjustment', {
+      const response = await api.post("/commissions/credit-note-adjustment", {
         creditNoteId,
         invoiceId,
         notes,
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error adjusting commission for credit note:', error);
+      console.error("Error adjusting commission for credit note:", error);
       throw error;
     }
   },
@@ -241,45 +243,35 @@ const commissionService = {
   getCommissionTrackerData: async (salesPersonId, daysBack = 90) => {
     try {
       // Fetch stats and commissions in parallel
-      const [statsResponse, commissionsResponse, plansResponse] =
-        await Promise.all([
-          api.get(`/commissions/sales-person/${salesPersonId}/stats`, {
-            params: { daysBack },
-          }),
-          api.get(`/commissions/sales-person/${salesPersonId}`, {
-            params: { status: 'ALL', daysBack },
-          }),
-          api.get('/commissions/plans'),
-        ]);
+      const [statsResponse, commissionsResponse, plansResponse] = await Promise.all([
+        api.get(`/commissions/sales-person/${salesPersonId}/stats`, {
+          params: { daysBack },
+        }),
+        api.get(`/commissions/sales-person/${salesPersonId}`, {
+          params: { status: "ALL", daysBack },
+        }),
+        api.get("/commissions/plans"),
+      ]);
 
       const stats = statsResponse.data;
       const commissions = commissionsResponse.data?.commissions || [];
       const plans = plansResponse.data?.plans || [];
 
       // Calculate summary
-      const totalEarned = parseFloat(
-        stats.total_commission_earned || stats.totalCommissionEarned || 0,
-      );
-      const _approvedAmount = parseFloat(
-        stats.total_commission_approved || stats.totalCommissionApproved || 0,
-      );
-      const paidAmount = parseFloat(
-        stats.total_commission_paid || stats.totalCommissionPaid || 0,
-      );
+      const totalEarned = parseFloat(stats.total_commission_earned || stats.totalCommissionEarned || 0);
+      const _approvedAmount = parseFloat(stats.total_commission_approved || stats.totalCommissionApproved || 0);
+      const paidAmount = parseFloat(stats.total_commission_paid || stats.totalCommissionPaid || 0);
       const pendingAmount = totalEarned - paidAmount;
 
       // Build tiers from plan data (simplified - actual tiered calculation done on backend)
-      const activePlan =
-        plans.find((p) => p.isActive || p.is_active) || plans[0];
-      const baseRate = parseFloat(
-        activePlan?.baseRate || activePlan?.base_rate || 10,
-      );
+      const activePlan = plans.find((p) => p.isActive || p.is_active) || plans[0];
+      const baseRate = parseFloat(activePlan?.baseRate || activePlan?.base_rate || 10);
 
       return {
         agentId: salesPersonId,
-        period: new Date().toLocaleDateString('en-US', {
-          month: 'long',
-          year: 'numeric',
+        period: new Date().toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
         }),
         summary: {
           baseCommission: totalEarned,
@@ -293,7 +285,7 @@ const commissionService = {
         },
         tiers: [
           {
-            name: 'Base Commission',
+            name: "Base Commission",
             description: `${baseRate}% of total sales`,
             current: totalEarned / (baseRate / 100),
             target: null,
@@ -306,7 +298,7 @@ const commissionService = {
         commissions,
       };
     } catch (error) {
-      console.error('Error fetching commission tracker data:', error);
+      console.error("Error fetching commission tracker data:", error);
       throw error;
     }
   },
@@ -314,10 +306,10 @@ const commissionService = {
   // List pay periods
   listPayPeriods: async () => {
     try {
-      const response = await api.get('/commissions/pay-periods');
-      return response.data;
+      const response = await api.get("/commissions/pay-periods");
+      return response;
     } catch (error) {
-      console.error('Error listing pay periods:', error);
+      console.error("Error listing pay periods:", error);
       throw error;
     }
   },
@@ -325,12 +317,10 @@ const commissionService = {
   // Close a pay period
   closePayPeriod: async (periodId) => {
     try {
-      const response = await api.post(
-        `/commissions/pay-periods/${periodId}/close`,
-      );
-      return response.data;
+      const response = await api.post(`/commissions/pay-periods/${periodId}/close`);
+      return response;
     } catch (error) {
-      console.error('Error closing pay period:', error);
+      console.error("Error closing pay period:", error);
       throw error;
     }
   },
@@ -338,12 +328,10 @@ const commissionService = {
   // Process pay period payments
   processPayPeriodPayments: async (periodId) => {
     try {
-      const response = await api.post(
-        `/commissions/pay-periods/${periodId}/process`,
-      );
-      return response.data;
+      const response = await api.post(`/commissions/pay-periods/${periodId}/process`);
+      return response;
     } catch (error) {
-      console.error('Error processing pay period payments:', error);
+      console.error("Error processing pay period payments:", error);
       throw error;
     }
   },
@@ -351,14 +339,14 @@ const commissionService = {
   // Assign a plan to a user
   assignPlanToUser: async (planId, userId, effectiveDate) => {
     try {
-      const response = await api.post('/commissions/plans/assign', {
+      const response = await api.post("/commissions/plans/assign", {
         planId,
         userId,
         effectiveDate,
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error assigning plan to user:', error);
+      console.error("Error assigning plan to user:", error);
       throw error;
     }
   },
@@ -366,12 +354,12 @@ const commissionService = {
   // Bulk approve commissions
   bulkApprove: async (commissionIds) => {
     try {
-      const response = await api.post('/commissions/bulk-approve', {
+      const response = await api.post("/commissions/bulk-approve", {
         commissionIds,
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error bulk approving commissions:', error);
+      console.error("Error bulk approving commissions:", error);
       throw error;
     }
   },
@@ -379,12 +367,12 @@ const commissionService = {
   // Bulk mark commissions as paid
   bulkMarkPaid: async (commissionIds) => {
     try {
-      const response = await api.post('/commissions/bulk-mark-paid', {
+      const response = await api.post("/commissions/bulk-mark-paid", {
         commissionIds,
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error bulk marking commissions as paid:', error);
+      console.error("Error bulk marking commissions as paid:", error);
       throw error;
     }
   },
@@ -392,10 +380,10 @@ const commissionService = {
   // Create a new commission plan
   createPlan: async (planData) => {
     try {
-      const response = await api.post('/commissions/plans', planData);
-      return response.data;
+      const response = await api.post("/commissions/plans", planData);
+      return response;
     } catch (error) {
-      console.error('Error creating commission plan:', error);
+      console.error("Error creating commission plan:", error);
       throw error;
     }
   },
@@ -404,9 +392,9 @@ const commissionService = {
   updatePlan: async (planId, planData) => {
     try {
       const response = await api.put(`/commissions/plans/${planId}`, planData);
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error updating commission plan:', error);
+      console.error("Error updating commission plan:", error);
       throw error;
     }
   },
@@ -415,9 +403,9 @@ const commissionService = {
   deletePlan: async (planId) => {
     try {
       const response = await api.delete(`/commissions/plans/${planId}`);
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error deleting commission plan:', error);
+      console.error("Error deleting commission plan:", error);
       throw error;
     }
   },
@@ -425,12 +413,9 @@ const commissionService = {
   // Get agent summary for AgentCommissionDashboard
   getAgentSummary: async (agentId, daysBack = 90) => {
     try {
-      const response = await api.get(
-        `/commissions/sales-person/${agentId}/stats`,
-        {
-          params: { daysBack },
-        },
-      );
+      const response = await api.get(`/commissions/sales-person/${agentId}/stats`, {
+        params: { daysBack },
+      });
 
       const stats = response.data || {};
 
@@ -438,18 +423,10 @@ const commissionService = {
       return {
         data: {
           totalSales: parseFloat(stats.total_sales || stats.totalSales || 0),
-          pendingAmount: parseFloat(
-            stats.pending_amount || stats.pendingAmount || 0,
-          ),
-          approvedAmount: parseFloat(
-            stats.approved_amount || stats.approvedAmount || 0,
-          ),
+          pendingAmount: parseFloat(stats.pending_amount || stats.pendingAmount || 0),
+          approvedAmount: parseFloat(stats.approved_amount || stats.approvedAmount || 0),
           paidAmount: parseFloat(
-            stats.paid_amount ||
-              stats.paidAmount ||
-              stats.total_commission_paid ||
-              stats.totalCommissionPaid ||
-              0,
+            stats.paid_amount || stats.paidAmount || stats.total_commission_paid || stats.totalCommissionPaid || 0
           ),
           totalTransactions: parseInt(
             stats.total_transactions ||
@@ -457,26 +434,22 @@ const commissionService = {
               stats.transaction_count ||
               stats.transactionCount ||
               0,
-            10,
+            10
           ),
           totalCommission: parseFloat(
             stats.total_commission ||
               stats.totalCommission ||
               stats.total_commission_earned ||
               stats.totalCommissionEarned ||
-              0,
+              0
           ),
           averageRate: parseFloat(
-            stats.average_rate ||
-              stats.averageRate ||
-              stats.avg_commission_rate ||
-              stats.avgCommissionRate ||
-              0,
+            stats.average_rate || stats.averageRate || stats.avg_commission_rate || stats.avgCommissionRate || 0
           ),
         },
       };
     } catch (error) {
-      console.error('Error fetching agent summary:', error);
+      console.error("Error fetching agent summary:", error);
       throw error;
     }
   },
@@ -494,9 +467,9 @@ const commissionService = {
           limit,
         },
       });
-      return response.data;
+      return response;
     } catch (error) {
-      console.error('Error fetching commission history:', error);
+      console.error("Error fetching commission history:", error);
       throw error;
     }
   },
@@ -508,22 +481,18 @@ const commissionService = {
       const _daysBack = monthsBack * 31;
 
       // Parallel fetch: all commissions (via transactions) + pending approvals
-      const [commissionsResponse, pendingResponse, agentsResponse] =
-        await Promise.all([
-          api.get('/commissions/transactions', { params: { status: 'ALL' } }),
-          api.get('/commissions/pending-approvals', {
-            params: { page: 1, limit: 100 },
-          }),
-          api.get('/commissions/agents', {
-            params: { page: 1, limit: 50, onlyActive: true },
-          }),
-        ]);
+      const [commissionsResponse, pendingResponse, agentsResponse] = await Promise.all([
+        api.get("/commissions/transactions", { params: { status: "ALL" } }),
+        api.get("/commissions/pending-approvals", {
+          params: { page: 1, limit: 100 },
+        }),
+        api.get("/commissions/agents", {
+          params: { page: 1, limit: 50, onlyActive: true },
+        }),
+      ]);
 
       const commissions = commissionsResponse.data?.transactions || [];
-      const pendingApprovals =
-        pendingResponse.data?.items ||
-        pendingResponse.data?.pendingApprovals ||
-        [];
+      const pendingApprovals = pendingResponse.data?.items || pendingResponse.data?.pendingApprovals || [];
       const agents = agentsResponse.data?.agents || [];
 
       // Calculate monthly history
@@ -533,25 +502,19 @@ const commissionService = {
       // Initialize last N months
       for (let i = 0; i < monthsBack; i++) {
         const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
         monthlyData[key] = { month: key, earned: 0, paid: 0, count: 0 };
       }
 
       // Aggregate commission data by month
       commissions.forEach((comm) => {
         const date = new Date(comm.created_at || comm.createdAt);
-        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
         if (monthlyData[key]) {
-          monthlyData[key].earned += parseFloat(
-            comm.commission_amount || comm.commissionAmount || 0,
-          );
-          if (comm.status === 'PAID') {
+          monthlyData[key].earned += parseFloat(comm.commission_amount || comm.commissionAmount || 0);
+          if (comm.status === "PAID") {
             monthlyData[key].paid += parseFloat(
-              comm.paid_amount ||
-                comm.paidAmount ||
-                comm.commission_amount ||
-                comm.commissionAmount ||
-                0,
+              comm.paid_amount || comm.paidAmount || comm.commission_amount || comm.commissionAmount || 0
             );
           }
           monthlyData[key].count += 1;
@@ -559,49 +522,35 @@ const commissionService = {
       });
 
       // Convert to sorted array (oldest to newest)
-      const history = Object.values(monthlyData).sort((a, b) =>
-        a.month.localeCompare(b.month),
-      );
+      const history = Object.values(monthlyData).sort((a, b) => a.month.localeCompare(b.month));
 
       // Calculate pipeline from pending approvals
       const pipelineTotal = pendingApprovals.reduce((sum, item) => {
-        return (
-          sum + parseFloat(item.commissionAmount || item.commission_amount || 0)
-        );
+        return sum + parseFloat(item.commissionAmount || item.commission_amount || 0);
       }, 0);
 
       // Calculate average monthly commission (last 6 months for trend)
       const recentMonths = history.slice(-6);
-      const avgMonthlyEarned =
-        recentMonths.reduce((sum, m) => sum + m.earned, 0) /
-        Math.max(recentMonths.length, 1);
+      const avgMonthlyEarned = recentMonths.reduce((sum, m) => sum + m.earned, 0) / Math.max(recentMonths.length, 1);
 
       // Calculate growth rate (compare last 3 months vs prior 3 months)
       const lastThree = history.slice(-3);
       const priorThree = history.slice(-6, -3);
-      const lastThreeAvg =
-        lastThree.reduce((sum, m) => sum + m.earned, 0) /
-        Math.max(lastThree.length, 1);
-      const priorThreeAvg =
-        priorThree.reduce((sum, m) => sum + m.earned, 0) /
-        Math.max(priorThree.length, 1);
-      const growthRate =
-        priorThreeAvg > 0
-          ? ((lastThreeAvg - priorThreeAvg) / priorThreeAvg) * 100
-          : 0;
+      const lastThreeAvg = lastThree.reduce((sum, m) => sum + m.earned, 0) / Math.max(lastThree.length, 1);
+      const priorThreeAvg = priorThree.reduce((sum, m) => sum + m.earned, 0) / Math.max(priorThree.length, 1);
+      const growthRate = priorThreeAvg > 0 ? ((lastThreeAvg - priorThreeAvg) / priorThreeAvg) * 100 : 0;
 
       // Forecast next 3 months based on trend
       const forecast = [];
       for (let i = 1; i <= 3; i++) {
         const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
-        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        const projectedAmount =
-          avgMonthlyEarned * (1 + (growthRate / 100) * (i * 0.3));
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+        const projectedAmount = avgMonthlyEarned * (1 + (growthRate / 100) * (i * 0.3));
         forecast.push({ month: key, projected: Math.max(projectedAmount, 0) });
       }
 
       // Current month totals
-      const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
       const currentMonth = monthlyData[currentMonthKey] || {
         earned: 0,
         paid: 0,
@@ -625,7 +574,7 @@ const commissionService = {
         },
       };
     } catch (error) {
-      console.error('Error fetching commission forecast:', error);
+      console.error("Error fetching commission forecast:", error);
       throw error;
     }
   },

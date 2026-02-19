@@ -8,8 +8,8 @@
  * Frontend (camelCase) -> API Gateway (auto-converts) -> gRPC Backend (snake_case)
  */
 
-import { apiClient } from './api';
-import { normalizeUom } from '../utils/fieldAccessors';
+import { normalizeUom } from "../utils/fieldAccessors.js";
+import { apiClient } from "./api.js";
 
 // ============================================================================
 // DATA TRANSFORMERS
@@ -24,55 +24,51 @@ const transformSupplierBillForServer = (billData) => {
     // Use supplierId to match API gateway expected field (converts to supplier_id)
     supplierId: billData.supplierId || billData.supplier?.id || null,
     // Handle both field names for vendor invoice number
-    supplierInvoiceNumber:
-      billData.supplierInvoiceNumber || billData.vendorInvoiceNumber || '',
+    supplierInvoiceNumber: billData.supplierInvoiceNumber || billData.vendorInvoiceNumber || "",
     billDate: billData.billDate || null,
     dueDate: billData.dueDate || null,
     receivedDate: billData.receivedDate || null,
-    paymentTerms: billData.paymentTerms || 'net_30',
+    paymentTerms: billData.paymentTerms || "net_30",
     // VAT fields - use primaryVatCategory to match API gateway
-    primaryVatCategory:
-      billData.primaryVatCategory || billData.vatCategory || 'STANDARD',
+    primaryVatCategory: billData.primaryVatCategory || billData.vatCategory || "STANDARD",
     // Blocked VAT fields (bill-level)
     isBlockedVat:
-      billData.isBlockedVat ||
-      billData.vatCategory === 'BLOCKED' ||
-      billData.primaryVatCategory === 'BLOCKED',
-    blockedVatReason: billData.blockedVatReason || '',
-    placeOfSupply: billData.placeOfSupply || 'AE-DU',
+      billData.isBlockedVat || billData.vatCategory === "BLOCKED" || billData.primaryVatCategory === "BLOCKED",
+    blockedVatReason: billData.blockedVatReason || "",
+    placeOfSupply: billData.placeOfSupply || "AE-DU",
     isReverseCharge: billData.isReverseCharge || false,
     // Amounts - backend calculates these from items
     subtotal: parseFloat(billData.subtotal || 0),
     vatAmount: parseFloat(billData.vatAmount || 0),
     // Status
-    status: billData.status || 'draft',
+    status: billData.status || "draft",
     // Metadata
-    notes: billData.notes || '',
-    internalNotes: billData.internalNotes || '',
-    attachmentUrl: billData.attachmentUrl || billData.attachmentUrls?.[0] || '',
+    notes: billData.notes || "",
+    internalNotes: billData.internalNotes || "",
+    attachmentUrl: billData.attachmentUrl || billData.attachmentUrls?.[0] || "",
     // Currency
-    currency: billData.currency || 'AED',
+    currency: billData.currency || "AED",
     exchangeRate: parseFloat(billData.exchangeRate || 1),
     // Import order link
     importOrderId: billData.importOrderId || null,
     purchaseOrderId: billData.purchaseOrderId || null,
-    purchaseOrderNumber: billData.purchaseOrderNumber || '',
+    purchaseOrderNumber: billData.purchaseOrderNumber || "",
     // Company ID for multi-tenancy
     companyId: billData.companyId || null,
     // Items
     items: (billData.items || []).map((item) => ({
       productId: item.productId || null,
-      productName: item.productName || item.name || '',
-      description: item.description || '',
+      productName: item.productName || item.name || "",
+      description: item.description || "",
       quantity: parseFloat(item.quantity || 0),
       unit: normalizeUom(item),
       unitPrice: parseFloat(item.unitPrice || item.rate || 0),
-      vatRate: parseFloat(item.vatRate || 5),
-      vatCategory: item.vatCategory || 'STANDARD',
+      vatRate: parseFloat(item.vatRate ?? 5),
+      vatCategory: item.vatCategory || "STANDARD",
       isBlockedVat: item.isBlockedVat || false,
-      blockedReason: item.blockedReason || '',
-      costCenter: item.costCenter || '',
-      glAccount: item.glAccount || '',
+      blockedReason: item.blockedReason || "",
+      costCenter: item.costCenter || "",
+      glAccount: item.glAccount || "",
     })),
   };
 };
@@ -85,41 +81,34 @@ const transformSupplierBillFromServer = (serverData) => {
   if (!serverData) return null;
 
   // Handle both snake_case from gRPC and camelCase from API gateway auto-conversion
-  const total = parseFloat(
-    serverData.total || serverData.totalAmount || serverData.total_amount || 0,
-  );
-  const amountPaid = parseFloat(
-    serverData.amountPaid || serverData.amount_paid || 0,
-  );
-  const balanceDue = parseFloat(
-    serverData.balanceDue || serverData.balance_due || total - amountPaid || 0,
-  );
+  const total = parseFloat(serverData.total || serverData.totalAmount || serverData.total_amount || 0);
+  const amountPaid = parseFloat(serverData.amountPaid || serverData.amount_paid || 0);
+  const balanceDue = parseFloat(serverData.balanceDue || serverData.balance_due || total - amountPaid || 0);
 
   return {
     id: serverData.id,
     companyId: serverData.companyId || serverData.company_id,
     supplierId: serverData.supplierId || serverData.supplier_id || null,
-    supplierDetails:
-      serverData.supplierDetails || serverData.supplier_details || {},
+    supplierDetails: serverData.supplierDetails || serverData.supplier_details || {},
     supplierName:
       serverData.supplierName ||
       serverData.supplier_name ||
       serverData.supplierDetails?.name ||
       serverData.supplier_details?.name ||
-      '',
+      "",
     supplierTrn:
       serverData.supplierTrn ||
       serverData.supplier_trn ||
       serverData.supplierDetails?.trn ||
       serverData.supplier_details?.trn ||
-      '',
-    billNumber: serverData.billNumber || serverData.bill_number || '',
+      "",
+    billNumber: serverData.billNumber || serverData.bill_number || "",
     supplierInvoiceNumber:
       serverData.supplierInvoiceNumber ||
       serverData.supplier_invoice_number ||
       serverData.vendorInvoiceNumber ||
       serverData.vendor_invoice_number ||
-      '',
+      "",
     billDate: serverData.billDate || serverData.bill_date || null,
     dueDate: serverData.dueDate || serverData.due_date || null,
     receivedDate: serverData.receivedDate || serverData.received_date || null,
@@ -129,17 +118,15 @@ const transformSupplierBillFromServer = (serverData) => {
       serverData.vat_category ||
       serverData.primaryVatCategory ||
       serverData.primary_vat_category ||
-      'STANDARD',
-    placeOfSupply:
-      serverData.placeOfSupply || serverData.place_of_supply || 'AE-DU',
-    isReverseCharge:
-      serverData.isReverseCharge || serverData.is_reverse_charge || false,
+      "STANDARD",
+    placeOfSupply: serverData.placeOfSupply || serverData.place_of_supply || "AE-DU",
+    isReverseCharge: serverData.isReverseCharge || serverData.is_reverse_charge || false,
     reverseChargeAmount: parseFloat(
       serverData.reverseChargeVat ||
         serverData.reverse_charge_vat ||
         serverData.reverseChargeAmount ||
         serverData.reverse_charge_amount ||
-        0,
+        0
     ),
     // Amounts
     subtotal: parseFloat(serverData.subtotal || 0),
@@ -150,21 +137,16 @@ const transformSupplierBillFromServer = (serverData) => {
     amountDue: balanceDue,
     balanceDue,
     // Status - normalize to lowercase for frontend
-    status: (serverData.status || 'draft').toLowerCase(),
-    approvalStatus:
-      serverData.approvalStatus || serverData.approval_status || 'pending',
+    status: (serverData.status || "draft").toLowerCase(),
+    approvalStatus: serverData.approvalStatus || serverData.approval_status || "pending",
     paymentStatus:
       serverData.paymentStatus ||
       serverData.payment_status ||
-      (amountPaid >= total ? 'paid' : amountPaid > 0 ? 'partial' : 'unpaid'),
+      (amountPaid >= total ? "paid" : amountPaid > 0 ? "partial" : "unpaid"),
     // Metadata
-    notes: serverData.notes || '',
-    internalNotes: serverData.internalNotes || serverData.internal_notes || '',
-    terms:
-      serverData.terms ||
-      serverData.paymentTerms ||
-      serverData.payment_terms ||
-      '',
+    notes: serverData.notes || "",
+    internalNotes: serverData.internalNotes || serverData.internal_notes || "",
+    terms: serverData.terms || serverData.paymentTerms || serverData.payment_terms || "",
     attachmentUrls:
       serverData.attachmentUrls ||
       serverData.attachment_urls ||
@@ -172,28 +154,26 @@ const transformSupplierBillFromServer = (serverData) => {
         ? [serverData.attachmentUrl || serverData.attachment_url]
         : []),
     // Currency
-    currency: serverData.currency || 'AED',
-    exchangeRate: parseFloat(
-      serverData.exchangeRate || serverData.exchange_rate || 1,
-    ),
+    currency: serverData.currency || "AED",
+    exchangeRate: parseFloat(serverData.exchangeRate || serverData.exchange_rate || 1),
     totalAed: parseFloat(serverData.totalAed || serverData.total_aed || total),
     // Items - handle both camelCase and snake_case from API
     items: (serverData.items || []).map((item) => ({
       id: item.id,
       productId: item.productId || item.product_id,
-      productName: item.productName || item.product_name || '',
-      description: item.description || '',
+      productName: item.productName || item.product_name || "",
+      description: item.description || "",
       quantity: parseFloat(item.quantity || 0),
       unit: normalizeUom(item),
       unitPrice: parseFloat(item.unitPrice || item.unit_price || 0),
       amount: parseFloat(item.amount || 0),
-      vatRate: parseFloat(item.vatRate || item.vat_rate || 5),
+      vatRate: parseFloat(item.vatRate ?? item.vat_rate ?? 5),
       vatAmount: parseFloat(item.vatAmount || item.vat_amount || 0),
-      vatCategory: item.vatCategory || item.vat_category || 'STANDARD',
+      vatCategory: item.vatCategory || item.vat_category || "STANDARD",
       isBlockedVat: item.isBlockedVat || item.is_blocked_vat || false,
-      blockedReason: item.blockedReason || item.blocked_reason || '',
-      costCenter: item.costCenter || item.cost_center || '',
-      glAccount: item.glAccount || item.gl_account || '',
+      blockedReason: item.blockedReason || item.blocked_reason || "",
+      costCenter: item.costCenter || item.cost_center || "",
+      glAccount: item.glAccount || item.gl_account || "",
     })),
     // Payments
     payments: serverData.payments || [],
@@ -226,16 +206,12 @@ const transformSupplierBillFromServer = (serverData) => {
     approvedBy: serverData.approvedBy || serverData.approved_by || null,
     // Import/PO links
     isImport: serverData.isImport || serverData.is_import || false,
-    importOrderId:
-      serverData.importOrderId || serverData.import_order_id || null,
-    purchaseOrderId:
-      serverData.purchaseOrderId || serverData.purchase_order_id || null,
-    purchaseOrderNumber:
-      serverData.purchaseOrderNumber || serverData.purchase_order_number || '',
+    importOrderId: serverData.importOrderId || serverData.import_order_id || null,
+    purchaseOrderId: serverData.purchaseOrderId || serverData.purchase_order_id || null,
+    purchaseOrderNumber: serverData.purchaseOrderNumber || serverData.purchase_order_number || "",
     // Blocked VAT info
     isBlockedVat: serverData.isBlockedVat || serverData.is_blocked_vat || false,
-    blockedVatReason:
-      serverData.blockedVatReason || serverData.blocked_vat_reason || '',
+    blockedVatReason: serverData.blockedVatReason || serverData.blocked_vat_reason || "",
   };
 };
 
@@ -273,16 +249,16 @@ const supplierBillService = {
       };
 
       // Remove undefined params
-      Object.keys(queryParams).forEach(
-        (key) => queryParams[key] === undefined && delete queryParams[key],
-      );
+      Object.keys(queryParams).forEach((key) => {
+        if (queryParams[key] === undefined) delete queryParams[key];
+      });
 
       const axiosConfig = { ...queryParams };
       if (signal) {
         axiosConfig.signal = signal;
       }
 
-      const response = await apiClient.get('/supplier-bills', axiosConfig);
+      const response = await apiClient.get("/supplier-bills", axiosConfig);
 
       // Handle paginated response
       if (response.data && Array.isArray(response.data)) {
@@ -310,7 +286,7 @@ const supplierBillService = {
 
       return { data: [], pagination: null };
     } catch (error) {
-      console.error('[SupplierBillService] getAll failed:', error);
+      console.error("[SupplierBillService] getAll failed:", error);
       throw error;
     }
   },
@@ -325,7 +301,7 @@ const supplierBillService = {
       const response = await apiClient.get(`/supplier-bills/${id}`);
       return transformSupplierBillFromServer(response);
     } catch (error) {
-      console.error('[SupplierBillService] getById failed:', error);
+      console.error("[SupplierBillService] getById failed:", error);
       throw error;
     }
   },
@@ -337,13 +313,11 @@ const supplierBillService = {
    */
   async getBySupplier(supplierId) {
     try {
-      const response = await apiClient.get(
-        `/supplier-bills/by-supplier/${supplierId}`,
-      );
+      const response = await apiClient.get(`/supplier-bills/by-supplier/${supplierId}`);
       const bills = Array.isArray(response) ? response : response.data || [];
       return bills.map(transformSupplierBillFromServer);
     } catch (error) {
-      console.error('[SupplierBillService] getBySupplier failed:', error);
+      console.error("[SupplierBillService] getBySupplier failed:", error);
       throw error;
     }
   },
@@ -356,10 +330,10 @@ const supplierBillService = {
   async create(billData) {
     try {
       const transformedData = transformSupplierBillForServer(billData);
-      const response = await apiClient.post('/supplier-bills', transformedData);
+      const response = await apiClient.post("/supplier-bills", transformedData);
       return transformSupplierBillFromServer(response);
     } catch (error) {
-      console.error('[SupplierBillService] create failed:', error);
+      console.error("[SupplierBillService] create failed:", error);
       throw error;
     }
   },
@@ -373,13 +347,10 @@ const supplierBillService = {
   async update(id, billData) {
     try {
       const transformedData = transformSupplierBillForServer(billData);
-      const response = await apiClient.put(
-        `/supplier-bills/${id}`,
-        transformedData,
-      );
+      const response = await apiClient.put(`/supplier-bills/${id}`, transformedData);
       return transformSupplierBillFromServer(response);
     } catch (error) {
-      console.error('[SupplierBillService] update failed:', error);
+      console.error("[SupplierBillService] update failed:", error);
       throw error;
     }
   },
@@ -390,14 +361,14 @@ const supplierBillService = {
    * @param {string} reason - Deletion reason for audit
    * @returns {Promise<Object>}
    */
-  async delete(id, reason = '') {
+  async delete(id, reason = "") {
     try {
       const response = await apiClient.delete(`/supplier-bills/${id}`, {
         data: { reason },
       });
       return response;
     } catch (error) {
-      console.error('[SupplierBillService] delete failed:', error);
+      console.error("[SupplierBillService] delete failed:", error);
       throw error;
     }
   },
@@ -409,14 +380,14 @@ const supplierBillService = {
    * @param {string} notes - Approval notes
    * @returns {Promise<Object>}
    */
-  async approve(id, notes = '') {
+  async approve(id, notes = "") {
     try {
       const response = await apiClient.post(`/supplier-bills/${id}/approve`, {
         notes,
       });
       return transformSupplierBillFromServer(response);
     } catch (error) {
-      console.error('[SupplierBillService] approve failed:', error);
+      console.error("[SupplierBillService] approve failed:", error);
       throw error;
     }
   },
@@ -427,14 +398,14 @@ const supplierBillService = {
    * @param {string} reason - Rejection reason
    * @returns {Promise<Object>}
    */
-  async reject(id, reason = '') {
+  async reject(id, reason = "") {
     try {
       const response = await apiClient.post(`/supplier-bills/${id}/reject`, {
         reason,
       });
       return transformSupplierBillFromServer(response);
     } catch (error) {
-      console.error('[SupplierBillService] reject failed:', error);
+      console.error("[SupplierBillService] reject failed:", error);
       throw error;
     }
   },
@@ -445,14 +416,14 @@ const supplierBillService = {
    * @param {string} reason - Cancellation reason for audit
    * @returns {Promise<Object>}
    */
-  async cancel(id, reason = '') {
+  async cancel(id, reason = "") {
     try {
       const response = await apiClient.post(`/supplier-bills/${id}/cancel`, {
         cancellationReason: reason,
       });
       return transformSupplierBillFromServer(response);
     } catch (error) {
-      console.error('[SupplierBillService] cancel failed:', error);
+      console.error("[SupplierBillService] cancel failed:", error);
       throw error;
     }
   },
@@ -473,18 +444,15 @@ const supplierBillService = {
       const payload = {
         amount: parseFloat(paymentData.amount || 0),
         paymentDate: paymentData.paymentDate,
-        paymentMethod: paymentData.paymentMethod || 'bank_transfer',
-        referenceNumber: paymentData.referenceNumber || '',
-        notes: paymentData.notes || '',
+        paymentMethod: paymentData.paymentMethod || "bank_transfer",
+        referenceNumber: paymentData.referenceNumber || "",
+        notes: paymentData.notes || "",
         attachmentUrl: paymentData.attachmentUrl || null,
       };
-      const response = await apiClient.post(
-        `/supplier-bills/${id}/payments`,
-        payload,
-      );
+      const response = await apiClient.post(`/supplier-bills/${id}/payments`, payload);
       return transformSupplierBillFromServer(response);
     } catch (error) {
-      console.error('[SupplierBillService] recordPayment failed:', error);
+      console.error("[SupplierBillService] recordPayment failed:", error);
       throw error;
     }
   },
@@ -496,15 +464,12 @@ const supplierBillService = {
    * @param {string} reason - Void reason
    * @returns {Promise<Object>}
    */
-  async voidPayment(billId, paymentId, reason = '') {
+  async voidPayment(billId, paymentId, reason = "") {
     try {
-      const response = await apiClient.post(
-        `/supplier-bills/${billId}/payments/${paymentId}/void`,
-        { reason },
-      );
+      const response = await apiClient.post(`/supplier-bills/${billId}/payments/${paymentId}/void`, { reason });
       return transformSupplierBillFromServer(response);
     } catch (error) {
-      console.error('[SupplierBillService] voidPayment failed:', error);
+      console.error("[SupplierBillService] voidPayment failed:", error);
       throw error;
     }
   },
@@ -526,17 +491,14 @@ const supplierBillService = {
         vatCategory: params.vatCategory || undefined,
       };
 
-      Object.keys(queryParams).forEach(
-        (key) => queryParams[key] === undefined && delete queryParams[key],
-      );
+      Object.keys(queryParams).forEach((key) => {
+        if (queryParams[key] === undefined) delete queryParams[key];
+      });
 
-      const response = await apiClient.get(
-        '/supplier-bills/vat-summary',
-        queryParams,
-      );
+      const response = await apiClient.get("/supplier-bills/vat-summary", queryParams);
       return response;
     } catch (error) {
-      console.error('[SupplierBillService] getVATSummary failed:', error);
+      console.error("[SupplierBillService] getVATSummary failed:", error);
       throw error;
     }
   },
@@ -551,10 +513,10 @@ const supplierBillService = {
    */
   async getAnalytics(params = {}) {
     try {
-      const response = await apiClient.get('/supplier-bills/analytics', params);
+      const response = await apiClient.get("/supplier-bills/analytics", params);
       return response;
     } catch (error) {
-      console.error('[SupplierBillService] getAnalytics failed:', error);
+      console.error("[SupplierBillService] getAnalytics failed:", error);
       throw error;
     }
   },
@@ -565,10 +527,10 @@ const supplierBillService = {
    */
   async getNextNumber() {
     try {
-      const response = await apiClient.get('/supplier-bills/number/next');
+      const response = await apiClient.get("/supplier-bills/number/next");
       return response;
     } catch (error) {
-      console.error('[SupplierBillService] getNextNumber failed:', error);
+      console.error("[SupplierBillService] getNextNumber failed:", error);
       throw error;
     }
   },
@@ -581,16 +543,14 @@ const supplierBillService = {
    */
   async search(searchTerm, filters = {}) {
     try {
-      const response = await apiClient.get('/supplier-bills', {
+      const response = await apiClient.get("/supplier-bills", {
         search: searchTerm,
         ...filters,
       });
       const bills = response.data || response.items || response;
-      return Array.isArray(bills)
-        ? bills.map(transformSupplierBillFromServer)
-        : [];
+      return Array.isArray(bills) ? bills.map(transformSupplierBillFromServer) : [];
     } catch (error) {
-      console.error('[SupplierBillService] search failed:', error);
+      console.error("[SupplierBillService] search failed:", error);
       throw error;
     }
   },
@@ -604,12 +564,12 @@ const supplierBillService = {
   async downloadPDF(id, billNumber = null) {
     try {
       const response = await apiClient.get(`/supplier-bills/${id}/pdf`, {
-        responseType: 'blob',
+        responseType: "blob",
       });
 
-      const blob = new Blob([response], { type: 'application/pdf' });
+      const blob = new Blob([response], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = `supplier-bill-${billNumber || id}.pdf`;
       document.body.appendChild(link);
@@ -619,7 +579,7 @@ const supplierBillService = {
 
       return true;
     } catch (error) {
-      console.error('[SupplierBillService] downloadPDF failed:', error);
+      console.error("[SupplierBillService] downloadPDF failed:", error);
       throw error;
     }
   },
@@ -633,9 +593,9 @@ const supplierBillService = {
   async getBlockedVATItems(id) {
     try {
       const response = await apiClient.get(`/supplier-bills/${id}/blocked-vat`);
-      return response.data || response || [];
+      return response || [];
     } catch (error) {
-      console.error('[SupplierBillService] getBlockedVATItems failed:', error);
+      console.error("[SupplierBillService] getBlockedVATItems failed:", error);
       throw error;
     }
   },

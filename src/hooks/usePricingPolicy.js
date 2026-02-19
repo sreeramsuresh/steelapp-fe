@@ -18,24 +18,24 @@
  *   }
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import categoryPolicyService from '../services/categoryPolicyService';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import categoryPolicyService from "../services/categoryPolicyService";
 
 /**
  * Pricing mode constants (matching DB values)
  */
 export const PRICING_MODES = {
-  MT_ONLY: 'MT_ONLY', // Weight-based only (per metric ton)
-  PCS_ONLY: 'PCS_ONLY', // Piece-based only
-  CONVERTIBLE: 'CONVERTIBLE', // Can sell by weight or piece
+  MT_ONLY: "MT_ONLY", // Weight-based only (per metric ton)
+  PCS_ONLY: "PCS_ONLY", // Piece-based only
+  CONVERTIBLE: "CONVERTIBLE", // Can sell by weight or piece
 };
 
 /**
  * Primary unit constants
  */
 export const PRIMARY_UNITS = {
-  MT: 'MT', // Metric Ton
-  PCS: 'PCS', // Pieces
+  MT: "MT", // Metric Ton
+  PCS: "PCS", // Pieces
 };
 
 /**
@@ -43,9 +43,9 @@ export const PRIMARY_UNITS = {
  * For backwards compatibility with existing code
  */
 export const PRICING_MODE_TO_UNIT = {
-  MT_ONLY: 'WEIGHT',
-  PCS_ONLY: 'PIECE',
-  CONVERTIBLE: 'WEIGHT', // Default to weight, but UI should allow toggle
+  MT_ONLY: "WEIGHT",
+  PCS_ONLY: "PIECE",
+  CONVERTIBLE: "WEIGHT", // Default to weight, but UI should allow toggle
 };
 
 /**
@@ -73,7 +73,7 @@ export function usePricingPolicy(companyId, options = {}) {
   // Check if taxonomy is frozen
   const isFrozen = useMemo(() => {
     if (!taxonomyStatus) return false;
-    return ['FROZEN', 'ACTIVE'].includes(taxonomyStatus.status);
+    return ["FROZEN", "ACTIVE"].includes(taxonomyStatus.status);
   }, [taxonomyStatus]);
 
   /**
@@ -81,7 +81,7 @@ export function usePricingPolicy(companyId, options = {}) {
    */
   const fetchPolicies = useCallback(async () => {
     if (!companyId) {
-      setError('Company ID is required');
+      setError("Company ID is required");
       return;
     }
 
@@ -89,15 +89,21 @@ export function usePricingPolicy(companyId, options = {}) {
     setError(null);
 
     try {
-      const result = await categoryPolicyService.listCategoryPolicies(
-        companyId,
-        activeOnly,
-      );
-      setPolicies(result.policies || []);
+      const result = await categoryPolicyService.listCategoryPolicies(activeOnly);
+      // Defensive checks: ensure result is an object before accessing properties
+      if (!result || typeof result !== "object") {
+        throw new Error("Invalid response from pricing policies API");
+      }
+      // Safely extract policies array with fallback
+      const policiesArray = Array.isArray(result.policies) ? result.policies : [];
+      setPolicies(policiesArray);
       setTaxonomyStatus(result.taxonomy_status || null);
     } catch (err) {
-      console.error('Failed to fetch pricing policies:', err);
-      setError(err.message || 'Failed to fetch pricing policies');
+      console.error("Failed to fetch pricing policies:", err);
+      setError(err.message || "Failed to fetch pricing policies");
+      // Set safe defaults to prevent undefined access downstream
+      setPolicies([]);
+      setTaxonomyStatus(null);
     } finally {
       setLoading(false);
     }
@@ -113,7 +119,7 @@ export function usePricingPolicy(companyId, options = {}) {
       if (!category) return null;
       return policyCache.get(category.toLowerCase()) || null;
     },
-    [policyCache],
+    [policyCache]
   );
 
   /**
@@ -128,7 +134,7 @@ export function usePricingPolicy(companyId, options = {}) {
       const policy = getPolicyForCategory(category);
       return categoryPolicyService.getPricingUnitFromPolicy(policy);
     },
-    [getPolicyForCategory],
+    [getPolicyForCategory]
   );
 
   /**
@@ -141,7 +147,7 @@ export function usePricingPolicy(companyId, options = {}) {
       const policy = getPolicyForCategory(category);
       return categoryPolicyService.requiresWeight(policy);
     },
-    [getPolicyForCategory],
+    [getPolicyForCategory]
   );
 
   /**
@@ -154,7 +160,7 @@ export function usePricingPolicy(companyId, options = {}) {
       const policy = getPolicyForCategory(category);
       return categoryPolicyService.isConvertible(policy);
     },
-    [getPolicyForCategory],
+    [getPolicyForCategory]
   );
 
   /**
@@ -178,7 +184,7 @@ export function usePricingPolicy(companyId, options = {}) {
       if (!category) {
         return {
           isValid: false,
-          error: 'Product category is required',
+          error: "Product category is required",
           expectedUnit: null,
         };
       }
@@ -186,7 +192,7 @@ export function usePricingPolicy(companyId, options = {}) {
       if (!pricingUnit) {
         return {
           isValid: false,
-          error: 'Pricing unit is required',
+          error: "Pricing unit is required",
           expectedUnit: null,
         };
       }
@@ -203,13 +209,13 @@ export function usePricingPolicy(companyId, options = {}) {
       const policy = getPolicyForCategory(category);
 
       // For CONVERTIBLE, allow both WEIGHT and PIECE
-      if (policy?.pricing_mode === 'CONVERTIBLE') {
-        const validUnits = ['WEIGHT', 'PIECE'];
+      if (policy?.pricing_mode === "CONVERTIBLE") {
+        const validUnits = ["WEIGHT", "PIECE"];
         if (!validUnits.includes(pricingUnit.toUpperCase())) {
           return {
             isValid: false,
             error: `Invalid pricing unit for ${category}. Expected: WEIGHT or PIECE`,
-            expectedUnit: 'WEIGHT',
+            expectedUnit: "WEIGHT",
           };
         }
         return {
@@ -222,8 +228,8 @@ export function usePricingPolicy(companyId, options = {}) {
       // For MT_ONLY or PCS_ONLY, strict validation
       if (pricingUnit.toUpperCase() !== expectedUnit) {
         const unitLabels = {
-          WEIGHT: 'Per Kilogram (KG)',
-          PIECE: 'Per Piece/Unit',
+          WEIGHT: "Per Kilogram (KG)",
+          PIECE: "Per Piece/Unit",
         };
         return {
           isValid: false,
@@ -238,7 +244,7 @@ export function usePricingPolicy(companyId, options = {}) {
         expectedUnit,
       };
     },
-    [getPolicyForCategory, getPricingUnitForCategory],
+    [getPolicyForCategory, getPricingUnitForCategory]
   );
 
   // Auto-fetch on mount

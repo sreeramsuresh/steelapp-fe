@@ -5,86 +5,74 @@
  * Supports filtering, pagination, and status management.
  */
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  Plus,
-  Search,
-  Filter,
-  Edit,
-  Trash2,
-  Eye,
-  Download,
+  Building2,
   Check,
-  X,
   ChevronLeft,
   ChevronRight,
-  Building2,
   DollarSign,
-  RefreshCw,
+  Download,
+  Edit,
+  Eye,
   FileText,
-} from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
-import supplierBillService from '../../services/supplierBillService';
-import { supplierService } from '../../services/supplierService';
-import { notificationService } from '../../services/notificationService';
-import { formatCurrency, formatDate } from '../../utils/invoiceUtils';
-import ConfirmDialog from '../../components/ConfirmDialog';
-import { useConfirm } from '../../hooks/useConfirm';
-
-// UAE Emirates for place of supply filter
-const _EMIRATES = [
-  { value: '', label: 'All Emirates' },
-  { value: 'AE-AZ', label: 'Abu Dhabi' },
-  { value: 'AE-DU', label: 'Dubai' },
-  { value: 'AE-SH', label: 'Sharjah' },
-  { value: 'AE-AJ', label: 'Ajman' },
-  { value: 'AE-UQ', label: 'Umm Al Quwain' },
-  { value: 'AE-RK', label: 'Ras Al Khaimah' },
-  { value: 'AE-FU', label: 'Fujairah' },
-];
+  Filter,
+  Plus,
+  RefreshCw,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import ConfirmDialog from "../../components/ConfirmDialog";
+import { useTheme } from "../../contexts/ThemeContext";
+import { useConfirm } from "../../hooks/useConfirm";
+import { notificationService } from "../../services/notificationService";
+import supplierBillService from "../../services/supplierBillService";
+import { supplierService } from "../../services/supplierService";
+import { formatCurrency, formatDate } from "../../utils/invoiceUtils";
 
 // VAT categories for filtering
 const VAT_CATEGORIES = [
-  { value: '', label: 'All VAT Categories' },
-  { value: 'STANDARD', label: 'Standard Rate (5%)' },
-  { value: 'ZERO_RATED', label: 'Zero Rated (0%)' },
-  { value: 'EXEMPT', label: 'Exempt' },
-  { value: 'REVERSE_CHARGE', label: 'Reverse Charge' },
-  { value: 'BLOCKED', label: 'Blocked (Non-Recoverable)' },
+  { value: "", label: "All VAT Categories" },
+  { value: "STANDARD", label: "Standard Rate (5%)" },
+  { value: "ZERO_RATED", label: "Zero Rated (0%)" },
+  { value: "EXEMPT", label: "Exempt" },
+  { value: "REVERSE_CHARGE", label: "Reverse Charge" },
+  { value: "BLOCKED", label: "Blocked (Non-Recoverable)" },
 ];
 
 // Status options
 const STATUS_OPTIONS = [
-  { value: '', label: 'All Statuses' },
-  { value: 'draft', label: 'Draft' },
-  { value: 'approved', label: 'Approved' },
-  { value: 'paid', label: 'Paid' },
-  { value: 'partially_paid', label: 'Partially Paid' },
-  { value: 'cancelled', label: 'Cancelled' },
+  { value: "", label: "All Statuses" },
+  { value: "draft", label: "Draft" },
+  { value: "approved", label: "Approved" },
+  { value: "paid", label: "Paid" },
+  { value: "partially_paid", label: "Partially Paid" },
+  { value: "cancelled", label: "Cancelled" },
 ];
 
 // Status badge colors
 const STATUS_COLORS = {
   draft: {
-    bg: 'bg-gray-200 dark:bg-gray-700',
-    text: 'text-gray-800 dark:text-gray-200',
+    bg: "bg-gray-200 dark:bg-gray-700",
+    text: "text-gray-800 dark:text-gray-200",
   },
   approved: {
-    bg: 'bg-green-200 dark:bg-green-800',
-    text: 'text-green-800 dark:text-green-100',
+    bg: "bg-green-200 dark:bg-green-800",
+    text: "text-green-800 dark:text-green-100",
   },
   paid: {
-    bg: 'bg-blue-200 dark:bg-blue-800',
-    text: 'text-blue-800 dark:text-blue-100',
+    bg: "bg-blue-200 dark:bg-blue-800",
+    text: "text-blue-800 dark:text-blue-100",
   },
   partially_paid: {
-    bg: 'bg-amber-200 dark:bg-amber-800',
-    text: 'text-amber-800 dark:text-amber-100',
+    bg: "bg-amber-200 dark:bg-amber-800",
+    text: "text-amber-800 dark:text-amber-100",
   },
   cancelled: {
-    bg: 'bg-red-200 dark:bg-red-800',
-    text: 'text-red-800 dark:text-red-100',
+    bg: "bg-red-200 dark:bg-red-800",
+    text: "text-red-800 dark:text-red-100",
   },
 };
 
@@ -100,13 +88,13 @@ const SupplierBillList = () => {
   const [vendors, setVendors] = useState([]);
 
   // Filter state
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [vatCategoryFilter, setVatCategoryFilter] = useState('');
-  const [vendorFilter, setVendorFilter] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [vatCategoryFilter, setVatCategoryFilter] = useState("");
+  const [vendorFilter, setVendorFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
   // Pagination state
@@ -115,6 +103,9 @@ const SupplierBillList = () => {
   const [pagination, setPagination] = useState(null);
 
   // VAT Summary state
+  const [cancelModal, setCancelModal] = useState({ open: false, bill: null });
+  const [cancelReason, setCancelReason] = useState("");
+
   const [vatSummary, setVatSummary] = useState({
     totalSubtotal: 0,
     totalVat: 0,
@@ -137,28 +128,13 @@ const SupplierBillList = () => {
         const response = await supplierService.getSuppliers();
         setVendors(response.suppliers || []);
       } catch (error) {
-        console.error('Failed to load vendors:', error);
+        console.error("Failed to load vendors:", error);
       }
     };
     loadVendors();
   }, []);
 
-  // Load bills when filters change
-  useEffect(() => {
-    loadBills();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    currentPage,
-    pageSize,
-    debouncedSearch,
-    statusFilter,
-    vatCategoryFilter,
-    vendorFilter,
-    startDate,
-    endDate,
-  ]); // loadBills is stable
-
-  const loadBills = async () => {
+  const loadBills = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -184,152 +160,143 @@ const SupplierBillList = () => {
           totalAmount: acc.totalAmount + (bill.total || 0),
           billCount: acc.billCount + 1,
         }),
-        { totalSubtotal: 0, totalVat: 0, totalAmount: 0, billCount: 0 },
+        { totalSubtotal: 0, totalVat: 0, totalAmount: 0, billCount: 0 }
       );
       setVatSummary(summary);
     } catch (error) {
-      console.error('Error loading supplier bills:', error);
-      notificationService.error('Failed to load supplier bills');
+      console.error("Error loading supplier bills:", error);
+      notificationService.error("Failed to load supplier bills");
     } finally {
       setLoading(false);
       setInitialLoading(false);
     }
-  };
+  }, [currentPage, pageSize, debouncedSearch, statusFilter, vatCategoryFilter, vendorFilter, startDate, endDate]);
+
+  // Load bills when filters change
+  useEffect(() => {
+    loadBills();
+  }, [loadBills]);
 
   const handleDelete = async (bill) => {
     const confirmed = await confirm({
-      title: 'Delete Supplier Bill?',
+      title: "Delete Supplier Bill?",
       message: `Are you sure you want to delete supplier bill ${bill.billNumber}? This action cannot be undone.`,
-      confirmText: 'Delete',
-      variant: 'danger',
+      confirmText: "Delete",
+      variant: "danger",
     });
 
     if (!confirmed) return;
 
     try {
       await supplierBillService.delete(bill.id);
-      notificationService.success('Supplier bill deleted successfully');
+      notificationService.success("Supplier bill deleted successfully");
       loadBills();
     } catch (error) {
-      console.error('Error deleting supplier bill:', error);
-      notificationService.error('Failed to delete supplier bill');
+      console.error("Error deleting supplier bill:", error);
+      notificationService.error("Failed to delete supplier bill");
     }
   };
 
   const handleApprove = async (bill) => {
     const confirmed = await confirm({
-      title: 'Approve Supplier Bill?',
+      title: "Approve Supplier Bill?",
       message: `Approve supplier bill ${bill.billNumber} for payment?`,
-      confirmText: 'Approve',
-      variant: 'default',
+      confirmText: "Approve",
+      variant: "default",
     });
 
     if (!confirmed) return;
 
     try {
       await supplierBillService.approve(bill.id);
-      notificationService.success('Supplier bill approved');
+      notificationService.success("Supplier bill approved");
       loadBills();
     } catch (error) {
-      console.error('Error approving supplier bill:', error);
-      notificationService.error('Failed to approve supplier bill');
+      console.error("Error approving supplier bill:", error);
+      notificationService.error("Failed to approve supplier bill");
     }
   };
 
-  const handleCancel2 = async (bill) => {
-    const reason = window.prompt('Cancellation reason:');
-    if (!reason) return;
+  const handleCancel2 = (bill) => {
+    setCancelReason("");
+    setCancelModal({ open: true, bill });
+  };
 
+  const handleCancelSubmit = async () => {
+    if (!cancelReason.trim()) return;
+    const bill = cancelModal.bill;
+    setCancelModal({ open: false, bill: null });
     try {
-      await supplierBillService.cancel(bill.id, reason);
-      notificationService.success('Supplier bill cancelled');
+      await supplierBillService.cancel(bill.id, cancelReason.trim());
+      notificationService.success("Supplier bill cancelled");
       loadBills();
     } catch (error) {
-      console.error('Error cancelling supplier bill:', error);
-      notificationService.error('Failed to cancel supplier bill');
+      console.error("Error cancelling supplier bill:", error);
+      notificationService.error("Failed to cancel supplier bill");
     }
   };
 
   const handleExport = async () => {
-    notificationService.info('Export feature coming soon');
+    notificationService.info("Export feature coming soon");
   };
 
   const getStatusBadge = (status) => {
     const config = STATUS_COLORS[status] || STATUS_COLORS.draft;
-    const label = status
-      ? status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-      : 'Draft';
-    return (
-      <span
-        className={`px-2 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text}`}
-      >
-        {label}
-      </span>
-    );
+    const label = status ? status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "Draft";
+    return <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>{label}</span>;
   };
 
   const clearFilters = () => {
-    setSearchTerm('');
-    setStatusFilter('');
-    setVatCategoryFilter('');
-    setVendorFilter('');
-    setStartDate('');
-    setEndDate('');
+    setSearchTerm("");
+    setStatusFilter("");
+    setVatCategoryFilter("");
+    setVendorFilter("");
+    setStartDate("");
+    setEndDate("");
     setCurrentPage(1);
   };
 
-  const hasActiveFilters =
-    statusFilter || vatCategoryFilter || vendorFilter || startDate || endDate;
+  const hasActiveFilters = statusFilter || vatCategoryFilter || vendorFilter || startDate || endDate;
 
   // Initial loading spinner
   if (initialLoading) {
     return (
-      <div
-        className={`h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
-      >
+      <div className={`h-full flex items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
-          <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
-            Loading supplier bills...
-          </p>
+          <p className={isDarkMode ? "text-gray-300" : "text-gray-600"}>Loading supplier bills...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className={`h-full overflow-auto ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
-    >
-      <div className="max-w-7xl mx-auto p-6">
+    <div className={`h-full overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+      <div className="mx-auto px-6 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1
-              className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
-              Supplier Bills
-            </h1>
-            <p
-              className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-            >
+            <h2 className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>🧾 Supplier Bills</h2>
+            <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Manage purchase invoices and input VAT
             </p>
           </div>
           <div className="flex gap-3">
             <button
+              type="button"
               onClick={handleExport}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                 isDarkMode
-                  ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
             >
               <Download className="h-4 w-4" />
               Export
             </button>
             <button
-              onClick={() => navigate('/app/supplier-bills/new')}
+              type="button"
+              onClick={() => navigate("/app/supplier-bills/new")}
               className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
             >
               <Plus className="h-4 w-4" />
@@ -340,101 +307,53 @@ const SupplierBillList = () => {
 
         {/* VAT Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div
-            className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-          >
+          <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
             <div className="flex items-center gap-3">
-              <div
-                className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-900/30' : 'bg-blue-100'}`}
-              >
-                <FileText
-                  className={`h-5 w-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}
-                />
+              <div className={`p-2 rounded-lg ${isDarkMode ? "bg-blue-900/30" : "bg-blue-100"}`}>
+                <FileText className={`h-5 w-5 ${isDarkMode ? "text-blue-400" : "text-blue-600"}`} />
               </div>
               <div>
-                <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                >
-                  Total Bills
-                </p>
-                <p
-                  className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Total Bills</p>
+                <p className={`text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   {vatSummary.billCount}
                 </p>
               </div>
             </div>
           </div>
-          <div
-            className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-          >
+          <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
             <div className="flex items-center gap-3">
-              <div
-                className={`p-2 rounded-lg ${isDarkMode ? 'bg-green-900/30' : 'bg-green-100'}`}
-              >
-                <DollarSign
-                  className={`h-5 w-5 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}
-                />
+              <div className={`p-2 rounded-lg ${isDarkMode ? "bg-green-900/30" : "bg-green-100"}`}>
+                <DollarSign className={`h-5 w-5 ${isDarkMode ? "text-green-400" : "text-green-600"}`} />
               </div>
               <div>
-                <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                >
-                  Subtotal
-                </p>
-                <p
-                  className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Subtotal</p>
+                <p className={`text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   {formatCurrency(vatSummary.totalSubtotal)}
                 </p>
               </div>
             </div>
           </div>
-          <div
-            className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-          >
+          <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
             <div className="flex items-center gap-3">
-              <div
-                className={`p-2 rounded-lg ${isDarkMode ? 'bg-amber-900/30' : 'bg-amber-100'}`}
-              >
-                <Building2
-                  className={`h-5 w-5 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`}
-                />
+              <div className={`p-2 rounded-lg ${isDarkMode ? "bg-amber-900/30" : "bg-amber-100"}`}>
+                <Building2 className={`h-5 w-5 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`} />
               </div>
               <div>
-                <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                >
-                  Input VAT
-                </p>
-                <p
-                  className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Input VAT</p>
+                <p className={`text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   {formatCurrency(vatSummary.totalVat)}
                 </p>
               </div>
             </div>
           </div>
-          <div
-            className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-          >
+          <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
             <div className="flex items-center gap-3">
-              <div
-                className={`p-2 rounded-lg ${isDarkMode ? 'bg-teal-900/30' : 'bg-teal-100'}`}
-              >
-                <DollarSign
-                  className={`h-5 w-5 ${isDarkMode ? 'text-teal-400' : 'text-teal-600'}`}
-                />
+              <div className={`p-2 rounded-lg ${isDarkMode ? "bg-teal-900/30" : "bg-teal-100"}`}>
+                <DollarSign className={`h-5 w-5 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
               </div>
               <div>
-                <p
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                >
-                  Total Amount
-                </p>
-                <p
-                  className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                >
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Total Amount</p>
+                <p className={`text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   {formatCurrency(vatSummary.totalAmount)}
                 </p>
               </div>
@@ -443,25 +362,24 @@ const SupplierBillList = () => {
         </div>
 
         {/* Filters */}
-        <div
-          className={`p-4 rounded-lg mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-        >
+        <div className={`p-4 rounded-lg mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
           <div className="flex flex-wrap gap-4 items-center">
             {/* Search */}
             <div className="flex-1 min-w-[200px]">
               <div className="relative">
                 <Search
-                  className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                  className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                 />
                 <input
                   type="text"
                   placeholder="Search by bill number or vendor..."
+                  aria-label="Search supplier bills"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
                     isDarkMode
-                      ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
-                      : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                      ? "border-gray-600 bg-gray-700 text-white placeholder-gray-400"
+                      : "border-gray-300 bg-white text-gray-900 placeholder-gray-500"
                   } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                 />
               </div>
@@ -471,10 +389,9 @@ const SupplierBillList = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label="Filter by status"
               className={`px-4 py-2 rounded-lg border ${
-                isDarkMode
-                  ? 'border-gray-600 bg-gray-700 text-white'
-                  : 'border-gray-300 bg-white text-gray-900'
+                isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
               } focus:outline-none focus:ring-2 focus:ring-teal-500`}
             >
               {STATUS_OPTIONS.map((opt) => (
@@ -486,60 +403,50 @@ const SupplierBillList = () => {
 
             {/* Toggle Advanced Filters */}
             <button
+              type="button"
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
                 showFilters
-                  ? 'border-teal-500 bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400 dark:border-teal-600'
+                  ? "border-teal-500 bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400 dark:border-teal-600"
                   : isDarkMode
-                    ? 'border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600'
-                    : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                    ? "border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600"
+                    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
               }`}
             >
               <Filter className="h-4 w-4" />
               Filters
               {hasActiveFilters && (
                 <span className="ml-1 px-1.5 py-0.5 text-xs bg-teal-600 text-white rounded-full">
-                  {
-                    [
-                      statusFilter,
-                      vatCategoryFilter,
-                      vendorFilter,
-                      startDate,
-                      endDate,
-                    ].filter(Boolean).length
-                  }
+                  {[statusFilter, vatCategoryFilter, vendorFilter, startDate, endDate].filter(Boolean).length}
                 </span>
               )}
             </button>
 
             {/* Refresh */}
             <button
+              type="button"
               onClick={loadBills}
               disabled={loading}
               className={`p-2 rounded-lg border transition-colors ${
                 isDarkMode
-                  ? 'border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                  ? "border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
               }`}
               title="Refresh list"
             >
-              <RefreshCw
-                className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`}
-              />
+              <RefreshCw className={`h-5 w-5 ${loading ? "animate-spin" : ""}`} />
             </button>
           </div>
 
           {/* Advanced Filters Panel */}
           {showFilters && (
-            <div
-              className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-            >
+            <div className={`mt-4 pt-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {/* VAT Category */}
                 <div>
                   <label
                     htmlFor="vat-category-filter"
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     VAT Category
                   </label>
@@ -548,9 +455,7 @@ const SupplierBillList = () => {
                     value={vatCategoryFilter}
                     onChange={(e) => setVatCategoryFilter(e.target.value)}
                     className={`w-full px-3 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
+                      isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   >
                     {VAT_CATEGORIES.map((opt) => (
@@ -565,7 +470,7 @@ const SupplierBillList = () => {
                 <div>
                   <label
                     htmlFor="supplier-filter"
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Supplier
                   </label>
@@ -574,9 +479,7 @@ const SupplierBillList = () => {
                     value={vendorFilter}
                     onChange={(e) => setVendorFilter(e.target.value)}
                     className={`w-full px-3 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
+                      isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   >
                     <option value="">All Suppliers</option>
@@ -592,7 +495,7 @@ const SupplierBillList = () => {
                 <div>
                   <label
                     htmlFor="start-date-filter"
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     From Date
                   </label>
@@ -602,9 +505,7 @@ const SupplierBillList = () => {
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     className={`w-full px-3 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
+                      isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
@@ -613,7 +514,7 @@ const SupplierBillList = () => {
                 <div>
                   <label
                     htmlFor="end-date-filter"
-                    className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                   >
                     To Date
                   </label>
@@ -623,9 +524,7 @@ const SupplierBillList = () => {
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     className={`w-full px-3 py-2 rounded-lg border ${
-                      isDarkMode
-                        ? 'border-gray-600 bg-gray-700 text-white'
-                        : 'border-gray-300 bg-white text-gray-900'
+                      isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
                     } focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
@@ -635,11 +534,12 @@ const SupplierBillList = () => {
               {hasActiveFilters && (
                 <div className="mt-4 flex justify-end">
                   <button
+                    type="button"
                     onClick={clearFilters}
                     className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
                       isDarkMode
-                        ? 'text-gray-400 hover:text-white hover:bg-gray-700'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        ? "text-gray-400 hover:text-white hover:bg-gray-700"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                     }`}
                   >
                     <X className="h-4 w-4" />
@@ -652,195 +552,165 @@ const SupplierBillList = () => {
         </div>
 
         {/* Bills Table */}
-        <div
-          className={`rounded-lg overflow-hidden ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}
-        >
+        <div className={`rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
           {bills.length === 0 ? (
             <div className="p-12 text-center">
-              <FileText
-                className={`h-16 w-16 mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}
-              />
-              <h3
-                className={`text-lg font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
-              >
-                {debouncedSearch || hasActiveFilters
-                  ? 'No matching supplier bills'
-                  : 'No supplier bills found'}
+              <FileText className={`h-16 w-16 mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />
+              <h3 className={`text-lg font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
+                {debouncedSearch || hasActiveFilters ? "No matching supplier bills" : "No supplier bills found"}
               </h3>
-              <p
-                className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-              >
+              <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                 {debouncedSearch || hasActiveFilters
-                  ? 'Try adjusting your search or filter criteria'
-                  : 'Click the button above to create your first supplier bill'}
+                  ? "Try adjusting your search or filter criteria"
+                  : "Click the button above to create your first supplier bill"}
               </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                   <tr>
                     <th
-                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Bill #
                     </th>
                     <th
-                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Date
                     </th>
                     <th
-                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Supplier
                     </th>
                     <th
-                      className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Subtotal
                     </th>
                     <th
-                      className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       VAT
                     </th>
                     <th
-                      className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Total
                     </th>
                     <th
-                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Status
                     </th>
                     <th
-                      className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                      className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                     >
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody
-                  className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}
-                >
+                <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
                   {bills.map((bill) => (
                     <tr
                       key={bill.id}
-                      className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-colors cursor-pointer`}
+                      className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors cursor-pointer`}
                       onClick={() => navigate(`/app/supplier-bills/${bill.id}`)}
                     >
-                      <td
-                        className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                      >
+                      <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                         <div className="font-medium">{bill.billNumber}</div>
                         {bill.supplierInvoiceNumber && (
-                          <div
-                            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                          >
+                          <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                             Ref: {bill.supplierInvoiceNumber}
                           </div>
                         )}
                       </td>
-                      <td
-                        className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                      >
+                      <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                         {formatDate(bill.billDate)}
                       </td>
-                      <td
-                        className={`px-6 py-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                      >
-                        <div className="max-w-xs truncate">
-                          {bill.supplierName || 'N/A'}
-                        </div>
+                      <td className={`px-6 py-4 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                        <div className="max-w-xs truncate">{bill.supplierName || "N/A"}</div>
                         {bill.supplierTrn && (
-                          <div
-                            className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                          >
+                          <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                             TRN: {bill.supplierTrn}
                           </div>
                         )}
                       </td>
                       <td
-                        className={`px-6 py-4 whitespace-nowrap text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`px-6 py-4 whitespace-nowrap text-right ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         {formatCurrency(bill.subtotal)}
                       </td>
                       <td
-                        className={`px-6 py-4 whitespace-nowrap text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        className={`px-6 py-4 whitespace-nowrap text-right ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                       >
                         {formatCurrency(bill.vatAmount)}
                       </td>
                       <td
-                        className={`px-6 py-4 whitespace-nowrap text-right font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                        className={`px-6 py-4 whitespace-nowrap text-right font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
                       >
                         {formatCurrency(bill.total)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(bill.status)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div
-                          className="flex items-center justify-end gap-2"
-                          onClick={(e) => e.stopPropagation()}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.stopPropagation();
-                            }
-                          }}
-                          role="button"
-                          tabIndex={0}
-                        >
+                      <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(bill.status)}</td>
+                      {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation cell in clickable row */}
+                      <td className="px-6 py-4 whitespace-nowrap text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-2">
                           {/* View */}
                           <button
-                            onClick={() =>
-                              navigate(`/app/supplier-bills/${bill.id}`)
-                            }
-                            className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-gray-600 text-gray-300' : 'hover:bg-gray-200 text-gray-600'}`}
+                            type="button"
+                            onClick={() => navigate(`/app/supplier-bills/${bill.id}`)}
+                            className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                             title="View"
+                            aria-label="View bill"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
                           {/* Edit - only for drafts */}
-                          {bill.status === 'draft' && (
+                          {bill.status === "draft" && (
                             <button
-                              onClick={() =>
-                                navigate(`/app/supplier-bills/${bill.id}/edit`)
-                              }
-                              className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-gray-600 text-gray-300' : 'hover:bg-gray-200 text-gray-600'}`}
+                              type="button"
+                              onClick={() => navigate(`/app/supplier-bills/${bill.id}/edit`)}
+                              className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-gray-600 text-gray-300" : "hover:bg-gray-200 text-gray-600"}`}
                               title="Edit"
+                              aria-label="Edit bill"
                             >
                               <Edit className="h-4 w-4" />
                             </button>
                           )}
                           {/* Approve - only for drafts */}
-                          {bill.status === 'draft' && (
+                          {bill.status === "draft" && (
                             <button
+                              type="button"
                               onClick={() => handleApprove(bill)}
-                              className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-green-900/30 text-green-400' : 'hover:bg-green-100 text-green-600'}`}
+                              className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-green-900/30 text-green-400" : "hover:bg-green-100 text-green-600"}`}
                               title="Approve"
+                              aria-label="Approve bill"
                             >
                               <Check className="h-4 w-4" />
                             </button>
                           )}
                           {/* Cancel - for non-cancelled bills */}
-                          {bill.status !== 'cancelled' &&
-                            bill.status !== 'paid' && (
-                              <button
-                                onClick={() => handleCancel2(bill)}
-                                className={`p-2 rounded transition-colors ${isDarkMode ? 'hover:bg-amber-900/30 text-amber-400' : 'hover:bg-amber-100 text-amber-600'}`}
-                                title="Cancel"
-                              >
-                                <X className="h-4 w-4" />
-                              </button>
-                            )}
-                          {/* Delete - only for drafts */}
-                          {bill.status === 'draft' && (
+                          {bill.status !== "cancelled" && bill.status !== "paid" && (
                             <button
+                              type="button"
+                              onClick={() => handleCancel2(bill)}
+                              className={`p-2 rounded transition-colors ${isDarkMode ? "hover:bg-amber-900/30 text-amber-400" : "hover:bg-amber-100 text-amber-600"}`}
+                              title="Cancel"
+                              aria-label="Cancel bill"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          )}
+                          {/* Delete - only for drafts */}
+                          {bill.status === "draft" && (
+                            <button
+                              type="button"
                               onClick={() => handleDelete(bill)}
                               className="p-2 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-colors"
                               title="Delete"
+                              aria-label="Delete bill"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -856,43 +726,39 @@ const SupplierBillList = () => {
 
           {/* Pagination */}
           {pagination && pagination.total > pageSize && (
-            <div
-              className={`px-6 py-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-            >
+            <div className={`px-6 py-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
               <div className="flex items-center justify-between">
-                <div
-                  className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}
-                >
-                  Showing{' '}
-                  {Math.min((currentPage - 1) * pageSize + 1, pagination.total)}{' '}
-                  to {Math.min(currentPage * pageSize, pagination.total)} of{' '}
-                  {pagination.total} bills
+                <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
+                  Showing {Math.min((currentPage - 1) * pageSize + 1, pagination.total)} to{" "}
+                  {Math.min(currentPage * pageSize, pagination.total)} of {pagination.total} bills
                 </div>
                 <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                     className={`flex items-center gap-1 px-3 py-1 rounded border ${
                       currentPage === 1
-                        ? 'opacity-50 cursor-not-allowed'
+                        ? "opacity-50 cursor-not-allowed"
                         : isDarkMode
-                          ? 'border-gray-600 hover:bg-gray-700'
-                          : 'border-gray-300 hover:bg-gray-50'
-                    } ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          ? "border-gray-600 hover:bg-gray-700"
+                          : "border-gray-300 hover:bg-gray-50"
+                    } ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     <ChevronLeft className="h-4 w-4" />
                     Previous
                   </button>
                   <button
+                    type="button"
                     onClick={() => setCurrentPage((p) => p + 1)}
                     disabled={currentPage * pageSize >= pagination.total}
                     className={`flex items-center gap-1 px-3 py-1 rounded border ${
                       currentPage * pageSize >= pagination.total
-                        ? 'opacity-50 cursor-not-allowed'
+                        ? "opacity-50 cursor-not-allowed"
                         : isDarkMode
-                          ? 'border-gray-600 hover:bg-gray-700'
-                          : 'border-gray-300 hover:bg-gray-50'
-                    } ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                          ? "border-gray-600 hover:bg-gray-700"
+                          : "border-gray-300 hover:bg-gray-50"
+                    } ${isDarkMode ? "text-white" : "text-gray-900"}`}
                   >
                     Next
                     <ChevronRight className="h-4 w-4" />
@@ -914,6 +780,46 @@ const SupplierBillList = () => {
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
+
+      {/* Cancel Reason Modal */}
+      {cancelModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div
+            className={`rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}
+          >
+            <h3 className="text-lg font-semibold mb-2">Cancel Supplier Bill</h3>
+            <p className={`text-sm mb-3 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+              Please provide a reason for cancellation.
+            </p>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="Cancellation reason..."
+              className={`w-full p-2 rounded border text-sm mb-4 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"}`}
+              rows={3}
+              // biome-ignore lint/a11y/noAutofocus: modal textarea should auto-focus for UX
+              autoFocus
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                className={`px-4 py-2 rounded text-sm ${isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-100 hover:bg-gray-200"}`}
+                onClick={() => setCancelModal({ open: false, bill: null })}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 rounded text-sm text-white bg-red-600 hover:bg-red-700"
+                disabled={!cancelReason.trim()}
+                onClick={handleCancelSubmit}
+              >
+                Confirm Cancellation
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

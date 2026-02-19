@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from "./api.js";
 
 /**
  * Allocation Service
@@ -23,11 +23,8 @@ export const allocationService = {
       hasStock: true, // Only batches with remaining stock
     };
 
-    const response = await apiClient.get(
-      '/stock-batches/available',
-      queryParams,
-    );
-    return response.data || response;
+    const response = await apiClient.get("/stock-batches/available", queryParams);
+    return response?.data || response;
   },
 
   /**
@@ -46,8 +43,8 @@ export const allocationService = {
       quantity,
     };
 
-    const response = await apiClient.post('/allocations/fifo', payload);
-    return response.data || response;
+    const response = await apiClient.post("/allocations/fifo", payload);
+    return response?.data || response;
   },
 
   /**
@@ -66,11 +63,8 @@ export const allocationService = {
       quantity,
     };
 
-    const response = await apiClient.get(
-      '/allocations/fifo/preview',
-      queryParams,
-    );
-    return response.data || response;
+    const response = await apiClient.get("/allocations/fifo/preview", queryParams);
+    return response?.data || response;
   },
 };
 

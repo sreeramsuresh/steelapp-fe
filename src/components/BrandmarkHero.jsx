@@ -5,7 +5,7 @@
  * Easily removable component (rollback: just delete this file)
  */
 
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from "../contexts/ThemeContext";
 
 const BrandmarkHero = () => {
   const { isDarkMode } = useTheme();
@@ -36,12 +36,12 @@ const BrandmarkHero = () => {
             }
           }
 
-          @keyframes spinOnHover {
-            from {
-              transform: rotateZ(0deg);
+          @keyframes glowPulse {
+            0%, 100% {
+              filter: drop-shadow(0 4px 24px rgba(20, 184, 166, 0.15));
             }
-            to {
-              transform: rotateZ(360deg);
+            50% {
+              filter: drop-shadow(0 8px 40px rgba(20, 184, 166, 0.5));
             }
           }
 
@@ -50,14 +50,8 @@ const BrandmarkHero = () => {
           }
 
           .brandmark-logo {
-            animation: breathingPulse 3s ease-in-out infinite;
+            animation: breathingPulse 3s ease-in-out infinite, glowPulse 2s ease-in-out infinite;
             transition: all 0.3s ease;
-            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
-          }
-
-          .brandmark-logo:hover {
-            animation: spinOnHover 0.6s ease-in-out, breathingPulse 3s ease-in-out infinite;
-            filter: drop-shadow(0 8px 20px rgba(20, 184, 166, 0.3));
           }
 
           .brandmark-text {
@@ -68,44 +62,32 @@ const BrandmarkHero = () => {
             animation: slideInFromTop 0.8s ease-out 0.2s both;
             background: linear-gradient(90deg,
               transparent 0%,
-              ${isDarkMode ? 'rgba(148, 163, 184, 0.3)' : 'rgba(148, 163, 184, 0.2)'} 50%,
+              ${isDarkMode ? "rgba(148, 163, 184, 0.3)" : "rgba(148, 163, 184, 0.2)"} 50%,
               transparent 100%);
           }
         `}
       </style>
 
       <div className="brandmark-hero mb-12">
-      {/* Logo Section */}
-      <div className="flex justify-center mb-8">
-        <div className="brandmark-logo cursor-pointer">
-          <img
-            src="/assets/brandmark.jpeg"
-            alt="Ultimate Steels Brandmark"
-            className="h-16 md:h-20 w-auto"
-          />
+        {/* Logo Section */}
+        <div className="flex justify-center mb-8">
+          <div className="brandmark-logo cursor-pointer">
+            <img src="/assets/brandmark.jpeg" alt="Ultimate Steels Brandmark" className="h-16 md:h-20 w-auto" />
+          </div>
         </div>
-      </div>
 
-      {/* Company Name & Tagline */}
-      <div className="brandmark-text text-center mb-6">
-        <h1
-          className={`text-2xl md:text-3xl font-bold mb-2 ${
-            isDarkMode ? 'text-white' : 'text-gray-900'
-          }`}
-        >
-          Ultimate Steels
-        </h1>
-        <p
-          className={`text-sm md:text-base ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-600'
-          }`}
-        >
-          Building Materials Trading Platform
-        </p>
-      </div>
+        {/* Company Name & Tagline */}
+        <div className="brandmark-text text-center mb-6">
+          <h1 className={`text-2xl md:text-3xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+            Ultimate Steels
+          </h1>
+          <p className={`text-sm md:text-base ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+            Building Materials Trading Platform
+          </p>
+        </div>
 
-      {/* Divider */}
-      <div className="brandmark-divider h-px mb-8"></div>
+        {/* Divider */}
+        <div className="brandmark-divider h-px mb-8"></div>
       </div>
     </>
   );

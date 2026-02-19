@@ -7,7 +7,7 @@
  */
 const RequiredIndicator = () => {
   return (
-    <span className="text-red-600 dark:text-red-400 ml-1" aria-label="required">
+    <span className="text-red-600 dark:text-red-400 ml-1" aria-hidden="true">
       *
     </span>
   );

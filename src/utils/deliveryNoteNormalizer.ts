@@ -11,32 +11,26 @@
  * @param source - Source of the data for debugging
  * @returns Normalized DeliveryNote with camelCase fields
  */
-export function normalizeDeliveryNote(
-  rawDN: any,
-  source = 'unknown',
-): any | null {
-  if (!rawDN || typeof rawDN !== 'object') {
-    console.error(
-      `❌ [DeliveryNote Normalizer] Invalid delivery note data from ${source}:`,
-      rawDN,
-    );
+export function normalizeDeliveryNote(rawDN: unknown, source = "unknown"): unknown | null {
+  if (!rawDN || typeof rawDN !== "object") {
+    console.error(`❌ [DeliveryNote Normalizer] Invalid delivery note data from ${source}:`, rawDN);
     return null;
   }
 
   try {
     // Helper to safely parse dates
-    const parseDate = (value: any): string | undefined => {
+    const parseDate = (value: unknown): string | undefined => {
       if (!value) return undefined;
 
       // Handle Timestamp objects
       if (value?.seconds) {
-        return new Date(parseInt(value.seconds) * 1000).toISOString();
+        return new Date(parseInt(value.seconds, 10) * 1000).toISOString();
       }
 
       // Handle string dates
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         const parsed = new Date(value);
-        if (!isNaN(parsed.getTime())) {
+        if (!Number.isNaN(parsed.getTime())) {
           return parsed.toISOString();
         }
       }
@@ -45,28 +39,24 @@ export function normalizeDeliveryNote(
     };
 
     // Build the normalized DeliveryNote object
-    const normalized: any = {
+    const normalized: unknown = {
       // Core identifiers
       id: rawDN.id || 0,
       companyId: rawDN.company_id || rawDN.companyId,
-      deliveryNoteNumber:
-        rawDN.deliveryNoteNumber || rawDN.delivery_note_number || '',
+      deliveryNoteNumber: rawDN.deliveryNoteNumber || rawDN.delivery_note_number || "",
       deliveryDate: parseDate(rawDN.deliveryDate || rawDN.delivery_date),
 
       // Related documents
       invoiceId: rawDN.invoiceId || rawDN.invoice_id || undefined,
       invoiceNumber: rawDN.invoiceNumber || rawDN.invoice_number || undefined,
-      purchaseOrderId:
-        rawDN.purchaseOrderId || rawDN.purchase_order_id || undefined,
+      purchaseOrderId: rawDN.purchaseOrderId || rawDN.purchase_order_id || undefined,
 
       // Customer linkage
       customerId: rawDN.customer_id || rawDN.customerId || undefined,
 
       // Customer & Delivery
-      customerDetails:
-        rawDN.customerDetails || rawDN.customer_details || undefined,
-      deliveryAddress:
-        rawDN.deliveryAddress || rawDN.delivery_address || undefined,
+      customerDetails: rawDN.customerDetails || rawDN.customer_details || undefined,
+      deliveryAddress: rawDN.deliveryAddress || rawDN.delivery_address || undefined,
 
       // Driver & Vehicle
       driverName: rawDN.driverName || rawDN.driver_name || undefined,
@@ -97,11 +87,8 @@ export function normalizeDeliveryNote(
 
     return normalized;
   } catch (error) {
-    console.error(
-      `❌ [DeliveryNote Normalizer] Failed to normalize delivery note from ${source}:`,
-      error,
-    );
-    console.error('   Raw data:', rawDN);
+    console.error(`❌ [DeliveryNote Normalizer] Failed to normalize delivery note from ${source}:`, error);
+    console.error("   Raw data:", rawDN);
     return null;
   }
 }
@@ -112,15 +99,13 @@ export function normalizeDeliveryNote(
  * @param source - Source identifier for debugging
  * @returns Array of normalized DeliveryNote objects
  */
-export function normalizeDeliveryNotes(rawDNs: any[], source = 'list'): any[] {
+export function normalizeDeliveryNotes(rawDNs: unknown[], source = "list"): unknown[] {
   if (!Array.isArray(rawDNs)) {
-    console.error(
-      `❌ [DeliveryNote Normalizer] Expected array, got ${typeof rawDNs}`,
-    );
+    console.error(`❌ [DeliveryNote Normalizer] Expected array, got ${typeof rawDNs}`);
     return [];
   }
 
   return rawDNs
     .map((dn, index) => normalizeDeliveryNote(dn, `${source}[${index}]`))
-    .filter((dn): dn is any => dn !== null);
+    .filter((dn): dn is NonNullable<unknown> => dn !== null);
 }
