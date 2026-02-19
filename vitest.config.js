@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
+    pool: "vmForks",
     testTimeout: 30000,
     hookTimeout: 30000,
     include: ["src/**/*.{test,spec}.{js,jsx,mjs,ts,tsx}"],
