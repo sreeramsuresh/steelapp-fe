@@ -244,36 +244,67 @@ const RecentActivitySection = ({ recentActivity, handleNavigate, isDarkMode }) =
 
 /**
  * Integrity Summary Section — Data & Stock health indicator card.
- * Renders 9 metrics as "incomplete / total" rows with severity badges.
+ * Metrics grouped by domain. Each row: label · count · severity badge.
  */
-const INTEGRITY_LABELS = {
-  productsMissingData: "Products missing key data",
-  productsNoActivePrice: "Products with no active price",
-  customersMissingData: "Customers missing key data",
-  warehousesMissingData: "Warehouses missing key data",
-  purchaseOrdersIncomplete: "Purchase Orders pending GRN",
-  invoicesIncomplete: "Invoices pending Delivery Note",
-  importOrdersPendingGrn: "Import Orders pending GRN",
-  exportOrdersPendingDn: "Export Orders pending Delivery Note",
-  negativeStockBatches: "Negative stock batches",
-};
+const INTEGRITY_GROUPS = [
+  {
+    label: "Stock",
+    keys: [
+      { key: "negativeStockBatches", label: "Negative stock batches", critical: true },
+      { key: "stockReservedOverflow", label: "Reserved exceeds remaining", critical: true },
+      { key: "stockBalanceMismatch", label: "Batch balance mismatch", critical: true },
+      { key: "stockZeroCost", label: "Active batches with zero cost", critical: false },
+    ],
+  },
+  {
+    label: "Credit & AR",
+    keys: [
+      { key: "customersOverCreditLimit", label: "Customers over credit limit", critical: true },
+      { key: "customersOnCreditHold", label: "Customers on credit hold", critical: true },
+      { key: "invoicesOverpaid", label: "Invoices overpaid (negative outstanding)", critical: true },
+      { key: "supplierBillsUnderpaid", label: "Supplier bills marked paid with shortfall", critical: false },
+    ],
+  },
+  {
+    label: "Documents",
+    keys: [
+      { key: "purchaseOrdersIncomplete", label: "Purchase Orders pending GRN", critical: false },
+      { key: "invoicesIncomplete", label: "Invoices pending Delivery Note", critical: false },
+      { key: "importOrdersPendingGrn", label: "Import Orders pending GRN", critical: false },
+      { key: "exportOrdersPendingDn", label: "Export Orders pending Delivery Note", critical: false },
+      { key: "invoicesWithZeroLines", label: "Invoices with zero-qty/rate lines", critical: false },
+      { key: "deliveryNotesEmpty", label: "Delivery notes with no items", critical: false },
+      { key: "quotationsExpired", label: "Expired open quotations", critical: false },
+      { key: "stockReservationsExpired", label: "Expired active stock reservations", critical: false },
+    ],
+  },
+  {
+    label: "Master Data",
+    keys: [
+      { key: "productsMissingData", label: "Products missing key fields", critical: false },
+      { key: "productsNoActivePrice", label: "Products with no active price", critical: false },
+      { key: "customersMissingData", label: "Customers missing key data", critical: false },
+      { key: "suppliersNoContact", label: "Suppliers missing contact info", critical: false },
+      { key: "warehousesMissingData", label: "Warehouses missing address/city", critical: false },
+    ],
+  },
+];
 
-function getIntegrityBadge(key, incomplete, total, isDarkMode) {
-  if (total === 0) {
+function getIntegrityBadge(incomplete, total, isCritical, isDarkMode) {
+  const noData = total === 0 || total === null;
+  if (noData && incomplete === 0) {
     return {
       label: "No data",
       className: isDarkMode ? "bg-gray-700 text-gray-400" : "bg-gray-100 text-gray-500",
     };
   }
-  // Negative stock is always critical if any exist
-  const isCriticalKey = key === "negativeStockBatches";
   if (incomplete === 0) {
     return {
       label: "OK",
       className: isDarkMode ? "bg-green-900/40 text-green-400" : "bg-green-50 text-green-700",
     };
   }
-  if (isCriticalKey || incomplete / total >= 0.1) {
+  if (isCritical || total === null || incomplete / total >= 0.1) {
     return {
       label: "Action Required",
       className: isDarkMode ? "bg-red-900/40 text-red-400" : "bg-red-50 text-red-700",
@@ -306,30 +337,49 @@ const IntegritySummarySection = ({ integritySummary, isDarkMode }) => {
   const metrics = integritySummary.metrics || {};
 
   return (
-    <div
-      className={`rounded-lg border divide-y ${isDarkMode ? "border-[#37474F] divide-[#37474F]" : "border-[#E0E0E0] divide-[#E0E0E0]"}`}
-    >
-      {Object.entries(INTEGRITY_LABELS).map(([key, label]) => {
-        const metric = metrics[key] || { incomplete: 0, total: 0 };
-        const { incomplete, total } = metric;
-        const badge = getIntegrityBadge(key, incomplete, total, isDarkMode);
-        const countText = total === 0 ? "—" : `${incomplete} / ${total}`;
-        return (
-          <div key={key} className="flex items-center justify-between px-4 py-2.5 gap-4">
-            <span className={`text-sm flex-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{label}</span>
-            <span
-              className={`text-sm font-mono font-semibold w-16 text-right ${incomplete > 0 ? (isDarkMode ? "text-white" : "text-gray-900") : isDarkMode ? "text-gray-500" : "text-gray-400"}`}
-            >
-              {countText}
-            </span>
-            <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${badge.className}`}>
-              {badge.label}
-            </span>
+    <div className="space-y-4">
+      {INTEGRITY_GROUPS.map((group) => (
+        <div
+          key={group.label}
+          className={`rounded-lg border overflow-hidden ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
+        >
+          <div
+            className={`px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider ${isDarkMode ? "bg-[#252D38] text-gray-400" : "bg-gray-50 text-gray-500"}`}
+          >
+            {group.label}
           </div>
-        );
-      })}
+          <div className={`divide-y ${isDarkMode ? "divide-[#37474F]" : "divide-[#E0E0E0]"}`}>
+            {group.keys.map(({ key, label, critical }) => {
+              const metric = metrics[key] || { incomplete: 0, total: null };
+              const { incomplete, total } = metric;
+              const badge = getIntegrityBadge(incomplete, total, critical, isDarkMode);
+              const countText =
+                (total === null || total === 0) && incomplete === 0
+                  ? "—"
+                  : total === null
+                    ? `${incomplete}`
+                    : `${incomplete} / ${total}`;
+              return (
+                <div key={key} className="flex items-center justify-between px-4 py-2.5 gap-4">
+                  <span className={`text-sm flex-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{label}</span>
+                  <span
+                    className={`text-sm font-mono font-semibold w-16 text-right tabular-nums ${incomplete > 0 ? (isDarkMode ? "text-white" : "text-gray-900") : isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                  >
+                    {countText}
+                  </span>
+                  <span
+                    className={`text-[11px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap w-28 text-center ${badge.className}`}
+                  >
+                    {badge.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
       {integritySummary.generated_at && (
-        <div className={`px-4 py-2 text-[11px] ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}>
+        <div className={`text-[11px] text-right ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}>
           {integritySummary.cache_hit ? "Cached · " : ""}
           Updated {new Date(integritySummary.generated_at).toLocaleTimeString()}
         </div>
