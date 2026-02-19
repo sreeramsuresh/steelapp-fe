@@ -51,14 +51,9 @@ export default defineConfig({
         manualChunks: (id) => {
           // Vendor chunks - separate large libraries for better caching
           if (id.includes("node_modules")) {
-            // React ecosystem - core runtime (kept together for compatibility)
-            if (
-              id.includes("react-dom") ||
-              id.includes("/react/") ||
-              id.includes("scheduler")
-            ) {
-              return "vendor-react";
-            }
+            // React ecosystem goes into the catch-all vendor chunk
+            // Keeping React separate causes circular vendor <-> vendor-react deps
+            // because React-dependent libs (radix, toast) also need vendor utilities
             // React Router - separate chunk for routing
             if (id.includes("react-router")) {
               return "vendor-router";
