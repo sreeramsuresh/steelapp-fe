@@ -566,6 +566,9 @@ const ImportOrderForm = () => {
   const [_loadingSuppliers, setLoadingSuppliers] = useState(false);
   const [_loadingProducts, setLoadingProducts] = useState(false);
 
+  // Simple / Full mode toggle (false = Full mode by default)
+  const [simpleMode, setSimpleMode] = useState(false);
+
   // Drawer States
   const [shippingDrawerOpen, setShippingDrawerOpen] = useState(false);
   const [costDrawerOpen, setCostDrawerOpen] = useState(false);
@@ -959,7 +962,7 @@ const ImportOrderForm = () => {
       newErrors.supplier_id = "Supplier is required";
     }
 
-    if (!order.incoterm) {
+    if (!simpleMode && !order.incoterm) {
       newErrors.incoterm = "Incoterm is required";
     }
 
@@ -967,7 +970,7 @@ const ImportOrderForm = () => {
       newErrors.payment_terms = "Payment terms are required";
     }
 
-    if (!order.destination_port) {
+    if (!simpleMode && !order.destination_port) {
       newErrors.destination_port = "Destination port is required";
     }
 
@@ -990,8 +993,8 @@ const ImportOrderForm = () => {
       newErrors.exchange_rate_source = "Exchange rate source required for FTA compliance";
     }
 
-    // UAE VAT Compliance Validations (stricter for non-draft orders)
-    if (order.status !== "draft") {
+    // UAE VAT Compliance Validations (stricter for non-draft orders; skipped in simple mode)
+    if (!simpleMode && order.status !== "draft") {
       // Importer TRN validation
       const trnValidation = validateTRN(order.importer_trn);
       if (!trnValidation.valid) {
@@ -1043,7 +1046,7 @@ const ImportOrderForm = () => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [order]);
+  }, [order, simpleMode]);
 
   // ============================================================
   // SUBMIT HANDLERS
@@ -1179,7 +1182,62 @@ const ImportOrderForm = () => {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              {/* Simple / Full Docs toggle */}
+              <div
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${
+                  isDarkMode ? "border-teal-500/40 bg-teal-500/5" : "border-teal-500/50 bg-teal-50"
+                }`}
+              >
+                <button
+                  type="button"
+                  className={`text-xs font-medium cursor-pointer bg-transparent border-none p-0 ${
+                    simpleMode
+                      ? isDarkMode
+                        ? "text-teal-300"
+                        : "text-teal-700"
+                      : isDarkMode
+                        ? "text-gray-500"
+                        : "text-gray-400"
+                  }`}
+                  onClick={() => setSimpleMode(true)}
+                >
+                  Simple
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSimpleMode((v) => !v)}
+                  className={`relative w-9 h-5 rounded-full transition-colors focus:outline-none ${
+                    simpleMode ? (isDarkMode ? "bg-gray-600" : "bg-gray-300") : "bg-teal-500"
+                  }`}
+                  title={simpleMode ? "Switch to Full documentation mode" : "Switch to Simple mode"}
+                >
+                  <span
+                    className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+                      simpleMode ? "translate-x-0.5" : "translate-x-[18px]"
+                    }`}
+                  />
+                </button>
+                <button
+                  type="button"
+                  className={`text-xs font-medium cursor-pointer bg-transparent border-none p-0 ${
+                    !simpleMode
+                      ? isDarkMode
+                        ? "text-teal-300"
+                        : "text-teal-700"
+                      : isDarkMode
+                        ? "text-gray-500"
+                        : "text-gray-400"
+                  }`}
+                  onClick={() => setSimpleMode(false)}
+                >
+                  Full Docs
+                </button>
+                <Info
+                  className={`h-3.5 w-3.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                  title="Simple: supplier + items only. Full: customs, HS codes, duties, shipping."
+                />
+              </div>
               <StatusBadge status={order.status} />
               <Button
                 variant="outline"
@@ -1215,6 +1273,21 @@ const ImportOrderForm = () => {
           </div>
         </div>
       </div>
+
+      {/* Simple Mode Banner */}
+      {simpleMode && (
+        <div
+          className={`border-b ${isDarkMode ? "bg-amber-900/20 border-amber-700/40" : "bg-amber-50 border-amber-200"}`}
+        >
+          <div className="max-w-[1400px] mx-auto px-4 py-2 flex items-center gap-2">
+            <Info className={`h-3.5 w-3.5 flex-shrink-0 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`} />
+            <p className={`text-xs ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}>
+              <span className="font-semibold">Simple Mode</span> — customs, shipping, and trade documentation hidden.
+              Switch to <span className="font-semibold">Full Docs</span> to add HS codes, duties, and port details.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Main Content - 8+4 Grid Layout */}
       <div className="max-w-[1400px] mx-auto px-4 py-4">
@@ -1256,33 +1329,37 @@ const ImportOrderForm = () => {
                     ))}
                   </FormSelect>
                 </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <Input
-                    label="PI Number"
-                    value={order.pi_number}
-                    onChange={(e) => handleFieldChange("pi_number", e.target.value)}
-                    placeholder="Proforma Invoice #"
-                  />
-                </div>
-                <div className="col-span-12 sm:col-span-6">
-                  <Input
-                    label="Importer TRN"
-                    value={order.importer_trn}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, "").slice(0, 15);
-                      handleFieldChange("importer_trn", value);
-                    }}
-                    placeholder="100234567890003"
-                    error={errors.importer_trn}
-                  />
-                  {order.importer_trn && order.importer_trn.length > 0 && (
-                    <div
-                      className={`text-xs mt-1 ${validateTRN(order.importer_trn).valid ? "text-green-500" : "text-amber-500"}`}
-                    >
-                      {validateTRN(order.importer_trn).message}
-                    </div>
-                  )}
-                </div>
+                {!simpleMode && (
+                  <div className="col-span-6 sm:col-span-3">
+                    <Input
+                      label="PI Number"
+                      value={order.pi_number}
+                      onChange={(e) => handleFieldChange("pi_number", e.target.value)}
+                      placeholder="Proforma Invoice #"
+                    />
+                  </div>
+                )}
+                {!simpleMode && (
+                  <div className="col-span-12 sm:col-span-6">
+                    <Input
+                      label="Importer TRN"
+                      value={order.importer_trn}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, "").slice(0, 15);
+                        handleFieldChange("importer_trn", value);
+                      }}
+                      placeholder="100234567890003"
+                      error={errors.importer_trn}
+                    />
+                    {order.importer_trn && order.importer_trn.length > 0 && (
+                      <div
+                        className={`text-xs mt-1 ${validateTRN(order.importer_trn).valid ? "text-green-500" : "text-amber-500"}`}
+                      >
+                        {validateTRN(order.importer_trn).message}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </Card>
 
@@ -1362,45 +1439,49 @@ const ImportOrderForm = () => {
                     ))}
                   </FormSelect>
                 </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <FormSelect
-                    label="Supplier VAT Status"
-                    value={order.supplier_vat_status}
-                    onValueChange={(value) => handleFieldChange("supplier_vat_status", value)}
-                  >
-                    {SUPPLIER_VAT_STATUS_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </FormSelect>
-                </div>
-                {(order.supplier_vat_status === "uae_registered" || order.supplier_vat_status === "gcc_registered") && (
+                {!simpleMode && (
                   <div className="col-span-6 sm:col-span-3">
-                    <Input
-                      label="Supplier TRN"
-                      value={order.supplier_trn}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, "").slice(0, 15);
-                        handleFieldChange("supplier_trn", value);
-                      }}
-                      placeholder={
-                        order.supplier_vat_status === "uae_registered"
-                          ? "100XXXXXXXXXX (15 digits)"
-                          : "GCC Tax Registration Number"
-                      }
-                      error={errors.supplier_trn}
-                      required={order.status !== "draft"}
-                    />
-                    {order.supplier_trn && order.supplier_vat_status === "uae_registered" && (
-                      <div
-                        className={`text-xs mt-1 ${validateTRN(order.supplier_trn).valid ? "text-green-500" : "text-amber-500"}`}
-                      >
-                        {validateTRN(order.supplier_trn).message}
-                      </div>
-                    )}
+                    <FormSelect
+                      label="Supplier VAT Status"
+                      value={order.supplier_vat_status}
+                      onValueChange={(value) => handleFieldChange("supplier_vat_status", value)}
+                    >
+                      {SUPPLIER_VAT_STATUS_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </FormSelect>
                   </div>
                 )}
+                {!simpleMode &&
+                  (order.supplier_vat_status === "uae_registered" ||
+                    order.supplier_vat_status === "gcc_registered") && (
+                    <div className="col-span-6 sm:col-span-3">
+                      <Input
+                        label="Supplier TRN"
+                        value={order.supplier_trn}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, "").slice(0, 15);
+                          handleFieldChange("supplier_trn", value);
+                        }}
+                        placeholder={
+                          order.supplier_vat_status === "uae_registered"
+                            ? "100XXXXXXXXXX (15 digits)"
+                            : "GCC Tax Registration Number"
+                        }
+                        error={errors.supplier_trn}
+                        required={order.status !== "draft"}
+                      />
+                      {order.supplier_trn && order.supplier_vat_status === "uae_registered" && (
+                        <div
+                          className={`text-xs mt-1 ${validateTRN(order.supplier_trn).valid ? "text-green-500" : "text-amber-500"}`}
+                        >
+                          {validateTRN(order.supplier_trn).message}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 <div className="col-span-6 sm:col-span-3">
                   <Input
                     label="PO Number"
@@ -1439,67 +1520,71 @@ const ImportOrderForm = () => {
                     ))}
                   </FormSelect>
                 </div>
-                <div className="col-span-6 sm:col-span-3">
-                  <Input
-                    label="LC Number"
-                    value={order.lc_number}
-                    onChange={(e) => handleFieldChange("lc_number", e.target.value)}
-                    placeholder="Letter of Credit #"
-                  />
-                </div>
+                {!simpleMode && (
+                  <div className="col-span-6 sm:col-span-3">
+                    <Input
+                      label="LC Number"
+                      value={order.lc_number}
+                      onChange={(e) => handleFieldChange("lc_number", e.target.value)}
+                      placeholder="Letter of Credit #"
+                    />
+                  </div>
+                )}
               </div>
             </Card>
 
-            {/* Shipping Summary Card - Click to open drawer */}
-            <button
-              type="button"
-              className={`${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4 cursor-pointer hover:border-teal-500 transition-colors w-full text-left border-0 bg-transparent`}
-              onClick={() => setShippingDrawerOpen(true)}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Ship className={`h-4 w-4 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
-                  <span className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    Shipping & VAT Treatment
-                  </span>
+            {/* Shipping Summary Card - Click to open drawer (hidden in simple mode) */}
+            {!simpleMode && (
+              <button
+                type="button"
+                className={`${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4 cursor-pointer hover:border-teal-500 transition-colors w-full text-left border-0 bg-transparent`}
+                onClick={() => setShippingDrawerOpen(true)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Ship className={`h-4 w-4 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
+                    <span className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                      Shipping & VAT Treatment
+                    </span>
+                  </div>
+                  <ChevronDown className={`h-4 w-4 ${isDarkMode ? "text-gray-400" : "text-gray-400"}`} />
                 </div>
-                <ChevronDown className={`h-4 w-4 ${isDarkMode ? "text-gray-400" : "text-gray-400"}`} />
-              </div>
-              {/* Quick summary of shipping info */}
-              <div className="mt-2 grid grid-cols-4 gap-3">
-                <div>
-                  <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Origin</div>
-                  <div className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    {COMMON_PORTS.find((p) => p.value === order.origin_port)?.label || "Not set"}
+                {/* Quick summary of shipping info */}
+                <div className="mt-2 grid grid-cols-4 gap-3">
+                  <div>
+                    <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Origin</div>
+                    <div className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                      {COMMON_PORTS.find((p) => p.value === order.origin_port)?.label || "Not set"}
+                    </div>
+                  </div>
+                  <div>
+                    <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Destination</div>
+                    <div className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                      {COMMON_PORTS.find((p) => p.value === order.destination_port)?.label || "Not set"}
+                    </div>
+                  </div>
+                  <div>
+                    <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Method</div>
+                    <div className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                      {SHIPPING_METHOD_OPTIONS.find((o) => o.value === order.shipping_method)?.label || "Sea Freight"}
+                    </div>
+                  </div>
+                  <div>
+                    <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>VAT Treatment</div>
+                    <div
+                      className={`text-xs font-medium ${calculations.isDesignatedZone ? "text-green-400" : isDarkMode ? "text-white" : "text-gray-900"}`}
+                    >
+                      {calculations.isDesignatedZone ? "0% (DZ)" : "5% Standard"}
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Destination</div>
-                  <div className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    {COMMON_PORTS.find((p) => p.value === order.destination_port)?.label || "Not set"}
+                {errors.destination_port && (
+                  <div className="mt-2 text-xs text-red-400 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" /> {errors.destination_port}
                   </div>
-                </div>
-                <div>
-                  <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Method</div>
-                  <div className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    {SHIPPING_METHOD_OPTIONS.find((o) => o.value === order.shipping_method)?.label || "Sea Freight"}
-                  </div>
-                </div>
-                <div>
-                  <div className={`text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>VAT Treatment</div>
-                  <div
-                    className={`text-xs font-medium ${calculations.isDesignatedZone ? "text-green-400" : isDarkMode ? "text-white" : "text-gray-900"}`}
-                  >
-                    {calculations.isDesignatedZone ? "0% (DZ)" : "5% Standard"}
-                  </div>
-                </div>
-              </div>
-              {errors.destination_port && (
-                <div className="mt-2 text-xs text-red-400 flex items-center gap-1">
-                  <AlertTriangle className="h-3 w-3" /> {errors.destination_port}
-                </div>
-              )}
-            </button>
+                )}
+              </button>
+            )}
 
             {/* Line Items Section */}
             <Card title="Line Items" icon={Package}>
@@ -1691,39 +1776,45 @@ const ImportOrderForm = () => {
                                 className={`${INPUT_CLS} text-right`}
                               />
                             </div>
-                            {/* HS Code */}
-                            <div className="w-[100px]">
-                              <div className={LABEL_CLS}>HS Code</div>
-                              <input
-                                type="text"
-                                value={item.hs_code}
-                                onChange={(e) => handleItemChange(index, "hs_code", e.target.value)}
-                                placeholder="7216.10"
-                                className={INPUT_CLS}
-                              />
-                            </div>
-                            {/* Mill */}
-                            <div className="w-[90px]">
-                              <div className={LABEL_CLS}>Mill</div>
-                              <input
-                                type="text"
-                                value={item.mill_name}
-                                onChange={(e) => handleItemChange(index, "mill_name", e.target.value)}
-                                placeholder="Mill"
-                                className={INPUT_CLS}
-                              />
-                            </div>
-                            {/* Heat # */}
-                            <div className="w-[80px]">
-                              <div className={LABEL_CLS}>Heat #</div>
-                              <input
-                                type="text"
-                                value={item.heat_number}
-                                onChange={(e) => handleItemChange(index, "heat_number", e.target.value)}
-                                placeholder="Heat"
-                                className={INPUT_CLS}
-                              />
-                            </div>
+                            {/* HS Code (hidden in simple mode) */}
+                            {!simpleMode && (
+                              <div className="w-[100px]">
+                                <div className={LABEL_CLS}>HS Code</div>
+                                <input
+                                  type="text"
+                                  value={item.hs_code}
+                                  onChange={(e) => handleItemChange(index, "hs_code", e.target.value)}
+                                  placeholder="7216.10"
+                                  className={INPUT_CLS}
+                                />
+                              </div>
+                            )}
+                            {/* Mill (hidden in simple mode) */}
+                            {!simpleMode && (
+                              <div className="w-[90px]">
+                                <div className={LABEL_CLS}>Mill</div>
+                                <input
+                                  type="text"
+                                  value={item.mill_name}
+                                  onChange={(e) => handleItemChange(index, "mill_name", e.target.value)}
+                                  placeholder="Mill"
+                                  className={INPUT_CLS}
+                                />
+                              </div>
+                            )}
+                            {/* Heat # (hidden in simple mode) */}
+                            {!simpleMode && (
+                              <div className="w-[80px]">
+                                <div className={LABEL_CLS}>Heat #</div>
+                                <input
+                                  type="text"
+                                  value={item.heat_number}
+                                  onChange={(e) => handleItemChange(index, "heat_number", e.target.value)}
+                                  placeholder="Heat"
+                                  className={INPUT_CLS}
+                                />
+                              </div>
+                            )}
                             {/* Landed cost info badges */}
                             <div className="flex items-center gap-2 flex-shrink-0">
                               {(item.landed_cost_total || 0) > 0 && (

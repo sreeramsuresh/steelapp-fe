@@ -1,4 +1,5 @@
-import { Building2, Ship } from "lucide-react";
+import { Building2, Check, Ship } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
 
@@ -11,6 +12,7 @@ const TYPES = [
     description: "Supplier delivers goods to our warehouse",
     badge: "bg-teal-500/10 text-teal-500",
     border: "border-teal-500/40 hover:border-teal-500",
+    selectedBorder: "border-teal-500 ring-2 ring-teal-500/30",
     iconBg: "bg-teal-500/10 text-teal-400",
   },
   {
@@ -18,9 +20,11 @@ const TYPES = [
     label: "Import Purchase",
     icon: Ship,
     color: "blue",
-    description: "Goods imported from overseas via container / shipment",
+    description:
+      "Full trade documentation — HS codes, customs, duties, ports. Switch to Simple mode inside for basic overseas POs.",
     badge: "bg-blue-500/10 text-blue-400",
     border: "border-blue-500/40 hover:border-blue-500",
+    selectedBorder: "border-blue-500 ring-2 ring-blue-500/30",
     iconBg: "bg-blue-500/10 text-blue-400",
   },
 ];
@@ -28,9 +32,14 @@ const TYPES = [
 export default function POTypeSelection() {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  const [selected, setSelected] = useState("LOCAL");
 
-  function select(type) {
-    navigate(`/app/purchase-orders/new?type=${type}`);
+  function handleContinue() {
+    if (selected === "LOCAL") {
+      navigate("/app/purchase-orders/new");
+    } else {
+      navigate("/app/import-orders/new");
+    }
   }
 
   return (
@@ -50,15 +59,21 @@ export default function POTypeSelection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {TYPES.map((t) => {
             const Icon = t.icon;
+            const isSelected = selected === t.key;
             return (
               <button
                 key={t.key}
                 type="button"
-                onClick={() => select(t.key)}
-                className={`text-left p-6 rounded-xl border-2 transition-all ${t.border} ${
-                  isDarkMode ? "bg-gray-800 hover:bg-gray-750" : "bg-white hover:bg-gray-50"
-                } focus:outline-none focus:ring-2 focus:ring-offset-2`}
+                onClick={() => setSelected(t.key)}
+                className={`relative text-left p-6 rounded-xl border-2 transition-all focus:outline-none ${
+                  isSelected ? t.selectedBorder : `${t.border} ${isDarkMode ? "opacity-70" : "opacity-60"}`
+                } ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
               >
+                {isSelected && (
+                  <span className="absolute top-3 right-3 w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center">
+                    <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                  </span>
+                )}
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${t.iconBg}`}>
                   <Icon className="w-6 h-6" />
                 </div>
@@ -76,7 +91,14 @@ export default function POTypeSelection() {
           })}
         </div>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <button
+            type="button"
+            onClick={handleContinue}
+            className="w-full sm:w-auto px-8 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-sm transition-colors"
+          >
+            Continue →
+          </button>
           <button
             type="button"
             onClick={() => navigate(-1)}
