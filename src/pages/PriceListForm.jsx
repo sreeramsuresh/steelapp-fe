@@ -168,7 +168,6 @@ const Toggle = ({ checked, onChange, label, isDarkMode }) => {
         className={`w-11 h-6 rounded-full relative transition-colors ${
           checked ? "bg-teal-500" : isDarkMode ? "bg-gray-600" : "bg-gray-300"
         }`}
-        onClick={() => onChange(!checked)}
         onKeyDown={handleKeyDown}
         role="switch"
         aria-checked={checked}
