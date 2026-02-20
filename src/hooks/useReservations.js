@@ -297,6 +297,7 @@ export function useReservations({ draftInvoiceId, productId, warehouseId, lineIt
           batchId: r.batchId,
           batchNumber: r.batchNumber,
           quantity: r.quantity,
+          pcsAllocated: r.pcsAllocated || r.pcs_reserved || null,
           unit: r.unit,
           unitCost: r.unitCost,
           totalCost: r.totalCost,
@@ -347,7 +348,7 @@ export function useReservations({ draftInvoiceId, productId, warehouseId, lineIt
 
     // Computed values
     hasAllocations: allocations.length > 0,
-    totalAllocated: allocations.reduce((sum, a) => sum + parseFloat(a.quantity || 0), 0),
+    totalAllocated: allocations.reduce((sum, a) => sum + parseFloat(a.pcsAllocated ?? a.quantity ?? 0), 0),
     totalCost: allocations.reduce((sum, a) => sum + parseFloat(a.totalCost || 0), 0),
   };
 }

@@ -204,7 +204,7 @@ const BatchAllocationPanel = ({
   // Calculate totals from current allocations
   // Note: totalCost (COGS) is calculated in parent for per-unit margin display
   const { totalAllocated } = useMemo(() => {
-    const allocated = (allocations || []).reduce((sum, a) => sum + parseFloat(a.quantity || 0), 0);
+    const allocated = (allocations || []).reduce((sum, a) => sum + parseFloat(a.pcsAllocated ?? a.quantity ?? 0), 0);
     return { totalAllocated: allocated };
   }, [allocations]);
 
@@ -285,7 +285,9 @@ const BatchAllocationPanel = ({
               <tbody>
                 {batches.map((batch) => {
                   const currentAlloc = getAllocationForBatch(batch.id);
-                  const allocatedQty = currentAlloc ? parseFloat(currentAlloc.quantity) : 0;
+                  const allocatedQty = currentAlloc
+                    ? parseFloat(currentAlloc.pcsAllocated ?? currentAlloc.quantity ?? 0)
+                    : 0;
                   const manualQty = manualAllocations[batch.id] || "";
                   const batchSelected = isSelected(batch);
                   const canEnterQty = batchSelected && allocatedQty === 0;
