@@ -380,13 +380,13 @@ const IntegritySummarySection = ({ integritySummary, isDarkMode, onRefresh, refr
           </div>
         </div>
       ))}
-      {integritySummary.generated_at && (
+      {integritySummary.generatedAt && (
         <div
           className={`flex items-center justify-end gap-2 text-[11px] ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
         >
           <span>
-            {integritySummary.cache_hit ? "Cached · " : ""}
-            Updated {new Date(integritySummary.generated_at).toLocaleTimeString()}
+            {integritySummary.cacheHit ? "Cached · " : ""}
+            Updated {new Date(integritySummary.generatedAt).toLocaleTimeString()}
           </span>
           <button
             type="button"
