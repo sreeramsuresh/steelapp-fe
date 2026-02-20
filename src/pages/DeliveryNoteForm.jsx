@@ -84,6 +84,8 @@ const DeliveryNoteForm = () => {
   const [showDeliveryAddressDrawer, setShowDeliveryAddressDrawer] = useState(false);
   const [showTransportDrawer, setShowTransportDrawer] = useState(false);
   const [showNotesDrawer, setShowNotesDrawer] = useState(false);
+  const [vehicleSuggestions, setVehicleSuggestions] = useState([]);
+  const [driverSuggestions, setDriverSuggestions] = useState([]);
 
   // Form data - use camelCase for state (API Gateway handles conversion)
   const [formData, setFormData] = useState({
@@ -278,6 +280,24 @@ const DeliveryNoteForm = () => {
       setLoading(false);
     }
   }, [id]);
+
+  const fetchVehicleSuggestions = useCallback(async (q) => {
+    try {
+      const res = await deliveryNoteService.getVehicleSuggestions(q);
+      setVehicleSuggestions(res.suggestions || []);
+    } catch (_) {
+      // Non-critical — ignore errors
+    }
+  }, []);
+
+  const fetchDriverSuggestions = useCallback(async (q) => {
+    try {
+      const res = await deliveryNoteService.getDriverSuggestions(q);
+      setDriverSuggestions(res.suggestions || []);
+    } catch (_) {
+      // Non-critical — ignore errors
+    }
+  }, []);
 
   const loadInvoices = useCallback(async () => {
     try {
@@ -1321,11 +1341,21 @@ const DeliveryNoteForm = () => {
                 id="vehicle-number"
                 data-testid="vehicle-number"
                 type="text"
+                list="vehicle-suggestions"
                 value={formData.vehicleNumber}
-                onChange={(e) => handleInputChange("vehicleNumber", e.target.value)}
+                onFocus={() => fetchVehicleSuggestions("")}
+                onChange={(e) => {
+                  handleInputChange("vehicleNumber", e.target.value);
+                  fetchVehicleSuggestions(e.target.value);
+                }}
                 placeholder="e.g., MH-01-AB-1234"
                 className={INPUT_CLASSES(isDarkMode)}
               />
+              <datalist id="vehicle-suggestions">
+                {vehicleSuggestions.map((v) => (
+                  <option key={v} value={v} />
+                ))}
+              </datalist>
             </div>
             <div>
               <label htmlFor="driver-name" className={LABEL_CLASSES(isDarkMode)}>
@@ -1335,11 +1365,21 @@ const DeliveryNoteForm = () => {
                 id="driver-name"
                 data-testid="driver-name"
                 type="text"
+                list="driver-suggestions"
                 value={formData.driverName}
-                onChange={(e) => handleInputChange("driverName", e.target.value)}
+                onFocus={() => fetchDriverSuggestions("")}
+                onChange={(e) => {
+                  handleInputChange("driverName", e.target.value);
+                  fetchDriverSuggestions(e.target.value);
+                }}
                 placeholder="Enter driver name"
                 className={INPUT_CLASSES(isDarkMode)}
               />
+              <datalist id="driver-suggestions">
+                {driverSuggestions.map((d) => (
+                  <option key={d} value={d} />
+                ))}
+              </datalist>
             </div>
             <div>
               <label htmlFor="driver-phone" className={LABEL_CLASSES(isDarkMode)}>

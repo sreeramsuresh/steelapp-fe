@@ -1334,9 +1334,13 @@ const InvoiceForm = ({ onSave }) => {
         status: "issued",
       }));
 
-      notificationService.success(
-        "Invoice issued successfully as Final Tax Invoice. It is now locked and cannot be modified."
-      );
+      notificationService.success("Invoice issued. Delivery note created and ready to fill transport details.");
+      if (issuedInvoice.deliveryNoteId) {
+        setInvoice((prev) => ({
+          ...prev,
+          deliveryStatus: { hasNotes: true, count: 1, firstId: issuedInvoice.deliveryNoteId },
+        }));
+      }
     } catch (error) {
       console.error("Failed to issue invoice:", error);
       notificationService.error(`Failed to issue invoice: ${error.response?.data?.message || error.message}`);

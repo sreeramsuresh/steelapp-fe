@@ -91,6 +91,16 @@ export const deliveryNoteService = {
     return apiClient.get("/delivery-notes/number/next");
   },
 
+  // Get previously used vehicle numbers (for autocomplete)
+  getVehicleSuggestions: (q = "") => {
+    return apiClient.get("/delivery-notes/suggestions/vehicles", { q });
+  },
+
+  // Get previously used driver names (for autocomplete)
+  getDriverSuggestions: (q = "") => {
+    return apiClient.get("/delivery-notes/suggestions/drivers", { q });
+  },
+
   // Generate and download PDF
   downloadPDF: async (id) => {
     // Use axios-based service to leverage interceptors and auth headers
