@@ -569,7 +569,7 @@ const AllocationDrawer = ({
         ) {
           const currentPcs = Math.floor(parseFloat(drawerState.quantity) || 0);
           const newPcs = Math.floor(parseFloat(value) || 0);
-          const allocatedPcs = allocations.reduce((sum, a) => sum + Math.floor(parseFloat(a.quantity || 0)), 0);
+          const allocatedPcs = allocations.reduce((sum, a) => sum + Math.floor(parseFloat(a.pcsAllocated ?? a.quantity ?? 0)), 0);
 
           // PCS-CENTRIC: Only warn if integer PCS changes
           if (newPcs !== currentPcs) {
@@ -723,7 +723,7 @@ const AllocationDrawer = ({
         (sourceType === "LOCAL_DROP_SHIP" || sourceType === "IMPORT_DROP_SHIP") &&
         allocations?.length > 0
       ) {
-        const allocatedQty = allocations.reduce((sum, a) => sum + parseFloat(a.quantity || 0), 0);
+        const allocatedQty = allocations.reduce((sum, a) => sum + parseFloat(a.pcsAllocated ?? a.quantity ?? 0), 0);
 
         setConfirmDialog({
           open: true,
@@ -844,7 +844,7 @@ const AllocationDrawer = ({
       // 1. Allocations exist and match required quantity, OR
       // 2. No allocations yet but user is in the allocation workflow (warehouse selected + batch panel visible)
       // This allows users to add the line first and complete allocation as next step
-      const allocatedPcs = (allocations || []).reduce((sum, a) => sum + Math.floor(parseFloat(a.quantity || 0)), 0);
+      const allocatedPcs = (allocations || []).reduce((sum, a) => sum + Math.floor(parseFloat(a.pcsAllocated ?? a.quantity ?? 0)), 0);
       const requiredPcs = Math.floor(parseFloat(drawerState.quantity));
 
       // Allow if fully allocated OR if user hasn't attempted allocation yet (empty allocations list)
