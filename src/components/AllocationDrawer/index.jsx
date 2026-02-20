@@ -569,7 +569,10 @@ const AllocationDrawer = ({
         ) {
           const currentPcs = Math.floor(parseFloat(drawerState.quantity) || 0);
           const newPcs = Math.floor(parseFloat(value) || 0);
-          const allocatedPcs = allocations.reduce((sum, a) => sum + Math.floor(parseFloat(a.pcsAllocated ?? a.quantity ?? 0)), 0);
+          const allocatedPcs = allocations.reduce(
+            (sum, a) => sum + Math.floor(parseFloat(a.pcsAllocated ?? a.quantity ?? 0)),
+            0
+          );
 
           // PCS-CENTRIC: Only warn if integer PCS changes
           if (newPcs !== currentPcs) {
@@ -844,7 +847,10 @@ const AllocationDrawer = ({
       // 1. Allocations exist and match required quantity, OR
       // 2. No allocations yet but user is in the allocation workflow (warehouse selected + batch panel visible)
       // This allows users to add the line first and complete allocation as next step
-      const allocatedPcs = (allocations || []).reduce((sum, a) => sum + Math.floor(parseFloat(a.pcsAllocated ?? a.quantity ?? 0)), 0);
+      const allocatedPcs = (allocations || []).reduce(
+        (sum, a) => sum + Math.floor(parseFloat(a.pcsAllocated ?? a.quantity ?? 0)),
+        0
+      );
       const requiredPcs = Math.floor(parseFloat(drawerState.quantity));
 
       // Allow if fully allocated OR if user hasn't attempted allocation yet (empty allocations list)
@@ -871,25 +877,22 @@ const AllocationDrawer = ({
     return qty * price;
   }, [drawerState.quantity, drawerState.unitPrice]);
 
-  // Calculate COGS separately for margin tracking (optional - for future margin reports)
-  const totalCogs = useMemo(() => {
-    if (drawerState.sourceType === "WAREHOUSE" && allocations?.length > 0) {
-      return allocations.reduce((sum, a) => sum + parseFloat(a.totalCost || 0), 0);
-    }
-    return 0;
-  }, [drawerState.sourceType, allocations]);
-
   // Check if user can view margins (CEO, CFO, Sales Manager, Admin, Dev)
   const canViewMargins = useMemo(() => {
     return authService.hasRole(["ceo", "cfo", "sales_manager", "admin", "dev"]);
   }, []);
 
-  // Per-piece unit cost (buying price from batch)
+  // Per-piece unit cost (buying price from batch) — weighted average of unitCost across allocations
   const unitCogs = useMemo(() => {
-    const qty = parseFloat(drawerState.quantity) || 0;
-    if (qty <= 0 || totalCogs <= 0) return 0;
-    return totalCogs / qty;
-  }, [totalCogs, drawerState.quantity]);
+    if (drawerState.sourceType !== "WAREHOUSE" || !allocations?.length) return 0;
+    const totalPcs = allocations.reduce((sum, a) => sum + parseFloat(a.pcsAllocated ?? a.quantity ?? 0), 0);
+    if (totalPcs <= 0) return 0;
+    const weightedCost = allocations.reduce((sum, a) => {
+      const pcs = parseFloat(a.pcsAllocated ?? a.quantity ?? 0);
+      return sum + parseFloat(a.unitCost || 0) * pcs;
+    }, 0);
+    return weightedCost / totalPcs;
+  }, [drawerState.sourceType, allocations]);
 
   // Per-piece margin (selling - buying)
   const unitMargin = useMemo(() => {
