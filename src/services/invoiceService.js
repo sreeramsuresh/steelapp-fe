@@ -95,10 +95,18 @@ const transformInvoiceFromServer = (serverData) => {
     // Customer/Reference Fields
     // ========================================
     // proto: customer_details (line 247) → API: customerDetails → frontend: customer
-    customer:
-      typeof serverData.customerDetails === "string"
-        ? JSON.parse(serverData.customerDetails)
-        : serverData.customerDetails || serverData.customer || {},
+    // Fall back to {id, name} from top-level fields when customerDetails is empty
+    customer: (() => {
+      const details =
+        typeof serverData.customerDetails === "string"
+          ? JSON.parse(serverData.customerDetails)
+          : serverData.customerDetails || serverData.customer || {};
+      if (details && details.id) return details;
+      if (serverData.customerId) {
+        return { id: serverData.customerId, name: serverData.customerName || "" };
+      }
+      return details;
+    })(),
 
     // proto: mode_of_payment (line 257) → API: modeOfPayment
     modeOfPayment: serverData.modeOfPayment || serverData.mode_of_payment || null,

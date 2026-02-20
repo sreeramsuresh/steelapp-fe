@@ -704,6 +704,11 @@ const InvoiceForm = ({ onSave }) => {
       };
       setInvoice(invoiceWithDate);
 
+      // Pre-fill the customer search input so the autocomplete shows the customer name
+      if (invoiceWithDate.customer?.name) {
+        setCustomerSearchInput(titleCase(normalizeLLC(invoiceWithDate.customer.name)));
+      }
+
       // Capture the original saved status for isLocked calculation
       // This prevents the locked banner from showing when just changing the dropdown
       const savedStatus = (existingInvoice.status || "").toLowerCase().replace("status_", "");
@@ -2623,7 +2628,7 @@ const InvoiceForm = ({ onSave }) => {
                           className="text-base"
                         >
                           {warehouses.map((w) => (
-                            <SelectItem key={w.id} value={w.id}>
+                            <SelectItem key={w.id} value={w.id.toString()}>
                               {w.name} - {w.city}
                             </SelectItem>
                           ))}
