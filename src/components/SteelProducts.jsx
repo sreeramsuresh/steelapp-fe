@@ -753,6 +753,7 @@ const SteelProducts = () => {
     productCategory: "", // Product category (COIL, SHEET, PLATE, PIPE, TUBE, BAR, FLAT)
     // Unit of Measure fields (added 2025-12-09 - Piece-Based Inventory)
     primaryUom: "PCS", // Primary unit: PCS, KG, MT, METER
+    stockBasis: "", // Canonical inventory unit: KG | PCS | METER | MT | LOT
     unitWeightKg: "", // Weight of one piece in kg
     allowDecimalQuantity: false, // Whether fractional quantities allowed
     // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
@@ -1472,6 +1473,7 @@ const SteelProducts = () => {
         productCategory: newProduct.productCategory || undefined, // API Gateway converts to product_category
         // Unit of Measure fields (added 2025-12-09)
         primaryUom: newProduct.primaryUom || "PCS",
+        stockBasis: newProduct.stockBasis || undefined,
         unitWeightKg: newProduct.unitWeightKg || undefined,
         allowDecimalQuantity: newProduct.allowDecimalQuantity || false,
         // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
@@ -1812,6 +1814,7 @@ const SteelProducts = () => {
         millName: newProduct.millName || undefined,
         productCategory: newProduct.productCategory || undefined,
         primaryUom: newProduct.primaryUom || "PCS",
+        stockBasis: newProduct.stockBasis || undefined,
         unitWeightKg: newProduct.unitWeightKg || undefined,
         allowDecimalQuantity: newProduct.allowDecimalQuantity || false,
         pricingBasis: newProduct.pricingBasis || "PER_MT",
@@ -2436,6 +2439,8 @@ const SteelProducts = () => {
                             millName: product.millName || product.mill_name || "",
                             productCategory: product.productCategory || product.product_category || "",
                             primaryUom: product.primaryUom || product.primary_uom || "PCS",
+                            stockBasis: product.stockBasis || product.stock_basis || "",
+                            hasStockBatches: product.hasStockBatches || product.has_stock_batches || false,
                             unitWeightKg: product.unitWeightKg || product.unit_weight_kg || "",
                             allowDecimalQuantity:
                               product.allowDecimalQuantity ?? product.allow_decimal_quantity ?? false,
@@ -3500,6 +3505,31 @@ const SteelProducts = () => {
                     />
                     <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                       Typical: Sheets ±2.5% | Coils ±2% | Bars ±3% | Pipes ±5%
+                    </p>
+                  </div>
+                  <div className="mt-4">
+                    <label htmlFor="stock-basis-select" className="block text-sm font-medium mb-1">
+                      Stock Basis
+                    </label>
+                    <select
+                      id="stock-basis-select"
+                      className="w-full border rounded-lg px-3 py-2 text-sm"
+                      value={newProduct.stockBasis || ""}
+                      onChange={(e) => setNewProduct((p) => ({ ...p, stockBasis: e.target.value }))}
+                      disabled={!!newProduct.hasStockBatches}
+                    >
+                      <option value="">— select stock basis —</option>
+                      <option value="KG">KG — Kilograms</option>
+                      <option value="PCS">PCS — Pieces</option>
+                      <option value="METER">METER — Meters</option>
+                      <option value="MT">MT — Metric Tons</option>
+                      <option value="LOT">LOT — Lot</option>
+                    </select>
+                    <p className="text-xs mt-1 text-gray-400">
+                      Canonical inventory unit for stock batches.{" "}
+                      {newProduct.hasStockBatches && (
+                        <span className="text-red-500">Locked — batches already received.</span>
+                      )}
                     </p>
                   </div>
                 </div>

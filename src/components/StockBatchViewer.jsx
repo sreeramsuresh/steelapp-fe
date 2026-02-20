@@ -162,9 +162,9 @@ const StockBatchViewer = ({ productId, companyId, channelFilter, onClose, isModa
                   }`}
                 >
                   {channel === "ALL" ? "All Channels" : channel}
-                  {channel === "LOCAL" && ` (${totals.localQty.toLocaleString()} kg)`}
-                  {channel === "IMPORTED" && ` (${totals.importedQty.toLocaleString()} kg)`}
-                  {channel === "ALL" && ` (${totals.totalQty.toLocaleString()} kg)`}
+                  {channel === "LOCAL" && ` (${totals.localQty.toLocaleString()} ${batches[0]?.unit || "KG"})`}
+                  {channel === "IMPORTED" && ` (${totals.importedQty.toLocaleString()} ${batches[0]?.unit || "KG"})`}
+                  {channel === "ALL" && ` (${totals.totalQty.toLocaleString()} ${batches[0]?.unit || "KG"})`}
                 </button>
               ))}
             </div>
@@ -243,10 +243,10 @@ const StockBatchViewer = ({ productId, companyId, channelFilter, onClose, isModa
                       {/* Quantity */}
                       <div className="text-right">
                         <div className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                          {(batch.quantityRemaining || 0).toLocaleString()} kg
+                          {(batch.quantityRemaining || 0).toLocaleString()} {batch.unit || "KG"}
                         </div>
                         <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                          of {(batch.quantityReceived || 0).toLocaleString()} kg
+                          of {(batch.quantityReceived || 0).toLocaleString()} {batch.unit || "KG"}
                         </div>
                       </div>
 
