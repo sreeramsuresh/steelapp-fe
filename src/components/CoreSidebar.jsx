@@ -465,4 +465,3 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
 };
 
 export default CoreSidebar;
-

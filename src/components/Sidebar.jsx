@@ -552,5 +552,3 @@ const Sidebar = ({ isOpen, onToggle }) => {
 };
 
 export default Sidebar;
-
-
