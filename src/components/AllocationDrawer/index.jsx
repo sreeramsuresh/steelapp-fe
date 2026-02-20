@@ -860,7 +860,7 @@ const AllocationDrawer = ({
 
   // Calculate allocated quantity
   const allocatedQuantity = useMemo(() => {
-    return (allocations || []).reduce((sum, a) => sum + parseFloat(a.quantity || 0), 0);
+    return (allocations || []).reduce((sum, a) => sum + parseFloat(a.pcsAllocated ?? a.quantity ?? 0), 0);
   }, [allocations]);
 
   // Calculate total cost (selling amount = qty × unitPrice)
