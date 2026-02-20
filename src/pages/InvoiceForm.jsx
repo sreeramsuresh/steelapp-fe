@@ -1013,6 +1013,7 @@ const InvoiceForm = ({ onSave }) => {
         rate: parseFloat(lineItemData.rate),
         pricingBasis:
           lineItemData.pricingBasis || lineItemData.basePricingBasis || getDefaultBasis(lineItemData.product?.category), // Use base pricing basis from drawer
+        quantityBasis: lineItemData.product?.quantityBasis ?? lineItemData.product?.quantity_basis ?? null,
         baseRate: lineItemData.baseRate, // CRITICAL: Persist immutable base price
         basePricingBasis: lineItemData.basePricingBasis, // CRITICAL: Persist immutable base basis
         amount: parseFloat(lineItemData.amount),
@@ -2915,6 +2916,11 @@ const InvoiceForm = ({ onSave }) => {
                                 {/* Qty */}
                                 <td className="px-2 py-2 text-center text-sm">
                                   {item.quantity || 0} {item.quantityUom || "KG"}
+                                  {item.stockQty != null && (
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      ≈ {Number(item.stockQty).toFixed(3)} {item.primaryUom || "KG"} in stock basis
+                                    </div>
+                                  )}
                                 </td>
                                 {/* Rate */}
                                 <td className="px-2 py-2 text-right text-sm">{formatCurrency(item.rate || 0)}</td>

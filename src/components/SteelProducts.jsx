@@ -758,6 +758,7 @@ const SteelProducts = () => {
     allowDecimalQuantity: false, // Whether fractional quantities allowed
     // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
     pricingBasis: "PER_MT", // Basis for cost_price/selling_price: PER_KG, PER_MT, PER_PCS, PER_METER, PER_LOT
+    quantityBasis: "", // FIXED | WEIGHT_DERIVED | DUAL_UNIT | VARIABLE_LENGTH | LOT_BASED
     weightTolerancePercent: 2.5, // Acceptable weight variance % (Sheets: 2.5%, Pipes: 5%, Bars: 3%)
     specifications: {
       length: "",
@@ -979,6 +980,7 @@ const SteelProducts = () => {
       allowDecimalQuantity: false,
       // Pricing & Commercial Fields (reset to defaults)
       pricingBasis: "PER_MT",
+      quantityBasis: "",
       weightTolerancePercent: 2.5,
       specifications: {
         length: "",
@@ -1478,6 +1480,7 @@ const SteelProducts = () => {
         allowDecimalQuantity: newProduct.allowDecimalQuantity || false,
         // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
         pricingBasis: newProduct.pricingBasis || "PER_MT", // API Gateway converts to pricing_basis
+        quantityBasis: newProduct.quantityBasis || undefined,
         weightTolerancePercent: newProduct.weightTolerancePercent || 2.5, // API Gateway converts to weight_tolerance_percent
         specifications: newProduct.specifications,
       };
@@ -1520,6 +1523,7 @@ const SteelProducts = () => {
         allowDecimalQuantity: false,
         // Pricing & Commercial Fields (reset to defaults)
         pricingBasis: "PER_MT",
+        quantityBasis: "",
         weightTolerancePercent: 2.5,
         specifications: {
           length: "",
@@ -1818,6 +1822,7 @@ const SteelProducts = () => {
         unitWeightKg: newProduct.unitWeightKg || undefined,
         allowDecimalQuantity: newProduct.allowDecimalQuantity || false,
         pricingBasis: newProduct.pricingBasis || "PER_MT",
+        quantityBasis: newProduct.quantityBasis || undefined,
         weightTolerancePercent:
           newProduct.weightTolerancePercent !== undefined ? Number(newProduct.weightTolerancePercent) : 2.5,
         specifications: newProduct.specifications,
@@ -2445,6 +2450,7 @@ const SteelProducts = () => {
                             allowDecimalQuantity:
                               product.allowDecimalQuantity ?? product.allow_decimal_quantity ?? false,
                             pricingBasis: product.pricingBasis || product.pricing_basis || "PER_MT",
+                            quantityBasis: product.quantityBasis || product.quantity_basis || "",
                             weightTolerancePercent:
                               product.weightTolerancePercent ?? product.weight_tolerance_percent ?? 2.5,
                             specifications: product.specifications || {
@@ -3532,6 +3538,45 @@ const SteelProducts = () => {
                       )}
                     </p>
                   </div>
+                  <div className="mt-4">
+                    <label htmlFor="quantity-basis-select" className="block text-sm font-medium mb-1">
+                      Quantity Basis
+                    </label>
+                    <select
+                      id="quantity-basis-select"
+                      className="w-full border rounded-lg px-3 py-2 text-sm"
+                      value={newProduct.quantityBasis || ""}
+                      onChange={(e) => setNewProduct((p) => ({ ...p, quantityBasis: e.target.value }))}
+                    >
+                      <option value="">-- Select --</option>
+                      <option value="FIXED">Fixed (same as stock basis)</option>
+                      <option value="WEIGHT_DERIVED">Weight Derived (KG/MT)</option>
+                      <option value="DUAL_UNIT">Dual Unit (PCS + KG/MT)</option>
+                      <option value="VARIABLE_LENGTH">Variable Length (METER)</option>
+                      <option value="LOT_BASED">Lot Based</option>
+                    </select>
+                    <p className="text-xs mt-1 text-gray-400">Controls how invoice quantity converts to stock units.</p>
+                  </div>
+                  {(newProduct.quantityBasis === "WEIGHT_DERIVED" || newProduct.quantityBasis === "DUAL_UNIT") && (
+                    <div className="mt-4">
+                      <Input
+                        label="Unit Weight (kg)"
+                        type="number"
+                        step="0.001"
+                        min="0"
+                        value={newProduct.unitWeightKg || ""}
+                        onChange={(e) =>
+                          setNewProduct((p) => ({
+                            ...p,
+                            unitWeightKg: e.target.value === "" ? "" : Number(e.target.value),
+                          }))
+                        }
+                        placeholder="e.g. 2.5"
+                        required
+                      />
+                      <p className="text-xs mt-1 text-gray-400">Required for weight-based conversion (PCS to KG/MT).</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Supplier & Location - collapsible */}

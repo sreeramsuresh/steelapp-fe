@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Field Accessors - Safe access to API fields with snake_case/camelCase fallbacks
  *
  * The API Gateway converts snake_case (backend) to camelCase (frontend), but
@@ -39,22 +39,22 @@ export const safeField = (obj, camelCase) => {
  * The products table has 4 name columns (unique_name, full_name, display_name, name).
  * A DB trigger sets all 4 to the same SSOT value (e.g. "SS-304-Sheet-2B-1220x2440-1.5mm").
  * Today they never diverge, but the accessors below are the SINGLE SOURCE OF TRUTH
- * for precedence order — so if user-override of display_name is added later,
+ * for precedence order - so if user-override of display_name is added later,
  * only this file needs to change.
  *
  * Use case mapping:
- *   UI labels/titles/tooltips → getProductDisplayName()
- *   System identifiers/sort keys/payloads → getProductUniqueName()
- *   Legacy callers that used getProductFullName → alias of getProductUniqueName()
+ *   UI labels/titles/tooltips  getProductDisplayName()
+ *   System identifiers/sort keys/payloads  getProductUniqueName()
+ *   Legacy callers that used getProductFullName  alias of getProductUniqueName()
  */
 
 /**
  * Get product display name for UI rendering (labels, titles, tooltips).
  *
  * Precedence (first non-empty wins):
- *   1. displayName / display_name  — user-facing override (if it ever diverges)
- *   2. uniqueName  / unique_name   — canonical SSOT identity
- *   3. name                        — legacy column
+ *   1. displayName / display_name  - user-facing override (if it ever diverges)
+ *   2. uniqueName  / unique_name   - canonical SSOT identity
+ *   3. name                        - legacy column
  *
  * @param {Object} product - Product object (camelCase or snake_case fields)
  * @returns {string} Display name or empty string
@@ -68,9 +68,9 @@ export const getProductDisplayName = (product) => {
  * Get product unique/system name for identifiers, sort keys, and API payloads.
  *
  * Precedence (first non-empty wins):
- *   1. uniqueName / unique_name   — canonical SSOT identity
- *   2. fullName   / full_name     — always == unique_name (set by DB trigger)
- *   3. name                       — legacy column
+ *   1. uniqueName / unique_name   - canonical SSOT identity
+ *   2. fullName   / full_name     - always == unique_name (set by DB trigger)
+ *   3. name                       - legacy column
  *
  * @param {Object} product - Product object (camelCase or snake_case fields)
  * @returns {string} Unique name or empty string
@@ -82,7 +82,7 @@ export const getProductUniqueName = (product) => {
 
 /**
  * @deprecated Use getProductUniqueName() instead.
- * Kept for backward compatibility — identical behavior.
+ * Kept for backward compatibility - identical behavior.
  */
 export const getProductFullName = getProductUniqueName;
 
@@ -183,7 +183,7 @@ export const normalizeProduct = (product) => {
   const fullName = product.fullName || product.full_name || "";
   const uniqueName = product.uniqueName || product.unique_name || "";
 
-  // Step 1: Normalize snake_case → camelCase
+  // Step 1: Normalize snake_case  camelCase
   const normalized = {
     ...product,
     // Name fields
@@ -208,6 +208,7 @@ export const normalizeProduct = (product) => {
     piecesPerMt: product.piecesPerMt ?? product.pieces_per_mt ?? null,
     productCategory: product.productCategory || product.product_category || "",
     pricingBasis: product.pricingBasis ?? product.pricing_basis ?? null,
+    quantityBasis: product.quantityBasis ?? product.quantity_basis ?? null,
     primaryUom: product.primaryUom ?? product.primary_uom ?? null,
     form: product.form || "",
     // Additional dimension fields
@@ -223,6 +224,7 @@ export const normalizeProduct = (product) => {
   delete normalized.pieces_per_mt;
   delete normalized.product_category;
   delete normalized.pricing_basis;
+  delete normalized.quantity_basis;
   delete normalized.primary_uom;
   delete normalized.display_name;
   delete normalized.full_name;

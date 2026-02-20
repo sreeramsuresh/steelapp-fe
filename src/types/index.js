@@ -59,6 +59,9 @@ export const createSteelItem = () => ({
   manualAllocations: [], // User-selected batch allocations [{batch_id, quantity}]
   // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
   pricingBasis: "PER_MT", // Basis for rate: PER_KG, PER_MT, PER_PCS, PER_METER, PER_LOT
+  quantityBasis: null, // FIXED | WEIGHT_DERIVED | DUAL_UNIT | VARIABLE_LENGTH | LOT_BASED
+  conversionPath: null, // DIRECT | KG_MT | MT_KG | PCS_KG | PCS_MT (read-only, backend computed)
+  stockQty: null, // read-only display; authoritative value lives on backend
   unitWeightKg: null, // Weight of a single unit/piece in kg
   quantityUom: "PCS", // Unit of measure for quantity: PCS (pieces), KG, MT
   theoreticalWeightKg: null, // Calculated: quantity × unitWeightKg (for audit trail)

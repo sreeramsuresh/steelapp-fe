@@ -63,6 +63,7 @@ const AllocationDrawer = ({
     currentDisplayUnit: null, // BUGFIX: Track what unit the currently displayed unitPrice is in
     unitWeightKg: null, // Product weight in kg (for piece-to-weight conversions)
     primaryUom: null, // Product's primary unit from product master
+    quantityBasis: null, // FIXED | WEIGHT_DERIVED | DUAL_UNIT | VARIABLE_LENGTH | LOT_BASED
   });
 
   // Confirmation dialog state
@@ -325,12 +326,21 @@ const AllocationDrawer = ({
 
   // Phase 4: Get available units based on product and pricing basis
   const getAvailableUnits = useCallback(() => {
-    const allUnits = ["KG", "PCS", "MT", "M"];
+    // Determine allowed units from quantity_basis
+    const QUANTITY_BASIS_UNITS = {
+      FIXED: drawerState.primaryUom ? [drawerState.primaryUom] : ["KG"],
+      WEIGHT_DERIVED: ["KG", "MT"],
+      DUAL_UNIT: ["PCS", "KG", "MT"],
+      VARIABLE_LENGTH: ["M"],
+      LOT_BASED: ["LOT"],
+    };
+    const basisUnits = drawerState.quantityBasis ? QUANTITY_BASIS_UNITS[drawerState.quantityBasis] : null;
+    const allUnits = basisUnits || ["KG", "PCS", "MT", "M"];
     const currentUnit = drawerState.unit;
 
     // If no product selected, allow all units
     if (!drawerState.productId) {
-      return allUnits.map((unit) => ({
+      return ["KG", "PCS", "MT", "M"].map((unit) => ({
         value: unit,
         disabled: false,
         reason: null,
@@ -382,6 +392,8 @@ const AllocationDrawer = ({
     drawerState.unitWeightKg,
     drawerState.pricingBasisCode,
     drawerState.product,
+    drawerState.quantityBasis,
+    drawerState.primaryUom,
     isCoil,
     isConversionSupported,
   ]);
@@ -544,6 +556,7 @@ const AllocationDrawer = ({
         // Phase 1: Store product UOM and weight information
         unitWeightKg: product?.unitWeightKg || null,
         primaryUom: product?.primaryUom || null,
+        quantityBasis: product?.quantityBasis || null,
       }));
 
       // Clear any existing reservation and its error state when product changes
