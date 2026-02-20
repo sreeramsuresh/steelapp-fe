@@ -62,6 +62,17 @@ const WarehouseDetail = () => {
   const [selectedLocId, setSelectedLocId] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Locations tab state
+  const [locTabData, setLocTabData] = useState([]);
+  const [locTabLoading, setLocTabLoading] = useState(false);
+  const [genAisles, setGenAisles] = useState(4);
+  const [genRacks, setGenRacks] = useState(3);
+  const [genBins, setGenBins] = useState(9);
+  const [genOverrides, setGenOverrides] = useState({});
+  const [genLoading, setGenLoading] = useState(false);
+  const [genResult, setGenResult] = useState(null);
+  const [addLocForm, setAddLocForm] = useState(null);
+
   const fetchWarehouse = useCallback(async () => {
     try {
       setLoading(true);
@@ -120,6 +131,92 @@ const WarehouseDetail = () => {
     }
   }, [activeTab, fetchBatches]);
 
+  const fetchLocTabData = useCallback(async () => {
+    setLocTabLoading(true);
+    try {
+      const res = await apiClient.get("/warehouse-locations", { warehouse_id: id, active: "false" });
+      setLocTabData(res.warehouseLocations || res.locations || []);
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+      notificationService.error("Failed to load locations");
+    } finally {
+      setLocTabLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (activeTab === "locations") {
+      fetchLocTabData();
+    }
+  }, [activeTab, fetchLocTabData]);
+
+  const computePreview = () => {
+    const a = Math.max(1, Math.min(26, parseInt(genAisles, 10) || 0));
+    const r = Math.max(1, Math.min(99, parseInt(genRacks, 10) || 0));
+    const d = Math.max(1, Math.min(99, parseInt(genBins, 10) || 0));
+    let total = 0;
+    for (let ai = 0; ai < a; ai++) {
+      const aisle = String.fromCharCode(65 + ai);
+      for (let ri = 1; ri <= r; ri++) {
+        const key = `${aisle}-R${ri}`;
+        total += parseInt(genOverrides[key], 10) || d;
+      }
+    }
+    return total;
+  };
+
+  const handleGenerate = async () => {
+    setGenLoading(true);
+    setGenResult(null);
+    try {
+      const payload = {
+        aisles: parseInt(genAisles, 10),
+        racksPerAisle: parseInt(genRacks, 10),
+        defaultBinsPerRack: parseInt(genBins, 10),
+        overrides: Object.fromEntries(
+          Object.entries(genOverrides)
+            .filter(([, v]) => v !== "" && v !== undefined)
+            .map(([k, v]) => [k, parseInt(v, 10)])
+        ),
+      };
+      const res = await apiClient.post(`/warehouses/${id}/locations/generate`, payload);
+      setGenResult(res);
+      fetchLocTabData();
+    } catch (error) {
+      notificationService.error(error.message || "Failed to generate locations");
+    } finally {
+      setGenLoading(false);
+    }
+  };
+
+  const handleDeactivateLoc = async (locId) => {
+    try {
+      await apiClient.delete(`/warehouse-locations/${locId}`);
+      fetchLocTabData();
+      notificationService.success("Location deactivated");
+    } catch (error) {
+      notificationService.error(error.message || "Failed to deactivate location");
+    }
+  };
+
+  const handleSaveAddLoc = async () => {
+    if (!addLocForm) return;
+    try {
+      await apiClient.post("/warehouse-locations", {
+        warehouse_id: parseInt(id, 10),
+        aisle: addLocForm.aisle,
+        rack: addLocForm.rack,
+        bin: addLocForm.bin,
+        is_active: true,
+      });
+      setAddLocForm(null);
+      fetchLocTabData();
+      notificationService.success("Location added");
+    } catch (error) {
+      notificationService.error(error.message || "Failed to add location");
+    }
+  };
+
   const handleEdit = () => setEditDialogOpen(true);
 
   const handleEditSave = async (formData) => {
@@ -164,6 +261,7 @@ const WarehouseDetail = () => {
     { id: "overview", label: "Overview", icon: MapPin },
     { id: "stock", label: "Stock", icon: Package },
     { id: "batches", label: "Batches", icon: Layers },
+    { id: "locations", label: "Locations", icon: MapPin },
     { id: "activity", label: "Activity", icon: Activity },
   ];
 
@@ -605,6 +703,276 @@ const WarehouseDetail = () => {
           </div>
         )}
 
+        {activeTab === "locations" && (
+          <div className="space-y-6">
+            {/* Generate section */}
+            <div
+              className={`rounded-lg border p-5 ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
+            >
+              <h3
+                className={`text-sm font-semibold mb-4 uppercase tracking-wide ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+              >
+                Generate Locations
+              </h3>
+              <div className="flex flex-wrap gap-4 mb-4">
+                <div>
+                  <label
+                    htmlFor="gen-aisles"
+                    className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    Aisles
+                  </label>
+                  <input
+                    id="gen-aisles"
+                    type="number"
+                    min="1"
+                    max="26"
+                    value={genAisles}
+                    onChange={(e) => {
+                      setGenAisles(e.target.value);
+                      setGenOverrides({});
+                      setGenResult(null);
+                    }}
+                    className={`w-20 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="gen-racks"
+                    className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    Racks / Aisle
+                  </label>
+                  <input
+                    id="gen-racks"
+                    type="number"
+                    min="1"
+                    max="99"
+                    value={genRacks}
+                    onChange={(e) => {
+                      setGenRacks(e.target.value);
+                      setGenOverrides({});
+                      setGenResult(null);
+                    }}
+                    className={`w-20 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="gen-bins"
+                    className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    Default bins / rack
+                  </label>
+                  <input
+                    id="gen-bins"
+                    type="number"
+                    min="1"
+                    max="99"
+                    value={genBins}
+                    onChange={(e) => {
+                      setGenBins(e.target.value);
+                      setGenResult(null);
+                    }}
+                    className={`w-24 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                  />
+                </div>
+              </div>
+
+              {/* Override grid */}
+              {parseInt(genAisles, 10) >= 1 && parseInt(genRacks, 10) >= 1 && (
+                <div className="mb-4">
+                  <p className={`text-xs mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    Override bins per rack (optional):
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {Array.from({ length: Math.min(parseInt(genAisles, 10) || 0, 26) }, (_, ai) => {
+                      const aisle = String.fromCharCode(65 + ai);
+                      return Array.from({ length: Math.min(parseInt(genRacks, 10) || 0, 99) }, (_, ri) => {
+                        const rack = `R${ri + 1}`;
+                        const key = `${aisle}-${rack}`;
+                        return (
+                          <div key={key} className="flex items-center gap-1">
+                            <span className={`text-xs font-mono ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                              {key}
+                            </span>
+                            <input
+                              type="number"
+                              min="1"
+                              max="99"
+                              value={genOverrides[key] ?? genBins}
+                              onChange={(e) => {
+                                setGenOverrides((prev) => ({ ...prev, [key]: e.target.value }));
+                                setGenResult(null);
+                              }}
+                              className={`w-14 px-1.5 py-1 text-xs rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                            />
+                          </div>
+                        );
+                      });
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center gap-4">
+                <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  Preview: <strong>{computePreview()}</strong> locations total
+                </span>
+                <button
+                  type="button"
+                  onClick={handleGenerate}
+                  disabled={genLoading}
+                  className="px-4 py-1.5 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-60"
+                >
+                  {genLoading ? "Generating..." : "Generate"}
+                </button>
+              </div>
+
+              {genResult && (
+                <p className={`mt-3 text-sm ${isDarkMode ? "text-green-400" : "text-green-600"}`}>
+                  ✓ Generated {genResult.generated} new, {genResult.skipped} skipped (of {genResult.total} total)
+                </p>
+              )}
+            </div>
+
+            {/* Existing locations table */}
+            <div
+              className={`rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
+            >
+              <div
+                className={`flex items-center justify-between p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+              >
+                <h3 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                  Existing Locations ({locTabData.length})
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setAddLocForm({ aisle: "", rack: "", bin: "" })}
+                  className="flex items-center gap-1 text-sm px-3 py-1.5 border border-teal-600 text-teal-500 rounded-lg hover:bg-teal-600 hover:text-white"
+                >
+                  + Add
+                </button>
+              </div>
+
+              {addLocForm && (
+                <div
+                  className={`flex items-center gap-3 p-4 border-b ${isDarkMode ? "border-gray-700 bg-gray-800/40" : "border-gray-200 bg-gray-50"}`}
+                >
+                  <input
+                    placeholder="Aisle (A)"
+                    value={addLocForm.aisle}
+                    onChange={(e) => setAddLocForm((f) => ({ ...f, aisle: e.target.value.toUpperCase() }))}
+                    className={`w-20 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                  />
+                  <input
+                    placeholder="Rack (R1)"
+                    value={addLocForm.rack}
+                    onChange={(e) => setAddLocForm((f) => ({ ...f, rack: e.target.value }))}
+                    className={`w-20 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                  />
+                  <input
+                    placeholder="Bin (B1)"
+                    value={addLocForm.bin}
+                    onChange={(e) => setAddLocForm((f) => ({ ...f, bin: e.target.value }))}
+                    className={`w-20 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSaveAddLoc}
+                    className="px-3 py-1.5 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+                  >
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAddLocForm(null)}
+                    className={`px-3 py-1.5 text-sm rounded-lg border ${isDarkMode ? "border-gray-600 text-gray-300 hover:bg-gray-700" : "border-gray-300 text-gray-700 hover:bg-gray-100"}`}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+
+              {locTabLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <RefreshCw className={`w-6 h-6 animate-spin ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
+                </div>
+              ) : locTabData.length === 0 ? (
+                <div className="py-12 text-center">
+                  <MapPin className={`w-10 h-10 mx-auto mb-3 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                    No locations yet. Use Generate above or add manually.
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr
+                        className={`border-b ${isDarkMode ? "border-gray-700 text-gray-400" : "border-gray-200 text-gray-500"}`}
+                      >
+                        <th className="text-left px-4 py-3 font-medium">Label</th>
+                        <th className="text-left px-4 py-3 font-medium w-20">Aisle</th>
+                        <th className="text-left px-4 py-3 font-medium w-20">Rack</th>
+                        <th className="text-left px-4 py-3 font-medium w-20">Bin</th>
+                        <th className="text-left px-4 py-3 font-medium w-24">Status</th>
+                        <th className="text-right px-4 py-3 font-medium w-32">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-100"}`}>
+                      {locTabData.map((loc) => (
+                        <tr key={loc.id} className={isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}>
+                          <td
+                            className={`px-4 py-3 font-mono text-xs ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                          >
+                            {loc.label || `${loc.aisle}-${loc.rack}-${loc.bin}`}
+                          </td>
+                          <td className={`px-4 py-3 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                            {loc.aisle}
+                          </td>
+                          <td className={`px-4 py-3 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                            {loc.rack}
+                          </td>
+                          <td className={`px-4 py-3 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                            {loc.bin}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={`text-xs px-2 py-0.5 rounded-full ${
+                                loc.isActive || loc.is_active
+                                  ? isDarkMode
+                                    ? "bg-green-900/30 text-green-400"
+                                    : "bg-green-100 text-green-700"
+                                  : isDarkMode
+                                    ? "bg-gray-700 text-gray-400"
+                                    : "bg-gray-100 text-gray-500"
+                              }`}
+                            >
+                              {loc.isActive || loc.is_active ? "Active" : "Inactive"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            {(loc.isActive || loc.is_active) && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeactivateLoc(loc.id)}
+                                className={`text-xs px-2 py-0.5 rounded border ${isDarkMode ? "border-gray-600 text-gray-400 hover:border-red-500 hover:text-red-400" : "border-gray-300 text-gray-500 hover:border-red-400 hover:text-red-500"}`}
+                              >
+                                Deactivate
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {activeTab === "activity" && (
           <div
             className={`rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
@@ -671,24 +1039,30 @@ const WarehouseDetail = () => {
                 >
                   Bin Location
                 </label>
-                <Link
-                  to="/app/warehouse-locations"
+                <button
+                  type="button"
                   className="text-xs text-teal-500 hover:underline"
-                  onClick={() => setAssigningBatch(null)}
+                  onClick={() => {
+                    setAssigningBatch(null);
+                    setActiveTab("locations");
+                  }}
                 >
                   + Manage locations
-                </Link>
+                </button>
               </div>
               {locations.length === 0 ? (
                 <p className={`text-xs py-2 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                   No bin locations configured for this warehouse.{" "}
-                  <Link
-                    to="/app/warehouse-locations"
+                  <button
+                    type="button"
                     className="text-teal-500 hover:underline"
-                    onClick={() => setAssigningBatch(null)}
+                    onClick={() => {
+                      setAssigningBatch(null);
+                      setActiveTab("locations");
+                    }}
                   >
                     Add locations
-                  </Link>{" "}
+                  </button>{" "}
                   first.
                 </p>
               ) : (

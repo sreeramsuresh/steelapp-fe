@@ -186,12 +186,6 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           requiredPermission: "warehouses.read",
         },
         {
-          name: "Bin Locations",
-          path: "/app/warehouse-locations",
-          icon: MapPin,
-          description: "Aisle, rack, and bin locations within warehouses",
-        },
-        {
           name: "Stock Levels",
           path: "/app/inventory",
           icon: Warehouse,
