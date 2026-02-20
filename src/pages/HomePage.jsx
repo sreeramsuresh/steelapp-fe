@@ -340,6 +340,22 @@ const IntegritySummarySection = ({ integritySummary, isDarkMode, onRefresh, refr
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between mb-2">
+        <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+          {integritySummary.cacheHit ? "Cached · " : ""}
+          {integritySummary.generatedAt ? `Updated ${new Date(integritySummary.generatedAt).toLocaleTimeString()}` : ""}
+        </span>
+        <button
+          type="button"
+          onClick={onRefresh}
+          disabled={refreshing}
+          title="Refresh integrity check"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-teal-600 hover:bg-teal-500 text-white disabled:opacity-50 transition-colors"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+          Refresh
+        </button>
+      </div>
       {INTEGRITY_GROUPS.map((group) => (
         <div
           key={group.label}
@@ -380,25 +396,6 @@ const IntegritySummarySection = ({ integritySummary, isDarkMode, onRefresh, refr
           </div>
         </div>
       ))}
-      {integritySummary.generatedAt && (
-        <div
-          className={`flex items-center justify-end gap-2 text-[11px] ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
-        >
-          <span>
-            {integritySummary.cacheHit ? "Cached · " : ""}
-            Updated {new Date(integritySummary.generatedAt).toLocaleTimeString()}
-          </span>
-          <button
-            type="button"
-            onClick={onRefresh}
-            disabled={refreshing}
-            title="Refresh integrity check"
-            className={`p-0.5 rounded hover:text-gray-500 disabled:opacity-40 transition-colors`}
-          >
-            <RefreshCw className={`w-3 h-3 ${refreshing ? "animate-spin" : ""}`} />
-          </button>
-        </div>
-      )}
     </div>
   );
 };
