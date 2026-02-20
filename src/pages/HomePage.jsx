@@ -255,7 +255,7 @@ const INTEGRITY_GROUPS = [
       { key: "stockReservedOverflow", label: "Reserved exceeds remaining", critical: true },
       { key: "stockBalanceMismatch", label: "Batch balance mismatch", critical: true },
       { key: "stockZeroCost", label: "Active batches with zero cost", critical: false },
-      { key: "productsMissingStockBasis", label: "Categorized products missing stock basis", critical: true },
+      { key: "productsMissingStockBasis", label: "Products missing stock basis", critical: true },
     ],
   },
   {
