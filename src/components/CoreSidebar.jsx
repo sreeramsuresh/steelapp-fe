@@ -1,4 +1,4 @@
-/**
+﻿/**
  * CoreSidebar.jsx
  * Sidebar for Core ERP operations (/app/*)
  * Contains operational navigation items only
@@ -184,6 +184,12 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           icon: MapPin,
           description: "Manage warehouse locations and capacity",
           requiredPermission: "warehouses.read",
+        },
+        {
+          name: "Bin Locations",
+          path: "/app/warehouse-locations",
+          icon: MapPin,
+          description: "Aisle, rack, and bin locations within warehouses",
         },
         {
           name: "Stock Levels",
@@ -459,3 +465,4 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
 };
 
 export default CoreSidebar;
+

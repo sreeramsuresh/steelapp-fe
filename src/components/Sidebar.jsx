@@ -1,4 +1,4 @@
-// Updated: Credit Notes moved to Finance section
+﻿// Updated: Credit Notes moved to Finance section; Bin Locations added to Inventory
 
 import {
   AlertCircle,
@@ -552,3 +552,5 @@ const Sidebar = ({ isOpen, onToggle }) => {
 };
 
 export default Sidebar;
+
+
