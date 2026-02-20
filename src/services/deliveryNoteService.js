@@ -120,9 +120,10 @@ export const deliveryNoteService = {
     });
     const downloadUrl = window.URL.createObjectURL(blob);
 
-    // Get delivery note number for filename
+    // Get delivery note number for filename — number already contains "DN-" prefix
     const deliveryNote = await deliveryNoteService.getById(id);
-    const filename = `DN-${deliveryNote.deliveryNoteNumber || deliveryNote.delivery_note_number || id}.pdf`;
+    const dnNumber = deliveryNote.deliveryNoteNumber || deliveryNote.delivery_note_number || id;
+    const filename = String(dnNumber).startsWith("DN-") ? `${dnNumber}.pdf` : `DN-${dnNumber}.pdf`;
 
     // Create download link
     const link = document.createElement("a");
