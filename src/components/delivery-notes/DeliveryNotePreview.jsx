@@ -224,6 +224,7 @@ const DeliveryNotePreview = ({ deliveryNote, company, onClose }) => {
                       <tr>
                         <th className="px-4 py-2 text-left font-medium">Item</th>
                         <th className="px-4 py-2 text-left font-medium">Specification</th>
+                        <th className="px-4 py-2 text-left font-medium">Batch No</th>
                         <th className="px-4 py-2 text-right font-medium">Unit</th>
                         <th className="px-4 py-2 text-right font-medium">Ordered</th>
                         <th className="px-4 py-2 text-right font-medium">Delivered</th>
@@ -240,6 +241,14 @@ const DeliveryNotePreview = ({ deliveryNote, company, onClose }) => {
                               <div className="font-medium">{item.name || item.productName || "Unnamed Item"}</div>
                             </td>
                             <td className="px-4 py-3">{item.specification || "-"}</td>
+                            <td className="px-4 py-3 font-mono text-xs" style={{ color: templateColor }}>
+                              {(item.batchRows || []).length > 0
+                                ? item.batchRows
+                                    .map((br) => br.batchNumber)
+                                    .filter(Boolean)
+                                    .join(", ") || "-"
+                                : "-"}
+                            </td>
                             <td className="px-4 py-3 text-right">{item.unit || "pcs"}</td>
                             <td className="px-4 py-3 text-right">
                               {item.orderedQuantity || item.ordered_quantity || 0}
@@ -251,7 +260,7 @@ const DeliveryNotePreview = ({ deliveryNote, company, onClose }) => {
                         ))
                       ) : (
                         <tr>
-                          <td colSpan="5" className="px-4 py-6 text-center text-gray-500">
+                          <td colSpan="6" className="px-4 py-6 text-center text-gray-500">
                             No items added
                           </td>
                         </tr>

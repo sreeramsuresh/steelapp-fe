@@ -36,6 +36,15 @@ export const transformDeliveryNoteFromServer = (serverData) => {
       deliveredQuantity: parseFloat(item.deliveredQuantity || item.delivered_quantity) || 0,
       remainingQuantity: parseFloat(item.remainingQuantity || item.remaining_quantity) || 0,
       isFullyDelivered: item.isFullyDelivered || item.is_fully_delivered || false,
+      batchRows: (item.batchRows || []).map((br) => ({
+        batchId: br.batchId || br.batch_id,
+        batchNumber: br.batchNumber || br.batch_number || "",
+        quantity: parseFloat(br.quantity || 0),
+        unit: br.unit || "",
+        unitCost: parseFloat(br.unitCost || br.unit_cost || 0),
+        warehouseName: br.warehouseName || br.warehouse_name || "",
+        locationLabel: br.locationLabel || br.location_label || "",
+      })),
     })),
     // Stock workflow
     stockDeducted: serverData.stockDeducted || serverData.stock_deducted || false,
@@ -124,6 +133,24 @@ export const deliveryNoteService = {
     document.body.removeChild(link);
 
     // Clean up
+    window.URL.revokeObjectURL(downloadUrl);
+  },
+
+  downloadLoadingSlip: async (id) => {
+    const blob = await apiService.request({
+      method: "GET",
+      url: `/delivery-notes/${id}/pdf?type=internal`,
+      responseType: "blob",
+    });
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const deliveryNote = await deliveryNoteService.getById(id);
+    const dnNum = deliveryNote.deliveryNoteNumber || deliveryNote.delivery_note_number || id;
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = `PICK-${dnNum}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     window.URL.revokeObjectURL(downloadUrl);
   },
 };

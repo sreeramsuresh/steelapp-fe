@@ -100,6 +100,7 @@ const StockMovementPage = lazy(() => import("../pages/StockMovementPage"));
 // Warehouse Components
 const WarehouseList = lazy(() => import("../pages/warehouses/WarehouseList"));
 const WarehouseDetail = lazy(() => import("../pages/warehouses/WarehouseDetail"));
+const WarehouseLocations = lazy(() => import("../pages/WarehouseLocations"));
 
 // Batch Analytics
 const BatchAnalyticsPage = lazy(() => import("../pages/BatchAnalyticsPage"));
@@ -732,6 +733,14 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredPermission="warehouses.read">
                   <WarehouseDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="warehouse-locations"
+              element={
+                <ProtectedRoute user={user} requiredPermission="warehouse_locations.read">
+                  <WarehouseLocations />
                 </ProtectedRoute>
               }
             />

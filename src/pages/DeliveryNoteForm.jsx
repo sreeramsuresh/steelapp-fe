@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   CheckCircle,
   ChevronRight,
+  ClipboardList,
   Eye,
   FileText,
   Loader2,
@@ -466,6 +467,15 @@ const DeliveryNoteForm = () => {
     );
   };
 
+  const handleDownloadLoadingSlip = async () => {
+    if (!id) return;
+    try {
+      await deliveryNoteService.downloadLoadingSlip(id);
+    } catch (err) {
+      console.error("Loading slip download failed:", err);
+    }
+  };
+
   const handleSubmit = async () => {
     // STEP 1: Validate all required fields
     const errors = [];
@@ -646,6 +656,17 @@ const DeliveryNoteForm = () => {
           </div>
           <div className="flex items-center gap-2">
             {getStockStatusBadge()}
+            {formData.stockDeducted && id && (
+              <button
+                type="button"
+                onClick={handleDownloadLoadingSlip}
+                title="Download loading slip (internal use)"
+                className={BTN_CLASSES(isDarkMode)}
+              >
+                <ClipboardList size={16} className="inline mr-1.5" />
+                Loading Slip
+              </button>
+            )}
             <button type="button" onClick={() => setShowPreview(true)} className={BTN_CLASSES(isDarkMode)}>
               <Eye size={16} className="inline mr-1.5" />
               Preview
@@ -1034,6 +1055,41 @@ const DeliveryNoteForm = () => {
                                   ? "Stock deducted but allocation details not available."
                                   : "Batch allocations will be computed when processed."}
                               </p>
+                            </div>
+                          )}
+
+                          {/* Batch Breakdown — shown after dispatch */}
+                          {formData.stockDeducted && item.batchRows && item.batchRows.length > 0 && (
+                            <div
+                              className={`mt-2 rounded-lg border p-2 ${isDarkMode ? "border-gray-700 bg-gray-900" : "border-teal-100 bg-teal-50"}`}
+                            >
+                              <div className="text-[11px] font-bold text-teal-500 mb-1">Batch Breakdown</div>
+                              <table className="w-full text-[11px]">
+                                <thead>
+                                  <tr className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
+                                    <th className="text-left font-medium pb-1">Batch No</th>
+                                    <th className="text-left font-medium pb-1">Warehouse</th>
+                                    <th className="text-left font-medium pb-1">Bin</th>
+                                    <th className="text-right font-medium pb-1">Qty</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {item.batchRows.map((br) => (
+                                    <tr key={br.batchId} className="border-t border-teal-100/30">
+                                      <td className="font-mono font-bold text-teal-400 py-0.5">
+                                        {br.batchNumber || "-"}
+                                      </td>
+                                      <td className={isDarkMode ? "text-gray-300" : "text-gray-700"}>
+                                        {br.warehouseName || "-"}
+                                      </td>
+                                      <td className={isDarkMode ? "text-gray-300" : "text-gray-700"}>
+                                        {br.locationLabel || "-"}
+                                      </td>
+                                      <td className="text-right font-mono">{br.quantity}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
                             </div>
                           )}
                         </div>

@@ -244,6 +244,12 @@ const Sidebar = ({ isOpen, onToggle }) => {
           description: "Manage warehouse locations and capacity",
         },
         {
+          name: "Bin Locations",
+          path: "/warehouse-locations",
+          icon: MapPin,
+          description: "Aisle, rack, and bin locations within warehouses",
+        },
+        {
           name: "Stock Levels",
           path: "/inventory",
           icon: Warehouse,
