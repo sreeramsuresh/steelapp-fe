@@ -546,11 +546,10 @@ const WarehouseDetail = () => {
                     <tr
                       className={`border-b ${isDarkMode ? "border-gray-700 text-gray-400" : "border-gray-200 text-gray-500"}`}
                     >
-                      <th className="text-left px-4 py-3 font-medium">Batch No</th>
+                      <th className="text-left px-4 py-3 font-medium w-36">Batch No</th>
                       <th className="text-left px-4 py-3 font-medium">Product</th>
-                      <th className="text-right px-4 py-3 font-medium">Qty Remaining</th>
-                      <th className="text-left px-4 py-3 font-medium">Bin Location</th>
-                      <th className="px-4 py-3" />
+                      <th className="text-right px-4 py-3 font-medium w-32">Qty Remaining</th>
+                      <th className="text-left px-4 py-3 font-medium w-48">Bin Location</th>
                     </tr>
                   </thead>
                   <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-100"}`}>
@@ -571,25 +570,31 @@ const WarehouseDetail = () => {
                           {batch.unit || "KG"}
                         </td>
                         <td className="px-4 py-3">
-                          {batch.locationLabel ? (
-                            <span className="font-mono text-xs text-teal-400">
-                              {batch.locationLabel}
-                              {batch.locationIsActive === false && (
-                                <span className="ml-1 text-orange-400 text-[10px]">(inactive)</span>
-                              )}
-                            </span>
-                          ) : (
-                            <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>--</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <button
-                            type="button"
-                            onClick={() => openAssignModal(batch)}
-                            className="text-xs text-teal-500 underline hover:text-teal-300"
-                          >
-                            {batch.locationLabel ? "Change" : "Assign"}
-                          </button>
+                          <div className="flex items-center gap-2">
+                            {batch.locationLabel ? (
+                              <span className="font-mono text-xs text-teal-400">
+                                {batch.locationLabel}
+                                {batch.locationIsActive === false && (
+                                  <span className="ml-1 text-orange-400 text-[10px]">(inactive)</span>
+                                )}
+                              </span>
+                            ) : (
+                              <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>--</span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => openAssignModal(batch)}
+                              className={`shrink-0 text-xs px-2 py-0.5 rounded border ${
+                                batch.locationLabel
+                                  ? isDarkMode
+                                    ? "border-gray-600 text-gray-400 hover:border-teal-500 hover:text-teal-400"
+                                    : "border-gray-300 text-gray-500 hover:border-teal-500 hover:text-teal-600"
+                                  : "border-teal-600 text-teal-500 hover:bg-teal-600 hover:text-white"
+                              }`}
+                            >
+                              {batch.locationLabel ? "Change" : "Assign"}
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -659,27 +664,50 @@ const WarehouseDetail = () => {
             </p>
 
             <div className="mb-4">
-              <label
-                htmlFor="assign-loc-select"
-                className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-              >
-                Bin Location
-              </label>
-              <select
-                id="assign-loc-select"
-                value={selectedLocId}
-                onChange={(e) => setSelectedLocId(e.target.value)}
-                className={`w-full px-3 py-2 text-sm rounded-lg border ${
-                  isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-                }`}
-              >
-                <option value="">-- No location (clear) --</option>
-                {locations.map((loc) => (
-                  <option key={loc.id} value={String(loc.id)}>
-                    {loc.label}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center justify-between mb-1">
+                <label
+                  htmlFor="assign-loc-select"
+                  className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                >
+                  Bin Location
+                </label>
+                <Link
+                  to="/app/warehouse-locations"
+                  className="text-xs text-teal-500 hover:underline"
+                  onClick={() => setAssigningBatch(null)}
+                >
+                  + Manage locations
+                </Link>
+              </div>
+              {locations.length === 0 ? (
+                <p className={`text-xs py-2 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                  No bin locations configured for this warehouse.{" "}
+                  <Link
+                    to="/app/warehouse-locations"
+                    className="text-teal-500 hover:underline"
+                    onClick={() => setAssigningBatch(null)}
+                  >
+                    Add locations
+                  </Link>{" "}
+                  first.
+                </p>
+              ) : (
+                <select
+                  id="assign-loc-select"
+                  value={selectedLocId}
+                  onChange={(e) => setSelectedLocId(e.target.value)}
+                  className={`w-full px-3 py-2 text-sm rounded-lg border ${
+                    isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
+                  }`}
+                >
+                  <option value="">-- No location (clear) --</option>
+                  {locations.map((loc) => (
+                    <option key={loc.id} value={String(loc.id)}>
+                      {loc.label}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             <div className="flex gap-3 justify-end">
