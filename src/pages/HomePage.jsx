@@ -14,6 +14,7 @@ import {
   Package,
   Plus,
   Quote,
+  RefreshCw,
   Settings,
   ShieldAlert,
   ShoppingCart,
@@ -317,7 +318,7 @@ function getIntegrityBadge(incomplete, total, isCritical, isDarkMode) {
   };
 }
 
-const IntegritySummarySection = ({ integritySummary, isDarkMode }) => {
+const IntegritySummarySection = ({ integritySummary, isDarkMode, onRefresh, refreshing }) => {
   if (integritySummary === null) {
     return (
       <div className={`text-center py-6 text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
@@ -380,9 +381,22 @@ const IntegritySummarySection = ({ integritySummary, isDarkMode }) => {
         </div>
       ))}
       {integritySummary.generated_at && (
-        <div className={`text-[11px] text-right ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}>
-          {integritySummary.cache_hit ? "Cached · " : ""}
-          Updated {new Date(integritySummary.generated_at).toLocaleTimeString()}
+        <div
+          className={`flex items-center justify-end gap-2 text-[11px] ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
+        >
+          <span>
+            {integritySummary.cache_hit ? "Cached · " : ""}
+            Updated {new Date(integritySummary.generated_at).toLocaleTimeString()}
+          </span>
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={refreshing}
+            title="Refresh integrity check"
+            className={`p-0.5 rounded hover:text-gray-500 disabled:opacity-40 transition-colors`}
+          >
+            <RefreshCw className={`w-3 h-3 ${refreshing ? "animate-spin" : ""}`} />
+          </button>
         </div>
       )}
     </div>
@@ -426,6 +440,7 @@ const HomePage = () => {
   const [recentItems, setRecentItems] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
   const [integritySummary, setIntegritySummary] = useState(undefined);
+  const [integrityRefreshing, setIntegrityRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
   const { sectionOrder, reorderSections } = useHomeSectionOrder();
@@ -618,13 +633,20 @@ const HomePage = () => {
     fetchRecentItems();
   }, []);
 
-  // Fetch integrity summary once on mount (no polling — 5 min server cache)
-  useEffect(() => {
+  // Fetch integrity summary — pass bust=true to bypass server-side cache
+  const fetchIntegritySummary = useCallback((bust = false) => {
+    setIntegrityRefreshing(true);
+    const url = bust ? "/dashboard/integrity-summary?bust=1" : "/dashboard/integrity-summary";
     apiService
-      .get("/dashboard/integrity-summary")
+      .get(url)
       .then((data) => setIntegritySummary(data))
-      .catch(() => setIntegritySummary(null));
+      .catch(() => setIntegritySummary(null))
+      .finally(() => setIntegrityRefreshing(false));
   }, []);
+
+  useEffect(() => {
+    fetchIntegritySummary();
+  }, [fetchIntegritySummary]);
 
   // Fetch recent audit activity (only if user has permission)
   const fetchRecentActivity = useCallback(async () => {
@@ -768,6 +790,8 @@ const HomePage = () => {
                   recentItems={recentItems}
                   recentActivity={recentActivity}
                   integritySummary={integritySummary}
+                  onRefresh={() => fetchIntegritySummary(true)}
+                  refreshing={integrityRefreshing}
                   handleNavigate={handleNavigate}
                   isDarkMode={isDarkMode}
                 />
