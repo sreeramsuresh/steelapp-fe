@@ -1,6 +1,6 @@
-/**
+﻿/**
  * WarehouseDetail Page
- * Dashboard view for a single warehouse with tabs for Overview, Stock, Activity
+ * Dashboard view for a single warehouse with tabs for Overview, Stock, Batches, Activity
  */
 
 import {
@@ -11,6 +11,7 @@ import {
   Building,
   Clock,
   Edit,
+  Layers,
   Mail,
   MapPin,
   Package,
@@ -25,7 +26,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import WarehouseFormDialog from "../../components/warehouses/WarehouseFormDialog";
 import WarehouseStockView from "../../components/warehouses/WarehouseStockView";
 import { useTheme } from "../../contexts/ThemeContext";
+import { apiClient } from "../../services/api.js";
 import { notificationService } from "../../services/notificationService";
+import stockBatchService from "../../services/stockBatchService";
 import { warehouseService } from "../../services/warehouseService";
 
 const WarehouseDetail = () => {
@@ -39,7 +42,6 @@ const WarehouseDetail = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-  // Dashboard stats (would come from API)
   const [stats, setStats] = useState({
     totalQuantity: 0,
     reservedQuantity: 0,
@@ -52,14 +54,20 @@ const WarehouseDetail = () => {
 
   const [recentActivity, setRecentActivity] = useState([]);
 
-  // Fetch warehouse and dashboard data
+  // Batches tab state
+  const [batches, setBatches] = useState([]);
+  const [batchesLoading, setBatchesLoading] = useState(false);
+  const [assigningBatch, setAssigningBatch] = useState(null);
+  const [locations, setLocations] = useState([]);
+  const [selectedLocId, setSelectedLocId] = useState("");
+  const [saving, setSaving] = useState(false);
+
   const fetchWarehouse = useCallback(async () => {
     try {
       setLoading(true);
       const data = await warehouseService.getById(id);
       setWarehouse(data);
 
-      // Fetch dashboard data from API
       const dashboardData = await warehouseService.getDashboard(id);
       setStats({
         totalQuantity: parseFloat(dashboardData.totalQuantity) || 0,
@@ -71,7 +79,6 @@ const WarehouseDetail = () => {
         utilizationPercent: dashboardData.utilizationPercent || 0,
       });
 
-      // Map recent activities from API
       const activities = (dashboardData.recentActivities || []).map((activity, index) => ({
         id: activity.id || index,
         type: activity.type || "IN",
@@ -90,14 +97,30 @@ const WarehouseDetail = () => {
     }
   }, [id, navigate]);
 
+  const fetchBatches = useCallback(async () => {
+    setBatchesLoading(true);
+    try {
+      const result = await stockBatchService.getBatches({ warehouseId: id, activeOnly: true });
+      setBatches(result.batches || []);
+    } catch (error) {
+      console.error("Error fetching batches:", error);
+      notificationService.error("Failed to load batches");
+    } finally {
+      setBatchesLoading(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     fetchWarehouse();
   }, [fetchWarehouse]);
 
-  // Handlers
-  const handleEdit = () => {
-    setEditDialogOpen(true);
-  };
+  useEffect(() => {
+    if (activeTab === "batches") {
+      fetchBatches();
+    }
+  }, [activeTab, fetchBatches]);
+
+  const handleEdit = () => setEditDialogOpen(true);
 
   const handleEditSave = async (formData) => {
     try {
@@ -111,38 +134,49 @@ const WarehouseDetail = () => {
     }
   };
 
+  const openAssignModal = async (batch) => {
+    setAssigningBatch(batch);
+    setSelectedLocId(batch.locationId ? String(batch.locationId) : "");
+    try {
+      const res = await apiClient.get("/warehouse-locations", { warehouse_id: id, active: "true" });
+      setLocations(res.warehouseLocations || res.locations || []);
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+      notificationService.error("Failed to load bin locations");
+    }
+  };
+
+  const confirmAssign = async () => {
+    setSaving(true);
+    try {
+      await stockBatchService.assignLocation(assigningBatch.id, selectedLocId || null);
+      setAssigningBatch(null);
+      fetchBatches();
+      notificationService.success("Bin location updated");
+    } catch (error) {
+      notificationService.error(error.message || "Failed to update bin location");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const tabs = [
     { id: "overview", label: "Overview", icon: MapPin },
     { id: "stock", label: "Stock", icon: Package },
+    { id: "batches", label: "Batches", icon: Layers },
     { id: "activity", label: "Activity", icon: Activity },
   ];
 
   const getMovementTypeStyle = (type) => {
     switch (type) {
       case "IN":
-        return {
-          icon: TrendingUp,
-          color: "text-green-500",
-          bg: isDarkMode ? "bg-green-900/30" : "bg-green-100",
-        };
+        return { icon: TrendingUp, color: "text-green-500", bg: isDarkMode ? "bg-green-900/30" : "bg-green-100" };
       case "OUT":
-        return {
-          icon: TrendingDown,
-          color: "text-red-500",
-          bg: isDarkMode ? "bg-red-900/30" : "bg-red-100",
-        };
+        return { icon: TrendingDown, color: "text-red-500", bg: isDarkMode ? "bg-red-900/30" : "bg-red-100" };
       case "TRANSFER":
-        return {
-          icon: ArrowRight,
-          color: "text-blue-500",
-          bg: isDarkMode ? "bg-blue-900/30" : "bg-blue-100",
-        };
+        return { icon: ArrowRight, color: "text-blue-500", bg: isDarkMode ? "bg-blue-900/30" : "bg-blue-100" };
       default:
-        return {
-          icon: Activity,
-          color: "text-gray-500",
-          bg: isDarkMode ? "bg-gray-700" : "bg-gray-100",
-        };
+        return { icon: Activity, color: "text-gray-500", bg: isDarkMode ? "bg-gray-700" : "bg-gray-100" };
     }
   };
 
@@ -209,7 +243,10 @@ const WarehouseDetail = () => {
                     </span>
                   </div>
                   <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                    {warehouse.code} • {[warehouse.city, warehouse.country].filter(Boolean).join(", ")}
+                    {warehouse.code}
+                    {[warehouse.city, warehouse.country].filter(Boolean).length > 0
+                      ? ` - ${[warehouse.city, warehouse.country].filter(Boolean).join(", ")}`
+                      : ""}
                   </p>
                 </div>
               </div>
@@ -272,36 +309,19 @@ const WarehouseDetail = () => {
             {/* KPI Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                {
-                  label: "Total Stock",
-                  value: stats.totalQuantity.toLocaleString(),
-                  unit: "items",
-                  color: "teal",
-                },
-                {
-                  label: "Reserved",
-                  value: stats.reservedQuantity.toLocaleString(),
-                  unit: "items",
-                  color: "blue",
-                },
-                {
-                  label: "Available",
-                  value: stats.availableQuantity.toLocaleString(),
-                  unit: "items",
-                  color: "green",
-                },
+                { label: "Total Stock", value: stats.totalQuantity.toLocaleString(), unit: "items", color: "teal" },
+                { label: "Reserved", value: stats.reservedQuantity.toLocaleString(), unit: "items", color: "blue" },
+                { label: "Available", value: stats.availableQuantity.toLocaleString(), unit: "items", color: "green" },
                 {
                   label: "Low Stock Alerts",
                   value: stats.lowStockCount,
                   unit: "products",
                   color: stats.lowStockCount > 0 ? "red" : "gray",
                 },
-              ].map((kpi, index) => (
+              ].map((kpi) => (
                 <div
-                  key={kpi.id || kpi.name || `kpi-${index}`}
-                  className={`rounded-lg border p-4 ${
-                    isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"
-                  }`}
+                  key={kpi.label}
+                  className={`rounded-lg border p-4 ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
                 >
                   <p
                     className={`text-xs font-medium uppercase tracking-wide ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
@@ -338,9 +358,8 @@ const WarehouseDetail = () => {
               ))}
             </div>
 
-            {/* Quick Actions & Info */}
+            {/* Quick Actions, Info, Activity */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Quick Actions */}
               <div
                 className={`rounded-lg border p-4 ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
               >
@@ -348,39 +367,25 @@ const WarehouseDetail = () => {
                   Quick Actions
                 </h3>
                 <div className="space-y-2">
-                  <Link
-                    to={`/stock-movements?tab=transfers&source=${warehouse.id}`}
-                    className={`flex items-center justify-between p-3 rounded-lg ${
-                      isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"
-                    }`}
-                  >
-                    <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>Create Transfer</span>
-                    <ArrowRight className={`w-4 h-4 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
-                  </Link>
-                  <Link
-                    to={`/stock-movements?warehouse_id=${warehouse.id}`}
-                    className={`flex items-center justify-between p-3 rounded-lg ${
-                      isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"
-                    }`}
-                  >
-                    <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                      View All Movements
-                    </span>
-                    <ArrowRight className={`w-4 h-4 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
-                  </Link>
-                  <Link
-                    to={`/inventory?warehouse_id=${warehouse.id}`}
-                    className={`flex items-center justify-between p-3 rounded-lg ${
-                      isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"
-                    }`}
-                  >
-                    <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>View Inventory</span>
-                    <ArrowRight className={`w-4 h-4 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
-                  </Link>
+                  {[
+                    { label: "Create Transfer", to: `/stock-movements?tab=transfers&source=${warehouse.id}` },
+                    { label: "View All Movements", to: `/stock-movements?warehouse_id=${warehouse.id}` },
+                    { label: "View Inventory", to: `/inventory?warehouse_id=${warehouse.id}` },
+                  ].map((action) => (
+                    <Link
+                      key={action.label}
+                      to={action.to}
+                      className={`flex items-center justify-between p-3 rounded-lg ${isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"}`}
+                    >
+                      <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                        {action.label}
+                      </span>
+                      <ArrowRight className={`w-4 h-4 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
+                    </Link>
+                  ))}
                 </div>
               </div>
 
-              {/* Warehouse Info */}
               <div
                 className={`rounded-lg border p-4 ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
               >
@@ -431,7 +436,6 @@ const WarehouseDetail = () => {
                 </div>
               </div>
 
-              {/* Recent Activity */}
               <div
                 className={`rounded-lg border p-4 ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
               >
@@ -460,7 +464,7 @@ const WarehouseDetail = () => {
                             {activity.product}
                           </p>
                           <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
-                            {activity.quantity} • {activity.time}
+                            {activity.quantity} / {activity.time}
                           </p>
                         </div>
                       </div>
@@ -470,7 +474,6 @@ const WarehouseDetail = () => {
               </div>
             </div>
 
-            {/* Utilization */}
             {warehouse.capacity > 0 && (
               <div
                 className={`rounded-lg border p-4 ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
@@ -500,9 +503,7 @@ const WarehouseDetail = () => {
                           ? "bg-yellow-500"
                           : "bg-green-500"
                     }`}
-                    style={{
-                      width: `${Math.min(stats.utilizationPercent, 100)}%`,
-                    }}
+                    style={{ width: `${Math.min(stats.utilizationPercent, 100)}%` }}
                   />
                 </div>
                 <p className={`text-xs mt-2 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
@@ -516,17 +517,100 @@ const WarehouseDetail = () => {
 
         {activeTab === "stock" && <WarehouseStockView warehouseId={id} warehouseName={warehouse.name} />}
 
+        {activeTab === "batches" && (
+          <div
+            className={`rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
+          >
+            <div className={`p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+              <h3 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Stock Batches</h3>
+              <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                Assign bin locations to received batches
+              </p>
+            </div>
+
+            {batchesLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <RefreshCw className={`w-6 h-6 animate-spin ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
+              </div>
+            ) : batches.length === 0 ? (
+              <div className="py-12 text-center">
+                <Layers className={`w-10 h-10 mx-auto mb-3 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  No active batches in this warehouse
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr
+                      className={`border-b ${isDarkMode ? "border-gray-700 text-gray-400" : "border-gray-200 text-gray-500"}`}
+                    >
+                      <th className="text-left px-4 py-3 font-medium">Batch No</th>
+                      <th className="text-left px-4 py-3 font-medium">Product</th>
+                      <th className="text-right px-4 py-3 font-medium">Qty Remaining</th>
+                      <th className="text-left px-4 py-3 font-medium">Bin Location</th>
+                      <th className="px-4 py-3" />
+                    </tr>
+                  </thead>
+                  <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-100"}`}>
+                    {batches.map((batch) => (
+                      <tr key={batch.id} className={isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}>
+                        <td className={`px-4 py-3 font-mono text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                          {batch.batchNumber || `#${batch.id}`}
+                        </td>
+                        <td className={`px-4 py-3 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                          {batch.productDisplayName || batch.productUniqueName}
+                        </td>
+                        <td
+                          className={`px-4 py-3 text-right font-mono text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                        >
+                          {parseFloat(batch.quantityRemaining || 0).toLocaleString(undefined, {
+                            minimumFractionDigits: 3,
+                          })}{" "}
+                          {batch.unit || "KG"}
+                        </td>
+                        <td className="px-4 py-3">
+                          {batch.locationLabel ? (
+                            <span className="font-mono text-xs text-teal-400">
+                              {batch.locationLabel}
+                              {batch.locationIsActive === false && (
+                                <span className="ml-1 text-orange-400 text-[10px]">(inactive)</span>
+                              )}
+                            </span>
+                          ) : (
+                            <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>--</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <button
+                            type="button"
+                            onClick={() => openAssignModal(batch)}
+                            className="text-xs text-teal-500 underline hover:text-teal-300"
+                          >
+                            {batch.locationLabel ? "Change" : "Assign"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
         {activeTab === "activity" && (
           <div
             className={`rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
           >
-            <div className="p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}">
+            <div className={`p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
               <h3 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Stock Movement History</h3>
               <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                 Recent stock movements for this warehouse
               </p>
             </div>
-            <div className="divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}">
+            <div className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
               {recentActivity.map((activity) => {
                 const style = getMovementTypeStyle(activity.type);
                 const Icon = style.icon;
@@ -538,7 +622,7 @@ const WarehouseDetail = () => {
                     <div className="flex-1">
                       <p className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>{activity.product}</p>
                       <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                        {activity.type} • {activity.quantity} • Ref: {activity.reference}
+                        {activity.type} / {activity.quantity} / Ref: {activity.reference}
                       </p>
                     </div>
                     <div className="text-right">
@@ -551,17 +635,78 @@ const WarehouseDetail = () => {
                 );
               })}
             </div>
-            <div className="p-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}">
+            <div className={`p-4 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
               <Link
                 to={`/stock-movements?warehouse_id=${warehouse.id}`}
                 className="text-teal-500 hover:underline text-sm"
               >
-                View all movements →
+                View all movements
               </Link>
             </div>
           </div>
         )}
       </div>
+
+      {/* Assign Location Modal */}
+      {assigningBatch && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div
+            className={`w-full max-w-md rounded-xl shadow-xl p-6 ${isDarkMode ? "bg-[#1E2328] text-white" : "bg-white text-gray-900"}`}
+          >
+            <h3 className="text-base font-semibold mb-1">Assign Bin Location</h3>
+            <p className={`text-xs mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+              Batch: <span className="font-mono">{assigningBatch.batchNumber || `#${assigningBatch.id}`}</span>
+            </p>
+
+            <div className="mb-4">
+              <label
+                htmlFor="assign-loc-select"
+                className={`block text-xs font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+              >
+                Bin Location
+              </label>
+              <select
+                id="assign-loc-select"
+                value={selectedLocId}
+                onChange={(e) => setSelectedLocId(e.target.value)}
+                className={`w-full px-3 py-2 text-sm rounded-lg border ${
+                  isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
+                }`}
+              >
+                <option value="">-- No location (clear) --</option>
+                {locations.map((loc) => (
+                  <option key={loc.id} value={String(loc.id)}>
+                    {loc.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setAssigningBatch(null)}
+                disabled={saving}
+                className={`px-4 py-2 text-sm rounded-lg border ${
+                  isDarkMode
+                    ? "border-gray-600 text-gray-300 hover:bg-gray-700"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmAssign}
+                disabled={saving}
+                className="px-4 py-2 text-sm rounded-lg bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-60"
+              >
+                {saving ? "Saving..." : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Dialog */}
       {editDialogOpen && (

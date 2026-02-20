@@ -121,6 +121,15 @@ export const stockBatchService = {
   async getBatchHistory(id) {
     return apiClient.get(`/stock-batches/${id}/history`);
   },
+
+  /**
+   * Assign or clear bin location for a batch
+   * @param {number} id - Batch ID
+   * @param {number|null} locationId - Location ID, or null to clear
+   */
+  async assignLocation(id, locationId) {
+    return apiClient.patch(`/stock-batches/${id}/location`, { locationId });
+  },
 };
 
 export default stockBatchService;
