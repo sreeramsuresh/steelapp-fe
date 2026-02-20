@@ -282,6 +282,7 @@ const INTEGRITY_GROUPS = [
     label: "Master Data",
     keys: [
       { key: "productsMissingData", label: "Products missing key fields", critical: false },
+      { key: "productsMissingStockBasis", label: "Categorized products missing stock basis", critical: true },
       { key: "productsNoActivePrice", label: "Products with no active price", critical: false },
       { key: "customersMissingData", label: "Customers missing key data", critical: false },
       { key: "suppliersNoContact", label: "Suppliers missing contact info", critical: false },
