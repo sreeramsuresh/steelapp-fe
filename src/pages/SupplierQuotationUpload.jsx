@@ -47,8 +47,10 @@ export function SupplierQuotationUpload() {
     e.preventDefault();
     e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") {
+      console.log("[SQ Upload] drag active:", e.type);
       setDragActive(true);
     } else if (e.type === "dragleave") {
+      console.log("[SQ Upload] drag leave");
       setDragActive(false);
     }
   }, []);
@@ -59,22 +61,26 @@ export function SupplierQuotationUpload() {
     setDragActive(false);
 
     const droppedFile = e.dataTransfer?.files?.[0];
+    console.log("[SQ Upload] dropped file:", droppedFile?.name, droppedFile?.type, droppedFile?.size);
     if (droppedFile?.type === "application/pdf") {
       setFile(droppedFile);
       setExtractionResult(null);
       setError(null);
     } else {
+      console.warn("[SQ Upload] rejected drop — not a PDF:", droppedFile?.type);
       toast.error("Please upload a PDF file");
     }
   }, []);
 
   const handleFileSelect = (e) => {
     const selectedFile = e.target.files?.[0];
+    console.log("[SQ Upload] file selected:", selectedFile?.name, selectedFile?.type, selectedFile?.size);
     if (selectedFile?.type === "application/pdf") {
       setFile(selectedFile);
       setExtractionResult(null);
       setError(null);
     } else {
+      console.warn("[SQ Upload] rejected selection — not a PDF:", selectedFile?.type);
       toast.error("Please select a PDF file");
     }
   };
@@ -85,6 +91,7 @@ export function SupplierQuotationUpload() {
       return;
     }
 
+    console.log("[SQ Upload] starting upload:", file.name, "supplierId:", supplierId || "auto-detect");
     try {
       setUploading(true);
       setError(null);
@@ -94,15 +101,25 @@ export function SupplierQuotationUpload() {
         supplierId: supplierId || undefined,
       });
 
+      console.log("[SQ Upload] extraction result:", {
+        success: result.success,
+        confidence: result.extractionDetails?.confidence,
+        itemsExtracted: result.extractionDetails?.itemsExtracted,
+        pdfType: result.extractionDetails?.pdfType,
+        method: result.extractionDetails?.extractionMethod,
+        warnings: result.extractionDetails?.warnings,
+        quotationId: result.quotation?.id,
+      });
+
       setExtractionResult(result);
 
       if (result.success) {
         toast.success("PDF extracted successfully");
       } else {
-        toast("Extraction completed with warnings", { icon: "??" });
+        toast("Extraction completed with warnings", { icon: "⚠️" });
       }
     } catch (err) {
-      console.error("Upload failed:", err);
+      console.error("[SQ Upload] upload failed:", err);
       setError(err.message || "Failed to upload and extract PDF");
       toast.error("Failed to process PDF");
     } finally {
@@ -111,6 +128,7 @@ export function SupplierQuotationUpload() {
   };
 
   const clearFile = () => {
+    console.log("[SQ Upload] cleared file");
     setFile(null);
     setExtractionResult(null);
     setError(null);
@@ -160,20 +178,21 @@ export function SupplierQuotationUpload() {
             </p>
           </div>
 
-          {/* File input: visually hidden but NOT display:none — Chrome blocks label clicks on display:none inputs */}
+          {/* Hidden file input — must be outside the role="button" div so label→input activation is a trusted gesture */}
           <input
             ref={fileInputRef}
             type="file"
             accept=".pdf,application/pdf"
             onChange={handleFileSelect}
-            className="absolute opacity-0 w-px h-px overflow-hidden"
+            className="hidden"
             id="pdf-upload"
           />
 
           {/* Drop Zone */}
-          {/* biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop zone; keyboard users use the Select File label below */}
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop zone; contains a <label> so cannot use <button> */}
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by the "Select File" label inside */}
           <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            className={`w-full border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
               dragActive
                 ? isDarkMode
                   ? "border-blue-400 bg-blue-900/30"
@@ -186,6 +205,7 @@ export function SupplierQuotationUpload() {
                     ? "border-gray-600 hover:border-gray-500"
                     : "border-gray-300 hover:border-gray-400"
             }`}
+            onClick={() => !file && fileInputRef.current?.click()}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
@@ -213,7 +233,7 @@ export function SupplierQuotationUpload() {
                 <p className={`text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>Maximum file size: 25MB</p>
                 <label
                   htmlFor="pdf-upload"
-                  className="mt-4 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium cursor-pointer hover:bg-gray-50"
+                  className="mt-4 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer"
                 >
                   Select File
                 </label>
