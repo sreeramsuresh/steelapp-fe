@@ -410,35 +410,35 @@ export function SupplierQuotationDetail() {
                 <tr>
                   <th className="px-4 py-3 text-left">#</th>
                   <th className="px-4 py-3 text-left">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1 mb-0.5" />
                     Description
-                    <span className="ml-1 text-[10px] font-normal text-gray-400">extracted</span>
                   </th>
                   <th className="px-4 py-3 text-left">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1 mb-0.5" />
                     Grade/Specs
-                    <span className="ml-1 text-[10px] font-normal text-gray-400">extracted</span>
                   </th>
                   <th className="px-4 py-3 text-right">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1 mb-0.5" />
                     Qty
-                    <span className="ml-1 text-[10px] font-normal text-gray-400">extracted</span>
                   </th>
                   <th className="px-4 py-3 text-right">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1 mb-0.5" />
                     Unit Price
-                    <span className="ml-1 text-[10px] font-normal text-gray-400">extracted</span>
                   </th>
                   <th className="px-4 py-3 text-right">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1 mb-0.5" />
                     Amount
-                    <span className="ml-1 text-[10px] font-normal text-gray-400">extracted</span>
                   </th>
                   {quotation.currency !== "AED" && (
                     <th className="px-4 py-3 text-right text-blue-500">
-                      Unit (AED)
-                      <span className="ml-1 text-[10px] font-normal text-blue-400">calc</span>
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 mr-1 mb-0.5" />
+                      AED/PC
                     </th>
                   )}
                   {quotation.currency !== "AED" && (
                     <th className="px-4 py-3 text-right text-blue-500">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 mr-1 mb-0.5" />
                       Amt (AED)
-                      <span className="ml-1 text-[10px] font-normal text-blue-400">calc</span>
                     </th>
                   )}
                 </tr>
@@ -491,57 +491,48 @@ export function SupplierQuotationDetail() {
             <div className="w-72 space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1 mb-0.5" />
                   Subtotal
-                  <span className="ml-1 text-[10px] text-gray-400">(extracted or Σ items)</span>
                 </span>
                 <span>{formatCurrency(quotation.subtotal, quotation.currency)}</span>
               </div>
               {quotation.discountAmount > 0 && (
                 <div className="flex justify-between text-red-600">
-                  <span>
-                    Discount
-                    <span className="ml-1 text-[10px] text-red-400">(manual)</span>
-                  </span>
+                  <span>Discount</span>
                   <span>-{formatCurrency(quotation.discountAmount, quotation.currency)}</span>
                 </div>
               )}
               {quotation.shippingCharges > 0 && (
                 <div className="flex justify-between">
-                  <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
-                    Shipping
-                    <span className="ml-1 text-[10px] text-gray-400">(manual)</span>
-                  </span>
+                  <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Shipping</span>
                   <span>{formatCurrency(quotation.shippingCharges, quotation.currency)}</span>
                 </div>
               )}
               {quotation.freightCharges > 0 && (
                 <div className="flex justify-between">
-                  <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
-                    Freight
-                    <span className="ml-1 text-[10px] text-gray-400">(manual)</span>
-                  </span>
+                  <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Freight</span>
                   <span>{formatCurrency(quotation.freightCharges, quotation.currency)}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 mr-1 mb-0.5" />
                   VAT (5%)
-                  <span className="ml-1 text-[10px] text-blue-400">(calc)</span>
                 </span>
                 <span>{formatCurrency(quotation.vatAmount, quotation.currency)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg pt-2 border-t">
                 <span>
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 mr-1 mb-0.5" />
                   Total
-                  <span className="ml-1 text-[10px] font-normal text-blue-400">(calc)</span>
                 </span>
                 <span>{formatCurrency(quotation.total, quotation.currency)}</span>
               </div>
               {quotation.currency !== "AED" && quotation.total > 0 && (
                 <div className="flex justify-between text-sm pt-2 border-t border-dashed text-blue-500 font-semibold">
                   <span>
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 mr-1 mb-0.5" />
                     Total in AED
-                    <span className="ml-1 text-[10px] font-normal text-blue-400">(calc)</span>
                   </span>
                   <span>{formatCurrency(quotation.total * (quotation.exchangeRate || 1), "AED")}</span>
                 </div>
