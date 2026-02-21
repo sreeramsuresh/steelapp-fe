@@ -401,9 +401,8 @@ export function SupplierQuotationDetail() {
                   <th className="px-4 py-3 text-right">Quantity</th>
                   <th className="px-4 py-3 text-right">Unit Price</th>
                   <th className="px-4 py-3 text-right">Amount</th>
-                  {quotation.currency !== "AED" && (
-                    <th className="px-4 py-3 text-right text-blue-500">Amt (AED)</th>
-                  )}
+                  {quotation.currency !== "AED" && <th className="px-4 py-3 text-right text-blue-500">Unit (AED)</th>}
+                  {quotation.currency !== "AED" && <th className="px-4 py-3 text-right text-blue-500">Amt (AED)</th>}
                 </tr>
               </thead>
               <tbody>
@@ -433,6 +432,11 @@ export function SupplierQuotationDetail() {
                     <td className="px-4 py-3 text-right font-medium">
                       {formatCurrency(item.amount, quotation.currency)}
                     </td>
+                    {quotation.currency !== "AED" && (
+                      <td className="px-4 py-3 text-right text-blue-500">
+                        {formatCurrency(item.unitPrice * (quotation.exchangeRate || 1), "AED")}
+                      </td>
+                    )}
                     {quotation.currency !== "AED" && (
                       <td className="px-4 py-3 text-right font-medium text-blue-500">
                         {formatCurrency(item.amount * (quotation.exchangeRate || 1), "AED")}
