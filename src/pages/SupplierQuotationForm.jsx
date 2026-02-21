@@ -296,6 +296,13 @@ export function SupplierQuotationForm() {
     }).format(amount || 0);
   };
 
+  const fmtAED = (amount) =>
+    new Intl.NumberFormat("en-AE", { style: "currency", currency: "AED", minimumFractionDigits: 2 }).format(
+      (amount || 0) * (parseFloat(formData.exchangeRate) || 1)
+    );
+
+  const showAED = formData.currency !== "AED" && (parseFloat(formData.exchangeRate) || 1) !== 1;
+
   const totals = calculateTotals();
 
   if (loading) {
@@ -574,8 +581,10 @@ export function SupplierQuotationForm() {
                   amountDisplay={formatCurrency(item.amount)}
                   amountBreakdown={
                     (parseFloat(item.quantity) || 0) > 0 && (parseFloat(item.unitPrice) || 0) > 0
-                      ? `${item.quantity} ${item.unit || "KG"} × ${parseFloat(item.unitPrice).toFixed(2)}`
-                      : null
+                      ? `${item.quantity} ${item.unit || "KG"} × ${parseFloat(item.unitPrice).toFixed(2)}${showAED && (parseFloat(item.amount) || 0) > 0 ? ` · ${fmtAED(item.amount)}` : ""}`
+                      : showAED && (parseFloat(item.amount) || 0) > 0
+                        ? fmtAED(item.amount)
+                        : null
                   }
                   row1Content={
                     <div className="grid grid-cols-1 sm:grid-cols-[1fr_100px_90px] gap-2 items-end">
@@ -798,6 +807,12 @@ export function SupplierQuotationForm() {
                 <span>Total</span>
                 <span>{formatCurrency(totals.total)}</span>
               </div>
+              {showAED && totals.total > 0 && (
+                <div className="flex justify-between text-sm pt-2 border-t border-dashed">
+                  <span className="text-blue-500 font-medium">Total in AED</span>
+                  <span className="text-blue-500 font-bold">{fmtAED(totals.total)}</span>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
