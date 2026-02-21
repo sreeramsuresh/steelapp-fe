@@ -147,6 +147,7 @@ export function SupplierQuotationList() {
             <div className="flex items-center gap-2 flex-1 min-w-[200px]">
               <Search className="h-4 w-4 text-gray-400" />
               <Input
+                aria-label="Search supplier quotations"
                 placeholder="Search by reference, supplier..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}

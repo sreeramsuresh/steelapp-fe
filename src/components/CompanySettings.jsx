@@ -1113,7 +1113,7 @@ const CompanySettings = () => {
     <SettingsPaper className="max-w-3xl">
       <div className="p-4">
         <div className="flex justify-between items-center mb-4">
-          <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Company Profile</h3>
+          <h2 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Company Profile</h2>
           <Button
             variant="primary"
             startIcon={updatingCompany ? <CircularProgress size={16} /> : <Save size={16} />}
@@ -1731,9 +1731,9 @@ const CompanySettings = () => {
           >
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                <h2 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   VAT Rates Configuration
-                </h3>
+                </h2>
                 <Button onClick={() => setShowAddVatModal(true)} startIcon={<Plus size={16} />}>
                   Add VAT Rate
                 </Button>
@@ -1878,9 +1878,9 @@ const CompanySettings = () => {
                 <div className={`w-full max-w-md rounded-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} shadow-2xl`}>
                   <div className={`p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
                     <div className="flex justify-between items-center">
-                      <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                      <h2 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                         Add VAT Rate
-                      </h3>
+                      </h2>
                       <button
                         type="button"
                         onClick={() => setShowAddVatModal(false)}
@@ -2024,9 +2024,9 @@ const CompanySettings = () => {
             <div className="p-6">
               {/* Header */}
               <div className="mb-6">
-                <h3 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                <h2 className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   📘 Product Naming System
-                </h3>
+                </h2>
                 <p className={`text-base ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                   Configure how products are identified (fixed SSOT pattern) and displayed (customizable templates). The
                   identity pattern ensures data consistency, while display templates control presentation.
