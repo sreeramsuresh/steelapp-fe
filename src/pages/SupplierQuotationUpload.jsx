@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, CheckCircle, FileText, Loader2, Upload, X } from "lucide-react";
+﻿import { AlertTriangle, ArrowRight, CheckCircle, FileText, Loader2, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -99,7 +99,7 @@ export function SupplierQuotationUpload() {
       if (result.success) {
         toast.success("PDF extracted successfully");
       } else {
-        toast("Extraction completed with warnings", { icon: "⚠️" });
+        toast("Extraction completed with warnings", { icon: "??" });
       }
     } catch (err) {
       console.error("Upload failed:", err);
@@ -160,18 +160,18 @@ export function SupplierQuotationUpload() {
             </p>
           </div>
 
-          {/* Hidden file input — must be outside the drop zone button to avoid click capture */}
+          {/* File input: visually hidden but NOT display:none — Chrome blocks label clicks on display:none inputs */}
           <input
             ref={fileInputRef}
             type="file"
             accept=".pdf,application/pdf"
             onChange={handleFileSelect}
-            className="hidden"
+            className="absolute opacity-0 w-px h-px overflow-hidden"
             id="pdf-upload"
           />
 
-          {/* Drop Zone — drag handlers on div are intentional; keyboard access via Select File button below */}
-          {/* biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop zone, keyboard users use the Select File button */}
+          {/* Drop Zone */}
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop zone; keyboard users use the Select File label below */}
           <div
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
               dragActive
