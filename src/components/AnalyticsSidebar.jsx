@@ -269,6 +269,13 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
           description: "Cost of goods sold breakdown and margin analysis",
           requiredPermission: "analytics.read",
         },
+        {
+          name: "Normalized Margin",
+          path: "/analytics/normalized-margin",
+          icon: BarChart3,
+          description: "Per-KG normalized sell, cost, and margin analysis",
+          requiredPermission: "analytics.read",
+        },
       ],
     },
 

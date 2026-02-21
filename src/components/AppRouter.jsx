@@ -121,6 +121,7 @@ const CashBookReport = lazy(() => import("../pages/reports/CashBookReport"));
 const JournalRegisterReport = lazy(() => import("../pages/reports/JournalRegisterReport"));
 const TrialBalanceReport = lazy(() => import("../pages/reports/TrialBalanceReport"));
 const COGSAnalysisReport = lazy(() => import("../pages/reports/COGSAnalysisReport"));
+const NormalizedMarginReport = lazy(() => import("../pages/reports/NormalizedMarginReport"));
 const ReconciliationReport = lazy(() => import("../pages/reports/ReconciliationReport"));
 
 // Feedback Management
@@ -1245,6 +1246,14 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredPermission="analytics.read">
                   <COGSAnalysisReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="normalized-margin"
+              element={
+                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                  <NormalizedMarginReport />
                 </ProtectedRoute>
               }
             />

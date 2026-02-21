@@ -59,6 +59,7 @@ const analyticsRouteLabels = {
   "/analytics/journal-register": "Journal Register",
   "/analytics/trial-balance": "Trial Balance",
   "/analytics/cogs-analysis": "COGS Analysis",
+  "/analytics/normalized-margin": "Normalized Margin Report",
   "/analytics/reconciliation": "Stock Reconciliation",
   "/analytics/vat-return": "VAT Return",
 };
