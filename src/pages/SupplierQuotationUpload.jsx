@@ -160,9 +160,19 @@ export function SupplierQuotationUpload() {
             </p>
           </div>
 
-          {/* Drop Zone */}
-          <button
-            type="button"
+          {/* Hidden file input — must be outside the drop zone button to avoid click capture */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,application/pdf"
+            onChange={handleFileSelect}
+            className="hidden"
+            id="pdf-upload"
+          />
+
+          {/* Drop Zone — drag handlers on div are intentional; keyboard access via Select File button below */}
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop zone, keyboard users use the Select File button */}
+          <div
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
               dragActive
                 ? isDarkMode
@@ -180,12 +190,6 @@ export function SupplierQuotationUpload() {
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                fileInputRef.current?.click();
-              }
-            }}
           >
             {file ? (
               <div className="flex items-center justify-center gap-4">
@@ -207,20 +211,12 @@ export function SupplierQuotationUpload() {
                   Drag and drop a PDF file here, or click to select
                 </p>
                 <p className={`text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>Maximum file size: 25MB</p>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf,application/pdf"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  id="pdf-upload"
-                />
                 <Button variant="outline" className="mt-4" onClick={() => fileInputRef.current?.click()}>
                   Select File
                 </Button>
               </div>
             )}
-          </button>
+          </div>
 
           {/* Error Display */}
           {error && (
