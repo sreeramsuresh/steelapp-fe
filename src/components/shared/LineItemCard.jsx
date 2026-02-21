@@ -22,6 +22,7 @@ export default function LineItemCard({
   isActive = false,
   row1Content,
   row2Content,
+  row3Content,
   amountDisplay,
   amountBreakdown,
   onDelete,
@@ -54,13 +55,24 @@ export default function LineItemCard({
       {/* Dashed Divider */}
       <div className={`border-t border-dashed ${isDarkMode ? "border-gray-700" : "border-gray-200"} mb-2.5`} />
 
-      {/* Row 2: Rate, Channel, VAT, Amount, Delete */}
+      {/* Row 2: Grade, Finish, Dimensions, Origin, Unit Price */}
       <div className="flex items-center gap-3 flex-wrap">
         {row2Content}
 
         {/* Spacer */}
         <div className="flex-1" />
+      </div>
 
+      {/* Row 3: Specifications (optional) */}
+      {row3Content && (
+        <>
+          <div className={`border-t border-dashed ${isDarkMode ? "border-gray-700" : "border-gray-200"} my-2.5`} />
+          <div>{row3Content}</div>
+        </>
+      )}
+
+      {/* Amount + Delete — always last */}
+      <div className="flex items-center justify-end gap-3 mt-2.5">
         {/* Amount Display */}
         {amountDisplay && (
           <div className="text-right flex-shrink-0 min-w-[120px]">

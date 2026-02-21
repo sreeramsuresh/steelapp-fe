@@ -30,10 +30,58 @@ export function SupplierQuotationForm() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [suppliers, setSuppliers] = useState([]);
+  // Supplier matching state: null = not needed, "matched" = auto-matched, "ambiguous" = needs user decision
+  const [supplierMatch, setSupplierMatch] = useState(null); // { status, suggestion: {id, name, score} }
+
+  // Fuzzy match extracted supplier name against master list
+  const matchSupplier = useCallback((extractedName, supplierList) => {
+    if (!extractedName || supplierList.length === 0) return null;
+
+    const normalize = (s) =>
+      s
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(
+          /\b(co|ltd|llc|fze|fzc|inc|corp|trading|stainless|steel|international|industries|group|middle east|me)\b/g,
+          ""
+        )
+        .replace(/\s+/g, " ")
+        .trim();
+
+    const wordOverlap = (a, b) => {
+      const wa = new Set(normalize(a).split(" ").filter(Boolean));
+      const wb = new Set(normalize(b).split(" ").filter(Boolean));
+      const common = [...wa].filter((w) => wb.has(w)).length;
+      return common / Math.max(wa.size, wb.size, 1);
+    };
+
+    const normExtracted = normalize(extractedName);
+    let best = null;
+
+    for (const s of supplierList) {
+      const normName = normalize(s.name);
+      // Exact normalized match
+      if (normExtracted === normName) {
+        return { status: "matched", suggestion: { id: s.id, name: s.name, score: 100 } };
+      }
+      // Substring containment
+      const containScore = normExtracted.includes(normName) || normName.includes(normExtracted) ? 80 : 0;
+      const overlapScore = Math.round(wordOverlap(extractedName, s.name) * 100);
+      const score = Math.max(containScore, overlapScore);
+      if (!best || score > best.score) best = { id: s.id, name: s.name, score };
+    }
+
+    if (!best) return null;
+    if (best.score >= 70) return { status: "matched", suggestion: best };
+    if (best.score >= 40) return { status: "ambiguous", suggestion: best };
+    return { status: "no_match", suggestion: null };
+  }, []);
 
   const [formData, setFormData] = useState({
     supplierId: "",
+    supplierName: "",
     supplierReference: "",
+    customerReference: "",
     quoteDate: "",
     validityDate: "",
     receivedDate: new Date().toISOString().split("T")[0],
@@ -52,18 +100,31 @@ export function SupplierQuotationForm() {
     items: [],
   });
 
-  // Load suppliers
+  // Load suppliers then trigger match if we already have an extracted name
   useEffect(() => {
     const loadSuppliers = async () => {
       try {
         const response = await suppliersAPI.getAll();
-        setSuppliers(response?.suppliers || []);
+        const list = response?.suppliers || [];
+        setSuppliers(list);
+        // If quotation already loaded with an unlinked extracted name, run match now
+        setFormData((prev) => {
+          if (!prev.supplierId && prev.supplierName) {
+            const result = matchSupplier(prev.supplierName, list);
+            if (result?.status === "matched") {
+              setSupplierMatch(result);
+              return { ...prev, supplierId: result.suggestion.id };
+            }
+            setSupplierMatch(result);
+          }
+          return prev;
+        });
       } catch (err) {
         console.error("Failed to load suppliers:", err);
       }
     };
     loadSuppliers();
-  }, []);
+  }, [matchSupplier]);
 
   const loadQuotation = useCallback(async () => {
     try {
@@ -71,7 +132,9 @@ export function SupplierQuotationForm() {
       const data = await getSupplierQuotation(id);
       setFormData({
         supplierId: data.supplierId || "",
+        supplierName: data.supplierName || "",
         supplierReference: data.supplierReference || "",
+        customerReference: data.customerReference || "",
         quoteDate: data.quoteDate?.split("T")[0] || "",
         validityDate: data.validityDate?.split("T")[0] || "",
         receivedDate: data.receivedDate?.split("T")[0] || "",
@@ -80,7 +143,15 @@ export function SupplierQuotationForm() {
         incoterms: data.incoterms || "",
         notes: data.notes || "",
         currency: data.currency || "AED",
-        exchangeRate: data.exchangeRate || 1,
+        exchangeRate: (() => {
+          const saved = data.exchangeRate || 1;
+          const currency = data.currency || "AED";
+          // If rate was never set (still 1) and currency has a known pegged rate, use it
+          if (saved === 1 && currency !== "AED" && { USD: 3.6725 }[currency]) {
+            return { USD: 3.6725 }[currency];
+          }
+          return saved;
+        })(),
         discountType: data.discountType || "",
         discountPercentage: data.discountPercentage || 0,
         discountAmount: data.discountAmount || 0,
@@ -104,8 +175,25 @@ export function SupplierQuotationForm() {
     }
   }, [isEdit, loadQuotation]);
 
+  // Pegged rates (fixed, not dynamic)
+  const PEGGED_RATES = { USD: 3.6725 };
+
   const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const next = { ...prev, [field]: value };
+      // Auto-fill exchange rate when currency changes
+      if (field === "currency") {
+        if (value === "AED") {
+          next.exchangeRate = 1;
+        } else if (
+          PEGGED_RATES[value] &&
+          (prev.exchangeRate === 1 || prev.exchangeRate === PEGGED_RATES[prev.currency])
+        ) {
+          next.exchangeRate = PEGGED_RATES[value];
+        }
+      }
+      return next;
+    });
   };
 
   const handleItemChange = (index, field, value) => {
@@ -145,6 +233,7 @@ export function SupplierQuotationForm() {
           unitPrice: 0,
           amount: 0,
           vatRate: 5,
+          extractionConfidence: 0,
         },
       ],
     }));
@@ -171,11 +260,6 @@ export function SupplierQuotationForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.supplierId) {
-      toast.error("Please select a supplier");
-      return;
-    }
 
     if (formData.items.length === 0) {
       toast.error("Please add at least one line item");
@@ -250,27 +334,105 @@ export function SupplierQuotationForm() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label>Supplier *</Label>
+              <Label>Supplier</Label>
               <select
                 value={formData.supplierId}
-                onChange={(e) => handleChange("supplierId", e.target.value)}
+                onChange={(e) => {
+                  handleChange("supplierId", e.target.value);
+                  setSupplierMatch(null);
+                }}
                 className={`w-full px-3 py-2 border rounded-md ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : ""}`}
-                required
               >
-                <option value="">Select Supplier</option>
+                <option value="">— Unlinked supplier —</option>
                 {suppliers.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
                   </option>
                 ))}
               </select>
+
+              {/* Auto-matched */}
+              {supplierMatch?.status === "matched" && formData.supplierId && (
+                <p className="text-xs text-green-600 mt-1">
+                  ✓ Auto-matched to <span className="font-medium">{supplierMatch.suggestion.name}</span> (
+                  {supplierMatch.suggestion.score}% confidence) —{" "}
+                  <button
+                    type="button"
+                    className="underline"
+                    onClick={() => {
+                      handleChange("supplierId", "");
+                      setSupplierMatch({ ...supplierMatch, status: "dismissed" });
+                    }}
+                  >
+                    unlink
+                  </button>
+                </p>
+              )}
+
+              {/* Ambiguous — needs user decision */}
+              {supplierMatch?.status === "ambiguous" && !formData.supplierId && (
+                <div className="mt-2 p-2 border border-amber-300 rounded bg-amber-50 text-xs text-amber-800">
+                  <p>
+                    Extracted: <span className="font-medium">{formData.supplierName}</span>
+                  </p>
+                  <p className="mt-1">
+                    Possible match: <span className="font-medium">{supplierMatch.suggestion.name}</span> (
+                    {supplierMatch.suggestion.score}% confidence)
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      type="button"
+                      className="px-2 py-1 bg-amber-600 text-white rounded text-xs"
+                      onClick={() => {
+                        handleChange("supplierId", supplierMatch.suggestion.id);
+                        setSupplierMatch({ ...supplierMatch, status: "matched" });
+                      }}
+                    >
+                      Yes, use this supplier
+                    </button>
+                    <button
+                      type="button"
+                      className="px-2 py-1 border border-amber-600 text-amber-700 rounded text-xs"
+                      onClick={() => setSupplierMatch({ ...supplierMatch, status: "dismissed" })}
+                    >
+                      No, keep extracted name
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Dismissed or no match — show extracted name */}
+              {(supplierMatch?.status === "dismissed" || supplierMatch?.status === "no_match") &&
+                !formData.supplierId &&
+                formData.supplierName && (
+                  <p className="text-xs text-amber-600 mt-1">
+                    Extracted: <span className="font-medium">{formData.supplierName}</span> — not linked to a supplier
+                    record
+                  </p>
+                )}
+
+              {/* No match at all */}
+              {!supplierMatch && !formData.supplierId && formData.supplierName && (
+                <p className="text-xs text-amber-600 mt-1">
+                  Extracted: <span className="font-medium">{formData.supplierName}</span> — not linked to a supplier
+                  record
+                </p>
+              )}
             </div>
             <div>
               <Label>Supplier Reference</Label>
               <Input
                 value={formData.supplierReference}
                 onChange={(e) => handleChange("supplierReference", e.target.value)}
-                placeholder="Supplier's quote number"
+                placeholder="Supplier's PI/quote number"
+              />
+            </div>
+            <div>
+              <Label>Our PO Reference</Label>
+              <Input
+                value={formData.customerReference}
+                onChange={(e) => handleChange("customerReference", e.target.value)}
+                placeholder="Our PO number (if on their doc)"
               />
             </div>
             <div>
@@ -284,8 +446,39 @@ export function SupplierQuotationForm() {
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
                 <option value="GBP">GBP</option>
+                <option value="CNY">CNY</option>
+                <option value="INR">INR</option>
               </select>
             </div>
+            {formData.currency !== "AED" && (
+              <div>
+                <Label>
+                  Exchange Rate to AED{" "}
+                  {PEGGED_RATES[formData.currency] && (
+                    <span className="text-xs font-normal text-blue-500">(pegged — auto-filled)</span>
+                  )}
+                </Label>
+                <Input
+                  type="number"
+                  min="0.0001"
+                  step="0.0001"
+                  value={formData.exchangeRate}
+                  onChange={(e) => handleChange("exchangeRate", parseFloat(e.target.value) || 1)}
+                  placeholder={`1 ${formData.currency} = ? AED`}
+                />
+                {formData.exchangeRate > 1 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Total ≈ AED{" "}
+                    {new Intl.NumberFormat("en-AE", { minimumFractionDigits: 0 }).format(
+                      (parseFloat(formData.exchangeRate) || 1) *
+                        ((formData.total || 0) > 0
+                          ? formData.total
+                          : formData.items?.reduce((s, i) => s + (i.quantity || 0) * (i.unitPrice || 0), 0) || 0)
+                    )}
+                  </p>
+                )}
+              </div>
+            )}
             <div>
               <Label>Quote Date</Label>
               <Input
@@ -421,10 +614,23 @@ export function SupplierQuotationForm() {
                           <option value="KG">KG</option>
                           <option value="MT">MT</option>
                           <option value="PCS">PCS</option>
+                          <option value="PC">PC</option>
                           <option value="METER">METER</option>
                           <option value="LOT">LOT</option>
                         </select>
                       </div>
+                    </div>
+                  }
+                  row3Content={
+                    <div>
+                      <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                        Specifications
+                      </span>
+                      <Input
+                        value={item.specifications}
+                        onChange={(e) => handleItemChange(index, "specifications", e.target.value)}
+                        placeholder="Additional specs, remarks, part number..."
+                      />
                     </div>
                   }
                   row2Content={
@@ -449,14 +655,44 @@ export function SupplierQuotationForm() {
                           placeholder="2B, BA"
                         />
                       </div>
-                      <div className="w-[160px]">
+                      <div className="w-[80px]">
                         <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
-                          Dimensions
+                          Thickness
                         </span>
                         <Input
-                          value={item.dimensions}
-                          onChange={(e) => handleItemChange(index, "dimensions", e.target.value)}
-                          placeholder="1.0mm x 1219mm"
+                          value={item.thickness}
+                          onChange={(e) => handleItemChange(index, "thickness", e.target.value)}
+                          placeholder="1.5"
+                        />
+                      </div>
+                      <div className="w-[80px]">
+                        <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                          Width
+                        </span>
+                        <Input
+                          value={item.width}
+                          onChange={(e) => handleItemChange(index, "width", e.target.value)}
+                          placeholder="1219"
+                        />
+                      </div>
+                      <div className="w-[80px]">
+                        <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                          Length
+                        </span>
+                        <Input
+                          value={item.length}
+                          onChange={(e) => handleItemChange(index, "length", e.target.value)}
+                          placeholder="2438"
+                        />
+                      </div>
+                      <div className="w-[120px]">
+                        <span className="text-[10.5px] font-semibold uppercase tracking-[0.05em] block mb-1 text-gray-400">
+                          Origin
+                        </span>
+                        <Input
+                          value={item.originCountry}
+                          onChange={(e) => handleItemChange(index, "originCountry", e.target.value)}
+                          placeholder="China, Taiwan"
                         />
                       </div>
                       <div className="w-[110px]">

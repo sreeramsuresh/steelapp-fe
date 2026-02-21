@@ -11,6 +11,7 @@ export const transformQuotationFromServer = (data) => {
     companyId: data.companyId,
     internalReference: data.internalReference,
     supplierReference: data.supplierReference,
+    customerReference: data.customerReference,
     supplierId: data.supplierId,
     supplierName: data.supplierName,
     supplierDetails: data.supplierDetails,
@@ -127,7 +128,9 @@ export const transformTemplateFromServer = (template) => {
 export const transformQuotationToServer = (data) => {
   return {
     supplierId: data.supplierId,
+    supplierName: data.supplierName,
     supplierReference: data.supplierReference,
+    customerReference: data.customerReference,
     quoteDate: data.quoteDate,
     validityDate: data.validityDate,
     receivedDate: data.receivedDate,

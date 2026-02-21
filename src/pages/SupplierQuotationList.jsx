@@ -29,7 +29,7 @@ export function SupplierQuotationList() {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [pageInfo, setPageInfo] = useState({ totalPages: 0, totalCount: 0 });
+  const [pageInfo, setPageInfo] = useState({ totalPages: 0, total: 0 });
   const [statusFilter, setStatusFilter] = useState("");
   const [search, setSearch] = useState("");
   const [searchDebounce, setSearchDebounce] = useState("");
@@ -99,6 +99,11 @@ export function SupplierQuotationList() {
       minimumFractionDigits: 2,
     }).format(amount || 0);
   };
+
+  const formatAED = (amount) =>
+    new Intl.NumberFormat("en-AE", { style: "currency", currency: "AED", minimumFractionDigits: 0 }).format(
+      amount || 0
+    );
 
   if (error) {
     return (
@@ -198,6 +203,7 @@ export function SupplierQuotationList() {
                     <TableHead>Quote Date</TableHead>
                     <TableHead>Validity</TableHead>
                     <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="text-right">AED Equiv.</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Confidence</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -214,10 +220,31 @@ export function SupplierQuotationList() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{q.supplierName || "-"}</TableCell>
+                      <TableCell>
+                        {q.supplierName ? (
+                          <span className="font-medium">{q.supplierName}</span>
+                        ) : q.supplierId ? (
+                          <span className="text-gray-400 text-sm italic">Supplier #{q.supplierId}</span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </TableCell>
                       <TableCell>{formatDate(q.quoteDate)}</TableCell>
                       <TableCell>{formatDate(q.validityDate)}</TableCell>
                       <TableCell className="text-right font-medium">{formatCurrency(q.total, q.currency)}</TableCell>
+                      <TableCell className="text-right">
+                        {q.currency !== "AED" ? (
+                          q.exchangeRate > 1 ? (
+                            <span className="text-sm">{formatAED(q.total * q.exchangeRate)}</span>
+                          ) : (
+                            <span className="text-xs text-amber-500" title="Set exchange rate to calculate AED value">
+                              Rate needed
+                            </span>
+                          )
+                        ) : (
+                          <span className="text-gray-400 text-sm">—</span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge
                           className={(() => {
@@ -292,8 +319,8 @@ export function SupplierQuotationList() {
               {/* Pagination */}
               <div className="flex items-center justify-between mt-4">
                 <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                  Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, pageInfo.totalCount)} of{" "}
-                  {pageInfo.totalCount} quotations
+                  Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, pageInfo.total)} of {pageInfo.total}{" "}
+                  quotations
                 </div>
                 <div className="flex gap-4 items-center">
                   {/* Page Size Selector */}
