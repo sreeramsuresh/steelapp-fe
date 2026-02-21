@@ -1128,9 +1128,9 @@ const CompanySettings = () => {
           {/* Basic Information */}
           <SettingsCard>
             <div className="p-4">
-              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                 Basic Information
-              </h4>
+              </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
@@ -1188,9 +1188,9 @@ const CompanySettings = () => {
           {/* Address Information */}
           <SettingsCard>
             <div className="p-4">
-              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                 Address Information
-              </h4>
+              </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
@@ -1247,9 +1247,9 @@ const CompanySettings = () => {
           {/* VAT Registration */}
           <SettingsCard>
             <div className="p-4">
-              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                 VAT Registration
-              </h4>
+              </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
@@ -1266,9 +1266,9 @@ const CompanySettings = () => {
           {/* Bank Details */}
           <SettingsCard>
             <div className="p-4">
-              <h4 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                 Bank Details
-              </h4>
+              </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
@@ -1325,9 +1325,9 @@ const CompanySettings = () => {
                 onClick={() => setImagesExpanded(!imagesExpanded)}
                 className="flex items-center justify-between w-full text-left"
               >
-                <h4 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Company Images (Logo, Brandmark, Seal)
-                </h4>
+                </h3>
                 {imagesExpanded ? (
                   <ChevronUp size={20} className={isDarkMode ? "text-gray-400" : "text-gray-600"} />
                 ) : (
@@ -1339,9 +1339,9 @@ const CompanySettings = () => {
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Logo Section */}
                   <div className="flex flex-col">
-                    <h5 className={`text-md font-medium mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    <h4 className={`text-md font-medium mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       Company Logo
-                    </h5>
+                    </h4>
                     <div className="flex flex-col space-y-4">
                       <LogoContainer>
                         {uploadingLogo ? (
@@ -1445,9 +1445,9 @@ const CompanySettings = () => {
 
                   {/* Brandmark Section */}
                   <div className="flex flex-col">
-                    <h5 className={`text-md font-medium mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    <h4 className={`text-md font-medium mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       Company Brandmark
-                    </h5>
+                    </h4>
                     <div className="flex flex-col space-y-4">
                       <LogoContainer>
                         {uploadingBrandmark ? (
@@ -1532,9 +1532,9 @@ const CompanySettings = () => {
 
                   {/* Seal Section */}
                   <div className="flex flex-col">
-                    <h5 className={`text-md font-medium mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    <h4 className={`text-md font-medium mb-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       Company Seal
-                    </h5>
+                    </h4>
                     <div className="flex flex-col space-y-4">
                       <LogoContainer>
                         {uploadingSeal ? (
@@ -1620,9 +1620,9 @@ const CompanySettings = () => {
 
                   {/* Document Types - Logo & Seal Settings */}
                   <div className="mt-8 pt-8 border-t border-gray-300">
-                    <h4 className={`text-sm font-semibold mb-4 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                    <h3 className={`text-sm font-semibold mb-4 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                       Enable Logos in Document Types
-                    </h4>
+                    </h3>
 
                     <div className="overflow-x-auto">
                       <table className={`w-full text-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
@@ -1759,7 +1759,7 @@ const CompanySettings = () => {
                     </svg>
                   </div>
                   <div className="ml-3 flex-1">
-                    <h4 className="font-semibold mb-2">UAE Federal Tax Authority (FTA) VAT Compliance</h4>
+                    <h3 className="font-semibold mb-2">UAE Federal Tax Authority (FTA) VAT Compliance</h3>
                     <ul className="text-sm space-y-1 list-disc list-inside">
                       <li>
                         <strong>Standard Rated (5%):</strong> Default rate for most goods and services in UAE
@@ -1788,9 +1788,9 @@ const CompanySettings = () => {
                       size={48}
                       className={`mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
                     />
-                    <h4 className={`text-lg font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                    <h3 className={`text-lg font-semibold mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                       No VAT Rates Configured
-                    </h4>
+                    </h3>
                     <p className={`text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                       Get started by adding your first VAT rate. Common rates in UAE are 5% (Standard) and 0% (Zero
                       Rated).
@@ -1810,9 +1810,9 @@ const CompanySettings = () => {
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <h4 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                            <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                               {vatRate.name}
-                            </h4>
+                            </h3>
                             <span
                               className={`px-2 py-1 text-xs font-medium rounded border ${
                                 isDarkMode
@@ -1878,9 +1878,9 @@ const CompanySettings = () => {
                 <div className={`w-full max-w-md rounded-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} shadow-2xl`}>
                   <div className={`p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
                     <div className="flex justify-between items-center">
-                      <h2 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                      <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                         Add VAT Rate
-                      </h2>
+                      </h3>
                       <button
                         type="button"
                         onClick={() => setShowAddVatModal(false)}
@@ -2044,9 +2044,9 @@ const CompanySettings = () => {
                     <Shield size={24} className={isDarkMode ? "text-teal-400" : "text-teal-600"} />
                   </div>
                   <div>
-                    <h4 className={`text-lg font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    <h3 className={`text-lg font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       Product Identity (SSOT - Fixed Pattern)
-                    </h4>
+                    </h3>
                     <p className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                       This is the canonical product identifier used across the system.{" "}
                       <strong>It cannot be changed</strong> as it ensures data consistency.
@@ -2106,9 +2106,9 @@ const CompanySettings = () => {
                     <Edit size={24} className={isDarkMode ? "text-purple-400" : "text-purple-600"} />
                   </div>
                   <div>
-                    <h4 className={`text-lg font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    <h3 className={`text-lg font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                       Display Templates (Editable)
-                    </h4>
+                    </h3>
                     <p className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                       Control how products appear in different contexts. Templates can include both product AND
                       batch-level info.
