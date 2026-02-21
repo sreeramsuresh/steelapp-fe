@@ -211,9 +211,12 @@ export function SupplierQuotationUpload() {
                   Drag and drop a PDF file here, or click to select
                 </p>
                 <p className={`text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>Maximum file size: 25MB</p>
-                <Button variant="outline" className="mt-4" onClick={() => fileInputRef.current?.click()}>
+                <label
+                  htmlFor="pdf-upload"
+                  className="mt-4 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium cursor-pointer hover:bg-gray-50"
+                >
                   Select File
-                </Button>
+                </label>
               </div>
             )}
           </div>
