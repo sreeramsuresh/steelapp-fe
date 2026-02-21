@@ -401,6 +401,9 @@ export function SupplierQuotationDetail() {
                   <th className="px-4 py-3 text-right">Quantity</th>
                   <th className="px-4 py-3 text-right">Unit Price</th>
                   <th className="px-4 py-3 text-right">Amount</th>
+                  {quotation.currency !== "AED" && (
+                    <th className="px-4 py-3 text-right text-blue-500">Amt (AED)</th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -430,6 +433,11 @@ export function SupplierQuotationDetail() {
                     <td className="px-4 py-3 text-right font-medium">
                       {formatCurrency(item.amount, quotation.currency)}
                     </td>
+                    {quotation.currency !== "AED" && (
+                      <td className="px-4 py-3 text-right font-medium text-blue-500">
+                        {formatCurrency(item.amount * (quotation.exchangeRate || 1), "AED")}
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -469,6 +477,12 @@ export function SupplierQuotationDetail() {
                 <span>Total</span>
                 <span>{formatCurrency(quotation.total, quotation.currency)}</span>
               </div>
+              {quotation.currency !== "AED" && quotation.total > 0 && (
+                <div className="flex justify-between text-sm pt-2 border-t border-dashed text-blue-500 font-semibold">
+                  <span>Total in AED</span>
+                  <span>{formatCurrency(quotation.total * (quotation.exchangeRate || 1), "AED")}</span>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
