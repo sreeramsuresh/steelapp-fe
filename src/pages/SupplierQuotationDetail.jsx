@@ -388,7 +388,20 @@ export function SupplierQuotationDetail() {
       {/* Line Items */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Line Items ({quotation.items?.length || 0})</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">Line Items ({quotation.items?.length || 0})</CardTitle>
+            {/* Legend */}
+            <div className="flex items-center gap-3 text-xs">
+              <span className={`flex items-center gap-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                <span className="inline-block w-2 h-2 rounded-full bg-gray-400" />
+                Extracted from PDF
+              </span>
+              <span className="flex items-center gap-1 text-blue-500">
+                <span className="inline-block w-2 h-2 rounded-full bg-blue-500" />
+                Calculated
+              </span>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
@@ -396,13 +409,38 @@ export function SupplierQuotationDetail() {
               <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                 <tr>
                   <th className="px-4 py-3 text-left">#</th>
-                  <th className="px-4 py-3 text-left">Description</th>
-                  <th className="px-4 py-3 text-left">Grade/Specs</th>
-                  <th className="px-4 py-3 text-right">Quantity</th>
-                  <th className="px-4 py-3 text-right">Unit Price</th>
-                  <th className="px-4 py-3 text-right">Amount</th>
-                  {quotation.currency !== "AED" && <th className="px-4 py-3 text-right text-blue-500">Unit (AED)</th>}
-                  {quotation.currency !== "AED" && <th className="px-4 py-3 text-right text-blue-500">Amt (AED)</th>}
+                  <th className="px-4 py-3 text-left">
+                    Description
+                    <span className="ml-1 text-[10px] font-normal text-gray-400">extracted</span>
+                  </th>
+                  <th className="px-4 py-3 text-left">
+                    Grade/Specs
+                    <span className="ml-1 text-[10px] font-normal text-gray-400">extracted</span>
+                  </th>
+                  <th className="px-4 py-3 text-right">
+                    Qty
+                    <span className="ml-1 text-[10px] font-normal text-gray-400">extracted</span>
+                  </th>
+                  <th className="px-4 py-3 text-right">
+                    Unit Price
+                    <span className="ml-1 text-[10px] font-normal text-gray-400">extracted</span>
+                  </th>
+                  <th className="px-4 py-3 text-right">
+                    Amount
+                    <span className="ml-1 text-[10px] font-normal text-gray-400">extracted</span>
+                  </th>
+                  {quotation.currency !== "AED" && (
+                    <th className="px-4 py-3 text-right text-blue-500">
+                      Unit (AED)
+                      <span className="ml-1 text-[10px] font-normal text-blue-400">calc</span>
+                    </th>
+                  )}
+                  {quotation.currency !== "AED" && (
+                    <th className="px-4 py-3 text-right text-blue-500">
+                      Amt (AED)
+                      <span className="ml-1 text-[10px] font-normal text-blue-400">calc</span>
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -450,40 +488,61 @@ export function SupplierQuotationDetail() {
 
           {/* Totals */}
           <div className="mt-4 flex justify-end">
-            <div className="w-64 space-y-2 text-sm">
+            <div className="w-72 space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Subtotal</span>
+                <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
+                  Subtotal
+                  <span className="ml-1 text-[10px] text-gray-400">(extracted or Σ items)</span>
+                </span>
                 <span>{formatCurrency(quotation.subtotal, quotation.currency)}</span>
               </div>
               {quotation.discountAmount > 0 && (
                 <div className="flex justify-between text-red-600">
-                  <span>Discount</span>
+                  <span>
+                    Discount
+                    <span className="ml-1 text-[10px] text-red-400">(manual)</span>
+                  </span>
                   <span>-{formatCurrency(quotation.discountAmount, quotation.currency)}</span>
                 </div>
               )}
               {quotation.shippingCharges > 0 && (
                 <div className="flex justify-between">
-                  <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Shipping</span>
+                  <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
+                    Shipping
+                    <span className="ml-1 text-[10px] text-gray-400">(manual)</span>
+                  </span>
                   <span>{formatCurrency(quotation.shippingCharges, quotation.currency)}</span>
                 </div>
               )}
               {quotation.freightCharges > 0 && (
                 <div className="flex justify-between">
-                  <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Freight</span>
+                  <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
+                    Freight
+                    <span className="ml-1 text-[10px] text-gray-400">(manual)</span>
+                  </span>
                   <span>{formatCurrency(quotation.freightCharges, quotation.currency)}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>VAT</span>
+                <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
+                  VAT (5%)
+                  <span className="ml-1 text-[10px] text-blue-400">(calc)</span>
+                </span>
                 <span>{formatCurrency(quotation.vatAmount, quotation.currency)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                <span>Total</span>
+                <span>
+                  Total
+                  <span className="ml-1 text-[10px] font-normal text-blue-400">(calc)</span>
+                </span>
                 <span>{formatCurrency(quotation.total, quotation.currency)}</span>
               </div>
               {quotation.currency !== "AED" && quotation.total > 0 && (
                 <div className="flex justify-between text-sm pt-2 border-t border-dashed text-blue-500 font-semibold">
-                  <span>Total in AED</span>
+                  <span>
+                    Total in AED
+                    <span className="ml-1 text-[10px] font-normal text-blue-400">(calc)</span>
+                  </span>
                   <span>{formatCurrency(quotation.total * (quotation.exchangeRate || 1), "AED")}</span>
                 </div>
               )}
