@@ -123,7 +123,7 @@ const FinanceDashboard = () => {
 
         {/* Tab Navigation */}
         <div className="px-6">
-          <div className="flex space-x-1">
+          <div role="tablist" aria-label="Finance sections" className="flex space-x-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = effectiveTab === tab.id;
@@ -131,6 +131,8 @@ const FinanceDashboard = () => {
               return (
                 <button
                   type="button"
+                  role="tab"
+                  aria-selected={isActive}
                   key={tab.id}
                   onClick={() => {
                     setActiveTab(tab.id);

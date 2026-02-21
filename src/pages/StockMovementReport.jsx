@@ -391,48 +391,52 @@ export default function StockMovementReport() {
 
           {/* Movement Type - Checkbox style */}
           <div className="lg:col-span-2">
-            <span className="block text-sm font-medium mb-2">
-              Movement Type
-              <span className="text-gray-500 font-normal ml-1">(select multiple)</span>
-            </span>
-            <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-3 bg-white dark:bg-gray-700">
-              <div className="flex flex-wrap gap-2">
-                {/* Select All button */}
-                <button
-                  type="button"
-                  onClick={selectAllMovementTypes}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
-                    selectedMovementTypes.length === Object.keys(MOVEMENT_TYPES).length
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500"
-                  }`}
-                >
-                  {selectedMovementTypes.length === Object.keys(MOVEMENT_TYPES).length ? "Deselect All" : "Select All"}
-                </button>
-                <div className="w-px bg-gray-300 dark:bg-gray-500 mx-1" />
-                {Object.entries(MOVEMENT_TYPES).map(([key, type]) => (
+            <fieldset className="border-0 p-0 m-0">
+              <legend className="block text-sm font-medium mb-2">
+                Movement Type
+                <span className="text-gray-500 font-normal ml-1">(select multiple)</span>
+              </legend>
+              <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-3 bg-white dark:bg-gray-700">
+                <div className="flex flex-wrap gap-2">
+                  {/* Select All button */}
                   <button
-                    key={key}
                     type="button"
-                    onClick={() => toggleMovementType(key)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
-                      selectedMovementTypes.includes(key)
-                        ? "bg-blue-50 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700"
-                        : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500"
+                    onClick={selectAllMovementTypes}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
+                      selectedMovementTypes.length === Object.keys(MOVEMENT_TYPES).length
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500"
                     }`}
                   >
-                    {selectedMovementTypes.includes(key) && <Check className="w-3.5 h-3.5" />}
-                    {type.label}
+                    {selectedMovementTypes.length === Object.keys(MOVEMENT_TYPES).length
+                      ? "Deselect All"
+                      : "Select All"}
                   </button>
-                ))}
+                  <div className="w-px bg-gray-300 dark:bg-gray-500 mx-1" />
+                  {Object.entries(MOVEMENT_TYPES).map(([key, type]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => toggleMovementType(key)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
+                        selectedMovementTypes.includes(key)
+                          ? "bg-blue-50 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700"
+                          : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500"
+                      }`}
+                    >
+                      {selectedMovementTypes.includes(key) && <Check className="w-3.5 h-3.5" />}
+                      {type.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-            {selectedMovementTypes.length > 0 && (
-              <p className="text-xs text-gray-500 mt-1">
-                {selectedMovementTypes.length} type
-                {selectedMovementTypes.length !== 1 ? "s" : ""} selected
-              </p>
-            )}
+              {selectedMovementTypes.length > 0 && (
+                <p className="text-xs text-gray-500 mt-1">
+                  {selectedMovementTypes.length} type
+                  {selectedMovementTypes.length !== 1 ? "s" : ""} selected
+                </p>
+              )}
+            </fieldset>
           </div>
 
           {/* Procurement Channel */}

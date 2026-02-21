@@ -193,7 +193,7 @@ const StockMovementPage = () => {
 
         {/* Tab Navigation - Left aligned, sentence case, teal underline */}
         <div className="px-6">
-          <div className="flex space-x-1 overflow-x-auto">
+          <div role="tablist" aria-label="Stock management sections" className="flex space-x-1 overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -201,6 +201,8 @@ const StockMovementPage = () => {
               return (
                 <button
                   type="button"
+                  role="tab"
+                  aria-selected={isActive}
                   key={tab.id}
                   onClick={() => {
                     setActiveTab(tab.id);

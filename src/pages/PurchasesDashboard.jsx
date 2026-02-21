@@ -130,7 +130,7 @@ const PurchasesDashboard = () => {
 
         {/* Tab Navigation */}
         <div className="px-6">
-          <div className="flex space-x-1">
+          <div role="tablist" aria-label="Purchases sections" className="flex space-x-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = effectiveTab === tab.id;
@@ -138,6 +138,8 @@ const PurchasesDashboard = () => {
               return (
                 <button
                   type="button"
+                  role="tab"
+                  aria-selected={isActive}
                   key={tab.id}
                   onClick={() => {
                     setActiveTab(tab.id);

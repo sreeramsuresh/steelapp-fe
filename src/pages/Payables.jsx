@@ -272,6 +272,14 @@ const POTab = ({ canManage }) => {
     return { totalPO, totalPaid, totalBalance, overdue, upcoming };
   }, [items]);
 
+  const pageSize = Math.max(1, Number(filters.size) || 10);
+  const currentPage = Math.max(1, Number(filters.page) || 1);
+  const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+  const pagedItems = useMemo(
+    () => items.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+    [items, currentPage, pageSize]
+  );
+
   const openDrawer = (item) => setDrawer({ open: true, item });
   const closeDrawer = () => setDrawer({ open: false, item: null });
 
@@ -744,7 +752,7 @@ const POTab = ({ canManage }) => {
                   </td>
                 </tr>
               ) : (
-                items.map((row) => (
+                pagedItems.map((row) => (
                   <tr
                     key={row.id}
                     className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} cursor-pointer`}
@@ -793,6 +801,52 @@ const POTab = ({ canManage }) => {
           </table>
         </div>
       </div>
+
+      {/* Pagination */}
+      {items.length > 0 && (
+        <div
+          className={`flex items-center justify-between mt-3 px-1 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+        >
+          <span>
+            {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, items.length)} of {items.length}
+          </span>
+          <div className="flex items-center gap-2">
+            <select
+              aria-label="Rows per page"
+              value={filters.size}
+              onChange={(e) => setFilters({ size: e.target.value, page: "1" })}
+              className={`px-2 py-1 border rounded text-sm ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : "border-gray-300"}`}
+            >
+              {[10, 20, 50].map((n) => (
+                <option key={n} value={n}>
+                  {n} / page
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              disabled={currentPage <= 1}
+              onClick={() => setFilters({ page: String(currentPage - 1) })}
+              className="px-2 py-1 border rounded disabled:opacity-40"
+              aria-label="Previous page"
+            >
+              ‹
+            </button>
+            <span>
+              {currentPage} / {totalPages}
+            </span>
+            <button
+              type="button"
+              disabled={currentPage >= totalPages}
+              onClick={() => setFilters({ page: String(currentPage + 1) })}
+              className="px-2 py-1 border rounded disabled:opacity-40"
+              aria-label="Next page"
+            >
+              ›
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Drawer */}
       {drawer.open && drawer.item && (

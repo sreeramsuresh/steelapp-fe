@@ -155,7 +155,7 @@ const ImportExportDashboard = () => {
 
         {/* Tab Navigation */}
         <div className="px-6">
-          <div className="flex space-x-1 overflow-x-auto">
+          <div role="tablist" aria-label="Import/Export sections" className="flex space-x-1 overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = effectiveTab === tab.id;
@@ -163,6 +163,8 @@ const ImportExportDashboard = () => {
               return (
                 <button
                   type="button"
+                  role="tab"
+                  aria-selected={isActive}
                   key={tab.id}
                   onClick={() => {
                     setActiveTab(tab.id);
