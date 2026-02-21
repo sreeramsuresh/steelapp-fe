@@ -293,62 +293,7 @@ export function SupplierQuotationDetail() {
         </Card>
       </div>
 
-      {/* Extraction Info */}
-      {quotation.extractionConfidence > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Extraction Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-6 text-sm">
-              <div className="flex items-center gap-2">
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    quotation.extractionConfidence >= 80
-                      ? "bg-green-500"
-                      : quotation.extractionConfidence >= 50
-                        ? "bg-yellow-500"
-                        : "bg-red-500"
-                  }`}
-                />
-                <span>Confidence: {Math.round(quotation.extractionConfidence)}%</span>
-              </div>
-              <span>Method: {quotation.extractionMethod?.replace("_", " ")}</span>
-              <span>PDF Type: {quotation.pdfType}</span>
-              {quotation.pdfFilePath && (
-                <a
-                  href={`/uploads${quotation.pdfFilePath.split("uploads")[1]}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-blue-600 hover:underline"
-                >
-                  View PDF
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              )}
-            </div>
-            {quotation.extractionWarnings?.length > 0 && (
-              <div className={`mt-3 p-3 rounded-lg ${isDarkMode ? "bg-yellow-900/30" : "bg-yellow-50"}`}>
-                <p
-                  className={`text-sm font-medium flex items-center gap-1 ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}
-                >
-                  <AlertTriangle className="h-4 w-4" />
-                  Extraction Warnings
-                </p>
-                <ul
-                  className={`mt-1 text-sm list-disc list-inside ${isDarkMode ? "text-yellow-400" : "text-yellow-700"}`}
-                >
-                  {quotation.extractionWarnings.map((w, _i) => (
-                    <li key={w}>{w}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Terms & Notes */}
+      {/* Terms & Extraction Details — side by side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
@@ -373,7 +318,60 @@ export function SupplierQuotationDetail() {
             </div>
           </CardContent>
         </Card>
-        {quotation.notes && (
+        {/* Extraction Details — right column */}
+        {quotation.extractionConfidence > 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Extraction Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap items-center gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-3 h-3 rounded-full ${
+                      quotation.extractionConfidence >= 80
+                        ? "bg-green-500"
+                        : quotation.extractionConfidence >= 50
+                          ? "bg-yellow-500"
+                          : "bg-red-500"
+                    }`}
+                  />
+                  <span>Confidence: {Math.round(quotation.extractionConfidence)}%</span>
+                </div>
+                {quotation.extractionMethod && <span>Method: {quotation.extractionMethod.replace("_", " ")}</span>}
+                {quotation.pdfType && <span>PDF Type: {quotation.pdfType}</span>}
+                {quotation.pdfFilePath && (
+                  <a
+                    href={`/uploads${quotation.pdfFilePath.split("uploads")[1]}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-blue-600 hover:underline"
+                  >
+                    View PDF
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+              </div>
+              {quotation.extractionWarnings?.length > 0 && (
+                <div className={`mt-3 p-3 rounded-lg ${isDarkMode ? "bg-yellow-900/30" : "bg-yellow-50"}`}>
+                  <p
+                    className={`text-sm font-medium flex items-center gap-1 ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}
+                  >
+                    <AlertTriangle className="h-4 w-4" />
+                    Extraction Warnings
+                  </p>
+                  <ul
+                    className={`mt-1 text-sm list-disc list-inside ${isDarkMode ? "text-yellow-400" : "text-yellow-700"}`}
+                  >
+                    {quotation.extractionWarnings.map((w, _i) => (
+                      <li key={w}>{w}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ) : quotation.notes ? (
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Notes</CardTitle>
@@ -382,8 +380,20 @@ export function SupplierQuotationDetail() {
               <p className="text-sm whitespace-pre-wrap">{quotation.notes}</p>
             </CardContent>
           </Card>
-        )}
+        ) : null}
       </div>
+
+      {/* Notes — shown below when extraction details also present */}
+      {quotation.extractionConfidence > 0 && quotation.notes && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Notes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm whitespace-pre-wrap">{quotation.notes}</p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Line Items */}
       <Card>
@@ -606,6 +616,7 @@ export function SupplierQuotationDetail() {
       {/* Approve Confirmation Dialog */}
       {approveConfirm.open && (
         <ConfirmDialog
+          open={true}
           title="Approve Quotation?"
           message="Are you sure you want to approve this quotation?"
           variant="warning"

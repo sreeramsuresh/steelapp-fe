@@ -376,6 +376,7 @@ export function SupplierQuotationList() {
 
       {deleteConfirm.open && (
         <ConfirmDialog
+          open={true}
           title="Delete Quotation?"
           message="Are you sure you want to delete this quotation?"
           variant="danger"
