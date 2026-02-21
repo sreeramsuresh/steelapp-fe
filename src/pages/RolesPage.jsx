@@ -33,7 +33,7 @@ export default function RolesPage() {
     try {
       setLoading(true);
       const data = await roleService.getRoles();
-      setRoles(data || []);
+      setRoles(data.roles || data || []);
       setError(null);
     } catch (err) {
       setError(`Failed to load roles: ${err.message}`);
@@ -228,7 +228,7 @@ export default function RolesPage() {
                   </TableCell>
                   <TableCell>
                     <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm">
-                      <Lock className="w-3 h-3" /> {role.permission_count || 0}
+                      <Lock className="w-3 h-3" /> {role.permission_count || role.permissions?.length || 0}
                     </span>
                   </TableCell>
                   <TableCell>

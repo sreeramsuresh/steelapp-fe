@@ -1,41 +1,24 @@
 import {
-  Activity,
   ArrowLeft,
-  Box,
-  Briefcase,
   Building,
   Calculator,
   Camera,
   ChevronDown,
   ChevronUp,
-  ClipboardList,
-  Crown,
-  DollarSign,
-  Download,
   Edit,
-  Eye,
-  FilePlus,
   FileText,
   Globe,
   Key,
   Mail,
   MapPin,
-  Pencil,
   Plus,
   Printer,
-  Receipt,
   Save,
   Settings,
   Shield,
-  ShoppingBag,
   Tag,
-  ThumbsUp,
   Trash2,
-  TrendingUp,
-  Truck,
   Upload,
-  Users,
-  Warehouse,
   X,
 } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
@@ -224,32 +207,6 @@ const SettingsCard = ({ children, className = "" }) => {
   );
 };
 
-const SectionHeader = ({ icon: Icon, title }) => {
-  const { isDarkMode } = useTheme();
-
-  return (
-    <div className={`p-6 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-      <div className="flex items-center gap-3">
-        {Icon && <Icon size={24} className={isDarkMode ? "text-teal-400" : "text-teal-600"} />}
-        <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{title}</h3>
-      </div>
-    </div>
-  );
-};
-
-const SectionCard = ({ title, children }) => {
-  const { isDarkMode } = useTheme();
-
-  return (
-    <div className={`p-6 border-b last:border-b-0 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-      {title && (
-        <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>{title}</h4>
-      )}
-      {children}
-    </div>
-  );
-};
-
 const LogoContainer = ({ children, className = "" }) => {
   const { isDarkMode } = useTheme();
 
@@ -363,32 +320,6 @@ const TextField = ({
   );
 };
 
-// Checkbox component removed - unused
-
-const Switch = ({ checked, onChange, label, disabled = false }) => {
-  const { isDarkMode } = useTheme();
-
-  return (
-    <label className="flex items-center space-x-2 cursor-pointer">
-      <div className="relative">
-        <input type="checkbox" checked={checked} onChange={onChange} disabled={disabled} className="sr-only" />
-        <div
-          className={`w-10 h-6 rounded-full transition-colors duration-200 ${
-            checked ? "bg-teal-600" : isDarkMode ? "bg-gray-700" : "bg-gray-300"
-          } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-        >
-          <div
-            className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform duration-200 ${
-              checked ? "transform translate-x-4" : ""
-            }`}
-          />
-        </div>
-      </div>
-      {label && <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{label}</span>}
-    </label>
-  );
-};
-
 const CompanySettings = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
@@ -401,40 +332,6 @@ const CompanySettings = () => {
     itemId: null,
     itemName: null,
   });
-
-  // Role icon mapping
-  const getRoleIcon = (roleName) => {
-    const name = (roleName || "").toLowerCase().replace(/\s+/g, "_");
-    const iconMap = {
-      managing_director: Crown,
-      operations_manager: Activity,
-      finance_manager: DollarSign,
-      sales_manager: TrendingUp,
-      purchase_manager: ShoppingBag,
-      warehouse_manager: Warehouse,
-      accounts_manager: Calculator,
-      sales_executive: Users,
-      purchase_executive: ClipboardList,
-      stock_keeper: Box,
-      accounts_executive: Receipt,
-      logistics_coordinator: Truck,
-    };
-    return iconMap[name] || Briefcase;
-  };
-
-  // Permission action icon mapping
-  const getPermissionIcon = (permissionKey) => {
-    const key = (permissionKey || "").toLowerCase();
-    if (key.includes("create") || key.includes("add")) return FilePlus;
-    if (key.includes("edit") || key.includes("update")) return Pencil;
-    if (key.includes("delete") || key.includes("remove")) return Trash2;
-    if (key.includes("view") || key.includes("read")) return Eye;
-    if (key.includes("approve")) return ThumbsUp;
-    if (key.includes("export")) return Download;
-    if (key.includes("print")) return Printer;
-    if (key.includes("manage") || key.includes("access")) return Key;
-    return Shield;
-  };
 
   const {
     data: companyData,
@@ -568,38 +465,6 @@ const CompanySettings = () => {
   });
   const [productVerificationStatus, _setProductVerificationStatus] = useState({});
 
-  // Formatters
-  const formatDateTime = (value) => {
-    if (!value) return "Never";
-    try {
-      const d = new Date(value);
-      if (Number.isNaN(d.getTime())) return String(value);
-      return d.toLocaleString("en-AE", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return String(value);
-    }
-  };
-  const formatDateOnly = (value) => {
-    if (!value) return "";
-    try {
-      const d = new Date(value);
-      if (Number.isNaN(d.getTime())) return String(value);
-      return d.toLocaleDateString("en-AE", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-      });
-    } catch {
-      return String(value);
-    }
-  };
-
   // Permission module label mapping - currently unused
   // const moduleLabel = (module) => {
   //   const map = {
@@ -612,44 +477,6 @@ const CompanySettings = () => {
   //   };
   //   return map[module] || module.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   // };
-
-  // User validation helpers
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePassword = (password) => {
-    return password && password.length >= 8;
-  };
-
-  const validateUserForm = (user, isEdit = false) => {
-    const errors = {};
-
-    if (!user.name || user.name.trim().length === 0) {
-      errors.name = "Name is required";
-    }
-
-    if (!user.email || user.email.trim().length === 0) {
-      errors.email = "Email is required";
-    } else if (!validateEmail(user.email)) {
-      errors.email = "Please enter a valid email address";
-    }
-
-    if (!isEdit) {
-      if (!user.password || user.password.length === 0) {
-        errors.password = "Password is required";
-      } else if (!validatePassword(user.password)) {
-        errors.password = "Password must be at least 8 characters";
-      }
-    }
-
-    if (selectedUserRoles.length === 0) {
-      errors.roles = "Please assign at least one role";
-    }
-
-    return errors;
-  };
 
   // Set up theme integration for notifications
   useEffect(() => {

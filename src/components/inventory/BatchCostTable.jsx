@@ -99,6 +99,7 @@ const BatchCostTable = ({ batches = [], onBatchClick }) => {
           return (
             <div key={batch.id} className="group">
               {/* Main row */}
+              {/* biome-ignore lint/a11y/useSemanticElements: div used for grid layout styling */}
               <div
                 className={`grid ${GRID_COLS} items-center px-3 py-2.5 cursor-pointer transition-colors ${
                   isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"

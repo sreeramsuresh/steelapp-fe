@@ -143,6 +143,7 @@ const RBACTestPanel = ({ onLoginSuccess, isDarkMode }) => {
     }
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: fetchAccounts is stable, only needed on mount
   useEffect(() => {
     fetchAccounts();
   }, []);

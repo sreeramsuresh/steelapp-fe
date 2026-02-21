@@ -182,12 +182,12 @@ const AuditLogs = () => {
       "IP Address",
     ];
     const csvData = logs.map((log) => [
-      toUAETime(log.createdAt, { format: "datetime" }),
+      toUAETime(log.created_at || log.createdAt, { format: "datetime" }),
       log.username || (log.source === "trigger" ? "System" : "-"),
-      log.userEmail || (log.source === "trigger" ? "DB trigger" : "-"),
+      log.user_email || log.userEmail || (log.source === "trigger" ? "DB trigger" : "-"),
       log.category || "-",
       log.action,
-      log.entityName || (log.entityId ? `#${log.entityId}` : "-"),
+      log.entity_name || log.entityName || (log.entity_id || log.entityId ? `#${log.entity_id || log.entityId}` : "-"),
       log.description || "-",
       log.status || "-",
       log.ipAddress || "-",
@@ -222,10 +222,10 @@ const AuditLogs = () => {
     const search = filters.search.toLowerCase();
     return (
       log.username?.toLowerCase().includes(search) ||
-      log.userEmail?.toLowerCase().includes(search) ||
+      (log.user_email || log.userEmail)?.toLowerCase().includes(search) ||
       log.description?.toLowerCase().includes(search) ||
       log.action?.toLowerCase().includes(search) ||
-      log.entityName?.toLowerCase().includes(search)
+      (log.entity_name || log.entityName)?.toLowerCase().includes(search)
     );
   });
 
@@ -492,7 +492,7 @@ const AuditLogs = () => {
                           <td
                             className={`px-4 py-3 text-sm whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
                           >
-                            {formatDate(log.createdAt)}
+                            {formatDate(log.created_at || log.createdAt)}
                           </td>
                           <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
                             <div className="flex items-center gap-2">
@@ -502,7 +502,7 @@ const AuditLogs = () => {
                                   {log.username || (log.source === "trigger" ? "System" : "-")}
                                 </div>
                                 <div className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
-                                  {log.userEmail || (log.source === "trigger" ? "DB trigger" : "-")}
+                                  {log.user_email || log.userEmail || (log.source === "trigger" ? "DB trigger" : "-")}
                                 </div>
                               </div>
                             </div>
@@ -520,7 +520,7 @@ const AuditLogs = () => {
                             {log.action}
                           </td>
                           <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                            {log.entityName || "-"}
+                            {log.entity_name || log.entityName || "-"}
                           </td>
                           <td
                             className={`px-4 py-3 text-sm max-w-xs truncate ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}

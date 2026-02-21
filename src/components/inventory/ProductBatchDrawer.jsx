@@ -78,6 +78,7 @@ const ProductBatchDrawer = ({ open, onClose, product }) => {
   return (
     <>
       {/* Backdrop */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop overlay dismiss pattern */}
       <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} onKeyDown={null} role="presentation" />
 
       {/* Drawer */}

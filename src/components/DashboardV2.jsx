@@ -687,6 +687,7 @@ const DashboardV2 = () => {
             <button
               type="button"
               onClick={fetchDashboardData}
+              aria-label="Refresh dashboard data"
               className={`p-2 rounded-lg ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
             >
               <RefreshCw size={18} className={isDarkMode ? "text-gray-400" : "text-gray-600"} />

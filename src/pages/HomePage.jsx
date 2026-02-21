@@ -447,12 +447,11 @@ const HomePage = () => {
     enabled: true,
   });
 
-  // Initialize userName from localStorage (lazy initialization)
+  // Initialize userName from authService (checks sessionStorage then localStorage)
   const [userName] = useState(() => {
     try {
-      const currentUser = localStorage.getItem("currentUser");
-      if (currentUser) {
-        const user = JSON.parse(currentUser);
+      const user = authService.getUser();
+      if (user) {
         return user.full_name || user.fullName || user.name || user.display_name || user.email?.split("@")[0] || "User";
       }
     } catch (error) {

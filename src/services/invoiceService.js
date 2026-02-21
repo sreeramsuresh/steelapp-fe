@@ -101,7 +101,7 @@ const transformInvoiceFromServer = (serverData) => {
         typeof serverData.customerDetails === "string"
           ? JSON.parse(serverData.customerDetails)
           : serverData.customerDetails || serverData.customer || {};
-      if (details && details.id) return details;
+      if (details?.id) return details;
       if (serverData.customerId) {
         return { id: serverData.customerId, name: serverData.customerName || "" };
       }

@@ -25,7 +25,7 @@ export default function TwoFactorVerification({ twoFactorToken, methods, onVerif
   // Auto-focus input
   useEffect(() => {
     inputRef.current?.focus();
-  }, [method]);
+  }, []);
 
   // Email OTP cooldown timer
   useEffect(() => {

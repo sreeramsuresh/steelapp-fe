@@ -78,9 +78,9 @@ const BrandmarkHero = () => {
 
         {/* Company Name & Tagline */}
         <div className="brandmark-text text-center mb-6">
-          <h1 className={`text-2xl md:text-3xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+          <h2 className={`text-2xl md:text-3xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
             Ultimate Steels
-          </h1>
+          </h2>
           <p className={`text-sm md:text-base ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
             Building Materials Trading Platform
           </p>
