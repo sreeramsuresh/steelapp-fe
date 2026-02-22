@@ -1,4 +1,5 @@
 import { Check, ClipboardCopy, Download, KeyRound, Shield } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
@@ -131,14 +132,7 @@ export default function TwoFactorSetup({ onComplete, onCancel }) {
 
   // ── Step 2: QR Code + Verify ─────────────────────
   if (step === 2) {
-    // Dynamically import QRCodeSVG — rendered via otpauthUrl
-    let QRComponent = null;
-    try {
-      const { QRCodeSVG } = require("qrcode.react");
-      QRComponent = QRCodeSVG;
-    } catch {
-      // qrcode.react not installed
-    }
+    const QRComponent = QRCodeSVG;
 
     return (
       <div className={cardClass}>

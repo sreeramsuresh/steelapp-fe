@@ -369,7 +369,10 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                 <div className="py-2">
                   <button
                     type="button"
-                    onClick={() => setShowProfileDropdown(false)}
+                    onClick={() => {
+                      setShowProfileDropdown(false);
+                      navigate("/app/profile");
+                    }}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
                       isDarkMode
                         ? "text-gray-300 bg-transparent hover:bg-gray-700 hover:text-white"
@@ -398,7 +401,10 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
 
                   <button
                     type="button"
-                    onClick={() => setShowProfileDropdown(false)}
+                    onClick={() => {
+                      setShowProfileDropdown(false);
+                      navigate("/app/settings");
+                    }}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-200 ${
                       isDarkMode
                         ? "text-gray-300 bg-transparent hover:bg-gray-700 hover:text-white"
