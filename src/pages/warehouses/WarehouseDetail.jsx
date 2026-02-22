@@ -222,6 +222,23 @@ const WarehouseDetail = () => {
     }
   };
 
+  const handleClearLocations = async () => {
+    if (
+      !window.confirm(
+        "Delete all locations for this warehouse? Locations with stock cannot be deleted — move the stock to another bin first."
+      )
+    )
+      return;
+    try {
+      const res = await apiClient.delete(`/warehouses/${id}/locations`);
+      notificationService.success(`Deleted ${res.deleted} location(s)`);
+      setGenResult(null);
+      fetchLocTabData();
+    } catch (error) {
+      notificationService.error(error.response?.data?.message || error.message || "Failed to clear locations");
+    }
+  };
+
   const handleSaveAddLoc = async () => {
     if (!addLocForm) return;
     try {
@@ -889,13 +906,24 @@ const WarehouseDetail = () => {
                 <h3 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   Existing Locations ({locTabData.length})
                 </h3>
-                <button
-                  type="button"
-                  onClick={() => setAddLocForm({ aisle: "", rack: "", bin: "" })}
-                  className="flex items-center gap-1 text-sm px-3 py-1.5 border border-teal-600 text-teal-500 rounded-lg hover:bg-teal-600 hover:text-white"
-                >
-                  + Add
-                </button>
+                <div className="flex items-center gap-2">
+                  {locTabData.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleClearLocations}
+                      className="flex items-center gap-1 text-sm px-3 py-1.5 border border-red-500 text-red-500 rounded-lg hover:bg-red-500 hover:text-white"
+                    >
+                      Clear All
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setAddLocForm({ aisle: "", rack: "", bin: "" })}
+                    className="flex items-center gap-1 text-sm px-3 py-1.5 border border-teal-600 text-teal-500 rounded-lg hover:bg-teal-600 hover:text-white"
+                  >
+                    + Add
+                  </button>
+                </div>
               </div>
 
               {addLocForm && (
