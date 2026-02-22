@@ -152,15 +152,22 @@ const WarehouseDetail = () => {
   }, [activeTab, fetchLocTabData]);
 
   const computePreview = () => {
-    const a = Math.max(1, Math.min(26, parseInt(genAisles, 10) || 0));
+    const a = Math.max(0, Math.min(26, parseInt(genAisles, 10) || 0));
     const r = Math.max(1, Math.min(99, parseInt(genRacks, 10) || 0));
     const d = Math.max(1, Math.min(99, parseInt(genBins, 10) || 0));
     let total = 0;
-    for (let ai = 0; ai < a; ai++) {
-      const aisle = String.fromCharCode(65 + ai);
+    if (a === 0) {
+      // Rack-only mode
       for (let ri = 1; ri <= r; ri++) {
-        const key = `${aisle}-R${ri}`;
-        total += parseInt(genOverrides[key], 10) || d;
+        total += parseInt(genOverrides[`R${ri}`], 10) || d;
+      }
+    } else {
+      for (let ai = 0; ai < a; ai++) {
+        const aisle = String.fromCharCode(65 + ai);
+        for (let ri = 1; ri <= r; ri++) {
+          const key = `${aisle}-R${ri}`;
+          total += parseInt(genOverrides[key], 10) || d;
+        }
       }
     }
     return total;
@@ -170,8 +177,8 @@ const WarehouseDetail = () => {
     const aislesVal = parseInt(genAisles, 10);
     const racksVal = parseInt(genRacks, 10);
     const binsVal = parseInt(genBins, 10);
-    if (!aislesVal || aislesVal < 1) {
-      notificationService.error("Aisles must be at least 1");
+    if (isNaN(aislesVal) || aislesVal < 0) {
+      notificationService.error("Aisles must be 0 or more (0 = rack-only)");
       return;
     }
     if (!racksVal || racksVal < 1) {
@@ -741,7 +748,7 @@ const WarehouseDetail = () => {
                   <input
                     id="gen-aisles"
                     type="number"
-                    min="1"
+                    min="0"
                     max="26"
                     value={genAisles}
                     onChange={(e) => {
@@ -796,37 +803,57 @@ const WarehouseDetail = () => {
               </div>
 
               {/* Override grid */}
-              {parseInt(genAisles, 10) >= 1 && parseInt(genRacks, 10) >= 1 && (
+              {parseInt(genRacks, 10) >= 1 && (
                 <div className="mb-4">
                   <p className={`text-xs mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                     Override bins per rack (optional):
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {Array.from({ length: Math.min(parseInt(genAisles, 10) || 0, 26) }, (_, ai) => {
-                      const aisle = String.fromCharCode(65 + ai);
-                      return Array.from({ length: Math.min(parseInt(genRacks, 10) || 0, 99) }, (_, ri) => {
-                        const rack = `R${ri + 1}`;
-                        const key = `${aisle}-${rack}`;
-                        return (
-                          <div key={key} className="flex items-center gap-1">
-                            <span className={`text-xs font-mono ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                              {key}
-                            </span>
-                            <input
-                              type="number"
-                              min="1"
-                              max="99"
-                              value={genOverrides[key] ?? genBins}
-                              onChange={(e) => {
-                                setGenOverrides((prev) => ({ ...prev, [key]: e.target.value }));
-                                setGenResult(null);
-                              }}
-                              className={`w-14 px-1.5 py-1 text-xs rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
-                            />
-                          </div>
-                        );
-                      });
-                    })}
+                    {parseInt(genAisles, 10) === 0
+                      ? Array.from({ length: Math.min(parseInt(genRacks, 10) || 0, 99) }, (_, ri) => {
+                          const key = `R${ri + 1}`;
+                          return (
+                            <div key={key} className="flex items-center gap-1">
+                              <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                                {key}:
+                              </span>
+                              <input
+                                type="number"
+                                min="1"
+                                max="99"
+                                placeholder={genBins}
+                                value={genOverrides[key] || ""}
+                                onChange={(e) => setGenOverrides((o) => ({ ...o, [key]: e.target.value }))}
+                                className={`w-14 text-xs px-1 py-0.5 rounded border ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"}`}
+                              />
+                            </div>
+                          );
+                        })
+                      : Array.from({ length: Math.min(parseInt(genAisles, 10) || 0, 26) }, (_, ai) => {
+                          const aisle = String.fromCharCode(65 + ai);
+                          return Array.from({ length: Math.min(parseInt(genRacks, 10) || 0, 99) }, (_, ri) => {
+                            const rack = `R${ri + 1}`;
+                            const key = `${aisle}-${rack}`;
+                            return (
+                              <div key={key} className="flex items-center gap-1">
+                                <span className={`text-xs font-mono ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                                  {key}
+                                </span>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max="99"
+                                  value={genOverrides[key] ?? genBins}
+                                  onChange={(e) => {
+                                    setGenOverrides((prev) => ({ ...prev, [key]: e.target.value }));
+                                    setGenResult(null);
+                                  }}
+                                  className={`w-14 px-1.5 py-1 text-xs rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                                />
+                              </div>
+                            );
+                          });
+                        })}
                   </div>
                 </div>
               )}
@@ -928,11 +955,18 @@ const WarehouseDetail = () => {
                       <tr
                         className={`border-b ${isDarkMode ? "border-gray-700 text-gray-400" : "border-gray-200 text-gray-500"}`}
                       >
-                        {[["label","Label"],["aisle","Aisle"],["rack","Rack"],["bin","Bin"]].map(([col, title]) => (
+                        {[
+                          ["label", "Label"],
+                          ["aisle", "Aisle"],
+                          ["rack", "Rack"],
+                          ["bin", "Bin"],
+                        ].map(([col, title]) => (
                           <th
                             key={col}
                             className={`text-left px-4 py-3 font-medium cursor-pointer select-none hover:opacity-75 ${col !== "label" ? "w-20" : ""}`}
-                            onClick={() => setLocSort((s) => ({ col, dir: s.col === col && s.dir === "asc" ? "desc" : "asc" }))}
+                            onClick={() =>
+                              setLocSort((s) => ({ col, dir: s.col === col && s.dir === "asc" ? "desc" : "asc" }))
+                            }
                           >
                             {title} {locSort.col === col ? (locSort.dir === "asc" ? "↑" : "↓") : "↕"}
                           </th>
@@ -942,53 +976,55 @@ const WarehouseDetail = () => {
                       </tr>
                     </thead>
                     <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-100"}`}>
-                      {[...locTabData].sort((a, b) => {
+                      {[...locTabData]
+                        .sort((a, b) => {
                           const v = (x) => (x[locSort.col] || "").toString().toLowerCase();
                           return locSort.dir === "asc" ? v(a).localeCompare(v(b)) : v(b).localeCompare(v(a));
-                        }).map((loc) => (
-                        <tr key={loc.id} className={isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}>
-                          <td
-                            className={`px-4 py-3 font-mono text-xs ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
-                          >
-                            {loc.label || `${loc.aisle}-${loc.rack}-${loc.bin}`}
-                          </td>
-                          <td className={`px-4 py-3 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                            {loc.aisle}
-                          </td>
-                          <td className={`px-4 py-3 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                            {loc.rack}
-                          </td>
-                          <td className={`px-4 py-3 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                            {loc.bin}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span
-                              className={`text-xs px-2 py-0.5 rounded-full ${
-                                loc.isActive || loc.is_active
-                                  ? isDarkMode
-                                    ? "bg-green-900/30 text-green-400"
-                                    : "bg-green-100 text-green-700"
-                                  : isDarkMode
-                                    ? "bg-gray-700 text-gray-400"
-                                    : "bg-gray-100 text-gray-500"
-                              }`}
+                        })
+                        .map((loc) => (
+                          <tr key={loc.id} className={isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}>
+                            <td
+                              className={`px-4 py-3 font-mono text-xs ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
                             >
-                              {loc.isActive || loc.is_active ? "Active" : "Inactive"}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            {(loc.isActive || loc.is_active) && (
-                              <button
-                                type="button"
-                                onClick={() => handleDeactivateLoc(loc.id)}
-                                className={`text-xs px-2 py-0.5 rounded border ${isDarkMode ? "border-gray-600 text-gray-400 hover:border-red-500 hover:text-red-400" : "border-gray-300 text-gray-500 hover:border-red-400 hover:text-red-500"}`}
+                              {loc.label || `${loc.aisle}-${loc.rack}-${loc.bin}`}
+                            </td>
+                            <td className={`px-4 py-3 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                              {loc.aisle}
+                            </td>
+                            <td className={`px-4 py-3 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                              {loc.rack}
+                            </td>
+                            <td className={`px-4 py-3 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                              {loc.bin}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span
+                                className={`text-xs px-2 py-0.5 rounded-full ${
+                                  loc.isActive || loc.is_active
+                                    ? isDarkMode
+                                      ? "bg-green-900/30 text-green-400"
+                                      : "bg-green-100 text-green-700"
+                                    : isDarkMode
+                                      ? "bg-gray-700 text-gray-400"
+                                      : "bg-gray-100 text-gray-500"
+                                }`}
                               >
-                                Deactivate
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                                {loc.isActive || loc.is_active ? "Active" : "Inactive"}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              {(loc.isActive || loc.is_active) && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeactivateLoc(loc.id)}
+                                  className={`text-xs px-2 py-0.5 rounded border ${isDarkMode ? "border-gray-600 text-gray-400 hover:border-red-500 hover:text-red-400" : "border-gray-300 text-gray-500 hover:border-red-400 hover:text-red-500"}`}
+                                >
+                                  Deactivate
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>
