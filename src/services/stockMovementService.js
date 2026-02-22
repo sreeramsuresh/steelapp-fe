@@ -841,17 +841,24 @@ class StockMovementService {
       warehouseId: response.warehouseId || response.warehouse_id,
       warehouseName: response.warehouseName || response.warehouse_name || "",
       asOfDate: response.asOfDate || response.as_of_date || "",
-      items: (response.items || []).map((item) => ({
-        productId: item.productId || item.product_id,
-        productName: item.productName || item.product_name || "",
-        productSku: item.productSku || item.product_sku || "",
-        systemQuantity: parseFloat(item.systemQuantity || item.system_quantity) || 0,
-        lastPhysicalCount: parseFloat(item.lastPhysicalCount || item.last_physical_count) || 0,
-        discrepancy: parseFloat(item.discrepancy) || 0,
-        lastCountDate: item.lastCountDate || item.last_count_date || "",
-      })),
-      totalSystemValue: parseFloat(response.totalSystemValue || response.total_system_value) || 0,
-      discrepancyCount: parseInt(response.discrepancyCount || response.discrepancy_count, 10) || 0,
+      items: (response.items || []).map((item) => {
+        const systemQuantity = Number(
+          item.quantityOnHand ?? item.quantityAvailable ?? item.systemQuantity ?? item.system_quantity ?? 0
+        );
+        const lastPhysicalCount = 0; // Not yet tracked — backend doesn't return physical count data
+        const discrepancy = systemQuantity - lastPhysicalCount;
+        return {
+          productId: item.productId || item.product_id,
+          productName: item.productName || item.product_name || "",
+          productSku: item.productSku || item.product_sku || "",
+          systemQuantity,
+          lastPhysicalCount,
+          discrepancy,
+          lastCountDate: item.lastCountDate || item.last_count_date || "",
+        };
+      }),
+      totalSystemValue: (response.items || []).reduce((sum, item) => sum + Number(item.quantityOnHand ?? 0), 0),
+      discrepancyCount: 0, // Physical counts not yet implemented in backend
     };
   }
 

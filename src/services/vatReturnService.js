@@ -748,7 +748,7 @@ const vatReturnService = {
 
       const currentReturn = (returnsData.data || []).find((r) => {
         const returnStart = new Date(r.periodStart || r.period_start);
-        return returnStart >= quarterStart && returnStart <= quarterEnd;
+        return returnStart.getTime() === quarterStart.getTime();
       });
 
       const metrics = {
@@ -792,7 +792,7 @@ const vatReturnService = {
           netPaid: parseFloat(r.form201?.box15NetVatDue || r.form_201?.box_15_net_vat_due) || 0,
           status: r.status || "unknown",
         })),
-        isMockData: false,
+        isMockData: !currentReturn, // true when no filed return exists for this quarter
         fetchedAt: new Date().toISOString(),
       };
 
