@@ -65,6 +65,7 @@ const WarehouseDetail = () => {
   // Locations tab state
   const [locTabData, setLocTabData] = useState([]);
   const [locTabLoading, setLocTabLoading] = useState(false);
+  const [locSort, setLocSort] = useState({ col: "label", dir: "asc" });
   const [genAisles, setGenAisles] = useState(4);
   const [genRacks, setGenRacks] = useState(3);
   const [genBins, setGenBins] = useState(9);
@@ -166,6 +167,21 @@ const WarehouseDetail = () => {
   };
 
   const handleGenerate = async () => {
+    const aislesVal = parseInt(genAisles, 10);
+    const racksVal = parseInt(genRacks, 10);
+    const binsVal = parseInt(genBins, 10);
+    if (!aislesVal || aislesVal < 1) {
+      notificationService.error("Aisles must be at least 1");
+      return;
+    }
+    if (!racksVal || racksVal < 1) {
+      notificationService.error("Racks per aisle must be at least 1");
+      return;
+    }
+    if (!binsVal || binsVal < 1) {
+      notificationService.error("Default bins per rack must be at least 1");
+      return;
+    }
     setGenLoading(true);
     setGenResult(null);
     try {
@@ -912,16 +928,24 @@ const WarehouseDetail = () => {
                       <tr
                         className={`border-b ${isDarkMode ? "border-gray-700 text-gray-400" : "border-gray-200 text-gray-500"}`}
                       >
-                        <th className="text-left px-4 py-3 font-medium">Label</th>
-                        <th className="text-left px-4 py-3 font-medium w-20">Aisle</th>
-                        <th className="text-left px-4 py-3 font-medium w-20">Rack</th>
-                        <th className="text-left px-4 py-3 font-medium w-20">Bin</th>
+                        {[["label","Label"],["aisle","Aisle"],["rack","Rack"],["bin","Bin"]].map(([col, title]) => (
+                          <th
+                            key={col}
+                            className={`text-left px-4 py-3 font-medium cursor-pointer select-none hover:opacity-75 ${col !== "label" ? "w-20" : ""}`}
+                            onClick={() => setLocSort((s) => ({ col, dir: s.col === col && s.dir === "asc" ? "desc" : "asc" }))}
+                          >
+                            {title} {locSort.col === col ? (locSort.dir === "asc" ? "↑" : "↓") : "↕"}
+                          </th>
+                        ))}
                         <th className="text-left px-4 py-3 font-medium w-24">Status</th>
                         <th className="text-right px-4 py-3 font-medium w-32">Actions</th>
                       </tr>
                     </thead>
                     <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-100"}`}>
-                      {locTabData.map((loc) => (
+                      {[...locTabData].sort((a, b) => {
+                          const v = (x) => (x[locSort.col] || "").toString().toLowerCase();
+                          return locSort.dir === "asc" ? v(a).localeCompare(v(b)) : v(b).localeCompare(v(a));
+                        }).map((loc) => (
                         <tr key={loc.id} className={isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}>
                           <td
                             className={`px-4 py-3 font-mono text-xs ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
