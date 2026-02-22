@@ -610,10 +610,11 @@ const QuotationForm = () => {
               // Safe JSON parsing helper for item fields
               const safeJsonParse = (value, defaultValue = []) => {
                 if (typeof value === "string") {
+                  const trimmed = value.trim();
+                  if (!trimmed.startsWith("[") && !trimmed.startsWith("{")) return defaultValue;
                   try {
-                    return JSON.parse(value) || defaultValue;
-                  } catch (parseError) {
-                    console.warn("Failed to parse item field:", parseError);
+                    return JSON.parse(trimmed) || defaultValue;
+                  } catch {
                     return defaultValue;
                   }
                 }
