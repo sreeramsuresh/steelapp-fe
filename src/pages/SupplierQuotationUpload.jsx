@@ -192,10 +192,9 @@ export function SupplierQuotationUpload() {
           />
 
           {/* Drop Zone */}
-          {/* biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop zone; contains a <label> so cannot use <button> */}
-          {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by the "Select File" label inside */}
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop zone; keyboard access provided by the "Select File" label inside */}
           <div
-            className={`w-full border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+            className={`w-full border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
               dragActive
                 ? isDarkMode
                   ? "border-blue-400 bg-blue-900/30"
@@ -208,7 +207,6 @@ export function SupplierQuotationUpload() {
                     ? "border-gray-600 hover:border-gray-500"
                     : "border-gray-300 hover:border-gray-400"
             }`}
-            onClick={() => !file && fileInputRef.current?.click()}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
