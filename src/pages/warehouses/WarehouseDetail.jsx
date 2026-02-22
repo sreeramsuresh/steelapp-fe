@@ -16,6 +16,7 @@ import {
   MapPin,
   Package,
   Phone,
+  Power,
   RefreshCw,
   TrendingDown,
   TrendingUp,
@@ -57,6 +58,8 @@ const WarehouseDetail = () => {
   // Batches tab state
   const [batches, setBatches] = useState([]);
   const [batchesLoading, setBatchesLoading] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [binMapLocations, setBinMapLocations] = useState([]);
   const [assigningBatch, setAssigningBatch] = useState(null);
   const [locations, setLocations] = useState([]);
   const [selectedLocId, setSelectedLocId] = useState("");
@@ -65,7 +68,6 @@ const WarehouseDetail = () => {
   // Locations tab state
   const [locTabData, setLocTabData] = useState([]);
   const [locTabLoading, setLocTabLoading] = useState(false);
-  const [locSort, setLocSort] = useState({ col: "label", dir: "asc" });
   const [genAisles, setGenAisles] = useState(4);
   const [genRacks, setGenRacks] = useState(3);
   const [genBins, setGenBins] = useState(9);
@@ -115,8 +117,12 @@ const WarehouseDetail = () => {
   const fetchBatches = useCallback(async () => {
     setBatchesLoading(true);
     try {
-      const result = await stockBatchService.getBatches({ warehouseId: id, activeOnly: true });
-      setBatches(result.batches || []);
+      const [batchResult, locResult] = await Promise.all([
+        stockBatchService.getBatches({ warehouseId: id, activeOnly: true }),
+        apiClient.get("/warehouse-locations", { warehouse_id: id, active: "false" }),
+      ]);
+      setBatches(batchResult.batches || []);
+      setBinMapLocations(locResult.warehouseLocations || locResult.locations || []);
     } catch (error) {
       console.error("Error fetching batches:", error);
       notificationService.error("Failed to load batches");
@@ -216,13 +222,14 @@ const WarehouseDetail = () => {
     }
   };
 
-  const handleDeactivateLoc = async (locId) => {
+  const handleToggleLocActive = async (loc) => {
+    const newActive = !(loc.isActive || loc.is_active);
     try {
-      await apiClient.delete(`/warehouse-locations/${locId}`);
+      await apiClient.patch(`/warehouses/${id}/locations/${loc.id}`, { is_active: newActive });
       fetchLocTabData();
-      notificationService.success("Location deactivated");
+      notificationService.success(newActive ? "Location reactivated" : "Location deactivated");
     } catch (error) {
-      notificationService.error(error.message || "Failed to deactivate location");
+      notificationService.error(error.response?.data?.error || error.message || "Failed to update location");
     }
   };
 
@@ -671,93 +678,316 @@ const WarehouseDetail = () => {
 
         {activeTab === "stock" && <WarehouseStockView warehouseId={id} warehouseName={warehouse.name} />}
 
-        {activeTab === "batches" && (
-          <div
-            className={`rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
-          >
-            <div className={`p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-              <h3 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Stock Batches</h3>
-              <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                Assign bin locations to received batches
-              </p>
-            </div>
+        {activeTab === "batches" &&
+          (() => {
+            const categories = [...new Set(batches.map((b) => b.productCategory).filter(Boolean))].sort();
+            const filteredBatches = categoryFilter
+              ? batches.filter((b) => b.productCategory === categoryFilter)
+              : batches;
 
-            {batchesLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <RefreshCw className={`w-6 h-6 animate-spin ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
-              </div>
-            ) : batches.length === 0 ? (
-              <div className="py-12 text-center">
-                <Layers className={`w-10 h-10 mx-auto mb-3 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />
-                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                  No active batches in this warehouse
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr
-                      className={`border-b ${isDarkMode ? "border-gray-700 text-gray-400" : "border-gray-200 text-gray-500"}`}
-                    >
-                      <th className="text-left px-4 py-3 font-medium w-36">Batch No</th>
-                      <th className="text-left px-4 py-3 font-medium">Product</th>
-                      <th className="text-right px-4 py-3 font-medium w-32">Qty Remaining</th>
-                      <th className="text-left px-4 py-3 font-medium w-48">Bin Location</th>
-                    </tr>
-                  </thead>
-                  <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-100"}`}>
-                    {batches.map((batch) => (
-                      <tr key={batch.id} className={isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}>
-                        <td className={`px-4 py-3 font-mono text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                          {batch.batchNumber || `#${batch.id}`}
-                        </td>
-                        <td className={`px-4 py-3 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                          {batch.productDisplayName || batch.productUniqueName}
-                        </td>
-                        <td
-                          className={`px-4 py-3 text-right font-mono text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+            // Build occupied location set for bin map
+            const occupiedLocIds = new Set(batches.map((b) => b.locationId).filter(Boolean));
+            const locBatchMap = {};
+            for (const b of batches) {
+              if (b.locationId) locBatchMap[b.locationId] = b;
+            }
+
+            // Group bin map locations by aisle → rack
+            const aisleMap = new Map();
+            for (const loc of binMapLocations) {
+              const aisleKey = loc.aisle ?? "__rack_only__";
+              if (!aisleMap.has(aisleKey)) aisleMap.set(aisleKey, new Map());
+              const rackMap = aisleMap.get(aisleKey);
+              if (!rackMap.has(loc.rack)) rackMap.set(loc.rack, []);
+              rackMap.get(loc.rack).push(loc);
+            }
+            const sortedAisles = [...aisleMap.keys()].sort((a, b) => {
+              if (a === "__rack_only__") return -1;
+              if (b === "__rack_only__") return 1;
+              return a.localeCompare(b, undefined, { numeric: true });
+            });
+
+            return (
+              <div className="flex gap-4 items-start">
+                {/* LEFT: Batch list — 60% */}
+                <div
+                  className={`flex-[3] min-w-0 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
+                >
+                  {/* Card header */}
+                  <div
+                    className={`px-4 py-3 border-b flex items-center gap-3 flex-wrap ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <h3 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                        Stock Batches
+                        {!batchesLoading && (
+                          <span
+                            className={`ml-2 text-xs font-normal ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                          >
+                            {filteredBatches.length}
+                            {batches.length !== filteredBatches.length ? ` of ${batches.length}` : ""}
+                          </span>
+                        )}
+                      </h3>
+                    </div>
+                    {categories.length > 1 && (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <button
+                          type="button"
+                          onClick={() => setCategoryFilter("")}
+                          className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                            categoryFilter === ""
+                              ? "bg-teal-600 border-teal-600 text-white"
+                              : isDarkMode
+                                ? "border-gray-600 text-gray-400 hover:border-teal-500 hover:text-teal-400"
+                                : "border-gray-300 text-gray-500 hover:border-teal-500 hover:text-teal-600"
+                          }`}
                         >
-                          {parseFloat(batch.quantityRemaining || 0).toLocaleString(undefined, {
-                            minimumFractionDigits: 3,
-                          })}{" "}
-                          {batch.unit || "KG"}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            {batch.locationLabel ? (
-                              <span className="font-mono text-xs text-teal-400">
-                                {batch.locationLabel}
-                                {batch.locationIsActive === false && (
-                                  <span className="ml-1 text-orange-400 text-[10px]">(inactive)</span>
-                                )}
-                              </span>
-                            ) : (
-                              <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>--</span>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => openAssignModal(batch)}
-                              className={`shrink-0 text-xs px-2 py-0.5 rounded border ${
-                                batch.locationLabel
-                                  ? isDarkMode
-                                    ? "border-gray-600 text-gray-400 hover:border-teal-500 hover:text-teal-400"
-                                    : "border-gray-300 text-gray-500 hover:border-teal-500 hover:text-teal-600"
-                                  : "border-teal-600 text-teal-500 hover:bg-teal-600 hover:text-white"
-                              }`}
+                          All
+                        </button>
+                        {categories.map((cat) => (
+                          <button
+                            type="button"
+                            key={cat}
+                            onClick={() => setCategoryFilter(cat === categoryFilter ? "" : cat)}
+                            className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                              categoryFilter === cat
+                                ? "bg-teal-600 border-teal-600 text-white"
+                                : isDarkMode
+                                  ? "border-gray-600 text-gray-400 hover:border-teal-500 hover:text-teal-400"
+                                  : "border-gray-300 text-gray-500 hover:border-teal-500 hover:text-teal-600"
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {batchesLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <RefreshCw className={`w-6 h-6 animate-spin ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
+                    </div>
+                  ) : batches.length === 0 ? (
+                    <div className="py-12 text-center">
+                      <Layers className={`w-10 h-10 mx-auto mb-3 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />
+                      <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        No active batches in this warehouse
+                      </p>
+                    </div>
+                  ) : filteredBatches.length === 0 ? (
+                    <div className="py-10 text-center">
+                      <p className={`text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                        No batches match this category
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      {/* Column header */}
+                      <div
+                        className={`flex items-center gap-2 px-4 py-2 text-xs font-medium border-b ${isDarkMode ? "border-gray-700 text-gray-500" : "border-gray-100 text-gray-400"}`}
+                      >
+                        <span className="w-28 shrink-0">Batch</span>
+                        <span className="flex-1 min-w-0">Product</span>
+                        <span className="w-24 text-right shrink-0">Qty (kg)</span>
+                        <span className="w-10 text-right shrink-0">PCS</span>
+                        <span className="w-36 text-right shrink-0">Location</span>
+                      </div>
+                      {/* Compact rows */}
+                      <div className={`divide-y ${isDarkMode ? "divide-gray-700/50" : "divide-gray-50"}`}>
+                        {filteredBatches.map((batch) => (
+                          <div
+                            key={batch.id}
+                            className={`flex items-center gap-2 px-4 py-2 ${isDarkMode ? "hover:bg-gray-800/40" : "hover:bg-gray-50"}`}
+                          >
+                            {/* Batch number */}
+                            <span
+                              className={`w-28 shrink-0 font-mono text-xs truncate ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                              title={batch.batchNumber || `#${batch.id}`}
                             >
-                              {batch.locationLabel ? "Change" : "Assign"}
-                            </button>
+                              {batch.batchNumber || `#${batch.id}`}
+                            </span>
+                            {/* Product */}
+                            <span
+                              className={`flex-1 min-w-0 text-xs font-medium truncate ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+                            >
+                              {batch.productDisplayName || batch.productUniqueName}
+                            </span>
+                            {/* Qty remaining */}
+                            <span
+                              className={`w-24 text-right shrink-0 text-xs tabular-nums ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                            >
+                              {parseFloat(batch.quantityRemaining || 0).toLocaleString(undefined, {
+                                minimumFractionDigits: 3,
+                              })}
+                            </span>
+                            {/* PCS */}
+                            <span
+                              className={`w-10 text-right shrink-0 text-xs tabular-nums ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                            >
+                              {batch.pcsRemaining != null ? batch.pcsRemaining : "—"}
+                            </span>
+                            {/* Location + action */}
+                            <div className="w-36 shrink-0 flex items-center justify-end gap-1.5">
+                              {batch.locationLabel ? (
+                                <span className="font-mono text-xs text-teal-400 truncate">
+                                  {batch.locationLabel}
+                                  {batch.locationIsActive === false && (
+                                    <span className="ml-1 text-amber-400 text-[10px]">(inactive)</span>
+                                  )}
+                                </span>
+                              ) : (
+                                <span className={`text-xs ${isDarkMode ? "text-gray-600" : "text-gray-300"}`}>—</span>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => openAssignModal(batch)}
+                                className={`shrink-0 text-xs px-2 py-0.5 rounded border ${
+                                  batch.locationLabel
+                                    ? isDarkMode
+                                      ? "border-gray-600 text-gray-400 hover:border-teal-500 hover:text-teal-400"
+                                      : "border-gray-300 text-gray-500 hover:border-teal-500 hover:text-teal-600"
+                                    : "border-teal-600 text-teal-500 hover:bg-teal-600 hover:text-white"
+                                }`}
+                              >
+                                {batch.locationLabel ? "Change" : "Assign"}
+                              </button>
+                            </div>
                           </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* RIGHT: Bin Map — 40% */}
+                <div
+                  className={`flex-[2] shrink-0 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
+                >
+                  <div className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                    <h3 className={`font-semibold text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}>Bin Map</h3>
+                    {binMapLocations.length > 0 && (
+                      <div
+                        className={`flex items-center gap-3 mt-1 text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                      >
+                        <span className="flex items-center gap-1">
+                          <span className="inline-block w-3 h-3 rounded-sm bg-teal-500" /> Occupied
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span
+                            className={`inline-block w-3 h-3 rounded-sm ${isDarkMode ? "bg-red-900/60" : "bg-red-100"}`}
+                          />{" "}
+                          Empty
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span
+                            className={`inline-block w-3 h-3 rounded-sm ${isDarkMode ? "bg-gray-800" : "bg-gray-100"}`}
+                          />{" "}
+                          Inactive
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {batchesLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <RefreshCw className={`w-5 h-5 animate-spin ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
+                    </div>
+                  ) : binMapLocations.length === 0 ? (
+                    <div className="py-10 text-center px-4">
+                      <MapPin className={`w-8 h-8 mx-auto mb-2 ${isDarkMode ? "text-gray-700" : "text-gray-300"}`} />
+                      <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                        No bin locations configured
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="p-4 space-y-4 overflow-y-auto max-h-[70vh]">
+                      {sortedAisles.map((aisleKey) => {
+                        const rackMap = aisleMap.get(aisleKey);
+                        const isRackOnly = aisleKey === "__rack_only__";
+                        const sortedRacks = [...rackMap.keys()].sort((a, b) =>
+                          a.localeCompare(b, undefined, { numeric: true })
+                        );
+                        return (
+                          <div key={aisleKey}>
+                            {!isRackOnly && (
+                              <div
+                                className={`text-[10px] font-semibold uppercase tracking-widest mb-1.5 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                              >
+                                Aisle {aisleKey}
+                              </div>
+                            )}
+                            <div className="space-y-1.5">
+                              {sortedRacks.map((rack) => {
+                                const bins = rackMap.get(rack);
+                                return (
+                                  <div key={rack} className="flex items-center gap-2">
+                                    <span
+                                      className={`text-[10px] font-mono w-8 shrink-0 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                    >
+                                      {rack}
+                                    </span>
+                                    <div className="flex flex-wrap gap-1">
+                                      {bins
+                                        .sort((a, b) => a.bin.localeCompare(b.bin, undefined, { numeric: true }))
+                                        .map((loc) => {
+                                          const active = loc.isActive || loc.is_active;
+                                          const occupied = occupiedLocIds.has(loc.id);
+                                          const occupiedBatch = locBatchMap[loc.id];
+                                          const title = occupied
+                                            ? `${loc.label}: ${occupiedBatch?.batchNumber || ""} — ${occupiedBatch?.productDisplayName || ""}`
+                                            : active
+                                              ? `${loc.label}: Empty`
+                                              : `${loc.label}: Inactive`;
+                                          return (
+                                            <div
+                                              key={loc.id}
+                                              title={title}
+                                              className={`w-7 h-5 rounded-sm text-[9px] flex items-center justify-center font-mono cursor-default transition-colors ${
+                                                occupied
+                                                  ? "bg-teal-500 text-white"
+                                                  : active
+                                                    ? isDarkMode
+                                                      ? "bg-red-900/60 text-red-400"
+                                                      : "bg-red-100 text-red-400"
+                                                    : isDarkMode
+                                                      ? "bg-gray-800 text-gray-600"
+                                                      : "bg-gray-100 text-gray-400"
+                                              }`}
+                                            >
+                                              {loc.bin}
+                                            </div>
+                                          );
+                                        })}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {/* Summary footer */}
+                      <div
+                        className={`pt-2 border-t text-xs flex gap-4 ${isDarkMode ? "border-gray-700 text-gray-500" : "border-gray-100 text-gray-400"}`}
+                      >
+                        <span>{occupiedLocIds.size} occupied</span>
+                        <span>
+                          {
+                            binMapLocations.filter((l) => (l.isActive || l.is_active) && !occupiedLocIds.has(l.id))
+                              .length
+                          }{" "}
+                          free
+                        </span>
+                        <span>{binMapLocations.length} total</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
-        )}
+            );
+          })()}
 
         {activeTab === "locations" && (
           <div className="space-y-6">
@@ -1042,113 +1272,142 @@ const WarehouseDetail = () => {
                   </p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr
-                        className={`border-b ${isDarkMode ? "border-gray-700 text-gray-400" : "border-gray-200 text-gray-500"}`}
-                      >
-                        <th className="px-4 py-3 w-8">
-                          <input
-                            type="checkbox"
-                            className="cursor-pointer"
-                            checked={locTabData.length > 0 && selectedLocs.size === locTabData.length}
-                            onChange={(e) =>
-                              setSelectedLocs(e.target.checked ? new Set(locTabData.map((l) => l.id)) : new Set())
-                            }
-                          />
-                        </th>
-                        {[
-                          ["label", "Label"],
-                          ["aisle", "Aisle"],
-                          ["rack", "Rack"],
-                          ["bin", "Bin"],
-                        ].map(([col, title]) => (
-                          <th
-                            key={col}
-                            className={`text-left px-4 py-3 font-medium cursor-pointer select-none hover:opacity-75 ${col !== "label" ? "w-20" : ""}`}
-                            onClick={() =>
-                              setLocSort((s) => ({ col, dir: s.col === col && s.dir === "asc" ? "desc" : "asc" }))
-                            }
-                          >
-                            {title} {locSort.col === col ? (locSort.dir === "asc" ? "↑" : "↓") : "↕"}
-                          </th>
-                        ))}
-                        <th className="text-left px-4 py-3 font-medium w-24">Status</th>
-                        <th className="text-right px-4 py-3 font-medium w-32">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-100"}`}>
-                      {[...locTabData]
-                        .sort((a, b) => {
-                          const v = (x) => (x[locSort.col] || "").toString().toLowerCase();
-                          return locSort.dir === "asc" ? v(a).localeCompare(v(b)) : v(b).localeCompare(v(a));
-                        })
-                        .map((loc) => (
-                          <tr
-                            key={loc.id}
-                            className={`${isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"} ${selectedLocs.has(loc.id) ? (isDarkMode ? "bg-gray-800/40" : "bg-red-50/60") : ""}`}
-                          >
-                            <td className="px-4 py-3 w-8">
-                              <input
-                                type="checkbox"
-                                className="cursor-pointer"
-                                checked={selectedLocs.has(loc.id)}
-                                onChange={(e) => {
-                                  setSelectedLocs((prev) => {
-                                    const next = new Set(prev);
-                                    if (e.target.checked) next.add(loc.id);
-                                    else next.delete(loc.id);
-                                    return next;
-                                  });
-                                }}
-                              />
-                            </td>
-                            <td
-                              className={`px-4 py-3 font-mono text-xs ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
-                            >
-                              {loc.label || `${loc.aisle}-${loc.rack}-${loc.bin}`}
-                            </td>
-                            <td className={`px-4 py-3 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                              {loc.aisle}
-                            </td>
-                            <td className={`px-4 py-3 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                              {loc.rack}
-                            </td>
-                            <td className={`px-4 py-3 text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                              {loc.bin}
-                            </td>
-                            <td className="px-4 py-3">
-                              <span
-                                className={`text-xs px-2 py-0.5 rounded-full ${
-                                  loc.isActive || loc.is_active
-                                    ? isDarkMode
-                                      ? "bg-green-900/30 text-green-400"
-                                      : "bg-green-100 text-green-700"
-                                    : isDarkMode
-                                      ? "bg-gray-700 text-gray-400"
-                                      : "bg-gray-100 text-gray-500"
-                                }`}
+                (() => {
+                  // Group locations by aisle → rack
+                  const aisleMap = new Map();
+                  for (const loc of locTabData) {
+                    const aisleKey = loc.aisle ?? "__rack_only__";
+                    if (!aisleMap.has(aisleKey)) aisleMap.set(aisleKey, new Map());
+                    const rackMap = aisleMap.get(aisleKey);
+                    if (!rackMap.has(loc.rack)) rackMap.set(loc.rack, []);
+                    rackMap.get(loc.rack).push(loc);
+                  }
+                  const sortedAisles = [...aisleMap.keys()].sort((a, b) => {
+                    if (a === "__rack_only__") return -1;
+                    if (b === "__rack_only__") return 1;
+                    return a.localeCompare(b, undefined, { numeric: true });
+                  });
+                  return (
+                    <div className="p-4 space-y-5">
+                      {sortedAisles.map((aisleKey) => {
+                        const rackMap = aisleMap.get(aisleKey);
+                        const isRackOnly = aisleKey === "__rack_only__";
+                        const sortedRacks = [...rackMap.keys()].sort((a, b) =>
+                          a.localeCompare(b, undefined, { numeric: true })
+                        );
+                        return (
+                          <div key={aisleKey}>
+                            {!isRackOnly && (
+                              <div
+                                className={`text-xs font-semibold uppercase tracking-widest mb-2 pb-1 border-b ${isDarkMode ? "text-gray-400 border-gray-700" : "text-gray-500 border-gray-200"}`}
                               >
-                                {loc.isActive || loc.is_active ? "Active" : "Inactive"}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 text-right">
-                              {(loc.isActive || loc.is_active) && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeactivateLoc(loc.id)}
-                                  className={`text-xs px-2 py-0.5 rounded border ${isDarkMode ? "border-gray-600 text-gray-400 hover:border-red-500 hover:text-red-400" : "border-gray-300 text-gray-500 hover:border-red-400 hover:text-red-500"}`}
-                                >
-                                  Deactivate
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
+                                Aisle {aisleKey}
+                              </div>
+                            )}
+                            <div className="space-y-3">
+                              {sortedRacks.map((rack) => {
+                                const bins = rackMap.get(rack);
+                                return (
+                                  <div key={rack} className="flex items-start gap-3">
+                                    <div
+                                      className={`text-xs font-mono font-medium w-10 pt-1 shrink-0 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                    >
+                                      {rack}
+                                    </div>
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {bins
+                                        .sort((a, b) => a.bin.localeCompare(b.bin, undefined, { numeric: true }))
+                                        .map((loc) => {
+                                          const active = loc.isActive || loc.is_active;
+                                          const selected = selectedLocs.has(loc.id);
+                                          return (
+                                            <div key={loc.id} className="group relative">
+                                              <button
+                                                type="button"
+                                                title={
+                                                  selected
+                                                    ? "Click to deselect"
+                                                    : active
+                                                      ? "Click to select"
+                                                      : "Inactive — click to select"
+                                                }
+                                                onClick={() => {
+                                                  setSelectedLocs((prev) => {
+                                                    const next = new Set(prev);
+                                                    if (next.has(loc.id)) next.delete(loc.id);
+                                                    else next.add(loc.id);
+                                                    return next;
+                                                  });
+                                                }}
+                                                className={`text-sm px-3 py-1.5 pr-7 rounded font-mono border transition-all ${
+                                                  selected
+                                                    ? "border-red-500 bg-red-500/10 text-red-500 ring-1 ring-red-500/40"
+                                                    : active
+                                                      ? isDarkMode
+                                                        ? "border-teal-700 bg-teal-900/20 text-teal-400 hover:border-teal-500"
+                                                        : "border-teal-300 bg-teal-50 text-teal-700 hover:border-teal-500"
+                                                      : isDarkMode
+                                                        ? "border-gray-700 bg-gray-800/40 text-gray-500 hover:border-gray-600"
+                                                        : "border-gray-200 bg-gray-100 text-gray-400 hover:border-gray-400"
+                                                }`}
+                                              >
+                                                {loc.bin}
+                                              </button>
+                                              {/* Deactivate / Reactivate icon — visible on hover */}
+                                              <button
+                                                type="button"
+                                                title={active ? "Deactivate" : "Reactivate"}
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  handleToggleLocActive(loc);
+                                                }}
+                                                className={`absolute top-0 right-0 bottom-0 px-1.5 flex items-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r border-l ${
+                                                  active
+                                                    ? isDarkMode
+                                                      ? "border-teal-700 text-red-400 hover:bg-red-900/30"
+                                                      : "border-teal-300 text-red-500 hover:bg-red-50"
+                                                    : isDarkMode
+                                                      ? "border-gray-700 text-teal-400 hover:bg-teal-900/30"
+                                                      : "border-gray-200 text-teal-600 hover:bg-teal-50"
+                                                }`}
+                                              >
+                                                <Power className="w-3.5 h-3.5" />
+                                              </button>
+                                            </div>
+                                          );
+                                        })}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {/* Legend */}
+                      <div
+                        className={`flex items-center gap-4 pt-2 text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                      >
+                        <span className="flex items-center gap-1">
+                          <span
+                            className={`inline-block w-5 h-4 rounded border ${isDarkMode ? "border-teal-700 bg-teal-900/20" : "border-teal-300 bg-teal-50"}`}
+                          />
+                          Active
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span
+                            className={`inline-block w-5 h-4 rounded border ${isDarkMode ? "border-gray-700 bg-gray-800/40" : "border-gray-200 bg-gray-100"}`}
+                          />
+                          Inactive
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span className="inline-block w-5 h-4 rounded border border-red-500 bg-red-500/10" />
+                          Selected
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()
               )}
             </div>
           </div>
