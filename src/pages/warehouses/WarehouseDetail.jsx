@@ -74,6 +74,8 @@ const WarehouseDetail = () => {
   const [genResult, setGenResult] = useState(null);
   const [addLocForm, setAddLocForm] = useState(null);
   const [clearConfirm, setClearConfirm] = useState(false);
+  const [selectedLocs, setSelectedLocs] = useState(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const fetchWarehouse = useCallback(async () => {
     try {
@@ -138,6 +140,7 @@ const WarehouseDetail = () => {
     try {
       const res = await apiClient.get("/warehouse-locations", { warehouse_id: id, active: "false" });
       setLocTabData(res.warehouseLocations || res.locations || []);
+      setSelectedLocs(new Set());
     } catch (error) {
       console.error("Error fetching locations:", error);
       notificationService.error("Failed to load locations");
@@ -232,6 +235,23 @@ const WarehouseDetail = () => {
       fetchLocTabData();
     } catch (error) {
       notificationService.error(error.response?.data?.message || error.message || "Failed to clear locations");
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedLocs.size === 0) return;
+    setBulkDeleting(true);
+    try {
+      const res = await apiClient.post(`/warehouses/${id}/locations/bulk-delete`, {
+        ids: [...selectedLocs],
+      });
+      notificationService.success(`Deleted ${res.deleted} location(s)`);
+      setSelectedLocs(new Set());
+      fetchLocTabData();
+    } catch (error) {
+      notificationService.error(error.response?.data?.message || error.message || "Failed to delete locations");
+    } finally {
+      setBulkDeleting(false);
     }
   };
 
@@ -982,6 +1002,34 @@ const WarehouseDetail = () => {
                 </div>
               )}
 
+              {/* Bulk-delete action bar */}
+              {selectedLocs.size > 0 && (
+                <div
+                  className={`flex items-center justify-between px-4 py-2 border-b ${isDarkMode ? "border-gray-700 bg-gray-800/60" : "border-gray-200 bg-red-50"}`}
+                >
+                  <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                    {selectedLocs.size} selected
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLocs(new Set())}
+                      className={`text-sm px-3 py-1 rounded border ${isDarkMode ? "border-gray-600 text-gray-400 hover:bg-gray-700" : "border-gray-300 text-gray-500 hover:bg-gray-100"}`}
+                    >
+                      Deselect all
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleBulkDelete}
+                      disabled={bulkDeleting}
+                      className="text-sm px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-60"
+                    >
+                      {bulkDeleting ? "Deleting..." : `Delete ${selectedLocs.size}`}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {locTabLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <RefreshCw className={`w-6 h-6 animate-spin ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
@@ -1000,6 +1048,16 @@ const WarehouseDetail = () => {
                       <tr
                         className={`border-b ${isDarkMode ? "border-gray-700 text-gray-400" : "border-gray-200 text-gray-500"}`}
                       >
+                        <th className="px-4 py-3 w-8">
+                          <input
+                            type="checkbox"
+                            className="cursor-pointer"
+                            checked={locTabData.length > 0 && selectedLocs.size === locTabData.length}
+                            onChange={(e) =>
+                              setSelectedLocs(e.target.checked ? new Set(locTabData.map((l) => l.id)) : new Set())
+                            }
+                          />
+                        </th>
                         {[
                           ["label", "Label"],
                           ["aisle", "Aisle"],
@@ -1027,7 +1085,25 @@ const WarehouseDetail = () => {
                           return locSort.dir === "asc" ? v(a).localeCompare(v(b)) : v(b).localeCompare(v(a));
                         })
                         .map((loc) => (
-                          <tr key={loc.id} className={isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}>
+                          <tr
+                            key={loc.id}
+                            className={`${isDarkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50"} ${selectedLocs.has(loc.id) ? (isDarkMode ? "bg-gray-800/40" : "bg-red-50/60") : ""}`}
+                          >
+                            <td className="px-4 py-3 w-8">
+                              <input
+                                type="checkbox"
+                                className="cursor-pointer"
+                                checked={selectedLocs.has(loc.id)}
+                                onChange={(e) => {
+                                  setSelectedLocs((prev) => {
+                                    const next = new Set(prev);
+                                    if (e.target.checked) next.add(loc.id);
+                                    else next.delete(loc.id);
+                                    return next;
+                                  });
+                                }}
+                              />
+                            </td>
                             <td
                               className={`px-4 py-3 font-mono text-xs ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
                             >
