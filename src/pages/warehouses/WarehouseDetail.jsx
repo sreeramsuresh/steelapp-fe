@@ -73,6 +73,7 @@ const WarehouseDetail = () => {
   const [genLoading, setGenLoading] = useState(false);
   const [genResult, setGenResult] = useState(null);
   const [addLocForm, setAddLocForm] = useState(null);
+  const [clearConfirm, setClearConfirm] = useState(false);
 
   const fetchWarehouse = useCallback(async () => {
     try {
@@ -223,12 +224,7 @@ const WarehouseDetail = () => {
   };
 
   const handleClearLocations = async () => {
-    if (
-      !window.confirm(
-        "Delete all locations for this warehouse? Locations with stock cannot be deleted — move the stock to another bin first."
-      )
-    )
-      return;
+    setClearConfirm(false);
     try {
       const res = await apiClient.delete(`/warehouses/${id}/locations`);
       notificationService.success(`Deleted ${res.deleted} location(s)`);
@@ -907,14 +903,35 @@ const WarehouseDetail = () => {
                   Existing Locations ({locTabData.length})
                 </h3>
                 <div className="flex items-center gap-2">
-                  {locTabData.length > 0 && (
+                  {locTabData.length > 0 && !clearConfirm && (
                     <button
                       type="button"
-                      onClick={handleClearLocations}
+                      onClick={() => setClearConfirm(true)}
                       className="flex items-center gap-1 text-sm px-3 py-1.5 border border-red-500 text-red-500 rounded-lg hover:bg-red-500 hover:text-white"
                     >
                       Clear All
                     </button>
+                  )}
+                  {clearConfirm && (
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm ${isDarkMode ? "text-red-400" : "text-red-600"}`}>
+                        Delete all locations?
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleClearLocations}
+                        className="text-sm px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      >
+                        Yes, delete
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setClearConfirm(false)}
+                        className={`text-sm px-3 py-1.5 rounded-lg border ${isDarkMode ? "border-gray-600 text-gray-300 hover:bg-gray-700" : "border-gray-300 text-gray-600 hover:bg-gray-100"}`}
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   )}
                   <button
                     type="button"
