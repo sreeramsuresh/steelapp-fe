@@ -177,7 +177,7 @@ const WarehouseDetail = () => {
     const aislesVal = parseInt(genAisles, 10);
     const racksVal = parseInt(genRacks, 10);
     const binsVal = parseInt(genBins, 10);
-    if (isNaN(aislesVal) || aislesVal < 0) {
+    if (Number.isNaN(aislesVal) || aislesVal < 0) {
       notificationService.error("Aisles must be 0 or more (0 = rack-only)");
       return;
     }
