@@ -326,7 +326,7 @@ export const tokenUtils = {
       sessionStorage.setItem("userEmail", user.email || "");
       sessionStorage.setItem("userRole", user.role || "");
       sessionStorage.setItem("userName", user.name || "");
-      sessionStorage.setItem("userCompanyId", user.companyId || "");
+      sessionStorage.setItem("userCompanyId", user.companyId || user.company_id || "");
       sessionStorage.setItem("userPermissions", JSON.stringify(user.permissions || {}));
       sessionStorage.setItem("userRoleNames", JSON.stringify(user.roleNames || []));
     }

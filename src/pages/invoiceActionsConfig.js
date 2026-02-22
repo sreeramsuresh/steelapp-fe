@@ -56,7 +56,7 @@ export function getInvoiceActionButtonConfig(
           type: "edit",
           enabled: true,
           tooltip: "Edit Invoice",
-          link: `/invoices/${invoice.id}`,
+          link: `/app/invoices/${invoice.id}`,
         };
       }
       // Issued/sent invoices: check 24-hour window
@@ -66,7 +66,7 @@ export function getInvoiceActionButtonConfig(
           type: "edit",
           enabled: true,
           tooltip: `Edit Invoice (${hoursRemaining}h remaining)`,
-          link: `/invoices/${invoice.id}`,
+          link: `/app/invoices/${invoice.id}`,
         };
       }
       // Locked: after 24h, deleted, cancelled, or no permission

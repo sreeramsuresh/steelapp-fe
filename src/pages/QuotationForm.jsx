@@ -522,6 +522,7 @@ const QuotationForm = () => {
   }, [isEdit]);
 
   // Fetch quotation data for editing
+  // biome-ignore lint/correctness/useExhaustiveDependencies: customers intentionally excluded — including it causes infinite re-fetch loop (customers state updates trigger this effect which triggers more fetches)
   useEffect(() => {
     if (isEdit && id) {
       const fetchQuotation = async () => {
@@ -754,7 +755,7 @@ const QuotationForm = () => {
       fetchQuotation();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, id, customers]); // quotationService and setState functions are stable
+  }, [isEdit, id]); // quotationService and setState functions are stable; customers excluded to prevent infinite re-fetch
 
   // Run field validation when key fields change
   useEffect(() => {
