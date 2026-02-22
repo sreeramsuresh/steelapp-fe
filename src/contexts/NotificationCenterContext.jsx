@@ -59,43 +59,47 @@ export const NotificationCenterProvider = ({ children }) => {
     []
   );
 
-  const fetchNotifications = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await api.get("/notifications");
-      const data = res.data || res;
-      const list = Array.isArray(data?.notifications) ? data.notifications : Array.isArray(data) ? data : [];
-      persist(normalize(list));
-    } catch {
-      // Fallback: seed with sample items if empty
-      setNotifications((currentNotifications) => {
-        const validCurrent = Array.isArray(currentNotifications) ? currentNotifications.filter((n) => n?.id) : [];
-        if (validCurrent.length === 0) {
-          const now = new Date();
-          const oneMinAgo = new Date(now.getTime() - 60000);
-          const seed = normalize([
-            { title: "Welcome", message: "You are all set!", time: now.toISOString(), unread: true },
-            {
-              title: "Tip",
-              message: "Use the global search to find anything.",
-              time: oneMinAgo.toISOString(),
-              unread: false,
-            },
-          ]);
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
-          } catch {
-            /* ignore */
+  const fetchNotifications = useCallback(
+    async (signal) => {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await api.get("/notifications", { signal });
+        const data = res.data || res;
+        const list = Array.isArray(data?.notifications) ? data.notifications : Array.isArray(data) ? data : [];
+        persist(normalize(list));
+      } catch (err) {
+        if (err?.name === "AbortError" || err?.code === "ERR_CANCELED") return;
+        // Fallback: seed with sample items if empty
+        setNotifications((currentNotifications) => {
+          const validCurrent = Array.isArray(currentNotifications) ? currentNotifications.filter((n) => n?.id) : [];
+          if (validCurrent.length === 0) {
+            const now = new Date();
+            const oneMinAgo = new Date(now.getTime() - 60000);
+            const seed = normalize([
+              { title: "Welcome", message: "You are all set!", time: now.toISOString(), unread: true },
+              {
+                title: "Tip",
+                message: "Use the global search to find anything.",
+                time: oneMinAgo.toISOString(),
+                unread: false,
+              },
+            ]);
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
+            } catch {
+              /* ignore */
+            }
+            return seed;
           }
-          return seed;
-        }
-        return validCurrent;
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [normalize, persist]);
+          return validCurrent;
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [normalize, persist]
+  );
 
   const markAsRead = useCallback(async (id) => {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, unread: false } : n)));
@@ -130,36 +134,12 @@ export const NotificationCenterProvider = ({ children }) => {
     [notifications, persist]
   );
 
-  // Sync notifications with storage to fix any corruption
-  const syncWithStorage = useCallback(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        persist([]);
-        return;
-      }
-      const parsed = JSON.parse(raw);
-      const validNotifications = Array.isArray(parsed) ? parsed.filter((n) => n && typeof n === "object" && n.id) : [];
-      persist(validNotifications);
-    } catch {
-      // If storage is corrupted, clear it and reset
-      persist([]);
-    }
-  }, [
-    // If storage is corrupted, clear it and reset
-    persist,
-  ]);
-
   useEffect(() => {
-    if (authService.hasPermission("notifications", "read")) {
-      fetchNotifications();
-    }
-    // Sync on mount to catch any storage corruption
-    syncWithStorage();
-  }, [
-    fetchNotifications, // Sync on mount to catch any storage corruption
-    syncWithStorage,
-  ]);
+    if (!authService.hasPermission("notifications", "read")) return;
+    const controller = new AbortController();
+    fetchNotifications(controller.signal);
+    return () => controller.abort();
+  }, [fetchNotifications]);
 
   const value = {
     notifications,

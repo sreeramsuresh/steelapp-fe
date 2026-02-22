@@ -29,18 +29,21 @@ export function SupplierQuotationUpload() {
 
   // Load suppliers for dropdown
   useEffect(() => {
+    const controller = new AbortController();
     const loadSuppliers = async () => {
       try {
         setLoadingSuppliers(true);
-        const response = await suppliersAPI.getAll();
+        const response = await suppliersAPI.getAll({ signal: controller.signal });
         setSuppliers(response?.suppliers || []);
       } catch (err) {
+        if (err?.name === "AbortError" || err?.code === "ERR_CANCELED") return;
         console.error("Failed to load suppliers:", err);
       } finally {
         setLoadingSuppliers(false);
       }
     };
     loadSuppliers();
+    return () => controller.abort();
   }, []);
 
   const handleDrag = useCallback((e) => {
