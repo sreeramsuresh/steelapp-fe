@@ -915,6 +915,12 @@ const QuotationForm = () => {
     });
   };
 
+  // Derived total quantity from items (avoids stale formData.totalQuantity on load)
+  const displayTotalQuantity = useMemo(
+    () => formData.items.reduce((s, i) => s + (parseFloat(i.quantity) || 0), 0),
+    [formData.items]
+  );
+
   // Sort products: pinned first, then by most quoted
   const sortedProducts = useMemo(() => {
     const pinned = products.filter((p) => pinnedProductIds.includes(p.id));
@@ -2665,7 +2671,7 @@ const QuotationForm = () => {
                         {formData.items.length} item{formData.items.length === 1 ? "" : "s"}
                       </span>
                       <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>
-                        Qty: {formData.totalQuantity}
+                        Qty: {displayTotalQuantity}
                       </span>
                     </div>
                   </div>
