@@ -48,7 +48,7 @@ export default function PasskeyManagement() {
 
       // Step 2: Create credential via browser
       const { startRegistration } = await import("@simplewebauthn/browser");
-      const credential = await startRegistration(options);
+      const credential = await startRegistration({ optionsJSON: options });
 
       // Step 3: Send to server for verification
       await authService.passkeyRegisterFinish(credential);

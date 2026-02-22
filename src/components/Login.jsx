@@ -430,7 +430,7 @@ const Login = ({ onLoginSuccess }) => {
     try {
       const options = await authService.passkeyLoginStart();
       const { startAuthentication } = await import("@simplewebauthn/browser");
-      const credential = await startAuthentication(options);
+      const credential = await startAuthentication({ optionsJSON: options });
       const response = await authService.passkeyLoginFinish(credential);
       if (onLoginSuccess && response.user) {
         onLoginSuccess(response.user);
