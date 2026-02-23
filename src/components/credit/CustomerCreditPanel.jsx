@@ -234,7 +234,7 @@ const CustomerCreditPanel = ({
                 <span className={`${mutedColor} text-sm`}>1-30 days overdue</span>
                 <span className={`${textColor} font-semibold`}>
                   AED{" "}
-                  {(customer.aging1_30 || 0).toLocaleString("en-US", {
+                  {(customer.aging1To30 || 0).toLocaleString("en-US", {
                     maximumFractionDigits: 2,
                   })}
                 </span>
@@ -245,7 +245,7 @@ const CustomerCreditPanel = ({
                 <span className={`${mutedColor} text-sm`}>31-60 days overdue</span>
                 <span className={`${textColor} font-semibold`}>
                   AED{" "}
-                  {(customer.aging31_60 || 0).toLocaleString("en-US", {
+                  {(customer.aging31To60 || 0).toLocaleString("en-US", {
                     maximumFractionDigits: 2,
                   })}
                 </span>
@@ -256,7 +256,7 @@ const CustomerCreditPanel = ({
                 <span className={`${mutedColor} text-sm`}>61-90 days overdue</span>
                 <span className={`${textColor} font-semibold`}>
                   AED{" "}
-                  {(customer.aging61_90 || 0).toLocaleString("en-US", {
+                  {(customer.aging61To90 || 0).toLocaleString("en-US", {
                     maximumFractionDigits: 2,
                   })}
                 </span>

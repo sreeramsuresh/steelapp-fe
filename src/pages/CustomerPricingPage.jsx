@@ -5,6 +5,7 @@ import PriceInheritanceIndicator from "../components/pricing/PriceInheritanceInd
 import PriceOverrideModal from "../components/pricing/PriceOverrideModal";
 import { useTheme } from "../contexts/ThemeContext";
 import { notificationService } from "../services/notificationService";
+import { apiService } from "../services/axiosApi";
 
 /**
  * CustomerPricingPage - Display and manage customer pricelist inheritance
@@ -34,17 +35,7 @@ export default function CustomerPricingPage() {
         setLoading(true);
 
         // Fetch from backend
-        const response = await fetch(`/api/customers/${customerId}/pricing-overview`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to load pricing data: ${response.statusText}`);
-        }
-
-        const data = await response.json();
+        const data = await apiService.get(`/customers/${customerId}/pricing-overview`);
         setCustomer(data.customer);
         setPricingData(data.pricing_items || []);
         setSelectedRows(new Set());
@@ -109,17 +100,7 @@ export default function CustomerPricingPage() {
       setLoading(true);
 
       // Fetch from backend
-      const response = await fetch(`/api/customers/${customerId}/pricing-overview`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to load pricing data: ${response.statusText}`);
-      }
-
-      const data = await response.json();
+      const data = await apiService.get(`/customers/${customerId}/pricing-overview`);
       setCustomer(data.customer);
       setPricingData(data.pricing_items || []);
       setSelectedRows(new Set());
@@ -145,21 +126,9 @@ export default function CustomerPricingPage() {
       // Update customer price override via the pricing API
       const pricelistId = customer?.pricelistId || customer?.default_pricelist_id || customer?.pricelist_id;
       if (pricelistId && editingItem.product_id) {
-        await fetch(`/api/pricelists/${pricelistId}/items`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            items: [
-              {
-                product_id: editingItem.product_id,
-                unit_price: Number(newPrice),
-              },
-            ],
-            operation: "upsert",
-          }),
+        await apiService.put(`/pricelists/${pricelistId}/items`, {
+          items: [{ product_id: editingItem.product_id, unit_price: Number(newPrice) }],
+          operation: "upsert",
         });
       }
       notificationService.success(`Price updated to AED ${Number(newPrice).toFixed(2)}`);
@@ -185,12 +154,7 @@ export default function CustomerPricingPage() {
       // Delete customer price override via the pricing API
       const pricelistId = customer?.pricelistId || customer?.default_pricelist_id || customer?.pricelist_id;
       if (pricelistId && item.product_id) {
-        await fetch(`/api/pricelists/${pricelistId}/items/${item.product_id}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+        await apiService.delete(`/pricelists/${pricelistId}/items/${item.product_id}`);
       }
       notificationService.success("Override removed, using default price");
       await reloadData();

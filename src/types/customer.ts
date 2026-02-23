@@ -37,10 +37,10 @@ export interface Customer {
 
   // Aging Analysis (5 buckets)
   agingCurrent?: number; // Not yet due
-  aging1_30?: number; // 1-30 days overdue
-  aging31_60?: number; // 31-60 days overdue
-  aging61_90?: number; // 61-90 days overdue
-  aging90_plus?: number; // 90+ days overdue
+  aging1To30?: number; // 1-30 days overdue
+  aging31To60?: number; // 31-60 days overdue
+  aging61To90?: number; // 61-90 days overdue
+  aging90Plus?: number; // 90+ days overdue
 
   // Credit tracking
   lastPaymentDate?: string | null; // When last payment was received
