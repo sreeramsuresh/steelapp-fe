@@ -129,8 +129,9 @@ const HealthTab = ({ isDarkMode }) => {
     );
   }
 
-  const healthScore = parseFloat(healthData.health_score || 0);
-  const isHealthy = healthData.status === "HEALTHY" && (healthData.under_allocated_count ?? 0) === 0;
+  const healthScore = parseFloat(healthData.healthScore || healthData.health_score || 0);
+  const underAllocatedCount = healthData.underAllocatedCount ?? healthData.under_allocated_count ?? 0;
+  const isHealthy = healthData.status === "HEALTHY" && underAllocatedCount === 0;
 
   if (isHealthy) {
     return (
@@ -150,8 +151,8 @@ const HealthTab = ({ isDarkMode }) => {
           ...healthData,
           _healthScore: healthScore,
           _status: healthData.status,
-          _underAllocatedCount: healthData.under_allocated_count ?? 0,
-          _totalItems: healthData.total_items ?? 0,
+          _underAllocatedCount: underAllocatedCount,
+          _totalItems: healthData.totalItems ?? healthData.total_items ?? 0,
           negativeStock: [],
           mismatches: [],
           pending: [],
