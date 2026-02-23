@@ -144,18 +144,19 @@ const HealthTab = ({ isDarkMode }) => {
   }
 
   // Remap API fields so the rest of the component can render real metrics
-  if (!healthData.negativeStock && !healthData.mismatches && !healthData.pending) {
-    healthData = {
-      ...healthData,
-      _healthScore: healthScore,
-      _status: healthData.status,
-      _underAllocatedCount: healthData.under_allocated_count ?? 0,
-      _totalItems: healthData.total_items ?? 0,
-      negativeStock: [],
-      mismatches: [],
-      pending: [],
-    };
-  }
+  const displayData =
+    !healthData.negativeStock && !healthData.mismatches && !healthData.pending
+      ? {
+          ...healthData,
+          _healthScore: healthScore,
+          _status: healthData.status,
+          _underAllocatedCount: healthData.under_allocated_count ?? 0,
+          _totalItems: healthData.total_items ?? 0,
+          negativeStock: [],
+          mismatches: [],
+          pending: [],
+        }
+      : healthData;
 
   return (
     <div className="space-y-6">
@@ -167,7 +168,7 @@ const HealthTab = ({ isDarkMode }) => {
               <div>
                 <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Negative Stock</p>
                 <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  {healthData.negativeStock?.length || 0}
+                  {displayData.negativeStock?.length || 0}
                 </p>
               </div>
               <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -181,7 +182,7 @@ const HealthTab = ({ isDarkMode }) => {
               <div>
                 <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Mismatches</p>
                 <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  {healthData.mismatches?.length || 0}
+                  {displayData.mismatches?.length || 0}
                 </p>
               </div>
               <AlertCircle className="h-8 w-8 text-yellow-500" />
@@ -195,7 +196,7 @@ const HealthTab = ({ isDarkMode }) => {
               <div>
                 <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Pending Allocations</p>
                 <p className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  {healthData.pending?.length || 0}
+                  {displayData.pending?.length || 0}
                 </p>
               </div>
               <Package className="h-8 w-8 text-blue-500" />
@@ -205,7 +206,7 @@ const HealthTab = ({ isDarkMode }) => {
       </div>
 
       {/* Issues Table */}
-      {(healthData.negativeStock?.length > 0 || healthData.mismatches?.length > 0) && (
+      {(displayData.negativeStock?.length > 0 || displayData.mismatches?.length > 0) && (
         <Card className={isDarkMode ? "bg-[#1E2328] border-[#37474F]" : ""}>
           <CardHeader>
             <CardTitle className={isDarkMode ? "text-white" : "text-gray-900"}>Allocation Issues</CardTitle>
@@ -221,7 +222,7 @@ const HealthTab = ({ isDarkMode }) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {healthData.negativeStock?.map((item) => (
+                {displayData.negativeStock?.map((item) => (
                   <TableRow key={`neg-${item.batchNumber || item.productName}`}>
                     <TableCell>
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
@@ -239,7 +240,7 @@ const HealthTab = ({ isDarkMode }) => {
                     </TableCell>
                   </TableRow>
                 ))}
-                {healthData.mismatches?.map((item) => (
+                {displayData.mismatches?.map((item) => (
                   <TableRow key={`mis-${item.batchNumber || item.productName}`}>
                     <TableCell>
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
