@@ -3292,7 +3292,16 @@ const SteelProducts = () => {
                     <Input
                       label="Weight (kg/pc or kg/m)"
                       value={newProduct.weight}
-                      onChange={(e) => setNewProduct({ ...newProduct, weight: e.target.value })}
+                      onChange={(e) =>
+                        setNewProduct({
+                          ...newProduct,
+                          weight: e.target.value,
+                          // Keep unitWeightKg in sync unless it's a coil (coils are locked to 1000)
+                          ...(newProduct.productCategory !== "COIL" && e.target.value !== ""
+                            ? { unitWeightKg: Number(e.target.value) }
+                            : {}),
+                        })
+                      }
                       placeholder="e.g., 25.5"
                     />
                     <div className="sm:col-span-2">
@@ -3560,7 +3569,11 @@ const SteelProducts = () => {
                   {(newProduct.quantityBasis === "WEIGHT_DERIVED" || newProduct.quantityBasis === "DUAL_UNIT") && (
                     <div className="mt-4">
                       <Input
-                        label="Unit Weight (kg)"
+                        label={
+                          newProduct.productCategory === "COIL"
+                            ? "Unit Weight (kg) — locked: 1 coil = 1 MT = 1,000 kg"
+                            : "Unit Weight (kg)"
+                        }
                         type="number"
                         step="0.001"
                         min="0"
@@ -3573,8 +3586,13 @@ const SteelProducts = () => {
                         }
                         placeholder="e.g. 2.5"
                         required
+                        disabled={newProduct.productCategory === "COIL"}
                       />
-                      <p className="text-xs mt-1 text-gray-400">Required for weight-based conversion (PCS to KG/MT).</p>
+                      <p className="text-xs mt-1 text-gray-400">
+                        {newProduct.productCategory === "COIL"
+                          ? "Coils are commercially fixed at 1,000 kg/coil (1 MT). This cannot be changed."
+                          : "Required for weight-based conversion (PCS to KG/MT)."}
+                      </p>
                     </div>
                   )}
                 </div>

@@ -790,8 +790,8 @@ const WarehouseDetail = () => {
                       >
                         <span className="w-28 shrink-0">Batch</span>
                         <span className="flex-1 min-w-0">Product</span>
-                        <span className="w-24 text-right shrink-0">Qty (kg)</span>
-                        <span className="w-10 text-right shrink-0">PCS</span>
+                        <span className="w-24 text-right shrink-0">Qty</span>
+                        <span className="w-20 text-right shrink-0">Wt (kg)</span>
                         <span className="w-36 text-right shrink-0">Location</span>
                       </div>
                       {/* Compact rows */}
@@ -814,19 +814,21 @@ const WarehouseDetail = () => {
                             >
                               {batch.productDisplayName || batch.productUniqueName}
                             </span>
-                            {/* Qty remaining */}
+                            {/* Primary qty — null means untracked (show —), 0 means sold out */}
                             <span
                               className={`w-24 text-right shrink-0 text-xs tabular-nums ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
                             >
-                              {parseFloat(batch.quantityRemaining || 0).toLocaleString(undefined, {
-                                minimumFractionDigits: 3,
-                              })}
+                              {batch.pcsRemaining !== null && batch.pcsRemaining !== undefined
+                                ? `${batch.pcsRemaining} pcs`
+                                : "—"}
                             </span>
-                            {/* PCS */}
+                            {/* Derived weight (PCS × unit_weight_kg) */}
                             <span
-                              className={`w-10 text-right shrink-0 text-xs tabular-nums ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                              className={`w-20 text-right shrink-0 text-xs tabular-nums ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
                             >
-                              {batch.pcsRemaining != null ? batch.pcsRemaining : "—"}
+                              {batch.unit === "PCS" && batch.weightPerPieceKg
+                                ? `${((batch.pcsRemaining || 0) * batch.weightPerPieceKg).toFixed(1)} kg`
+                                : "—"}
                             </span>
                             {/* Location + action */}
                             <div className="w-36 shrink-0 flex items-center justify-end gap-1.5">
