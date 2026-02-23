@@ -221,9 +221,7 @@ const RevenueTrendChart = ({ data, isDarkMode, formatCurrency }) => {
           }`}
         >
           {parseFloat(data.summary?.growthRate || 0) >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-          <span className="text-xs font-medium">
-            {Math.abs(parseFloat(data.summary?.growthRate || 0)).toFixed(1)}%
-          </span>
+          <span className="text-xs font-medium">{Math.abs(parseFloat(data.summary?.growthRate || 0)).toFixed(1)}%</span>
         </div>
       </div>
 

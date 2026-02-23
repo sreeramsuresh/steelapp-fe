@@ -55,9 +55,7 @@ export default function BasePriceRow({
       <td className={`px-4 py-3 text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>{product.grade || "-"}</td>
 
       {/* Form */}
-      <td className={`px-4 py-3 text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-        {product.formType || "-"}
-      </td>
+      <td className={`px-4 py-3 text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>{product.formType || "-"}</td>
 
       {/* Price - Inline Editable */}
       <td className="px-4 py-3 text-right">

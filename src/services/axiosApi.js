@@ -129,7 +129,7 @@ api.interceptors.response.use(
       if (hits.length > 0) {
         throw new Error(
           `[camelCase contract violation] Response from ${response.config.url} ` +
-            `contains snake_case keys: ${hits.slice(0, 5).join(", ")}`,
+            `contains snake_case keys: ${hits.slice(0, 5).join(", ")}`
         );
       }
     }

@@ -1185,11 +1185,7 @@ const CustomsDocumentList = () => {
                     onChange={(e) => handleFormChange("declarationDate", e.target.value)}
                     disabled={modalMode === "view"}
                     className={`w-full px-3 py-2 border rounded-lg ${
-                      formErrors.declarationDate
-                        ? "border-red-500"
-                        : isDarkMode
-                          ? "border-gray-600"
-                          : "border-gray-300"
+                      formErrors.declarationDate ? "border-red-500" : isDarkMode ? "border-gray-600" : "border-gray-300"
                     } ${isDarkMode ? "bg-gray-700 text-white" : "bg-white"} ${
                       modalMode === "view" ? "opacity-60 cursor-not-allowed" : ""
                     }`}

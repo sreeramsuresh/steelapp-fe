@@ -157,9 +157,7 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                     <p>
                       <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Invoice: </span>
                       <span className="font-medium">
-                        {creditNote.invoiceNumber ||
-                          creditNote.invoice?.invoiceNumber ||
-                          "Not linked"}
+                        {creditNote.invoiceNumber || creditNote.invoice?.invoiceNumber || "Not linked"}
                       </span>
                     </p>
                     <p>
@@ -168,9 +166,7 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                     </p>
                     <p>
                       <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Type: </span>
-                      <span className="font-medium">
-                        {getTypeLabel(creditNote.creditNoteType)}
-                      </span>
+                      <span className="font-medium">{getTypeLabel(creditNote.creditNoteType)}</span>
                     </p>
                   </div>
                 </div>
