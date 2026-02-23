@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "ultimate-steels-app",
   "private": true,
   "version": "0.0.0",
@@ -34,7 +34,8 @@
     "test:form:account-statement": "node tests/form-validation/test-account-statement-form.js",
     "test:form:payment": "node tests/form-validation/test-add-payment-form.js",
     "test:form:reservation": "node tests/form-validation/test-reservation-form.js",
-    "test:form:transfer": "node tests/form-validation/test-transfer-form.js"
+    "test:form:transfer": "node tests/form-validation/test-transfer-form.js",
+    "test:case-consistency": "node scripts/check-snake-case-access.js"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -108,3 +109,4 @@
     "@rollup/rollup-linux-x64-gnu": "^4.57.1"
   }
 }
+

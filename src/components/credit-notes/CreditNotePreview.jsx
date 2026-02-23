@@ -151,15 +151,14 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                     <p>
                       <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Date: </span>
                       <span className="font-medium">
-                        {toUAEDateProfessional(creditNote.creditNoteDate || creditNote.credit_note_date) || "Not set"}
+                        {toUAEDateProfessional(creditNote.creditNoteDate) || "Not set"}
                       </span>
                     </p>
                     <p>
                       <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Invoice: </span>
                       <span className="font-medium">
                         {creditNote.invoiceNumber ||
-                          creditNote.invoice_number ||
-                          creditNote.invoice?.invoice_number ||
+                          creditNote.invoice?.invoiceNumber ||
                           "Not linked"}
                       </span>
                     </p>
@@ -170,7 +169,7 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                     <p>
                       <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Type: </span>
                       <span className="font-medium">
-                        {getTypeLabel(creditNote.creditNoteType || creditNote.credit_note_type)}
+                        {getTypeLabel(creditNote.creditNoteType)}
                       </span>
                     </p>
                   </div>

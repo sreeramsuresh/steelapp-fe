@@ -187,7 +187,7 @@ const ARAgingWidget = ({ data, isDarkMode, formatCurrency }) => {
 
 // Revenue Trend Chart Component (Simple Bar Chart)
 const RevenueTrendChart = ({ data, isDarkMode, formatCurrency }) => {
-  if (!data || !data.trend_data || data.trend_data.length === 0) {
+  if (!data || !data.trendData || data.trendData.length === 0) {
     return (
       <div
         className={`p-8 text-center rounded-xl border-2 border-dashed min-h-60 flex flex-col items-center justify-center ${
@@ -203,7 +203,7 @@ const RevenueTrendChart = ({ data, isDarkMode, formatCurrency }) => {
     );
   }
 
-  const maxRevenue = Math.max(...data.trend_data.map((d) => parseFloat(d.revenue) || 0));
+  const maxRevenue = Math.max(...data.trendData.map((d) => parseFloat(d.revenue) || 0));
 
   return (
     <div className="h-full flex flex-col">
@@ -212,24 +212,24 @@ const RevenueTrendChart = ({ data, isDarkMode, formatCurrency }) => {
         <div>
           <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Total Revenue</span>
           <p className={`text-xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-            {formatCurrency(data.summary?.total_revenue || 0)}
+            {formatCurrency(data.summary?.totalRevenue || 0)}
           </p>
         </div>
         <div
           className={`flex items-center gap-1 px-2 py-1 rounded ${
-            parseFloat(data.summary?.growth_rate || 0) >= 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+            parseFloat(data.summary?.growthRate || 0) >= 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
           }`}
         >
-          {parseFloat(data.summary?.growth_rate || 0) >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+          {parseFloat(data.summary?.growthRate || 0) >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
           <span className="text-xs font-medium">
-            {Math.abs(parseFloat(data.summary?.growth_rate || 0)).toFixed(1)}%
+            {Math.abs(parseFloat(data.summary?.growthRate || 0)).toFixed(1)}%
           </span>
         </div>
       </div>
 
       {/* Bar Chart */}
       <div className="flex-1 flex items-end gap-1 sm:gap-2 min-h-40">
-        {data.trend_data.slice(-12).map((item, index) => {
+        {data.trendData.slice(-12).map((item, index) => {
           const revenue = parseFloat(item.revenue) || 0;
           const heightPercent = maxRevenue > 0 ? (revenue / maxRevenue) * 100 : 0;
 
@@ -247,7 +247,7 @@ const RevenueTrendChart = ({ data, isDarkMode, formatCurrency }) => {
               {/* Bar */}
               <div
                 className={`w-full rounded-t transition-all duration-300 ${
-                  index === data.trend_data.length - 1
+                  index === data.trendData.length - 1
                     ? "bg-teal-500 hover:bg-teal-400"
                     : isDarkMode
                       ? "bg-gray-600 hover:bg-gray-500"

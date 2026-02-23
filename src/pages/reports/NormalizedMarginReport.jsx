@@ -707,8 +707,8 @@ function LinesTab({ lines, loading, page, totalPages, onPageChange, isDarkMode, 
                 </tr>
               ) : (
                 lines.map((line, index) => {
-                  const statusBadge = STATUS_BADGES[line.normalisation_status];
-                  const qualityBadge = line.snapshot_quality === "INFERRED" ? QUALITY_BADGE.INFERRED : null;
+                  const statusBadge = STATUS_BADGES[line.normalisationStatus];
+                  const qualityBadge = line.snapshotQuality === "INFERRED" ? QUALITY_BADGE.INFERRED : null;
                   return (
                     <tr
                       key={line.id || index}
@@ -717,19 +717,19 @@ function LinesTab({ lines, loading, page, totalPages, onPageChange, isDarkMode, 
                       }`}
                     >
                       <td className={`px-3 py-2 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                        {line.invoice_number || "-"}
+                        {line.invoiceNumber || "-"}
                       </td>
                       <td className={`px-3 py-2 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                        {line.customer_name || "-"}
+                        {line.customerName || "-"}
                       </td>
                       <td className={`px-3 py-2 text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                        {line.product_name || "-"}
+                        {line.productName || "-"}
                       </td>
                       <td className={`px-3 py-2 text-sm text-right ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                         {line.quantity ?? "-"}
                       </td>
                       <td className={`px-3 py-2 text-sm text-right ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                        {line.weight_kg != null ? Number(line.weight_kg).toFixed(2) : "-"}
+                        {line.weightKg != null ? Number(line.weightKg).toFixed(2) : "-"}
                       </td>
                       <td className={`px-3 py-2 text-sm text-right ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                         {line.sell_per_kg != null ? formatCurrency(line.sell_per_kg) : "-"}

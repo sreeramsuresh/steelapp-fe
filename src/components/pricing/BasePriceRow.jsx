@@ -4,7 +4,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 /**
  * BasePriceRow - Table row component with inline price editing
  *
- * Shows product details and allows inline editing of selling_price
+ * Shows product details and allows inline editing of sellingPrice
  */
 export default function BasePriceRow({
   item,
@@ -48,7 +48,7 @@ export default function BasePriceRow({
       {/* Product Name */}
       <td className={`px-4 py-3 text-sm ${darkMode ? "text-white" : "text-gray-900"}`}>
         <div className="font-medium">{product.name || "Unknown"}</div>
-        <div className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}>ID: {item.product_id}</div>
+        <div className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}>ID: {item.productId}</div>
       </td>
 
       {/* Grade */}
@@ -56,7 +56,7 @@ export default function BasePriceRow({
 
       {/* Form */}
       <td className={`px-4 py-3 text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-        {product.form_type || "-"}
+        {product.formType || "-"}
       </td>
 
       {/* Price - Inline Editable */}
@@ -109,15 +109,15 @@ export default function BasePriceRow({
               darkMode ? "text-teal-300 hover:bg-teal-900/20" : "text-blue-600 hover:bg-blue-50"
             }`}
           >
-            AED {(item.selling_price || 0).toFixed(2)}
+            AED {(item.sellingPrice || 0).toFixed(2)}
           </button>
         )}
       </td>
 
       {/* Last Updated */}
       <td className={`px-4 py-3 text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-        {item.updated_at
-          ? new Date(item.updated_at).toLocaleDateString("en-GB", {
+        {item.updatedAt
+          ? new Date(item.updatedAt).toLocaleDateString("en-GB", {
               year: "numeric",
               month: "short",
               day: "numeric",

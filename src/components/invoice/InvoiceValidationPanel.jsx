@@ -60,7 +60,7 @@ export default function InvoiceValidationPanel({
                 </p>
                 <ul className={`mt-2 space-y-2 text-sm ${isDarkMode ? "text-red-200/80" : "text-red-700"}`}>
                   {criticalIssues.map((issue) => (
-                    <li key={`${issue.type}-${issue.product_id || "general"}`} className="flex gap-2">
+                    <li key={`${issue.type}-${issue.productId || "general"}`} className="flex gap-2">
                       <span className="text-red-500">•</span>
                       <span>{issue.message}</span>
                     </li>
@@ -86,7 +86,7 @@ export default function InvoiceValidationPanel({
                 </p>
                 <ul className={`mt-2 space-y-2 text-sm ${isDarkMode ? "text-yellow-200/80" : "text-yellow-700"}`}>
                   {warnings.map((warning) => (
-                    <li key={`${warning.type}-${warning.product_id || "general"}`} className="flex gap-2">
+                    <li key={`${warning.type}-${warning.productId || "general"}`} className="flex gap-2">
                       <span className="text-yellow-500">•</span>
                       <span>{warning.message}</span>
                     </li>

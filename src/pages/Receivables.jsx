@@ -921,7 +921,7 @@ const Receivables = () => {
                         type="checkbox"
                         checked={selected.has(row.id)}
                         onChange={() => toggleOne(row.id)}
-                        aria-label={`Select invoice ${row.invoice_number || row.id}`}
+                        aria-label={`Select invoice ${row.invoiceNumber || row.id}`}
                       />
                     </td>
                     <td className="px-3 py-2 text-teal-600 font-semibold whitespace-nowrap">

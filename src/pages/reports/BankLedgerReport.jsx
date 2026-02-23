@@ -169,24 +169,24 @@ export default function BankLedgerReport() {
             </thead>
             <tbody>
               {data.transactions.map((txn, idx) => (
-                <tr key={txn.id || txn.journal_number || `txn-${idx}`} className={`${rowBorder} ${hoverRow}`}>
+                <tr key={txn.id || txn.journalNumber || `txn-${idx}`} className={`${rowBorder} ${hoverRow}`}>
                   <td className={`px-4 py-3 text-sm ${textPrimary}`}>
-                    {bankReconciliationService.formatDate(txn.entry_date)}
+                    {bankReconciliationService.formatDate(txn.entryDate)}
                   </td>
-                  <td className={`px-4 py-3 text-sm ${textPrimary}`}>{txn.journal_number}</td>
-                  <td className={`px-4 py-3 text-sm ${textPrimary}`}>{txn.batch_number}</td>
+                  <td className={`px-4 py-3 text-sm ${textPrimary}`}>{txn.journalNumber}</td>
+                  <td className={`px-4 py-3 text-sm ${textPrimary}`}>{txn.batchNumber}</td>
                   <td className={`px-4 py-3 text-sm ${textSecondary}`}>{txn.narration}</td>
                   <td className="px-4 py-3 text-right text-sm text-green-600">
-                    {txn.debit_amount > 0 ? bankReconciliationService.formatCurrency(txn.debit_amount) : "-"}
+                    {txn.debitAmount > 0 ? bankReconciliationService.formatCurrency(txn.debitAmount) : "-"}
                   </td>
                   <td className="px-4 py-3 text-right text-sm text-red-600">
-                    {txn.credit_amount > 0 ? bankReconciliationService.formatCurrency(txn.credit_amount) : "-"}
+                    {txn.creditAmount > 0 ? bankReconciliationService.formatCurrency(txn.creditAmount) : "-"}
                   </td>
                   <td className={`px-4 py-3 text-right text-sm font-medium ${textPrimary}`}>
-                    {bankReconciliationService.formatCurrency(txn.running_balance)}
+                    {bankReconciliationService.formatCurrency(txn.runningBalance)}
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    <span className={`inline-block ${badgeBg} px-2 py-1 rounded text-xs`}>{txn.source_module}</span>
+                    <span className={`inline-block ${badgeBg} px-2 py-1 rounded text-xs`}>{txn.sourceModule}</span>
                   </td>
                 </tr>
               ))}

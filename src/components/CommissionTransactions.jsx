@@ -513,7 +513,7 @@ const CommissionTransactions = () => {
                             onChange={() => toggleTransaction(transaction.id)}
                             disabled={isReversed}
                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
-                            aria-label={`Select transaction ${transaction.invoice_number || transaction.id}`}
+                            aria-label={`Select transaction ${transaction.invoiceNumber || transaction.id}`}
                           />
                         </td>
                         <td

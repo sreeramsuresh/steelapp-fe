@@ -1,6 +1,23 @@
 import axios from "axios";
 
 const IS_DEV = import.meta?.env?.DEV ?? false;
+
+// DEV-ONLY: snake_case detection in API responses
+const SNAKE_RE = /^[a-z][a-z0-9]*(_[a-z0-9]+)+$/;
+const ALLOWLISTED_KEYS_AXIOS = new Set(["rawPayload", "metadata", "htmlContent"]);
+
+const findSnakeCaseKeys = (obj, path = "") => {
+  if (!obj || typeof obj !== "object") return [];
+  const hits = [];
+  for (const key of Object.keys(obj)) {
+    const fullPath = path ? `${path}.${key}` : key;
+    if (SNAKE_RE.test(key)) hits.push(fullPath);
+    if (!ALLOWLISTED_KEYS_AXIOS.has(key) && typeof obj[key] === "object") {
+      hits.push(...findSnakeCaseKeys(obj[key], fullPath));
+    }
+  }
+  return hits;
+};
 const DISABLE_VALIDATION = import.meta?.env?.VITE_DISABLE_CONTRACT_VALIDATION === "true";
 
 // ============================================================================
@@ -106,7 +123,18 @@ api.interceptors.request.use((config) => {
 
 // Response interceptor - handles 403 and refreshes (matching GigLabz logic)
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (import.meta.env.DEV || import.meta.env.MODE === "test") {
+      const hits = findSnakeCaseKeys(response.data);
+      if (hits.length > 0) {
+        throw new Error(
+          `[camelCase contract violation] Response from ${response.config.url} ` +
+            `contains snake_case keys: ${hits.slice(0, 5).join(", ")}`,
+        );
+      }
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 
@@ -326,7 +354,7 @@ export const tokenUtils = {
       sessionStorage.setItem("userEmail", user.email || "");
       sessionStorage.setItem("userRole", user.role || "");
       sessionStorage.setItem("userName", user.name || "");
-      sessionStorage.setItem("userCompanyId", user.companyId || user.company_id || "");
+      sessionStorage.setItem("userCompanyId", user.companyId || "");
       sessionStorage.setItem("userPermissions", JSON.stringify(user.permissions || {}));
       sessionStorage.setItem("userRoleNames", JSON.stringify(user.roleNames || []));
     }
@@ -364,7 +392,7 @@ export const tokenUtils = {
     // Comprehensive cookie cleanup (matching GigLabz approach)
     // eslint-disable-next-line no-assign-to-cookie-api
     document.cookie.split(";").forEach((cookie) => {
-      const name = cookie.substr(0, cookie.indexOf("=")).trim();
+      const name = cookie.substring(0, cookie.indexOf("=")).trim();
       // biome-ignore lint/suspicious/noDocumentCookie: Cookie utility - intentional cookie clearing
       document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
       // biome-ignore lint/suspicious/noDocumentCookie: Cookie utility - intentional cookie clearing

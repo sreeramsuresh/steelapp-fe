@@ -440,7 +440,7 @@ const ShippingDocumentList = () => {
       setTrackingData({
         status: doc.status,
         milestones: [],
-        lastUpdate: doc.updated_at,
+        lastUpdate: doc.updatedAt,
       });
     } finally {
       setTrackingLoading(false);
@@ -765,7 +765,7 @@ const ShippingDocumentList = () => {
                       <div className="flex items-center gap-1 text-sm">
                         <span className="font-medium">{doc.origin_port || "-"}</span>
                         <ArrowRight size={14} className="text-gray-400" />
-                        <span className="font-medium">{doc.destination_port || "-"}</span>
+                        <span className="font-medium">{doc.destinationPort || "-"}</span>
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
@@ -1569,7 +1569,7 @@ const ShippingDocumentList = () => {
                   </div>
                   <ArrowRight size={24} className="text-teal-600" />
                   <div className="text-center">
-                    <div className="font-bold">{selectedDocument.destination_port || "-"}</div>
+                    <div className="font-bold">{selectedDocument.destinationPort || "-"}</div>
                     <div className="text-sm text-gray-500">Destination</div>
                   </div>
                 </div>
@@ -1789,7 +1789,7 @@ const ShippingDocumentList = () => {
                       <div className="flex-1 mx-4 border-t-2 border-dashed border-purple-300"></div>
                       <div className="text-right">
                         <div className="text-sm text-gray-500">To</div>
-                        <div className="font-bold">{selectedDocument.destination_port || "-"}</div>
+                        <div className="font-bold">{selectedDocument.destinationPort || "-"}</div>
                       </div>
                     </div>
                   </div>
@@ -1799,7 +1799,7 @@ const ShippingDocumentList = () => {
                     <div className="text-center">
                       <StatusBadge status={selectedDocument.status} />
                       <p className="mt-2 text-sm text-gray-500">
-                        Last Updated: {formatDate(selectedDocument.updated_at)}
+                        Last Updated: {formatDate(selectedDocument.updatedAt)}
                       </p>
                     </div>
                   </div>

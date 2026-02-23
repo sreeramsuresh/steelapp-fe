@@ -69,7 +69,7 @@ export default function PasskeyManagement() {
     if (!editLabel.trim()) return;
     try {
       await authService.renamePasskey(id, editLabel.trim());
-      setCredentials((prev) => prev.map((c) => (c.id === id ? { ...c, device_label: editLabel.trim() } : c)));
+      setCredentials((prev) => prev.map((c) => (c.id === id ? { ...c, deviceLabel: editLabel.trim() } : c)));
       setEditingId(null);
       notificationService.success("Passkey renamed");
     } catch (err) {
@@ -178,12 +178,12 @@ export default function PasskeyManagement() {
                     </div>
                   ) : (
                     <p className={`font-medium text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                      {cred.device_label || "Passkey"}
+                      {cred.deviceLabel || "Passkey"}
                     </p>
                   )}
                   <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                    Added {formatDate(cred.created_at)}
-                    {cred.last_used_at && ` · Last used ${formatDate(cred.last_used_at)}`}
+                    Added {formatDate(cred.createdAt)}
+                    {cred.lastUsedAt && ` · Last used ${formatDate(cred.lastUsedAt)}`}
                   </p>
                 </div>
               </div>
@@ -194,7 +194,7 @@ export default function PasskeyManagement() {
                     type="button"
                     onClick={() => {
                       setEditingId(cred.id);
-                      setEditLabel(cred.device_label || "Passkey");
+                      setEditLabel(cred.deviceLabel || "Passkey");
                     }}
                     className={`p-2 rounded-lg transition-colors ${
                       isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-200 text-gray-500"

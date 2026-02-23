@@ -194,23 +194,23 @@ const UAE_CUSTOMS_INFO = {
 
 // Initial form state
 const initialFormState = {
-  document_type: "customs_declaration",
-  document_number: "",
-  import_order_id: "",
-  declaration_date: new Date().toISOString().split("T")[0],
-  hs_codes: [],
-  cif_value: "",
-  duty_rate: UAE_CUSTOMS_INFO.standardDutyRate,
-  duty_amount: 0,
-  vat_rate: UAE_CUSTOMS_INFO.vatRate,
-  vat_amount: 0,
-  total_payable: 0,
-  payment_reference: "",
-  clearance_date: "",
+  documentType: "customs_declaration",
+  documentNumber: "",
+  importOrderId: "",
+  declarationDate: new Date().toISOString().split("T")[0],
+  hsCodes: [],
+  cifValue: "",
+  dutyRate: UAE_CUSTOMS_INFO.standardDutyRate,
+  dutyAmount: 0,
+  vatRate: UAE_CUSTOMS_INFO.vatRate,
+  vatAmount: 0,
+  totalPayable: 0,
+  paymentReference: "",
+  clearanceDate: "",
   status: "pending",
   notes: "",
-  gcc_origin: false,
-  certificate_of_origin: "",
+  gccOrigin: false,
+  certificateOfOrigin: "",
   coo_issue_date: "",
   coo_issuing_chamber: "",
   customs_broker_license: "",
@@ -265,7 +265,7 @@ const CustomsDocumentList = () => {
   // Filters
   const [filters, setFilters] = useState({
     search: "",
-    document_type: "",
+    documentType: "",
     status: "",
     start_date: "",
     end_date: "",
@@ -283,11 +283,11 @@ const CustomsDocumentList = () => {
   // Calculator modal
   const [showCalculator, setShowCalculator] = useState(false);
   const [calculatorData, setCalculatorData] = useState({
-    cif_value: "",
+    cifValue: "",
     hs_code: "",
-    gcc_origin: false,
-    duty_rate: UAE_CUSTOMS_INFO.standardDutyRate,
-    vat_rate: UAE_CUSTOMS_INFO.vatRate,
+    gccOrigin: false,
+    dutyRate: UAE_CUSTOMS_INFO.standardDutyRate,
+    vatRate: UAE_CUSTOMS_INFO.vatRate,
   });
   const [calculatorResults, setCalculatorResults] = useState(null);
 
@@ -346,10 +346,10 @@ const CustomsDocumentList = () => {
     const totalPayable = cif + dutyAmount + vatAmount;
 
     return {
-      duty_amount: dutyAmount,
-      vat_amount: vatAmount,
-      total_payable: totalPayable,
-      effective_duty_rate: effectiveDutyRate,
+      dutyAmount: dutyAmount,
+      vatAmount: vatAmount,
+      totalPayable: totalPayable,
+      effective_dutyRate: effectiveDutyRate,
     };
   }, []);
 
@@ -360,18 +360,18 @@ const CustomsDocumentList = () => {
         const updated = { ...prev, [field]: value };
 
         // Auto-calculate duties when CIF value or rates change
-        if (["cif_value", "duty_rate", "vat_rate", "gcc_origin"].includes(field)) {
+        if (["cifValue", "dutyRate", "vatRate", "gccOrigin"].includes(field)) {
           const calculations = calculateDuties(
-            field === "cif_value" ? value : prev.cif_value,
-            field === "duty_rate" ? value : prev.duty_rate,
-            field === "vat_rate" ? value : prev.vat_rate,
-            field === "gcc_origin" ? value : prev.gcc_origin
+            field === "cifValue" ? value : prev.cifValue,
+            field === "dutyRate" ? value : prev.dutyRate,
+            field === "vatRate" ? value : prev.vatRate,
+            field === "gccOrigin" ? value : prev.gccOrigin
           );
-          updated.duty_amount = calculations.duty_amount;
-          updated.vat_amount = calculations.vat_amount;
-          updated.total_payable = calculations.total_payable;
-          if (field === "gcc_origin" && value) {
-            updated.duty_rate = 0;
+          updated.dutyAmount = calculations.dutyAmount;
+          updated.vatAmount = calculations.vatAmount;
+          updated.totalPayable = calculations.totalPayable;
+          if (field === "gccOrigin" && value) {
+            updated.dutyRate = 0;
           }
         }
 
@@ -390,31 +390,31 @@ const CustomsDocumentList = () => {
   const validateForm = useCallback(() => {
     const errors = {};
 
-    if (!formData.document_type) {
-      errors.document_type = "Document type is required";
+    if (!formData.documentType) {
+      errors.documentType = "Document type is required";
     }
-    if (!formData.document_number?.trim()) {
-      errors.document_number = "Document number (BOE) is required";
+    if (!formData.documentNumber?.trim()) {
+      errors.documentNumber = "Document number (BOE) is required";
     }
-    if (!formData.declaration_date) {
-      errors.declaration_date = "Declaration date is required";
+    if (!formData.declarationDate) {
+      errors.declarationDate = "Declaration date is required";
     }
-    if (!formData.cif_value || parseFloat(formData.cif_value) <= 0) {
-      errors.cif_value = "CIF value must be greater than 0";
+    if (!formData.cifValue || parseFloat(formData.cifValue) <= 0) {
+      errors.cifValue = "CIF value must be greater than 0";
     }
 
     // HS Code format validation
-    if (formData.hs_codes && formData.hs_codes.length > 0) {
-      const invalidCodes = formData.hs_codes.filter((code) => code && !validateHsCode(code));
+    if (formData.hsCodes && formData.hsCodes.length > 0) {
+      const invalidCodes = formData.hsCodes.filter((code) => code && !validateHsCode(code));
       if (invalidCodes.length > 0) {
-        errors.hs_codes = `Invalid HS code format: ${invalidCodes.join(", ")}. Use format: XXXX.XX or XXXX.XX.XX`;
+        errors.hsCodes = `Invalid HS code format: ${invalidCodes.join(", ")}. Use format: XXXX.XX or XXXX.XX.XX`;
       }
     }
 
     // GCC Origin COO validation
-    if (formData.gcc_origin) {
-      if (!formData.certificate_of_origin?.trim()) {
-        errors.certificate_of_origin = "GCC Form D COO number required for duty exemption";
+    if (formData.gccOrigin) {
+      if (!formData.certificateOfOrigin?.trim()) {
+        errors.certificateOfOrigin = "GCC Form D COO number required for duty exemption";
       }
       if (!formData.coo_issue_date) {
         errors.coo_issue_date = "COO issue date required for GCC origin";
@@ -447,13 +447,13 @@ const CustomsDocumentList = () => {
 
       const payload = {
         ...formData,
-        cif_value: parseFloat(formData.cif_value) || 0,
-        duty_rate: parseFloat(formData.duty_rate) || 0,
-        duty_amount: parseFloat(formData.duty_amount) || 0,
-        vat_rate: parseFloat(formData.vat_rate) || 0,
-        vat_amount: parseFloat(formData.vat_amount) || 0,
-        total_payable: parseFloat(formData.total_payable) || 0,
-        import_order_id: formData.import_order_id || null,
+        cifValue: parseFloat(formData.cifValue) || 0,
+        dutyRate: parseFloat(formData.dutyRate) || 0,
+        dutyAmount: parseFloat(formData.dutyAmount) || 0,
+        vatRate: parseFloat(formData.vatRate) || 0,
+        vatAmount: parseFloat(formData.vatAmount) || 0,
+        totalPayable: parseFloat(formData.totalPayable) || 0,
+        importOrderId: formData.importOrderId || null,
       };
 
       if (modalMode === "edit" && selectedDocument) {
@@ -481,7 +481,7 @@ const CustomsDocumentList = () => {
   const handleDelete = async (document) => {
     const confirmed = await confirm({
       title: "Delete Customs Document?",
-      message: `Are you sure you want to delete document ${document.document_number}? This action cannot be undone.`,
+      message: `Are you sure you want to delete document ${document.documentNumber}? This action cannot be undone.`,
       confirmText: "Delete",
       variant: "danger",
     });
@@ -523,23 +523,23 @@ const CustomsDocumentList = () => {
 
     if (document && (mode === "edit" || mode === "view")) {
       setFormData({
-        document_type: document.document_type || "customs_declaration",
-        document_number: document.document_number || "",
-        import_order_id: document.import_order_id || "",
-        declaration_date: document.declaration_date ? document.declaration_date.split("T")[0] : "",
-        hs_codes: document.hs_codes || [],
-        cif_value: document.cif_value || "",
-        duty_rate: document.duty_rate ?? UAE_CUSTOMS_INFO.standardDutyRate,
-        duty_amount: document.duty_amount || 0,
-        vat_rate: document.vat_rate ?? UAE_CUSTOMS_INFO.vatRate,
-        vat_amount: document.vat_amount || 0,
-        total_payable: document.total_payable || 0,
-        payment_reference: document.payment_reference || "",
-        clearance_date: document.clearance_date ? document.clearance_date.split("T")[0] : "",
+        documentType: document.documentType || "customs_declaration",
+        documentNumber: document.documentNumber || "",
+        importOrderId: document.importOrderId || "",
+        declarationDate: document.declarationDate ? document.declarationDate.split("T")[0] : "",
+        hsCodes: document.hsCodes || [],
+        cifValue: document.cifValue || "",
+        dutyRate: document.dutyRate ?? UAE_CUSTOMS_INFO.standardDutyRate,
+        dutyAmount: document.dutyAmount || 0,
+        vatRate: document.vatRate ?? UAE_CUSTOMS_INFO.vatRate,
+        vatAmount: document.vatAmount || 0,
+        totalPayable: document.totalPayable || 0,
+        paymentReference: document.paymentReference || "",
+        clearanceDate: document.clearanceDate ? document.clearanceDate.split("T")[0] : "",
         status: document.status || "pending",
         notes: document.notes || "",
-        gcc_origin: document.gcc_origin || false,
-        certificate_of_origin: document.certificate_of_origin || "",
+        gccOrigin: document.gccOrigin || false,
+        certificateOfOrigin: document.certificateOfOrigin || "",
       });
     } else {
       setFormData(initialFormState);
@@ -552,19 +552,19 @@ const CustomsDocumentList = () => {
   const openCalculator = (document = null) => {
     if (document) {
       setCalculatorData({
-        cif_value: document.cif_value || "",
-        hs_code: document.hs_codes?.[0] || "",
-        gcc_origin: document.gcc_origin || false,
-        duty_rate: document.duty_rate ?? UAE_CUSTOMS_INFO.standardDutyRate,
-        vat_rate: document.vat_rate ?? UAE_CUSTOMS_INFO.vatRate,
+        cifValue: document.cifValue || "",
+        hs_code: document.hsCodes?.[0] || "",
+        gccOrigin: document.gccOrigin || false,
+        dutyRate: document.dutyRate ?? UAE_CUSTOMS_INFO.standardDutyRate,
+        vatRate: document.vatRate ?? UAE_CUSTOMS_INFO.vatRate,
       });
     } else {
       setCalculatorData({
-        cif_value: "",
+        cifValue: "",
         hs_code: "",
-        gcc_origin: false,
-        duty_rate: UAE_CUSTOMS_INFO.standardDutyRate,
-        vat_rate: UAE_CUSTOMS_INFO.vatRate,
+        gccOrigin: false,
+        dutyRate: UAE_CUSTOMS_INFO.standardDutyRate,
+        vatRate: UAE_CUSTOMS_INFO.vatRate,
       });
     }
     setCalculatorResults(null);
@@ -574,14 +574,14 @@ const CustomsDocumentList = () => {
   // Calculate duties in calculator modal
   const performCalculation = () => {
     const results = calculateDuties(
-      calculatorData.cif_value,
-      calculatorData.gcc_origin ? 0 : calculatorData.duty_rate,
-      calculatorData.vat_rate,
-      calculatorData.gcc_origin
+      calculatorData.cifValue,
+      calculatorData.gccOrigin ? 0 : calculatorData.dutyRate,
+      calculatorData.vatRate,
+      calculatorData.gccOrigin
     );
     setCalculatorResults({
       ...results,
-      cif_value: parseFloat(calculatorData.cif_value) || 0,
+      cifValue: parseFloat(calculatorData.cifValue) || 0,
     });
   };
 
@@ -781,11 +781,11 @@ const CustomsDocumentList = () => {
               </label>
               <select
                 id="filter-document-type"
-                value={filters.document_type}
+                value={filters.documentType}
                 onChange={(e) =>
                   setFilters((prev) => ({
                     ...prev,
-                    document_type: e.target.value,
+                    documentType: e.target.value,
                   }))
                 }
                 className={`w-full px-3 py-2 border rounded-lg ${
@@ -934,28 +934,28 @@ const CustomsDocumentList = () => {
                     className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium">{doc.document_number || "-"}</div>
+                      <div className="text-sm font-medium">{doc.documentNumber || "-"}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm">{getDocumentTypeLabel(doc.document_type)}</div>
+                      <div className="text-sm">{getDocumentTypeLabel(doc.documentType)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm">{doc.import_order_number || doc.importOrderNumber || "-"}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm">{formatDate(doc.declaration_date)}</div>
+                      <div className="text-sm">{formatDate(doc.declarationDate)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm">{formatDate(doc.clearance_date)}</div>
+                      <div className="text-sm">{formatDate(doc.clearanceDate)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm font-medium">{formatCurrency(doc.cif_value)}</div>
+                      <div className="text-sm font-medium">{formatCurrency(doc.cifValue)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm">{formatCurrency(doc.duty_amount)}</div>
+                      <div className="text-sm">{formatCurrency(doc.dutyAmount)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm">{formatCurrency(doc.vat_amount)}</div>
+                      <div className="text-sm">{formatCurrency(doc.vatAmount)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
@@ -1099,11 +1099,11 @@ const CustomsDocumentList = () => {
                   </label>
                   <select
                     id="document-type"
-                    value={formData.document_type}
-                    onChange={(e) => handleFormChange("document_type", e.target.value)}
+                    value={formData.documentType}
+                    onChange={(e) => handleFormChange("documentType", e.target.value)}
                     disabled={modalMode === "view"}
                     className={`w-full px-3 py-2 border rounded-lg ${
-                      formErrors.document_type ? "border-red-500" : isDarkMode ? "border-gray-600" : "border-gray-300"
+                      formErrors.documentType ? "border-red-500" : isDarkMode ? "border-gray-600" : "border-gray-300"
                     } ${isDarkMode ? "bg-gray-700 text-white" : "bg-white"} ${
                       modalMode === "view" ? "opacity-60 cursor-not-allowed" : ""
                     }`}
@@ -1114,7 +1114,7 @@ const CustomsDocumentList = () => {
                       </option>
                     ))}
                   </select>
-                  {formErrors.document_type && <p className="text-red-500 text-sm mt-1">{formErrors.document_type}</p>}
+                  {formErrors.documentType && <p className="text-red-500 text-sm mt-1">{formErrors.documentType}</p>}
                 </div>
 
                 {/* Document Number (BOE) */}
@@ -1128,18 +1128,18 @@ const CustomsDocumentList = () => {
                   <input
                     id="document-number"
                     type="text"
-                    value={formData.document_number}
-                    onChange={(e) => handleFormChange("document_number", e.target.value)}
+                    value={formData.documentNumber}
+                    onChange={(e) => handleFormChange("documentNumber", e.target.value)}
                     disabled={modalMode === "view"}
                     placeholder="e.g., BOE-2024-001234"
                     className={`w-full px-3 py-2 border rounded-lg ${
-                      formErrors.document_number ? "border-red-500" : isDarkMode ? "border-gray-600" : "border-gray-300"
+                      formErrors.documentNumber ? "border-red-500" : isDarkMode ? "border-gray-600" : "border-gray-300"
                     } ${isDarkMode ? "bg-gray-700 text-white" : "bg-white"} ${
                       modalMode === "view" ? "opacity-60 cursor-not-allowed" : ""
                     }`}
                   />
-                  {formErrors.document_number && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.document_number}</p>
+                  {formErrors.documentNumber && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.documentNumber}</p>
                   )}
                 </div>
 
@@ -1153,8 +1153,8 @@ const CustomsDocumentList = () => {
                   </label>
                   <select
                     id="import-order-id"
-                    value={formData.import_order_id}
-                    onChange={(e) => handleFormChange("import_order_id", e.target.value)}
+                    value={formData.importOrderId}
+                    onChange={(e) => handleFormChange("importOrderId", e.target.value)}
                     disabled={modalMode === "view"}
                     className={`w-full px-3 py-2 border rounded-lg ${
                       isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
@@ -1181,11 +1181,11 @@ const CustomsDocumentList = () => {
                   <input
                     id="declaration-date"
                     type="date"
-                    value={formData.declaration_date}
-                    onChange={(e) => handleFormChange("declaration_date", e.target.value)}
+                    value={formData.declarationDate}
+                    onChange={(e) => handleFormChange("declarationDate", e.target.value)}
                     disabled={modalMode === "view"}
                     className={`w-full px-3 py-2 border rounded-lg ${
-                      formErrors.declaration_date
+                      formErrors.declarationDate
                         ? "border-red-500"
                         : isDarkMode
                           ? "border-gray-600"
@@ -1194,8 +1194,8 @@ const CustomsDocumentList = () => {
                       modalMode === "view" ? "opacity-60 cursor-not-allowed" : ""
                     }`}
                   />
-                  {formErrors.declaration_date && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.declaration_date}</p>
+                  {formErrors.declarationDate && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.declarationDate}</p>
                   )}
                 </div>
 
@@ -1209,8 +1209,8 @@ const CustomsDocumentList = () => {
                   </label>
                   <select
                     id="hs-code"
-                    value={formData.hs_codes?.[0] || ""}
-                    onChange={(e) => handleFormChange("hs_codes", e.target.value ? [e.target.value] : [])}
+                    value={formData.hsCodes?.[0] || ""}
+                    onChange={(e) => handleFormChange("hsCodes", e.target.value ? [e.target.value] : [])}
                     disabled={modalMode === "view"}
                     className={`w-full px-3 py-2 border rounded-lg ${
                       isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
@@ -1230,8 +1230,8 @@ const CustomsDocumentList = () => {
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={formData.gcc_origin}
-                      onChange={(e) => handleFormChange("gcc_origin", e.target.checked)}
+                      checked={formData.gccOrigin}
+                      onChange={(e) => handleFormChange("gccOrigin", e.target.checked)}
                       disabled={modalMode === "view"}
                       className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                     />
@@ -1242,7 +1242,7 @@ const CustomsDocumentList = () => {
                 </div>
 
                 {/* Certificate of Origin (if GCC) */}
-                {formData.gcc_origin && (
+                {formData.gccOrigin && (
                   <>
                     <div className="md:col-span-2">
                       <label
@@ -1254,16 +1254,16 @@ const CustomsDocumentList = () => {
                       <input
                         id="certificate-of-origin"
                         type="text"
-                        value={formData.certificate_of_origin}
-                        onChange={(e) => handleFormChange("certificate_of_origin", e.target.value)}
+                        value={formData.certificateOfOrigin}
+                        onChange={(e) => handleFormChange("certificateOfOrigin", e.target.value)}
                         disabled={modalMode === "view"}
                         placeholder="GCC Form D COO number"
                         className={`w-full px-3 py-2 border rounded-lg ${
                           isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
-                        } ${formErrors.certificate_of_origin ? "border-red-500" : ""} ${modalMode === "view" ? "opacity-60 cursor-not-allowed" : ""}`}
+                        } ${formErrors.certificateOfOrigin ? "border-red-500" : ""} ${modalMode === "view" ? "opacity-60 cursor-not-allowed" : ""}`}
                       />
-                      {formErrors.certificate_of_origin && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.certificate_of_origin}</p>
+                      {formErrors.certificateOfOrigin && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.certificateOfOrigin}</p>
                       )}
                     </div>
 
@@ -1339,17 +1339,17 @@ const CustomsDocumentList = () => {
                         id="cif-value"
                         type="number"
                         step="0.01"
-                        value={formData.cif_value}
-                        onChange={(e) => handleFormChange("cif_value", e.target.value)}
+                        value={formData.cifValue}
+                        onChange={(e) => handleFormChange("cifValue", e.target.value)}
                         disabled={modalMode === "view"}
                         placeholder="0.00"
                         className={`w-full px-3 py-2 border rounded-lg ${
-                          formErrors.cif_value ? "border-red-500" : isDarkMode ? "border-gray-600" : "border-gray-300"
+                          formErrors.cifValue ? "border-red-500" : isDarkMode ? "border-gray-600" : "border-gray-300"
                         } ${isDarkMode ? "bg-gray-600 text-white" : "bg-white"} ${
                           modalMode === "view" ? "opacity-60 cursor-not-allowed" : ""
                         }`}
                       />
-                      {formErrors.cif_value && <p className="text-red-500 text-sm mt-1">{formErrors.cif_value}</p>}
+                      {formErrors.cifValue && <p className="text-red-500 text-sm mt-1">{formErrors.cifValue}</p>}
                     </div>
 
                     {/* Duty Rate */}
@@ -1364,12 +1364,12 @@ const CustomsDocumentList = () => {
                         id="duty-rate"
                         type="number"
                         step="0.01"
-                        value={formData.duty_rate}
-                        onChange={(e) => handleFormChange("duty_rate", e.target.value)}
-                        disabled={modalMode === "view" || formData.gcc_origin}
+                        value={formData.dutyRate}
+                        onChange={(e) => handleFormChange("dutyRate", e.target.value)}
+                        disabled={modalMode === "view" || formData.gccOrigin}
                         className={`w-full px-3 py-2 border rounded-lg ${
                           isDarkMode ? "bg-gray-600 border-gray-600 text-white" : "bg-white border-gray-300"
-                        } ${modalMode === "view" || formData.gcc_origin ? "opacity-60 cursor-not-allowed" : ""}`}
+                        } ${modalMode === "view" || formData.gccOrigin ? "opacity-60 cursor-not-allowed" : ""}`}
                       />
                     </div>
 
@@ -1384,7 +1384,7 @@ const CustomsDocumentList = () => {
                       <input
                         id="duty-amount"
                         type="text"
-                        value={formatCurrency(formData.duty_amount)}
+                        value={formatCurrency(formData.dutyAmount)}
                         disabled
                         className={`w-full px-3 py-2 border rounded-lg opacity-60 cursor-not-allowed ${
                           isDarkMode ? "bg-gray-600 border-gray-600 text-white" : "bg-gray-100 border-gray-300"
@@ -1404,8 +1404,8 @@ const CustomsDocumentList = () => {
                         id="vat-rate"
                         type="number"
                         step="0.01"
-                        value={formData.vat_rate}
-                        onChange={(e) => handleFormChange("vat_rate", e.target.value)}
+                        value={formData.vatRate}
+                        onChange={(e) => handleFormChange("vatRate", e.target.value)}
                         disabled={modalMode === "view"}
                         className={`w-full px-3 py-2 border rounded-lg ${
                           isDarkMode ? "bg-gray-600 border-gray-600 text-white" : "bg-white border-gray-300"
@@ -1424,7 +1424,7 @@ const CustomsDocumentList = () => {
                       <input
                         id="vat-amount"
                         type="text"
-                        value={formatCurrency(formData.vat_amount)}
+                        value={formatCurrency(formData.vatAmount)}
                         disabled
                         className={`w-full px-3 py-2 border rounded-lg opacity-60 cursor-not-allowed ${
                           isDarkMode ? "bg-gray-600 border-gray-600 text-white" : "bg-gray-100 border-gray-300"
@@ -1443,7 +1443,7 @@ const CustomsDocumentList = () => {
                       <input
                         id="total-payable"
                         type="text"
-                        value={formatCurrency(formData.total_payable)}
+                        value={formatCurrency(formData.totalPayable)}
                         disabled
                         className={`w-full px-3 py-2 border rounded-lg opacity-60 cursor-not-allowed font-bold ${
                           isDarkMode
@@ -1466,8 +1466,8 @@ const CustomsDocumentList = () => {
                   <input
                     id="payment-reference"
                     type="text"
-                    value={formData.payment_reference}
-                    onChange={(e) => handleFormChange("payment_reference", e.target.value)}
+                    value={formData.paymentReference}
+                    onChange={(e) => handleFormChange("paymentReference", e.target.value)}
                     disabled={modalMode === "view"}
                     placeholder="Payment transaction reference"
                     className={`w-full px-3 py-2 border rounded-lg ${
@@ -1487,8 +1487,8 @@ const CustomsDocumentList = () => {
                   <input
                     id="clearance-date"
                     type="date"
-                    value={formData.clearance_date}
-                    onChange={(e) => handleFormChange("clearance_date", e.target.value)}
+                    value={formData.clearanceDate}
+                    onChange={(e) => handleFormChange("clearanceDate", e.target.value)}
                     disabled={modalMode === "view"}
                     className={`w-full px-3 py-2 border rounded-lg ${
                       isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
@@ -1646,11 +1646,11 @@ const CustomsDocumentList = () => {
                     id="calc-cif-value"
                     type="number"
                     step="0.01"
-                    value={calculatorData.cif_value}
+                    value={calculatorData.cifValue}
                     onChange={(e) =>
                       setCalculatorData((prev) => ({
                         ...prev,
-                        cif_value: e.target.value,
+                        cifValue: e.target.value,
                       }))
                     }
                     placeholder="Enter CIF value"
@@ -1695,11 +1695,11 @@ const CustomsDocumentList = () => {
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={calculatorData.gcc_origin}
+                      checked={calculatorData.gccOrigin}
                       onChange={(e) =>
                         setCalculatorData((prev) => ({
                           ...prev,
-                          gcc_origin: e.target.checked,
+                          gccOrigin: e.target.checked,
                         }))
                       }
                       className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
@@ -1723,17 +1723,17 @@ const CustomsDocumentList = () => {
                       id="calc-duty-rate"
                       type="number"
                       step="0.01"
-                      value={calculatorData.duty_rate}
+                      value={calculatorData.dutyRate}
                       onChange={(e) =>
                         setCalculatorData((prev) => ({
                           ...prev,
-                          duty_rate: e.target.value,
+                          dutyRate: e.target.value,
                         }))
                       }
-                      disabled={calculatorData.gcc_origin}
+                      disabled={calculatorData.gccOrigin}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
-                      } ${calculatorData.gcc_origin ? "opacity-60" : ""}`}
+                      } ${calculatorData.gccOrigin ? "opacity-60" : ""}`}
                     />
                   </div>
                   <div>
@@ -1747,11 +1747,11 @@ const CustomsDocumentList = () => {
                       id="calc-vat-rate"
                       type="number"
                       step="0.01"
-                      value={calculatorData.vat_rate}
+                      value={calculatorData.vatRate}
                       onChange={(e) =>
                         setCalculatorData((prev) => ({
                           ...prev,
-                          vat_rate: e.target.value,
+                          vatRate: e.target.value,
                         }))
                       }
                       className={`w-full px-3 py-2 border rounded-lg ${
@@ -1779,20 +1779,20 @@ const CustomsDocumentList = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>CIF Value:</span>
-                        <span className="font-medium">{formatCurrency(calculatorResults.cif_value)}</span>
+                        <span className="font-medium">{formatCurrency(calculatorResults.cifValue)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
-                          Duty ({calculatorData.gcc_origin ? "0" : calculatorData.duty_rate}
+                          Duty ({calculatorData.gccOrigin ? "0" : calculatorData.dutyRate}
                           %):
                         </span>
-                        <span className="font-medium">{formatCurrency(calculatorResults.duty_amount)}</span>
+                        <span className="font-medium">{formatCurrency(calculatorResults.dutyAmount)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
-                          VAT ({calculatorData.vat_rate}%):
+                          VAT ({calculatorData.vatRate}%):
                         </span>
-                        <span className="font-medium">{formatCurrency(calculatorResults.vat_amount)}</span>
+                        <span className="font-medium">{formatCurrency(calculatorResults.vatAmount)}</span>
                       </div>
                       <div
                         className={`flex justify-between pt-2 border-t ${isDarkMode ? "border-gray-600" : "border-gray-300"}`}
@@ -1801,12 +1801,12 @@ const CustomsDocumentList = () => {
                           Total Payable:
                         </span>
                         <span className={`font-bold text-lg ${isDarkMode ? "text-green-400" : "text-green-700"}`}>
-                          {formatCurrency(calculatorResults.total_payable)}
+                          {formatCurrency(calculatorResults.totalPayable)}
                         </span>
                       </div>
                     </div>
 
-                    {calculatorData.gcc_origin && (
+                    {calculatorData.gccOrigin && (
                       <div
                         className={`mt-3 p-2 rounded ${isDarkMode ? "bg-green-900/30 text-green-400" : "bg-green-100 text-green-700"}`}
                       >

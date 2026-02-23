@@ -81,7 +81,7 @@ export default function BasePricesPage() {
 
     items.forEach((item) => {
       if (item.product?.grade) gradeSet.add(item.product.grade);
-      if (item.product?.form_type) formSet.add(item.product.form_type);
+      if (item.product?.formType) formSet.add(item.product.formType);
     });
 
     return {
@@ -97,9 +97,9 @@ export default function BasePricesPage() {
       case "productName":
         return product.name || "";
       case "price":
-        return Number(item.selling_price) || 0;
+        return Number(item.sellingPrice) || 0;
       case "updated":
-        return new Date(item.updated_at || 0).getTime();
+        return new Date(item.updatedAt || 0).getTime();
       default:
         return "";
     }
@@ -124,7 +124,7 @@ export default function BasePricesPage() {
       }
 
       // Form filter
-      if (formFilter !== "all" && product.form_type !== formFilter) {
+      if (formFilter !== "all" && product.formType !== formFilter) {
         return false;
       }
 
@@ -151,10 +151,10 @@ export default function BasePricesPage() {
     const now = new Date();
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-    const totalWithPrice = items.filter((item) => item.selling_price > 0).length;
-    const recentlyUpdated = items.filter((item) => new Date(item.updated_at || 0) > sevenDaysAgo).length;
+    const totalWithPrice = items.filter((item) => item.sellingPrice > 0).length;
+    const recentlyUpdated = items.filter((item) => new Date(item.updatedAt || 0) > sevenDaysAgo).length;
     const avgPrice =
-      items.length > 0 ? items.reduce((sum, item) => sum + (Number(item.selling_price) || 0), 0) / items.length : 0;
+      items.length > 0 ? items.reduce((sum, item) => sum + (Number(item.sellingPrice) || 0), 0) / items.length : 0;
 
     return {
       total: items.length,
@@ -167,7 +167,7 @@ export default function BasePricesPage() {
   // Handle inline price edit
   const handleStartEdit = (item) => {
     setEditingRowId(item.id);
-    setEditingPrice(item.selling_price || "");
+    setEditingPrice(item.sellingPrice || "");
   };
 
   const handleCancelEdit = () => {
@@ -236,7 +236,7 @@ export default function BasePricesPage() {
 
     try {
       const updates = itemsToUpdate.map((item) => {
-        let newPrice = Number(item.selling_price);
+        let newPrice = Number(item.sellingPrice);
         if (operation === "multiply") {
           newPrice = newPrice * (1 + percentage / 100);
         } else if (operation === "divide") {
@@ -278,9 +278,9 @@ export default function BasePricesPage() {
     const rows = filteredItems.map((item) => [
       item.product?.name || "",
       item.product?.grade || "",
-      item.product?.form_type || "",
-      item.selling_price || "",
-      item.updated_at ? formatDateDMY(item.updated_at) : "",
+      item.product?.formType || "",
+      item.sellingPrice || "",
+      item.updatedAt ? formatDateDMY(item.updatedAt) : "",
     ]);
 
     const csv = [headers.join(","), ...rows.map((r) => r.map((v) => `"${v}"`).join(","))].join("\n");
