@@ -542,7 +542,8 @@ const InvoiceForm = ({ onSave }) => {
     immediate: !!id,
     skipInitialLoading: !id,
   });
-  const { data: _nextInvoiceData, refetch: refetchNextInvoice } = useApiData(getNextInvoiceNumberFn, [], !id);
+  // Invoice number is assigned at save time — do not pre-fetch (prevents sequence gaps)
+  useApiData(getNextInvoiceNumberFn, [], false);
   const { data: customersData, loading: loadingCustomers } = useApiData(getCustomersFn, []);
   const { data: salesAgentsData, loading: loadingAgents } = useApiData(getAgentsFn, []);
   const { loading: loadingProducts, refetch: refetchProducts } = useApiData(getProductsFn, []);
@@ -1422,6 +1423,22 @@ const InvoiceForm = ({ onSave }) => {
       invalidFieldsSet.add("status");
     }
 
+    // Required fields for non-draft invoices
+    if (effectiveStatus !== "draft") {
+      if (!invoice.paymentTerms || String(invoice.paymentTerms).trim() === "") {
+        errors.push("Payment Terms is required for Final Tax Invoice");
+        invalidFieldsSet.add("paymentTerms");
+      }
+      // Warehouse only required if invoice has warehouse-sourced items
+      const hasWarehouseItems = (invoice.items || []).some(
+        (item) => !item.sourceType || item.sourceType === "WAREHOUSE"
+      );
+      if (hasWarehouseItems && (!invoice.warehouse || String(invoice.warehouse).trim() === "")) {
+        errors.push("Warehouse is required when invoice contains warehouse-sourced items");
+        invalidFieldsSet.add("warehouse");
+      }
+    }
+
     // If there are validation errors, show them and stop
     if (errors.length > 0) {
       setValidationErrors(errors);
@@ -1651,19 +1668,9 @@ const InvoiceForm = ({ onSave }) => {
         errorMessage.toLowerCase().includes("unique_invoice_number") ||
         error?.response?.status === 409
       ) {
-        // If this is a NEW invoice (not an edit), auto-fetch next available number
+        // Invoice numbers are auto-assigned at save time — a conflict is unexpected
         if (!id) {
-          errorMessage = `Invoice number ${invoice.invoiceNumber} already exists. Fetching a new invoice number...`;
-          notificationService.warning(errorMessage);
-
-          // Refetch the next invoice number
-          try {
-            await refetchNextInvoice();
-            notificationService.success("New invoice number assigned. Please try saving again.");
-            return; // Exit early so user can try again with new number
-          } catch (_refetchError) {
-            errorMessage = `Failed to get a new invoice number. Please refresh the page.`;
-          }
+          errorMessage = "Invoice number conflict. Please try saving again.";
         } else {
           errorMessage = `Invoice number ${invoice.invoiceNumber} already exists. This should not happen when editing. Please contact support.`;
         }
@@ -2481,7 +2488,10 @@ const InvoiceForm = ({ onSave }) => {
                           setInvoice((prev) => ({
                             ...prev,
                             status: newStatus,
-                            invoiceNumber: !id ? withStatusPrefix(prev.invoiceNumber, newStatus) : prev.invoiceNumber,
+                            // For new (unsaved) invoices, backend assigns the correctly-prefixed number at save time
+                            invoiceNumber: !id
+                              ? "(Auto-assigned on save)"
+                              : withStatusPrefix(prev.invoiceNumber, newStatus),
                           }));
                           validateField("status", newStatus);
                         }}

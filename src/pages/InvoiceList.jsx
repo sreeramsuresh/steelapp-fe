@@ -1566,12 +1566,20 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           name: dropshipSelectedSupplier.name || dropshipSelectedSupplier.company,
         },
       });
-      notificationService.success(`Dropship PO ${result.po_number || result.poNumber} created successfully`);
+      // Normalize key regardless of API casing (snake_case or camelCase)
+      const alreadyExists = result.alreadyExists ?? result.already_exists ?? false;
+      const poNumber = result.po_number || result.poNumber || "";
+      if (alreadyExists) {
+        notificationService.info(`Dropship PO ${poNumber} already exists for these items`);
+      } else {
+        notificationService.success(`Dropship PO ${poNumber} created successfully`);
+      }
       setDropshipPOModal({ open: false, invoiceId: null, invoiceNumber: "" });
       // Refresh invoice list to update PO chips
       fetchInvoices(currentPage, pageSize, searchTerm, statusFilter, showDeleted);
     } catch (err) {
-      notificationService.error(err.message || "Failed to create dropship PO");
+      const message = err.response?.data?.message || err.message || "Failed to create dropship PO";
+      notificationService.error(message);
     } finally {
       setCreatingDropshipPO(false);
     }
