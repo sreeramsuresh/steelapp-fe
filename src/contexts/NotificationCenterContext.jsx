@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../services/api";
 import { authService } from "../services/axiosAuthService";
 import { uuid } from "../utils/uuid";
@@ -134,12 +134,17 @@ export const NotificationCenterProvider = ({ children }) => {
     [notifications, persist]
   );
 
+  const fetchRef = useRef(fetchNotifications);
+  useEffect(() => {
+    fetchRef.current = fetchNotifications;
+  }, [fetchNotifications]);
+
   useEffect(() => {
     if (!authService.hasPermission("notifications", "read")) return;
     const controller = new AbortController();
-    fetchNotifications(controller.signal);
+    fetchRef.current(controller.signal);
     return () => controller.abort();
-  }, [fetchNotifications]);
+  }, []); // mount-only — prevents re-firing on dependency changes
 
   const value = {
     notifications,

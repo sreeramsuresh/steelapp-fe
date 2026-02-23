@@ -371,12 +371,35 @@ const QuotationForm = () => {
     }
   }, [error]);
 
+  // Clean PII from any existing draft keys on mount
+  useEffect(() => {
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith("quotation-draft-"))
+      .forEach((k) => {
+        try {
+          const draft = JSON.parse(localStorage.getItem(k));
+          if (draft?.customerDetails?.email || draft?.customerDetails?.phone) {
+            const cleaned = { ...draft, customerDetails: { name: draft.customerDetails?.name } };
+            localStorage.setItem(k, JSON.stringify(cleaned));
+          }
+        } catch {
+          localStorage.removeItem(k);
+        }
+      });
+  }, []);
+
   // Auto-save functionality
   useEffect(() => {
     if (!isEdit && formData.items.length > 0) {
       const autoSaveTimer = setTimeout(() => {
         const draftKey = `quotation-draft-${Date.now()}`;
-        localStorage.setItem(draftKey, JSON.stringify(formData));
+        const draftToSave = {
+          ...formData,
+          customerDetails: {
+            name: formData.customerDetails?.name,
+          },
+        };
+        localStorage.setItem(draftKey, JSON.stringify(draftToSave));
       }, 30000); // Auto-save every 30 seconds
 
       return () => clearTimeout(autoSaveTimer);

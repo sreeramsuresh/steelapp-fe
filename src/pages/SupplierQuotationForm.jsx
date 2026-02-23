@@ -261,6 +261,11 @@ export function SupplierQuotationForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!formData.supplierId) {
+      toast.error("Please select a supplier");
+      return;
+    }
+
     if (formData.items.length === 0) {
       toast.error("Please add at least one line item");
       return;

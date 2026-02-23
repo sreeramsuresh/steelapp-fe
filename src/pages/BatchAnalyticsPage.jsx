@@ -118,10 +118,7 @@ const HealthTab = ({ isDarkMode }) => {
     return <ErrorState message={error} onRetry={loadHealthData} isDarkMode={isDarkMode} />;
   }
 
-  if (
-    !healthData ||
-    (!healthData.negativeStock?.length && !healthData.mismatches?.length && !healthData.pending?.length)
-  ) {
+  if (!healthData) {
     return (
       <EmptyState
         icon={Package}
@@ -130,6 +127,34 @@ const HealthTab = ({ isDarkMode }) => {
         isDarkMode={isDarkMode}
       />
     );
+  }
+
+  const healthScore = parseFloat(healthData.health_score || 0);
+  const isHealthy = healthData.status === "HEALTHY" && (healthData.under_allocated_count ?? 0) === 0;
+
+  if (isHealthy) {
+    return (
+      <EmptyState
+        icon={Package}
+        title="All Systems Healthy"
+        description="No allocation issues detected. All stock levels are accurate and allocations are properly tracked."
+        isDarkMode={isDarkMode}
+      />
+    );
+  }
+
+  // Remap API fields so the rest of the component can render real metrics
+  if (!healthData.negativeStock && !healthData.mismatches && !healthData.pending) {
+    healthData = {
+      ...healthData,
+      _healthScore: healthScore,
+      _status: healthData.status,
+      _underAllocatedCount: healthData.under_allocated_count ?? 0,
+      _totalItems: healthData.total_items ?? 0,
+      negativeStock: [],
+      mismatches: [],
+      pending: [],
+    };
   }
 
   return (

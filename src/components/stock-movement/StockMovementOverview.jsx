@@ -45,7 +45,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
       const [transfersResult, reservationsResult, movementsResult] = await Promise.all([
         stockMovementService.listTransfers({ limit: 100 }),
         stockMovementService.listReservations({ limit: 50 }),
-        stockMovementService.getAll({ limit: 20 }),
+        stockMovementService.getAll({ limit: 200, dateFrom: new Date().toISOString().split("T")[0], dateTo: new Date().toISOString().split("T")[0] }),
       ]);
 
       const transfers = transfersResult.data || [];
