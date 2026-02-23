@@ -4,8 +4,8 @@ import { useParams } from "react-router-dom";
 import PriceInheritanceIndicator from "../components/pricing/PriceInheritanceIndicator";
 import PriceOverrideModal from "../components/pricing/PriceOverrideModal";
 import { useTheme } from "../contexts/ThemeContext";
-import { notificationService } from "../services/notificationService";
 import { apiService } from "../services/axiosApi";
+import { notificationService } from "../services/notificationService";
 
 /**
  * CustomerPricingPage - Display and manage customer pricelist inheritance
@@ -17,6 +17,7 @@ export default function CustomerPricingPage() {
   const { isDarkMode } = useTheme();
   const [loading, setLoading] = useState(true);
   const [customer, setCustomer] = useState(null);
+  const [pricingMeta, setPricingMeta] = useState({}); // holds defaultPricelistId, customerPricelistId
   const [pricingData, setPricingData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [selectedRows, setSelectedRows] = useState(new Set());
@@ -37,7 +38,8 @@ export default function CustomerPricingPage() {
         // Fetch from backend
         const data = await apiService.get(`/customers/${customerId}/pricing-overview`);
         setCustomer(data.customer);
-        setPricingData(data.pricing_items || []);
+        setPricingMeta({ defaultPricelistId: data.defaultPricelistId, customerPricelistId: data.customerPricelistId });
+        setPricingData(data.pricingItems || []);
         setSelectedRows(new Set());
       } catch (error) {
         console.error("Error loading pricing data:", error);
@@ -56,7 +58,7 @@ export default function CustomerPricingPage() {
 
     // Search by product name
     if (searchTerm) {
-      filtered = filtered.filter((item) => (item.product_name || "").toLowerCase().includes(searchTerm.toLowerCase()));
+      filtered = filtered.filter((item) => (item.productName || "").toLowerCase().includes(searchTerm.toLowerCase()));
     }
 
     // Sort
@@ -65,24 +67,24 @@ export default function CustomerPricingPage() {
 
       switch (sortBy) {
         case "name":
-          aVal = a.product_name || "";
-          bVal = b.product_name || "";
+          aVal = a.productName || "";
+          bVal = b.productName || "";
           break;
         case "default_price":
-          aVal = a.default_price || 0;
-          bVal = b.default_price || 0;
+          aVal = a.defaultPrice || 0;
+          bVal = b.defaultPrice || 0;
           break;
         case "effective_price":
-          aVal = a.effective_price || 0;
-          bVal = b.effective_price || 0;
+          aVal = a.effectivePrice || 0;
+          bVal = b.effectivePrice || 0;
           break;
         case "updated":
-          aVal = new Date(a.last_updated || 0).getTime();
-          bVal = new Date(b.last_updated || 0).getTime();
+          aVal = new Date(a.lastUpdated || 0).getTime();
+          bVal = new Date(b.lastUpdated || 0).getTime();
           break;
         default:
-          aVal = a.product_name;
-          bVal = b.product_name;
+          aVal = a.productName;
+          bVal = b.productName;
       }
 
       if (typeof aVal === "string") {
@@ -102,7 +104,8 @@ export default function CustomerPricingPage() {
       // Fetch from backend
       const data = await apiService.get(`/customers/${customerId}/pricing-overview`);
       setCustomer(data.customer);
-      setPricingData(data.pricing_items || []);
+      setPricingMeta({ defaultPricelistId: data.defaultPricelistId, customerPricelistId: data.customerPricelistId });
+      setPricingData(data.pricingItems || []);
       setSelectedRows(new Set());
     } catch (error) {
       console.error("Error reloading pricing data:", error);
@@ -124,10 +127,10 @@ export default function CustomerPricingPage() {
       setLoading(true);
 
       // Update customer price override via the pricing API
-      const pricelistId = customer?.pricelistId || customer?.default_pricelist_id || customer?.pricelist_id;
-      if (pricelistId && editingItem.product_id) {
+      const pricelistId = pricingMeta.customerPricelistId || pricingMeta.defaultPricelistId;
+      if (pricelistId && editingItem.productId) {
         await apiService.put(`/pricelists/${pricelistId}/items`, {
-          items: [{ product_id: editingItem.product_id, unit_price: Number(newPrice) }],
+          items: [{ productId: editingItem.productId, unitPrice: Number(newPrice) }],
           operation: "upsert",
         });
       }
@@ -144,7 +147,7 @@ export default function CustomerPricingPage() {
   };
 
   const handleDeleteOverride = async (item) => {
-    if (!window.confirm(`Remove override for ${item.product_name}?`)) {
+    if (!window.confirm(`Remove override for ${item.productName}?`)) {
       return;
     }
 
@@ -152,9 +155,9 @@ export default function CustomerPricingPage() {
       setLoading(true);
 
       // Delete customer price override via the pricing API
-      const pricelistId = customer?.pricelistId || customer?.default_pricelist_id || customer?.pricelist_id;
-      if (pricelistId && item.product_id) {
-        await apiService.delete(`/pricelists/${pricelistId}/items/${item.product_id}`);
+      const pricelistId = pricingMeta.customerPricelistId || pricingMeta.defaultPricelistId;
+      if (pricelistId && item.productId) {
+        await apiService.delete(`/pricelists/${pricelistId}/items/${item.productId}`);
       }
       notificationService.success("Override removed, using default price");
       await reloadData();
@@ -180,7 +183,7 @@ export default function CustomerPricingPage() {
     if (selectedRows.size === filteredData.length) {
       setSelectedRows(new Set());
     } else {
-      setSelectedRows(new Set(filteredData.map((item) => item.product_id)));
+      setSelectedRows(new Set(filteredData.map((item) => item.productId)));
     }
   };
 
@@ -329,7 +332,7 @@ export default function CustomerPricingPage() {
             ) : (
               filteredData.map((item) => (
                 <tr
-                  key={item.product_id}
+                  key={item.productId}
                   className={`border-b transition-colors ${
                     isDarkMode ? "border-gray-700 hover:bg-gray-700/50" : "border-gray-200 hover:bg-gray-50"
                   }`}
@@ -337,34 +340,34 @@ export default function CustomerPricingPage() {
                   <td className="px-4 py-3">
                     <input
                       type="checkbox"
-                      checked={selectedRows.has(item.product_id)}
-                      onChange={() => toggleRowSelection(item.product_id)}
+                      checked={selectedRows.has(item.productId)}
+                      onChange={() => toggleRowSelection(item.productId)}
                       className="w-4 h-4 cursor-pointer"
                     />
                   </td>
                   <td className={`px-4 py-3 font-medium ${isDarkMode ? "text-gray-100" : "text-gray-900"}`}>
-                    {item.product_name}
+                    {item.productName}
                   </td>
                   <td className={`px-4 py-3 text-right ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                    AED {Number(item.default_price).toFixed(2)}
+                    AED {Number(item.defaultPrice).toFixed(2)}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    {item.is_override ? (
+                    {item.isOverride ? (
                       <span className={`font-medium ${isDarkMode ? "text-green-400" : "text-green-600"}`}>
-                        AED {Number(item.customer_price).toFixed(2)}
+                        AED {Number(item.customerPrice).toFixed(2)}
                       </span>
                     ) : (
                       <span className={isDarkMode ? "text-gray-500" : "text-gray-400"}>—</span>
                     )}
                   </td>
                   <td className={`px-4 py-3 text-right font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    AED {Number(item.effective_price).toFixed(2)}
+                    AED {Number(item.effectivePrice).toFixed(2)}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <PriceInheritanceIndicator isOverride={item.is_override} isDarkMode={isDarkMode} />
+                    <PriceInheritanceIndicator isOverride={item.isOverride} isDarkMode={isDarkMode} />
                   </td>
                   <td className="px-4 py-3 text-right flex items-center justify-end gap-2">
-                    {item.is_override && (
+                    {item.isOverride && (
                       <>
                         <button
                           type="button"
@@ -423,8 +426,8 @@ export default function CustomerPricingPage() {
             setEditingItem(null);
           }}
           product={editingItem}
-          defaultPrice={editingItem.default_price}
-          currentPrice={editingItem.customer_price}
+          defaultPrice={editingItem.defaultPrice}
+          currentPrice={editingItem.customerPrice}
           onSave={handleSavePrice}
           isDarkMode={isDarkMode}
         />

@@ -3,7 +3,7 @@
  * Handles API calls for product naming verification
  */
 
-const API_BASE_URL = "/api/product-naming";
+import { apiService } from "./axiosApi.js";
 
 export const productNamingService = {
   /**
@@ -14,23 +14,7 @@ export const productNamingService = {
    */
   async verifyNamingLogic(productType, attributes) {
     try {
-      const response = await fetch(`${API_BASE_URL}/verify`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          productType,
-          ...attributes,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
+      return await apiService.post("/product-naming/verify", { productType, ...attributes });
     } catch (error) {
       console.error("Product naming verification error:", error);
       throw error;

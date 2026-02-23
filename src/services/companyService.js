@@ -1,32 +1,11 @@
 import { apiClient } from "./api.js";
-import { tokenUtils } from "./axiosApi.js";
+import { apiService } from "./axiosApi.js";
 
-const API_BASE_URL = import.meta?.env?.VITE_API_BASE_URL ?? "http://localhost:3000/api";
-
-// Simple, direct upload function like Google uses for profile pictures
+// Upload a file via the shared apiService (multipart/form-data; boundary set by browser)
 const uploadFile = async (endpoint, fieldName, file) => {
   const formData = new FormData();
   formData.append(fieldName, file);
-
-  const baseURL = API_BASE_URL;
-  const token = tokenUtils.getToken();
-
-  const response = await fetch(`${baseURL}${endpoint}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      // Don't set Content-Type - let browser set it with boundary
-    },
-    credentials: "include",
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || error.message || "Upload failed");
-  }
-
-  return response.json();
+  return apiService.upload(endpoint, formData);
 };
 
 export const companyService = {

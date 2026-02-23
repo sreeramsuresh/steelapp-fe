@@ -47,6 +47,7 @@ import { useApi, useApiData } from "../hooks/useApi";
 import useInvoiceTemplates from "../hooks/useInvoiceTemplates";
 import useKeyboardShortcuts, { getShortcutDisplayString, INVOICE_SHORTCUTS } from "../hooks/useKeyboardShortcuts";
 import { invoicesAPI } from "../services/api";
+import { apiService } from "../services/axiosApi";
 import { authService } from "../services/axiosAuthService";
 import { batchReservationService } from "../services/batchReservationService";
 import { commissionService } from "../services/commissionService";
@@ -843,24 +844,7 @@ const InvoiceForm = ({ onSave }) => {
         }
       }
     } catch (_error) {
-      // Fall back to fetch with defensive parsing to capture server HTML errors
-      try {
-        const resp = await fetch(`/api/customers/${customerId}/trade-license-status`);
-        const ct = resp.headers.get("content-type") || "";
-        if (!resp.ok) {
-          const txt = await resp.text();
-          throw new Error(`HTTP ${resp.status}: ${txt.slice(0, 200)}`);
-        }
-        if (!ct.includes("application/json")) {
-          const txt = await resp.text();
-          throw new SyntaxError(`Unexpected content-type: ${ct}. Body starts: ${txt.slice(0, 80)}`);
-        }
-        const licenseStatus = await resp.json();
-        setTradeLicenseStatus(licenseStatus);
-      } catch (_fallbackErr) {
-        // Silently ignore - trade license check is optional feature, route may not exist
-        // console.debug('Trade license check unavailable:', fallbackErr.message);
-      }
+      // Silently ignore - trade license check is optional feature, route may not exist
     }
   }, []);
 
@@ -1274,27 +1258,14 @@ const InvoiceForm = ({ onSave }) => {
     try {
       setIsValidating(true);
 
-      const response = await fetch("/api/invoices/validate-pricing", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          customer_id: invoice.customer?.id,
-          line_items: (invoice.items || []).map((item) => ({
-            product_id: item.product_id,
-            quantity: item.quantity,
-            unit_price: item.unitPrice,
-          })),
-        }),
+      const validationResult = await apiService.post("/invoices/validate-pricing", {
+        customerId: invoice.customer?.id,
+        lineItems: (invoice.items || []).map((item) => ({
+          productId: item.product_id,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+        })),
       });
-
-      if (!response.ok) {
-        throw new Error(`Validation failed: ${response.statusText}`);
-      }
-
-      const validationResult = await response.json();
 
       // Show validation modal if there are issues or warnings
       if (!validationResult.valid || validationResult.warnings.length > 0) {
