@@ -895,16 +895,14 @@ const AllocationDrawer = ({
     return authService.hasRole(["ceo", "cfo", "sales_manager", "admin", "dev"]);
   }, []);
 
-  // Per-piece unit cost (buying price from batch) — weighted average of unitCost across allocations
+  // Per-piece unit cost (buying price from batch) — derived from totalCost / totalPcs
+  // Uses totalCost (not unitCost × pcs) so it is correct regardless of unit basis stored in the batch.
   const unitCogs = useMemo(() => {
     if (drawerState.sourceType !== "WAREHOUSE" || !allocations?.length) return 0;
     const totalPcs = allocations.reduce((sum, a) => sum + parseFloat(a.pcsAllocated ?? a.quantity ?? 0), 0);
     if (totalPcs <= 0) return 0;
-    const weightedCost = allocations.reduce((sum, a) => {
-      const pcs = parseFloat(a.pcsAllocated ?? a.quantity ?? 0);
-      return sum + parseFloat(a.unitCost || 0) * pcs;
-    }, 0);
-    return weightedCost / totalPcs;
+    const totalCogsSum = allocations.reduce((sum, a) => sum + parseFloat(a.totalCost || 0), 0);
+    return totalCogsSum / totalPcs;
   }, [drawerState.sourceType, allocations]);
 
   // Per-piece margin (selling - buying)
