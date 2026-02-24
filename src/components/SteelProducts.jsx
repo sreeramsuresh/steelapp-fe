@@ -1104,14 +1104,29 @@ const SteelProducts = () => {
 
   // Apply a dimension preset row to the form fields atomically
   const applyPreset = (preset) => {
+    // For sheets/plates/coils, height_val stores the cut length (2nd flat dimension).
+    // The DB name function uses p_length (not p_height) for this dimension.
+    const cat = (newProduct.category || "").toLowerCase();
+    const isSheetLike = ["sheet", "plate"].includes(cat);
+    const isCoil = cat === "coil";
+    const w = preset.widthVal || "";
+    const h = preset.heightVal || "";
+    const d = preset.diameterVal || "";
+    // Compute legacy size for the Dimensions preview segment
+    let size = "";
+    if (isSheetLike) size = w && h ? `${w}x${h}` : w;
+    else if (isCoil) size = w;
+    else if (cat === "bar") size = d || (w && h ? `${w}x${h}` : w);
+    else size = w;
     setNewProduct((prev) => ({
       ...prev,
       selectedPresetId: preset.id,
-      width: preset.widthVal || "",
-      height: preset.heightVal || "",
+      size,
+      width: w,
+      height: isSheetLike || isCoil ? "" : h,
+      length: isSheetLike ? h || preset.lengthVal || "" : isCoil ? "" : preset.lengthVal || "",
       thickness: preset.thicknessVal || "",
-      diameter: preset.diameterVal || "",
-      length: preset.lengthVal || "",
+      diameter: d,
       od: preset.odVal || "",
       nbSize: preset.nbSizeVal || "",
       schedule: preset.scheduleVal || "",
@@ -3049,6 +3064,7 @@ const SteelProducts = () => {
                               nbSize: "",
                               schedule: "",
                               length: "",
+                              size: "",
                             });
                             if (validationErrors.category && cat.trim()) {
                               setValidationErrors((prev) => ({ ...prev, category: undefined }));
