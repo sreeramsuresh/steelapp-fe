@@ -55,6 +55,7 @@ const DRAWER_FOOTER_GRADIENT = (isDarkMode) =>
     ? "linear-gradient(to top, rgba(31,41,55,1) 70%, rgba(31,41,55,0))"
     : "linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))";
 
+import ConfirmDialog from "../components/ConfirmDialog";
 import ValidatedInput from "../components/forms/ValidatedInput";
 import StockReceiptForm from "../components/purchase-order/StockReceiptForm";
 import PurchaseOrderPreview from "../components/purchase-orders/PurchaseOrderPreview";
@@ -67,6 +68,7 @@ import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApiData } from "../hooks/useApi";
+import { useConfirm } from "../hooks/useConfirm";
 import { payablesService, productService } from "../services/dataService";
 import { notificationService } from "../services/notificationService";
 import { pinnedProductsService } from "../services/pinnedProductsService";
@@ -336,6 +338,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDarkMode } = useTheme();
+  const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
   const [purchaseOrder, setPurchaseOrder] = useState({
     poNumber: generatePONumber(), // Fallback PO number generation
     supplierName: "",
@@ -593,7 +596,12 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
   };
 
   const handleVoidPayment = async (paymentId) => {
-    const confirmed = window.confirm("Are you sure you want to void this payment? This action cannot be undone.");
+    const confirmed = await confirm({
+      title: "Void Payment",
+      message: "Are you sure you want to void this payment? This action cannot be undone.",
+      confirmText: "Void Payment",
+      variant: "danger",
+    });
     if (!confirmed) return;
 
     const updatedPayments = payments.map((p) =>
@@ -3341,6 +3349,16 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
           // Reload PO data
           window.location.reload();
         }}
+      />
+      <ConfirmDialog
+        open={dialogState.open}
+        title={dialogState.title}
+        message={dialogState.message}
+        variant={dialogState.variant}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
       />
     </div>
   );

@@ -1,6 +1,8 @@
 import { Edit2, MapPin, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";
+import { useConfirm } from "../hooks/useConfirm";
 import { apiClient } from "../services/api.js";
 
 const CARD = (dark) =>
@@ -15,6 +17,7 @@ const INPUT = (dark) =>
 
 export default function WarehouseLocations() {
   const { isDarkMode } = useTheme();
+  const { confirm, dialogState, handleConfirm, handleCancel: handleConfirmCancel } = useConfirm();
   const [locations, setLocations] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -102,7 +105,13 @@ export default function WarehouseLocations() {
   };
 
   const handleDelete = async (loc) => {
-    if (!window.confirm(`Deactivate location "${loc.label || loc.id}"?`)) return;
+    const confirmed = await confirm({
+      title: "Deactivate Location",
+      message: `Deactivate location "${loc.label || loc.id}"?`,
+      confirmText: "Deactivate",
+      variant: "warning",
+    });
+    if (!confirmed) return;
     try {
       await apiClient.delete(`/warehouse-locations/${loc.id}`);
       fetchLocations();
@@ -317,6 +326,16 @@ export default function WarehouseLocations() {
           </div>
         )}
       </div>
+      <ConfirmDialog
+        open={dialogState.open}
+        title={dialogState.title}
+        message={dialogState.message}
+        variant={dialogState.variant}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        onConfirm={handleConfirm}
+        onCancel={handleConfirmCancel}
+      />
     </div>
   );
 }

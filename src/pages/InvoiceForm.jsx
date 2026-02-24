@@ -615,17 +615,29 @@ const InvoiceForm = ({ onSave }) => {
         const active = list.filter((w) => w.isActive !== false);
         setWarehouses(active);
 
-        // Set default warehouse for new invoices (uses isDefault flag)
-        if (!id && active.length > 0 && !invoice.warehouseId) {
-          const defaultWarehouse = active.find((w) => w.isDefault) || active[0];
-
-          setInvoice((prev) => ({
-            ...prev,
-            warehouseId: defaultWarehouse.id.toString(),
-            warehouseName: defaultWarehouse.name || "",
-            warehouseCode: defaultWarehouse.code || "",
-            warehouseCity: defaultWarehouse.city || "",
-          }));
+        if (active.length > 0) {
+          if (!id && !invoice.warehouseId) {
+            // New invoice: default to the warehouse marked isDefault (or first)
+            const defaultWarehouse = active.find((w) => w.isDefault) || active[0];
+            setInvoice((prev) => ({
+              ...prev,
+              warehouseId: defaultWarehouse.id.toString(),
+              warehouseName: defaultWarehouse.name || "",
+              warehouseCode: defaultWarehouse.code || "",
+              warehouseCity: defaultWarehouse.city || "",
+            }));
+          } else if (id && invoice.warehouseId) {
+            // Edit invoice: warehouseId was derived from line items — populate the name/code fields
+            const matched = active.find((w) => w.id.toString() === String(invoice.warehouseId));
+            if (matched && !invoice.warehouseName) {
+              setInvoice((prev) => ({
+                ...prev,
+                warehouseName: matched.name || "",
+                warehouseCode: matched.code || "",
+                warehouseCity: matched.city || "",
+              }));
+            }
+          }
         }
       } catch (err) {
         console.warn("Failed to fetch warehouses:", err);
@@ -634,7 +646,7 @@ const InvoiceForm = ({ onSave }) => {
     };
     fetchWarehouses();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, invoice.warehouseId]); // Mount-only: Load warehouses once when component mounts or id changes
+  }, [id, invoice.warehouseId, invoice.warehouseName]); // Load warehouses on mount; re-run if warehouseId changes
 
   // Heavily optimized calculations with minimal dependencies
   const computedSubtotal = useMemo(() => calculateSubtotal(invoice.items), [invoice.items]);
@@ -698,11 +710,21 @@ const InvoiceForm = ({ onSave }) => {
         return;
       }
       // Auto-populate date to today if empty (common in Odoo/Zoho)
+      // Derive warehouseId from first warehouse-sourced line item (not stored at invoice header level)
+      const warehouseItem = (existingInvoice.items || []).find(
+        (item) => (!item.sourceType || item.sourceType === "WAREHOUSE") && item.warehouseId
+      );
+      // If modeOfPayment missing, fall back to customer's defaultPaymentMethod
+      const customerRecord = (customersData?.customers || []).find((c) => c.id === existingInvoice.customer?.id);
+      const fallbackPaymentMethod = customerRecord?.defaultPaymentMethod || null;
+
       const invoiceWithDate = {
         ...existingInvoice,
         date: existingInvoice.date
           ? formatDateForInput(new Date(existingInvoice.date))
           : formatDateForInput(new Date()),
+        warehouseId: existingInvoice.warehouseId || (warehouseItem ? String(warehouseItem.warehouseId) : ""),
+        modeOfPayment: existingInvoice.modeOfPayment || fallbackPaymentMethod || "",
       };
       setInvoice(invoiceWithDate);
 
@@ -716,7 +738,7 @@ const InvoiceForm = ({ onSave }) => {
       const savedStatus = (existingInvoice.status || "").toLowerCase().replace("status_", "");
       setOriginalSavedStatus(savedStatus);
     }
-  }, [existingInvoice, id, navigate]);
+  }, [existingInvoice, id, navigate, customersData]);
 
   // Duplicate invoice: load source invoice and pre-populate as new draft
   useEffect(() => {
@@ -879,10 +901,12 @@ const InvoiceForm = ({ onSave }) => {
         const invoiceDateMs = new Date(invoiceDateStr).getTime();
         const calculatedDueDate = toUAEDateForInput(new Date(invoiceDateMs + paymentTermsDays * 24 * 60 * 60 * 1000));
 
+        // Auto-populate payment method from customer's default (don't overwrite if already set)
+        const autoPaymentMethod = selectedCustomer.defaultPaymentMethod || selectedCustomer.paymentTerms || null;
         setInvoice((prev) => ({
           ...prev,
           dueDate: calculatedDueDate,
-          ...(selectedCustomer.defaultPaymentMethod ? { modeOfPayment: selectedCustomer.defaultPaymentMethod } : {}),
+          ...(autoPaymentMethod && !prev.modeOfPayment ? { modeOfPayment: autoPaymentMethod } : {}),
         }));
 
         // Fetch customer's pricelist
@@ -1425,7 +1449,7 @@ const InvoiceForm = ({ onSave }) => {
 
     // Required fields for non-draft invoices
     if (effectiveStatus !== "draft") {
-      if (!invoice.paymentTerms || String(invoice.paymentTerms).trim() === "") {
+      if (!invoice.modeOfPayment || String(invoice.modeOfPayment).trim() === "") {
         errors.push("Payment Terms is required for Final Tax Invoice");
         invalidFieldsSet.add("paymentTerms");
       }
@@ -1433,7 +1457,7 @@ const InvoiceForm = ({ onSave }) => {
       const hasWarehouseItems = (invoice.items || []).some(
         (item) => !item.sourceType || item.sourceType === "WAREHOUSE"
       );
-      if (hasWarehouseItems && (!invoice.warehouse || String(invoice.warehouse).trim() === "")) {
+      if (hasWarehouseItems && (!invoice.warehouseId || String(invoice.warehouseId).trim() === "")) {
         errors.push("Warehouse is required when invoice contains warehouse-sourced items");
         invalidFieldsSet.add("warehouse");
       }
@@ -3490,6 +3514,7 @@ const InvoiceForm = ({ onSave }) => {
       {/* Issue Final Tax Invoice Confirmation Dialog */}
       {issueConfirm.open && (
         <ConfirmDialog
+          open={issueConfirm.open}
           title="Issue Final Tax Invoice?"
           message="WARNING: Once issued, this invoice cannot be modified. Any corrections must be made via Credit Note. This action cannot be undone. Are you sure you want to proceed?"
           variant="danger"
@@ -3504,6 +3529,7 @@ const InvoiceForm = ({ onSave }) => {
       {/* Delete Line Item Confirmation Dialog */}
       {deleteLineItemConfirm.open && (
         <ConfirmDialog
+          open={deleteLineItemConfirm.open}
           title="Delete Line Item?"
           message={`Delete "${deleteLineItemConfirm.itemName}"?`}
           variant="danger"

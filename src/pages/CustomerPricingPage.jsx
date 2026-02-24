@@ -1,9 +1,11 @@
 import { AlertTriangle, ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import ConfirmDialog from "../components/ConfirmDialog";
 import PriceInheritanceIndicator from "../components/pricing/PriceInheritanceIndicator";
 import PriceOverrideModal from "../components/pricing/PriceOverrideModal";
 import { useTheme } from "../contexts/ThemeContext";
+import { useConfirm } from "../hooks/useConfirm";
 import { apiService } from "../services/axiosApi";
 import { notificationService } from "../services/notificationService";
 
@@ -15,6 +17,7 @@ import { notificationService } from "../services/notificationService";
 export default function CustomerPricingPage() {
   const { customerId } = useParams();
   const { isDarkMode } = useTheme();
+  const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
   const [loading, setLoading] = useState(true);
   const [customer, setCustomer] = useState(null);
   const [pricingMeta, setPricingMeta] = useState({}); // holds defaultPricelistId, customerPricelistId
@@ -147,7 +150,13 @@ export default function CustomerPricingPage() {
   };
 
   const handleDeleteOverride = async (item) => {
-    if (!window.confirm(`Remove override for ${item.productName}?`)) {
+    const confirmed = await confirm({
+      title: "Remove Price Override",
+      message: `Remove override for ${item.productName}?`,
+      confirmText: "Remove",
+      variant: "danger",
+    });
+    if (!confirmed) {
       return;
     }
 
@@ -432,6 +441,16 @@ export default function CustomerPricingPage() {
           isDarkMode={isDarkMode}
         />
       )}
+      <ConfirmDialog
+        open={dialogState.open}
+        title={dialogState.title}
+        message={dialogState.message}
+        variant={dialogState.variant}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 }

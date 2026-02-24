@@ -37,11 +37,13 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useConfirm } from "../../hooks/useConfirm";
 import { authService } from "../../services/axiosAuthService";
 import { notificationService } from "../../services/notificationService";
 import { roleService } from "../../services/roleService";
 import { userAdminAPI } from "../../services/userAdminApi";
 import { formatDateDMY } from "../../utils/invoiceUtils";
+import ConfirmDialog from "../ConfirmDialog";
 import RolesHelpPanel from "../RolesHelpPanel";
 
 // Shared UI primitives (lightweight re-definitions to avoid circular deps)
@@ -208,6 +210,7 @@ function formatCountdown(expiresAt) {
 
 const UserManagementTab = () => {
   const { isDarkMode } = useTheme();
+  const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
 
   // Users state
   const [users, setUsers] = useState([]);
@@ -447,7 +450,13 @@ const UserManagementTab = () => {
   };
 
   const deleteUser = async (userId) => {
-    if (!window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
+    const confirmed = await confirm({
+      title: "Delete User",
+      message: "Are you sure you want to delete this user? This action cannot be undone.",
+      confirmText: "Delete",
+      variant: "danger",
+    });
+    if (!confirmed) return;
     try {
       await userAdminAPI.remove(userId);
       setUsers((prev) => prev.filter((x) => x.id !== userId));
@@ -527,7 +536,13 @@ const UserManagementTab = () => {
   };
 
   const handleDeleteRole = async (roleId) => {
-    if (!window.confirm("Are you sure you want to delete this role?")) return;
+    const confirmed = await confirm({
+      title: "Delete Role",
+      message: "Are you sure you want to delete this role?",
+      confirmText: "Delete",
+      variant: "danger",
+    });
+    if (!confirmed) return;
     try {
       await roleService.deleteRole(roleId);
       notificationService.success("Role deleted successfully");
@@ -2157,6 +2172,16 @@ const UserManagementTab = () => {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        open={dialogState.open}
+        title={dialogState.title}
+        message={dialogState.message}
+        variant={dialogState.variant}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 };

@@ -700,10 +700,15 @@ const ExportOrderList = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
                         value={order.status}
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           const newStatus = e.target.value;
                           if (newStatus !== order.status) {
-                            const confirmed = window.confirm(`Change status from "${order.status}" to "${newStatus}"?`);
+                            const confirmed = await confirm({
+                              title: "Update Status",
+                              message: `Change status from "${order.status}" to "${newStatus}"?`,
+                              confirmText: "Update",
+                              variant: "warning",
+                            });
                             if (confirmed) {
                               handleStatusUpdate(order.id, newStatus);
                             } else {
