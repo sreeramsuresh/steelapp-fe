@@ -378,7 +378,7 @@ const QuotationForm = () => {
       .forEach((k) => {
         try {
           const draft = JSON.parse(localStorage.getItem(k));
-          if (draft?.customerDetails?.email || draft?.customerDetails?.phone) {
+          if (draft?.customerDetails?.email || draft?.customerDetails?.phone || draft?.customerDetails?.vatNumber) {
             const cleaned = { ...draft, customerDetails: { name: draft.customerDetails?.name } };
             localStorage.setItem(k, JSON.stringify(cleaned));
           }

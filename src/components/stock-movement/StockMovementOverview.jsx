@@ -46,9 +46,9 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
         stockMovementService.listTransfers({ limit: 100 }),
         stockMovementService.listReservations({ limit: 50 }),
         stockMovementService.getAll({
-          limit: 200,
-          dateFrom: new Date().toISOString().split("T")[0],
-          dateTo: new Date().toISOString().split("T")[0],
+          limit: 500,
+          dateFrom: new Date().toLocaleDateString("en-CA"),
+          dateTo: new Date().toLocaleDateString("en-CA"),
         }),
       ]);
 
@@ -78,13 +78,13 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
         (r) => r.status === "ACTIVE" || r.status === "PARTIALLY_FULFILLED"
       ).length;
 
-      // Stock in/out today from stock_movements
+      // Stock in/out today — backend already filters by UAE date, so no client-side date check needed
       const stockInToday = allMovements
-        .filter((m) => m.movementType === "IN" && new Date(m.movementDate).toDateString() === today)
+        .filter((m) => m.movementType === "IN")
         .reduce((sum, m) => sum + parseFloat(m.quantity || 0), 0);
 
       const stockOutToday = allMovements
-        .filter((m) => m.movementType === "OUT" && new Date(m.movementDate).toDateString() === today)
+        .filter((m) => m.movementType === "OUT")
         .reduce((sum, m) => sum + parseFloat(m.quantity || 0), 0);
 
       const totalMovements = movementsResult.pagination?.totalItems || allMovements.length;

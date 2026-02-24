@@ -59,8 +59,12 @@ export const NotificationCenterProvider = ({ children }) => {
     []
   );
 
+  const isFetchingRef = useRef(false);
+
   const fetchNotifications = useCallback(
     async (signal) => {
+      if (isFetchingRef.current) return; // prevent duplicate in-flight fetches
+      isFetchingRef.current = true;
       setLoading(true);
       setError("");
       try {
@@ -95,6 +99,7 @@ export const NotificationCenterProvider = ({ children }) => {
           return validCurrent;
         });
       } finally {
+        isFetchingRef.current = false;
         setLoading(false);
       }
     },
@@ -142,9 +147,33 @@ export const NotificationCenterProvider = ({ children }) => {
   useEffect(() => {
     if (!authService.hasPermission("notifications", "read")) return;
     const controller = new AbortController();
-    fetchRef.current(controller.signal);
-    return () => controller.abort();
-  }, []); // mount-only — prevents re-firing on dependency changes
+
+    const poll = () => {
+      if (document.visibilityState === "visible") {
+        fetchRef.current(controller.signal);
+      }
+    };
+
+    // Initial fetch
+    poll();
+
+    // Poll every 60 seconds (only when tab is visible)
+    const interval = setInterval(poll, 60000);
+
+    // Re-fetch when tab becomes visible after being hidden
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchRef.current(controller.signal);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, []); // singleton effect — empty deps intentional
 
   const value = {
     notifications,
