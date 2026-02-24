@@ -21,7 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import QuotationPreview from "../components/quotations/QuotationPreview";
 import { NewBadge, TableSkeleton, TruncatedText } from "../components/shared";
 import { useTheme } from "../contexts/ThemeContext";
@@ -35,6 +35,7 @@ import { validateQuotationForDownload } from "../utils/recordUtils";
 
 const QuotationList = () => {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
 
   // Initialize state
   const [quotations, setQuotations] = useState([]);
@@ -469,7 +470,8 @@ const QuotationList = () => {
                 {quotations.map((quotation) => (
                   <tr
                     key={quotation.id}
-                    className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors`}
+                    className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors cursor-pointer`}
+                    onClick={() => navigate(`/app/quotations/${quotation.id}/edit`)}
                   >
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div>

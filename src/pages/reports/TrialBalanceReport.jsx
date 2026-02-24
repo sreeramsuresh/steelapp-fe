@@ -14,7 +14,7 @@ export default function TrialBalanceReport() {
   const { user: _user } = useAuth();
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
-  const [periodId, setPeriodId] = useState(null);
+  const [periodId, setPeriodId] = useState("");
   const [periods, setPeriods] = useState([]);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -59,7 +59,7 @@ export default function TrialBalanceReport() {
     setError(null);
 
     try {
-      const result = await financialReportsService.getTrialBalance(periodId, {
+      const result = await financialReportsService.getTrialBalance(parseInt(periodId, 10), {
         includeZeroBalances,
       });
 
@@ -100,7 +100,7 @@ export default function TrialBalanceReport() {
             <select
               id="trial-balance-period"
               value={periodId || ""}
-              onChange={(e) => setPeriodId(e.target.value ? parseInt(e.target.value, 10) : null)}
+              onChange={(e) => setPeriodId(e.target.value)}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputCls}`}
             >
               <option value="">Select Period...</option>

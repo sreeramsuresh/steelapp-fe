@@ -475,6 +475,7 @@ const QuotationForm = () => {
   );
 
   // Fetch initial data
+  // biome-ignore lint/correctness/useExhaustiveDependencies: customers/products/warehouses are static reference data fetched once on mount; isEdit is intentionally excluded
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -542,7 +543,7 @@ const QuotationForm = () => {
     };
 
     fetchData();
-  }, [isEdit]);
+  }, []);
 
   // Fetch quotation data for editing
   // biome-ignore lint/correctness/useExhaustiveDependencies: customers intentionally excluded — including it causes infinite re-fetch loop (customers state updates trigger this effect which triggers more fetches)
