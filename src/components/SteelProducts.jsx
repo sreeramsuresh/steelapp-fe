@@ -1125,7 +1125,7 @@ const SteelProducts = () => {
       width: w,
       height: isSheetLike || isCoil ? "" : h,
       length: isSheetLike ? h || preset.lengthVal || "" : isCoil ? "" : preset.lengthVal || "",
-      thickness: preset.thicknessVal || "",
+      thickness: preset.thicknessVal ? `${preset.thicknessVal}mm` : "",
       diameter: d,
       od: preset.odVal || "",
       nbSize: preset.nbSizeVal || "",
@@ -1156,7 +1156,7 @@ const SteelProducts = () => {
           finish: n(newProduct.finish),
           width: n(newProduct.width),
           height: n(newProduct.height),
-          thickness: n(newProduct.thickness),
+          thickness: n(newProduct.thickness?.replace?.(/mm$/i, "")),
           length: n(newProduct.length),
           diameter: n(newProduct.diameter),
           od: n(newProduct.od),
@@ -1531,7 +1531,9 @@ const SteelProducts = () => {
           errors.dimensions = "Width is required";
         }
       }
-      if (!newProduct.thickness || newProduct.thickness.trim().length === 0) {
+      // Thickness not required for round bars (identified by diameter) or pipes/tubes
+      const isRoundBar = /bar/i.test(newProduct.category || "") && !!newProduct.diameter && !newProduct.width;
+      if (!isPipeOrTube && !isRoundBar && (!newProduct.thickness || newProduct.thickness.trim().length === 0)) {
         errors.thickness = "Thickness is required";
       }
 
@@ -1606,7 +1608,7 @@ const SteelProducts = () => {
         nbSize: n(newProduct.nbSize),
         od: n(newProduct.od),
         length: n(newProduct.length),
-        thickness: n(newProduct.thickness),
+        thickness: n(newProduct.thickness?.replace?.(/mm$/i, "")),
         schedule: n(newProduct.schedule),
         weight: newProduct.weight,
         description: newProduct.description,
@@ -1625,7 +1627,7 @@ const SteelProducts = () => {
         // Unit of Measure fields (added 2025-12-09)
         primaryUom: newProduct.primaryUom || "PCS",
         stockBasis: newProduct.stockBasis || undefined,
-        unitWeightKg: newProduct.unitWeightKg || undefined,
+        unitWeightKg: newProduct.unitWeightKg || (newProduct.weight ? Number(newProduct.weight) : undefined),
         allowDecimalQuantity: newProduct.allowDecimalQuantity || false,
         // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
         pricingBasis: newProduct.pricingBasis || "PER_MT", // API Gateway converts to pricing_basis
@@ -1967,7 +1969,7 @@ const SteelProducts = () => {
         nbSize: newProduct.nbSize || null,
         od: newProduct.od || null,
         length: newProduct.length || null,
-        thickness: newProduct.thickness || null,
+        thickness: newProduct.thickness?.replace?.(/mm$/i, "") || null,
         schedule: newProduct.schedule || null,
         weight: newProduct.weight,
         description: newProduct.description,
@@ -1985,7 +1987,7 @@ const SteelProducts = () => {
         productCategory: newProduct.productCategory || undefined,
         primaryUom: newProduct.primaryUom || "PCS",
         stockBasis: newProduct.stockBasis || undefined,
-        unitWeightKg: newProduct.unitWeightKg || undefined,
+        unitWeightKg: newProduct.unitWeightKg || (newProduct.weight ? Number(newProduct.weight) : undefined),
         allowDecimalQuantity: newProduct.allowDecimalQuantity || false,
         pricingBasis: newProduct.pricingBasis || "PER_MT",
         quantityBasis: newProduct.quantityBasis || undefined,
@@ -2981,7 +2983,7 @@ const SteelProducts = () => {
                 )}
 
                 {/* Phase 4: Visual Product Name Builder - Sticky for visibility while scrolling */}
-                <div className="sticky top-0 z-10">
+                <div className={`sticky top-0 z-10 ${isDarkMode ? "bg-gray-900" : "bg-white"} pb-1`}>
                   <ProductNameSegments productData={newProduct} focusedField={focusedField} isDarkMode={isDarkMode} />
                 </div>
 
@@ -3544,8 +3546,19 @@ const SteelProducts = () => {
                           <input
                             id="height-input"
                             type="text"
-                            value={newProduct.height}
-                            onChange={(e) => setNewProduct({ ...newProduct, height: e.target.value })}
+                            value={/sheet|plate/.test(newProduct.category) ? newProduct.length : newProduct.height}
+                            onChange={(e) =>
+                              /sheet|plate/.test(newProduct.category)
+                                ? setNewProduct({
+                                    ...newProduct,
+                                    length: e.target.value,
+                                    size:
+                                      newProduct.width && e.target.value
+                                        ? `${newProduct.width}x${e.target.value}`
+                                        : newProduct.width || "",
+                                  })
+                                : setNewProduct({ ...newProduct, height: e.target.value })
+                            }
                             onFocus={() => setFocusedField("dimensions")}
                             onBlur={() => setFocusedField(null)}
                             placeholder="e.g., 2440"
