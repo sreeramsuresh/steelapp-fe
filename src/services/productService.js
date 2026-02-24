@@ -94,6 +94,10 @@ export const productService = {
     return apiClient.post("/products", productData);
   },
 
+  async canonicalizeProduct(fields) {
+    return apiClient.post("/products/canonicalize", fields);
+  },
+
   async updateProduct(id, productData) {
     return apiClient.put(`/products/${id}`, productData);
   },

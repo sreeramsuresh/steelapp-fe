@@ -123,6 +123,7 @@ const TrialBalanceReport = lazy(() => import("../pages/reports/TrialBalanceRepor
 const COGSAnalysisReport = lazy(() => import("../pages/reports/COGSAnalysisReport"));
 const NormalizedMarginReport = lazy(() => import("../pages/reports/NormalizedMarginReport"));
 const ReconciliationReport = lazy(() => import("../pages/reports/ReconciliationReport"));
+const CertificateAuditReport = lazy(() => import("../pages/reports/CertificateAuditReport"));
 
 // Feedback Management
 const FeedbackManagement = lazy(() => import("../pages/FeedbackManagement"));
@@ -1254,6 +1255,15 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredPermission="analytics.read">
                   <NormalizedMarginReport />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="certificate-audit-trail"
+              element={
+                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                  <CertificateAuditReport />
                 </ProtectedRoute>
               }
             />

@@ -727,6 +727,13 @@ const SteelProducts = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const [similarProducts, setSimilarProducts] = useState([]);
 
+  const [canonicalPreview, setCanonicalPreview] = useState({
+    uniqueName: null,
+    isValid: false,
+    missingFields: [],
+    loading: false,
+  });
+
   const [newProduct, setNewProduct] = useState({
     displayName: "", // User-facing, editable name
     category: "sheet",
@@ -734,6 +741,12 @@ const SteelProducts = () => {
     grade: "",
     finish: "",
     size: "",
+    // Structured dimension fields (canonical — preferred over free-text size)
+    width: "",
+    height: "",
+    diameter: "",
+    formType: "",
+    shape: "",
     sizeInch: "",
     od: "",
     length: "",
@@ -1059,6 +1072,61 @@ const SteelProducts = () => {
 
     setSimilarProducts(similar);
   }, [newProduct.grade, newProduct.category, newProduct.finish, showAddModal, products]);
+
+  // Debounced server-driven canonical name preview
+  useEffect(() => {
+    if (!showAddModal) return;
+    // Require at least category + grade to call canonicalize
+    if (!newProduct.category || !newProduct.grade) {
+      setCanonicalPreview({ uniqueName: null, isValid: false, missingFields: [], loading: false });
+      return;
+    }
+
+    setCanonicalPreview((prev) => ({ ...prev, loading: true }));
+
+    const timer = setTimeout(async () => {
+      try {
+        const n = (v) => (v === "" || v === undefined ? null : v);
+        const response = await productService.canonicalizeProduct({
+          category: newProduct.category,
+          formType: newProduct.formType || n(newProduct.category),
+          commodity: "SS",
+          grade: newProduct.grade,
+          gradeVariant: n(newProduct.gradeVariant),
+          finish: n(newProduct.finish),
+          width: n(newProduct.width),
+          height: n(newProduct.height),
+          thickness: n(newProduct.thickness),
+          length: n(newProduct.length),
+          diameter: n(newProduct.diameter),
+          od: n(newProduct.od),
+          sizeInch: n(newProduct.sizeInch),
+          nbSize: n(newProduct.nbSize),
+          schedule: n(newProduct.schedule),
+          shape: n(newProduct.shape),
+        });
+        setCanonicalPreview({ ...response, loading: false });
+      } catch {
+        setCanonicalPreview({ uniqueName: null, isValid: false, missingFields: [], loading: false });
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [
+    showAddModal,
+    newProduct.category,
+    newProduct.grade,
+    newProduct.finish,
+    newProduct.width,
+    newProduct.height,
+    newProduct.thickness,
+    newProduct.length,
+    newProduct.diameter,
+    newProduct.od,
+    newProduct.sizeInch,
+    newProduct.shape,
+    newProduct.formType,
+  ]);
 
   // Dynamic category groups - only show groups that have matching products
   const categoryGroups = useMemo(() => {
@@ -1388,12 +1456,16 @@ const SteelProducts = () => {
       }
       const isPipeOrTube = /pipe|tube/i.test(newProduct.category || "");
       if (isPipeOrTube) {
-        if (!newProduct.sizeInch && !newProduct.od && !newProduct.size) {
-          errors.dimensions = "For Pipe/Tube, Size (inch) or OD is required";
+        if (!newProduct.sizeInch && !newProduct.od && !newProduct.nbSize) {
+          errors.dimensions = "For Pipe/Tube, Size (inch), OD, or NB Size is required";
+        }
+      } else if (/bar/i.test(newProduct.category || "")) {
+        if (!newProduct.diameter && !newProduct.width) {
+          errors.dimensions = "For Bar, Diameter (round) or Width (flat) is required";
         }
       } else {
-        if (!newProduct.size || newProduct.size.trim().length === 0) {
-          errors.dimensions = "Dimensions are required";
+        if (!newProduct.width) {
+          errors.dimensions = "Width is required";
         }
       }
       if (!newProduct.thickness || newProduct.thickness.trim().length === 0) {
@@ -1448,17 +1520,29 @@ const SteelProducts = () => {
   const doAddProduct = async () => {
     try {
       // API Gateway auto-converts camelCase → snake_case, so send camelCase
+      // Null-normalize all dimension fields: '' → null
+      const n = (v) => (v === "" || v === undefined ? null : v);
       const productData = {
         displayName: newProduct.displayName,
         category: newProduct.category,
         commodity: "SS",
         grade: newProduct.grade,
         finish: newProduct.finish,
-        size: newProduct.size,
-        sizeInch: newProduct.sizeInch || undefined, // API Gateway converts to size_inch
-        od: newProduct.od || undefined,
-        length: newProduct.length || undefined,
-        thickness: newProduct.thickness,
+        // Structured dimension fields (canonical)
+        width: n(newProduct.width),
+        height: n(newProduct.height),
+        diameter: n(newProduct.diameter),
+        formType: n(newProduct.formType),
+        shape: n(newProduct.shape),
+        // Legacy size: compute from structured fields for backward compat
+        size:
+          n(newProduct.width) && n(newProduct.height)
+            ? `${newProduct.width}x${newProduct.height}`
+            : n(newProduct.width) || n(newProduct.size) || null,
+        sizeInch: n(newProduct.sizeInch),
+        od: n(newProduct.od),
+        length: n(newProduct.length),
+        thickness: n(newProduct.thickness),
         weight: newProduct.weight,
         description: newProduct.description,
         // currentStock: omitted - computed from inventory_items (GRN approvals / delivery notes)
@@ -1493,6 +1577,7 @@ const SteelProducts = () => {
 
       // Sync inventory cache across modules
       clearInventoryCache();
+      setCanonicalPreview({ uniqueName: null, isValid: false, missingFields: [], loading: false });
       setNewProduct({
         displayName: "",
         category: "sheet",
@@ -1500,6 +1585,11 @@ const SteelProducts = () => {
         grade: "",
         finish: "",
         size: "",
+        width: "",
+        height: "",
+        diameter: "",
+        formType: "",
+        shape: "",
         sizeInch: "",
         od: "",
         length: "",
@@ -3136,45 +3226,135 @@ const SteelProducts = () => {
                           />
                         </div>
                       </>
-                    ) : (
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
+                    ) : /bar/i.test(newProduct.category || "") ? (
+                      <>
+                        {/* BAR: Diameter (round) or Width + Height (flat) */}
+                        <div>
                           <label
-                            htmlFor="dimensions-input"
-                            className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                            htmlFor="diameter-input"
+                            className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
                           >
-                            Dimensions (mm)<span className="text-red-500 ml-1">*</span>
+                            Diameter (mm) — Round bar
                           </label>
-                          <Tooltip content="Dimensions in millimeters. Format: Width x Length (e.g., 1220x2440) or Width x Thickness x Length. Standard sheet: 1220x2440mm (4'x8').">
-                            <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
-                          </Tooltip>
+                          <input
+                            id="diameter-input"
+                            type="text"
+                            value={newProduct.diameter}
+                            onChange={(e) => {
+                              setNewProduct({ ...newProduct, diameter: e.target.value });
+                              if (validationErrors.dimensions)
+                                setValidationErrors((p) => ({ ...p, dimensions: undefined }));
+                            }}
+                            placeholder="e.g., 25"
+                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
+                          />
                         </div>
-                        <input
-                          id="dimensions-input"
-                          type="text"
-                          value={newProduct.size}
-                          onChange={(e) => {
-                            setNewProduct({
-                              ...newProduct,
-                              size: e.target.value,
-                            });
-                            if (validationErrors.dimensions && e.target.value.trim()) {
-                              setValidationErrors((prev) => ({ ...prev, dimensions: undefined }));
-                            }
-                          }}
-                          onFocus={() => setFocusedField("dimensions")}
-                          onBlur={() => setFocusedField(null)}
-                          placeholder="e.g., 1220x2440 or 50x50"
-                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                            isDarkMode
-                              ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-                              : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                          } ${validationErrors.dimensions ? "!border-red-500 ring-1 ring-red-500" : ""}`}
-                        />
+                        <div>
+                          <label
+                            htmlFor="bar-width-input"
+                            className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          >
+                            Width (mm) — Flat bar
+                          </label>
+                          <input
+                            id="bar-width-input"
+                            type="text"
+                            value={newProduct.width}
+                            onChange={(e) => {
+                              setNewProduct({ ...newProduct, width: e.target.value });
+                              if (validationErrors.dimensions)
+                                setValidationErrors((p) => ({ ...p, dimensions: undefined }));
+                            }}
+                            placeholder="e.g., 50"
+                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
+                          />
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="bar-height-input"
+                            className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                          >
+                            Height (mm) — Flat bar
+                          </label>
+                          <input
+                            id="bar-height-input"
+                            type="text"
+                            value={newProduct.height}
+                            onChange={(e) => setNewProduct({ ...newProduct, height: e.target.value })}
+                            placeholder="e.g., 6"
+                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
+                          />
+                        </div>
                         {validationErrors.dimensions && (
                           <p className="text-red-500 text-xs mt-1">{validationErrors.dimensions}</p>
                         )}
-                      </div>
+                      </>
+                    ) : (
+                      <>
+                        {/* Sheet / Coil / Plate / Flat / Angle: Width + Height */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <label
+                              htmlFor="width-input"
+                              className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                            >
+                              Width (mm)<span className="text-red-500 ml-1">*</span>
+                            </label>
+                            <Tooltip content="Sheet/coil width in millimeters. Standard: 1220mm (4ft), 1500mm, 1000mm.">
+                              <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                            </Tooltip>
+                          </div>
+                          <input
+                            id="width-input"
+                            type="text"
+                            value={newProduct.width}
+                            onChange={(e) => {
+                              setNewProduct({ ...newProduct, width: e.target.value });
+                              if (validationErrors.dimensions && e.target.value.trim()) {
+                                setValidationErrors((prev) => ({ ...prev, dimensions: undefined }));
+                              }
+                            }}
+                            onFocus={() => setFocusedField("dimensions")}
+                            onBlur={() => setFocusedField(null)}
+                            placeholder="e.g., 1220"
+                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                              isDarkMode
+                                ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                                : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                            } ${validationErrors.dimensions ? "!border-red-500 ring-1 ring-red-500" : ""}`}
+                          />
+                          {validationErrors.dimensions && (
+                            <p className="text-red-500 text-xs mt-1">{validationErrors.dimensions}</p>
+                          )}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <label
+                              htmlFor="height-input"
+                              className={`block text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                            >
+                              Height / Length (mm)
+                            </label>
+                            <Tooltip content="Sheet height/length in mm. Standard: 2440mm (8ft), 3000mm. Leave blank for coils.">
+                              <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                            </Tooltip>
+                          </div>
+                          <input
+                            id="height-input"
+                            type="text"
+                            value={newProduct.height}
+                            onChange={(e) => setNewProduct({ ...newProduct, height: e.target.value })}
+                            onFocus={() => setFocusedField("dimensions")}
+                            onBlur={() => setFocusedField(null)}
+                            placeholder="e.g., 2440"
+                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                              isDarkMode
+                                ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                                : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                            }`}
+                          />
+                        </div>
+                      </>
                     )}
 
                     {/* Thickness - dropdown with standard SS gauges */}
@@ -3289,6 +3469,47 @@ const SteelProducts = () => {
                         <p className="text-red-500 text-xs mt-1">{validationErrors.thickness}</p>
                       )}
                     </div>
+                    {/* Canonical Name Preview — server-driven */}
+                    {(canonicalPreview.uniqueName ||
+                      canonicalPreview.loading ||
+                      (newProduct.grade && newProduct.category)) && (
+                      <div
+                        className={`sm:col-span-2 rounded-lg px-3 py-2 border text-sm ${
+                          canonicalPreview.loading
+                            ? isDarkMode
+                              ? "bg-gray-800 border-gray-600 text-gray-400"
+                              : "bg-gray-50 border-gray-200 text-gray-500"
+                            : canonicalPreview.isValid
+                              ? isDarkMode
+                                ? "bg-teal-900/30 border-teal-700 text-teal-300"
+                                : "bg-teal-50 border-teal-300 text-teal-700"
+                              : isDarkMode
+                                ? "bg-red-900/20 border-red-800 text-red-400"
+                                : "bg-red-50 border-red-300 text-red-600"
+                        }`}
+                      >
+                        {canonicalPreview.loading ? (
+                          <span>Generating name preview…</span>
+                        ) : canonicalPreview.isValid ? (
+                          <span>
+                            &#10003; <strong>{canonicalPreview.uniqueName}</strong>
+                          </span>
+                        ) : canonicalPreview.uniqueName ? (
+                          <span>
+                            &#10007; Invalid name: <strong>{canonicalPreview.uniqueName}</strong>
+                            {canonicalPreview.missingFields?.length > 0 &&
+                              ` — Missing: ${canonicalPreview.missingFields.join(", ")}`}
+                          </span>
+                        ) : (
+                          <span>
+                            &#10007; Missing:{" "}
+                            {canonicalPreview.missingFields?.length > 0
+                              ? canonicalPreview.missingFields.join(", ")
+                              : "required dimension fields"}
+                          </span>
+                        )}
+                      </div>
+                    )}
                     <Input
                       label="Weight (kg/pc or kg/m)"
                       value={newProduct.weight}
@@ -3921,7 +4142,7 @@ const SteelProducts = () => {
                 </Button>
                 <Button
                   onClick={editingProductId ? handleEditProduct : handleAddProduct}
-                  disabled={editingProductId ? updatingProduct : false}
+                  disabled={editingProductId ? updatingProduct : !canonicalPreview.isValid && !editingProductId}
                 >
                   {editingProductId && updatingProduct ? (
                     <RefreshCw size={16} className="animate-spin" />

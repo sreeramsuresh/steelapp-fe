@@ -117,6 +117,20 @@ const STEEL_GRADES = [
   { value: "OTHER", label: "Other" },
 ];
 
+// EN 10204 Types
+const EN_10204_TYPES = [
+  { value: "2.1", label: "2.1 — Declaration of conformance" },
+  { value: "2.2", label: "2.2 — Test report" },
+  { value: "3.1", label: "3.1 — Inspection certificate (mill-authorised)" },
+  { value: "3.2", label: "3.2 — Inspection certificate (independent third party)" },
+];
+
+// Product Forms
+const PRODUCT_FORMS = ["coil", "sheet", "plate", "pipe", "bar", "strip", "tube", "angle", "channel", "beam"];
+
+// Heat Treatment Conditions
+const HEAT_TREATMENT_CONDITIONS = ["2B", "BA", "No.1", "No.4", "HR", "CR", "Annealed", "Pickled", "Polished"];
+
 // Empty form state
 const EMPTY_FORM = {
   certificate_type: "mill_test_certificate",
@@ -130,8 +144,15 @@ const EMPTY_FORM = {
   grade_other: "",
   country_of_origin: "",
   issuing_authority: "",
+  certificate_issuer: "",
+  accreditation_body: "",
+  standard_specification: "",
+  en_10204_type: "",
+  product_form: "",
+  heat_treatment_condition: "",
   issue_date: "",
   expiry_date: "",
+  coo_validity_date: "",
   // Chemical Composition (for MTC)
   chemical_c: "",
   chemical_si: "",
@@ -302,8 +323,15 @@ const MaterialCertificateList = () => {
       grade_other: cert.grade_other || "",
       country_of_origin: cert.country_of_origin || "",
       issuing_authority: cert.issuingAuthority || "",
+      certificate_issuer: cert.certificate_issuer || "",
+      accreditation_body: cert.accreditation_body || "",
+      standard_specification: cert.standard_specification || "",
+      en_10204_type: cert.en_10204_type || "",
+      product_form: cert.product_form || "",
+      heat_treatment_condition: cert.heat_treatment_condition || "",
       issue_date: cert.issueDate ? cert.issueDate.split("T")[0] : "",
       expiry_date: cert.expiryDate ? cert.expiryDate.split("T")[0] : "",
+      coo_validity_date: cert.coo_validity_date || "",
       // Chemical Composition
       chemical_c: cert.chemical_c || "",
       chemical_si: cert.chemical_si || "",
@@ -358,14 +386,26 @@ const MaterialCertificateList = () => {
     if (!formData.certificate_type) {
       errors.certificate_type = "Certificate type is required";
     }
-    if (!formData.mill_name.trim()) {
-      errors.mill_name = "Mill name is required";
-    }
     if (!formData.issue_date) {
       errors.issue_date = "Issue date is required";
     }
-    if (formData.certificate_type === "mill_test_certificate" && !formData.heat_number.trim()) {
-      errors.heat_number = "Heat number is required for MTC";
+    if (formData.certificate_type === "mill_test_certificate") {
+      if (!formData.heat_number.trim()) errors.heat_number = "Heat number is required for MTC";
+      if (!formData.standard_specification?.trim())
+        errors.standard_specification = "Standard specification required for MTC (e.g. ASTM A240, EN 10088-2)";
+      if (!formData.en_10204_type) errors.en_10204_type = "EN 10204 type required for MTC";
+      if (!(formData.mill_name?.trim() || formData.certificate_issuer?.trim())) {
+        errors.mill_name = "Mill name or certificate issuer is required for MTC";
+      }
+    }
+    if (formData.certificate_type === "certificate_of_origin") {
+      if (!formData.country_of_origin?.trim()) errors.country_of_origin = "Country of origin is required for COO";
+      if (!(formData.certificate_issuer?.trim() || formData.issuing_authority?.trim())) {
+        errors.certificate_issuer = "Certificate issuer (Chamber of Commerce) is required for COO";
+      }
+    }
+    if (formData.certificate_type === "certificate_of_analysis") {
+      if (!formData.heat_number?.trim()) errors.heat_number = "Heat number is required for COA";
     }
     if (formData.grade === "OTHER" && !formData.grade_other.trim()) {
       errors.grade_other = "Please specify the grade";
@@ -1209,6 +1249,9 @@ const MaterialCertificateList = () => {
                   <div>
                     <label htmlFor="modal-country-of-origin" className="block text-sm font-medium mb-1">
                       Country of Origin
+                      {formData.certificate_type === "certificate_of_origin" && (
+                        <span className="text-red-500"> *</span>
+                      )}
                     </label>
                     <input
                       id="modal-country-of-origin"
@@ -1220,20 +1263,54 @@ const MaterialCertificateList = () => {
                         isDarkMode
                           ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                           : "bg-white border-gray-300 placeholder-gray-500"
-                      }`}
+                      } ${formErrors.country_of_origin ? "border-red-500" : ""}`}
                     />
+                    {formErrors.country_of_origin && (
+                      <p className="text-red-500 text-xs mt-1">{formErrors.country_of_origin}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label htmlFor="modal-certificate-issuer" className="block text-sm font-medium mb-1">
+                      Certificate Issuer
+                      {(formData.certificate_type === "certificate_of_origin" ||
+                        formData.certificate_type === "certificate_of_analysis") && (
+                        <span className="text-red-500"> *</span>
+                      )}
+                    </label>
+                    <input
+                      id="modal-certificate-issuer"
+                      type="text"
+                      value={formData.certificate_issuer}
+                      onChange={(e) => handleInputChange("certificate_issuer", e.target.value)}
+                      placeholder={
+                        formData.certificate_type === "certificate_of_origin"
+                          ? "e.g., Dubai Chamber of Commerce"
+                          : formData.certificate_type === "certificate_of_analysis"
+                            ? "e.g., SGS Lab, Bureau Veritas"
+                            : "Issuing entity"
+                      }
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        isDarkMode
+                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                          : "bg-white border-gray-300 placeholder-gray-500"
+                      } ${formErrors.certificate_issuer ? "border-red-500" : ""}`}
+                    />
+                    {formErrors.certificate_issuer && (
+                      <p className="text-red-500 text-xs mt-1">{formErrors.certificate_issuer}</p>
+                    )}
                   </div>
 
                   <div>
                     <label htmlFor="modal-issuing-authority" className="block text-sm font-medium mb-1">
-                      Issuing Authority
+                      Issuing Authority / Accreditation
                     </label>
                     <input
                       id="modal-issuing-authority"
                       type="text"
                       value={formData.issuing_authority}
                       onChange={(e) => handleInputChange("issuing_authority", e.target.value)}
-                      placeholder="e.g., Bureau Veritas, SGS"
+                      placeholder="e.g., Bureau Veritas, SGS, ISO 17025"
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
                           ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
@@ -1258,22 +1335,131 @@ const MaterialCertificateList = () => {
                     {formErrors.issue_date && <p className="text-red-500 text-xs mt-1">{formErrors.issue_date}</p>}
                   </div>
 
-                  <div>
-                    <label htmlFor="modal-expiry-date" className="block text-sm font-medium mb-1">
-                      Expiry Date
-                    </label>
-                    <input
-                      id="modal-expiry-date"
-                      type="date"
-                      value={formData.expiry_date}
-                      onChange={(e) => handleInputChange("expiry_date", e.target.value)}
-                      className={`w-full px-3 py-2 border rounded-lg ${
-                        isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
-                      }`}
-                    />
-                  </div>
+                  {formData.certificate_type !== "mill_test_certificate" && (
+                    <div>
+                      <label htmlFor="modal-expiry-date" className="block text-sm font-medium mb-1">
+                        {formData.certificate_type === "certificate_of_origin" ? "COO Validity Date" : "Expiry Date"}
+                      </label>
+                      <input
+                        id="modal-expiry-date"
+                        type="date"
+                        value={
+                          formData.certificate_type === "certificate_of_origin"
+                            ? formData.coo_validity_date
+                            : formData.expiry_date
+                        }
+                        onChange={(e) =>
+                          handleInputChange(
+                            formData.certificate_type === "certificate_of_origin" ? "coo_validity_date" : "expiry_date",
+                            e.target.value
+                          )
+                        }
+                        className={`w-full px-3 py-2 border rounded-lg ${
+                          isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
+                        }`}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
+
+              {/* MTC Compliance Fields */}
+              {formData.certificate_type === "mill_test_certificate" && (
+                <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"}`}>
+                  <h3 className="font-medium mb-4 flex items-center gap-2">
+                    <Shield size={18} className="text-teal-500" />
+                    MTC Compliance Fields
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="modal-standard-spec" className="block text-sm font-medium mb-1">
+                        Standard / Specification <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        id="modal-standard-spec"
+                        type="text"
+                        value={formData.standard_specification}
+                        onChange={(e) => handleInputChange("standard_specification", e.target.value)}
+                        placeholder="e.g., ASTM A240, EN 10088-2, JIS G4304"
+                        className={`w-full px-3 py-2 border rounded-lg ${
+                          isDarkMode
+                            ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                            : "bg-white border-gray-300 placeholder-gray-500"
+                        } ${formErrors.standard_specification ? "border-red-500" : ""}`}
+                      />
+                      {formErrors.standard_specification && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.standard_specification}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label htmlFor="modal-en10204-type" className="block text-sm font-medium mb-1">
+                        EN 10204 Type <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        id="modal-en10204-type"
+                        value={formData.en_10204_type}
+                        onChange={(e) => handleInputChange("en_10204_type", e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg ${
+                          isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
+                        } ${formErrors.en_10204_type ? "border-red-500" : ""}`}
+                      >
+                        <option value="">Select EN 10204 type</option>
+                        {EN_10204_TYPES.map((t) => (
+                          <option key={t.value} value={t.value}>
+                            {t.label}
+                          </option>
+                        ))}
+                      </select>
+                      {formErrors.en_10204_type && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.en_10204_type}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label htmlFor="modal-product-form" className="block text-sm font-medium mb-1">
+                        Product Form
+                      </label>
+                      <select
+                        id="modal-product-form"
+                        value={formData.product_form}
+                        onChange={(e) => handleInputChange("product_form", e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg ${
+                          isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
+                        }`}
+                      >
+                        <option value="">Select product form</option>
+                        {PRODUCT_FORMS.map((f) => (
+                          <option key={f} value={f}>
+                            {f.charAt(0).toUpperCase() + f.slice(1)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label htmlFor="modal-heat-treatment" className="block text-sm font-medium mb-1">
+                        Heat Treatment / Condition
+                      </label>
+                      <select
+                        id="modal-heat-treatment"
+                        value={formData.heat_treatment_condition}
+                        onChange={(e) => handleInputChange("heat_treatment_condition", e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg ${
+                          isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
+                        }`}
+                      >
+                        <option value="">Select condition</option>
+                        {HEAT_TREATMENT_CONDITIONS.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Chemical Composition (for MTC) */}
               {formData.certificate_type === "mill_test_certificate" && (
