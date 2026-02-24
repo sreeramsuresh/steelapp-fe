@@ -124,7 +124,6 @@ export default function CertificateAuditReport() {
     }[activeTab] || certificates;
 
   const card = `rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`;
-  const inputCls = `px-3 py-2 border rounded-lg text-sm ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"}`;
 
   return (
     <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}>
