@@ -2593,7 +2593,10 @@ const SteelProducts = () => {
                             size: product.size || "",
                             sizeInch: product.sizeInch || product.size_inch || "",
                             od: product.od || "",
-                            length: product.length || "",
+                            width: product.width ? String(product.width) : "",
+                            height: product.height ? String(product.height) : "",
+                            length: product.length ? String(product.length) : "",
+                            diameter: product.diameter ? String(product.diameter) : "",
                             weight: product.weight || "",
                             description: product.description || "",
                             currentStock:
