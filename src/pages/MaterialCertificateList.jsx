@@ -291,19 +291,19 @@ const MaterialCertificateList = () => {
   // Open modal for edit
   const handleEdit = (cert) => {
     setFormData({
-      certificate_type: cert.certificate_type || "mill_test_certificate",
-      certificate_number: cert.certificate_number || "",
-      import_order_id: cert.import_order_id || "",
+      certificate_type: cert.certificateType || "mill_test_certificate",
+      certificate_number: cert.certificateNumber || "",
+      import_order_id: cert.importOrderId || "",
       import_order_item_id: cert.import_order_item_id || "",
-      mill_name: cert.mill_name || "",
-      heat_number: cert.heat_number || "",
+      mill_name: cert.millName || "",
+      heat_number: cert.heatNumber || "",
       coil_id: cert.coil_id || "",
       grade: cert.grade || "",
       grade_other: cert.grade_other || "",
       country_of_origin: cert.country_of_origin || "",
-      issuing_authority: cert.issuing_authority || "",
-      issue_date: cert.issue_date ? cert.issue_date.split("T")[0] : "",
-      expiry_date: cert.expiry_date ? cert.expiry_date.split("T")[0] : "",
+      issuing_authority: cert.issuingAuthority || "",
+      issue_date: cert.issueDate ? cert.issueDate.split("T")[0] : "",
+      expiry_date: cert.expiryDate ? cert.expiryDate.split("T")[0] : "",
       // Chemical Composition
       chemical_c: cert.chemical_c || "",
       chemical_si: cert.chemical_si || "",
@@ -321,7 +321,7 @@ const MaterialCertificateList = () => {
       elongation: cert.elongation || "",
       hardness: cert.hardness || "",
       // Verification
-      verification_status: cert.verification_status || "pending",
+      verification_status: cert.verificationStatus || "pending",
       verified_by: cert.verified_by || "",
       verified_date: cert.verified_date ? cert.verified_date.split("T")[0] : "",
       rejection_reason: cert.rejection_reason || "",
@@ -449,7 +449,7 @@ const MaterialCertificateList = () => {
   const handleDelete = async (cert) => {
     const confirmed = await confirm({
       title: "Delete Material Certificate?",
-      message: `Are you sure you want to delete certificate "${cert.certificate_number}"? This action cannot be undone.`,
+      message: `Are you sure you want to delete certificate "${cert.certificateNumber}"? This action cannot be undone.`,
       confirmText: "Delete",
       variant: "danger",
     });
@@ -816,9 +816,9 @@ const MaterialCertificateList = () => {
                   >
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                        <CertTypeIcon type={cert.certificate_type} size={20} />
+                        <CertTypeIcon type={cert.certificateType} size={20} />
                         <div>
-                          <div className="font-medium">{cert.certificate_number}</div>
+                          <div className="font-medium">{cert.certificateNumber}</div>
                           {cert.import_order_number && (
                             <div className="text-xs text-gray-500">Order: {cert.import_order_number}</div>
                           )}
@@ -826,30 +826,30 @@ const MaterialCertificateList = () => {
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <span className="text-sm">{getCertTypeConfig(cert.certificate_type).label}</span>
+                      <span className="text-sm">{getCertTypeConfig(cert.certificateType).label}</span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-sm">{cert.mill_name || "-"}</div>
-                      {cert.heat_number && <div className="text-xs text-gray-500">Heat: {cert.heat_number}</div>}
+                      <div className="text-sm">{cert.millName || "-"}</div>
+                      {cert.heatNumber && <div className="text-xs text-gray-500">Heat: {cert.heatNumber}</div>}
                       {cert.coil_id && <div className="text-xs text-gray-500">Coil: {cert.coil_id}</div>}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className="text-sm font-medium">{getGradeLabel(cert.grade, cert.grade_other)}</span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <span className="text-sm">{formatDate(cert.issue_date)}</span>
+                      <span className="text-sm">{formatDate(cert.issueDate)}</span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span
                         className={`text-sm ${
-                          cert.expiry_date && new Date(cert.expiry_date) < new Date() ? "text-red-500 font-medium" : ""
+                          cert.expiryDate && new Date(cert.expiryDate) < new Date() ? "text-red-500 font-medium" : ""
                         }`}
                       >
-                        {formatDate(cert.expiry_date)}
+                        {formatDate(cert.expiryDate)}
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <StatusBadge status={cert.verification_status} />
+                      <StatusBadge status={cert.verificationStatus} />
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-1">
@@ -869,7 +869,7 @@ const MaterialCertificateList = () => {
                         >
                           <Edit size={16} />
                         </button>
-                        {cert.verification_status === "pending" && (
+                        {cert.verificationStatus === "pending" && (
                           <>
                             <button
                               type="button"
@@ -1492,16 +1492,16 @@ const MaterialCertificateList = () => {
               }`}
             >
               <div className="flex items-center gap-3">
-                <CertTypeIcon type={selectedCertificate.certificate_type} size={28} />
+                <CertTypeIcon type={selectedCertificate.certificateType} size={28} />
                 <div>
-                  <h2 className="text-xl font-semibold">{selectedCertificate.certificate_number}</h2>
+                  <h2 className="text-xl font-semibold">{selectedCertificate.certificateNumber}</h2>
                   <p className="text-sm text-gray-500">
-                    {getCertTypeConfig(selectedCertificate.certificate_type).label}
+                    {getCertTypeConfig(selectedCertificate.certificateType).label}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <StatusBadge status={selectedCertificate.verification_status} />
+                <StatusBadge status={selectedCertificate.verificationStatus} />
                 <button
                   type="button"
                   onClick={handleCloseModal}
@@ -1523,11 +1523,11 @@ const MaterialCertificateList = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-500">Mill Name:</span>
-                      <span className="font-medium">{selectedCertificate.mill_name || "-"}</span>
+                      <span className="font-medium">{selectedCertificate.millName || "-"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Heat Number:</span>
-                      <span className="font-medium">{selectedCertificate.heat_number || "-"}</span>
+                      <span className="font-medium">{selectedCertificate.heatNumber || "-"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Coil ID:</span>
@@ -1551,7 +1551,7 @@ const MaterialCertificateList = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Issuing Authority:</span>
-                      <span className="font-medium">{selectedCertificate.issuing_authority || "-"}</span>
+                      <span className="font-medium">{selectedCertificate.issuingAuthority || "-"}</span>
                     </div>
                   </div>
                 </div>
@@ -1561,18 +1561,18 @@ const MaterialCertificateList = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-500">Issue Date:</span>
-                      <span className="font-medium">{formatDate(selectedCertificate.issue_date)}</span>
+                      <span className="font-medium">{formatDate(selectedCertificate.issueDate)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Expiry Date:</span>
                       <span
                         className={`font-medium ${
-                          selectedCertificate.expiry_date && new Date(selectedCertificate.expiry_date) < new Date()
+                          selectedCertificate.expiryDate && new Date(selectedCertificate.expiryDate) < new Date()
                             ? "text-red-500"
                             : ""
                         }`}
                       >
-                        {formatDate(selectedCertificate.expiry_date)}
+                        {formatDate(selectedCertificate.expiryDate)}
                       </span>
                     </div>
                   </div>
@@ -1580,7 +1580,7 @@ const MaterialCertificateList = () => {
               </div>
 
               {/* Chemical Composition (for MTC) */}
-              {selectedCertificate.certificate_type === "mill_test_certificate" && (
+              {selectedCertificate.certificateType === "mill_test_certificate" && (
                 <div
                   className={`p-4 rounded-lg ${isDarkMode ? "bg-blue-900/20 border border-blue-800" : "bg-blue-50 border border-blue-200"}`}
                 >
@@ -1613,7 +1613,7 @@ const MaterialCertificateList = () => {
               )}
 
               {/* Mechanical Properties (for MTC) */}
-              {selectedCertificate.certificate_type === "mill_test_certificate" && (
+              {selectedCertificate.certificateType === "mill_test_certificate" && (
                 <div
                   className={`p-4 rounded-lg ${isDarkMode ? "bg-purple-900/20 border border-purple-800" : "bg-purple-50 border border-purple-200"}`}
                 >
@@ -1649,10 +1649,10 @@ const MaterialCertificateList = () => {
               )}
 
               {/* Verification Info */}
-              {selectedCertificate.verification_status !== "pending" && (
+              {selectedCertificate.verificationStatus !== "pending" && (
                 <div
                   className={`p-4 rounded-lg ${
-                    selectedCertificate.verification_status === "verified"
+                    selectedCertificate.verificationStatus === "verified"
                       ? isDarkMode
                         ? "bg-green-900/20 border border-green-800"
                         : "bg-green-50 border border-green-200"
@@ -1662,7 +1662,7 @@ const MaterialCertificateList = () => {
                   }`}
                 >
                   <h3 className="font-medium mb-3 flex items-center gap-2">
-                    {selectedCertificate.verification_status === "verified" ? (
+                    {selectedCertificate.verificationStatus === "verified" ? (
                       <CheckCircle size={18} className="text-green-500" />
                     ) : (
                       <XCircle size={18} className="text-red-500" />
@@ -1724,7 +1724,7 @@ const MaterialCertificateList = () => {
               >
                 Edit Certificate
               </button>
-              {selectedCertificate.verification_status === "pending" && (
+              {selectedCertificate.verificationStatus === "pending" && (
                 <>
                   <button
                     type="button"
@@ -1783,7 +1783,7 @@ const MaterialCertificateList = () => {
                   <h2 className="text-xl font-semibold">
                     {verifyAction === "verify" ? "Verify Certificate" : "Reject Certificate"}
                   </h2>
-                  <p className="text-sm text-gray-500">{selectedCertificate.certificate_number}</p>
+                  <p className="text-sm text-gray-500">{selectedCertificate.certificateNumber}</p>
                 </div>
               </div>
               <button
