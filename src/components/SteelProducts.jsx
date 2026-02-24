@@ -777,7 +777,7 @@ const SteelProducts = () => {
     unitWeightKg: "", // Weight of one piece in kg
     allowDecimalQuantity: false, // Whether fractional quantities allowed
     // Pricing & Commercial Fields (added 2025-12-12 - Pricing Audit)
-    pricingBasis: "PER_MT", // Basis for cost_price/selling_price: PER_KG, PER_MT, PER_PCS, PER_METER, PER_LOT
+    pricingBasis: "PER_PCS", // Basis for cost_price/selling_price: PER_KG, PER_MT, PER_PCS, PER_METER, PER_LOT
     quantityBasis: "", // FIXED | WEIGHT_DERIVED | DUAL_UNIT | VARIABLE_LENGTH | LOT_BASED
     weightTolerancePercent: 2.5, // Acceptable weight variance % (Sheets: 2.5%, Pipes: 5%, Bars: 3%)
     specifications: {
@@ -999,7 +999,7 @@ const SteelProducts = () => {
       unitWeightKg: "",
       allowDecimalQuantity: false,
       // Pricing & Commercial Fields (reset to defaults)
-      pricingBasis: "PER_MT",
+      pricingBasis: "PER_PCS",
       quantityBasis: "",
       weightTolerancePercent: 2.5,
       specifications: {
@@ -1683,7 +1683,7 @@ const SteelProducts = () => {
         unitWeightKg: "",
         allowDecimalQuantity: false,
         // Pricing & Commercial Fields (reset to defaults)
-        pricingBasis: "PER_MT",
+        pricingBasis: "PER_PCS",
         quantityBasis: "",
         weightTolerancePercent: 2.5,
         specifications: {
@@ -3050,10 +3050,15 @@ const SteelProducts = () => {
                               circle: "SHEET",
                               blank: "SHEET",
                             };
+                            const isCoilCat = cat === "coil";
+                            const autoPricingBasis = isCoilCat ? "PER_MT" : "PER_PCS";
+                            const autoStockBasis = isCoilCat ? "MT" : "PCS";
                             setNewProduct({
                               ...newProduct,
                               category: cat,
                               productCategory: categoryToProductCategory[cat] || newProduct.productCategory || "",
+                              pricingBasis: autoPricingBasis,
+                              stockBasis: autoStockBasis,
                               // Clear all dimension fields and preset on category change
                               selectedPresetId: "",
                               formType: "",
@@ -3726,7 +3731,7 @@ const SteelProducts = () => {
                       </div>
                     )}
                     <Input
-                      label="Weight (kg/pc or kg/m)"
+                      label="Weight (kg/pc or kg/m) *"
                       value={newProduct.weight}
                       onChange={(e) =>
                         setNewProduct({
@@ -3867,7 +3872,7 @@ const SteelProducts = () => {
                           </div>
                           <div className="relative">
                             <Input
-                              label={`Base Selling Price ${basisUnit} (seeds default pricelist)`}
+                              label={`Base Selling Price ${basisUnit} * (must be > 0)`}
                               type="number"
                               value={newProduct.sellingPrice || ""}
                               onChange={(e) =>
