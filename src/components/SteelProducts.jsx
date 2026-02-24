@@ -1107,14 +1107,14 @@ const SteelProducts = () => {
     setNewProduct((prev) => ({
       ...prev,
       selectedPresetId: preset.id,
-      width: preset.width_val || "",
-      height: preset.height_val || "",
-      thickness: preset.thickness_val || "",
-      diameter: preset.diameter_val || "",
-      length: preset.length_val || "",
-      od: preset.od_val || "",
-      nbSize: preset.nb_size_val || "",
-      schedule: preset.schedule_val || "",
+      width: preset.widthVal || "",
+      height: preset.heightVal || "",
+      thickness: preset.thicknessVal || "",
+      diameter: preset.diameterVal || "",
+      length: preset.lengthVal || "",
+      od: preset.odVal || "",
+      nbSize: preset.nbSizeVal || "",
+      schedule: preset.scheduleVal || "",
     }));
   };
 
