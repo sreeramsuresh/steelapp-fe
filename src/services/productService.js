@@ -98,6 +98,13 @@ export const productService = {
     return apiClient.post("/products/canonicalize", fields);
   },
 
+  async getPresets(category, formType, shape) {
+    const params = { category };
+    if (formType) params.form_type = formType;
+    if (shape) params.shape = shape;
+    return apiClient.get("/products/presets", params);
+  },
+
   async updateProduct(id, productData) {
     return apiClient.put(`/products/${id}`, productData);
   },

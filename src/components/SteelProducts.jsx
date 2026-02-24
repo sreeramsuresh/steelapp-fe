@@ -721,6 +721,9 @@ const SteelProducts = () => {
   const [showPricingEditModal, setShowPricingEditModal] = useState(false);
   const [defaultPricelistId, setDefaultPricelistId] = useState(null);
 
+  // Dimension presets state
+  const [presets, setPresets] = useState([]);
+
   // Phase 2-6: Enhanced form state
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [focusedField, setFocusedField] = useState(null);
@@ -747,8 +750,12 @@ const SteelProducts = () => {
     diameter: "",
     formType: "",
     shape: "",
+    selectedPresetId: "",
     sizeInch: "",
+    nbSize: "",
     od: "",
+    thickness: "",
+    schedule: "",
     length: "",
     weight: "",
     description: "",
@@ -1073,6 +1080,44 @@ const SteelProducts = () => {
     setSimilarProducts(similar);
   }, [newProduct.grade, newProduct.category, newProduct.finish, showAddModal, products]);
 
+  // Fetch dimension presets when category / formType / shape change (only when modal is open)
+  useEffect(() => {
+    if (!showAddModal) return;
+    if (!newProduct.category) {
+      setPresets([]);
+      return;
+    }
+    const fetchPresets = async () => {
+      try {
+        const response = await productService.getPresets(
+          newProduct.category,
+          newProduct.formType || undefined,
+          newProduct.shape || undefined
+        );
+        setPresets(response?.presets || []);
+      } catch {
+        setPresets([]);
+      }
+    };
+    fetchPresets();
+  }, [showAddModal, newProduct.category, newProduct.formType, newProduct.shape]);
+
+  // Apply a dimension preset row to the form fields atomically
+  const applyPreset = (preset) => {
+    setNewProduct((prev) => ({
+      ...prev,
+      selectedPresetId: preset.id,
+      width: preset.width_val || "",
+      height: preset.height_val || "",
+      thickness: preset.thickness_val || "",
+      diameter: preset.diameter_val || "",
+      length: preset.length_val || "",
+      od: preset.od_val || "",
+      nbSize: preset.nb_size_val || "",
+      schedule: preset.schedule_val || "",
+    }));
+  };
+
   // Debounced server-driven canonical name preview
   useEffect(() => {
     if (!showAddModal) return;
@@ -1124,8 +1169,11 @@ const SteelProducts = () => {
     newProduct.diameter,
     newProduct.od,
     newProduct.sizeInch,
+    newProduct.nbSize,
+    newProduct.schedule,
     newProduct.shape,
     newProduct.formType,
+    newProduct.gradeVariant,
   ]);
 
   // Dynamic category groups - only show groups that have matching products
@@ -1540,9 +1588,11 @@ const SteelProducts = () => {
             ? `${newProduct.width}x${newProduct.height}`
             : n(newProduct.width) || n(newProduct.size) || null,
         sizeInch: n(newProduct.sizeInch),
+        nbSize: n(newProduct.nbSize),
         od: n(newProduct.od),
         length: n(newProduct.length),
         thickness: n(newProduct.thickness),
+        schedule: n(newProduct.schedule),
         weight: newProduct.weight,
         description: newProduct.description,
         // currentStock: omitted - computed from inventory_items (GRN approvals / delivery notes)
@@ -1590,8 +1640,12 @@ const SteelProducts = () => {
         diameter: "",
         formType: "",
         shape: "",
+        selectedPresetId: "",
         sizeInch: "",
+        nbSize: "",
         od: "",
+        thickness: "",
+        schedule: "",
         length: "",
         weight: "",
         description: "",
@@ -1889,10 +1943,17 @@ const SteelProducts = () => {
         grade: newProduct.grade,
         finish: newProduct.finish,
         size: newProduct.size,
-        sizeInch: newProduct.sizeInch || "",
-        od: newProduct.od || "",
-        length: newProduct.length || "",
-        thickness: newProduct.thickness,
+        width: newProduct.width || null,
+        height: newProduct.height || null,
+        diameter: newProduct.diameter || null,
+        formType: newProduct.formType || null,
+        shape: newProduct.shape || null,
+        sizeInch: newProduct.sizeInch || null,
+        nbSize: newProduct.nbSize || null,
+        od: newProduct.od || null,
+        length: newProduct.length || null,
+        thickness: newProduct.thickness || null,
+        schedule: newProduct.schedule || null,
         weight: newProduct.weight,
         description: newProduct.description,
         // currentStock: omitted - computed from inventory_items (GRN approvals / delivery notes)
@@ -2976,6 +3037,18 @@ const SteelProducts = () => {
                               ...newProduct,
                               category: cat,
                               productCategory: categoryToProductCategory[cat] || newProduct.productCategory || "",
+                              // Clear all dimension fields and preset on category change
+                              selectedPresetId: "",
+                              formType: "",
+                              shape: "",
+                              width: "",
+                              height: "",
+                              thickness: "",
+                              diameter: "",
+                              od: "",
+                              nbSize: "",
+                              schedule: "",
+                              length: "",
                             });
                             if (validationErrors.category && cat.trim()) {
                               setValidationErrors((prev) => ({ ...prev, category: undefined }));
@@ -3125,7 +3198,120 @@ const SteelProducts = () => {
                         <p className="text-red-500 text-xs mt-1">{validationErrors.finish}</p>
                       )}
                     </div>
+                    {/* BAR sub-selector: form type (round vs flat) */}
+                    {/bar/i.test(newProduct.category || "") && (
+                      <div>
+                        <label
+                          htmlFor="bar-form-type-select"
+                          className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                        >
+                          Bar Form
+                        </label>
+                        <div className="relative">
+                          <select
+                            id="bar-form-type-select"
+                            value={newProduct.formType}
+                            onChange={(e) =>
+                              setNewProduct((prev) => ({
+                                ...prev,
+                                formType: e.target.value,
+                                selectedPresetId: "",
+                                width: "",
+                                height: "",
+                                thickness: "",
+                                diameter: "",
+                              }))
+                            }
+                            className={`w-full px-3 py-2 border rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                          >
+                            <option value="">Any</option>
+                            <option value="round">Round</option>
+                            <option value="flat">Flat</option>
+                          </select>
+                          <ChevronDown
+                            className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* TUBE sub-selector: shape (square vs rectangle) */}
+                    {/tube/i.test(newProduct.category || "") && (
+                      <div>
+                        <label
+                          htmlFor="tube-shape-select"
+                          className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                        >
+                          Tube Shape
+                        </label>
+                        <div className="relative">
+                          <select
+                            id="tube-shape-select"
+                            value={newProduct.shape}
+                            onChange={(e) =>
+                              setNewProduct((prev) => ({
+                                ...prev,
+                                shape: e.target.value,
+                                selectedPresetId: "",
+                                width: "",
+                                height: "",
+                                thickness: "",
+                              }))
+                            }
+                            className={`w-full px-3 py-2 border rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                          >
+                            <option value="">Any</option>
+                            <option value="square">Square</option>
+                            <option value="rectangle">Rectangle</option>
+                          </select>
+                          <ChevronDown
+                            className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Dimension Presets Dropdown */}
+                    {presets.length > 0 && (
+                      <div className="sm:col-span-2">
+                        <label
+                          htmlFor="preset-select"
+                          className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                        >
+                          Dimension Preset
+                        </label>
+                        <div className="relative">
+                          <select
+                            id="preset-select"
+                            value={newProduct.selectedPresetId}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === "__custom__" || val === "") {
+                                setNewProduct((prev) => ({ ...prev, selectedPresetId: val }));
+                              } else {
+                                const preset = presets.find((p) => String(p.id) === String(val));
+                                if (preset) applyPreset(preset);
+                              }
+                            }}
+                            className={`w-full px-3 py-2 border rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                          >
+                            <option value="">Select preset dimensions...</option>
+                            {presets.map((preset) => (
+                              <option key={preset.id} value={preset.id}>
+                                {preset.label}
+                              </option>
+                            ))}
+                            <option value="__custom__">Custom dimensions</option>
+                          </select>
+                          <ChevronDown
+                            className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          />
+                        </div>
+                      </div>
+                    )}
+
                     {/* Dimensions - Dynamic based on category */}
+                    {/* Show custom dimension inputs when: no presets available, or "Custom dimensions" is selected, or a preset is selected (always show for review) */}
                     {/pipe|tube/i.test(newProduct.category || "") ? (
                       <>
                         {/* Pipe/Tube Dimensions */}
