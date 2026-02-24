@@ -345,8 +345,6 @@ const InvoiceForm = ({ onSave }) => {
     [invoice?.status]
   );
 
-  // Track if form has unsaved changes (for navigation warning)
-  const [formDirty, setFormDirty] = useState(false);
   // Removed unused states: showExitConfirmModal, setShowExitConfirmModal, pendingNavigation, setPendingNavigation
 
   // Track the ORIGINAL saved status for isLocked calculation
@@ -358,9 +356,6 @@ const InvoiceForm = ({ onSave }) => {
   const [savedConsumptionsByItemId, setSavedConsumptionsByItemId] = useState({});
   const [_consumptionsFetched, setConsumptionsFetched] = useState(false);
 
-  // Mark form as dirty when user makes meaningful changes (not during initial load/hydration)
-  // formDirty is set explicitly by user actions: adding items (line ~3089), deleting items (line ~3130),
-  // and via handleFieldChange below. This avoids false positives from state initialization.
   const initialLoadDoneRef = useRef(false);
   useEffect(() => {
     // Allow 2 renders for initial hydration (data fetch + state setup)
@@ -370,28 +365,7 @@ const InvoiceForm = ({ onSave }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Reset dirty flag when invoice is saved successfully
-  useEffect(() => {
-    if (createdInvoiceId) {
-      setFormDirty(false);
-    }
-  }, [createdInvoiceId]);
-
-  // Warn before browser close/refresh if there are unsaved changes
-  // Only warn if the form has actual content (customer selected or items added)
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      const hasCustomer = !!invoice?.customer?.id;
-      const hasItems = invoice?.items?.some((item) => item.name || item.productId);
-      if (formDirty && (hasCustomer || hasItems)) {
-        e.preventDefault();
-        e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
-        return e.returnValue;
-      }
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [formDirty, invoice?.customer?.id, invoice?.items]);
+  // Note: beforeunload warning intentionally removed — form auto-saves as draft.
 
   // Keyboard shortcuts for common actions
   useEffect(() => {
@@ -1053,7 +1027,6 @@ const InvoiceForm = ({ onSave }) => {
     notificationService.success(`Added: ${lineItemData.name} (${lineItemData.quantity} ${lineItemData.unit})`);
 
     // Trigger recalculation of totals
-    setFormDirty(true);
   }, []);
 
   /**
@@ -1094,7 +1067,6 @@ const InvoiceForm = ({ onSave }) => {
       });
 
       notificationService.success("Line item deleted");
-      setFormDirty(true);
     },
     [invoice.id, invoice.items]
   );
