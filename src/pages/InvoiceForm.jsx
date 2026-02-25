@@ -148,6 +148,7 @@ const InvoiceForm = ({ onSave }) => {
   const [_isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [_pdfButtonHighlight, setPdfButtonHighlight] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [, setIsValidating] = useState(false);
   // Removed unused state: selectedProductForRow, setSelectedProductForRow
   const [customerSearchInput, setCustomerSearchInput] = useState("");
   const [tradeLicenseStatus, setTradeLicenseStatus] = useState(null);
