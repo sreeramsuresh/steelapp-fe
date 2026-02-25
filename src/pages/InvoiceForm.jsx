@@ -1225,7 +1225,10 @@ const InvoiceForm = ({ onSave }) => {
     const incompleteAllocations = [];
     (invoice.items || []).forEach((item, idx) => {
       if (item.sourceType === "WAREHOUSE") {
-        const allocatedQty = (item.allocations || []).reduce((sum, a) => sum + parseFloat(a.quantity || 0), 0);
+        const allocatedQty = (item.allocations || []).reduce(
+          (sum, a) => sum + parseFloat(a.pcsAllocated ?? a.quantity ?? 0),
+          0
+        );
         const requiredQty = parseFloat(item.quantity) || 0;
 
         if (Math.abs(allocatedQty - requiredQty) > 0.001) {

@@ -133,15 +133,18 @@ export function getInvoiceActionButtonConfig(
         validateInvoiceForDownload(invoice).isValid,
     },
     recordPayment: {
-      enabled: !isDeleted,
+      enabled: !isDeleted && isIssuedStatus,
       tooltip: isDeleted
         ? "Cannot view payments for deleted invoice"
-        : invoice.paymentStatus === "paid"
-          ? "View Payment History"
-          : "Record Payment",
+        : !isIssuedStatus
+          ? "Payment can only be recorded on a Final Tax Invoice"
+          : invoice.paymentStatus === "paid"
+            ? "View Payment History"
+            : "Record Payment",
       isPaid: invoice.paymentStatus === "paid",
       canAddPayment:
         canUpdate &&
+        isIssuedStatus &&
         invoice.paymentStatus !== "paid" &&
         invoice.status !== "cancelled" &&
         (invoice.balanceDue === undefined || invoice.balanceDue > 0),

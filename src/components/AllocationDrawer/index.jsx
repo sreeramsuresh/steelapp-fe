@@ -551,6 +551,9 @@ const AllocationDrawer = ({
         productName: product?.displayName || product?.name || "",
         // Reset allocations when product changes
         selectedAllocations: [],
+        // Reset warehouse selection so autoSelectFirst re-triggers for new product
+        selectedWarehouseId: null,
+        allocationMethod: null,
         // Clear error when product changes
         error: null,
         // Phase 1: Store product UOM and weight information

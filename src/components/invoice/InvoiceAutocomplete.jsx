@@ -28,6 +28,7 @@ const Autocomplete = ({
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
   const prevFilteredOptionsRef = useRef(filteredOptions);
+  const isSelectingRef = useRef(false);
 
   // Reset highlighted index when options change
   useEffect(() => {
@@ -128,6 +129,7 @@ const Autocomplete = ({
   };
 
   const handleOptionSelect = (option) => {
+    isSelectingRef.current = false;
     onChange?.(null, option);
     setIsOpen(false);
     setHighlightedIndex(-1);
@@ -206,7 +208,11 @@ const Autocomplete = ({
           value={inputValue || ""}
           onChange={handleInputChange}
           onFocus={() => setIsOpen(true)}
-          onBlur={() => setTimeout(() => setIsOpen(false), 150)}
+          onBlur={() =>
+            setTimeout(() => {
+              if (!isSelectingRef.current) setIsOpen(false);
+            }, 150)
+          }
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
@@ -248,7 +254,18 @@ const Autocomplete = ({
                 tabIndex={-1}
                 onMouseDown={(e) => {
                   e.preventDefault();
+                  isSelectingRef.current = true;
                   handleOptionSelect(option);
+                }}
+                onClick={() => {
+                  isSelectingRef.current = true;
+                  handleOptionSelect(option);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    isSelectingRef.current = true;
+                    handleOptionSelect(option);
+                  }
                 }}
                 onMouseEnter={() => setHighlightedIndex(index)}
               >
