@@ -37,7 +37,7 @@ function formatDate(d) {
 
 function isExpiringSoon(dateStr) {
   if (!dateStr) return false;
-  const days = (new Date(dateStr) - new Date()) / (1000 * 60 * 60 * 24);
+  const days = (new Date(dateStr) - Date.now()) / (1000 * 60 * 60 * 24);
   return days >= 0 && days <= 90;
 }
 
