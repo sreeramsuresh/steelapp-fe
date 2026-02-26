@@ -73,9 +73,19 @@ if [ -n "$COMPONENT_FILES" ]; then
 
   if [ $? -ne 0 ]; then
     echo ""
-    echo "Case consistency check failed!"
-    echo "Fix snake_case accesses above, or add '// snake-ok' comment to suppress."
-    echo "To update the baseline for intentional additions: node scripts/check-snake-case-access.js --update-baseline"
+    echo "Case consistency check failed! How to fix:"
+    echo ""
+    echo "  Option 1 — Use camelCase (preferred):"
+    echo "    item.invoice_number  →  item.invoiceNumber"
+    echo "    customer.credit_limit  →  customer.creditLimit"
+    echo ""
+    echo "  Option 2 — Suppress a known mapper/safe line:"
+    echo "    Add '// snake-ok' at the end of the offending line"
+    echo "    e.g.: const x = row.some_field; // snake-ok"
+    echo ""
+    echo "  Option 3 — Approve new intentional baseline additions:"
+    echo "    node scripts/check-snake-case-access.js --update-baseline"
+    echo "    (only use this when the field truly comes from a raw DB/proto response)"
     exit 1
   fi
   echo "Case consistency check passed"
