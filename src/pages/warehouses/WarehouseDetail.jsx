@@ -11,6 +11,7 @@ import {
   Building,
   Clock,
   Edit,
+  HelpCircle,
   Layers,
   Mail,
   MapPin,
@@ -239,9 +240,10 @@ const WarehouseDetail = () => {
     setClearConfirm(false);
     try {
       const res = await apiClient.delete(`/warehouses/${id}/locations`);
-      const msg = res.blocked > 0
-        ? `Deleted ${res.deleted} location(s). ${res.blocked} skipped (contain stock).`
-        : `Deleted ${res.deleted} location(s).`;
+      const msg =
+        res.blocked > 0
+          ? `Deleted ${res.deleted} location(s). ${res.blocked} skipped (contain stock).`
+          : `Deleted ${res.deleted} location(s).`;
       notificationService.success(msg);
       setGenResult(null);
       setFilterAisles([]);
@@ -260,9 +262,10 @@ const WarehouseDetail = () => {
         ids: [...selectedLocs],
       });
       const blockedCount = res.blocked?.length ?? 0;
-      const msg = blockedCount > 0
-        ? `Deleted ${res.deleted} location(s). ${blockedCount} skipped (contain stock).`
-        : `Deleted ${res.deleted} location(s).`;
+      const msg =
+        blockedCount > 0
+          ? `Deleted ${res.deleted} location(s). ${blockedCount} skipped (contain stock).`
+          : `Deleted ${res.deleted} location(s).`;
       notificationService.success(msg);
       setSelectedLocs(new Set());
       fetchLocTabData();
@@ -706,7 +709,7 @@ const WarehouseDetail = () => {
             // Group bin map locations by aisle → rack
             const aisleMap = new Map();
             for (const loc of binMapLocations) {
-              const aisleKey = loc.aisle ?? "__rack_only__";
+              const aisleKey = loc.aisle || "__rack_only__";
               if (!aisleMap.has(aisleKey)) aisleMap.set(aisleKey, new Map());
               const rackMap = aisleMap.get(aisleKey);
               if (!rackMap.has(loc.rack)) rackMap.set(loc.rack, []);
@@ -1004,156 +1007,189 @@ const WarehouseDetail = () => {
 
         {activeTab === "locations" && (
           <div className="space-y-6">
-            {/* Generate section */}
-            <div
-              className={`rounded-lg border p-5 ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
-            >
-              <h3
-                className={`text-sm font-semibold mb-4 uppercase tracking-wide ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+            {/* Generate section + Help card */}
+            <div className="flex gap-4 items-start">
+              <div
+                className={`flex-1 min-w-0 rounded-lg border p-5 ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
               >
-                {locTabData.length > 0 ? "Add / Append Bins" : "Generate Locations"}
-              </h3>
-              <div className="flex flex-wrap gap-4 mb-4">
-                <div>
-                  <label
-                    htmlFor="gen-aisles"
-                    className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                  >
-                    Aisles
-                  </label>
-                  <input
-                    id="gen-aisles"
-                    type="number"
-                    min="0"
-                    max="26"
-                    value={genAisles}
-                    onChange={(e) => {
-                      setGenAisles(e.target.value);
-                      setGenOverrides({});
-                      setGenResult(null);
-                    }}
-                    className={`w-20 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
-                  />
+                <h3
+                  className={`text-sm font-semibold mb-4 uppercase tracking-wide ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
+                  {locTabData.length > 0 ? "Add / Append Bins" : "Generate Locations"}
+                </h3>
+                <div className="flex flex-wrap gap-4 mb-4">
+                  <div>
+                    <label
+                      htmlFor="gen-aisles"
+                      className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    >
+                      Aisles
+                    </label>
+                    <input
+                      id="gen-aisles"
+                      type="number"
+                      min="0"
+                      max="26"
+                      value={genAisles}
+                      onChange={(e) => {
+                        setGenAisles(e.target.value);
+                        setGenOverrides({});
+                        setGenResult(null);
+                      }}
+                      className={`w-20 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="gen-racks"
+                      className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    >
+                      Racks / Aisle
+                    </label>
+                    <input
+                      id="gen-racks"
+                      type="number"
+                      min="1"
+                      max="99"
+                      value={genRacks}
+                      onChange={(e) => {
+                        setGenRacks(e.target.value);
+                        setGenOverrides({});
+                        setGenResult(null);
+                      }}
+                      className={`w-20 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="gen-bins"
+                      className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    >
+                      Default bins / rack
+                    </label>
+                    <input
+                      id="gen-bins"
+                      type="number"
+                      min="1"
+                      max="99"
+                      value={genBins}
+                      onChange={(e) => {
+                        setGenBins(e.target.value);
+                        setGenResult(null);
+                      }}
+                      className={`w-24 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label
-                    htmlFor="gen-racks"
-                    className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                  >
-                    Racks / Aisle
-                  </label>
-                  <input
-                    id="gen-racks"
-                    type="number"
-                    min="1"
-                    max="99"
-                    value={genRacks}
-                    onChange={(e) => {
-                      setGenRacks(e.target.value);
-                      setGenOverrides({});
-                      setGenResult(null);
-                    }}
-                    className={`w-20 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="gen-bins"
-                    className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                  >
-                    Default bins / rack
-                  </label>
-                  <input
-                    id="gen-bins"
-                    type="number"
-                    min="1"
-                    max="99"
-                    value={genBins}
-                    onChange={(e) => {
-                      setGenBins(e.target.value);
-                      setGenResult(null);
-                    }}
-                    className={`w-24 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
-                  />
-                </div>
-              </div>
 
-              {/* Override grid */}
-              {parseInt(genRacks, 10) >= 1 && (
-                <div className="mb-4">
-                  <p className={`text-xs mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                    Override bins per rack (optional):
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {parseInt(genAisles, 10) === 0
-                      ? Array.from({ length: Math.min(parseInt(genRacks, 10) || 0, 99) }, (_, ri) => {
-                          const key = `A0-R${ri + 1}`;
-                          return (
-                            <div key={key} className="flex items-center gap-1">
-                              <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                                {key}:
-                              </span>
-                              <input
-                                type="number"
-                                min="1"
-                                max="99"
-                                placeholder={genBins}
-                                value={genOverrides[key] || ""}
-                                onChange={(e) => setGenOverrides((o) => ({ ...o, [key]: e.target.value }))}
-                                className={`w-14 text-xs px-1 py-0.5 rounded border ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"}`}
-                              />
-                            </div>
-                          );
-                        })
-                      : Array.from({ length: Math.min(parseInt(genAisles, 10) || 0, 26) }, (_, ai) => {
-                          const aisle = String.fromCharCode(65 + ai);
-                          return Array.from({ length: Math.min(parseInt(genRacks, 10) || 0, 99) }, (_, ri) => {
-                            const rack = `R${ri + 1}`;
-                            const key = `${aisle}-${rack}`;
+                {/* Override grid */}
+                {parseInt(genRacks, 10) >= 1 && (
+                  <div className="mb-4">
+                    <p className={`text-xs mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                      Override bins per rack (optional):
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {parseInt(genAisles, 10) === 0
+                        ? Array.from({ length: Math.min(parseInt(genRacks, 10) || 0, 99) }, (_, ri) => {
+                            const key = `A0-R${ri + 1}`;
                             return (
                               <div key={key} className="flex items-center gap-1">
-                                <span className={`text-xs font-mono ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                                  {key}
+                                <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                                  {key}:
                                 </span>
                                 <input
                                   type="number"
                                   min="1"
                                   max="99"
-                                  value={genOverrides[key] ?? genBins}
-                                  onChange={(e) => {
-                                    setGenOverrides((prev) => ({ ...prev, [key]: e.target.value }));
-                                    setGenResult(null);
-                                  }}
-                                  className={`w-14 px-1.5 py-1 text-xs rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                                  placeholder={genBins}
+                                  value={genOverrides[key] || ""}
+                                  onChange={(e) => setGenOverrides((o) => ({ ...o, [key]: e.target.value }))}
+                                  className={`w-14 text-xs px-1 py-0.5 rounded border ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"}`}
                                 />
                               </div>
                             );
-                          });
-                        })}
+                          })
+                        : Array.from({ length: Math.min(parseInt(genAisles, 10) || 0, 26) }, (_, ai) => {
+                            const aisle = String.fromCharCode(65 + ai);
+                            return Array.from({ length: Math.min(parseInt(genRacks, 10) || 0, 99) }, (_, ri) => {
+                              const rack = `R${ri + 1}`;
+                              const key = `${aisle}-${rack}`;
+                              return (
+                                <div key={key} className="flex items-center gap-1">
+                                  <span
+                                    className={`text-xs font-mono ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                  >
+                                    {key}
+                                  </span>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    max="99"
+                                    value={genOverrides[key] ?? genBins}
+                                    onChange={(e) => {
+                                      setGenOverrides((prev) => ({ ...prev, [key]: e.target.value }));
+                                      setGenResult(null);
+                                    }}
+                                    className={`w-14 px-1.5 py-1 text-xs rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                                  />
+                                </div>
+                              );
+                            });
+                          })}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              <div className="flex items-center gap-4">
-                <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                  Preview: <strong>{computePreview()}</strong> locations total
-                </span>
-                <button
-                  type="button"
-                  onClick={handleGenerate}
-                  disabled={genLoading}
-                  className="px-4 py-1.5 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-60"
-                >
-                  {genLoading ? "Adding..." : locTabData.length > 0 ? "Append Bins" : "Generate"}
-                </button>
+                <div className="flex items-center gap-4">
+                  <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                    Preview: <strong>{computePreview()}</strong> locations total
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleGenerate}
+                    disabled={genLoading}
+                    className="px-4 py-1.5 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-60"
+                  >
+                    {genLoading ? "Adding..." : locTabData.length > 0 ? "Append Bins" : "Generate"}
+                  </button>
+                </div>
+
+                {genResult && (
+                  <p className={`mt-3 text-sm ${isDarkMode ? "text-green-400" : "text-green-600"}`}>
+                    ✓ Generated {genResult.generated} new, {genResult.skipped} skipped (of {genResult.total} total)
+                  </p>
+                )}
               </div>
 
-              {genResult && (
-                <p className={`mt-3 text-sm ${isDarkMode ? "text-green-400" : "text-green-600"}`}>
-                  ✓ Generated {genResult.generated} new, {genResult.skipped} skipped (of {genResult.total} total)
-                </p>
-              )}
+              {/* Help card */}
+              <div
+                className={`w-64 flex-shrink-0 rounded-lg border p-4 ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
+              >
+                <h4
+                  className={`text-xs font-semibold mb-3 flex items-center gap-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
+                  <HelpCircle size={13} className="text-teal-500" />
+                  How it works
+                </h4>
+                <ul className={`space-y-2.5 text-xs leading-relaxed ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <li>
+                    Set <strong className={isDarkMode ? "text-gray-200" : "text-gray-700"}>Aisles</strong>,{" "}
+                    <strong className={isDarkMode ? "text-gray-200" : "text-gray-700"}>Racks/Aisle</strong>, and{" "}
+                    <strong className={isDarkMode ? "text-gray-200" : "text-gray-700"}>Bins/Rack</strong>, then click{" "}
+                    <strong className={isDarkMode ? "text-gray-200" : "text-gray-700"}>Generate</strong> to create all
+                    bin locations at once.
+                  </li>
+                  <li>Use the override grid to give specific racks a different bin count.</li>
+                  <li>
+                    <strong className={isDarkMode ? "text-gray-200" : "text-gray-700"}>Adding more bins later?</strong>{" "}
+                    Just increase the count and click{" "}
+                    <strong className={isDarkMode ? "text-gray-200" : "text-gray-700"}>Append Bins</strong> — existing
+                    locations are preserved. Only new ones are created.
+                  </li>
+                </ul>
+              </div>
             </div>
+            {/* end flex row */}
 
             {/* Existing locations table */}
             <div
@@ -1161,18 +1197,23 @@ const WarehouseDetail = () => {
             >
               {(() => {
                 // Derive available aisles + racks from data
-                const allAisles = [...new Set(locTabData.map((l) => l.aisle ?? "__rack_only__"))].sort((a, b) => {
+                const allAisles = [...new Set(locTabData.map((l) => l.aisle || "__rack_only__"))].sort((a, b) => {
                   const la = a === "__rack_only__" ? "A0" : a;
                   const lb = b === "__rack_only__" ? "A0" : b;
                   return la.localeCompare(lb, undefined, { numeric: true });
                 });
-                const availableRacks = filterAisles.length > 0
-                  ? [...new Set(locTabData.filter((l) => filterAisles.includes(l.aisle ?? "__rack_only__")).map((l) => l.rack))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-                  : [];
+                const availableRacks =
+                  filterAisles.length > 0
+                    ? [
+                        ...new Set(
+                          locTabData.filter((l) => filterAisles.includes(l.aisle || "__rack_only__")).map((l) => l.rack)
+                        ),
+                      ].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+                    : [];
 
                 // Filtered data for count + scoped clear
                 const filteredData = locTabData.filter((l) => {
-                  const aisleKey = l.aisle ?? "__rack_only__";
+                  const aisleKey = l.aisle || "__rack_only__";
                   if (filterAisles.length > 0 && !filterAisles.includes(aisleKey)) return false;
                   if (filterRacks.length > 0 && !filterRacks.includes(l.rack)) return false;
                   return true;
@@ -1181,7 +1222,7 @@ const WarehouseDetail = () => {
                 // Scoped clear label
                 const clearLabel = (() => {
                   if (filterAisles.length === 0) return "Clear All";
-                  const aisleNames = filterAisles.map((a) => a === "__rack_only__" ? "A0" : a).join(", ");
+                  const aisleNames = filterAisles.map((a) => (a === "__rack_only__" ? "A0" : a)).join(", ");
                   if (filterRacks.length === 0) return `Clear Aisle ${aisleNames}`;
                   return `Clear Aisle ${aisleNames} · ${filterRacks.join(", ")}`;
                 })();
@@ -1189,46 +1230,70 @@ const WarehouseDetail = () => {
                 // Confirm message with count
                 const confirmMsg = (() => {
                   if (filterAisles.length === 0) return `Delete all ${filteredData.length} locations?`;
-                  const aisleNames = filterAisles.map((a) => a === "__rack_only__" ? "A0" : a).join(" & ");
+                  const aisleNames = filterAisles.map((a) => (a === "__rack_only__" ? "A0" : a)).join(" & ");
                   if (filterRacks.length === 0) return `Delete all ${filteredData.length} bins in Aisle ${aisleNames}?`;
                   return `Delete all ${filteredData.length} bins in Aisle ${aisleNames} · ${filterRacks.join(", ")}?`;
                 })();
 
                 const toggleAisle = (a) => {
-                  setFilterAisles((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]);
+                  setFilterAisles((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]));
                   setFilterRacks([]);
                 };
-                const toggleRack = (r) => setFilterRacks((prev) => prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]);
+                const toggleRack = (r) =>
+                  setFilterRacks((prev) => (prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]));
 
                 return (
                   <>
                     {/* Header row */}
-                    <div className={`flex items-center justify-between p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                    <div
+                      className={`flex items-center justify-between p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                    >
                       <h3 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                        Existing Locations ({locTabData.length}){filteredData.length !== locTabData.length && <span className={`ml-2 text-xs font-normal ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>· {filteredData.length} shown</span>}
+                        Existing Locations ({locTabData.length})
+                        {filteredData.length !== locTabData.length && (
+                          <span
+                            className={`ml-2 text-xs font-normal ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          >
+                            · {filteredData.length} shown
+                          </span>
+                        )}
                       </h3>
                       <div className="flex items-center gap-2">
                         {filteredData.length > 0 && !clearConfirm && (
-                          <button type="button" onClick={() => setClearConfirm(true)}
-                            className="flex items-center gap-1 text-sm px-3 py-1.5 border border-red-500 text-red-500 rounded-lg hover:bg-red-500 hover:text-white">
+                          <button
+                            type="button"
+                            onClick={() => setClearConfirm(true)}
+                            className="flex items-center gap-1 text-sm px-3 py-1.5 border border-red-500 text-red-500 rounded-lg hover:bg-red-500 hover:text-white"
+                          >
                             {clearLabel}
                           </button>
                         )}
                         {clearConfirm && (
                           <div className="flex items-center gap-2">
-                            <span className={`text-sm ${isDarkMode ? "text-red-400" : "text-red-600"}`}>{confirmMsg}</span>
-                            <button type="button" onClick={handleClearLocations}
-                              className="text-sm px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                            <span className={`text-sm ${isDarkMode ? "text-red-400" : "text-red-600"}`}>
+                              {confirmMsg}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={handleClearLocations}
+                              className="text-sm px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                            >
                               Yes, delete
                             </button>
-                            <button type="button" onClick={() => setClearConfirm(false)}
-                              className={`text-sm px-3 py-1.5 rounded-lg border ${isDarkMode ? "border-gray-600 text-gray-300 hover:bg-gray-700" : "border-gray-300 text-gray-600 hover:bg-gray-100"}`}>
+                            <button
+                              type="button"
+                              onClick={() => setClearConfirm(false)}
+                              className={`text-sm px-3 py-1.5 rounded-lg border ${isDarkMode ? "border-gray-600 text-gray-300 hover:bg-gray-700" : "border-gray-300 text-gray-600 hover:bg-gray-100"}`}
+                            >
                               Cancel
                             </button>
                           </div>
                         )}
-                        <button type="button" onClick={() => setAddLocForm({ aisle: "", rack: "", bin: "" })}
-                          className="flex items-center gap-1 text-sm px-3 py-1.5 border border-teal-600 text-teal-500 rounded-lg hover:bg-teal-600 hover:text-white">
+                        <button
+                          type="button"
+                          onClick={() => setAddLocForm({ aisle: "", rack: "", bin: "" })}
+                          className="flex items-center gap-1 text-sm px-3 py-1.5 border border-teal-600 text-teal-500 rounded-lg hover:bg-teal-600 hover:text-white"
+                        >
                           + Add
                         </button>
                       </div>
@@ -1236,16 +1301,26 @@ const WarehouseDetail = () => {
 
                     {/* Filter chips row */}
                     {allAisles.length > 0 && (
-                      <div className={`flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 border-b ${isDarkMode ? "border-gray-700 bg-gray-800/30" : "border-gray-100 bg-gray-50"}`}>
+                      <div
+                        className={`flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 border-b ${isDarkMode ? "border-gray-700 bg-gray-800/30" : "border-gray-100 bg-gray-50"}`}
+                      >
                         {/* Aisle chips */}
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className={`text-xs font-medium mr-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Aisle:</span>
+                          <span
+                            className={`text-xs font-medium mr-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                          >
+                            Aisle:
+                          </span>
                           {allAisles.map((a) => {
                             const label = a === "__rack_only__" ? "A0" : a;
                             const active = filterAisles.includes(a);
                             return (
-                              <button key={a} type="button" onClick={() => toggleAisle(a)}
-                                className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${active ? "bg-teal-600 border-teal-600 text-white" : isDarkMode ? "border-gray-600 text-gray-300 hover:border-teal-500" : "border-gray-300 text-gray-600 hover:border-teal-500"}`}>
+                              <button
+                                key={a}
+                                type="button"
+                                onClick={() => toggleAisle(a)}
+                                className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${active ? "bg-teal-600 border-teal-600 text-white" : isDarkMode ? "border-gray-600 text-gray-300 hover:border-teal-500" : "border-gray-300 text-gray-600 hover:border-teal-500"}`}
+                              >
                                 {label}
                               </button>
                             );
@@ -1255,12 +1330,20 @@ const WarehouseDetail = () => {
                         {/* Rack chips — only when aisle selected */}
                         {filterAisles.length > 0 && availableRacks.length > 0 && (
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className={`text-xs font-medium mr-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Rack:</span>
+                            <span
+                              className={`text-xs font-medium mr-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                            >
+                              Rack:
+                            </span>
                             {availableRacks.map((r) => {
                               const active = filterRacks.includes(r);
                               return (
-                                <button key={r} type="button" onClick={() => toggleRack(r)}
-                                  className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${active ? "bg-teal-600 border-teal-600 text-white" : isDarkMode ? "border-gray-600 text-gray-300 hover:border-teal-500" : "border-gray-300 text-gray-600 hover:border-teal-500"}`}>
+                                <button
+                                  key={r}
+                                  type="button"
+                                  onClick={() => toggleRack(r)}
+                                  className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${active ? "bg-teal-600 border-teal-600 text-white" : isDarkMode ? "border-gray-600 text-gray-300 hover:border-teal-500" : "border-gray-300 text-gray-600 hover:border-teal-500"}`}
+                                >
                                   {r}
                                 </button>
                               );
@@ -1270,8 +1353,14 @@ const WarehouseDetail = () => {
 
                         {/* Clear filters */}
                         {(filterAisles.length > 0 || filterRacks.length > 0) && (
-                          <button type="button" onClick={() => { setFilterAisles([]); setFilterRacks([]); }}
-                            className={`text-xs underline ${isDarkMode ? "text-gray-400 hover:text-gray-200" : "text-gray-500 hover:text-gray-700"}`}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFilterAisles([]);
+                              setFilterRacks([]);
+                            }}
+                            className={`text-xs underline ${isDarkMode ? "text-gray-400 hover:text-gray-200" : "text-gray-500 hover:text-gray-700"}`}
+                          >
                             Clear filters
                           </button>
                         )}
@@ -1363,7 +1452,7 @@ const WarehouseDetail = () => {
                 (() => {
                   // Apply active filters
                   const visibleData = locTabData.filter((l) => {
-                    const aisleKey = l.aisle ?? "__rack_only__";
+                    const aisleKey = l.aisle || "__rack_only__";
                     if (filterAisles.length > 0 && !filterAisles.includes(aisleKey)) return false;
                     if (filterRacks.length > 0 && !filterRacks.includes(l.rack)) return false;
                     return true;
@@ -1371,7 +1460,7 @@ const WarehouseDetail = () => {
                   // Group locations by aisle → rack
                   const aisleMap = new Map();
                   for (const loc of visibleData) {
-                    const aisleKey = loc.aisle ?? "__rack_only__";
+                    const aisleKey = loc.aisle || "__rack_only__";
                     if (!aisleMap.has(aisleKey)) aisleMap.set(aisleKey, new Map());
                     const rackMap = aisleMap.get(aisleKey);
                     if (!rackMap.has(loc.rack)) rackMap.set(loc.rack, []);
@@ -1410,7 +1499,9 @@ const WarehouseDetail = () => {
                                     </div>
                                     <div className="flex flex-wrap gap-1.5">
                                       {(() => {
-                                        const sortedBins = [...bins].sort((a, b) => a.bin.localeCompare(b.bin, undefined, { numeric: true }));
+                                        const sortedBins = [...bins].sort((a, b) =>
+                                          a.bin.localeCompare(b.bin, undefined, { numeric: true })
+                                        );
                                         const binMap = new Map(sortedBins.map((l) => [l.bin, l]));
                                         // Compute full B1..Bmax range to preserve gaps where bins were deleted
                                         const maxBinNum = sortedBins.reduce((max, l) => {
@@ -1427,7 +1518,9 @@ const WarehouseDetail = () => {
                                                 key={binLabel}
                                                 title="Empty slot (bin deleted)"
                                                 className={`text-sm px-3 py-1.5 rounded font-mono border border-dashed ${
-                                                  isDarkMode ? "border-gray-700 text-gray-700" : "border-gray-200 text-gray-300"
+                                                  isDarkMode
+                                                    ? "border-gray-700 text-gray-700"
+                                                    : "border-gray-200 text-gray-300"
                                                 }`}
                                               >
                                                 {binLabel}
@@ -1440,7 +1533,13 @@ const WarehouseDetail = () => {
                                             <div key={loc.id} className="group relative">
                                               <button
                                                 type="button"
-                                                title={selected ? "Click to deselect" : active ? "Click to select" : "Inactive — click to select"}
+                                                title={
+                                                  selected
+                                                    ? "Click to deselect"
+                                                    : active
+                                                      ? "Click to select"
+                                                      : "Inactive — click to select"
+                                                }
                                                 onClick={() => {
                                                   setSelectedLocs((prev) => {
                                                     const next = new Set(prev);
@@ -1466,11 +1565,18 @@ const WarehouseDetail = () => {
                                               <button
                                                 type="button"
                                                 title={active ? "Deactivate" : "Reactivate"}
-                                                onClick={(e) => { e.stopPropagation(); handleToggleLocActive(loc); }}
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  handleToggleLocActive(loc);
+                                                }}
                                                 className={`absolute top-0 right-0 bottom-0 px-1.5 flex items-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r border-l ${
                                                   active
-                                                    ? isDarkMode ? "border-teal-700 text-red-400 hover:bg-red-900/30" : "border-teal-300 text-red-500 hover:bg-red-50"
-                                                    : isDarkMode ? "border-gray-700 text-teal-400 hover:bg-teal-900/30" : "border-gray-200 text-teal-600 hover:bg-teal-50"
+                                                    ? isDarkMode
+                                                      ? "border-teal-700 text-red-400 hover:bg-red-900/30"
+                                                      : "border-teal-300 text-red-500 hover:bg-red-50"
+                                                    : isDarkMode
+                                                      ? "border-gray-700 text-teal-400 hover:bg-teal-900/30"
+                                                      : "border-gray-200 text-teal-600 hover:bg-teal-50"
                                                 }`}
                                               >
                                                 <Power className="w-3.5 h-3.5" />

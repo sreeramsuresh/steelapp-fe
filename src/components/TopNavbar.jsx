@@ -57,9 +57,30 @@ const formatNotificationTime = (time) => {
 };
 
 const SEARCH_GROUPS = [
-  { key: "invoices", label: "Invoices", icon: FileText, path: (item) => `/app/invoices/${item.id}`, display: (item) => item.invoice_number || item.invoiceNumber, sub: (item) => item.customer_name || item.customer?.name || "—" },
-  { key: "customers", label: "Customers", icon: Users, path: (item) => `/app/customers/${item.id}`, display: (item) => item.name, sub: (item) => item.email || item.city || "—" },
-  { key: "products", label: "Products", icon: Package, path: (item) => `/app/products/${item.id}`, display: (item) => item.name || item.product_name, sub: (item) => item.category || item.form || "—" },
+  {
+    key: "invoices",
+    label: "Invoices",
+    icon: FileText,
+    path: (item) => `/app/invoices/${item.id}`,
+    display: (item) => item.invoice_number || item.invoiceNumber,
+    sub: (item) => item.customer_name || item.customer?.name || "—",
+  },
+  {
+    key: "customers",
+    label: "Customers",
+    icon: Users,
+    path: (item) => `/app/customers/${item.id}`,
+    display: (item) => item.name,
+    sub: (item) => item.email || item.city || "—",
+  },
+  {
+    key: "products",
+    label: "Products",
+    icon: Package,
+    path: (item) => `/app/products/${item.id}`,
+    display: (item) => item.name || item.product_name,
+    sub: (item) => item.category || item.form || "—",
+  },
 ];
 
 const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage = "Dashboard" }) => {
@@ -246,7 +267,10 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
               }}
               className="flex items-center rounded-2xl border transition-all duration-200"
             >
-              <div style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }} className="pl-3 pointer-events-none flex-shrink-0">
+              <div
+                style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }}
+                className="pl-3 pointer-events-none flex-shrink-0"
+              >
                 {searchLoading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
               </div>
               <input
@@ -257,14 +281,22 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                 style={{ color: isDarkMode ? "#ffffff" : "#111827", backgroundColor: "transparent" }}
                 className="w-full pl-2 pr-3 py-2.5 border-none outline-none text-sm placeholder-gray-400"
                 value={searchQuery}
-                onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); setActiveIndex(-1); }}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setSearchOpen(true);
+                  setActiveIndex(-1);
+                }}
                 onFocus={() => setSearchOpen(true)}
                 onKeyDown={handleSearchKeyDown}
               />
               {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => { setSearchQuery(""); setSearchOpen(false); setSearchResults({ invoices: [], customers: [], products: [] }); }}
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSearchOpen(false);
+                    setSearchResults({ invoices: [], customers: [], products: [] });
+                  }}
                   style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }}
                   className="pr-3 hover:opacity-75 text-lg leading-none flex-shrink-0"
                   aria-label="Clear search"
@@ -286,11 +318,15 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                 {searchLoading && flatResults.length === 0 ? (
                   <div className="flex items-center justify-center gap-2 py-8">
                     <Loader2 size={18} className="animate-spin text-teal-600" />
-                    <span style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }} className="text-sm">Searching…</span>
+                    <span style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }} className="text-sm">
+                      Searching…
+                    </span>
                   </div>
                 ) : flatResults.length === 0 ? (
                   <div className="py-8 text-center">
-                    <p style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }} className="text-sm">No results for "{searchQuery.trim()}"</p>
+                    <p style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }} className="text-sm">
+                      No results for "{searchQuery.trim()}"
+                    </p>
                   </div>
                 ) : (
                   <div className="py-1 max-h-[480px] overflow-y-auto">
@@ -308,7 +344,9 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                             {group.label}
                           </div>
                           {items.map((item) => {
-                            const globalIdx = flatResults.findIndex((r) => r.group.key === group.key && r.item === item);
+                            const globalIdx = flatResults.findIndex(
+                              (r) => r.group.key === group.key && r.item === item
+                            );
                             const isActive = activeIndex === globalIdx;
                             return (
                               <button
@@ -325,7 +363,12 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                                 <group.icon size={14} className="flex-shrink-0 text-teal-600" />
                                 <div className="min-w-0">
                                   <div className="text-sm font-medium truncate">{group.display(item)}</div>
-                                  <div style={{ color: isDarkMode ? "#6b7280" : "#9ca3af" }} className="text-xs truncate">{group.sub(item)}</div>
+                                  <div
+                                    style={{ color: isDarkMode ? "#6b7280" : "#9ca3af" }}
+                                    className="text-xs truncate"
+                                  >
+                                    {group.sub(item)}
+                                  </div>
                                 </div>
                               </button>
                             );
@@ -342,7 +385,8 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                     onMouseEnter={() => setActiveIndex(flatResults.length)}
                     onClick={handleViewAll}
                     style={{
-                      backgroundColor: activeIndex === flatResults.length ? (isDarkMode ? "#2d3748" : "#f0fdf4") : "transparent",
+                      backgroundColor:
+                        activeIndex === flatResults.length ? (isDarkMode ? "#2d3748" : "#f0fdf4") : "transparent",
                       color: isDarkMode ? "#34d399" : "#0d9488",
                     }}
                     className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium transition-colors duration-100"
