@@ -2853,12 +2853,9 @@ const InvoiceForm = ({ onSave }) => {
                                                 {parseFloat(alloc.quantity || alloc.quantityConsumed || 0).toFixed(0)}{" "}
                                                 kg
                                                 {alloc.binLabel && alloc.binLabel !== "UNASSIGNED" && (
-                                                    <span className="ml-1 font-mono text-teal-500">
-                                                      {alloc.binLabel}
-                                                    </span>
-                                                  )}
-                                                {(alloc.binUnassigned === true ||
-                                                  alloc.binLabel === "UNASSIGNED") && (
+                                                  <span className="ml-1 font-mono text-teal-500">{alloc.binLabel}</span>
+                                                )}
+                                                {(alloc.binUnassigned === true || alloc.binLabel === "UNASSIGNED") && (
                                                   <span className="ml-1 px-1 py-0.5 rounded text-[10px] font-medium bg-orange-500/20 text-orange-400">
                                                     Not put away
                                                   </span>
