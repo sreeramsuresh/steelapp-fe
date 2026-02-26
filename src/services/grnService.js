@@ -208,7 +208,7 @@ const grnService = {
   async getById(id) {
     try {
       const response = await apiClient.get(`/grns/${id}`);
-      return transformGRNFromServer(response);
+      return transformGRNFromServer(response?.grn || response);
     } catch (error) {
       console.error("[GRNService] getById failed:", error);
       throw error;
