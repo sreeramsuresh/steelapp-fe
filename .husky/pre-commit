@@ -69,9 +69,22 @@ COMPONENT_FILES=$(echo "$STAGED_FILES" | grep -E '^src/(components|pages)/.+\.(j
 if [ -n "$COMPONENT_FILES" ]; then
   echo "[3/3] Running case consistency check..."
 
-  node scripts/check-snake-case-access.js
+  CASE_TMP="$(mktemp -t snakecase.XXXXXX 2>/dev/null || mktemp)"
 
-  if [ $? -ne 0 ]; then
+  set +e
+  node scripts/check-snake-case-access.js >"$CASE_TMP" 2>&1
+  CASE_EXIT=$?
+  set -e
+
+  if [ $CASE_EXIT -ne 0 ]; then
+    # Print only the "NEW violations" section if present; otherwise full output
+    if grep -q "^NEW violations" "$CASE_TMP"; then
+      awk 'BEGIN{p=0} /^NEW violations/{p=1} p{print}' "$CASE_TMP"
+    else
+      cat "$CASE_TMP"
+    fi
+
+    rm -f "$CASE_TMP"
     echo ""
     echo "Case consistency check failed!"
     echo ""
@@ -99,6 +112,8 @@ if [ -n "$COMPONENT_FILES" ]; then
     echo "     (approves the violation forever, defeating the purpose of this check)"
     exit 1
   fi
+
+  rm -f "$CASE_TMP"
   echo "Case consistency check passed"
 else
   echo "[3/3] No component/page files staged, skipping case consistency check"
