@@ -77,7 +77,7 @@ const WarehouseDetail = () => {
   const [genResult, setGenResult] = useState(null);
   const [filterAisles, setFilterAisles] = useState([]);
   const [filterRacks, setFilterRacks] = useState([]);
-  const [addLocForm, setAddLocForm] = useState(null);
+  const [addLocForm, setAddLocForm] = useState(null); // { aisle, rack, bin, maxWeightKg }
   const [clearConfirm, setClearConfirm] = useState(false);
   const [selectedLocs, setSelectedLocs] = useState(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
@@ -285,6 +285,7 @@ const WarehouseDetail = () => {
         rack: addLocForm.rack,
         bin: addLocForm.bin,
         is_active: true,
+        max_weight_kg: addLocForm.maxWeightKg ? parseFloat(addLocForm.maxWeightKg) : null,
       });
       setAddLocForm(null);
       fetchLocTabData();
@@ -1392,6 +1393,15 @@ const WarehouseDetail = () => {
                     onChange={(e) => setAddLocForm((f) => ({ ...f, bin: e.target.value }))}
                     className={`w-20 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                   />
+                  <input
+                    type="number"
+                    placeholder="Max kg (opt)"
+                    min="0"
+                    step="0.01"
+                    value={addLocForm.maxWeightKg || ""}
+                    onChange={(e) => setAddLocForm((f) => ({ ...f, maxWeightKg: e.target.value }))}
+                    className={`w-28 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                  />
                   <button
                     type="button"
                     onClick={handleSaveAddLoc}
@@ -1529,58 +1539,97 @@ const WarehouseDetail = () => {
                                           }
                                           const active = loc.isActive || loc.is_active;
                                           const selected = selectedLocs.has(loc.id);
+                                          const capPct = loc.capacityPct;
+                                          const capColor =
+                                            capPct == null
+                                              ? null
+                                              : capPct > 90
+                                                ? "bg-red-500"
+                                                : capPct > 75
+                                                  ? "bg-amber-400"
+                                                  : "bg-green-500";
                                           return (
-                                            <div key={loc.id} className="group relative">
-                                              <button
-                                                type="button"
-                                                title={
-                                                  selected
-                                                    ? "Click to deselect"
-                                                    : active
-                                                      ? "Click to select"
-                                                      : "Inactive — click to select"
-                                                }
-                                                onClick={() => {
-                                                  setSelectedLocs((prev) => {
-                                                    const next = new Set(prev);
-                                                    if (next.has(loc.id)) next.delete(loc.id);
-                                                    else next.add(loc.id);
-                                                    return next;
-                                                  });
-                                                }}
-                                                className={`text-sm px-3 py-1.5 pr-7 rounded font-mono border transition-all ${
-                                                  selected
-                                                    ? "border-red-500 bg-red-500/10 text-red-500 ring-1 ring-red-500/40"
-                                                    : active
+                                            <div key={loc.id} className="group relative flex flex-col gap-0.5">
+                                              <div className="relative">
+                                                <button
+                                                  type="button"
+                                                  title={
+                                                    selected
+                                                      ? "Click to deselect"
+                                                      : active
+                                                        ? "Click to select"
+                                                        : "Inactive — click to select"
+                                                  }
+                                                  onClick={() => {
+                                                    setSelectedLocs((prev) => {
+                                                      const next = new Set(prev);
+                                                      if (next.has(loc.id)) next.delete(loc.id);
+                                                      else next.add(loc.id);
+                                                      return next;
+                                                    });
+                                                  }}
+                                                  className={`text-sm px-3 py-1.5 pr-7 rounded font-mono border transition-all ${
+                                                    selected
+                                                      ? "border-red-500 bg-red-500/10 text-red-500 ring-1 ring-red-500/40"
+                                                      : active
+                                                        ? isDarkMode
+                                                          ? "border-teal-700 bg-teal-900/20 text-teal-400 hover:border-teal-500"
+                                                          : "border-teal-300 bg-teal-50 text-teal-700 hover:border-teal-500"
+                                                        : isDarkMode
+                                                          ? "border-gray-700 bg-gray-800/40 text-gray-500 hover:border-gray-600"
+                                                          : "border-gray-200 bg-gray-100 text-gray-400 hover:border-gray-400"
+                                                  }`}
+                                                >
+                                                  {loc.bin}
+                                                  {loc.hasUnknownWeight && (
+                                                    <span
+                                                      title="Some stock has unknown weight"
+                                                      className="ml-1 text-amber-400"
+                                                    >
+                                                      ⚠
+                                                    </span>
+                                                  )}
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  title={active ? "Deactivate" : "Reactivate"}
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleToggleLocActive(loc);
+                                                  }}
+                                                  className={`absolute top-0 right-0 bottom-0 px-1.5 flex items-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r border-l ${
+                                                    active
                                                       ? isDarkMode
-                                                        ? "border-teal-700 bg-teal-900/20 text-teal-400 hover:border-teal-500"
-                                                        : "border-teal-300 bg-teal-50 text-teal-700 hover:border-teal-500"
+                                                        ? "border-teal-700 text-red-400 hover:bg-red-900/30"
+                                                        : "border-teal-300 text-red-500 hover:bg-red-50"
                                                       : isDarkMode
-                                                        ? "border-gray-700 bg-gray-800/40 text-gray-500 hover:border-gray-600"
-                                                        : "border-gray-200 bg-gray-100 text-gray-400 hover:border-gray-400"
-                                                }`}
-                                              >
-                                                {loc.bin}
-                                              </button>
-                                              <button
-                                                type="button"
-                                                title={active ? "Deactivate" : "Reactivate"}
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  handleToggleLocActive(loc);
-                                                }}
-                                                className={`absolute top-0 right-0 bottom-0 px-1.5 flex items-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r border-l ${
-                                                  active
-                                                    ? isDarkMode
-                                                      ? "border-teal-700 text-red-400 hover:bg-red-900/30"
-                                                      : "border-teal-300 text-red-500 hover:bg-red-50"
-                                                    : isDarkMode
-                                                      ? "border-gray-700 text-teal-400 hover:bg-teal-900/30"
-                                                      : "border-gray-200 text-teal-600 hover:bg-teal-50"
-                                                }`}
-                                              >
-                                                <Power className="w-3.5 h-3.5" />
-                                              </button>
+                                                        ? "border-gray-700 text-teal-400 hover:bg-teal-900/30"
+                                                        : "border-gray-200 text-teal-600 hover:bg-teal-50"
+                                                  }`}
+                                                >
+                                                  <Power className="w-3.5 h-3.5" />
+                                                </button>
+                                              </div>
+                                              {loc.maxWeightKg != null && (
+                                                <div
+                                                  title={`${(loc.currentWeightKg || 0).toLocaleString()} / ${loc.maxWeightKg.toLocaleString()} kg (${capPct}%)`}
+                                                  className="w-full"
+                                                >
+                                                  <div
+                                                    className={`h-1 rounded-full overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}
+                                                  >
+                                                    <div
+                                                      className={`h-full transition-all ${capColor}`}
+                                                      style={{ width: `${Math.min(capPct, 100)}%` }}
+                                                    />
+                                                  </div>
+                                                  <div
+                                                    className={`text-[10px] text-center mt-0.5 font-mono ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                                  >
+                                                    {capPct}%
+                                                  </div>
+                                                </div>
+                                              )}
                                             </div>
                                           );
                                         });
