@@ -1567,7 +1567,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
         },
       });
       // Normalize key regardless of API casing (snake_case or camelCase)
-      const alreadyExists = result.alreadyExists ?? result.already_exists ?? false;
+      const alreadyExists = result.alreadyExists ?? false;
       const poNumber = result.po_number || result.poNumber || "";
       if (alreadyExists) {
         notificationService.info(`Dropship PO ${poNumber} already exists for these items`);
