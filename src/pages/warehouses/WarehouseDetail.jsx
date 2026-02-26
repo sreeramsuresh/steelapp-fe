@@ -72,7 +72,9 @@ const WarehouseDetail = () => {
   const [genAisles, setGenAisles] = useState(4);
   const [genRacks, setGenRacks] = useState(3);
   const [genBins, setGenBins] = useState(9);
+  const [genDefaultCapKg, setGenDefaultCapKg] = useState("");
   const [genOverrides, setGenOverrides] = useState({});
+  const [genCapOverrides, setGenCapOverrides] = useState({});
   const [genLoading, setGenLoading] = useState(false);
   const [genResult, setGenResult] = useState(null);
   const [filterAisles, setFilterAisles] = useState([]);
@@ -81,6 +83,8 @@ const WarehouseDetail = () => {
   const [clearConfirm, setClearConfirm] = useState(false);
   const [selectedLocs, setSelectedLocs] = useState(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [selectedBinInfo, setSelectedBinInfo] = useState(null); // { locId, aisleKey }
+  const [binCapInput, setBinCapInput] = useState("");
 
   const fetchWarehouse = useCallback(async () => {
     try {
@@ -209,10 +213,16 @@ const WarehouseDetail = () => {
         aisles: parseInt(genAisles, 10),
         racksPerAisle: parseInt(genRacks, 10),
         defaultBinsPerRack: parseInt(genBins, 10),
+        defaultMaxWeightKg: genDefaultCapKg !== "" ? parseFloat(genDefaultCapKg) : null,
         overrides: Object.fromEntries(
           Object.entries(genOverrides)
             .filter(([, v]) => v !== "" && v !== undefined)
             .map(([k, v]) => [k, parseInt(v, 10)])
+        ),
+        capacityOverrides: Object.fromEntries(
+          Object.entries(genCapOverrides)
+            .filter(([, v]) => v !== "" && v !== undefined)
+            .map(([k, v]) => [k, parseFloat(v)])
         ),
       };
       const res = await apiClient.post(`/warehouses/${id}/locations/generate`, payload);
@@ -292,6 +302,25 @@ const WarehouseDetail = () => {
       notificationService.success("Location added");
     } catch (error) {
       notificationService.error(error.message || "Failed to add location");
+    }
+  };
+
+  const fmtKg = (kg) => {
+    if (kg == null) return "—";
+    if (kg >= 1000) return `${(kg / 1000).toFixed(1)} t`;
+    return `${kg.toLocaleString(undefined, { maximumFractionDigits: 1 })} kg`;
+  };
+
+  const handleSaveBinCap = async (locId) => {
+    const val = binCapInput === "" ? null : parseFloat(binCapInput);
+    try {
+      await apiClient.put(`/warehouse-locations/${locId}`, {
+        max_weight_kg: val !== null && !Number.isNaN(val) ? val : null,
+      });
+      fetchLocTabData();
+      notificationService.success("Capacity updated");
+    } catch (error) {
+      notificationService.error(error.message || "Failed to update capacity");
     }
   };
 
@@ -1013,10 +1042,8 @@ const WarehouseDetail = () => {
               <div
                 className={`flex-1 min-w-0 rounded-lg border p-5 ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
               >
-                <h3
-                  className={`text-sm font-semibold mb-4 uppercase tracking-wide ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                >
-                  {locTabData.length > 0 ? "Add / Append Bins" : "Generate Locations"}
+                <h3 className={`text-sm font-semibold mb-4 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                  Generate Storage Bins
                 </h3>
                 <div className="flex flex-wrap gap-4 mb-4">
                   <div>
@@ -1035,6 +1062,7 @@ const WarehouseDetail = () => {
                       onChange={(e) => {
                         setGenAisles(e.target.value);
                         setGenOverrides({});
+                        setGenCapOverrides({});
                         setGenResult(null);
                       }}
                       className={`w-20 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
@@ -1056,6 +1084,7 @@ const WarehouseDetail = () => {
                       onChange={(e) => {
                         setGenRacks(e.target.value);
                         setGenOverrides({});
+                        setGenCapOverrides({});
                         setGenResult(null);
                       }}
                       className={`w-20 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
@@ -1081,22 +1110,61 @@ const WarehouseDetail = () => {
                       className={`w-24 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                     />
                   </div>
+                  <div>
+                    <label
+                      htmlFor="gen-default-cap"
+                      className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                    >
+                      Default max kg / bin
+                    </label>
+                    <input
+                      id="gen-default-cap"
+                      type="number"
+                      min="0"
+                      step="100"
+                      placeholder="Unlimited"
+                      value={genDefaultCapKg}
+                      onChange={(e) => {
+                        setGenDefaultCapKg(e.target.value);
+                        setGenResult(null);
+                      }}
+                      className={`w-28 px-2 py-1.5 text-sm rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-600" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"}`}
+                    />
+                  </div>
                 </div>
 
                 {/* Override grid */}
                 {parseInt(genRacks, 10) >= 1 && (
                   <div className="mb-4">
                     <p className={`text-xs mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                      Override bins per rack (optional):
+                      Override per rack (optional):
                     </p>
-                    <div className="flex flex-wrap gap-2">
+                    {/* Column headers */}
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mb-1">
+                      <div className="flex items-center gap-1">
+                        <span className="w-16" />
+                        <span
+                          className={`w-14 text-[10px] text-center ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                        >
+                          Bins
+                        </span>
+                        <span
+                          className={`w-20 text-[10px] text-center ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                        >
+                          Max kg
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1.5">
                       {parseInt(genAisles, 10) === 0
                         ? Array.from({ length: Math.min(parseInt(genRacks, 10) || 0, 99) }, (_, ri) => {
                             const key = `A0-R${ri + 1}`;
                             return (
                               <div key={key} className="flex items-center gap-1">
-                                <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                                  {key}:
+                                <span
+                                  className={`text-xs font-mono w-16 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                >
+                                  {key}
                                 </span>
                                 <input
                                   type="number"
@@ -1106,6 +1174,15 @@ const WarehouseDetail = () => {
                                   value={genOverrides[key] || ""}
                                   onChange={(e) => setGenOverrides((o) => ({ ...o, [key]: e.target.value }))}
                                   className={`w-14 text-xs px-1 py-0.5 rounded border ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"}`}
+                                />
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="100"
+                                  placeholder={genDefaultCapKg || "—"}
+                                  value={genCapOverrides[key] || ""}
+                                  onChange={(e) => setGenCapOverrides((o) => ({ ...o, [key]: e.target.value }))}
+                                  className={`w-20 text-xs px-1 py-0.5 rounded border ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-600" : "bg-white border-gray-300 placeholder-gray-400"}`}
                                 />
                               </div>
                             );
@@ -1118,7 +1195,7 @@ const WarehouseDetail = () => {
                               return (
                                 <div key={key} className="flex items-center gap-1">
                                   <span
-                                    className={`text-xs font-mono ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                    className={`text-xs font-mono w-16 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                                   >
                                     {key}
                                   </span>
@@ -1132,6 +1209,18 @@ const WarehouseDetail = () => {
                                       setGenResult(null);
                                     }}
                                     className={`w-14 px-1.5 py-1 text-xs rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                                  />
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="100"
+                                    placeholder={genDefaultCapKg || "—"}
+                                    value={genCapOverrides[key] || ""}
+                                    onChange={(e) => {
+                                      setGenCapOverrides((prev) => ({ ...prev, [key]: e.target.value }));
+                                      setGenResult(null);
+                                    }}
+                                    className={`w-20 px-1.5 py-1 text-xs rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-600" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"}`}
                                   />
                                 </div>
                               );
@@ -1151,7 +1240,7 @@ const WarehouseDetail = () => {
                     disabled={genLoading}
                     className="px-4 py-1.5 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-60"
                   >
-                    {genLoading ? "Adding..." : locTabData.length > 0 ? "Append Bins" : "Generate"}
+                    {genLoading ? "Generating..." : "Generate"}
                   </button>
                 </div>
 
@@ -1184,8 +1273,8 @@ const WarehouseDetail = () => {
                   <li>
                     <strong className={isDarkMode ? "text-gray-200" : "text-gray-700"}>Adding more bins later?</strong>{" "}
                     Just increase the count and click{" "}
-                    <strong className={isDarkMode ? "text-gray-200" : "text-gray-700"}>Append Bins</strong> — existing
-                    locations are preserved. Only new ones are created.
+                    <strong className={isDarkMode ? "text-gray-200" : "text-gray-700"}>Generate</strong> again —
+                    existing locations are preserved. Only new ones are created.
                   </li>
                 </ul>
               </div>
@@ -1295,7 +1384,7 @@ const WarehouseDetail = () => {
                           onClick={() => setAddLocForm({ aisle: "", rack: "", bin: "" })}
                           className="flex items-center gap-1 text-sm px-3 py-1.5 border border-teal-600 text-teal-500 rounded-lg hover:bg-teal-600 hover:text-white"
                         >
-                          + Add
+                          + Add New Bin
                         </button>
                       </div>
                     </div>
@@ -1497,6 +1586,216 @@ const WarehouseDetail = () => {
                             >
                               Aisle {aisleLabel}
                             </div>
+                            {/* Aisle info bar */}
+                            {(() => {
+                              const aisleLocs = [...rackMap.values()].flat();
+                              const cappedLocs = aisleLocs.filter((l) => l.maxWeightKg != null);
+                              const totalMax = cappedLocs.reduce((s, l) => s + l.maxWeightKg, 0);
+                              const totalCur = cappedLocs.reduce((s, l) => s + (l.currentWeightKg || 0), 0);
+                              const aisleCapPct = totalMax ? Math.round((totalCur / totalMax) * 100) : null;
+                              const aisleAvail = totalMax ? totalMax - totalCur : null;
+                              const barColor =
+                                aisleCapPct == null
+                                  ? "bg-gray-500"
+                                  : aisleCapPct > 90
+                                    ? "bg-red-500"
+                                    : aisleCapPct > 75
+                                      ? "bg-amber-400"
+                                      : "bg-green-500";
+                              const pctColor =
+                                aisleCapPct == null
+                                  ? isDarkMode
+                                    ? "text-gray-500"
+                                    : "text-gray-400"
+                                  : aisleCapPct > 90
+                                    ? "text-red-400"
+                                    : aisleCapPct > 75
+                                      ? "text-amber-400"
+                                      : "text-green-400";
+
+                              const isBinSelected = selectedBinInfo?.aisleKey === aisleKey;
+                              const selLoc = isBinSelected
+                                ? locTabData.find((l) => l.id === selectedBinInfo.locId)
+                                : null;
+
+                              const infoBarBase = `inline-flex items-center gap-4 mt-2.5 mb-1 px-3 py-2 rounded-lg border text-xs ${isDarkMode ? "bg-[#161b22] border-gray-700" : "bg-gray-50 border-gray-200"}`;
+
+                              if (isBinSelected && selLoc) {
+                                const selPct = selLoc.maxWeightKg
+                                  ? Math.round(((selLoc.currentWeightKg || 0) / selLoc.maxWeightKg) * 100)
+                                  : null;
+                                const selAvail =
+                                  selLoc.maxWeightKg != null
+                                    ? selLoc.maxWeightKg - (selLoc.currentWeightKg || 0)
+                                    : null;
+                                const selPctColor =
+                                  selPct == null
+                                    ? isDarkMode
+                                      ? "text-gray-400"
+                                      : "text-gray-500"
+                                    : selPct > 90
+                                      ? "text-red-400"
+                                      : selPct > 75
+                                        ? "text-amber-400"
+                                        : "text-green-400";
+                                return (
+                                  <div className={infoBarBase}>
+                                    <span
+                                      className={`font-mono font-bold text-sm ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
+                                    >
+                                      {selLoc.label}
+                                    </span>
+                                    <div className="flex flex-col gap-0.5">
+                                      <span
+                                        className={`text-[10px] uppercase tracking-wide ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                      >
+                                        Current
+                                      </span>
+                                      <span
+                                        className={`font-mono font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}
+                                      >
+                                        {fmtKg(selLoc.currentWeightKg || 0)}
+                                      </span>
+                                    </div>
+                                    <div className="flex flex-col gap-0.5">
+                                      <span
+                                        className={`text-[10px] uppercase tracking-wide ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                      >
+                                        Max capacity
+                                      </span>
+                                      <span
+                                        className={`font-mono font-semibold ${selLoc.maxWeightKg != null ? (isDarkMode ? "text-gray-200" : "text-gray-700") : isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                      >
+                                        {selLoc.maxWeightKg != null ? fmtKg(selLoc.maxWeightKg) : "Not set"}
+                                      </span>
+                                    </div>
+                                    {selLoc.maxWeightKg != null && (
+                                      <>
+                                        <div className="flex flex-col gap-0.5">
+                                          <span
+                                            className={`text-[10px] uppercase tracking-wide ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                          >
+                                            Available
+                                          </span>
+                                          <span
+                                            className={`font-mono font-semibold ${selAvail != null && selAvail < 0 ? "text-red-400" : "text-green-400"}`}
+                                          >
+                                            {fmtKg(selAvail)}
+                                          </span>
+                                        </div>
+                                        <div className="flex flex-col gap-0.5">
+                                          <span
+                                            className={`text-[10px] uppercase tracking-wide ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                          >
+                                            Utilisation
+                                          </span>
+                                          <span className={`font-mono font-semibold ${selPctColor}`}>
+                                            {selPct != null ? `${selPct}%` : "—"}
+                                          </span>
+                                        </div>
+                                      </>
+                                    )}
+                                    <div className={`h-6 w-px mx-1 ${isDarkMode ? "bg-gray-700" : "bg-gray-300"}`} />
+                                    <div className="flex items-center gap-1.5">
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        step="100"
+                                        placeholder="Max kg"
+                                        value={binCapInput}
+                                        onChange={(e) => setBinCapInput(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && handleSaveBinCap(selLoc.id)}
+                                        className={`w-24 px-2 py-1 text-xs font-mono rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500" : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"} outline-none`}
+                                      />
+                                      <span className={`text-[11px] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                                        kg
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleSaveBinCap(selLoc.id)}
+                                        className="px-2.5 py-1 text-xs bg-teal-600 text-white rounded hover:bg-teal-700"
+                                      >
+                                        Save
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => setSelectedBinInfo(null)}
+                                        className={`px-2 py-1 text-xs rounded border ${isDarkMode ? "border-gray-600 text-gray-400 hover:text-gray-200" : "border-gray-300 text-gray-500 hover:text-gray-700"}`}
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <div className={infoBarBase}>
+                                  <div className="flex flex-col gap-0.5">
+                                    <span
+                                      className={`text-[10px] uppercase tracking-wide ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                    >
+                                      Aisle capacity
+                                    </span>
+                                    <span
+                                      className={`font-mono font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}
+                                    >
+                                      {totalMax ? fmtKg(totalMax) : "—"}
+                                    </span>
+                                  </div>
+                                  {totalMax > 0 && (
+                                    <div
+                                      className={`w-28 h-1.5 rounded-full overflow-hidden flex-shrink-0 ${isDarkMode ? "bg-gray-700" : "bg-gray-300"}`}
+                                    >
+                                      <div
+                                        className={`h-full rounded-full transition-all ${barColor}`}
+                                        style={{ width: `${Math.min(aisleCapPct, 100)}%` }}
+                                      />
+                                    </div>
+                                  )}
+                                  <div className="flex flex-col gap-0.5">
+                                    <span
+                                      className={`text-[10px] uppercase tracking-wide ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                    >
+                                      Used
+                                    </span>
+                                    <span
+                                      className={`font-mono font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}
+                                    >
+                                      {fmtKg(totalCur)}
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-col gap-0.5">
+                                    <span
+                                      className={`text-[10px] uppercase tracking-wide ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                    >
+                                      Available
+                                    </span>
+                                    <span className="font-mono font-semibold text-green-400">
+                                      {aisleAvail != null ? fmtKg(aisleAvail) : "—"}
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-col gap-0.5">
+                                    <span
+                                      className={`text-[10px] uppercase tracking-wide ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                                    >
+                                      Utilisation
+                                    </span>
+                                    <span className={`font-mono font-semibold ${pctColor}`}>
+                                      {aisleCapPct != null ? `${aisleCapPct}%` : "—"}
+                                    </span>
+                                  </div>
+                                  {cappedLocs.length === 0 && (
+                                    <span
+                                      className={`text-[11px] italic ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
+                                    >
+                                      Click any bin to set its capacity
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })()}
+
                             <div className="space-y-3">
                               {sortedRacks.map((rack) => {
                                 const bins = rackMap.get(rack);
@@ -1548,9 +1847,79 @@ const WarehouseDetail = () => {
                                                 : capPct > 75
                                                   ? "bg-amber-400"
                                                   : "bg-green-500";
+                                          const binInfoSelected = selectedBinInfo?.locId === loc.id;
                                           return (
                                             <div key={loc.id} className="group relative flex flex-col gap-0.5">
-                                              <div className="relative">
+                                              <div className="group/bintt relative">
+                                                {/* Hover tooltip */}
+                                                <div className="hidden group-hover/bintt:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 pointer-events-none min-w-[160px] rounded-lg border border-gray-700 bg-gray-900 shadow-xl p-2.5">
+                                                  <div className="text-xs font-bold font-mono text-white mb-1.5">
+                                                    {loc.label}
+                                                  </div>
+                                                  <div className="flex justify-between gap-4 text-[11px] mb-1">
+                                                    <span className="text-gray-400">Current stock</span>
+                                                    <span className="font-mono text-gray-200">
+                                                      {fmtKg(loc.currentWeightKg || 0)}
+                                                    </span>
+                                                  </div>
+                                                  <div className="flex justify-between gap-4 text-[11px] mb-1">
+                                                    <span className="text-gray-400">Max capacity</span>
+                                                    <span
+                                                      className={`font-mono ${loc.maxWeightKg != null ? "text-gray-200" : "text-gray-500"}`}
+                                                    >
+                                                      {loc.maxWeightKg != null ? fmtKg(loc.maxWeightKg) : "Not set"}
+                                                    </span>
+                                                  </div>
+                                                  {loc.maxWeightKg != null &&
+                                                    (() => {
+                                                      const avail = loc.maxWeightKg - (loc.currentWeightKg || 0);
+                                                      const pct = Math.round(
+                                                        ((loc.currentWeightKg || 0) / loc.maxWeightKg) * 100
+                                                      );
+                                                      const ttColor =
+                                                        pct > 90
+                                                          ? "text-red-400"
+                                                          : pct > 75
+                                                            ? "text-amber-400"
+                                                            : "text-green-400";
+                                                      const barColor =
+                                                        pct > 90
+                                                          ? "bg-red-500"
+                                                          : pct > 75
+                                                            ? "bg-amber-400"
+                                                            : "bg-green-500";
+                                                      return (
+                                                        <>
+                                                          <div className="border-t border-gray-700 my-1.5" />
+                                                          <div className="flex justify-between gap-4 text-[11px] mb-1">
+                                                            <span className="text-gray-400">Available</span>
+                                                            <span
+                                                              className={`font-mono ${avail < 0 ? "text-red-400" : "text-green-400"}`}
+                                                            >
+                                                              {fmtKg(avail)}
+                                                            </span>
+                                                          </div>
+                                                          <div className="flex justify-between gap-4 text-[11px] mb-1.5">
+                                                            <span className="text-gray-400">Utilisation</span>
+                                                            <span className={`font-mono ${ttColor}`}>{pct}%</span>
+                                                          </div>
+                                                          <div className="h-1 rounded-full bg-gray-700 overflow-hidden">
+                                                            <div
+                                                              className={`h-full rounded-full ${barColor}`}
+                                                              style={{ width: `${Math.min(pct, 100)}%` }}
+                                                            />
+                                                          </div>
+                                                        </>
+                                                      );
+                                                    })()}
+                                                  {loc.maxWeightKg == null && (
+                                                    <div className="text-[10px] text-gray-500 mt-1.5 italic">
+                                                      Click bin to set a capacity limit
+                                                    </div>
+                                                  )}
+                                                  {/* caret */}
+                                                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-700" />
+                                                </div>
                                                 <button
                                                   type="button"
                                                   title={
@@ -1567,6 +1936,14 @@ const WarehouseDetail = () => {
                                                       else next.add(loc.id);
                                                       return next;
                                                     });
+                                                    if (binInfoSelected) {
+                                                      setSelectedBinInfo(null);
+                                                    } else {
+                                                      setSelectedBinInfo({ locId: loc.id, aisleKey });
+                                                      setBinCapInput(
+                                                        loc.maxWeightKg != null ? String(loc.maxWeightKg) : ""
+                                                      );
+                                                    }
                                                   }}
                                                   className={`text-sm px-3 py-1.5 pr-7 rounded font-mono border transition-all ${
                                                     selected

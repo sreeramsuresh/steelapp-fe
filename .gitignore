@@ -18,6 +18,9 @@ dist
 chromium/
 .cache/puppeteer/
 
+# Prototype HTML files
+public/*-prototype.html
+
 # Test artifacts
 test-result.png
 test-error.png
