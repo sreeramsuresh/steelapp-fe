@@ -9,8 +9,8 @@ import { render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { Provider } from "react-redux";
-import { ThemeProvider } from "../contexts/ThemeContext";
 import { vi } from "vitest";
+import { ThemeProvider } from "../contexts/ThemeContext";
 
 // Minimal router context mock — avoids the react-router-dom CJS/ESM interop
 // issue in vitest vmForks pool. Component tests don't need real routing.
