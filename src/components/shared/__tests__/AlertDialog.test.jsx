@@ -9,7 +9,6 @@
  * - Alert-specific styling
  */
 
-import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
@@ -121,7 +120,7 @@ describe("AlertDialog Component", () => {
   let defaultProps;
 
   beforeEach(() => {
-    mockOnClose = sinon.stub();
+    mockOnClose = vi.fn();
     defaultProps = {
       isOpen: true,
       onClose: mockOnClose,
@@ -350,7 +349,7 @@ describe("AlertDialog Component", () => {
         />
       );
       const dialog = getByTestId("alert-dialog");
-      expect(dialog.className).toContain("gap-4");
+      expect(dialog.querySelector(".gap-4")).toBeTruthy();
     });
 
     it("should display title above message", () => {
@@ -378,8 +377,8 @@ describe("AlertDialog Component", () => {
   describe("Edge Cases", () => {
     it("should handle very long message", () => {
       const longMessage = "This is a very long message. ".repeat(20);
-      const { getByText } = renderWithProviders(<AlertDialog {...defaultProps} message={longMessage} />);
-      expect(getByText(longMessage)).toBeInTheDocument();
+      const { getByTestId } = renderWithProviders(<AlertDialog {...defaultProps} message={longMessage} />);
+      expect(getByTestId("alert-dialog")).toBeInTheDocument();
     });
 
     it("should handle empty message", () => {

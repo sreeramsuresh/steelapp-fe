@@ -24,7 +24,7 @@ function createLocalStorageMock() {
   };
 }
 
-global.localStorage = createLocalStorageMock();
+Object.defineProperty(window, "localStorage", { value: createLocalStorageMock(), writable: true });
 
 // Mock sessionStorage with actual storage behavior
 let sessionStorageData = {};
@@ -48,7 +48,7 @@ function createSessionStorageMock() {
   };
 }
 
-global.sessionStorage = createSessionStorageMock();
+Object.defineProperty(window, "sessionStorage", { value: createSessionStorageMock(), writable: true });
 
 // Reset storage before each test
 beforeEach(() => {

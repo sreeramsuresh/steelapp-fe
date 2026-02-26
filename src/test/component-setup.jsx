@@ -9,8 +9,11 @@ import { render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { Provider } from "react-redux";
-import { BrowserRouter } from "react-router-dom";
 import { vi } from "vitest";
+
+// Minimal router context mock — avoids the react-router-dom CJS/ESM interop
+// issue in vitest vmForks pool. Component tests don't need real routing.
+const MockRouter = ({ children }) => <div data-testid="mock-router">{children}</div>;
 
 /**
  * Create a mock Redux store for component testing
@@ -68,7 +71,7 @@ export function renderWithProviders(component, options = {}) {
 
   const Wrapper = ({ children }) => (
     <Provider store={store}>
-      <BrowserRouter>{children}</BrowserRouter>
+      <MockRouter>{children}</MockRouter>
     </Provider>
   );
 

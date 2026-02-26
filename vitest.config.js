@@ -9,6 +9,7 @@ export default defineConfig({
     pool: "vmForks",
     testTimeout: 30000,
     hookTimeout: 30000,
+    setupFiles: ["src/test/setup.js"],
     include: ["src/**/*.{test,spec}.{js,jsx,mjs,ts,tsx}"],
     exclude: [
       "tests/e2e/**",
@@ -18,7 +19,7 @@ export default defineConfig({
     ],
     server: {
       deps: {
-        inline: ["html-encoding-sniffer", "@exodus/bytes", "react-router", "react-router-dom"],
+        inline: ["html-encoding-sniffer", "@exodus/bytes", /react-router/],
       },
     },
   },
