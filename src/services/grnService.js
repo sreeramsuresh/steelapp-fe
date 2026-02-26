@@ -284,9 +284,12 @@ const grnService = {
   /**
    * Approve GRN (moves stock into inventory)
    */
-  async approve(id, notes = "") {
+  async approve(id, { notes = "", itemLocations = {} } = {}) {
     try {
-      const response = await apiClient.post(`/grns/${id}/approve`, { notes });
+      const response = await apiClient.post(`/grns/${id}/approve`, {
+        notes,
+        item_locations: itemLocations,
+      });
       return transformGRNFromServer(response);
     } catch (error) {
       console.error("[GRNService] approve failed:", error);
