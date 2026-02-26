@@ -62,8 +62,8 @@ const SEARCH_GROUPS = [
     label: "Invoices",
     icon: FileText,
     path: (item) => `/app/invoices/${item.id}`,
-    display: (item) => item.invoice_number || item.invoiceNumber,
-    sub: (item) => item.customer_name || item.customer?.name || "—",
+    display: (item) => item.invoiceNumber,
+    sub: (item) => item.customer?.name || "—",
   },
   {
     key: "customers",
@@ -78,7 +78,7 @@ const SEARCH_GROUPS = [
     label: "Products",
     icon: Package,
     path: (item) => `/app/products/${item.id}`,
-    display: (item) => item.name || item.product_name,
+    display: (item) => item.name,
     sub: (item) => item.category || item.form || "—",
   },
 ];
