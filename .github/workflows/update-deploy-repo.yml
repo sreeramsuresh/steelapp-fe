@@ -1,0 +1,31 @@
+name: Update submodule ref in deploy repo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout deploy repo
+        uses: actions/checkout@v4
+        with:
+          repository: drrraju/Ultimate-Steel-AWS-Deploy
+          token: ${{ secrets.GH_PAT }}
+          submodules: false
+
+      - name: Update steelapp-fe submodule pointer
+        run: |
+          git config user.email "ci-bot@ultimate-steel.app"
+          git config user.name "CI Bot"
+          git submodule update --init steelapp-fe
+          cd steelapp-fe
+          git fetch origin main
+          git checkout ${{ github.sha }}
+          cd ..
+          git add steelapp-fe
+          git diff --cached --quiet && echo "No change" && exit 0
+          git commit -m "chore: update steelapp-fe submodule ref to ${{ github.sha }}"
+          git push
