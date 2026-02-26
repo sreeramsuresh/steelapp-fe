@@ -7,12 +7,11 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import sinon from "sinon";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as batchReservationService from "../../../services/batchReservationService";
 import BatchAllocationPanel from "../BatchAllocationPanel";
 
-// sinon.stub() // "../../../services/batchReservationService");
+// vi.fn() // "../../../services/batchReservationService");
 
 describe("BatchAllocationPanel", () => {
   let mockReserveFIFO;
@@ -20,12 +19,12 @@ describe("BatchAllocationPanel", () => {
   let defaultProps;
 
   beforeEach(() => {
-    sinon.restore();
-    mockReserveFIFO = sinon.stub().mockResolvedValue({ success: true });
-    mockReserveManual = sinon.stub().mockResolvedValue({ success: true });
+    vi.restoreAllMocks();
+    mockReserveFIFO = vi.fn().mockResolvedValue({ success: true });
+    mockReserveManual = vi.fn().mockResolvedValue({ success: true });
 
     vi.spyOn(batchReservationService, "batchReservationService", "get").mockReturnValue({
-      getAvailableBatches: sinon.stub().mockResolvedValue({
+      getAvailableBatches: vi.fn().mockResolvedValue({
         batches: [
           {
             id: 1,
@@ -65,7 +64,7 @@ describe("BatchAllocationPanel", () => {
       requiredQuantity: 400,
       unit: "PCS",
       _companyId: 1,
-      _onAllocationsChange: sinon.stub(),
+      _onAllocationsChange: vi.fn(),
       reserveFIFO: mockReserveFIFO,
       reserveManual: mockReserveManual,
       allocations: [],
@@ -94,7 +93,7 @@ describe("BatchAllocationPanel", () => {
 
     it("should render empty state when no batches available", async () => {
       vi.spyOn(batchReservationService, "batchReservationService", "get").mockReturnValue({
-        getAvailableBatches: sinon.stub().mockResolvedValue({ batches: [] }),
+        getAvailableBatches: vi.fn().mockResolvedValue({ batches: [] }),
       });
 
       render(<BatchAllocationPanel {...defaultProps} />);
@@ -159,7 +158,7 @@ describe("BatchAllocationPanel", () => {
     it("should show error when no stock available in warehouse", async () => {
       const user = userEvent.setup();
       vi.spyOn(batchReservationService, "batchReservationService", "get").mockReturnValue({
-        getAvailableBatches: sinon.stub().mockResolvedValue({ batches: [] }),
+        getAvailableBatches: vi.fn().mockResolvedValue({ batches: [] }),
       });
 
       render(<BatchAllocationPanel {...defaultProps} />);
@@ -371,7 +370,7 @@ describe("BatchAllocationPanel", () => {
   describe("Error Handling", () => {
     it("should display API error gracefully", async () => {
       vi.spyOn(batchReservationService, "batchReservationService", "get").mockReturnValue({
-        getAvailableBatches: sinon.stub().mockRejectedValue(new Error("API Error")),
+        getAvailableBatches: vi.fn().mockRejectedValue(new Error("API Error")),
       });
 
       render(<BatchAllocationPanel {...defaultProps} />);
@@ -425,7 +424,7 @@ describe("BatchAllocationPanel", () => {
   describe("Integration", () => {
     it("should refresh batches after allocation", async () => {
       const user = userEvent.setup();
-      const getAvailableBatches = sinon.stub().mockResolvedValue({
+      const getAvailableBatches = vi.fn().mockResolvedValue({
         batches: [
           {
             id: 1,

@@ -7,14 +7,13 @@
 
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import FormErrorBoundary from "../FormErrorBoundary";
 
 // Suppress console.error for cleaner test output
 const originalError = console.error;
 beforeEach(() => {
-  console.error = sinon.stub();
+  console.error = vi.fn();
 });
 
 afterEach(() => {

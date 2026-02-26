@@ -7,7 +7,6 @@
 
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import sinon from "sinon";
 import { describe, expect, it } from "vitest";
 import TextInput from "../TextInput";
 
@@ -15,8 +14,8 @@ describe("TextInput", () => {
   let mockOnChange;
 
   beforeEach(() => {
-    mockOnChange = sinon.stub();
-    sinon.restore();
+    mockOnChange = vi.fn();
+    vi.restoreAllMocks();
   });
 
   it("should render input with label", () => {

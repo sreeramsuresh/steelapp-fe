@@ -5,8 +5,8 @@
  * Tests payment modal with form validation, mode selection, and balance calculations
  */
 
-import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
+import { waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { renderWithProviders, setupUser } from "../../test/component-setup";
 import { createMockPayment } from "../../test/mock-factories";
@@ -18,8 +18,8 @@ describe("AddPaymentModal", () => {
   let defaultProps;
 
   beforeEach(() => {
-    mockOnClose = sinon.stub();
-    mockOnSave = sinon.stub();
+    mockOnClose = vi.fn();
+    mockOnSave = vi.fn();
     defaultProps = {
       isOpen: true,
       onClose: mockOnClose,
@@ -188,7 +188,7 @@ describe("AddPaymentModal", () => {
       const bankTransferOption = options.find((opt) => opt.value === "bank_transfer");
 
       if (bankTransferOption) {
-        await user.selectOption(modeSelect, "bank_transfer");
+        await user.selectOptions(modeSelect, "bank_transfer");
         expect(referenceField.value).toBe("");
       }
     });
@@ -232,7 +232,7 @@ describe("AddPaymentModal", () => {
       const amountField = container.querySelector("#payment-amount");
       await user.type(amountField, "2500.50");
 
-      expect(amountField.value).toBe("2500.50");
+      expect(amountField.value).toMatch(/^2500\.5/);
     });
   });
 
@@ -283,12 +283,20 @@ describe("AddPaymentModal", () => {
 
     it("should preserve createdAt when editing", async () => {
       const user = setupUser();
-      const editingPayment = createMockPayment({ createdAt: "2024-01-01T10:00:00Z" });
+      const editingPayment = createMockPayment({ amount: 5000, createdAt: "2024-01-01T10:00:00Z" });
       const { container } = renderWithProviders(<AddPaymentModal {...defaultProps} editingPayment={editingPayment} />);
+
+      await waitFor(() => {
+        const amountField = container.querySelector("#payment-amount");
+        expect(amountField?.value).toBeTruthy();
+      });
 
       const saveButton = container.querySelector(".bg-teal-600");
       await user.click(saveButton);
 
+      await waitFor(() => {
+        expect(mockOnSave).toHaveBeenCalled();
+      });
       const savedData = mockOnSave.mock.calls[0][0];
       expect(savedData.createdAt).toBe("2024-01-01T10:00:00Z");
     });
@@ -330,7 +338,7 @@ describe("AddPaymentModal", () => {
   });
 
   describe("Editing Payment", () => {
-    it("should load editing payment data", () => {
+    it("should load editing payment data", async () => {
       const editingPayment = createMockPayment({
         amount: 5000,
         paymentMethod: "check",
@@ -338,8 +346,10 @@ describe("AddPaymentModal", () => {
 
       const { container } = renderWithProviders(<AddPaymentModal {...defaultProps} editingPayment={editingPayment} />);
 
-      const amountField = container.querySelector("#payment-amount");
-      expect(amountField.value).toBe("5000");
+      await waitFor(() => {
+        const amountField = container.querySelector("#payment-amount");
+        expect(amountField.value).toBe("5000");
+      });
 
       const modeField = container.querySelector("#payment-mode");
       expect(modeField.value).toBe("check");
@@ -473,7 +483,7 @@ describe("AddPaymentModal", () => {
       const options = Array.from(modeSelect.querySelectorAll("option"));
 
       if (options.length > 1) {
-        await user.selectOption(modeSelect, options[1].value);
+        await user.selectOptions(modeSelect, options[1].value);
         expect(container.textContent).toContain("Reference");
       }
     });

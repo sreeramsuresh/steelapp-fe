@@ -7,25 +7,28 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useTheme } from "../../contexts/ThemeContext";
 import { stockBatchService } from "../../services/stockBatchService";
 import StockBatchViewer from "../StockBatchViewer";
 
-// sinon.stub() // "../../services/stockBatchService");
-// sinon.stub() // "../../contexts/ThemeContext");
+vi.mock("../../contexts/ThemeContext", () => ({
+  useTheme: vi.fn(() => ({ isDarkMode: false, themeMode: "light", toggleTheme: vi.fn() })),
+}));
+vi.mock("../../services/stockBatchService", () => ({
+  stockBatchService: { getBatchesByProduct: vi.fn() },
+}));
 
 describe("StockBatchViewer", () => {
   let mockOnClose;
 
   beforeEach(() => {
-    sinon.restore();
-    mockOnClose = sinon.stub();
+    vi.restoreAllMocks();
+    mockOnClose = vi.fn();
 
     useTheme.mockReturnValue({ isDarkMode: false });
 
-    stockBatchService.getBatchesByProduct = sinon.stub().mockResolvedValue({
+    stockBatchService.getBatchesByProduct = vi.fn().mockResolvedValue({
       batches: [
         {
           id: 1,
@@ -71,7 +74,7 @@ describe("StockBatchViewer", () => {
     });
 
     it("should display error message on fetch failure", async () => {
-      stockBatchService.getBatchesByProduct = sinon.stub().mockRejectedValue(new Error("API Error"));
+      stockBatchService.getBatchesByProduct = vi.fn().mockRejectedValue(new Error("API Error"));
 
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
@@ -271,7 +274,7 @@ describe("StockBatchViewer", () => {
 
   describe("Stock Calculation", () => {
     it("should sum LOCAL batch quantities", async () => {
-      stockBatchService.getBatchesByProduct = sinon.stub().mockResolvedValue({
+      stockBatchService.getBatchesByProduct = vi.fn().mockResolvedValue({
         batches: [
           {
             id: 1,
@@ -349,7 +352,7 @@ describe("StockBatchViewer", () => {
 
   describe("Error Handling", () => {
     it("should display error on fetch failure", async () => {
-      stockBatchService.getBatchesByProduct = sinon.stub().mockRejectedValue(new Error("Network error"));
+      stockBatchService.getBatchesByProduct = vi.fn().mockRejectedValue(new Error("Network error"));
 
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
@@ -359,7 +362,7 @@ describe("StockBatchViewer", () => {
     });
 
     it("should handle missing batch data gracefully", async () => {
-      stockBatchService.getBatchesByProduct = sinon.stub().mockResolvedValue({
+      stockBatchService.getBatchesByProduct = vi.fn().mockResolvedValue({
         batches: [],
       });
 
@@ -374,7 +377,7 @@ describe("StockBatchViewer", () => {
 
   describe("Received Date Formatting", () => {
     it("should format received date properly", async () => {
-      stockBatchService.getBatchesByProduct = sinon.stub().mockResolvedValue({
+      stockBatchService.getBatchesByProduct = vi.fn().mockResolvedValue({
         batches: [
           {
             id: 1,

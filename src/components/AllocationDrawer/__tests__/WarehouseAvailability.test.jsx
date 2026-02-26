@@ -7,21 +7,20 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { productService } from "../../../services/productService";
 import WarehouseAvailability from "../WarehouseAvailability";
 
-// sinon.stub() // "../../../services/productService");
+// vi.fn() // "../../../services/productService");
 
 describe("WarehouseAvailability", () => {
   let mockOnWarehouseSelect;
 
   beforeEach(() => {
-    sinon.restore();
-    mockOnWarehouseSelect = sinon.stub();
+    vi.restoreAllMocks();
+    mockOnWarehouseSelect = vi.fn();
 
-    productService.getWarehouseStock = sinon.stub().mockResolvedValue({
+    productService.getWarehouseStock = vi.fn().mockResolvedValue({
       data: [
         {
           warehouseId: 1,
@@ -70,7 +69,7 @@ describe("WarehouseAvailability", () => {
     });
 
     it("should display empty state when no warehouses", async () => {
-      productService.getWarehouseStock = sinon.stub().mockResolvedValue({ data: [] });
+      productService.getWarehouseStock = vi.fn().mockResolvedValue({ data: [] });
 
       render(<WarehouseAvailability productId={123} />);
 
@@ -80,7 +79,7 @@ describe("WarehouseAvailability", () => {
     });
 
     it("should display error message on fetch failure", async () => {
-      productService.getWarehouseStock = sinon.stub().mockRejectedValue(new Error("API Error"));
+      productService.getWarehouseStock = vi.fn().mockRejectedValue(new Error("API Error"));
 
       render(<WarehouseAvailability productId={123} />);
 
@@ -263,7 +262,7 @@ describe("WarehouseAvailability", () => {
     });
 
     it("should skip warehouses with zero stock for auto-selection", async () => {
-      productService.getWarehouseStock = sinon.stub().mockResolvedValue({
+      productService.getWarehouseStock = vi.fn().mockResolvedValue({
         data: [
           {
             warehouseId: 3,
@@ -355,7 +354,7 @@ describe("WarehouseAvailability", () => {
 
   describe("Edge Cases", () => {
     it("should handle warehouses with very large quantities", async () => {
-      productService.getWarehouseStock = sinon.stub().mockResolvedValue({
+      productService.getWarehouseStock = vi.fn().mockResolvedValue({
         data: [
           {
             warehouseId: 1,
@@ -375,7 +374,7 @@ describe("WarehouseAvailability", () => {
     });
 
     it("should handle warehouses with decimal quantities", async () => {
-      productService.getWarehouseStock = sinon.stub().mockResolvedValue({
+      productService.getWarehouseStock = vi.fn().mockResolvedValue({
         data: [
           {
             warehouseId: 1,
@@ -395,7 +394,7 @@ describe("WarehouseAvailability", () => {
     });
 
     it("should handle missing warehouse code gracefully", async () => {
-      productService.getWarehouseStock = sinon.stub().mockResolvedValue({
+      productService.getWarehouseStock = vi.fn().mockResolvedValue({
         data: [
           {
             warehouseId: 1,

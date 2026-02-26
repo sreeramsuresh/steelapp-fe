@@ -8,7 +8,6 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import { AlertCircle, Check, Edit, Trash2 } from "lucide-react";
-import sinon from "sinon";
 import { describe, expect, it } from "vitest";
 import IconButton from "../IconButton";
 
@@ -103,7 +102,7 @@ describe("IconButton", () => {
   });
 
   it("should call onClick handler when clicked", () => {
-    const handleClick = sinon.stub();
+    const handleClick = vi.fn();
     render(<IconButton icon={<Trash2 />} title="Delete" onClick={handleClick} />);
 
     const button = screen.getByRole("button");
@@ -141,7 +140,7 @@ describe("IconButton", () => {
   });
 
   it("should not call onClick when disabled", () => {
-    const handleClick = sinon.stub();
+    const handleClick = vi.fn();
     render(<IconButton icon={<Trash2 />} title="Delete" onClick={handleClick} disabled={true} />);
 
     const button = screen.getByRole("button");
@@ -328,7 +327,7 @@ describe("IconButton", () => {
   });
 
   it("should prevent event propagation options via props", () => {
-    const handleClick = sinon.stub();
+    const handleClick = vi.fn();
     render(<IconButton icon={<Trash2 />} title="Delete" onClick={handleClick} />);
 
     const button = screen.getByRole("button");

@@ -5,7 +5,6 @@
  * Tests dropdown selector for invoice line source type
  */
 
-import sinon from "sinon";
 // Jest provides describe, it, expect, beforeEach globally - no need to import
 import { beforeEach, describe, expect, it } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
@@ -16,7 +15,7 @@ describe("SourceTypeSelector", () => {
   let defaultProps;
 
   beforeEach(() => {
-    mockOnChange = sinon.stub();
+    mockOnChange = vi.fn();
     defaultProps = {
       value: "WAREHOUSE",
       onChange: mockOnChange,

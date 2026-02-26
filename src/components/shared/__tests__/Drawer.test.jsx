@@ -11,7 +11,6 @@
  * - Stacking order
  */
 
-import sinon from "sinon";
 import { beforeEach, describe, expect, it } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
@@ -92,7 +91,7 @@ describe("Drawer Component", () => {
   let defaultProps;
 
   beforeEach(() => {
-    mockOnClose = sinon.stub();
+    mockOnClose = vi.fn();
     defaultProps = {
       isOpen: true,
       onClose: mockOnClose,
@@ -198,7 +197,7 @@ describe("Drawer Component", () => {
 
     it("should prevent event propagation from drawer to overlay", async () => {
       const user = setupUser();
-      const handleOuterClick = sinon.stub();
+      const handleOuterClick = vi.fn();
       const { getByTestId } = renderWithProviders(
         // biome-ignore lint/a11y/useSemanticElements: Test wrapper div - intentional for testing event propagation
         <div

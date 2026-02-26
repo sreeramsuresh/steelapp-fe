@@ -11,7 +11,6 @@
  * - Icon and badge support
  */
 
-import sinon from "sinon";
 import { beforeEach, describe, expect, it } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
@@ -48,7 +47,7 @@ const Dropdown = ({ isOpen, onClose, trigger = "Menu", items = [], onItemSelect,
             aria-orientation="vertical"
             data-testid="dropdown-menu"
           >
-            {items.map((item) => (
+            {items.map((item, index) => (
               <button
                 type="button"
                 key={item.id || item.label}
@@ -82,8 +81,8 @@ describe("Dropdown Component", () => {
   let defaultItems;
 
   beforeEach(() => {
-    mockOnClose = sinon.stub();
-    mockOnItemSelect = sinon.stub();
+    mockOnClose = vi.fn();
+    mockOnItemSelect = vi.fn();
     defaultItems = [
       { label: "Option 1", value: "opt1" },
       { label: "Option 2", value: "opt2" },

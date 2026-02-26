@@ -9,6 +9,7 @@ import { render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { Provider } from "react-redux";
+import { ThemeProvider } from "../contexts/ThemeContext";
 import { vi } from "vitest";
 
 // Minimal router context mock — avoids the react-router-dom CJS/ESM interop
@@ -71,7 +72,9 @@ export function renderWithProviders(component, options = {}) {
 
   const Wrapper = ({ children }) => (
     <Provider store={store}>
-      <MockRouter>{children}</MockRouter>
+      <ThemeProvider>
+        <MockRouter>{children}</MockRouter>
+      </ThemeProvider>
     </Provider>
   );
 

@@ -7,23 +7,38 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useTheme } from "../../contexts/ThemeContext";
 import { inventoryService } from "../../services/inventoryService";
 import InventoryList from "../InventoryList";
 
-// sinon.stub() // "../../services/inventoryService");
-// sinon.stub() // "../../contexts/ThemeContext");
-// sinon.stub() // "../../hooks/useConfirm");
+vi.mock("../../contexts/ThemeContext", () => ({
+  useTheme: vi.fn(() => ({ isDarkMode: false, themeMode: "light", toggleTheme: vi.fn() })),
+}));
+vi.mock("../../services/inventoryService", () => ({
+  inventoryService: {
+    getAllItems: vi.fn(),
+    createItem: vi.fn(),
+    updateItem: vi.fn(),
+    deleteItem: vi.fn(),
+  },
+}));
+vi.mock("../../hooks/useConfirm", () => ({
+  useConfirm: vi.fn(() => ({
+    confirm: vi.fn().mockResolvedValue(true),
+    dialogState: { open: false, title: "", message: "" },
+    handleConfirm: vi.fn(),
+    handleCancel: vi.fn(),
+  })),
+}));
 
 describe("InventoryList", () => {
   beforeEach(() => {
-    sinon.restore();
+    vi.restoreAllMocks();
 
     useTheme.mockReturnValue({ isDarkMode: false });
 
-    inventoryService.getAllItems = sinon.stub().mockResolvedValue({
+    inventoryService.getAllItems = vi.fn().mockResolvedValue({
       data: [
         {
           id: 1,
@@ -77,9 +92,9 @@ describe("InventoryList", () => {
       pagination: { total: 2 },
     });
 
-    inventoryService.createItem = sinon.stub().mockResolvedValue({ id: 3 });
-    inventoryService.updateItem = sinon.stub().mockResolvedValue({ id: 1 });
-    inventoryService.deleteItem = sinon.stub().mockResolvedValue({ success: true });
+    inventoryService.createItem = vi.fn().mockResolvedValue({ id: 3 });
+    inventoryService.updateItem = vi.fn().mockResolvedValue({ id: 1 });
+    inventoryService.deleteItem = vi.fn().mockResolvedValue({ success: true });
   });
 
   describe("Rendering", () => {
@@ -111,7 +126,7 @@ describe("InventoryList", () => {
     });
 
     it("should display empty state when no items", async () => {
-      inventoryService.getAllItems = sinon.stub().mockResolvedValue({
+      inventoryService.getAllItems = vi.fn().mockResolvedValue({
         data: [],
         pagination: { total: 0 },
       });
@@ -153,7 +168,7 @@ describe("InventoryList", () => {
     });
 
     it("should show low stock warning", async () => {
-      inventoryService.getAllItems = sinon.stub().mockResolvedValue({
+      inventoryService.getAllItems = vi.fn().mockResolvedValue({
         data: [
           {
             id: 1,
@@ -361,7 +376,7 @@ describe("InventoryList", () => {
     });
 
     it("should show dash when batch number missing", async () => {
-      inventoryService.getAllItems = sinon.stub().mockResolvedValue({
+      inventoryService.getAllItems = vi.fn().mockResolvedValue({
         data: [
           {
             id: 1,
@@ -489,7 +504,7 @@ describe("InventoryList", () => {
 
   describe("Error Handling", () => {
     it("should display error message on fetch failure", async () => {
-      inventoryService.getAllItems = sinon.stub().mockRejectedValue(new Error("API Error"));
+      inventoryService.getAllItems = vi.fn().mockRejectedValue(new Error("API Error"));
 
       render(<InventoryList />);
 
@@ -499,7 +514,7 @@ describe("InventoryList", () => {
     });
 
     it("should show error on delete failure", async () => {
-      inventoryService.deleteItem = sinon.stub().mockRejectedValue(new Error("Delete failed"));
+      inventoryService.deleteItem = vi.fn().mockRejectedValue(new Error("Delete failed"));
 
       const _user = userEvent.setup();
       render(<InventoryList />);

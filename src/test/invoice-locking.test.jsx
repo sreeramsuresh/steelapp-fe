@@ -13,7 +13,6 @@
  * - Rule 8: UAE VAT compliance
  */
 
-import sinon from "sinon";
 import { describe, expect, it } from "vitest";
 
 // Test the isLocked logic directly
@@ -148,7 +147,7 @@ describe("Invoice Service - issueInvoice", () => {
   it("should call POST /invoices/:id/issue endpoint", async () => {
     // Mock the API client
     const mockApiClient = {
-      post: sinon.stub().mockResolvedValue({
+      post: vi.fn().mockResolvedValue({
         id: 1,
         status: "issued",
         isLocked: true,

@@ -10,7 +10,6 @@
  * - Focus management
  */
 
-import sinon from "sinon";
 import { beforeEach, describe, expect, it } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
@@ -75,7 +74,7 @@ describe("Popover Component", () => {
   let defaultProps;
 
   beforeEach(() => {
-    mockOnClose = sinon.stub();
+    mockOnClose = vi.fn();
     defaultProps = {
       isOpen: true,
       onClose: mockOnClose,
@@ -195,7 +194,7 @@ describe("Popover Component", () => {
     });
 
     it("should prevent event propagation from content click", async () => {
-      const handleOuterClick = sinon.stub();
+      const handleOuterClick = vi.fn();
       const { getByTestId } = renderWithProviders(
         // biome-ignore lint/a11y/noStaticElementInteractions: Test wrapper - testing event propagation
         // biome-ignore lint/a11y/useKeyWithClickEvents: Test wrapper - simplified for testing

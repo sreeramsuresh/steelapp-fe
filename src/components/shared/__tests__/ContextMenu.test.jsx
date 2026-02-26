@@ -12,7 +12,6 @@
  * - Disabled items
  */
 
-import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
@@ -95,9 +94,9 @@ describe("ContextMenu Component", () => {
   let defaultItems;
 
   beforeEach(() => {
-    mockOnItemSelect = sinon.stub();
-    mockOnShow = sinon.stub();
-    mockOnHide = sinon.stub();
+    mockOnItemSelect = vi.fn();
+    mockOnShow = vi.fn();
+    mockOnHide = vi.fn();
     defaultItems = [
       { label: "Copy", icon: "📋" },
       { label: "Paste", icon: "📌" },

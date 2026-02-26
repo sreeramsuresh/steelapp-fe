@@ -7,16 +7,19 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import sinon from "sinon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useNotifications } from "../../contexts/NotificationCenterContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import api from "../../services/axiosApi";
 import InventoryUpload from "../InventoryUpload";
 
-// sinon.stub() // "../../contexts/ThemeContext");
-// sinon.stub() // "../../contexts/NotificationCenterContext");
-// sinon.stub() // "../../services/axiosApi");
+vi.mock("../../contexts/ThemeContext", () => ({
+  useTheme: vi.fn(() => ({ isDarkMode: false, themeMode: "light", toggleTheme: vi.fn() })),
+}));
+vi.mock("../../contexts/NotificationCenterContext", () => ({
+  useNotifications: vi.fn(() => ({ addNotification: vi.fn() })),
+}));
+vi.mock("../../services/axiosApi", () => ({ default: { post: vi.fn(), get: vi.fn() } }));
 
 describe("InventoryUpload", () => {
   let mockOnClose;
@@ -24,19 +27,19 @@ describe("InventoryUpload", () => {
   let mockAddNotification;
 
   beforeEach(() => {
-    sinon.restore();
-    mockOnClose = sinon.stub();
-    mockOnUploadComplete = sinon.stub();
-    mockAddNotification = sinon.stub();
+    vi.restoreAllMocks();
+    mockOnClose = vi.fn();
+    mockOnUploadComplete = vi.fn();
+    mockAddNotification = vi.fn();
 
     useTheme.mockReturnValue({ isDarkMode: false });
     useNotifications.mockReturnValue({ addNotification: mockAddNotification });
 
-    api.get = sinon.stub().mockResolvedValue({
+    api.get = vi.fn().mockResolvedValue({
       data: new Blob(["test"], { type: "text/csv" }),
     });
 
-    api.post = sinon.stub().mockResolvedValue({
+    api.post = vi.fn().mockResolvedValue({
       data: {
         success: true,
         message: "Upload successful",
@@ -273,7 +276,7 @@ describe("InventoryUpload", () => {
 
   describe("Error Handling", () => {
     it("should show error message on upload failure", async () => {
-      api.post = sinon.stub().mockRejectedValue(new Error("Upload failed"));
+      api.post = vi.fn().mockRejectedValue(new Error("Upload failed"));
 
       const user = userEvent.setup();
       render(<InventoryUpload isOpen={true} onClose={mockOnClose} onUploadComplete={mockOnUploadComplete} />);
@@ -296,7 +299,7 @@ describe("InventoryUpload", () => {
     });
 
     it("should display validation errors", async () => {
-      api.post = sinon.stub().mockResolvedValue({
+      api.post = vi.fn().mockResolvedValue({
         data: {
           success: false,
           errors: [
@@ -384,7 +387,7 @@ describe("InventoryUpload", () => {
 
     it("should display updated count", async () => {
       const user = userEvent.setup();
-      api.post = sinon.stub().mockResolvedValue({
+      api.post = vi.fn().mockResolvedValue({
         data: {
           success: true,
           results: { created: 3, updated: 2, failed: 0 },
@@ -412,7 +415,7 @@ describe("InventoryUpload", () => {
 
     it("should display failed count", async () => {
       const user = userEvent.setup();
-      api.post = sinon.stub().mockResolvedValue({
+      api.post = vi.fn().mockResolvedValue({
         data: {
           success: true,
           results: { created: 3, updated: 1, failed: 1 },

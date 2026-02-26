@@ -10,7 +10,6 @@
  * - Destructive actions
  */
 
-import sinon from "sinon";
 import { beforeEach, describe, expect, it } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
@@ -87,8 +86,8 @@ describe("ConfirmDialog Component", () => {
   let defaultProps;
 
   beforeEach(() => {
-    mockOnConfirm = sinon.stub();
-    mockOnCancel = sinon.stub();
+    mockOnConfirm = vi.fn();
+    mockOnCancel = vi.fn();
     defaultProps = {
       isOpen: true,
       onConfirm: mockOnConfirm,

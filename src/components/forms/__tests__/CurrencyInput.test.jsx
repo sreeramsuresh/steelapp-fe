@@ -1,4 +1,3 @@
-import sinon from "sinon";
 import { beforeEach, describe, expect, it } from "vitest";
 import { renderWithProviders } from "../../../test/component-setup";
 import CurrencyInput from "../CurrencyInput";
@@ -6,12 +5,12 @@ import CurrencyInput from "../CurrencyInput";
 describe("CurrencyInput", () => {
   const defaultProps = {
     value: 1000,
-    onChange: sinon.stub(),
+    onChange: vi.fn(),
     currency: "AED",
   };
 
   beforeEach(() => {
-    sinon.restore();
+    vi.restoreAllMocks();
   });
 
   describe("Rendering", () => {

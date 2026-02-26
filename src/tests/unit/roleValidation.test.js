@@ -76,7 +76,7 @@ const validateRoleForm = (formData, existingRoles = [], editingRole = null) => {
 describe("Role Validation - Display Name Length", () => {
   test("should reject display name with less than 3 characters", () => {
     const formData = { displayName: "AB", description: "", isDirector: false };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
     expect(errors.displayName).toBe("Display name must be at least 3 characters");
@@ -84,7 +84,7 @@ describe("Role Validation - Display Name Length", () => {
 
   test("should reject empty display name", () => {
     const formData = { displayName: "", description: "", isDirector: false };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
     expect(errors.displayName).toBe("Display name must be at least 3 characters");
@@ -92,7 +92,7 @@ describe("Role Validation - Display Name Length", () => {
 
   test("should reject display name with only whitespace", () => {
     const formData = { displayName: "  ", description: "", isDirector: false };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
     expect(errors.displayName).toBe("Display name must be at least 3 characters");
@@ -100,7 +100,7 @@ describe("Role Validation - Display Name Length", () => {
 
   test("should accept display name with exactly 3 characters", () => {
     const formData = { displayName: "ABC", description: "", isDirector: false };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(errors.displayName).toBeUndefined();
@@ -112,7 +112,7 @@ describe("Role Validation - Display Name Length", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(errors.displayName).toBeUndefined();
@@ -124,7 +124,7 @@ describe("Role Validation - Display Name Length", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
     expect(errors.displayName).toBe("Display name must be less than 50 characters");
@@ -136,7 +136,7 @@ describe("Role Validation - Display Name Length", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(errors.displayName).toBeUndefined();
@@ -150,7 +150,7 @@ describe("Role Validation - Reserved Names", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
     expect(errors.displayName).toContain("reserved name");
@@ -162,7 +162,7 @@ describe("Role Validation - Reserved Names", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
     expect(errors.displayName).toContain("reserved name");
@@ -174,7 +174,7 @@ describe("Role Validation - Reserved Names", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
     expect(errors.displayName).toContain("reserved name");
@@ -186,7 +186,7 @@ describe("Role Validation - Reserved Names", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
     expect(errors.displayName).toContain("reserved name");
@@ -198,7 +198,7 @@ describe("Role Validation - Reserved Names", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(false);
     expect(errors.displayName).toContain("reserved name");
@@ -210,7 +210,7 @@ describe("Role Validation - Reserved Names", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(errors.displayName).toBeUndefined();
@@ -335,7 +335,7 @@ describe("Role Validation - Optional Fields", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(errors.description).toBeUndefined();
@@ -343,7 +343,7 @@ describe("Role Validation - Optional Fields", () => {
 
   test("should accept undefined description", () => {
     const formData = { displayName: "Quality Inspector", isDirector: false };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(errors.description).toBeUndefined();
@@ -355,7 +355,7 @@ describe("Role Validation - Optional Fields", () => {
       description: "Responsible for quality control and inspections",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(errors.description).toBeUndefined();
@@ -382,7 +382,7 @@ describe("Role Validation - Default Values", () => {
       description: "",
       isDirector: true,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(formData.isDirector).toBe(true);
@@ -394,7 +394,7 @@ describe("Role Validation - Default Values", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(formData.isDirector).toBe(false);
@@ -408,7 +408,7 @@ describe("Role Validation - Edge Cases", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(errors.displayName).toBeUndefined();
@@ -420,7 +420,7 @@ describe("Role Validation - Edge Cases", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(errors.displayName).toBeUndefined();
@@ -432,7 +432,7 @@ describe("Role Validation - Edge Cases", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     // Should be valid because trimmed length is 3
     expect(isValid).toBe(true);
@@ -445,7 +445,7 @@ describe("Role Validation - Edge Cases", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid } = validateRoleForm(formData, []);
+    const { isValid, errors } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(errors.displayName).toBeUndefined();
