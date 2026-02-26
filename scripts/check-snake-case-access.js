@@ -4,7 +4,10 @@ import { join, relative } from "node:path";
 
 const ROOT          = decodeURIComponent(new URL("../src", import.meta.url).pathname);
 const BASELINE_PATH = decodeURIComponent(new URL("./snake_case_baseline.json", import.meta.url).pathname);
-const UPDATE_BASELINE = process.argv.includes("--update-baseline");
+const UPDATE_BASELINE  = process.argv.includes("--update-baseline");
+const ANNOTATIONS      = process.argv.includes("--annotations");   // emit ::error:: for GHA
+const SUMMARY_ONLY     = process.argv.includes("--summary");        // counts only, no line-by-line
+const SHOW_BASELINE    = process.argv.includes("--show-baseline");  // print all baseline lines too
 
 // Layer 1: severity tiers
 const ERROR_PATH_PREFIXES = ["src/pages/", "src/components/"];
@@ -74,7 +77,7 @@ for (const file of walkFiles(ROOT)) {
       const location = `${rel}:${i + 1}:${match.index + 1}`;
       if (isError) {
         errorFingerprints.add(fingerprint);
-        console.log(`[error] ${location} — ${lhs}.${field}`);
+        if (SHOW_BASELINE) console.log(`[error] ${location} — ${lhs}.${field}`);
       } else {
         warnings.push(`[warn]  ${location} — ${lhs}.${field}`);
       }
@@ -82,7 +85,7 @@ for (const file of walkFiles(ROOT)) {
   }
 }
 
-if (warnings.length > 0) {
+if (!SUMMARY_ONLY && warnings.length > 0) {
   console.log(`\n${warnings.length} warning(s) in services/utils (use // snake-ok: mapper to suppress):`);
   for (const w of warnings) console.log(w);
 }
@@ -104,9 +107,25 @@ if (UPDATE_BASELINE) {
 
 const newViolations = [...errorFingerprints].filter(f => !baselineSet.has(f));
 if (newViolations.length > 0) {
-  console.error("\nNEW violations not in baseline:");
-  for (const v of newViolations) console.error(`  ${v}`);
-  console.error(`\n${newViolations.length} new fingerprint(s). Fix them or run --update-baseline to approve.`);
+  if (SUMMARY_ONLY) {
+    console.error(`NEW violations: ${newViolations.length} new fingerprint(s) not in baseline.`);
+  } else {
+    console.error("\nNEW violations not in baseline:");
+    for (const v of newViolations) {
+      console.error(`  ${v}`);
+      if (ANNOTATIONS) {
+        // Parse fingerprint: "src/components/Foo.jsx::item.invoice_number"
+        const [file, access] = v.split("::");
+        console.log(`::error file=${file}::snake_case access detected: ${access} — use camelCase or add // snake-ok`);
+      }
+    }
+    console.error(`\n${newViolations.length} new fingerprint(s). Fix them or run --update-baseline to approve.`);
+  }
   process.exit(1);
 }
-console.log(`\n${errorFingerprints.size} error fingerprint(s) — all in baseline. OK.`);
+
+if (SUMMARY_ONLY) {
+  console.log(`snake-case check OK (${errorFingerprints.size} baselined, ${warnings.length} warnings)`);
+} else {
+  console.log(`\n${errorFingerprints.size} error fingerprint(s) — all in baseline. OK.`);
+}
