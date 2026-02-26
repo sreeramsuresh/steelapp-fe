@@ -74,6 +74,8 @@ const WarehouseDetail = () => {
   const [genOverrides, setGenOverrides] = useState({});
   const [genLoading, setGenLoading] = useState(false);
   const [genResult, setGenResult] = useState(null);
+  const [filterAisles, setFilterAisles] = useState([]);
+  const [filterRacks, setFilterRacks] = useState([]);
   const [addLocForm, setAddLocForm] = useState(null);
   const [clearConfirm, setClearConfirm] = useState(false);
   const [selectedLocs, setSelectedLocs] = useState(new Set());
@@ -167,9 +169,9 @@ const WarehouseDetail = () => {
     const d = Math.max(1, Math.min(99, parseInt(genBins, 10) || 0));
     let total = 0;
     if (a === 0) {
-      // Rack-only mode
+      // A0 aisle mode
       for (let ri = 1; ri <= r; ri++) {
-        total += parseInt(genOverrides[`R${ri}`], 10) || d;
+        total += parseInt(genOverrides[`A0-R${ri}`], 10) || d;
       }
     } else {
       for (let ai = 0; ai < a; ai++) {
@@ -237,8 +239,13 @@ const WarehouseDetail = () => {
     setClearConfirm(false);
     try {
       const res = await apiClient.delete(`/warehouses/${id}/locations`);
-      notificationService.success(`Deleted ${res.deleted} location(s)`);
+      const msg = res.blocked > 0
+        ? `Deleted ${res.deleted} location(s). ${res.blocked} skipped (contain stock).`
+        : `Deleted ${res.deleted} location(s).`;
+      notificationService.success(msg);
       setGenResult(null);
+      setFilterAisles([]);
+      setFilterRacks([]);
       fetchLocTabData();
     } catch (error) {
       notificationService.error(error.response?.data?.message || error.message || "Failed to clear locations");
@@ -252,7 +259,11 @@ const WarehouseDetail = () => {
       const res = await apiClient.post(`/warehouses/${id}/locations/bulk-delete`, {
         ids: [...selectedLocs],
       });
-      notificationService.success(`Deleted ${res.deleted} location(s)`);
+      const blockedCount = res.blocked?.length ?? 0;
+      const msg = blockedCount > 0
+        ? `Deleted ${res.deleted} location(s). ${blockedCount} skipped (contain stock).`
+        : `Deleted ${res.deleted} location(s).`;
+      notificationService.success(msg);
       setSelectedLocs(new Set());
       fetchLocTabData();
     } catch (error) {
@@ -1000,7 +1011,7 @@ const WarehouseDetail = () => {
               <h3
                 className={`text-sm font-semibold mb-4 uppercase tracking-wide ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
               >
-                Generate Locations
+                {locTabData.length > 0 ? "Add / Append Bins" : "Generate Locations"}
               </h3>
               <div className="flex flex-wrap gap-4 mb-4">
                 <div>
@@ -1076,7 +1087,7 @@ const WarehouseDetail = () => {
                   <div className="flex flex-wrap gap-2">
                     {parseInt(genAisles, 10) === 0
                       ? Array.from({ length: Math.min(parseInt(genRacks, 10) || 0, 99) }, (_, ri) => {
-                          const key = `R${ri + 1}`;
+                          const key = `A0-R${ri + 1}`;
                           return (
                             <div key={key} className="flex items-center gap-1">
                               <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
@@ -1133,7 +1144,7 @@ const WarehouseDetail = () => {
                   disabled={genLoading}
                   className="px-4 py-1.5 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-60"
                 >
-                  {genLoading ? "Generating..." : "Generate"}
+                  {genLoading ? "Adding..." : locTabData.length > 0 ? "Append Bins" : "Generate"}
                 </button>
               </div>
 
@@ -1148,52 +1159,127 @@ const WarehouseDetail = () => {
             <div
               className={`rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
             >
-              <div
-                className={`flex items-center justify-between p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
-              >
-                <h3 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  Existing Locations ({locTabData.length})
-                </h3>
-                <div className="flex items-center gap-2">
-                  {locTabData.length > 0 && !clearConfirm && (
-                    <button
-                      type="button"
-                      onClick={() => setClearConfirm(true)}
-                      className="flex items-center gap-1 text-sm px-3 py-1.5 border border-red-500 text-red-500 rounded-lg hover:bg-red-500 hover:text-white"
-                    >
-                      Clear All
-                    </button>
-                  )}
-                  {clearConfirm && (
-                    <div className="flex items-center gap-2">
-                      <span className={`text-sm ${isDarkMode ? "text-red-400" : "text-red-600"}`}>
-                        Delete all locations?
-                      </span>
-                      <button
-                        type="button"
-                        onClick={handleClearLocations}
-                        className="text-sm px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                      >
-                        Yes, delete
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setClearConfirm(false)}
-                        className={`text-sm px-3 py-1.5 rounded-lg border ${isDarkMode ? "border-gray-600 text-gray-300 hover:bg-gray-700" : "border-gray-300 text-gray-600 hover:bg-gray-100"}`}
-                      >
-                        Cancel
-                      </button>
+              {(() => {
+                // Derive available aisles + racks from data
+                const allAisles = [...new Set(locTabData.map((l) => l.aisle ?? "__rack_only__"))].sort((a, b) => {
+                  const la = a === "__rack_only__" ? "A0" : a;
+                  const lb = b === "__rack_only__" ? "A0" : b;
+                  return la.localeCompare(lb, undefined, { numeric: true });
+                });
+                const availableRacks = filterAisles.length > 0
+                  ? [...new Set(locTabData.filter((l) => filterAisles.includes(l.aisle ?? "__rack_only__")).map((l) => l.rack))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+                  : [];
+
+                // Filtered data for count + scoped clear
+                const filteredData = locTabData.filter((l) => {
+                  const aisleKey = l.aisle ?? "__rack_only__";
+                  if (filterAisles.length > 0 && !filterAisles.includes(aisleKey)) return false;
+                  if (filterRacks.length > 0 && !filterRacks.includes(l.rack)) return false;
+                  return true;
+                });
+
+                // Scoped clear label
+                const clearLabel = (() => {
+                  if (filterAisles.length === 0) return "Clear All";
+                  const aisleNames = filterAisles.map((a) => a === "__rack_only__" ? "A0" : a).join(", ");
+                  if (filterRacks.length === 0) return `Clear Aisle ${aisleNames}`;
+                  return `Clear Aisle ${aisleNames} · ${filterRacks.join(", ")}`;
+                })();
+
+                // Confirm message with count
+                const confirmMsg = (() => {
+                  if (filterAisles.length === 0) return `Delete all ${filteredData.length} locations?`;
+                  const aisleNames = filterAisles.map((a) => a === "__rack_only__" ? "A0" : a).join(" & ");
+                  if (filterRacks.length === 0) return `Delete all ${filteredData.length} bins in Aisle ${aisleNames}?`;
+                  return `Delete all ${filteredData.length} bins in Aisle ${aisleNames} · ${filterRacks.join(", ")}?`;
+                })();
+
+                const toggleAisle = (a) => {
+                  setFilterAisles((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]);
+                  setFilterRacks([]);
+                };
+                const toggleRack = (r) => setFilterRacks((prev) => prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]);
+
+                return (
+                  <>
+                    {/* Header row */}
+                    <div className={`flex items-center justify-between p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                      <h3 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                        Existing Locations ({locTabData.length}){filteredData.length !== locTabData.length && <span className={`ml-2 text-xs font-normal ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>· {filteredData.length} shown</span>}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        {filteredData.length > 0 && !clearConfirm && (
+                          <button type="button" onClick={() => setClearConfirm(true)}
+                            className="flex items-center gap-1 text-sm px-3 py-1.5 border border-red-500 text-red-500 rounded-lg hover:bg-red-500 hover:text-white">
+                            {clearLabel}
+                          </button>
+                        )}
+                        {clearConfirm && (
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm ${isDarkMode ? "text-red-400" : "text-red-600"}`}>{confirmMsg}</span>
+                            <button type="button" onClick={handleClearLocations}
+                              className="text-sm px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                              Yes, delete
+                            </button>
+                            <button type="button" onClick={() => setClearConfirm(false)}
+                              className={`text-sm px-3 py-1.5 rounded-lg border ${isDarkMode ? "border-gray-600 text-gray-300 hover:bg-gray-700" : "border-gray-300 text-gray-600 hover:bg-gray-100"}`}>
+                              Cancel
+                            </button>
+                          </div>
+                        )}
+                        <button type="button" onClick={() => setAddLocForm({ aisle: "", rack: "", bin: "" })}
+                          className="flex items-center gap-1 text-sm px-3 py-1.5 border border-teal-600 text-teal-500 rounded-lg hover:bg-teal-600 hover:text-white">
+                          + Add
+                        </button>
+                      </div>
                     </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setAddLocForm({ aisle: "", rack: "", bin: "" })}
-                    className="flex items-center gap-1 text-sm px-3 py-1.5 border border-teal-600 text-teal-500 rounded-lg hover:bg-teal-600 hover:text-white"
-                  >
-                    + Add
-                  </button>
-                </div>
-              </div>
+
+                    {/* Filter chips row */}
+                    {allAisles.length > 0 && (
+                      <div className={`flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 border-b ${isDarkMode ? "border-gray-700 bg-gray-800/30" : "border-gray-100 bg-gray-50"}`}>
+                        {/* Aisle chips */}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`text-xs font-medium mr-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Aisle:</span>
+                          {allAisles.map((a) => {
+                            const label = a === "__rack_only__" ? "A0" : a;
+                            const active = filterAisles.includes(a);
+                            return (
+                              <button key={a} type="button" onClick={() => toggleAisle(a)}
+                                className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${active ? "bg-teal-600 border-teal-600 text-white" : isDarkMode ? "border-gray-600 text-gray-300 hover:border-teal-500" : "border-gray-300 text-gray-600 hover:border-teal-500"}`}>
+                                {label}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Rack chips — only when aisle selected */}
+                        {filterAisles.length > 0 && availableRacks.length > 0 && (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className={`text-xs font-medium mr-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Rack:</span>
+                            {availableRacks.map((r) => {
+                              const active = filterRacks.includes(r);
+                              return (
+                                <button key={r} type="button" onClick={() => toggleRack(r)}
+                                  className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${active ? "bg-teal-600 border-teal-600 text-white" : isDarkMode ? "border-gray-600 text-gray-300 hover:border-teal-500" : "border-gray-300 text-gray-600 hover:border-teal-500"}`}>
+                                  {r}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* Clear filters */}
+                        {(filterAisles.length > 0 || filterRacks.length > 0) && (
+                          <button type="button" onClick={() => { setFilterAisles([]); setFilterRacks([]); }}
+                            className={`text-xs underline ${isDarkMode ? "text-gray-400 hover:text-gray-200" : "text-gray-500 hover:text-gray-700"}`}>
+                            Clear filters
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
 
               {addLocForm && (
                 <div
@@ -1270,14 +1356,21 @@ const WarehouseDetail = () => {
                 <div className="py-12 text-center">
                   <MapPin className={`w-10 h-10 mx-auto mb-3 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />
                   <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                    No locations yet. Use Generate above or add manually.
+                    No locations yet. Use "Generate Locations" above or add manually.
                   </p>
                 </div>
               ) : (
                 (() => {
+                  // Apply active filters
+                  const visibleData = locTabData.filter((l) => {
+                    const aisleKey = l.aisle ?? "__rack_only__";
+                    if (filterAisles.length > 0 && !filterAisles.includes(aisleKey)) return false;
+                    if (filterRacks.length > 0 && !filterRacks.includes(l.rack)) return false;
+                    return true;
+                  });
                   // Group locations by aisle → rack
                   const aisleMap = new Map();
-                  for (const loc of locTabData) {
+                  for (const loc of visibleData) {
                     const aisleKey = loc.aisle ?? "__rack_only__";
                     if (!aisleMap.has(aisleKey)) aisleMap.set(aisleKey, new Map());
                     const rackMap = aisleMap.get(aisleKey);
@@ -1285,27 +1378,26 @@ const WarehouseDetail = () => {
                     rackMap.get(loc.rack).push(loc);
                   }
                   const sortedAisles = [...aisleMap.keys()].sort((a, b) => {
-                    if (a === "__rack_only__") return -1;
-                    if (b === "__rack_only__") return 1;
-                    return a.localeCompare(b, undefined, { numeric: true });
+                    const labelA = a === "__rack_only__" ? "A0" : a;
+                    const labelB = b === "__rack_only__" ? "A0" : b;
+                    return labelA.localeCompare(labelB, undefined, { numeric: true });
                   });
                   return (
                     <div className="p-4 space-y-5">
                       {sortedAisles.map((aisleKey) => {
                         const rackMap = aisleMap.get(aisleKey);
                         const isRackOnly = aisleKey === "__rack_only__";
+                        const aisleLabel = isRackOnly ? "A0" : aisleKey;
                         const sortedRacks = [...rackMap.keys()].sort((a, b) =>
                           a.localeCompare(b, undefined, { numeric: true })
                         );
                         return (
                           <div key={aisleKey}>
-                            {!isRackOnly && (
-                              <div
-                                className={`text-xs font-semibold uppercase tracking-widest mb-2 pb-1 border-b ${isDarkMode ? "text-gray-400 border-gray-700" : "text-gray-500 border-gray-200"}`}
-                              >
-                                Aisle {aisleKey}
-                              </div>
-                            )}
+                            <div
+                              className={`text-xs font-semibold uppercase tracking-widest mb-2 pb-1 border-b ${isDarkMode ? "text-gray-400 border-gray-700" : "text-gray-500 border-gray-200"}`}
+                            >
+                              Aisle {aisleLabel}
+                            </div>
                             <div className="space-y-3">
                               {sortedRacks.map((rack) => {
                                 const bins = rackMap.get(rack);
@@ -1317,22 +1409,38 @@ const WarehouseDetail = () => {
                                       {rack}
                                     </div>
                                     <div className="flex flex-wrap gap-1.5">
-                                      {bins
-                                        .sort((a, b) => a.bin.localeCompare(b.bin, undefined, { numeric: true }))
-                                        .map((loc) => {
+                                      {(() => {
+                                        const sortedBins = [...bins].sort((a, b) => a.bin.localeCompare(b.bin, undefined, { numeric: true }));
+                                        const binMap = new Map(sortedBins.map((l) => [l.bin, l]));
+                                        // Compute full B1..Bmax range to preserve gaps where bins were deleted
+                                        const maxBinNum = sortedBins.reduce((max, l) => {
+                                          const n = parseInt(l.bin.replace(/\D/g, ""), 10);
+                                          return n > max ? n : max;
+                                        }, 0);
+                                        const slots = Array.from({ length: maxBinNum }, (_, i) => `B${i + 1}`);
+                                        return slots.map((binLabel) => {
+                                          const loc = binMap.get(binLabel);
+                                          if (!loc) {
+                                            // Empty slot — bin was deleted, preserve the space
+                                            return (
+                                              <div
+                                                key={binLabel}
+                                                title="Empty slot (bin deleted)"
+                                                className={`text-sm px-3 py-1.5 rounded font-mono border border-dashed ${
+                                                  isDarkMode ? "border-gray-700 text-gray-700" : "border-gray-200 text-gray-300"
+                                                }`}
+                                              >
+                                                {binLabel}
+                                              </div>
+                                            );
+                                          }
                                           const active = loc.isActive || loc.is_active;
                                           const selected = selectedLocs.has(loc.id);
                                           return (
                                             <div key={loc.id} className="group relative">
                                               <button
                                                 type="button"
-                                                title={
-                                                  selected
-                                                    ? "Click to deselect"
-                                                    : active
-                                                      ? "Click to select"
-                                                      : "Inactive — click to select"
-                                                }
+                                                title={selected ? "Click to deselect" : active ? "Click to select" : "Inactive — click to select"}
                                                 onClick={() => {
                                                   setSelectedLocs((prev) => {
                                                     const next = new Set(prev);
@@ -1355,29 +1463,22 @@ const WarehouseDetail = () => {
                                               >
                                                 {loc.bin}
                                               </button>
-                                              {/* Deactivate / Reactivate icon — visible on hover */}
                                               <button
                                                 type="button"
                                                 title={active ? "Deactivate" : "Reactivate"}
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  handleToggleLocActive(loc);
-                                                }}
+                                                onClick={(e) => { e.stopPropagation(); handleToggleLocActive(loc); }}
                                                 className={`absolute top-0 right-0 bottom-0 px-1.5 flex items-center opacity-0 group-hover:opacity-100 transition-opacity rounded-r border-l ${
                                                   active
-                                                    ? isDarkMode
-                                                      ? "border-teal-700 text-red-400 hover:bg-red-900/30"
-                                                      : "border-teal-300 text-red-500 hover:bg-red-50"
-                                                    : isDarkMode
-                                                      ? "border-gray-700 text-teal-400 hover:bg-teal-900/30"
-                                                      : "border-gray-200 text-teal-600 hover:bg-teal-50"
+                                                    ? isDarkMode ? "border-teal-700 text-red-400 hover:bg-red-900/30" : "border-teal-300 text-red-500 hover:bg-red-50"
+                                                    : isDarkMode ? "border-gray-700 text-teal-400 hover:bg-teal-900/30" : "border-gray-200 text-teal-600 hover:bg-teal-50"
                                                 }`}
                                               >
                                                 <Power className="w-3.5 h-3.5" />
                                               </button>
                                             </div>
                                           );
-                                        })}
+                                        });
+                                      })()}
                                     </div>
                                   </div>
                                 );
@@ -1405,6 +1506,12 @@ const WarehouseDetail = () => {
                         <span className="flex items-center gap-1">
                           <span className="inline-block w-5 h-4 rounded border border-red-500 bg-red-500/10" />
                           Selected
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span
+                            className={`inline-block w-5 h-4 rounded border border-dashed ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                          />
+                          Empty slot
                         </span>
                       </div>
                     </div>

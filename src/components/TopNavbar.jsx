@@ -3,19 +3,25 @@ import {
   Bell,
   Check,
   ChevronDown,
+  FileText,
   HelpCircle,
+  Loader2,
   LogOut,
   Menu,
   Moon,
+  Package,
   Search,
   Settings,
   Sun,
   User,
+  Users,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useNotifications } from "../contexts/NotificationCenterContext";
 import { useTheme } from "../contexts/ThemeContext";
+import { customerService, invoiceService } from "../services/dataService";
+import { productService } from "../services/productService";
 import HomeButton from "./HomeButton";
 
 // Bug #29 fix: Format notification timestamp consistently using relative time format
@@ -50,6 +56,12 @@ const formatNotificationTime = (time) => {
   }
 };
 
+const SEARCH_GROUPS = [
+  { key: "invoices", label: "Invoices", icon: FileText, path: (item) => `/app/invoices/${item.id}`, display: (item) => item.invoice_number || item.invoiceNumber, sub: (item) => item.customer_name || item.customer?.name || "—" },
+  { key: "customers", label: "Customers", icon: Users, path: (item) => `/app/customers/${item.id}`, display: (item) => item.name, sub: (item) => item.email || item.city || "—" },
+  { key: "products", label: "Products", icon: Package, path: (item) => `/app/products/${item.id}`, display: (item) => item.name || item.product_name, sub: (item) => item.category || item.form || "—" },
+];
+
 const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage = "Dashboard" }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
@@ -58,8 +70,66 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
   const { isDarkMode, themeMode, toggleTheme } = useTheme();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const navigate = useNavigate();
-  const location = useLocation();
+
+  // Search state
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState({ invoices: [], customers: [], products: [] });
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const searchRef = useRef(null);
+  const debounceRef = useRef(null);
+
+  // Flatten results for keyboard nav
+  const flatResults = SEARCH_GROUPS.flatMap((g) => searchResults[g.key].map((item) => ({ group: g, item })));
+
+  const runSearch = useCallback(async (q) => {
+    if (q.length < 2) {
+      setSearchResults({ invoices: [], customers: [], products: [] });
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    try {
+      const [inv, cust, prod] = await Promise.all([
+        invoiceService.searchInvoices(q).catch(() => ({})),
+        customerService.searchCustomers(q).catch(() => ({})),
+        productService.searchProducts(q).catch(() => ({})),
+      ]);
+      setSearchResults({
+        invoices: (Array.isArray(inv?.invoices) ? inv.invoices : []).slice(0, 4),
+        customers: (Array.isArray(cust?.customers) ? cust.customers : []).slice(0, 4),
+        products: (Array.isArray(prod?.products) ? prod.products : []).slice(0, 4),
+      });
+    } catch {
+      // silently ignore
+    } finally {
+      setSearchLoading(false);
+    }
+  }, []);
+
+  // Debounce
+  useEffect(() => {
+    clearTimeout(debounceRef.current);
+    if (searchQuery.trim().length >= 2) {
+      debounceRef.current = setTimeout(() => runSearch(searchQuery.trim()), 300);
+    } else {
+      setSearchResults({ invoices: [], customers: [], products: [] });
+    }
+    return () => clearTimeout(debounceRef.current);
+  }, [searchQuery, runSearch]);
+
+  // Close on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setSearchOpen(false);
+        setActiveIndex(-1);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -71,12 +141,51 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
         setShowNotificationDropdown(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleSearchKeyDown = (e) => {
+    if (!searchOpen) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.min(i + 1, flatResults.length - 1 + 1)); // +1 for "see all"
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.max(i - 1, -1));
+    } else if (e.key === "Escape") {
+      setSearchOpen(false);
+      setActiveIndex(-1);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const q = searchQuery.trim();
+      if (!q) return;
+      if (activeIndex >= 0 && activeIndex < flatResults.length) {
+        const { group, item } = flatResults[activeIndex];
+        navigate(group.path(item));
+      } else {
+        navigate(`/app/search?q=${encodeURIComponent(q)}`);
+      }
+      setSearchOpen(false);
+      setSearchQuery("");
+      setActiveIndex(-1);
+    }
+  };
+
+  const handleResultClick = (path) => {
+    navigate(path);
+    setSearchOpen(false);
+    setSearchQuery("");
+    setActiveIndex(-1);
+  };
+
+  const handleViewAll = () => {
+    const q = searchQuery.trim();
+    if (q) navigate(`/app/search?q=${encodeURIComponent(q)}`);
+    setSearchOpen(false);
+    setSearchQuery("");
+    setActiveIndex(-1);
+  };
 
   const handleProfileClick = () => {
     setShowProfileDropdown(!showProfileDropdown);
@@ -125,64 +234,125 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
           </button>
         </div>
 
-        {/* Center Section - Search */}
-        <div className="hidden md:flex flex-1 justify-center max-w-2xl mx-4">
-          <div
-            style={{
-              backgroundColor: isDarkMode ? "#374151" : "#f9fafb",
-              borderColor: isDarkMode ? "#4b5563" : "#d1d5db",
-            }}
-            className="relative w-full max-w-md rounded-2xl border transition-all duration-300 hover:border-teal-500 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20"
-          >
+        {/* Center Section - Instant Search */}
+        <div className="hidden md:flex flex-1 justify-center max-w-2xl mx-4" ref={searchRef}>
+          <div className="relative w-full max-w-lg">
+            {/* Input */}
             <div
-              style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+              style={{
+                backgroundColor: isDarkMode ? "#374151" : "#f9fafb",
+                borderColor: searchOpen ? "#0d9488" : isDarkMode ? "#4b5563" : "#d1d5db",
+                boxShadow: searchOpen ? "0 0 0 3px rgba(13,148,136,0.15)" : "none",
+              }}
+              className="flex items-center rounded-2xl border transition-all duration-200"
             >
-              <Search size={16} />
+              <div style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }} className="pl-3 pointer-events-none flex-shrink-0">
+                {searchLoading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+              </div>
+              <input
+                id="global-search"
+                type="text"
+                placeholder="Search invoices, customers, products…"
+                autoComplete="off"
+                style={{ color: isDarkMode ? "#ffffff" : "#111827", backgroundColor: "transparent" }}
+                className="w-full pl-2 pr-3 py-2.5 border-none outline-none text-sm placeholder-gray-400"
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); setActiveIndex(-1); }}
+                onFocus={() => setSearchOpen(true)}
+                onKeyDown={handleSearchKeyDown}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => { setSearchQuery(""); setSearchOpen(false); setSearchResults({ invoices: [], customers: [], products: [] }); }}
+                  style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }}
+                  className="pr-3 hover:opacity-75 text-lg leading-none flex-shrink-0"
+                  aria-label="Clear search"
+                >
+                  ×
+                </button>
+              )}
             </div>
-            <input
-              id="global-search"
-              type="text"
-              placeholder={location.pathname.startsWith("/customers") ? "Search customers..." : "Search all items..."}
-              style={{
-                color: isDarkMode ? "#ffffff" : "#111827",
-                backgroundColor: "transparent",
-              }}
-              className="w-full pl-10 pr-20 py-3 border-none outline-none transition-all duration-300 placeholder-gray-400 sm:w-80 focus:w-96 lg:w-96 focus:lg:w-[28rem] xl:w-[30rem] focus:xl:w-[35rem]"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  const q = searchQuery.trim();
-                  if (!q) return;
-                  if (location.pathname.startsWith("/customers")) {
-                    navigate(`/app/customers?search=${encodeURIComponent(q)}`);
-                  } else {
-                    navigate(`/app/search?q=${encodeURIComponent(q)}`);
-                  }
-                }
-              }}
-            />
-            <button
-              type="button"
-              title="Search"
-              onClick={() => {
-                const q = searchQuery.trim();
-                if (!q) return;
-                if (location.pathname.startsWith("/customers")) {
-                  navigate(`/app/customers?search=${encodeURIComponent(q)}`);
-                } else {
-                  navigate(`/app/search?q=${encodeURIComponent(q)}`);
-                }
-              }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-              style={{
-                color: isDarkMode ? "#d1d5db" : "#065f46",
-                backgroundColor: isDarkMode ? "#4b5563" : "#d1fae5",
-              }}
-            >
-              Go
-            </button>
+
+            {/* Dropdown */}
+            {searchOpen && searchQuery.trim().length >= 2 && (
+              <div
+                style={{
+                  backgroundColor: isDarkMode ? "#1e2328" : "#ffffff",
+                  borderColor: isDarkMode ? "#374151" : "#e5e7eb",
+                }}
+                className="absolute top-full mt-2 left-0 right-0 rounded-xl border shadow-2xl z-[1100] overflow-hidden"
+              >
+                {searchLoading && flatResults.length === 0 ? (
+                  <div className="flex items-center justify-center gap-2 py-8">
+                    <Loader2 size={18} className="animate-spin text-teal-600" />
+                    <span style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }} className="text-sm">Searching…</span>
+                  </div>
+                ) : flatResults.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <p style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }} className="text-sm">No results for "{searchQuery.trim()}"</p>
+                  </div>
+                ) : (
+                  <div className="py-1 max-h-[480px] overflow-y-auto">
+                    {SEARCH_GROUPS.map((group) => {
+                      const items = searchResults[group.key];
+                      if (items.length === 0) return null;
+                      return (
+                        <div key={group.key}>
+                          {/* Group header */}
+                          <div
+                            style={{ color: isDarkMode ? "#6b7280" : "#9ca3af" }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider"
+                          >
+                            <group.icon size={11} />
+                            {group.label}
+                          </div>
+                          {items.map((item) => {
+                            const globalIdx = flatResults.findIndex((r) => r.group.key === group.key && r.item === item);
+                            const isActive = activeIndex === globalIdx;
+                            return (
+                              <button
+                                type="button"
+                                key={item.id}
+                                onMouseEnter={() => setActiveIndex(globalIdx)}
+                                onClick={() => handleResultClick(group.path(item))}
+                                style={{
+                                  backgroundColor: isActive ? (isDarkMode ? "#2d3748" : "#f0fdf4") : "transparent",
+                                  color: isDarkMode ? "#e5e7eb" : "#111827",
+                                }}
+                                className="w-full flex items-center gap-3 px-3 py-2 text-left transition-colors duration-100"
+                              >
+                                <group.icon size={14} className="flex-shrink-0 text-teal-600" />
+                                <div className="min-w-0">
+                                  <div className="text-sm font-medium truncate">{group.display(item)}</div>
+                                  <div style={{ color: isDarkMode ? "#6b7280" : "#9ca3af" }} className="text-xs truncate">{group.sub(item)}</div>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                {/* Footer */}
+                <div style={{ borderTopColor: isDarkMode ? "#374151" : "#e5e7eb" }} className="border-t">
+                  <button
+                    type="button"
+                    onMouseEnter={() => setActiveIndex(flatResults.length)}
+                    onClick={handleViewAll}
+                    style={{
+                      backgroundColor: activeIndex === flatResults.length ? (isDarkMode ? "#2d3748" : "#f0fdf4") : "transparent",
+                      color: isDarkMode ? "#34d399" : "#0d9488",
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium transition-colors duration-100"
+                  >
+                    <span>See all results for "{searchQuery.trim()}"</span>
+                    <span className="text-xs opacity-60">↵ Enter</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
