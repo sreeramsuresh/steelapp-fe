@@ -773,7 +773,6 @@ const HomePage = () => {
 
                 {/* Section Header */}
                 <div className="flex items-center gap-3 mb-6 pr-10">
-                  <div className={`h-1 w-1 rounded-full ${isDarkMode ? "bg-teal-500" : "bg-teal-600"}`}></div>
                   <h2 className={`text-2xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                     {section.title}
                   </h2>
@@ -796,23 +795,7 @@ const HomePage = () => {
           );
         })}
 
-        {/* BOTTOM: Info Card */}
-        <div
-          className={`rounded-xl border-l-4 border-teal-500 p-6 ${
-            isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
-          }`}
-        >
-          <div className="flex items-start gap-4">
-            <Bell className={`w-6 h-6 mt-1 flex-shrink-0 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
-            <div>
-              <h3 className={`font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>Getting Started</h3>
-              <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                Use Quick Access to navigate to any module, view recent items you&apos;ve worked on, or create new
-                documents. All your data is synchronized in real-time across the system.
-              </p>
-            </div>
-          </div>
-        </div>
+        <div className="pb-8" />
       </div>
     </div>
   );

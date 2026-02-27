@@ -576,9 +576,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                       >
                         {user?.role || "Administrator"}
                       </span>
-                      <div style={{ fontSize: '11px', color: '#999', marginTop: '2px' }}>
-                        v{__APP_VERSION__}
-                      </div>
+                      <div style={{ fontSize: "11px", color: "#999", marginTop: "2px" }}>v{__APP_VERSION__}</div>
                     </div>
                   </div>
                 </div>
