@@ -8,7 +8,6 @@
 import {
   Activity,
   ArrowRight,
-  Bell,
   Edit,
   FileText,
   Package,

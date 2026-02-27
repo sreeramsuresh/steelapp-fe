@@ -382,7 +382,7 @@ describe("Role Validation - Default Values", () => {
       description: "",
       isDirector: true,
     };
-    const { isValid, errors } = validateRoleForm(formData, []);
+    const { isValid } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(formData.isDirector).toBe(true);
@@ -394,7 +394,7 @@ describe("Role Validation - Default Values", () => {
       description: "",
       isDirector: false,
     };
-    const { isValid, errors } = validateRoleForm(formData, []);
+    const { isValid } = validateRoleForm(formData, []);
 
     expect(isValid).toBe(true);
     expect(formData.isDirector).toBe(false);
