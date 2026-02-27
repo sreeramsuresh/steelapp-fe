@@ -9,7 +9,7 @@
  * - Unit conversions
  * - Product lifecycle and status
  *
- * Run: npm run test:e2e -- --spec "**/products.cy.js"
+ * Run: npm run test:e2e -- --spec '**/products.cy.js'
  */
 
 describe("Products Master Data - E2E Tests", () => {

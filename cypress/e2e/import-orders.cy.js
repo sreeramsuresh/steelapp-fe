@@ -8,7 +8,7 @@
  * - Customs documentation
  * - GRN receipt
  *
- * Run: npm run test:e2e -- --spec "**/import-orders.cy.js"
+ * Run: npm run test:e2e -- --spec '**/import-orders.cy.js'
  */
 
 describe("Import Orders - E2E Tests", () => {

@@ -8,7 +8,7 @@
  * - Automatic archival and recall
  * - Quality and compliance scenarios
  *
- * Run: npm run test:e2e -- --spec "**/batch-aging-scenarios.cy.js"
+ * Run: npm run test:e2e -- --spec '**/batch-aging-scenarios.cy.js'
  */
 
 describe("Batch Aging Scenarios - E2E Tests", () => {

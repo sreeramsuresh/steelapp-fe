@@ -8,7 +8,7 @@
  * - Quote expiration
  * - Quote versioning
  *
- * Run: npm run test:e2e -- --spec "**/quotations-complete.cy.js"
+ * Run: npm run test:e2e -- --spec '**/quotations-complete.cy.js'
  */
 
 describe("Quotations - Complete E2E Tests", () => {

@@ -8,7 +8,7 @@
  * - Zero-rated supplies
  * - VAT reconciliation
  *
- * Run: npm run test:e2e -- --spec "**/vat-operations.cy.js"
+ * Run: npm run test:e2e -- --spec '**/vat-operations.cy.js'
  */
 
 describe("VAT Operations - E2E Tests", () => {

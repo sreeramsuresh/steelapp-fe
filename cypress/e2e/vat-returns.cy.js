@@ -8,7 +8,7 @@
  * - Return submission to authorities
  * - Return history and amendments
  *
- * Run: npm run test:e2e -- --spec "**/vat-returns.cy.js"
+ * Run: npm run test:e2e -- --spec '**/vat-returns.cy.js'
  */
 
 describe("VAT Returns - E2E Tests", () => {

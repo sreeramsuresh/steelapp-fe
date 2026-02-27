@@ -9,7 +9,7 @@
  * - Customer performance tracking
  * - Customer segmentation and grouping
  *
- * Run: npm run test:e2e -- --spec "**/customers.cy.js"
+ * Run: npm run test:e2e -- --spec '**/customers.cy.js'
  */
 
 describe("Customers Master Data - E2E Tests", () => {

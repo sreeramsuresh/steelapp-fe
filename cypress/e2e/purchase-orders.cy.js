@@ -8,7 +8,7 @@
  * - Partial receipts via GRN
  * - Supplier quotes to PO conversion
  *
- * Run: npm run test:e2e -- --spec "**/purchase-orders.cy.js"
+ * Run: npm run test:e2e -- --spec '**/purchase-orders.cy.js'
  */
 
 describe("Purchase Orders - E2E Tests", () => {

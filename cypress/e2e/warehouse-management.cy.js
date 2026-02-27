@@ -8,7 +8,7 @@
  * - Stock level monitoring
  * - Warehouse transfers
  *
- * Run: npm run test:e2e -- --spec "**/warehouse-management.cy.js"
+ * Run: npm run test:e2e -- --spec '**/warehouse-management.cy.js'
  */
 
 describe("Warehouse Management - E2E Tests", () => {

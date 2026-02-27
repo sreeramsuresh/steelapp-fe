@@ -8,7 +8,7 @@
  * - Payment reconciliation
  * - Credit/debit notes
  *
- * Run: npm run test:e2e -- --spec "**/supplier-bills.cy.js"
+ * Run: npm run test:e2e -- --spec '**/supplier-bills.cy.js'
  */
 
 describe("Supplier Bills - E2E Tests", () => {

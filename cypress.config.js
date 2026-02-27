@@ -2,7 +2,7 @@ import { defineConfig } from "cypress";
 
 export default defineConfig({
   e2e: {
-    baseUrl: "http://localhost:5173",
+    baseUrl: process.env.CYPRESS_BASE_URL || "http://localhost:5173",
     supportFile: "cypress/support/e2e.js",
     specPattern: "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
 
@@ -25,9 +25,9 @@ export default defineConfig({
 
     // Environment variables
     env: {
-      apiUrl: "http://localhost:3000",
-      testUserEmail: "test@steelapp.com",
-      testUserPassword: "testpassword123",
+      apiUrl: process.env.CYPRESS_API_URL || "",
+      testUserEmail: process.env.E2E_ADMIN_EMAIL || "admin@steelapp.test",
+      testUserPassword: process.env.E2E_ADMIN_PASSWORD || "Test@12345",
     },
 
     setupNodeEvents(on, config) {

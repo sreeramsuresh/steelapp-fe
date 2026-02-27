@@ -7,7 +7,7 @@
  * - Delivery note linkage
  * - Payment reconciliation
  *
- * Run: npm run test:e2e -- --spec "**/invoice-workflows.cy.js"
+ * Run: npm run test:e2e -- --spec '**/invoice-workflows.cy.js'
  */
 
 describe("Invoice Workflows - Advanced E2E Tests", () => {

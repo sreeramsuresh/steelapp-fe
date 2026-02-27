@@ -17,7 +17,7 @@
  * Run Commands:
  *   npm run test:e2e              # Run all tests headless
  *   npm run test:e2e:open         # Open Cypress GUI
- *   npx cypress run --spec "cypress/e2e/invoice-stock-allocation.cy.js"
+ *   npx cypress run --spec "cypress/e2e/invoice-stock-allocation.cy.js'
  *
  * Related Files:
  * - /mnt/d/Ultimate Steel/steelapp-fe/src/pages/InvoiceForm.jsx

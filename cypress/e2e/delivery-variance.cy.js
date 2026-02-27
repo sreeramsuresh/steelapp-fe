@@ -8,7 +8,7 @@
  * - Short receipt and overage handling
  * - Batch variance tracking
  *
- * Run: npm run test:e2e -- --spec "**/delivery-variance.cy.js"
+ * Run: npm run test:e2e -- --spec '**/delivery-variance.cy.js'
  */
 
 describe("Delivery Variance - E2E Tests", () => {

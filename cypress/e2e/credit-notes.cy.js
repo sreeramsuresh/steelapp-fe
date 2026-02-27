@@ -8,7 +8,7 @@
  * - VAT reversal on credits
  * - Stock return tracking
  *
- * Run: npm run test:e2e -- --spec "**/credit-notes.cy.js"
+ * Run: npm run test:e2e -- --spec '**/credit-notes.cy.js'
  */
 
 describe("Credit Notes - E2E Tests", () => {
