@@ -264,7 +264,7 @@ const CommissionPlans = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {plans.map((plan) => (
             <div
-              key={plan.id}
+              key={plan.planId}
               className={`rounded-lg p-6 border ${
                 isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
               } hover:shadow-lg transition-shadow`}
@@ -274,7 +274,7 @@ const CommissionPlans = () => {
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
                     <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                      {plan.name}
+                      {plan.planName || plan.name}
                     </h3>
                     {plan.isActive && (
                       <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Active</span>

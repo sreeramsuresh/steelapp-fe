@@ -40,7 +40,7 @@ const SalesAgentsManagement = () => {
   const handleEditClick = (agent) => {
     setSelectedAgent(agent);
     setEditForm({
-      default_commission_rate: agent.defaultCommissionRate || "",
+      default_commission_rate: agent.baseRate ?? agent.defaultCommissionRate ?? "",
       employee_code: agent.employeeCode || "",
       hire_date: agent.hireDate || "",
       department: agent.department || "",
@@ -55,7 +55,7 @@ const SalesAgentsManagement = () => {
       setSaving(true);
       await commissionService.updateAgent(selectedAgent.id, {
         ...editForm,
-        default_commission_rate: parseFloat(editForm.defaultCommissionRate) || null,
+        default_commission_rate: parseFloat(editForm.defaultCommissionRate ?? editForm.baseRate) || null,
       });
       notificationService.success("Agent updated successfully");
       setShowEditModal(false);
@@ -178,7 +178,9 @@ const SalesAgentsManagement = () => {
                 <div className="flex items-center justify-between">
                   <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Commission Rate</span>
                   <span className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    {agent.defaultCommissionRate ? `${agent.defaultCommissionRate}%` : "Not set"}
+                    {(agent.baseRate ?? agent.defaultCommissionRate)
+                      ? `${agent.baseRate ?? agent.defaultCommissionRate}%`
+                      : "Not set"}
                   </span>
                 </div>
 

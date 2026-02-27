@@ -361,8 +361,8 @@ const CommissionTransactions = () => {
           >
             <option value="all">All Agents</option>
             {agents.map((agent) => (
-              <option key={agent.id} value={agent.id}>
-                {agent.fullName || agent.username}
+              <option key={agent.userId} value={agent.userId}>
+                {agent.userName || agent.fullName}
               </option>
             ))}
           </select>
