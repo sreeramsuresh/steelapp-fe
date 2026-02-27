@@ -8,7 +8,7 @@
  * - Email settings
  * - Document templates
  *
- * Run: npm run test:e2e -- --spec "**/company-settings.cy.js"
+ * Run: npm run test:e2e -- --spec '**/company-settings.cy.js'
  */
 
 describe("Company Settings - E2E Tests", () => {

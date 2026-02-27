@@ -8,7 +8,7 @@
  * - Commercial invoice for shipping
  * - Document collection and delivery
  *
- * Run: npm run test:e2e -- --spec "**/shipping-documents.cy.js"
+ * Run: npm run test:e2e -- --spec '**/shipping-documents.cy.js'
  */
 
 describe("Shipping Documents - E2E Tests", () => {

@@ -8,7 +8,7 @@
  * - Default unit settings
  * - Quantity validation
  *
- * Run: npm run test:e2e -- --spec "**/unit-conversions.cy.js"
+ * Run: npm run test:e2e -- --spec '**/unit-conversions.cy.js'
  */
 
 describe("Unit Conversions - E2E Tests", () => {

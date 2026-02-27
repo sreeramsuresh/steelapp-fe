@@ -8,7 +8,7 @@
  * - Statement delivery via email
  * - Archive and history tracking
  *
- * Run: npm run test:e2e -- --spec "**/account-statements.cy.js"
+ * Run: npm run test:e2e -- --spec '**/account-statements.cy.js'
  */
 
 describe("Account Statements - E2E Tests", () => {

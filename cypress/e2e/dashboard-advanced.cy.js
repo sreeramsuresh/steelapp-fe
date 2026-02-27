@@ -8,7 +8,7 @@
  * - Real-time updates
  * - Export and sharing
  *
- * Run: npm run test:e2e -- --spec "**/dashboard-advanced.cy.js"
+ * Run: npm run test:e2e -- --spec '**/dashboard-advanced.cy.js'
  */
 
 describe("Dashboard Advanced - E2E Tests", () => {

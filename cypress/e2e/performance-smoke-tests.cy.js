@@ -8,7 +8,7 @@
  * - Cache effectiveness
  * - System stability baselines
  *
- * Run: npm run test:e2e -- --spec "**/performance-smoke-tests.cy.js"
+ * Run: npm run test:e2e -- --spec '**/performance-smoke-tests.cy.js'
  */
 
 describe("Performance & Smoke Tests - E2E Tests", () => {

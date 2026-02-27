@@ -8,7 +8,7 @@
  * - Batch FIFO sequencing
  * - Expiry management
  *
- * Run: npm run test:e2e -- --spec "**/stock-batches.cy.js"
+ * Run: npm run test:e2e -- --spec '**/stock-batches.cy.js'
  */
 
 describe("Stock Batches - E2E Tests", () => {

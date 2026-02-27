@@ -7,7 +7,7 @@
  * - Multi-format export
  * - Report distribution
  *
- * Run: npm run test:e2e -- --spec "**/reports-generation.cy.js"
+ * Run: npm run test:e2e -- --spec '**/reports-generation.cy.js'
  */
 
 describe("Reports Generation - E2E Tests", () => {

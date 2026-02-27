@@ -8,7 +8,7 @@
  * - Customer credit limits
  * - Collection workflows
  *
- * Run: npm run test:e2e -- --spec "**/receivables.cy.js"
+ * Run: npm run test:e2e -- --spec '**/receivables.cy.js'
  */
 
 describe("Receivables Management - E2E Tests", () => {

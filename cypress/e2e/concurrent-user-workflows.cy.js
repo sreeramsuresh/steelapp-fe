@@ -7,7 +7,7 @@
  * - Data consistency
  * - Collaboration workflows
  *
- * Run: npm run test:e2e -- --spec "**/concurrent-user-workflows.cy.js"
+ * Run: npm run test:e2e -- --spec '**/concurrent-user-workflows.cy.js'
  */
 
 describe("Concurrent User Workflows - E2E Tests", () => {

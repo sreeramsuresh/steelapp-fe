@@ -7,7 +7,7 @@
  * - Data integrity verification
  * - Audit trail retention
  *
- * Run: npm run test:e2e -- --spec "**/audit-logs.cy.js"
+ * Run: npm run test:e2e -- --spec '**/audit-logs.cy.js'
  */
 
 describe("Audit Logs - E2E Tests", () => {

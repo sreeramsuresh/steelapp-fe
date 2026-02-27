@@ -8,7 +8,7 @@
  * - Advance payment reconciliation
  * - Refund processing
  *
- * Run: npm run test:e2e -- --spec "**/advance-payments.cy.js"
+ * Run: npm run test:e2e -- --spec '**/advance-payments.cy.js'
  */
 
 describe("Advance Payments - E2E Tests", () => {

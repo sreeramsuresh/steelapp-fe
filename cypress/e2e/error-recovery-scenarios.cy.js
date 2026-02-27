@@ -7,7 +7,7 @@
  * - Transaction rollback
  * - Error notifications
  *
- * Run: npm run test:e2e -- --spec "**/error-recovery-scenarios.cy.js"
+ * Run: npm run test:e2e -- --spec '**/error-recovery-scenarios.cy.js'
  */
 
 describe("Error Recovery Scenarios - E2E Tests", () => {
