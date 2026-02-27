@@ -533,7 +533,11 @@ const QuotationList = () => {
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">{getStatusBadge(quotation.status)}</td>
-                    <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td
+                      className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium"
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.key === "Enter" && e.stopPropagation()}
+                    >
                       <div className="flex justify-end gap-2">
                         {authService.hasPermission("quotations", "read") && (
                           <button

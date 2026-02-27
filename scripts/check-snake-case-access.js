@@ -2,8 +2,12 @@
 import { readFileSync, readdirSync, statSync, existsSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
-const ROOT          = decodeURIComponent(new URL("../src", import.meta.url).pathname);
-const BASELINE_PATH = decodeURIComponent(new URL("./snake_case_baseline.json", import.meta.url).pathname);
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const ROOT          = join(__dirname, "..", "src");
+const BASELINE_PATH = join(__dirname, "snake_case_baseline.json");
 const UPDATE_BASELINE  = process.argv.includes("--update-baseline");
 const ANNOTATIONS      = process.argv.includes("--annotations");   // emit ::error:: for GHA
 const SUMMARY_ONLY     = process.argv.includes("--summary");        // counts only, no line-by-line

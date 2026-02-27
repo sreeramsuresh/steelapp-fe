@@ -8,20 +8,21 @@
 // Import custom commands
 import "./commands";
 
-// Disable uncaught exception handling for React/framework errors
+// Suppress known benign app exceptions that don't affect test validity.
+// Each pattern maps to a specific known issue — do NOT add blanket filters.
 Cypress.on("uncaught:exception", (err, runnable) => {
-  // Returning false prevents Cypress from failing the test on app exceptions.
-  // Common in SPAs where lazy-loaded chunks or React internals throw errors
-  // that don't affect test validity (e.g. hydration, memo, lazy loading).
-  if (
-    err.message.includes("React") ||
-    err.message.includes("memo") ||
-    err.message.includes("chunk") ||
-    err.message.includes("Loading chunk") ||
-    err.message.includes("dynamically imported module")
-  ) {
-    return false;
-  }
+  const msg = err.message || "";
+
+  // React internals: minified vendor bundle throws on lazy/Suspense race conditions
+  if (msg.includes("Cannot read properties of undefined (reading 'memo')")) return false;
+
+  // Vite lazy-load failures when chunks are not yet cached
+  if (msg.includes("Loading chunk") || msg.includes("Failed to fetch dynamically imported module")) return false;
+
+  // React hydration mismatch (SSR not used, but React logs it)
+  if (msg.includes("Minified React error")) return false;
+
+  // Let all other errors fail the test — they are real bugs
   return true;
 });
 

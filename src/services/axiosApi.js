@@ -282,7 +282,7 @@ export const apiService = {
     // ========================================================================
     if (IS_DEV) {
       const guard = await getContractGuard();
-      if (guard) {
+      if (guard?.validateRequestContract) {
         guard.validateRequestContract(config);
       }
     }
@@ -298,7 +298,7 @@ export const apiService = {
       // ======================================================================
       if (IS_DEV) {
         const guard = await getContractGuard();
-        if (guard) {
+        if (guard?.validateResponseContract) {
           guard.validateResponseContract({
             method: config.method || "GET",
             url: config.url || "",
