@@ -25,11 +25,10 @@ if [ -n "$JS_FILES" ]; then
   # Run Biome check on staged files with VCS disabled for new files
   npx biome check $JS_FILES --write --vcs-enabled=false 2>&1 | grep -v "This path was provided but ignored"
 
-  # Only fail on actual errors, not on ignored file warnings
   BIOME_EXIT=$?
-  if [ $BIOME_EXIT -ne 0 ] && [ $BIOME_EXIT -ne 1 ]; then
+  if [ $BIOME_EXIT -ne 0 ]; then
     echo ""
-    echo "Biome check failed!"
+    echo "Biome check failed! (errors or warnings found)"
     echo "Fix the issues above or run: npm run lint:fix"
     echo ""
     echo "To run the same check as CI: npm run lint:ci"
