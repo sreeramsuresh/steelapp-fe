@@ -170,6 +170,7 @@ const PriceListForm = lazy(() => import("../pages/PriceListForm"));
 
 // Commission Components
 const AgentCommissionDashboard = lazy(() => import("../pages/AgentCommissionDashboard"));
+const CommissionDashboard = lazy(() => import("../pages/CommissionDashboard"));
 // Phase 4 & 5 Dashboard Components
 const DeliveryVarianceDashboard = lazy(() => import("../pages/DeliveryVarianceDashboard"));
 const SupplierPerformanceDashboard = lazy(() => import("../pages/SupplierPerformanceDashboard"));
@@ -688,6 +689,14 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               }
             />
             <Route
+              path="commission-dashboard"
+              element={
+                <ProtectedRoute user={user}>
+                  <CommissionDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="customer-perspective/:customerId"
               element={
                 <ProtectedRoute user={user} requiredPermission="payables.read">
@@ -1189,14 +1198,6 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredPermission="customers.read">
                   <ARAgingReport />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="commission-dashboard"
-              element={
-                <ProtectedRoute user={user}>
-                  <AgentCommissionDashboard />
                 </ProtectedRoute>
               }
             />

@@ -171,6 +171,12 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           description: "Manage vendor payables and payments",
           requiredPermission: "payables.read",
         },
+        {
+          name: "Commissions",
+          path: "/app/commission-dashboard",
+          icon: BarChart3,
+          description: "Manage commission plans, agents, and payouts",
+        },
       ],
     },
 
