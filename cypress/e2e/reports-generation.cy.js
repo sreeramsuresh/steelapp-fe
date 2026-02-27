@@ -7,7 +7,6 @@
  * - Multi-format export
  * - Report distribution
  *
- * Run: npm run test:e2e -- --spec '**/reports-generation.cy.js'
  */
 
 describe("Reports Generation - E2E Tests", () => {
@@ -17,7 +16,7 @@ describe("Reports Generation - E2E Tests", () => {
 
   describe("Report Creation", () => {
     it("should create custom report", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
       cy.get('button:contains("New Report")').click();
 
       cy.get('input[placeholder*="Report Name"]').type("Monthly Sales Report");
@@ -29,7 +28,7 @@ describe("Reports Generation - E2E Tests", () => {
     });
 
     it("should add columns to report", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
       cy.get('[data-testid="report-row"]').first().click();
 
       cy.get('button:contains("Edit Columns")').click();
@@ -44,7 +43,7 @@ describe("Reports Generation - E2E Tests", () => {
     });
 
     it("should add filters to report", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
       cy.get('[data-testid="report-row"]').first().click();
 
       cy.get('button:contains("Add Filter")').click();
@@ -58,7 +57,7 @@ describe("Reports Generation - E2E Tests", () => {
     });
 
     it("should add grouping to report", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
       cy.get('[data-testid="report-row"]').first().click();
 
       cy.get('button:contains("Grouping")').click();
@@ -70,7 +69,7 @@ describe("Reports Generation - E2E Tests", () => {
     });
 
     it("should add sorting to report", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
       cy.get('[data-testid="report-row"]').first().click();
 
       cy.get('button:contains("Sorting")').click();
@@ -85,7 +84,7 @@ describe("Reports Generation - E2E Tests", () => {
 
   describe("Report Generation", () => {
     it("should generate report on demand", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
       cy.get('[data-testid="report-row"]').first().click();
 
       cy.get('button:contains("Generate")').click();
@@ -96,7 +95,7 @@ describe("Reports Generation - E2E Tests", () => {
     });
 
     it("should apply date filter to report", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
       cy.get('[data-testid="report-row"]').first().click();
 
       cy.get('input[placeholder*="From Date"]').type("2024-01-01");
@@ -108,7 +107,7 @@ describe("Reports Generation - E2E Tests", () => {
     });
 
     it("should apply customer filter to report", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
       cy.get('[data-testid="report-row"]').first().click();
 
       cy.get('input[placeholder*="Customer"]').type("ABC");
@@ -121,7 +120,7 @@ describe("Reports Generation - E2E Tests", () => {
 
   describe("Report Export", () => {
     it("should export report as CSV", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
       cy.get('[data-testid="report-row"]').first().click();
 
       cy.get('button:contains("Generate")').click();
@@ -134,7 +133,7 @@ describe("Reports Generation - E2E Tests", () => {
     });
 
     it("should export report as Excel", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
       cy.get('[data-testid="report-row"]').first().click();
 
       cy.get('button:contains("Generate")').click();
@@ -147,7 +146,7 @@ describe("Reports Generation - E2E Tests", () => {
     });
 
     it("should export report as PDF", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
       cy.get('[data-testid="report-row"]').first().click();
 
       cy.get('button:contains("Generate")').click();
@@ -162,7 +161,7 @@ describe("Reports Generation - E2E Tests", () => {
 
   describe("Report Scheduling", () => {
     it("should schedule report generation", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
       cy.get('[data-testid="report-row"]').first().click();
 
       cy.get('button:contains("Schedule")').click();
@@ -176,7 +175,7 @@ describe("Reports Generation - E2E Tests", () => {
     });
 
     it("should schedule report email distribution", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
       cy.get('[data-testid="report-row"]').first().click();
 
       cy.get('button:contains("Schedule")').click();
@@ -190,13 +189,13 @@ describe("Reports Generation - E2E Tests", () => {
     });
 
     it("should view scheduled reports", () => {
-      cy.visit("/reports/scheduled");
+      cy.visit("/analytics/reports/scheduled");
 
       cy.get('[data-testid="schedule-row"]').should("have.length.greaterThan", 0);
     });
 
     it("should cancel scheduled report", () => {
-      cy.visit("/reports/scheduled");
+      cy.visit("/analytics/reports/scheduled");
       cy.get('[data-testid="schedule-row"]').first().click();
 
       cy.get('button:contains("Cancel")').click();
@@ -208,7 +207,7 @@ describe("Reports Generation - E2E Tests", () => {
 
   describe("Pre-built Reports", () => {
     it("should access sales report template", () => {
-      cy.visit("/reports/templates");
+      cy.visit("/analytics/reports/templates");
 
       cy.get('[data-testid="template"]').contains("Sales Report").click();
 
@@ -218,7 +217,7 @@ describe("Reports Generation - E2E Tests", () => {
     });
 
     it("should access inventory report template", () => {
-      cy.visit("/reports/templates");
+      cy.visit("/analytics/reports/templates");
 
       cy.get('[data-testid="template"]').contains("Inventory Report").click();
 
@@ -228,7 +227,7 @@ describe("Reports Generation - E2E Tests", () => {
     });
 
     it("should access financial report template", () => {
-      cy.visit("/reports/templates");
+      cy.visit("/analytics/reports/templates");
 
       cy.get('[data-testid="template"]').contains("Financial Report").click();
 
@@ -240,7 +239,7 @@ describe("Reports Generation - E2E Tests", () => {
 
   describe("Report Analytics", () => {
     it("should view report generation metrics", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -249,7 +248,7 @@ describe("Reports Generation - E2E Tests", () => {
     });
 
     it("should view most used reports", () => {
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
 
       cy.get('button:contains("Most Used")').click();
 

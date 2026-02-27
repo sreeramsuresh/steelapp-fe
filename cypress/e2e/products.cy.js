@@ -9,7 +9,6 @@
  * - Unit conversions
  * - Product lifecycle and status
  *
- * Run: npm run test:e2e -- --spec '**/products.cy.js'
  */
 
 describe("Products Master Data - E2E Tests", () => {
@@ -19,7 +18,7 @@ describe("Products Master Data - E2E Tests", () => {
 
   describe("Create Products", () => {
     it("should create basic product", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('button:contains("New Product")').click();
 
       // Basic details
@@ -39,7 +38,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should create product with specifications", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('button:contains("New Product")').click();
 
       cy.get('input[placeholder*="Product Name"]').type("SS-316L Sheet");
@@ -58,7 +57,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should create product with pricing", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('button:contains("New Product")').click();
 
       cy.get('input[placeholder*="Product Name"]').type("SS-430 Plate");
@@ -73,7 +72,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should create product with supplier info", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('button:contains("New Product")').click();
 
       cy.get('input[placeholder*="Product Name"]').type("SS-201 Wire");
@@ -95,7 +94,7 @@ describe("Products Master Data - E2E Tests", () => {
 
   describe("Edit Product Details", () => {
     it("should edit product information", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -108,7 +107,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should update product pricing", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -121,7 +120,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should update product category", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -135,7 +134,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should update product specifications", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -148,7 +147,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should add alternate supplier", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Suppliers")').click();
@@ -168,7 +167,7 @@ describe("Products Master Data - E2E Tests", () => {
 
   describe("Product Categorization", () => {
     it("should assign product category", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -182,7 +181,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should set product tags", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -195,7 +194,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should mark product as active/inactive", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -209,7 +208,7 @@ describe("Products Master Data - E2E Tests", () => {
 
   describe("Unit Conversions", () => {
     it("should view product units", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Units")').click();
@@ -219,7 +218,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should add alternate unit", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Units")').click();
@@ -234,7 +233,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should set conversion rates between units", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Units")').click();
@@ -252,7 +251,7 @@ describe("Products Master Data - E2E Tests", () => {
 
   describe("Product Pricing", () => {
     it("should view pricing tiers", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Pricing")').click();
@@ -262,7 +261,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should add price tier", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Pricing")').click();
@@ -277,7 +276,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should set product margin", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -295,7 +294,7 @@ describe("Products Master Data - E2E Tests", () => {
 
   describe("Product Images & Documents", () => {
     it("should upload product image", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Images")').click();
@@ -307,7 +306,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should manage product documents", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Documents")').click();
@@ -323,7 +322,7 @@ describe("Products Master Data - E2E Tests", () => {
 
   describe("Product Search & Filter", () => {
     it("should search product by name", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
 
       cy.get('input[placeholder*="Search"]').type("SS-304");
 
@@ -332,7 +331,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should search product by SKU", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
 
       cy.get('input[placeholder*="Search"]').type("SKU-");
 
@@ -341,7 +340,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should filter products by category", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
 
       cy.get('button:contains("Filters")').click();
 
@@ -354,7 +353,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should filter products by status", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
 
       cy.get('button:contains("Filters")').click();
 
@@ -366,7 +365,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should filter products by price range", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
 
       cy.get('button:contains("Filters")').click();
 
@@ -381,7 +380,7 @@ describe("Products Master Data - E2E Tests", () => {
 
   describe("Delete Product", () => {
     it("should delete inactive product", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"][data-status="INACTIVE"]')
         .first()
         .click();
@@ -396,7 +395,7 @@ describe("Products Master Data - E2E Tests", () => {
 
   describe("Product Analytics", () => {
     it("should view product metrics", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -406,7 +405,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should analyze products by category", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
 
       cy.get('button:contains("By Category")').click();
 
@@ -414,7 +413,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should view slow-moving products", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
 
       cy.get('button:contains("Slow Movers")').click();
 
@@ -422,7 +421,7 @@ describe("Products Master Data - E2E Tests", () => {
     });
 
     it("should export product list", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

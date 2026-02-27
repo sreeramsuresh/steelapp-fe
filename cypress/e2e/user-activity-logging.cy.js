@@ -8,7 +8,6 @@
  * - Login/logout tracking
  * - Access logs
  *
- * Run: npm run test:e2e -- --spec '**/user-activity-logging.cy.js'
  */
 
 describe("User Activity Logging - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("User Activity Logging - E2E Tests", () => {
 
   describe("Activity Log Viewing", () => {
     it("should view user activity log", () => {
-      cy.visit("/admin/activity-logs");
+      cy.visit("/app/activity-logs");
 
       cy.get('[data-testid="log-row"]').should("have.length.greaterThan", 0);
 
@@ -32,7 +31,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should view activity log details", () => {
-      cy.visit("/admin/activity-logs");
+      cy.visit("/app/activity-logs");
       cy.get('[data-testid="log-row"]').first().click();
 
       cy.contains("User").should("be.visible");
@@ -43,7 +42,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should view login history", () => {
-      cy.visit("/admin/login-logs");
+      cy.visit("/app/login-logs");
 
       cy.get('[data-testid="login-row"]').should("have.length.greaterThan", 0);
 
@@ -57,13 +56,13 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should view logout history", () => {
-      cy.visit("/admin/logout-logs");
+      cy.visit("/app/logout-logs");
 
       cy.get('[data-testid="logout-row"]').should("have.length.greaterThan", 0);
     });
 
     it("should view session tracking", () => {
-      cy.visit("/admin/sessions");
+      cy.visit("/app/sessions");
 
       cy.get('[data-testid="session-row"]').should("have.length.greaterThan", 0);
 
@@ -79,7 +78,7 @@ describe("User Activity Logging - E2E Tests", () => {
 
   describe("Activity Filtering", () => {
     it("should filter activity by user", () => {
-      cy.visit("/admin/activity-logs");
+      cy.visit("/app/activity-logs");
 
       cy.get('input[placeholder*="User"]').type("John");
 
@@ -88,7 +87,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should filter activity by action type", () => {
-      cy.visit("/admin/activity-logs");
+      cy.visit("/app/activity-logs");
 
       cy.get('select[name="Action"]').select("CREATE");
 
@@ -96,7 +95,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should filter activity by date range", () => {
-      cy.visit("/admin/activity-logs");
+      cy.visit("/app/activity-logs");
 
       cy.get('input[placeholder*="From Date"]').type("2024-01-01");
       cy.get('input[placeholder*="To Date"]').type("2024-12-31");
@@ -107,7 +106,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should filter activity by module", () => {
-      cy.visit("/admin/activity-logs");
+      cy.visit("/app/activity-logs");
 
       cy.get('select[name="Module"]').select("INVOICES");
 
@@ -115,7 +114,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should filter login by result", () => {
-      cy.visit("/admin/login-logs");
+      cy.visit("/app/login-logs");
 
       cy.get('select[name="Result"]').select("SUCCESS");
 
@@ -125,7 +124,7 @@ describe("User Activity Logging - E2E Tests", () => {
 
   describe("Activity Search", () => {
     it("should search activity log by keyword", () => {
-      cy.visit("/admin/activity-logs");
+      cy.visit("/app/activity-logs");
 
       cy.get('input[placeholder*="Search"]').type("invoice");
 
@@ -134,7 +133,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should search by IP address", () => {
-      cy.visit("/admin/login-logs");
+      cy.visit("/app/login-logs");
 
       cy.get('input[placeholder*="Search"]').type("192.168");
 
@@ -143,7 +142,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should search by user email", () => {
-      cy.visit("/admin/activity-logs");
+      cy.visit("/app/activity-logs");
 
       cy.get('input[placeholder*="Search"]').type("user@example.com");
 
@@ -154,7 +153,7 @@ describe("User Activity Logging - E2E Tests", () => {
 
   describe("Activity Export", () => {
     it("should export activity log", () => {
-      cy.visit("/admin/activity-logs");
+      cy.visit("/app/activity-logs");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");
@@ -164,7 +163,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should export login history", () => {
-      cy.visit("/admin/login-logs");
+      cy.visit("/app/login-logs");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("PDF");
@@ -174,7 +173,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should export session logs", () => {
-      cy.visit("/admin/sessions");
+      cy.visit("/app/sessions");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");
@@ -186,7 +185,7 @@ describe("User Activity Logging - E2E Tests", () => {
 
   describe("Activity Retention & Cleanup", () => {
     it("should configure activity log retention", () => {
-      cy.visit("/admin/settings/logging");
+      cy.visit("/app/settings/logging");
 
       cy.get('button:contains("Edit")').click();
 
@@ -197,14 +196,14 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should view activity log disk usage", () => {
-      cy.visit("/admin/settings/logging");
+      cy.visit("/app/settings/logging");
 
       cy.contains("Disk Usage").should("be.visible");
       cy.contains("Records Stored").should("be.visible");
     });
 
     it("should archive old activity logs", () => {
-      cy.visit("/admin/settings/logging");
+      cy.visit("/app/settings/logging");
 
       cy.get('button:contains("Archive Logs")').click();
 
@@ -215,7 +214,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should purge expired logs", () => {
-      cy.visit("/admin/settings/logging");
+      cy.visit("/app/settings/logging");
 
       cy.get('button:contains("Purge Logs")').click();
 
@@ -226,7 +225,7 @@ describe("User Activity Logging - E2E Tests", () => {
 
   describe("Activity Audit", () => {
     it("should view user activity summary", () => {
-      cy.visit("/admin/users");
+      cy.visit("/app/users");
       cy.get('[data-testid="user-row"]').first().click();
 
       cy.get('button:contains("Activity")').click();
@@ -235,7 +234,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should view resource change audit trail", () => {
-      cy.visit("/admin/audit-trail");
+      cy.visit("/app/audit-trail");
 
       cy.get('select[name="Resource"]').select("INVOICE");
 
@@ -250,7 +249,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should view field-level changes", () => {
-      cy.visit("/admin/audit-trail");
+      cy.visit("/app/audit-trail");
 
       cy.get('[data-testid="change-row"]').first().click();
 
@@ -262,7 +261,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should generate audit report", () => {
-      cy.visit("/admin/audit-trail");
+      cy.visit("/app/audit-trail");
 
       cy.get('button:contains("Generate Report")').click();
 
@@ -279,7 +278,7 @@ describe("User Activity Logging - E2E Tests", () => {
 
   describe("Activity Analytics", () => {
     it("should view user activity metrics", () => {
-      cy.visit("/admin/activity-logs");
+      cy.visit("/app/activity-logs");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -289,7 +288,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should view activity by user", () => {
-      cy.visit("/admin/activity-logs");
+      cy.visit("/app/activity-logs");
 
       cy.get('button:contains("By User")').click();
 
@@ -297,7 +296,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should view activity by action type", () => {
-      cy.visit("/admin/activity-logs");
+      cy.visit("/app/activity-logs");
 
       cy.get('button:contains("By Action")').click();
 
@@ -305,7 +304,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should view hourly activity distribution", () => {
-      cy.visit("/admin/activity-logs");
+      cy.visit("/app/activity-logs");
 
       cy.get('button:contains("Hourly Distribution")').click();
 
@@ -315,7 +314,7 @@ describe("User Activity Logging - E2E Tests", () => {
 
   describe("Session Management", () => {
     it("should view active sessions", () => {
-      cy.visit("/admin/sessions");
+      cy.visit("/app/sessions");
 
       cy.get('[data-testid="session-row"]').should("have.length.greaterThan", 0);
 
@@ -327,7 +326,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should terminate user session", () => {
-      cy.visit("/admin/sessions");
+      cy.visit("/app/sessions");
 
       cy.get('[data-testid="session-row"]').first().within(() => {
         cy.get('button[aria-label="Terminate"]').click();
@@ -338,7 +337,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should force logout all sessions", () => {
-      cy.visit("/admin/users");
+      cy.visit("/app/users");
       cy.get('[data-testid="user-row"]').first().click();
 
       cy.get('button:contains("Force Logout")').click();
@@ -348,7 +347,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should view session duration", () => {
-      cy.visit("/admin/sessions");
+      cy.visit("/app/sessions");
 
       cy.get('[data-testid="session-row"]').first().click();
 
@@ -360,7 +359,7 @@ describe("User Activity Logging - E2E Tests", () => {
 
   describe("Suspicious Activity Detection", () => {
     it("should highlight failed login attempts", () => {
-      cy.visit("/admin/login-logs");
+      cy.visit("/app/login-logs");
 
       cy.get('select[name="Result"]').select("FAILED");
 
@@ -372,7 +371,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should detect rapid activity", () => {
-      cy.visit("/admin/security");
+      cy.visit("/app/security");
 
       cy.get('button:contains("Rapid Activity")').click();
 
@@ -380,7 +379,7 @@ describe("User Activity Logging - E2E Tests", () => {
     });
 
     it("should view security alerts", () => {
-      cy.visit("/admin/security-alerts");
+      cy.visit("/app/security-alerts");
 
       cy.get('[data-testid="alert-row"]').should("have.length.greaterThan", 0);
 

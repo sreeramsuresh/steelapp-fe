@@ -8,7 +8,6 @@
  * - Batch creation
  * - Stock updates
  *
- * Run: npm run test:e2e -- --spec '**/grn.cy.js'
  */
 
 describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
 
   describe("Create GRN", () => {
     it("should create GRN from purchase order", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('button:contains("Create GRN")').click();
 
       // Link to PO
@@ -42,7 +41,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
     });
 
     it("should create standalone GRN without PO", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('button:contains("Create GRN")').click();
 
       cy.get('checkbox[name="create-without-po"]').click();
@@ -64,7 +63,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
     });
 
     it("should create GRN with multiple line items", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('button:contains("Create GRN")').click();
 
       cy.get('input[placeholder*="Select PO"]').type("PO-");
@@ -83,7 +82,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
 
   describe("Partial Receipt Handling", () => {
     it("should record partial receipt of PO", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('button:contains("Create GRN")').click();
 
       cy.get('input[placeholder*="Select PO"]').type("PO-");
@@ -104,7 +103,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
     });
 
     it("should handle overage in receipt", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('button:contains("Create GRN")').click();
 
       cy.get('input[placeholder*="Select PO"]').type("PO-");
@@ -121,7 +120,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
     });
 
     it("should create remainder GRN for outstanding items", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('button:contains("Create GRN")').click();
 
       cy.get('input[placeholder*="Select PO"]').type("PO-");
@@ -143,7 +142,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
 
   describe("Quality Checks", () => {
     it("should record quality inspection results", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Quality Check")').click();
@@ -160,7 +159,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
     });
 
     it("should record quality rejection with damage claims", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Quality Check")').click();
@@ -183,7 +182,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
     });
 
     it("should handle partial quality acceptance", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Quality Check")').click();
@@ -201,7 +200,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
 
   describe("Batch Creation & Tracking", () => {
     it("should create stock batch from GRN", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"][data-status="QUALITY_PASSED"]')
         .first()
         .click();
@@ -218,7 +217,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
     });
 
     it("should track batch details and cost", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"]').first().click();
 
       cy.get('button:contains("View Batches")').click();
@@ -230,7 +229,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
     });
 
     it("should apply landed costs to batch", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"][data-status="QUALITY_PASSED"]')
         .first()
         .click();
@@ -250,7 +249,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
 
   describe("GRN Reconciliation", () => {
     it("should reconcile GRN with invoice", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"][data-status="COMPLETED"]')
         .first()
         .click();
@@ -265,7 +264,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
     });
 
     it("should handle quantity variance in reconciliation", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"][data-status="COMPLETED"]')
         .first()
         .click();
@@ -285,7 +284,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
     });
 
     it("should record GRN exceptions", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -303,7 +302,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
 
   describe("GRN Analytics", () => {
     it("should view receipt performance", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -313,7 +312,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
     });
 
     it("should filter GRNs by status", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
 
       cy.get('select[name="Status"]').select("COMPLETED");
       cy.get('button:contains("Filter")').click();
@@ -326,7 +325,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
 
   describe("GRN Printing & Export", () => {
     it("should download GRN as PDF", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"]').first().click();
 
       cy.get('button:contains("Download PDF")').click();
@@ -335,7 +334,7 @@ describe("Goods Receipt Notes (GRN) - E2E Tests", () => {
     });
 
     it("should export GRN data", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

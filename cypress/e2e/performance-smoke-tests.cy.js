@@ -8,14 +8,13 @@
  * - Cache effectiveness
  * - System stability baselines
  *
- * Run: npm run test:e2e -- --spec '**/performance-smoke-tests.cy.js'
  */
 
 describe("Performance & Smoke Tests - E2E Tests", () => {
   describe("Page Load Performance", () => {
     it("should load dashboard within acceptable time", () => {
       const startTime = Date.now();
-      cy.visit("/dashboard");
+      cy.visit("/app");
       const loadTime = Date.now() - startTime;
 
       cy.contains("Dashboard").should("be.visible");
@@ -25,7 +24,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
     it("should load invoice list within acceptable time", () => {
       cy.login();
       const startTime = Date.now();
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       const loadTime = Date.now() - startTime;
 
       cy.get('[data-testid="invoice-row"]').should("have.length.greaterThan", 0);
@@ -35,7 +34,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
     it("should load customer list within acceptable time", () => {
       cy.login();
       const startTime = Date.now();
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       const loadTime = Date.now() - startTime;
 
       cy.get('[data-testid="customer-row"]').should("have.length.greaterThan", 0);
@@ -45,7 +44,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
     it("should render complex forms quickly", () => {
       cy.login();
       const startTime = Date.now();
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
       const loadTime = Date.now() - startTime;
 
@@ -57,7 +56,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
   describe("Query Performance", () => {
     it("should fetch invoice list efficiently", () => {
       cy.login();
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       // Verify table loads and settles
       cy.get('[data-testid="invoice-row"]').should("have.length.greaterThan", 0);
@@ -66,7 +65,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
 
     it("should filter invoices without lag", () => {
       cy.login();
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       cy.get('input[placeholder*="Search"]').type("INV");
 
@@ -76,7 +75,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
 
     it("should sort columns without blocking", () => {
       cy.login();
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       cy.get('th:contains("Date")').click();
       cy.get('[data-testid="invoice-row"]').eq(0).should("be.visible");
@@ -87,7 +86,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
 
     it("should paginate large result sets", () => {
       cy.login();
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       cy.get('button:contains("Next")').click();
       cy.get('[data-testid="invoice-row"]').should("have.length.greaterThan", 0);
@@ -100,7 +99,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
   describe("Concurrent User Handling", () => {
     it("should handle multiple users creating invoices", () => {
       cy.login();
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       // User 1: Create invoice
       cy.get('button:contains("Create Invoice")').click();
@@ -114,7 +113,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
 
     it("should handle simultaneous report generation", () => {
       cy.login();
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
 
       cy.get('button:contains("Generate")').click();
 
@@ -124,7 +123,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
 
     it("should prevent lock timeouts on shared records", () => {
       cy.login();
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -139,13 +138,13 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
   describe("Cache Effectiveness", () => {
     it("should cache customer data", () => {
       cy.login();
-      cy.visit("/customers");
+      cy.visit("/app/customers");
 
       cy.get('[data-testid="customer-row"]').should("have.length.greaterThan", 0);
 
       // Navigate away and back
-      cy.visit("/invoices");
-      cy.visit("/customers");
+      cy.visit("/app/invoices");
+      cy.visit("/app/customers");
 
       // Should load from cache quickly
       cy.get('[data-testid="customer-row"]').should("have.length.greaterThan", 0);
@@ -153,7 +152,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
 
     it("should cache product list", () => {
       cy.login();
-      cy.visit("/products");
+      cy.visit("/app/products");
 
       cy.get('[data-testid="product-row"]').should("have.length.greaterThan", 0);
 
@@ -164,7 +163,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
 
     it("should invalidate cache on updates", () => {
       cy.login();
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -174,7 +173,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
       cy.contains("Customer updated").should("be.visible");
 
       // Cache should be invalidated
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().should("contain", "Updated");
     });
   });
@@ -191,7 +190,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
 
     it("should handle large file uploads", () => {
       cy.login();
-      cy.visit("/settings/company");
+      cy.visit("/app/settings/company");
 
       cy.get('button:contains("Upload Logo")').click();
       cy.get('input[type="file"]').selectFile("cypress/fixtures/logo.png");
@@ -202,7 +201,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
 
     it("should recover from brief API outages", () => {
       cy.login();
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       cy.get('[data-testid="invoice-row"]').should("have.length.greaterThan", 0);
 
@@ -212,7 +211,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
 
     it("should maintain form state during long operations", () => {
       cy.login();
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Customer");
@@ -228,11 +227,11 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
       cy.login();
 
       // Navigate multiple times
-      cy.visit("/invoices");
-      cy.visit("/customers");
-      cy.visit("/products");
-      cy.visit("/suppliers");
-      cy.visit("/dashboard");
+      cy.visit("/app/invoices");
+      cy.visit("/app/customers");
+      cy.visit("/app/products");
+      cy.visit("/app/suppliers");
+      cy.visit("/app");
 
       // Should still be responsive
       cy.get('button').should("have.length.greaterThan", 0);
@@ -242,7 +241,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
   describe("API Response Time", () => {
     it("should fetch invoice details quickly", () => {
       cy.login();
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.contains("Invoice Details").should("be.visible");
@@ -250,7 +249,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
 
     it("should calculate invoice totals efficiently", () => {
       cy.login();
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.contains("Subtotal").should("be.visible");
@@ -260,7 +259,7 @@ describe("Performance & Smoke Tests - E2E Tests", () => {
 
     it("should generate reports without timeout", () => {
       cy.login();
-      cy.visit("/reports");
+      cy.visit("/analytics/reports");
 
       cy.get('button:contains("Generate")').click();
       cy.get('select[name="Report Type"]').select("SALES");

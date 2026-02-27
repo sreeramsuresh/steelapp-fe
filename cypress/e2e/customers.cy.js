@@ -9,7 +9,6 @@
  * - Customer performance tracking
  * - Customer segmentation and grouping
  *
- * Run: npm run test:e2e -- --spec '**/customers.cy.js'
  */
 
 describe("Customers Master Data - E2E Tests", () => {
@@ -19,7 +18,7 @@ describe("Customers Master Data - E2E Tests", () => {
 
   describe("Create Customers", () => {
     it("should create new customer with basic details", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('button:contains("New Customer")').click();
 
       // Fill customer details
@@ -40,7 +39,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should create customer with address details", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('button:contains("New Customer")').click();
 
       cy.get('input[placeholder*="Customer Name"]').type("Address Test Ltd");
@@ -63,7 +62,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should create customer with tax registration", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('button:contains("New Customer")').click();
 
       cy.get('input[placeholder*="Customer Name"]').type("Tax Registered Ltd");
@@ -78,7 +77,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should create customer with payment terms", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('button:contains("New Customer")').click();
 
       cy.get('input[placeholder*="Customer Name"]').type("Payment Terms Ltd");
@@ -95,7 +94,7 @@ describe("Customers Master Data - E2E Tests", () => {
 
   describe("Edit Customer Details", () => {
     it("should edit customer basic information", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -108,7 +107,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should edit customer address", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Manage Addresses")').click();
@@ -125,7 +124,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should add new contact person", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Add Contact")').click();
@@ -140,7 +139,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should update customer tax information", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -155,7 +154,7 @@ describe("Customers Master Data - E2E Tests", () => {
 
   describe("Credit Management", () => {
     it("should set customer credit limit", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Credit Management")').click();
@@ -168,7 +167,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should place credit hold", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Credit Management")').click();
@@ -181,7 +180,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should review credit exposure", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Credit Exposure")').click();
@@ -193,7 +192,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should set payment terms and credit days", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -208,7 +207,7 @@ describe("Customers Master Data - E2E Tests", () => {
 
   describe("Customer Categorization", () => {
     it("should assign customer group", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -222,7 +221,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should set customer segment", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -234,7 +233,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should assign sales person to customer", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -247,7 +246,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should mark customer as inactive", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -261,7 +260,7 @@ describe("Customers Master Data - E2E Tests", () => {
 
   describe("Customer Performance", () => {
     it("should view customer transaction history", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Transaction History")').click();
@@ -273,7 +272,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should view customer aging analysis", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Aging Analysis")').click();
@@ -285,7 +284,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should view customer payment history", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Payment History")').click();
@@ -297,7 +296,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should view customer sales performance", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Sales Performance")').click();
@@ -308,7 +307,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should view customer lifetime value", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("LTV Analysis")').click();
@@ -321,7 +320,7 @@ describe("Customers Master Data - E2E Tests", () => {
 
   describe("Customer Search & Filter", () => {
     it("should search customer by name", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
 
       cy.get('input[placeholder*="Search"]').type("Customer");
 
@@ -330,7 +329,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should filter customers by group", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
 
       cy.get('button:contains("Filters")').click();
 
@@ -342,7 +341,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should filter customers by segment", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
 
       cy.get('button:contains("Filters")').click();
 
@@ -354,7 +353,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should filter customers by credit status", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
 
       cy.get('button:contains("Filters")').click();
 
@@ -366,7 +365,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should filter customers by status", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
 
       cy.get('button:contains("Filters")').click();
 
@@ -380,7 +379,7 @@ describe("Customers Master Data - E2E Tests", () => {
 
   describe("Customer Documents", () => {
     it("should upload customer license document", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Documents")').click();
@@ -392,7 +391,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should manage customer documents", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Documents")').click();
@@ -407,7 +406,7 @@ describe("Customers Master Data - E2E Tests", () => {
 
   describe("Delete Customer", () => {
     it("should delete inactive customer", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"][data-status="INACTIVE"]')
         .first()
         .click();
@@ -422,7 +421,7 @@ describe("Customers Master Data - E2E Tests", () => {
 
   describe("Customer Analytics", () => {
     it("should view customer metrics", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -433,7 +432,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should analyze customers by segment", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
 
       cy.get('button:contains("By Segment")').click();
 
@@ -441,7 +440,7 @@ describe("Customers Master Data - E2E Tests", () => {
     });
 
     it("should export customer list", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

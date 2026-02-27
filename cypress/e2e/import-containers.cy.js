@@ -8,7 +8,6 @@
  * - Weight and volume tracking
  * - Port and customs clearance
  *
- * Run: npm run test:e2e -- --spec '**/import-containers.cy.js'
  */
 
 describe("Import Containers - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Import Containers - E2E Tests", () => {
 
   describe("Container Creation", () => {
     it("should create new import container", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('button:contains("New Container")').click();
 
       cy.get('input[placeholder*="Container Number"]').type("CONT-001");
@@ -30,7 +29,7 @@ describe("Import Containers - E2E Tests", () => {
     });
 
     it("should assign container to import order", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="order-row"]').first().click();
 
       cy.get('button:contains("Assign Container")').click();
@@ -43,7 +42,7 @@ describe("Import Containers - E2E Tests", () => {
     });
 
     it("should add items to container", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"]').first().click();
 
       cy.get('button:contains("Add Items")').click();
@@ -61,7 +60,7 @@ describe("Import Containers - E2E Tests", () => {
 
   describe("Container Tracking", () => {
     it("should update container status to in-transit", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"][data-status="CREATED"]').first().click();
 
       cy.get('button:contains("Mark In Transit")').click();
@@ -74,7 +73,7 @@ describe("Import Containers - E2E Tests", () => {
     });
 
     it("should update container status to port", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"][data-status="IN_TRANSIT"]').first().click();
 
       cy.get('button:contains("Arrived at Port")').click();
@@ -87,7 +86,7 @@ describe("Import Containers - E2E Tests", () => {
     });
 
     it("should track customs clearance status", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"]').first().click();
 
       cy.contains("Customs Status").should("be.visible");
@@ -95,7 +94,7 @@ describe("Import Containers - E2E Tests", () => {
     });
 
     it("should mark container as cleared", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"][data-status="AT_PORT"]').first().click();
 
       cy.get('button:contains("Mark Cleared")').click();
@@ -109,7 +108,7 @@ describe("Import Containers - E2E Tests", () => {
 
   describe("Container Consolidation", () => {
     it("should consolidate multiple import orders into container", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
 
       cy.get('button:contains("Consolidate")').click();
 
@@ -121,7 +120,7 @@ describe("Import Containers - E2E Tests", () => {
     });
 
     it("should split container items", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"]').first().click();
 
       cy.get('[data-testid="item-row"]').first().click();
@@ -137,7 +136,7 @@ describe("Import Containers - E2E Tests", () => {
 
   describe("Weight & Volume Tracking", () => {
     it("should calculate container weight", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"]').first().click();
 
       cy.contains("Total Weight").should("be.visible");
@@ -145,7 +144,7 @@ describe("Import Containers - E2E Tests", () => {
     });
 
     it("should track volume utilization", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"]').first().click();
 
       cy.contains("Container Capacity").should("be.visible");
@@ -154,7 +153,7 @@ describe("Import Containers - E2E Tests", () => {
     });
 
     it("should warn on overweight", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"]').first().click();
 
       cy.get('button:contains("Add Items")').click();
@@ -167,7 +166,7 @@ describe("Import Containers - E2E Tests", () => {
 
   describe("Port & Customs Management", () => {
     it("should select departure port", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"]').first().click();
 
       cy.get('select[name="Departure Port"]').select("Shanghai");
@@ -177,7 +176,7 @@ describe("Import Containers - E2E Tests", () => {
     });
 
     it("should select destination port", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"]').first().click();
 
       cy.get('select[name="Destination Port"]').select("Jebel Ali");
@@ -187,7 +186,7 @@ describe("Import Containers - E2E Tests", () => {
     });
 
     it("should track estimated arrival", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"]').first().click();
 
       cy.contains("Estimated Arrival").should("be.visible");
@@ -195,7 +194,7 @@ describe("Import Containers - E2E Tests", () => {
     });
 
     it("should manage customs documents", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"]').first().click();
 
       cy.get('button:contains("Customs Docs")').click();
@@ -206,7 +205,7 @@ describe("Import Containers - E2E Tests", () => {
 
   describe("Container Receiving", () => {
     it("should mark container as received", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"][data-status="CLEARED"]').first().click();
 
       cy.get('button:contains("Mark Received")').click();
@@ -219,7 +218,7 @@ describe("Import Containers - E2E Tests", () => {
     });
 
     it("should verify container contents on receipt", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"][data-status="RECEIVED"]').first().click();
 
       cy.get('button:contains("Verify Contents")').click();
@@ -233,7 +232,7 @@ describe("Import Containers - E2E Tests", () => {
     });
 
     it("should create GRN from container receipt", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"][data-status="RECEIVED"]').first().click();
 
       cy.get('button:contains("Create GRN")').click();
@@ -244,14 +243,14 @@ describe("Import Containers - E2E Tests", () => {
 
   describe("Container Reporting", () => {
     it("should view container status report", () => {
-      cy.visit("/reports/import-containers");
+      cy.visit("/analytics/reports/import-containers");
 
       cy.contains("Container Status Report").should("be.visible");
       cy.get('[data-testid="container-row"]').should("have.length.greaterThan", 0);
     });
 
     it("should filter containers by status", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
 
       cy.get('select[name="Status"]').select("IN_TRANSIT");
 
@@ -259,7 +258,7 @@ describe("Import Containers - E2E Tests", () => {
     });
 
     it("should export container tracking data", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

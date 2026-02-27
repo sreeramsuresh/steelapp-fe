@@ -8,7 +8,6 @@
  * - Batch FIFO sequencing
  * - Expiry management
  *
- * Run: npm run test:e2e -- --spec '**/stock-batches.cy.js'
  */
 
 describe("Stock Batches - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Stock Batches - E2E Tests", () => {
 
   describe("Create Stock Batches", () => {
     it("should create batch from GRN", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('button:contains("Create Batch")').click();
 
       // Link to GRN
@@ -41,7 +40,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should create batch with landed costs", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('button:contains("Create Batch")').click();
 
       cy.get('input[placeholder*="Select GRN"]').type("GRN-");
@@ -61,7 +60,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should create manual batch without GRN", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('button:contains("Create Batch")').click();
 
       cy.get('checkbox[name="manual-entry"]').click();
@@ -85,7 +84,7 @@ describe("Stock Batches - E2E Tests", () => {
 
   describe("Batch Allocation", () => {
     it("should allocate batch to invoice line item", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Allocate")').click();
@@ -100,7 +99,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should split batch allocation", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Split Allocation")').click();
@@ -121,7 +120,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should handle FIFO allocation automatically", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
 
       // Navigate to batch allocation
       cy.get('button:contains("Batch Allocation")').click();
@@ -140,7 +139,7 @@ describe("Stock Batches - E2E Tests", () => {
 
   describe("Batch Tracking & Analysis", () => {
     it("should view batch details and cost breakdown", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       // Verify batch information
@@ -151,7 +150,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should track batch aging", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Aging Analysis")').click();
@@ -162,7 +161,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should view batch allocation history", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Allocation History")').click();
@@ -171,7 +170,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should track batch locations across warehouses", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Warehouse Locations")').click();
@@ -184,7 +183,7 @@ describe("Stock Batches - E2E Tests", () => {
 
   describe("Batch Expiry Management", () => {
     it("should flag batch approaching expiry", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
 
       // Set expiry filter to 30 days
       cy.get('input[placeholder*="Expiry Warning Days"]').type("30");
@@ -197,7 +196,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should mark batch as expired", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"][data-status="EXPIRED"]').first().click();
 
       cy.get('button:contains("Mark Expired")').click();
@@ -208,7 +207,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should dispose of expired batch", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"][data-status="EXPIRED"]').first().click();
 
       cy.get('button:contains("Dispose")').click();
@@ -224,7 +223,7 @@ describe("Stock Batches - E2E Tests", () => {
 
   describe("Batch Cost Calculations", () => {
     it("should calculate weighted average cost", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
 
       cy.get('button:contains("Cost Analysis")').click();
 
@@ -233,7 +232,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should view landed cost allocation breakdown", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Landed Cost Breakdown")').click();
@@ -245,7 +244,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should revalue batch cost", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Revalue")').click();
@@ -260,7 +259,7 @@ describe("Stock Batches - E2E Tests", () => {
 
   describe("Batch Reconciliation", () => {
     it("should reconcile batch with delivery notes", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Reconcile DNs")').click();
@@ -275,7 +274,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should verify batch count via stock take", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Stock Count")').click();
@@ -295,7 +294,7 @@ describe("Stock Batches - E2E Tests", () => {
 
   describe("Batch Analytics", () => {
     it("should view batch inventory metrics", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -305,7 +304,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should filter batches by product", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
 
       cy.get('input[placeholder*="Product"]').type("SS-304");
       cy.get('button:contains("Filter")').click();
@@ -316,7 +315,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should filter batches by status", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
 
       cy.get('select[name="Status"]').select("AVAILABLE");
       cy.get('button:contains("Filter")').click();
@@ -329,7 +328,7 @@ describe("Stock Batches - E2E Tests", () => {
 
   describe("Batch Export", () => {
     it("should export batch list to CSV", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");
@@ -339,7 +338,7 @@ describe("Stock Batches - E2E Tests", () => {
     });
 
     it("should export batch details report", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Export Details")').click();

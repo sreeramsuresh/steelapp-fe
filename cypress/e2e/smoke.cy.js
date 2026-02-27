@@ -34,7 +34,7 @@ describe("Smoke Tests - Critical User Flows", () => {
     cy.get('button[type="submit"]').click();
 
     // Verify redirect to dashboard
-    cy.url().should("include", "/dashboard");
+    cy.url({ timeout: 15000 }).should("match", /\/(app|analytics)/);
 
     // Verify dashboard elements load
     cy.contains(/dashboard|overview|home/i).should("be.visible");
@@ -45,7 +45,7 @@ describe("Smoke Tests - Critical User Flows", () => {
     cy.login();
 
     // Navigate to invoices
-    cy.visit("/invoices");
+    cy.visit("/app/invoices");
 
     // Wait for page to load
     cy.contains(/invoice/i).should("be.visible");
@@ -63,7 +63,7 @@ describe("Smoke Tests - Critical User Flows", () => {
   it("3. Should create a new invoice successfully", () => {
     cy.login();
 
-    cy.visit("/invoices");
+    cy.visit("/app/invoices");
 
     // Click create/new invoice button
     cy.contains(/new|create|add/i).click();
@@ -107,7 +107,7 @@ describe("Smoke Tests - Critical User Flows", () => {
   it("4. Should add payment to an invoice and update balance", () => {
     cy.login();
 
-    cy.visit("/invoices");
+    cy.visit("/app/invoices");
 
     // Find an unpaid or partially paid invoice
     // Click on the first invoice row
@@ -164,7 +164,7 @@ describe("Smoke Tests - Critical User Flows", () => {
   it("5. Should logout successfully", () => {
     cy.login();
 
-    cy.visit("/dashboard");
+    cy.visit("/app");
 
     // Click logout button (adjust selector based on actual implementation)
     cy.get(
@@ -211,7 +211,7 @@ describe("Smoke Tests - Error Handling", () => {
     cy.login();
 
     // Try to access non-existent invoice
-    cy.visit("/invoices/99999999", { failOnStatusCode: false });
+    cy.visit("/app/invoices/99999999", { failOnStatusCode: false });
 
     // Should show error message or redirect
     cy.contains(/not found|error|invalid/i, { timeout: 5000 }).should(

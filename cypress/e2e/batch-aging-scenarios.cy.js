@@ -8,7 +8,6 @@
  * - Automatic archival and recall
  * - Quality and compliance scenarios
  *
- * Run: npm run test:e2e -- --spec '**/batch-aging-scenarios.cy.js'
  */
 
 describe("Batch Aging Scenarios - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
 
   describe("Batch Expiration Management", () => {
     it("should warn when batch nearing expiration", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').should("have.length.greaterThan", 0);
 
       // Check for expiration warning indicator
@@ -26,7 +25,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     });
 
     it("should prevent allocation of expired batches", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Customer");
@@ -41,7 +40,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     });
 
     it("should apply grace period before expiration", () => {
-      cy.visit("/settings/stock");;
+      cy.visit("/app/settings/stock");;
 
       cy.get('button:contains("Edit")').click();
 
@@ -52,7 +51,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     });
 
     it("should notify when batch expires", () => {
-      cy.visit("/notifications");
+      cy.visit("/app");
 
       cy.contains("Batch expiration").should("be.visible");
     });
@@ -60,7 +59,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
 
   describe("FIFO/LIFO Allocation", () => {
     it("should allocate using FIFO strategy", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('button:contains("Configure")').click();
 
       cy.get('select[name="Allocation Strategy"]').select("FIFO");
@@ -70,7 +69,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     });
 
     it("should allocate using LIFO strategy", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('button:contains("Configure")').click();
 
       cy.get('select[name="Allocation Strategy"]').select("LIFO");
@@ -80,7 +79,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     });
 
     it("should verify batch order in allocation", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Customer");
@@ -100,7 +99,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
 
   describe("Batch Lifecycle", () => {
     it("should transition batch through lifecycle", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.contains("Status: ACTIVE").should("be.visible");
@@ -109,7 +108,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     });
 
     it("should create batch with initial state", () => {
-      cy.visit("/warehouse-management");
+      cy.visit("/app/warehouses");
       cy.get('button:contains("Receive Stock")').click();
 
       cy.get('input[placeholder*="Product"]').type("SS-304");
@@ -125,7 +124,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     });
 
     it("should archive consumed batches", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
 
       cy.get('button:contains("Archive")').click();
 
@@ -136,7 +135,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     });
 
     it("should restore archived batch", () => {
-      cy.visit("/stock-batches/archive");
+      cy.visit("/app/inventory/archive");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Restore")').click();
@@ -148,7 +147,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
 
   describe("Batch Aging Analysis", () => {
     it("should view batch aging report", () => {
-      cy.visit("/reports/batch-aging");
+      cy.visit("/analytics/reports/batch-aging");
 
       cy.contains("Batch Aging Report").should("be.visible");
       cy.contains("Days in Stock").should("be.visible");
@@ -164,7 +163,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     });
 
     it("should calculate batch holding costs", () => {
-      cy.visit("/reports/batch-aging");
+      cy.visit("/analytics/reports/batch-aging");
 
       cy.get('button:contains("Calculate Costs")').click();
 
@@ -173,7 +172,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     });
 
     it("should export batch aging data", () => {
-      cy.visit("/reports/batch-aging");
+      cy.visit("/analytics/reports/batch-aging");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");
@@ -185,7 +184,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
 
   describe("Batch Quality & Compliance", () => {
     it("should mark batch as quarantine", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Quarantine")').click();
@@ -197,7 +196,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     });
 
     it("should release quarantined batch", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"][data-status="QUARANTINE"]').first().click();
 
       cy.get('button:contains("Release")').click();
@@ -207,7 +206,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     });
 
     it("should perform batch recall", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
 
       cy.get('button:contains("Recall")').click();
 
@@ -219,7 +218,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     });
 
     it("should track batch genealogy", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Genealogy")').click();
@@ -232,7 +231,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
 
   describe("Batch Consolidation", () => {
     it("should consolidate similar batches", () => {
-      cy.visit("/warehouse-management");
+      cy.visit("/app/warehouses");
 
       cy.get('button:contains("Consolidate Batches")').click();
 
@@ -246,7 +245,7 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     });
 
     it("should split batch quantity", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Split")').click();

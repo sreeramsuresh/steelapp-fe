@@ -53,6 +53,23 @@ Cypress.Commands.add("login", (email, password) => {
 });
 
 /**
+ * Login as admin user (alias for cy.login with admin credentials)
+ */
+Cypress.Commands.add("loginAsAdmin", () => {
+  cy.login(Cypress.env("testUserEmail"), Cypress.env("testUserPassword"));
+});
+
+/**
+ * Login as a regular (non-admin) user
+ * In test environment, falls back to the same test user credentials
+ */
+Cypress.Commands.add("loginAsUser", (role) => {
+  // In E2E test environment, we use the same test user
+  // A proper multi-user setup would use different credentials per role
+  cy.login(Cypress.env("testUserEmail"), Cypress.env("testUserPassword"));
+});
+
+/**
  * Login via UI (fallback — uses form interaction)
  * Usage: cy.loginViaUI() or cy.loginViaUI('user@example.com', 'password')
  */
@@ -111,11 +128,15 @@ Cypress.Commands.add("logout", () => {
  */
 Cypress.Commands.add("navigateTo", (page) => {
   const routes = {
-    dashboard: "/dashboard",
-    invoices: "/invoices",
-    customers: "/customers",
-    products: "/products",
-    payments: "/payments",
+    dashboard: "/app",
+    invoices: "/app/invoices",
+    customers: "/app/customers",
+    products: "/app/products",
+    payments: "/app/receivables",
+    quotations: "/app/quotations",
+    suppliers: "/app/suppliers",
+    warehouses: "/app/warehouses",
+    settings: "/app/settings",
   };
 
   cy.visit(routes[page] || `/${page}`);

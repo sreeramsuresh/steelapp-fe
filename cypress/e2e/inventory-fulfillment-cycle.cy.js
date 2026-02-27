@@ -30,7 +30,7 @@ describe("Inventory & Fulfillment Cycle - Complete Workflow E2E Tests", () => {
   describe("Stock Import to Fulfillment", () => {
     it("should import stock via GRN and allocate to invoice", () => {
       // Step 1: Create GRN to import stock
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.wait("@getProducts");
 
       cy.contains("button", "New")
@@ -76,7 +76,7 @@ describe("Inventory & Fulfillment Cycle - Complete Workflow E2E Tests", () => {
       );
 
       // Step 2: Create invoice and allocate batch
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -122,7 +122,7 @@ describe("Inventory & Fulfillment Cycle - Complete Workflow E2E Tests", () => {
       );
 
       // Step 5: Verify remaining stock
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.wait("@getBatches");
 
       cy.contains("BATCH-2024-001").click();
@@ -131,7 +131,7 @@ describe("Inventory & Fulfillment Cycle - Complete Workflow E2E Tests", () => {
 
     it("should allocate batches using FIFO order", () => {
       // This test assumes multiple batches exist with different cost prices
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -159,7 +159,7 @@ describe("Inventory & Fulfillment Cycle - Complete Workflow E2E Tests", () => {
     });
 
     it("should record stock variance and reconcile", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
       cy.wait("@getBatches");
 
       cy.contains("button", "Adjust", { timeout: 5000 }).click();
@@ -194,7 +194,7 @@ describe("Inventory & Fulfillment Cycle - Complete Workflow E2E Tests", () => {
       );
 
       // Verify stock adjusted
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.wait("@getBatches");
 
       cy.contains(TEST_PRODUCT_NAME).click();
@@ -204,7 +204,7 @@ describe("Inventory & Fulfillment Cycle - Complete Workflow E2E Tests", () => {
 
   describe("Warehouse Operations", () => {
     it("should transfer stock between warehouses", () => {
-      cy.visit("/warehouse-transfers");
+      cy.visit("/app/stock-movements");
 
       cy.contains("button", "New")
         .first()
@@ -265,7 +265,7 @@ describe("Inventory & Fulfillment Cycle - Complete Workflow E2E Tests", () => {
 
   describe("Delivery Reconciliation", () => {
     it("should handle partial delivery with balance tracking", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")

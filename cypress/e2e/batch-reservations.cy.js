@@ -8,7 +8,6 @@
  * - Reservation expiry
  * - Batch hold management
  *
- * Run: npm run test:e2e -- --spec '**/batch-reservations.cy.js'
  */
 
 describe("Batch Reservations - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Batch Reservations - E2E Tests", () => {
 
   describe("Reserve Batches", () => {
     it("should reserve batch for invoice", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
       cy.get('button:contains("Create Reservation")').click();
 
       // Link to invoice
@@ -41,7 +40,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should auto-select FIFO batch on reservation", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
       cy.get('button:contains("Create Reservation")').click();
 
       cy.get('input[placeholder*="Select Invoice"]').type("INV-");
@@ -60,7 +59,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should split reservation across multiple batches", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
       cy.get('button:contains("Create Reservation")').click();
 
       cy.get('input[placeholder*="Select Invoice"]').type("INV-");
@@ -79,7 +78,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should handle insufficient stock on reservation", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
       cy.get('button:contains("Create Reservation")').click();
 
       cy.get('input[placeholder*="Select Invoice"]').type("INV-");
@@ -99,7 +98,7 @@ describe("Batch Reservations - E2E Tests", () => {
 
   describe("Release Reservations", () => {
     it("should release batch reservation", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="reservation-row"][data-status="RESERVED"]')
         .first()
         .click();
@@ -112,7 +111,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should partially release reservation", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="reservation-row"][data-status="RESERVED"]')
         .first()
         .click();
@@ -127,7 +126,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should auto-release expired reservation", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
 
       // Set expiry filter
       cy.get('input[placeholder*="Show Expiring"]').type("1");
@@ -143,7 +142,7 @@ describe("Batch Reservations - E2E Tests", () => {
 
   describe("Allocation & Conversion", () => {
     it("should convert reservation to allocation", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="reservation-row"][data-status="RESERVED"]')
         .first()
         .click();
@@ -157,7 +156,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should swap batch on reservation", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="reservation-row"][data-status="RESERVED"]')
         .first()
         .click();
@@ -172,7 +171,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should override automatic allocation", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="reservation-row"][data-status="RESERVED"]')
         .first()
         .click();
@@ -194,7 +193,7 @@ describe("Batch Reservations - E2E Tests", () => {
 
   describe("Reservation Expiry", () => {
     it("should set reservation expiry", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
       cy.get('button:contains("Create Reservation")').click();
 
       cy.get('input[placeholder*="Select Invoice"]').type("INV-");
@@ -214,7 +213,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should extend reservation expiry", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="reservation-row"][data-status="EXPIRING_SOON"]')
         .first()
         .click();
@@ -228,7 +227,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should view expiring reservations", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
 
       cy.get('button:contains("Expiring Soon")').click();
 
@@ -241,7 +240,7 @@ describe("Batch Reservations - E2E Tests", () => {
 
   describe("Batch Hold Management", () => {
     it("should place hold on batch", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="reservation-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -255,7 +254,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should release hold on batch", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="reservation-row"][data-status="ON_HOLD"]')
         .first()
         .click();
@@ -267,7 +266,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should view holds on batch", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
 
       cy.get('button:contains("View Holds")').click();
 
@@ -277,7 +276,7 @@ describe("Batch Reservations - E2E Tests", () => {
 
   describe("Reservation Reporting", () => {
     it("should view active reservations by product", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
 
       cy.get('button:contains("Active Reservations")').click();
 
@@ -288,7 +287,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should view reservation utilization rate", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -298,7 +297,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should identify overallocated products", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
 
       cy.get('button:contains("Overallocation Check")').click();
 
@@ -311,7 +310,7 @@ describe("Batch Reservations - E2E Tests", () => {
 
   describe("Batch Conflict Resolution", () => {
     it("should detect conflicting reservations", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
 
       cy.get('button:contains("Check Conflicts")').click();
 
@@ -324,7 +323,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should resolve reservation priority", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
 
       cy.get('button:contains("Manage Conflicts")').click();
 
@@ -341,7 +340,7 @@ describe("Batch Reservations - E2E Tests", () => {
 
   describe("Reservation Audit", () => {
     it("should view reservation audit trail", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="reservation-row"]').first().click();
 
       cy.get('button:contains("Audit Trail")').click();
@@ -350,7 +349,7 @@ describe("Batch Reservations - E2E Tests", () => {
     });
 
     it("should export reservation report", () => {
-      cy.visit("/batch-reservations");
+      cy.visit("/app/inventory");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

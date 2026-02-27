@@ -8,7 +8,6 @@
  * - Customer credit limits
  * - Collection workflows
  *
- * Run: npm run test:e2e -- --spec '**/receivables.cy.js'
  */
 
 describe("Receivables Management - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Receivables Management - E2E Tests", () => {
 
   describe("Receivables Analysis", () => {
     it("should view AR aging report", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
       cy.get('button:contains("AR Aging")').click();
 
       cy.contains("Current").should("be.visible");
@@ -30,7 +29,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should view customer receivables summary", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Customer Summary")').click();
 
@@ -46,7 +45,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should calculate Days Sales Outstanding (DSO)", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("DSO Analysis")').click();
 
@@ -56,7 +55,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should view customer credit utilization", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Credit Utilization")').click();
 
@@ -68,7 +67,7 @@ describe("Receivables Management - E2E Tests", () => {
 
   describe("Follow-up Management", () => {
     it("should create follow-up for overdue invoice", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
       cy.get('button:contains("AR Aging")').click();
 
       // Select overdue bucket
@@ -87,7 +86,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should send payment reminder email", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
       cy.get('button:contains("AR Aging")').click();
 
       cy.get('[data-testid="aging-bucket"][data-days="30+"]').click();
@@ -105,7 +104,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should escalate collection case", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
       cy.get('button:contains("AR Aging")').click();
 
       cy.get('[data-testid="aging-bucket"][data-days="90+"]').click();
@@ -123,7 +122,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should track follow-up history", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Follow-up History")').click();
@@ -134,7 +133,7 @@ describe("Receivables Management - E2E Tests", () => {
 
   describe("Write-off Procedures", () => {
     it("should write-off bad debt", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
       cy.get('button:contains("AR Aging")').click();
 
       cy.get('[data-testid="aging-bucket"][data-days="90+"]').click();
@@ -154,7 +153,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should create credit note for write-off", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
       cy.get('[data-testid="invoice-row"][data-status="WRITTEN_OFF"]')
         .first()
         .click();
@@ -166,7 +165,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should recover written-off amount", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
       cy.get('button:contains("Write-off Recovery")').click();
 
       cy.get('input[placeholder*="Select Invoice"]').type("INV-");
@@ -181,7 +180,7 @@ describe("Receivables Management - E2E Tests", () => {
 
   describe("Credit Limit Management", () => {
     it("should view customer credit limit", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
       cy.get('button:contains("Credit Limits")').click();
 
       cy.get('[data-testid="customer-row"]').first().click();
@@ -192,7 +191,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should update customer credit limit", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
       cy.get('button:contains("Credit Limits")').click();
 
       cy.get('[data-testid="customer-row"]').first().click();
@@ -207,7 +206,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should alert on credit limit exceeded", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Credit Alerts")').click();
 
@@ -218,7 +217,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should freeze account for credit limit breach", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
       cy.get('button:contains("Credit Alerts")').click();
 
       cy.get('[data-testid="alert-row"][data-alert-type="CREDIT_EXCEEDED"]')
@@ -236,7 +235,7 @@ describe("Receivables Management - E2E Tests", () => {
 
   describe("Receivables Reconciliation", () => {
     it("should reconcile receivables ledger", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Reconcile")').click();
 
@@ -249,7 +248,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should identify reconciliation variance", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Reconcile")').click();
 
@@ -267,7 +266,7 @@ describe("Receivables Management - E2E Tests", () => {
 
   describe("Customer Communication", () => {
     it("should generate customer statement", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
       cy.get('button:contains("Customer Statements")').click();
 
       cy.get('input[placeholder*="Select Customer"]').type("Test Customer");
@@ -282,7 +281,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should email customer statement", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
       cy.get('button:contains("Customer Statements")').click();
 
       cy.get('input[placeholder*="Select Customer"]').type("Test Customer");
@@ -299,7 +298,7 @@ describe("Receivables Management - E2E Tests", () => {
 
   describe("Receivables Analytics", () => {
     it("should view receivables trends", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -309,7 +308,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should compare customer payment performance", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Customer Comparison")').click();
 
@@ -317,7 +316,7 @@ describe("Receivables Management - E2E Tests", () => {
     });
 
     it("should export AR aging report", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("PDF");

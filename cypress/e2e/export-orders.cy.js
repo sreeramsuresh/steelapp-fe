@@ -8,7 +8,6 @@
  * - Zero-rating validation
  * - Shipment tracking
  *
- * Run: npm run test:e2e -- --spec '**/export-orders.cy.js'
  */
 
 describe("Export Orders - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Export Orders - E2E Tests", () => {
 
   describe("Create Export Orders", () => {
     it("should create basic export order", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('button:contains("Create Export Order")').click();
 
       // Customer details
@@ -41,7 +40,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should create export order with multiple items", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('button:contains("Create Export Order")').click();
 
       cy.get('input[placeholder*="Select customer"]').type("International Customer");
@@ -68,7 +67,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should create export order with zero-rating", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('button:contains("Create Export Order")').click();
 
       cy.get('input[placeholder*="Select customer"]').type("International Customer");
@@ -90,7 +89,7 @@ describe("Export Orders - E2E Tests", () => {
 
   describe("Shipping Documentation", () => {
     it("should generate shipping instructions", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-order-row"]').first().click();
 
       cy.get('button:contains("Shipping Instructions")').click();
@@ -100,7 +99,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should generate Bill of Lading", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-order-row"][data-status="READY_TO_SHIP"]')
         .first()
         .click();
@@ -116,7 +115,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should generate packing list", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-order-row"]').first().click();
 
       cy.get('button:contains("Packing List")').click();
@@ -127,7 +126,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should generate Certificate of Origin", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-order-row"]').first().click();
 
       cy.get('button:contains("Certificate of Origin")').click();
@@ -140,7 +139,7 @@ describe("Export Orders - E2E Tests", () => {
 
   describe("Customs Clearance for Exports", () => {
     it("should submit export declaration", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-order-row"]').first().click();
 
       cy.get('button:contains("Export Declaration")').click();
@@ -151,7 +150,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should track customs clearance status", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-order-row"]').first().click();
 
       cy.get('button:contains("Clearance Status")').click();
@@ -161,7 +160,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should verify zero-rating for export", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-order-row"][data-zero-rated="true"]')
         .first()
         .click();
@@ -175,7 +174,7 @@ describe("Export Orders - E2E Tests", () => {
 
   describe("Shipment Tracking", () => {
     it("should track shipment status", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-order-row"]').first().click();
 
       cy.get('button:contains("Track Shipment")').click();
@@ -186,7 +185,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should record shipment milestones", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-order-row"]').first().click();
 
       cy.get('button:contains("Track Shipment")').click();
@@ -201,7 +200,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should update customer on shipment", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-order-row"]').first().click();
 
       cy.get('button:contains("Track Shipment")').click();
@@ -215,7 +214,7 @@ describe("Export Orders - E2E Tests", () => {
 
   describe("Delivery & Invoice", () => {
     it("should create delivery note from export order", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-order-row"]').first().click();
 
       cy.get('button:contains("Create Delivery Note")').click();
@@ -225,7 +224,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should create invoice from export order", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-order-row"]').first().click();
 
       cy.get('button:contains("Create Invoice")').click();
@@ -238,7 +237,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should mark export order as complete", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-order-row"][data-status="INVOICED"]')
         .first()
         .click();
@@ -252,7 +251,7 @@ describe("Export Orders - E2E Tests", () => {
 
   describe("Export Order Analytics", () => {
     it("should view export orders metrics", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -262,7 +261,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should analyze exports by destination", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
 
       cy.get('button:contains("By Destination")').click();
 
@@ -270,7 +269,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should track zero-rated export supplies", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
 
       cy.get('button:contains("Zero-Rated Analysis")').click();
 
@@ -279,7 +278,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should export orders report", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");
@@ -291,7 +290,7 @@ describe("Export Orders - E2E Tests", () => {
 
   describe("Export Compliance", () => {
     it("should verify export documentation completeness", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-order-row"]').first().click();
 
       cy.get('button:contains("Documentation Check")').click();
@@ -302,7 +301,7 @@ describe("Export Orders - E2E Tests", () => {
     });
 
     it("should validate export eligibility", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
 
       cy.get('button:contains("Compliance")').click();
 

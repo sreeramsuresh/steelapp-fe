@@ -8,7 +8,6 @@
  * - Credit limits
  * - Supplier performance
  *
- * Run: npm run test:e2e -- --spec '**/supplier-management.cy.js'
  */
 
 describe("Supplier Management - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Supplier Management - E2E Tests", () => {
 
   describe("Create Suppliers", () => {
     it("should create new supplier", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('button:contains("Create Supplier")').click();
 
       // Basic info
@@ -43,7 +42,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should create supplier with payment terms", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('button:contains("Create Supplier")').click();
 
       cy.get('input[placeholder*="Supplier Name"]').type("Supplier with Terms");
@@ -62,7 +61,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should create supplier with bank details", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('button:contains("Create Supplier")').click();
 
       cy.get('input[placeholder*="Supplier Name"]').type("Bank-enabled Supplier");
@@ -83,7 +82,7 @@ describe("Supplier Management - E2E Tests", () => {
 
   describe("Edit Supplier Details", () => {
     it("should update supplier contact information", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -96,7 +95,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should update supplier address", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -109,7 +108,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should update payment terms and credit limit", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -122,7 +121,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should update bank details", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -137,7 +136,7 @@ describe("Supplier Management - E2E Tests", () => {
 
   describe("Supplier Status Management", () => {
     it("should activate supplier", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"][data-status="INACTIVE"]')
         .first()
         .click();
@@ -147,7 +146,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should deactivate supplier", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"][data-status="ACTIVE"]')
         .first()
         .click();
@@ -160,7 +159,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should suspend supplier account", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"][data-status="ACTIVE"]')
         .first()
         .click();
@@ -178,7 +177,7 @@ describe("Supplier Management - E2E Tests", () => {
 
   describe("Credit Management", () => {
     it("should update supplier credit limit", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"]').first().click();
 
       cy.get('button:contains("Manage Credit")').click();
@@ -190,7 +189,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should view credit utilization", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"]').first().click();
 
       cy.get('button:contains("Manage Credit")').click();
@@ -201,7 +200,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should review credit history", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"]').first().click();
 
       cy.get('button:contains("Credit History")').click();
@@ -212,7 +211,7 @@ describe("Supplier Management - E2E Tests", () => {
 
   describe("Supplier Documents", () => {
     it("should upload certificate of origin", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"]').first().click();
 
       cy.get('button:contains("Manage Documents")').click();
@@ -226,7 +225,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should upload license documents", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"]').first().click();
 
       cy.get('button:contains("Manage Documents")').click();
@@ -242,7 +241,7 @@ describe("Supplier Management - E2E Tests", () => {
 
   describe("Supplier Performance", () => {
     it("should view supplier performance metrics", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"]').first().click();
 
       cy.get('button:contains("Performance")').click();
@@ -253,7 +252,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should record supplier rating", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"]').first().click();
 
       cy.get('button:contains("Performance")').click();
@@ -270,7 +269,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should view supplier compliance status", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"]').first().click();
 
       cy.get('button:contains("Compliance")').click();
@@ -283,7 +282,7 @@ describe("Supplier Management - E2E Tests", () => {
 
   describe("Supplier Contacts", () => {
     it("should add supplier contact person", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"]').first().click();
 
       cy.get('button:contains("Manage Contacts")').click();
@@ -299,7 +298,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should edit supplier contact", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
       cy.get('[data-testid="supplier-row"]').first().click();
 
       cy.get('button:contains("Manage Contacts")').click();
@@ -314,7 +313,7 @@ describe("Supplier Management - E2E Tests", () => {
 
   describe("Supplier Search & Filter", () => {
     it("should search suppliers by name", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
 
       cy.get('input[placeholder*="Search"]').type("Test Supplier");
       cy.get('button:contains("Search")').click();
@@ -325,7 +324,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should filter suppliers by status", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
 
       cy.get('select[name="Status"]').select("ACTIVE");
       cy.get('button:contains("Filter")').click();
@@ -336,7 +335,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should filter suppliers by country", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
 
       cy.get('select[name="Country"]').select("United Arab Emirates");
       cy.get('button:contains("Filter")').click();
@@ -347,7 +346,7 @@ describe("Supplier Management - E2E Tests", () => {
 
   describe("Supplier Analytics", () => {
     it("should view total suppliers and categories", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -357,7 +356,7 @@ describe("Supplier Management - E2E Tests", () => {
     });
 
     it("should export supplier list", () => {
-      cy.visit("/suppliers");
+      cy.visit("/app/suppliers");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

@@ -8,7 +8,6 @@
  * - Shipment tracking and delivery
  * - Customs clearance at origin
  *
- * Run: npm run test:e2e -- --spec '**/export-shipping.cy.js'
  */
 
 describe("Export Shipping - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Export Shipping - E2E Tests", () => {
 
   describe("Shipment Creation", () => {
     it("should create export shipment", () => {
-      cy.visit("/export-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="order-row"]').first().click();
 
       cy.get('button:contains("Create Shipment")').click();
@@ -31,7 +30,7 @@ describe("Export Shipping - E2E Tests", () => {
     });
 
     it("should assign shipping mode", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('select[name="Shipping Mode"]').select("SEA");
@@ -41,7 +40,7 @@ describe("Export Shipping - E2E Tests", () => {
     });
 
     it("should select freight company", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Assign Freight")').click();
@@ -56,7 +55,7 @@ describe("Export Shipping - E2E Tests", () => {
 
   describe("Shipping Logistics", () => {
     it("should plan consolidation", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
 
       cy.get('button:contains("Consolidate")').click();
 
@@ -68,7 +67,7 @@ describe("Export Shipping - E2E Tests", () => {
     });
 
     it("should book shipping space", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Book Shipping")').click();
@@ -81,7 +80,7 @@ describe("Export Shipping - E2E Tests", () => {
     });
 
     it("should arrange insurance", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Arrange Insurance")').click();
@@ -96,7 +95,7 @@ describe("Export Shipping - E2E Tests", () => {
 
   describe("Shipment Tracking", () => {
     it("should update shipment departure", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"][data-status="READY"]').first().click();
 
       cy.get('button:contains("Mark Departed")').click();
@@ -109,7 +108,7 @@ describe("Export Shipping - E2E Tests", () => {
     });
 
     it("should track transit status", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"][data-status="IN_TRANSIT"]').first().click();
 
       cy.contains("Departure Port").should("be.visible");
@@ -118,7 +117,7 @@ describe("Export Shipping - E2E Tests", () => {
     });
 
     it("should update arrival at port", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Mark Arrived")').click();
@@ -130,7 +129,7 @@ describe("Export Shipping - E2E Tests", () => {
     });
 
     it("should record delivery", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Mark Delivered")').click();
@@ -144,7 +143,7 @@ describe("Export Shipping - E2E Tests", () => {
 
   describe("Freight Management", () => {
     it("should calculate freight charges", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.contains("Freight Cost").should("be.visible");
@@ -154,7 +153,7 @@ describe("Export Shipping - E2E Tests", () => {
     });
 
     it("should invoice freight", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Invoice Freight")').click();
@@ -164,7 +163,7 @@ describe("Export Shipping - E2E Tests", () => {
     });
 
     it("should track freight documentation", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Freight Documents")').click();
@@ -175,7 +174,7 @@ describe("Export Shipping - E2E Tests", () => {
 
   describe("Customs Clearance at Origin", () => {
     it("should submit export customs docs", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Customs")').click();
@@ -189,7 +188,7 @@ describe("Export Shipping - E2E Tests", () => {
     });
 
     it("should track export clearance status", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.contains("Customs Status").should("be.visible");
@@ -199,14 +198,14 @@ describe("Export Shipping - E2E Tests", () => {
 
   describe("Shipping Reports", () => {
     it("should view shipping summary", () => {
-      cy.visit("/reports/export-shipping");
+      cy.visit("/analytics/reports/export-shipping");
 
       cy.contains("Export Shipping Report").should("be.visible");
       cy.get('[data-testid="shipment-row"]').should("have.length.greaterThan", 0);
     });
 
     it("should track shipment performance", () => {
-      cy.visit("/reports/export-shipping");
+      cy.visit("/analytics/reports/export-shipping");
 
       cy.get('button:contains("Performance")').click();
 
@@ -215,7 +214,7 @@ describe("Export Shipping - E2E Tests", () => {
     });
 
     it("should export shipping data", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

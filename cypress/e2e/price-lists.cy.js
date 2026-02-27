@@ -8,7 +8,6 @@
  * - Volume-based pricing
  * - Currency-specific pricing
  *
- * Run: npm run test:e2e -- --spec '**/price-lists.cy.js'
  */
 
 describe("Price Lists - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Price Lists - E2E Tests", () => {
 
   describe("Create Price Lists", () => {
     it("should create basic price list", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('button:contains("New Price List")').click();
 
       cy.get('input[placeholder*="Price List Name"]').type("Standard Pricing 2024");
@@ -30,7 +29,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should create price list for customer group", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('button:contains("New Price List")').click();
 
       cy.get('input[placeholder*="Price List Name"]').type("Gold Customer Pricing");
@@ -45,7 +44,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should create currency-specific price list", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('button:contains("New Price List")').click();
 
       cy.get('input[placeholder*="Price List Name"]').type("USD Pricing");
@@ -59,7 +58,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should create seasonal price list", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('button:contains("New Price List")').click();
 
       cy.get('input[placeholder*="Price List Name"]').type("Summer Sale 2024");
@@ -75,7 +74,7 @@ describe("Price Lists - E2E Tests", () => {
 
   describe("Add Products to Price List", () => {
     it("should add product to price list", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('[data-testid="pricelist-row"]').first().click();
 
       cy.get('button:contains("Add Product")').click();
@@ -90,7 +89,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should add multiple products to price list", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('[data-testid="pricelist-row"]').first().click();
 
       cy.get('button:contains("Bulk Add")').click();
@@ -103,7 +102,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should set volume-based pricing", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('[data-testid="pricelist-row"]').first().click();
 
       cy.get('button:contains("Add Product")').click();
@@ -127,7 +126,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should set margin-based pricing", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('[data-testid="pricelist-row"]').first().click();
 
       cy.get('button:contains("Add Product")').click();
@@ -147,7 +146,7 @@ describe("Price Lists - E2E Tests", () => {
 
   describe("Edit Price List", () => {
     it("should edit price list details", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('[data-testid="pricelist-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -160,7 +159,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should update product price in list", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('[data-testid="pricelist-row"]').first().click();
 
       cy.get('[data-testid="item-row"]').first().within(() => {
@@ -174,7 +173,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should remove product from price list", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('[data-testid="pricelist-row"]').first().click();
 
       cy.get('[data-testid="item-row"]').first().within(() => {
@@ -186,7 +185,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should copy price list", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('[data-testid="pricelist-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -200,7 +199,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should activate/deactivate price list", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('[data-testid="pricelist-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -214,7 +213,7 @@ describe("Price Lists - E2E Tests", () => {
 
   describe("Price List Versions", () => {
     it("should create new version of price list", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('[data-testid="pricelist-row"]').first().click();
 
       cy.get('button:contains("New Version")').click();
@@ -226,7 +225,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should view price list history", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('[data-testid="pricelist-row"]').first().click();
 
       cy.get('button:contains("History")').click();
@@ -235,7 +234,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should revert to previous version", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('[data-testid="pricelist-row"]').first().click();
 
       cy.get('button:contains("History")').click();
@@ -249,7 +248,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should compare price list versions", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('[data-testid="pricelist-row"]').first().click();
 
       cy.get('button:contains("Compare")').click();
@@ -265,7 +264,7 @@ describe("Price Lists - E2E Tests", () => {
 
   describe("Price List Application", () => {
     it("should apply price list to customer", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -277,7 +276,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should view applied price in quotation", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
       cy.get('button:contains("Create Quotation")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Customer");
@@ -295,7 +294,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should show price list discount on invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Gold Customer");
@@ -315,7 +314,7 @@ describe("Price Lists - E2E Tests", () => {
 
   describe("Price List Search & Filter", () => {
     it("should search price list by name", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
 
       cy.get('input[placeholder*="Search"]').type("Standard");
 
@@ -324,7 +323,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should filter price lists by status", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
 
       cy.get('select[name="Status"]').select("ACTIVE");
 
@@ -332,7 +331,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should filter price lists by currency", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
 
       cy.get('select[name="Currency"]').select("AED");
 
@@ -340,7 +339,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should filter price lists by effective date", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
 
       cy.get('input[placeholder*="From Date"]').type("2024-01-01");
       cy.get('input[placeholder*="To Date"]').type("2024-12-31");
@@ -353,7 +352,7 @@ describe("Price Lists - E2E Tests", () => {
 
   describe("Delete Price List", () => {
     it("should delete inactive price list", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
       cy.get('[data-testid="pricelist-row"][data-status="INACTIVE"]')
         .first()
         .click();
@@ -368,7 +367,7 @@ describe("Price Lists - E2E Tests", () => {
 
   describe("Price List Analytics", () => {
     it("should view price list metrics", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -378,7 +377,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should analyze price list usage", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
 
       cy.get('button:contains("Usage")').click();
 
@@ -386,7 +385,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should export price list", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");
@@ -396,7 +395,7 @@ describe("Price Lists - E2E Tests", () => {
     });
 
     it("should generate price comparison report", () => {
-      cy.visit("/price-lists");
+      cy.visit("/app/pricelists");
 
       cy.get('button:contains("Compare Prices")').click();
 

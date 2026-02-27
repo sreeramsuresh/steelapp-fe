@@ -34,7 +34,7 @@ describe("Procurement Cycle - Complete Workflow E2E Tests", () => {
   describe("PO to GRN to Bill to Payment Cycle", () => {
     it("should complete full procurement cycle: PO → GRN → Bill → Payment", () => {
       // Step 1: Create Purchase Order
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.wait("@getSuppliers");
 
       cy.contains("button", "New")
@@ -120,7 +120,7 @@ describe("Procurement Cycle - Complete Workflow E2E Tests", () => {
         cy.wait(2000);
 
         // Step 8: Simulate approval
-        cy.visit("/approvals");
+        cy.visit("/app/finance");
         cy.get('[data-testid="approval-item"]')
           .first()
           .click({ timeout: 5000 });
@@ -228,7 +228,7 @@ describe("Procurement Cycle - Complete Workflow E2E Tests", () => {
     });
 
     it("should handle partial goods receipt and reconciliation", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.wait("@getSuppliers");
 
       cy.contains("button", "New")
@@ -313,7 +313,7 @@ describe("Procurement Cycle - Complete Workflow E2E Tests", () => {
     });
 
     it("should prevent duplicate supplier invoice numbers", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.wait("@getSuppliers");
 
       // Create first bill

@@ -8,7 +8,6 @@
  * - Real-time updates
  * - Export and sharing
  *
- * Run: npm run test:e2e -- --spec '**/dashboard-advanced.cy.js'
  */
 
 describe("Dashboard Advanced - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
 
   describe("Dashboard Creation", () => {
     it("should create custom dashboard", () => {
-      cy.visit("/dashboards");
+      cy.visit("/analytics/dashboard");
       cy.get('button:contains("New Dashboard")').click();
 
       cy.get('input[placeholder*="Dashboard Name"]').type("Sales Performance");
@@ -29,7 +28,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
     });
 
     it("should add widgets to dashboard", () => {
-      cy.visit("/dashboards");
+      cy.visit("/analytics/dashboard");
       cy.get('[data-testid="dashboard-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -45,7 +44,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
     });
 
     it("should configure widget parameters", () => {
-      cy.visit("/dashboards");
+      cy.visit("/analytics/dashboard");
       cy.get('[data-testid="dashboard-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -63,7 +62,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
     });
 
     it("should resize and reorder widgets", () => {
-      cy.visit("/dashboards");
+      cy.visit("/analytics/dashboard");
       cy.get('[data-testid="dashboard-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -80,7 +79,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
 
   describe("KPI Tracking", () => {
     it("should view key metrics", () => {
-      cy.visit("/dashboards");
+      cy.visit("/analytics/dashboard");
 
       cy.contains("Total Sales").should("be.visible");
       cy.contains("Active Customers").should("be.visible");
@@ -114,7 +113,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
 
   describe("Dashboard Sharing", () => {
     it("should share dashboard with user", () => {
-      cy.visit("/dashboards");
+      cy.visit("/analytics/dashboard");
       cy.get('[data-testid="dashboard-row"]').first().click();
 
       cy.get('button:contains("Share")').click();
@@ -128,7 +127,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
     });
 
     it("should make dashboard public", () => {
-      cy.visit("/dashboards");
+      cy.visit("/analytics/dashboard");
       cy.get('[data-testid="dashboard-row"]').first().click();
 
       cy.get('button:contains("Share")').click();
@@ -141,7 +140,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
     });
 
     it("should revoke dashboard access", () => {
-      cy.visit("/dashboards");
+      cy.visit("/analytics/dashboard");
       cy.get('[data-testid="dashboard-row"]').first().click();
 
       cy.get('button:contains("Sharing Settings")').click();
@@ -157,7 +156,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
 
   describe("Dashboard Export", () => {
     it("should export dashboard as PDF", () => {
-      cy.visit("/dashboards");
+      cy.visit("/analytics/dashboard");
       cy.get('[data-testid="dashboard-row"]').first().click();
 
       cy.get('button:contains("Export")').click();
@@ -168,7 +167,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
     });
 
     it("should schedule dashboard email", () => {
-      cy.visit("/dashboards");
+      cy.visit("/analytics/dashboard");
       cy.get('[data-testid="dashboard-row"]').first().click();
 
       cy.get('button:contains("Schedule")').click();
@@ -185,7 +184,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
 
   describe("Dashboard Analytics", () => {
     it("should view metrics by time period", () => {
-      cy.visit("/analytics");
+      cy.visit("/analytics/dashboard");
 
       cy.get('select[name="Period"]').select("MONTH");
 
@@ -193,7 +192,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
     });
 
     it("should compare periods", () => {
-      cy.visit("/analytics");
+      cy.visit("/analytics/dashboard");
 
       cy.get('button:contains("Compare")').click();
 
@@ -206,7 +205,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
     });
 
     it("should view trend analysis", () => {
-      cy.visit("/analytics");
+      cy.visit("/analytics/dashboard");
 
       cy.get('button:contains("Trends")').click();
 
@@ -217,7 +216,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
 
   describe("Real-time Dashboard Updates", () => {
     it("should auto-refresh dashboard data", () => {
-      cy.visit("/dashboards");
+      cy.visit("/analytics/dashboard");
 
       cy.get('select[name="Refresh Interval"]').select("EVERY_5_MINUTES");
 
@@ -225,7 +224,7 @@ describe("Dashboard Advanced - E2E Tests", () => {
     });
 
     it("should manually refresh dashboard", () => {
-      cy.visit("/dashboards");
+      cy.visit("/analytics/dashboard");
       cy.get('[data-testid="dashboard-row"]').first().click();
 
       cy.get('button:contains("Refresh")').click();

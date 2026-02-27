@@ -25,7 +25,7 @@ describe("Advanced Error Recovery - E2E Tests", () => {
 
   describe("Form Validation and Error Handling", () => {
     it("should show validation errors for required fields", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -50,7 +50,7 @@ describe("Advanced Error Recovery - E2E Tests", () => {
     });
 
     it("should validate numeric field ranges", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -85,7 +85,7 @@ describe("Advanced Error Recovery - E2E Tests", () => {
     });
 
     it("should prevent duplicate invoice for same data", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       // Create first invoice
@@ -133,7 +133,7 @@ describe("Advanced Error Recovery - E2E Tests", () => {
 
   describe("Payment Error Scenarios", () => {
     it("should prevent overpayment on invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -179,7 +179,7 @@ describe("Advanced Error Recovery - E2E Tests", () => {
     });
 
     it("should handle payment method validation", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -229,7 +229,7 @@ describe("Advanced Error Recovery - E2E Tests", () => {
   describe("Concurrent Operation Handling", () => {
     it("should handle simultaneous invoice creates gracefully", () => {
       // Create two invoices in quick succession
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       for (let i = 0; i < 2; i++) {
@@ -257,13 +257,13 @@ describe("Advanced Error Recovery - E2E Tests", () => {
       }
 
       // Both should complete successfully
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
       cy.get('[data-testid="invoice-row"]').should("have.length.at.least", 2);
     });
 
     it("should detect and handle stale data on edit", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -308,7 +308,7 @@ describe("Advanced Error Recovery - E2E Tests", () => {
 
   describe("Edge Cases and Boundary Conditions", () => {
     it("should handle very large quantities", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -335,7 +335,7 @@ describe("Advanced Error Recovery - E2E Tests", () => {
     });
 
     it("should handle decimal precision in prices", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")

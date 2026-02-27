@@ -8,7 +8,6 @@
  * - Packing lists and manifests
  * - Customs clearance and compliance
  *
- * Run: npm run test:e2e -- --spec '**/customs-documents.cy.js'
  */
 
 describe("Customs Documents - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Customs Documents - E2E Tests", () => {
 
   describe("Bill of Entry (BOE)", () => {
     it("should create Bill of Entry for import", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('button:contains("New BOE")').click();
 
       cy.get('input[placeholder*="BOE Number"]').type("BOE-001");
@@ -30,7 +29,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should populate BOE from import order", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('button:contains("New BOE")').click();
 
       cy.get('input[placeholder*="Import Order"]').type("IO-001");
@@ -41,7 +40,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should add HS codes to BOE items", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="boe-row"]').first().click();
 
       cy.get('[data-testid="item-row"]').first().click();
@@ -53,7 +52,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should calculate duty and taxes on BOE", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="boe-row"]').first().click();
 
       cy.contains("CIF Value").should("be.visible");
@@ -63,7 +62,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should submit BOE for clearance", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="boe-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Submit for Clearance")').click();
@@ -75,7 +74,7 @@ describe("Customs Documents - E2E Tests", () => {
 
   describe("Certificate of Origin (COO)", () => {
     it("should create Certificate of Origin for export", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('button:contains("New COO")').click();
 
       cy.get('input[placeholder*="Export Order"]').type("EO-");
@@ -88,7 +87,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should certify product origin", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="coo-row"]').first().click();
 
       cy.get('[data-testid="item-row"]').each(($item) => {
@@ -100,7 +99,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should add authorized signatory", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="coo-row"]').first().click();
 
       cy.get('button:contains("Add Signatory")').click();
@@ -112,7 +111,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should generate COO document", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="coo-row"]').first().click();
 
       cy.get('button:contains("Generate Document")').click();
@@ -123,7 +122,7 @@ describe("Customs Documents - E2E Tests", () => {
 
   describe("Packing Lists & Manifests", () => {
     it("should create packing list", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('button:contains("New Packing List")').click();
 
       cy.get('input[placeholder*="Order"]').type("IO-");
@@ -134,7 +133,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should detail packing list items", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="packing-list-row"]').first().click();
 
       cy.contains("Item").should("be.visible");
@@ -144,7 +143,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should create shipping manifest", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('button:contains("New Manifest")').click();
 
       cy.get('input[placeholder*="Shipment"]').type("SHIP-");
@@ -155,7 +154,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should validate manifest against container", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="manifest-row"]').first().click();
 
       cy.get('button:contains("Validate Against Container")').click();
@@ -166,7 +165,7 @@ describe("Customs Documents - E2E Tests", () => {
 
   describe("Import Clearance Workflow", () => {
     it("should submit all required documents for clearance", () => {
-      cy.visit("/import-containers");
+      cy.visit("/app/containers");
       cy.get('[data-testid="container-row"]').first().click();
 
       cy.get('button:contains("Submit for Clearance")').click();
@@ -183,7 +182,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should check customs clearance status", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
 
       cy.get('button:contains("Clearance Status")').click();
 
@@ -192,7 +191,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should handle customs holds", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="clearance-row"][data-status="ON_HOLD"]').first().click();
 
       cy.contains("Hold Reason").should("be.visible");
@@ -200,7 +199,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should obtain clearance approval", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="clearance-row"][data-status="APPROVED"]').first().click();
 
       cy.contains("Cleared by Customs").should("be.visible");
@@ -210,7 +209,7 @@ describe("Customs Documents - E2E Tests", () => {
 
   describe("Export Compliance Documents", () => {
     it("should create export shipping instructions", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('button:contains("New Export Instructions")').click();
 
       cy.get('input[placeholder*="Export Order"]').type("EO-");
@@ -221,7 +220,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should declare export value", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-doc-row"]').first().click();
 
       cy.contains("Export Value").should("be.visible");
@@ -229,7 +228,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should generate export invoice", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="export-doc-row"]').first().click();
 
       cy.get('button:contains("Generate Invoice")').click();
@@ -240,7 +239,7 @@ describe("Customs Documents - E2E Tests", () => {
 
   describe("Document Compliance & Audit", () => {
     it("should validate document completeness", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="clearance-row"]').first().click();
 
       cy.get('button:contains("Validate Docs")').click();
@@ -249,7 +248,7 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should track document versions", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="doc-row"]').first().click();
 
       cy.get('button:contains("Version History")').click();
@@ -258,14 +257,14 @@ describe("Customs Documents - E2E Tests", () => {
     });
 
     it("should generate customs compliance report", () => {
-      cy.visit("/reports/customs-compliance");
+      cy.visit("/analytics/reports/customs-compliance");
 
       cy.contains("Customs Compliance Report").should("be.visible");
       cy.get('[data-testid="compliance-row"]').should("have.length.greaterThan", 0);
     });
 
     it("should export customs audit trail", () => {
-      cy.visit("/customs-documents");
+      cy.visit("/app/import-export");
 
       cy.get('button:contains("Audit Trail")').click();
       cy.get('button:contains("Export")').click();

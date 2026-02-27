@@ -8,7 +8,6 @@
  * - Return submission to authorities
  * - Return history and amendments
  *
- * Run: npm run test:e2e -- --spec '**/vat-returns.cy.js'
  */
 
 describe("VAT Returns - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("VAT Returns - E2E Tests", () => {
 
   describe("VAT Return Period Management", () => {
     it("should configure VAT return period", () => {
-      cy.visit("/settings/vat-returns");
+      cy.visit("/app/settings/vat-returns");
 
       cy.get('button:contains("Configure Period")').click();
 
@@ -30,14 +29,14 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should view VAT return calendar", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
 
       cy.contains("VAT Return Calendar").should("be.visible");
       cy.get('[data-testid="return-period"]').should("have.length.greaterThan", 0);
     });
 
     it("should identify upcoming due dates", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
 
       cy.contains("Due").should("be.visible");
       cy.contains("Pending Submission").should("be.visible");
@@ -46,7 +45,7 @@ describe("VAT Returns - E2E Tests", () => {
 
   describe("VAT Return Generation", () => {
     it("should generate monthly VAT return", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
 
       cy.get('button:contains("Generate Return")').click();
 
@@ -59,7 +58,7 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should calculate output VAT", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
       cy.get('[data-testid="return-row"]').first().click();
 
       cy.contains("Output VAT").should("be.visible");
@@ -69,7 +68,7 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should calculate input VAT", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
       cy.get('[data-testid="return-row"]').first().click();
 
       cy.contains("Input VAT").should("be.visible");
@@ -78,7 +77,7 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should calculate net VAT payable", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
       cy.get('[data-testid="return-row"]').first().click();
 
       cy.contains("VAT Payable").should("be.visible");
@@ -88,7 +87,7 @@ describe("VAT Returns - E2E Tests", () => {
 
   describe("VAT Return Review & Validation", () => {
     it("should review return summary", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
       cy.get('[data-testid="return-row"][data-status="DRAFT"]').first().click();
 
       cy.contains("Return Summary").should("be.visible");
@@ -97,7 +96,7 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should validate return calculations", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
       cy.get('[data-testid="return-row"]').first().click();
 
       cy.get('button:contains("Validate")').click();
@@ -106,7 +105,7 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should detect VAT calculation errors", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
       cy.get('[data-testid="return-row"]').first().click();
 
       cy.get('button:contains("Validate")').click();
@@ -116,7 +115,7 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should allow manual adjustments to return", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
       cy.get('[data-testid="return-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -130,7 +129,7 @@ describe("VAT Returns - E2E Tests", () => {
 
   describe("VAT Return Submission", () => {
     it("should submit return to tax authority", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
       cy.get('[data-testid="return-row"][data-status="READY"]').first().click();
 
       cy.get('button:contains("Submit")').click();
@@ -140,7 +139,7 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should track submission status", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
       cy.get('[data-testid="return-row"][data-status="SUBMITTED"]').first().click();
 
       cy.contains("Status: SUBMITTED").should("be.visible");
@@ -149,7 +148,7 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should handle submission rejection", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
       cy.get('[data-testid="return-row"][data-status="REJECTED"]').first().click();
 
       cy.contains("Rejection Reason").should("be.visible");
@@ -159,7 +158,7 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should generate VAT return certificate", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
       cy.get('[data-testid="return-row"][data-status="ACCEPTED"]').first().click();
 
       cy.get('button:contains("Download Certificate")').click();
@@ -170,7 +169,7 @@ describe("VAT Returns - E2E Tests", () => {
 
   describe("VAT Return History", () => {
     it("should view VAT return history", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
 
       cy.get('button:contains("History")').click();
 
@@ -178,7 +177,7 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should filter returns by status", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
 
       cy.get('select[name="Status"]').select("SUBMITTED");
 
@@ -186,7 +185,7 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should compare VAT across periods", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
 
       cy.get('button:contains("Compare Periods")').click();
 
@@ -200,7 +199,7 @@ describe("VAT Returns - E2E Tests", () => {
 
   describe("VAT Return Amendments", () => {
     it("should create amended VAT return", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
       cy.get('[data-testid="return-row"][data-status="ACCEPTED"]').first().click();
 
       cy.get('button:contains("Amend")').click();
@@ -212,7 +211,7 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should track amendment history", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
       cy.get('[data-testid="return-row"]').first().click();
 
       cy.get('button:contains("View Amendments")').click();
@@ -223,7 +222,7 @@ describe("VAT Returns - E2E Tests", () => {
 
   describe("VAT Return Reports", () => {
     it("should view VAT summary report", () => {
-      cy.visit("/reports/vat");
+      cy.visit("/analytics/reports/vat");
 
       cy.contains("VAT Summary").should("be.visible");
       cy.contains("Total Output VAT").should("be.visible");
@@ -232,7 +231,7 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should export VAT return data", () => {
-      cy.visit("/vat-returns");
+      cy.visit("/analytics/vat-return");
       cy.get('[data-testid="return-row"]').first().click();
 
       cy.get('button:contains("Export")').click();
@@ -243,7 +242,7 @@ describe("VAT Returns - E2E Tests", () => {
     });
 
     it("should generate VAT audit report", () => {
-      cy.visit("/reports/vat-audit");
+      cy.visit("/analytics/reports/vat-audit");
 
       cy.contains("VAT Audit Trail").should("be.visible");
       cy.get('[data-testid="audit-row"]').should("have.length.greaterThan", 0);

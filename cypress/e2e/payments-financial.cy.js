@@ -8,7 +8,6 @@
  * - Payment holds and disputes
  * - Multi-currency handling
  *
- * Run: npm run test:e2e -- --spec '**/payments-financial.cy.js'
  */
 
 describe("Payments & Financial Operations - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
 
   describe("Record Customer Payments", () => {
     it("should record partial customer payment", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('button:contains("Record Payment")').click();
 
       cy.get('select[name="Payment Type"]').select("CUSTOMER");
@@ -36,7 +35,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should record full customer payment", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('button:contains("Record Payment")').click();
 
       cy.get('select[name="Payment Type"]').select("CUSTOMER");
@@ -58,7 +57,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should record customer payment with hold", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('button:contains("Record Payment")').click();
 
       cy.get('select[name="Payment Type"]').select("CUSTOMER");
@@ -78,7 +77,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should handle overpayment validation", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('button:contains("Record Payment")').click();
 
       cy.get('select[name="Payment Type"]').select("CUSTOMER");
@@ -96,7 +95,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
 
   describe("Record Supplier Payments", () => {
     it("should record supplier payment", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('button:contains("Record Payment")').click();
 
       cy.get('select[name="Payment Type"]').select("SUPPLIER");
@@ -113,7 +112,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should record supplier payment on account", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('button:contains("Record Payment")').click();
 
       cy.get('select[name="Payment Type"]').select("SUPPLIER");
@@ -133,7 +132,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
 
   describe("Payment Reconciliation", () => {
     it("should reconcile payment against invoice", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('[data-testid="payment-row"][data-status="UNRECONCILED"]')
         .first()
         .click();
@@ -148,7 +147,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should handle partial payment reconciliation", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('[data-testid="payment-row"][data-status="UNRECONCILED"]')
         .first()
         .click();
@@ -168,7 +167,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should identify unreconciled payments", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Unreconciled")').click();
 
@@ -181,7 +180,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
 
   describe("Bank Reconciliation", () => {
     it("should upload bank statement", () => {
-      cy.visit("/bank-reconciliation");
+      cy.visit("/analytics/bank-reconciliation");
       cy.get('button:contains("Upload Statement")').click();
 
       cy.get('select[name="Bank Account"]').select("Primary Account");
@@ -194,7 +193,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should match payments to bank transactions", () => {
-      cy.visit("/bank-reconciliation");
+      cy.visit("/analytics/bank-reconciliation");
 
       cy.get('button:contains("Match Transactions")').click();
 
@@ -207,7 +206,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should identify bank discrepancies", () => {
-      cy.visit("/bank-reconciliation");
+      cy.visit("/analytics/bank-reconciliation");
 
       cy.get('button:contains("Match Transactions")').click();
 
@@ -222,7 +221,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
 
   describe("Payment Holds & Disputes", () => {
     it("should place hold on payment", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('[data-testid="payment-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -236,7 +235,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should release payment hold", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('[data-testid="payment-row"][data-status="ON_HOLD"]')
         .first()
         .click();
@@ -248,7 +247,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should record payment dispute", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('[data-testid="payment-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -266,7 +265,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
 
   describe("Multi-Currency Payments", () => {
     it("should record payment in foreign currency", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('button:contains("Record Payment")').click();
 
       cy.get('select[name="Payment Type"]').select("CUSTOMER");
@@ -285,7 +284,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should apply exchange gain/loss", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('[data-testid="payment-row"][data-currency="USD"]')
         .first()
         .click();
@@ -302,7 +301,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
 
   describe("Payment Reversal & Refunds", () => {
     it("should reverse paid invoice", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('[data-testid="payment-row"][data-status="RECONCILED"]')
         .first()
         .click();
@@ -317,7 +316,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should issue refund to customer", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('[data-testid="payment-row"][data-status="RECONCILED"]')
         .first()
         .click();
@@ -335,7 +334,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
 
   describe("Payment Analytics", () => {
     it("should view payment summary metrics", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -346,7 +345,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should view payments by method", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("By Method")').click();
 
@@ -356,7 +355,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should identify slow-paying customers", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Aging Analysis")').click();
 
@@ -368,7 +367,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
 
   describe("Payment Export & Reporting", () => {
     it("should export payments to CSV", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");
@@ -378,7 +377,7 @@ describe("Payments & Financial Operations - E2E Tests", () => {
     });
 
     it("should export bank reconciliation report", () => {
-      cy.visit("/bank-reconciliation");
+      cy.visit("/analytics/bank-reconciliation");
 
       cy.get('button:contains("Export Report")').click();
       cy.get('select[name="Format"]').select("PDF");

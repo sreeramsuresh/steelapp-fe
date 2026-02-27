@@ -8,7 +8,6 @@
  * - Goods-in-transit tracking
  * - Movement reconciliation
  *
- * Run: npm run test:e2e -- --spec '**/stock-movements.cy.js'
  */
 
 describe("Stock Movements - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Stock Movements - E2E Tests", () => {
 
   describe("Inbound Movements", () => {
     it("should record inbound from GRN", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
       cy.get('button:contains("Record IN")').click();
 
       cy.get('select[name="IN Type"]').select("GRN_RECEIPT");
@@ -37,7 +36,7 @@ describe("Stock Movements - E2E Tests", () => {
     });
 
     it("should record inbound from purchase return", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
       cy.get('button:contains("Record IN")').click();
 
       cy.get('select[name="IN Type"]').select("PURCHASE_RETURN");
@@ -53,7 +52,7 @@ describe("Stock Movements - E2E Tests", () => {
     });
 
     it("should record inbound adjustment", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
       cy.get('button:contains("Record IN")').click();
 
       cy.get('select[name="IN Type"]').select("ADJUSTMENT");
@@ -71,7 +70,7 @@ describe("Stock Movements - E2E Tests", () => {
 
   describe("Outbound Movements", () => {
     it("should record outbound from delivery note", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
       cy.get('button:contains("Record OUT")').click();
 
       cy.get('select[name="OUT Type"]').select("DELIVERY_NOTE");
@@ -88,7 +87,7 @@ describe("Stock Movements - E2E Tests", () => {
     });
 
     it("should record outbound from scrap/damage", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
       cy.get('button:contains("Record OUT")').click();
 
       cy.get('select[name="OUT Type"]').select("SCRAP");
@@ -104,7 +103,7 @@ describe("Stock Movements - E2E Tests", () => {
     });
 
     it("should record outbound adjustment", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
       cy.get('button:contains("Record OUT")').click();
 
       cy.get('select[name="OUT Type"]').select("ADJUSTMENT");
@@ -122,7 +121,7 @@ describe("Stock Movements - E2E Tests", () => {
 
   describe("Inter-Warehouse Transfers", () => {
     it("should initiate warehouse transfer", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
       cy.get('button:contains("Transfer Stock")').click();
 
       // Source warehouse
@@ -142,7 +141,7 @@ describe("Stock Movements - E2E Tests", () => {
     });
 
     it("should receive warehouse transfer", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
       cy.get('button:contains("Pending Transfers")').click();
 
       cy.get('[data-testid="transfer-row"][data-status="IN_TRANSIT"]')
@@ -158,7 +157,7 @@ describe("Stock Movements - E2E Tests", () => {
     });
 
     it("should handle partial transfer receipt", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
       cy.get('button:contains("Pending Transfers")').click();
 
       cy.get('[data-testid="transfer-row"][data-status="IN_TRANSIT"]')
@@ -176,7 +175,7 @@ describe("Stock Movements - E2E Tests", () => {
     });
 
     it("should cancel in-transit transfer", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
       cy.get('button:contains("Pending Transfers")').click();
 
       cy.get('[data-testid="transfer-row"][data-status="IN_TRANSIT"]')
@@ -195,7 +194,7 @@ describe("Stock Movements - E2E Tests", () => {
 
   describe("Goods-in-Transit Tracking", () => {
     it("should create GIT when transfer initiated", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
       cy.get('button:contains("Transfer Stock")').click();
 
       cy.get('select[name="From Warehouse"]').select("Main Warehouse");
@@ -208,14 +207,14 @@ describe("Stock Movements - E2E Tests", () => {
       cy.get('button:contains("Initiate Transfer")').click();
 
       // Verify GIT created
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
       cy.get('button:contains("Goods in Transit")').click();
 
       cy.get('[data-testid="git-row"]').should("have.length.greaterThan", 0);
     });
 
     it("should track GIT aging and pending transfers", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
       cy.get('button:contains("Goods in Transit")').click();
 
       cy.get('[data-testid="git-row"]').first().click();
@@ -229,7 +228,7 @@ describe("Stock Movements - E2E Tests", () => {
 
   describe("Movement Reconciliation", () => {
     it("should reconcile stock balance", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
 
       cy.get('button:contains("Reconcile")').click();
 
@@ -250,7 +249,7 @@ describe("Stock Movements - E2E Tests", () => {
     });
 
     it("should identify stock discrepancies", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
 
       cy.get('button:contains("Reconcile")').click();
 
@@ -272,7 +271,7 @@ describe("Stock Movements - E2E Tests", () => {
 
   describe("Movement Reporting", () => {
     it("should view movement ledger by product", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
 
       cy.get('button:contains("Ledger")').click();
 
@@ -284,7 +283,7 @@ describe("Stock Movements - E2E Tests", () => {
     });
 
     it("should view movement summary by warehouse", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
 
       cy.get('button:contains("Summary")').click();
 
@@ -297,7 +296,7 @@ describe("Stock Movements - E2E Tests", () => {
     });
 
     it("should generate movement report by date range", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
 
       cy.get('button:contains("Generate Report")').click();
 
@@ -312,7 +311,7 @@ describe("Stock Movements - E2E Tests", () => {
 
   describe("Movement Analytics", () => {
     it("should view stock velocity metrics", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -322,7 +321,7 @@ describe("Stock Movements - E2E Tests", () => {
     });
 
     it("should filter movements by type", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
 
       cy.get('select[name="Movement Type"]').select("INBOUND");
       cy.get('button:contains("Filter")').click();
@@ -333,7 +332,7 @@ describe("Stock Movements - E2E Tests", () => {
     });
 
     it("should filter movements by warehouse", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
 
       cy.get('select[name="Warehouse"]').select("Main Warehouse");
       cy.get('button:contains("Filter")').click();
@@ -344,7 +343,7 @@ describe("Stock Movements - E2E Tests", () => {
 
   describe("Movement Export", () => {
     it("should export movement history to CSV", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");
@@ -354,7 +353,7 @@ describe("Stock Movements - E2E Tests", () => {
     });
 
     it("should export reconciliation report", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
 
       cy.get('button:contains("Reconcile")').click();
       cy.get('select[name="Warehouse"]').select("Main Warehouse");

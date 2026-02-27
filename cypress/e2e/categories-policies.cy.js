@@ -8,7 +8,6 @@
  * - Pricing policies
  * - Return and warranty policies
  *
- * Run: npm run test:e2e -- --spec '**/categories-policies.cy.js'
  */
 
 describe("Categories & Policies - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Categories & Policies - E2E Tests", () => {
 
   describe("Product Categories", () => {
     it("should create product category", () => {
-      cy.visit("/settings/categories");
+      cy.visit("/app/settings/categories");
       cy.get('button:contains("New Category")').click();
 
       cy.get('input[placeholder*="Category Name"]').type("Stainless Steel");
@@ -30,7 +29,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should create category hierarchy", () => {
-      cy.visit("/settings/categories");
+      cy.visit("/app/settings/categories");
       cy.get('button:contains("New Category")').click();
 
       cy.get('input[placeholder*="Category Name"]').type("Sheets");
@@ -45,7 +44,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should edit category details", () => {
-      cy.visit("/settings/categories");
+      cy.visit("/app/settings/categories");
       cy.get('[data-testid="category-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -58,7 +57,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should view products in category", () => {
-      cy.visit("/settings/categories");
+      cy.visit("/app/settings/categories");
       cy.get('[data-testid="category-row"]').first().click();
 
       cy.get('button:contains("Products")').click();
@@ -67,7 +66,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should delete category", () => {
-      cy.visit("/settings/categories");
+      cy.visit("/app/settings/categories");
       cy.get('[data-testid="category-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -80,7 +79,7 @@ describe("Categories & Policies - E2E Tests", () => {
 
   describe("Discount Policies", () => {
     it("should create quantity discount policy", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('button:contains("New Policy")').click();
 
       cy.get('select[name="Policy Type"]').select("DISCOUNT");
@@ -99,7 +98,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should create customer group discount policy", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('button:contains("New Policy")').click();
 
       cy.get('select[name="Policy Type"]').select("DISCOUNT");
@@ -117,7 +116,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should create seasonal discount policy", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('button:contains("New Policy")').click();
 
       cy.get('select[name="Policy Type"]').select("DISCOUNT");
@@ -134,7 +133,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should edit discount policy", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('[data-testid="policy-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -146,7 +145,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should activate/deactivate policy", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('[data-testid="policy-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -160,7 +159,7 @@ describe("Categories & Policies - E2E Tests", () => {
 
   describe("Pricing Policies", () => {
     it("should create pricing policy", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('button:contains("New Policy")').click();
 
       cy.get('select[name="Policy Type"]').select("PRICING");
@@ -175,7 +174,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should create category pricing policy", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('button:contains("New Policy")').click();
 
       cy.get('select[name="Policy Type"]').select("PRICING");
@@ -193,7 +192,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should create dynamic pricing policy", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('button:contains("New Policy")').click();
 
       cy.get('select[name="Policy Type"]').select("PRICING");
@@ -212,7 +211,7 @@ describe("Categories & Policies - E2E Tests", () => {
 
   describe("Return Policies", () => {
     it("should create return policy", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('button:contains("New Policy")').click();
 
       cy.get('select[name="Policy Type"]').select("RETURN");
@@ -227,7 +226,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should create category-specific return policy", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('button:contains("New Policy")').click();
 
       cy.get('select[name="Policy Type"]').select("RETURN");
@@ -245,7 +244,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should define return restocking charges", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('[data-testid="policy-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -260,7 +259,7 @@ describe("Categories & Policies - E2E Tests", () => {
 
   describe("Warranty Policies", () => {
     it("should create warranty policy", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('button:contains("New Policy")').click();
 
       cy.get('select[name="Policy Type"]').select("WARRANTY");
@@ -275,7 +274,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should create category warranty", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('button:contains("New Policy")').click();
 
       cy.get('select[name="Policy Type"]').select("WARRANTY");
@@ -293,7 +292,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should define warranty terms", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('[data-testid="policy-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -308,7 +307,7 @@ describe("Categories & Policies - E2E Tests", () => {
 
   describe("Policy Management", () => {
     it("should view policies by type", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
 
       cy.get('select[name="Type"]').select("DISCOUNT");
 
@@ -316,7 +315,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should search policies", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
 
       cy.get('input[placeholder*="Search"]').type("Discount");
 
@@ -325,7 +324,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should duplicate policy", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('[data-testid="policy-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -338,7 +337,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should delete policy", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
       cy.get('[data-testid="policy-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -351,7 +350,7 @@ describe("Categories & Policies - E2E Tests", () => {
 
   describe("Policy Application", () => {
     it("should apply discount policy to invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Select customer"]').type("Customer");
@@ -369,7 +368,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should show policy-adjusted pricing", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Pricing")').click();
@@ -381,7 +380,7 @@ describe("Categories & Policies - E2E Tests", () => {
 
   describe("Category Analytics", () => {
     it("should view category metrics", () => {
-      cy.visit("/settings/categories");
+      cy.visit("/app/settings/categories");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -390,7 +389,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should export categories", () => {
-      cy.visit("/settings/categories");
+      cy.visit("/app/settings/categories");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");
@@ -402,7 +401,7 @@ describe("Categories & Policies - E2E Tests", () => {
 
   describe("Policy Analytics", () => {
     it("should view policy effectiveness", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -411,7 +410,7 @@ describe("Categories & Policies - E2E Tests", () => {
     });
 
     it("should export policies", () => {
-      cy.visit("/settings/policies");
+      cy.visit("/app/settings/policies");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

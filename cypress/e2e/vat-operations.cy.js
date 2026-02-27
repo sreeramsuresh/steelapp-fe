@@ -8,7 +8,6 @@
  * - Zero-rated supplies
  * - VAT reconciliation
  *
- * Run: npm run test:e2e -- --spec '**/vat-operations.cy.js'
  */
 
 describe("VAT Operations - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("VAT Operations - E2E Tests", () => {
 
   describe("VAT Calculation", () => {
     it("should calculate VAT on invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       // Create invoice with VAT
@@ -40,7 +39,7 @@ describe("VAT Operations - E2E Tests", () => {
     });
 
     it("should apply reverse charge on import", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('checkbox[name="reverse-charge"]').check();
@@ -61,7 +60,7 @@ describe("VAT Operations - E2E Tests", () => {
     });
 
     it("should apply zero-rated VAT to exports", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Select customer"]').type("International Customer");
@@ -83,7 +82,7 @@ describe("VAT Operations - E2E Tests", () => {
     });
 
     it("should handle VAT exemptions", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Select customer"]').type("Exempt Customer");
@@ -105,7 +104,7 @@ describe("VAT Operations - E2E Tests", () => {
 
   describe("VAT Returns Filing", () => {
     it("should prepare VAT return for period", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Prepare Return")').click();
 
       cy.get('input[placeholder*="Period Start"]').type("2024-01-01");
@@ -121,7 +120,7 @@ describe("VAT Operations - E2E Tests", () => {
     });
 
     it("should file VAT return with FTA", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Prepare Return")').click();
 
       cy.get('input[placeholder*="Period Start"]').type("2024-01-01");
@@ -137,7 +136,7 @@ describe("VAT Operations - E2E Tests", () => {
     });
 
     it("should track VAT payment status", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Payment Status")').click();
 
       cy.get('[data-testid="payment-row"]').should("have.length.greaterThan", 0);
@@ -154,7 +153,7 @@ describe("VAT Operations - E2E Tests", () => {
 
   describe("VAT Reconciliation", () => {
     it("should reconcile VAT accounts", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Reconcile VAT")').click();
 
       cy.get('input[placeholder*="Reconciliation Date"]').type("2024-03-31");
@@ -168,7 +167,7 @@ describe("VAT Operations - E2E Tests", () => {
     });
 
     it("should identify VAT discrepancies", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Reconcile VAT")').click();
 
       cy.get('input[placeholder*="Reconciliation Date"]').type("2024-03-31");
@@ -184,7 +183,7 @@ describe("VAT Operations - E2E Tests", () => {
     });
 
     it("should audit VAT adjustments", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Audit Trail")').click();
 
       cy.get('[data-testid="adjustment-row"]').should("have.length.greaterThan", 0);
@@ -193,14 +192,14 @@ describe("VAT Operations - E2E Tests", () => {
 
   describe("Reverse Charge Handling", () => {
     it("should track reverse charge transactions", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Reverse Charge")').click();
 
       cy.get('[data-testid="rc-transaction"]').should("have.length.greaterThan", 0);
     });
 
     it("should verify supplier TRN for reverse charge", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Reverse Charge")').click();
 
       cy.get('button:contains("Verify Suppliers")').click();
@@ -213,7 +212,7 @@ describe("VAT Operations - E2E Tests", () => {
     });
 
     it("should report reverse charge VAT", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Prepare Return")').click();
 
       cy.get('input[placeholder*="Period Start"]').type("2024-01-01");
@@ -227,14 +226,14 @@ describe("VAT Operations - E2E Tests", () => {
 
   describe("Zero-Rated Supplies", () => {
     it("should track zero-rated supplies", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Zero-Rated Supplies")').click();
 
       cy.get('[data-testid="supply-row"]').should("have.length.greaterThan", 0);
     });
 
     it("should verify export documentation", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Zero-Rated Supplies")').click();
 
       cy.get('[data-testid="supply-row"]').first().click();
@@ -246,7 +245,7 @@ describe("VAT Operations - E2E Tests", () => {
     });
 
     it("should validate zero-rating eligibility", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Validate Zero-Rating")').click();
 
       cy.get('input[placeholder*="Period Start"]').type("2024-01-01");
@@ -260,7 +259,7 @@ describe("VAT Operations - E2E Tests", () => {
 
   describe("VAT Adjustments & Corrections", () => {
     it("should record VAT adjustment", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Adjustments")').click();
 
       cy.get('button:contains("New Adjustment")').click();
@@ -274,7 +273,7 @@ describe("VAT Operations - E2E Tests", () => {
     });
 
     it("should amend filed VAT return", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Filed Returns")').click();
 
       cy.get('[data-testid="return-row"]').first().click();
@@ -290,7 +289,7 @@ describe("VAT Operations - E2E Tests", () => {
     });
 
     it("should claim VAT refund", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Refund Claim")').click();
 
       cy.get('input[placeholder*="Period Start"]').type("2024-01-01");
@@ -307,7 +306,7 @@ describe("VAT Operations - E2E Tests", () => {
 
   describe("VAT Analytics", () => {
     it("should view VAT metrics", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -318,7 +317,7 @@ describe("VAT Operations - E2E Tests", () => {
     });
 
     it("should analyze VAT by transaction type", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
 
       cy.get('button:contains("By Transaction Type")').click();
 
@@ -328,7 +327,7 @@ describe("VAT Operations - E2E Tests", () => {
     });
 
     it("should export VAT report", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("PDF");
@@ -340,7 +339,7 @@ describe("VAT Operations - E2E Tests", () => {
 
   describe("VAT Compliance", () => {
     it("should verify TRN details", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Compliance")').click();
 
       cy.get('button:contains("Verify TRN")').click();
@@ -353,7 +352,7 @@ describe("VAT Operations - E2E Tests", () => {
     });
 
     it("should generate compliance certificate", () => {
-      cy.visit("/vat-operations");
+      cy.visit("/app/settings");
       cy.get('button:contains("Compliance")').click();
 
       cy.get('button:contains("Compliance Certificate")').click();

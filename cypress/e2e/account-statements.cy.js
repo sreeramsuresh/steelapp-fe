@@ -8,7 +8,6 @@
  * - Statement delivery via email
  * - Archive and history tracking
  *
- * Run: npm run test:e2e -- --spec '**/account-statements.cy.js'
  */
 
 describe("Account Statements - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Account Statements - E2E Tests", () => {
 
   describe("Customer Statement Generation", () => {
     it("should generate customer statement", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
 
       cy.get('button:contains("Generate Statement")').click();
 
@@ -34,7 +33,7 @@ describe("Account Statements - E2E Tests", () => {
     });
 
     it("should show opening balance on statement", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
       cy.get('[data-testid="statement-row"]').first().click();
 
       cy.contains("Opening Balance").should("be.visible");
@@ -43,7 +42,7 @@ describe("Account Statements - E2E Tests", () => {
     });
 
     it("should detail invoices on statement", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
       cy.get('[data-testid="statement-row"]').first().click();
 
       cy.get('[data-testid="transaction-row"]').should("have.length.greaterThan", 0);
@@ -52,7 +51,7 @@ describe("Account Statements - E2E Tests", () => {
     });
 
     it("should detail payments on statement", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
       cy.get('[data-testid="statement-row"]').first().click();
 
       cy.contains("Payment").should("be.visible");
@@ -62,7 +61,7 @@ describe("Account Statements - E2E Tests", () => {
 
   describe("Supplier Statement Generation", () => {
     it("should generate supplier statement", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
 
       cy.get('button:contains("Generate Statement")').click();
 
@@ -75,7 +74,7 @@ describe("Account Statements - E2E Tests", () => {
     });
 
     it("should show payables on supplier statement", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
       cy.get('[data-testid="statement-row"][data-type="SUPPLIER"]').first().click();
 
       cy.contains("Opening Balance").should("be.visible");
@@ -86,7 +85,7 @@ describe("Account Statements - E2E Tests", () => {
 
   describe("Statement Aging Analysis", () => {
     it("should show aged balance breakdown", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
       cy.get('[data-testid="statement-row"]').first().click();
 
       cy.contains("Aging Analysis").should("be.visible");
@@ -97,7 +96,7 @@ describe("Account Statements - E2E Tests", () => {
     });
 
     it("should calculate days overdue", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
       cy.get('[data-testid="statement-row"]').first().click();
 
       cy.contains("Days Overdue").should("be.visible");
@@ -106,7 +105,7 @@ describe("Account Statements - E2E Tests", () => {
 
   describe("Statement Delivery", () => {
     it("should email statement to customer", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
       cy.get('[data-testid="statement-row"]').first().click();
 
       cy.get('button:contains("Email Statement")').click();
@@ -118,7 +117,7 @@ describe("Account Statements - E2E Tests", () => {
     });
 
     it("should download statement PDF", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
       cy.get('[data-testid="statement-row"]').first().click();
 
       cy.get('button:contains("Download PDF")').click();
@@ -127,7 +126,7 @@ describe("Account Statements - E2E Tests", () => {
     });
 
     it("should export statement data", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
       cy.get('[data-testid="statement-row"]').first().click();
 
       cy.get('button:contains("Export")').click();
@@ -140,7 +139,7 @@ describe("Account Statements - E2E Tests", () => {
 
   describe("Statement Archive & History", () => {
     it("should archive statement", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
       cy.get('[data-testid="statement-row"]').first().click();
 
       cy.get('button:contains("Archive")').click();
@@ -150,7 +149,7 @@ describe("Account Statements - E2E Tests", () => {
     });
 
     it("should view statement history", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
 
       cy.get('button:contains("History")').click();
 
@@ -158,7 +157,7 @@ describe("Account Statements - E2E Tests", () => {
     });
 
     it("should compare statements across periods", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
 
       cy.get('button:contains("Compare")').click();
 
@@ -172,7 +171,7 @@ describe("Account Statements - E2E Tests", () => {
 
   describe("Statement Reconciliation", () => {
     it("should certify statement balance", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
       cy.get('[data-testid="statement-row"]').first().click();
 
       cy.get('button:contains("Certify")').click();
@@ -182,7 +181,7 @@ describe("Account Statements - E2E Tests", () => {
     });
 
     it("should track statement confirmations", () => {
-      cy.visit("/reports/account-statements");
+      cy.visit("/app/account-statements");
 
       cy.get('button:contains("Confirmations")').click();
 

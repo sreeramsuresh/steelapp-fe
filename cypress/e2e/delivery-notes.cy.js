@@ -8,7 +8,6 @@
  * - Quantity adjustments
  * - Recipient signature
  *
- * Run: npm run test:e2e -- --spec '**/delivery-notes.cy.js'
  */
 
 describe("Delivery Notes - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Delivery Notes - E2E Tests", () => {
 
   describe("Create Delivery Notes", () => {
     it("should create delivery note from invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button:contains("Generate Delivery Note")').click();
@@ -41,7 +40,7 @@ describe("Delivery Notes - E2E Tests", () => {
     });
 
     it("should create standalone delivery note", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('button:contains("Create Delivery Note")').click();
 
       cy.get('input[placeholder*="Select customer"]').type("Test Customer");
@@ -57,7 +56,7 @@ describe("Delivery Notes - E2E Tests", () => {
     });
 
     it("should create delivery note with multiple line items", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('button:contains("Create Delivery Note")').click();
 
       cy.get('input[placeholder*="Select customer"]').type("Test Customer");
@@ -82,7 +81,7 @@ describe("Delivery Notes - E2E Tests", () => {
 
   describe("Delivery Note Adjustments", () => {
     it("should update quantity before marking delivered", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('[data-testid="dn-row"][data-status="PENDING"]')
         .first()
         .click();
@@ -96,7 +95,7 @@ describe("Delivery Notes - E2E Tests", () => {
     });
 
     it("should add item to pending delivery note", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('[data-testid="dn-row"][data-status="PENDING"]')
         .first()
         .click();
@@ -113,7 +112,7 @@ describe("Delivery Notes - E2E Tests", () => {
     });
 
     it("should remove item from delivery note", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('[data-testid="dn-row"][data-status="PENDING"]')
         .first()
         .click();
@@ -130,7 +129,7 @@ describe("Delivery Notes - E2E Tests", () => {
 
   describe("Mark Delivery as Delivered", () => {
     it("should mark delivery note as delivered", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('[data-testid="dn-row"][data-status="PENDING"]')
         .first()
         .click();
@@ -146,7 +145,7 @@ describe("Delivery Notes - E2E Tests", () => {
     });
 
     it("should capture recipient signature", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('[data-testid="dn-row"][data-status="PENDING"]')
         .first()
         .click();
@@ -171,7 +170,7 @@ describe("Delivery Notes - E2E Tests", () => {
     });
 
     it("should upload delivery proof document", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('[data-testid="dn-row"][data-status="PENDING"]')
         .first()
         .click();
@@ -192,7 +191,7 @@ describe("Delivery Notes - E2E Tests", () => {
 
   describe("Partial Delivery Handling", () => {
     it("should record partial delivery", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('[data-testid="dn-row"][data-status="PENDING"]')
         .first()
         .click();
@@ -209,7 +208,7 @@ describe("Delivery Notes - E2E Tests", () => {
     });
 
     it("should create remainder delivery note for undelivered items", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('[data-testid="dn-row"][data-status="PENDING"]')
         .first()
         .click();
@@ -230,7 +229,7 @@ describe("Delivery Notes - E2E Tests", () => {
 
   describe("Delivery Note Reconciliation", () => {
     it("should reconcile delivery note to invoice", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('[data-testid="dn-row"][data-status="DELIVERED"]')
         .first()
         .click();
@@ -245,7 +244,7 @@ describe("Delivery Notes - E2E Tests", () => {
     });
 
     it("should handle quantity variance", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('[data-testid="dn-row"][data-status="DELIVERED"]')
         .first()
         .click();
@@ -265,7 +264,7 @@ describe("Delivery Notes - E2E Tests", () => {
     });
 
     it("should handle damaged goods claim", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('[data-testid="dn-row"][data-status="DELIVERED"]')
         .first()
         .click();
@@ -289,7 +288,7 @@ describe("Delivery Notes - E2E Tests", () => {
 
   describe("Delivery Analytics", () => {
     it("should view on-time delivery rate", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -298,7 +297,7 @@ describe("Delivery Notes - E2E Tests", () => {
     });
 
     it("should view delivery by customer", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
 
       cy.get('button:contains("Analytics")').click();
 

@@ -33,7 +33,7 @@ describe("Performance & Load Testing - E2E Tests", () => {
 
   describe("Bulk Invoice Operations", () => {
     it("should handle rapid sequential invoice creation (10 invoices)", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       // Create 10 invoices sequentially
@@ -62,7 +62,7 @@ describe("Performance & Load Testing - E2E Tests", () => {
         });
 
         // Return to list for next iteration
-        cy.visit("/invoices");
+        cy.visit("/app/invoices");
         cy.wait("@listInvoices");
       }
 
@@ -74,7 +74,7 @@ describe("Performance & Load Testing - E2E Tests", () => {
     });
 
     it("should handle multi-line invoice with many items", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -108,7 +108,7 @@ describe("Performance & Load Testing - E2E Tests", () => {
     });
 
     it("should render large invoice list without performance degradation", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@listInvoices");
 
       // Trigger scroll to load more items if pagination exists
@@ -129,7 +129,7 @@ describe("Performance & Load Testing - E2E Tests", () => {
 
   describe("Batch Allocation with Large Quantities", () => {
     it("should allocate batches to high-volume invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -162,7 +162,7 @@ describe("Performance & Load Testing - E2E Tests", () => {
     });
 
     it("should handle partial allocation across multiple batches", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -200,7 +200,7 @@ describe("Performance & Load Testing - E2E Tests", () => {
 
   describe("Concurrent Payment Processing", () => {
     it("should process multiple sequential payments without conflicts", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       // Create invoice
@@ -250,7 +250,7 @@ describe("Performance & Load Testing - E2E Tests", () => {
     });
 
     it("should handle rapid payment attempts with proper locking", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -290,7 +290,7 @@ describe("Performance & Load Testing - E2E Tests", () => {
 
   describe("High-Volume Stock Movements", () => {
     it("should record multiple stock movements sequentially", () => {
-      cy.visit("/stock-movements");
+      cy.visit("/app/stock-movements");
 
       // Create 5 stock movement records
       for (let i = 0; i < 5; i++) {
@@ -330,12 +330,12 @@ describe("Performance & Load Testing - E2E Tests", () => {
         cy.wait("@recordMovement", { timeout: 10000 });
 
         // Return to list for next iteration
-        cy.visit("/stock-movements");
+        cy.visit("/app/stock-movements");
       }
     });
 
     it("should handle concurrent warehouse transfers", () => {
-      cy.visit("/warehouse-transfers");
+      cy.visit("/app/stock-movements");
 
       // Create 3 transfers
       for (let i = 0; i < 3; i++) {
@@ -376,14 +376,14 @@ describe("Performance & Load Testing - E2E Tests", () => {
         );
 
         // Return to list
-        cy.visit("/warehouse-transfers");
+        cy.visit("/app/stock-movements");
       }
     });
   });
 
   describe("Response Time Validation", () => {
     it("should complete invoice creation within acceptable time", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -418,7 +418,7 @@ describe("Performance & Load Testing - E2E Tests", () => {
     it("should list invoices with acceptable page load time", () => {
       const startTime = Date.now();
 
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@listInvoices");
 
       const endTime = Date.now();
@@ -431,7 +431,7 @@ describe("Performance & Load Testing - E2E Tests", () => {
     });
 
     it("should allocate batches to invoice within acceptable time", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -465,7 +465,7 @@ describe("Performance & Load Testing - E2E Tests", () => {
 
   describe("Memory Stability with Large Data Sets", () => {
     it("should maintain stability when filtering large invoice list", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@listInvoices");
 
       // Filter by customer name
@@ -488,7 +488,7 @@ describe("Performance & Load Testing - E2E Tests", () => {
     });
 
     it("should handle pagination without memory leaks", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@listInvoices");
 
       // Navigate through multiple pages if pagination exists

@@ -22,7 +22,7 @@ describe("Role Management - E2E Tests", () => {
     cy.get('button[type="submit"]').click();
 
     // Wait for dashboard to load
-    cy.url().should("include", "/dashboard");
+    cy.url().should("match", /\/(app|analytics)/);
     cy.wait(1000);
   });
 

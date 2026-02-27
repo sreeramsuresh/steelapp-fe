@@ -7,7 +7,6 @@
  * - Warehouse consolidation
  * - Distributed order fulfillment
  *
- * Run: npm run test:e2e -- --spec '**/multi-warehouse-operations.cy.js'
  */
 
 describe("Multi-Warehouse Operations - E2E Tests", () => {
@@ -17,7 +16,7 @@ describe("Multi-Warehouse Operations - E2E Tests", () => {
 
   describe("Inter-Warehouse Transfers", () => {
     it("should create inter-warehouse transfer", () => {
-      cy.visit("/warehouse-transfers");
+      cy.visit("/app/stock-movements");
       cy.get('button:contains("New Transfer")').click();
 
       cy.get('select[name="From Warehouse"]').select("Warehouse A");
@@ -35,7 +34,7 @@ describe("Multi-Warehouse Operations - E2E Tests", () => {
     });
 
     it("should track transfer status", () => {
-      cy.visit("/warehouse-transfers");
+      cy.visit("/app/stock-movements");
       cy.get('[data-testid="transfer-row"]').first().click();
 
       cy.contains("Initiated").should("be.visible");
@@ -44,7 +43,7 @@ describe("Multi-Warehouse Operations - E2E Tests", () => {
     });
 
     it("should receive transferred stock", () => {
-      cy.visit("/warehouse-transfers");
+      cy.visit("/app/stock-movements");
       cy.get('[data-testid="transfer-row"][data-status="IN_TRANSIT"]')
         .first()
         .click();
@@ -60,7 +59,7 @@ describe("Multi-Warehouse Operations - E2E Tests", () => {
 
   describe("Stock Allocation Across Warehouses", () => {
     it("should allocate stock from nearest warehouse", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Customer");
@@ -78,7 +77,7 @@ describe("Multi-Warehouse Operations - E2E Tests", () => {
     });
 
     it("should rebalance stock", () => {
-      cy.visit("/warehouse-management");
+      cy.visit("/app/warehouses");
 
       cy.get('button:contains("Rebalance Stock")').click();
 
@@ -92,7 +91,7 @@ describe("Multi-Warehouse Operations - E2E Tests", () => {
 
   describe("Distributed Fulfillment", () => {
     it("should split order across warehouses", () => {
-      cy.visit("/orders");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="order-row"]').first().click();
 
       cy.get('button:contains("Create Delivery")').click();
@@ -105,7 +104,7 @@ describe("Multi-Warehouse Operations - E2E Tests", () => {
     });
 
     it("should consolidate orders for shipment", () => {
-      cy.visit("/warehouse-management");
+      cy.visit("/app/warehouses");
 
       cy.get('button:contains("Consolidation")').click();
 

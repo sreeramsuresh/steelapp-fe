@@ -7,13 +7,12 @@
  * - Data consistency
  * - Collaboration workflows
  *
- * Run: npm run test:e2e -- --spec '**/concurrent-user-workflows.cy.js'
  */
 
 describe("Concurrent User Workflows - E2E Tests", () => {
   describe("Simultaneous Operations", () => {
     it("should handle concurrent invoice creation", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("ABC Corp");
@@ -30,7 +29,7 @@ describe("Concurrent User Workflows - E2E Tests", () => {
     });
 
     it("should handle lock timeouts gracefully", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -45,7 +44,7 @@ describe("Concurrent User Workflows - E2E Tests", () => {
     });
 
     it("should merge concurrent edits", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -62,7 +61,7 @@ describe("Concurrent User Workflows - E2E Tests", () => {
 
   describe("Collaboration Workflows", () => {
     it("should show other users editing same record", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -73,7 +72,7 @@ describe("Concurrent User Workflows - E2E Tests", () => {
     });
 
     it("should prevent write conflicts", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -87,7 +86,7 @@ describe("Concurrent User Workflows - E2E Tests", () => {
     });
 
     it("should handle approval workflows", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"][data-status="PENDING"]')
         .first()
         .click();
@@ -100,7 +99,7 @@ describe("Concurrent User Workflows - E2E Tests", () => {
 
   describe("Data Consistency", () => {
     it("should maintain stock consistency", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Adjust Quantity")').click();
@@ -114,7 +113,7 @@ describe("Concurrent User Workflows - E2E Tests", () => {
     });
 
     it("should validate invoice totals during concurrent access", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.contains("Line Items Total").should("be.visible");

@@ -7,7 +7,6 @@
  * - Data integrity verification
  * - Audit trail retention
  *
- * Run: npm run test:e2e -- --spec '**/audit-logs.cy.js'
  */
 
 describe("Audit Logs - E2E Tests", () => {
@@ -17,13 +16,13 @@ describe("Audit Logs - E2E Tests", () => {
 
   describe("Audit Log Viewing", () => {
     it("should view audit trail", () => {
-      cy.visit("/audit-logs");
+      cy.visit("/app/audit-logs");
 
       cy.get('[data-testid="log-row"]').should("have.length.greaterThan", 0);
     });
 
     it("should filter audit logs by entity", () => {
-      cy.visit("/audit-logs");
+      cy.visit("/app/audit-logs");
 
       cy.get('select[name="Entity"]').select("Invoice");
 
@@ -31,7 +30,7 @@ describe("Audit Logs - E2E Tests", () => {
     });
 
     it("should view entity change details", () => {
-      cy.visit("/audit-logs");
+      cy.visit("/app/audit-logs");
       cy.get('[data-testid="log-row"]').first().click();
 
       cy.contains("Before").should("be.visible");
@@ -39,7 +38,7 @@ describe("Audit Logs - E2E Tests", () => {
     });
 
     it("should export audit trail", () => {
-      cy.visit("/audit-logs");
+      cy.visit("/app/audit-logs");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");
@@ -51,7 +50,7 @@ describe("Audit Logs - E2E Tests", () => {
 
   describe("Compliance Reporting", () => {
     it("should generate compliance report", () => {
-      cy.visit("/compliance/reports");
+      cy.visit("/app/audit-hub/reports");
 
       cy.get('button:contains("Generate Report")').click();
 
@@ -64,7 +63,7 @@ describe("Audit Logs - E2E Tests", () => {
     });
 
     it("should view data integrity check", () => {
-      cy.visit("/compliance/integrity");
+      cy.visit("/app/audit-hub/integrity");
 
       cy.get('button:contains("Run Check")').click();
 

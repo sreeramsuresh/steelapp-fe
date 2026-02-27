@@ -8,7 +8,6 @@
  * - Payment processing
  * - Commission reports
  *
- * Run: npm run test:e2e -- --spec '**/commissions.cy.js'
  */
 
 describe("Commissions Management - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Commissions Management - E2E Tests", () => {
 
   describe("Commission Calculation", () => {
     it("should calculate tiered commissions", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('button:contains("Calculate Commissions")').click();
 
       cy.get('input[placeholder*="Period Start"]').type("2024-01-01");
@@ -33,7 +32,7 @@ describe("Commissions Management - E2E Tests", () => {
     });
 
     it("should apply commission rate overrides", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('button:contains("Calculate Commissions")').click();
 
       cy.get('input[placeholder*="Period Start"]').type("2024-01-01");
@@ -55,7 +54,7 @@ describe("Commissions Management - E2E Tests", () => {
     });
 
     it("should handle deductions from commissions", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('button:contains("Calculate Commissions")').click();
 
       cy.get('input[placeholder*="Period Start"]').type("2024-01-01");
@@ -78,7 +77,7 @@ describe("Commissions Management - E2E Tests", () => {
 
   describe("Commission Eligibility", () => {
     it("should verify commission eligibility", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('button:contains("Eligibility Check")').click();
 
       cy.get('input[placeholder*="Period Start"]').type("2024-01-01");
@@ -91,7 +90,7 @@ describe("Commissions Management - E2E Tests", () => {
     });
 
     it("should identify ineligible transactions", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('button:contains("Eligibility Check")').click();
 
       cy.get('input[placeholder*="Period Start"]').type("2024-01-01");
@@ -105,7 +104,7 @@ describe("Commissions Management - E2E Tests", () => {
     });
 
     it("should exclude transactions by criteria", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('button:contains("Eligibility Rules")').click();
 
       cy.get('button:contains("Add Rule")').click();
@@ -120,7 +119,7 @@ describe("Commissions Management - E2E Tests", () => {
 
   describe("Commission Approval Workflow", () => {
     it("should submit commissions for approval", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('[data-testid="commission-batch"]').first().click();
 
       cy.get('button:contains("Submit for Approval")').click();
@@ -132,7 +131,7 @@ describe("Commissions Management - E2E Tests", () => {
     });
 
     it("should approve commission batch", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('button:contains("Pending Approval")').click();
 
       cy.get('[data-testid="commission-batch"]').first().click();
@@ -146,7 +145,7 @@ describe("Commissions Management - E2E Tests", () => {
     });
 
     it("should reject commissions with reason", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('button:contains("Pending Approval")').click();
 
       cy.get('[data-testid="commission-batch"]').first().click();
@@ -162,7 +161,7 @@ describe("Commissions Management - E2E Tests", () => {
     });
 
     it("should request revisions to commissions", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('button:contains("Pending Approval")').click();
 
       cy.get('[data-testid="commission-batch"]').first().click();
@@ -181,7 +180,7 @@ describe("Commissions Management - E2E Tests", () => {
 
   describe("Commission Payouts", () => {
     it("should generate commission payment proposal", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('button:contains("Approved Commissions")').click();
 
       cy.get('[data-testid="commission-batch"]').first().click();
@@ -193,7 +192,7 @@ describe("Commissions Management - E2E Tests", () => {
     });
 
     it("should process commission payment", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('button:contains("Pending Payouts")').click();
 
       cy.get('[data-testid="payout-row"]').first().click();
@@ -208,7 +207,7 @@ describe("Commissions Management - E2E Tests", () => {
     });
 
     it("should track commission payout status", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('button:contains("Payout Status")').click();
 
       cy.get('[data-testid="payout-row"]').should("have.length.greaterThan", 0);
@@ -224,7 +223,7 @@ describe("Commissions Management - E2E Tests", () => {
 
   describe("Commission Adjustments", () => {
     it("should record commission reversal", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('[data-testid="commission-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -237,7 +236,7 @@ describe("Commissions Management - E2E Tests", () => {
     });
 
     it("should record commission adjustment", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('[data-testid="commission-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -251,7 +250,7 @@ describe("Commissions Management - E2E Tests", () => {
     });
 
     it("should handle commission disputes", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('[data-testid="commission-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -268,7 +267,7 @@ describe("Commissions Management - E2E Tests", () => {
 
   describe("Commission Analytics", () => {
     it("should view commission metrics", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -278,7 +277,7 @@ describe("Commissions Management - E2E Tests", () => {
     });
 
     it("should compare salesperson performance", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
 
       cy.get('button:contains("Salesperson Performance")').click();
 
@@ -294,7 +293,7 @@ describe("Commissions Management - E2E Tests", () => {
     });
 
     it("should export commission report", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");
@@ -306,7 +305,7 @@ describe("Commissions Management - E2E Tests", () => {
 
   describe("Commission Audit Trail", () => {
     it("should view commission history", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
       cy.get('[data-testid="commission-row"]').first().click();
 
       cy.get('button:contains("History")').click();
@@ -315,7 +314,7 @@ describe("Commissions Management - E2E Tests", () => {
     });
 
     it("should view all commission changes", () => {
-      cy.visit("/commissions");
+      cy.visit("/app/my-commissions");
 
       cy.get('button:contains("Audit Log")').click();
 

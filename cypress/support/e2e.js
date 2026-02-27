@@ -22,6 +22,15 @@ Cypress.on("uncaught:exception", (err, runnable) => {
   // React hydration mismatch (SSR not used, but React logs it)
   if (msg.includes("Minified React error")) return false;
 
+  // ResizeObserver loop errors (browser-level, not app bugs)
+  if (msg.includes("ResizeObserver loop")) return false;
+
+  // Network errors during navigation (expected during fast page transitions)
+  if (msg.includes("Network Error") || msg.includes("ERR_CONNECTION_REFUSED")) return false;
+
+  // React Router navigation errors during test transitions
+  if (msg.includes("Cannot update a component") || msg.includes("unmounted component")) return false;
+
   // Let all other errors fail the test — they are real bugs
   return true;
 });

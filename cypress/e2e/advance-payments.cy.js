@@ -8,7 +8,6 @@
  * - Advance payment reconciliation
  * - Refund processing
  *
- * Run: npm run test:e2e -- --spec '**/advance-payments.cy.js'
  */
 
 describe("Advance Payments - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Advance Payments - E2E Tests", () => {
 
   describe("Advance Payment Creation", () => {
     it("should create advance payment from customer", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Receive Payment")').click();
@@ -31,7 +30,7 @@ describe("Advance Payments - E2E Tests", () => {
     });
 
     it("should set payment terms with deposit requirement", () => {
-      cy.visit("/settings/payment-terms");
+      cy.visit("/app/settings/payment-terms");
 
       cy.get('button:contains("New Term")').click();
 
@@ -44,7 +43,7 @@ describe("Advance Payments - E2E Tests", () => {
     });
 
     it("should require advance payment before invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Customer");
@@ -60,7 +59,7 @@ describe("Advance Payments - E2E Tests", () => {
 
   describe("Advance Payment Tracking", () => {
     it("should track advance payment balance", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.contains("Advance Payment Balance").should("be.visible");
@@ -68,7 +67,7 @@ describe("Advance Payments - E2E Tests", () => {
     });
 
     it("should allocate advance to invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.contains("Advance Payment Available").should("be.visible");
@@ -82,7 +81,7 @@ describe("Advance Payments - E2E Tests", () => {
     });
 
     it("should show advance payment deduction on invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.contains("Invoice Total").should("be.visible");
@@ -93,7 +92,7 @@ describe("Advance Payments - E2E Tests", () => {
 
   describe("Advance Payment Reconciliation", () => {
     it("should reconcile advance payments", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Reconcile Advances")').click();
 
@@ -101,7 +100,7 @@ describe("Advance Payments - E2E Tests", () => {
     });
 
     it("should identify unallocated advances", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Unallocated Advances")').click();
 
@@ -109,7 +108,7 @@ describe("Advance Payments - E2E Tests", () => {
     });
 
     it("should allocate unallocated advance to pending invoice", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('[data-testid="advance-row"][data-status="UNALLOCATED"]').first().click();
 
       cy.get('button:contains("Allocate")').click();
@@ -124,7 +123,7 @@ describe("Advance Payments - E2E Tests", () => {
 
   describe("Advance Payment Refunds", () => {
     it("should refund unused advance payment", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Process Refund")').click();
 
@@ -136,7 +135,7 @@ describe("Advance Payments - E2E Tests", () => {
     });
 
     it("should track refund status", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Refund Status")').click();
 
@@ -145,7 +144,7 @@ describe("Advance Payments - E2E Tests", () => {
     });
 
     it("should post refund to GL", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
       cy.get('[data-testid="refund-row"]').first().click();
 
       cy.get('button:contains("View GL Entries")').click();
@@ -157,7 +156,7 @@ describe("Advance Payments - E2E Tests", () => {
 
   describe("Advance Payment Reporting", () => {
     it("should view advance payment summary", () => {
-      cy.visit("/reports/advance-payments");
+      cy.visit("/analytics/reports/advance-payments");
 
       cy.contains("Advance Payment Summary").should("be.visible");
       cy.contains("Total Advances").should("be.visible");
@@ -166,7 +165,7 @@ describe("Advance Payments - E2E Tests", () => {
     });
 
     it("should export advance payment list", () => {
-      cy.visit("/payments");
+      cy.visit("/app/receivables");
 
       cy.get('button:contains("Export Advances")').click();
       cy.get('select[name="Format"]').select("CSV");

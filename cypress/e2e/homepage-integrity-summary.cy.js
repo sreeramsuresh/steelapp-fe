@@ -56,19 +56,19 @@ describe("Homepage — Data & Stock Integrity Summary Card", () => {
         expect(body.metrics).to.be.an("object");
 
         // Spot-check a few keys
-        expect(body.metrics).to.have.property("negative_stock_batches");
-        expect(body.metrics).to.have.property("customers_over_credit_limit");
-        expect(body.metrics).to.have.property("quotations_expired");
-        expect(body.metrics).to.have.property("products_missing_data");
+        expect(body.metrics).to.have.property("negativeStockBatches");
+        expect(body.metrics).to.have.property("customersOverCreditLimit");
+        expect(body.metrics).to.have.property("quotationsExpired");
+        expect(body.metrics).to.have.property("productsMissingData");
       });
     });
 
     it("response shape has generated_at, company_id, cache_hit, metrics", () => {
       cy.wait("@integritySummary").then((interception) => {
         const body = interception.response.body;
-        expect(body).to.have.property("generated_at");
-        expect(body).to.have.property("company_id");
-        expect(body).to.have.property("cache_hit");
+        expect(body).to.have.property("generatedAt");
+        expect(body).to.have.property("companyId");
+        expect(body).to.have.property("cacheHit");
         expect(body).to.have.property("metrics");
       });
     });
@@ -184,10 +184,10 @@ describe("Homepage — Data & Stock Integrity Summary Card", () => {
       cy.wait("@integritySummary").then((interception) => {
         const { metrics } = interception.response.body;
         const criticalKeys = [
-          "negative_stock_batches",
+          "negativeStockBatches",
           "stock_reserved_overflow",
           "stock_balance_mismatch",
-          "customers_over_credit_limit",
+          "customersOverCreditLimit",
           "customers_on_credit_hold",
           "invoices_overpaid",
         ];
@@ -250,7 +250,7 @@ describe("Homepage — Data & Stock Integrity Summary Card", () => {
       cy.wait("@integritySummary").then((interception) => {
         const { metrics } = interception.response.body;
         const nullTotalKeys = [
-          "quotations_expired",
+          "quotationsExpired",
           "delivery_notes_empty",
           "stock_reservations_expired",
           "supplier_bills_underpaid",

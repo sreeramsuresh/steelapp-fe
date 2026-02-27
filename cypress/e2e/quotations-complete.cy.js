@@ -8,7 +8,6 @@
  * - Quote expiration
  * - Quote versioning
  *
- * Run: npm run test:e2e -- --spec '**/quotations-complete.cy.js'
  */
 
 describe("Quotations - Complete E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Quotations - Complete E2E Tests", () => {
 
   describe("Create Quotations", () => {
     it("should create new quotation", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
       cy.get('button:contains("Create Quotation")').click();
 
       // Fill customer
@@ -47,7 +46,7 @@ describe("Quotations - Complete E2E Tests", () => {
     });
 
     it("should create quotation with multiple line items", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
       cy.get('button:contains("Create Quotation")').click();
 
       cy.get('input[placeholder*="Select customer"]').type("Test Customer");
@@ -79,7 +78,7 @@ describe("Quotations - Complete E2E Tests", () => {
     });
 
     it("should create quotation with discount", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
       cy.get('button:contains("Create Quotation")').click();
 
       cy.get('input[placeholder*="Select customer"]').type("Test Customer");
@@ -105,7 +104,7 @@ describe("Quotations - Complete E2E Tests", () => {
 
   describe("Quotation Approval Workflow", () => {
     it("should approve quotation", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
       cy.get('[data-testid="quotation-row"][data-status="DRAFT"]')
         .first()
         .click();
@@ -114,7 +113,7 @@ describe("Quotations - Complete E2E Tests", () => {
       cy.contains("Quotation submitted").should("be.visible");
 
       // In new window, approve as manager
-      cy.visit("/approvals");
+      cy.visit("/app/finance");
       cy.get('[data-testid="approval-item"]').first().click();
 
       cy.get('button:contains("Approve")').click();
@@ -125,7 +124,7 @@ describe("Quotations - Complete E2E Tests", () => {
     });
 
     it("should reject quotation with reason", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
       cy.get('[data-testid="quotation-row"][data-status="PENDING_APPROVAL"]')
         .first()
         .click();
@@ -142,7 +141,7 @@ describe("Quotations - Complete E2E Tests", () => {
     });
 
     it("should amend rejected quotation", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
       cy.get('[data-testid="quotation-row"][data-status="REJECTED"]')
         .first()
         .click();
@@ -160,7 +159,7 @@ describe("Quotations - Complete E2E Tests", () => {
 
   describe("Quotation to Invoice Conversion", () => {
     it("should convert approved quotation to invoice", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
       cy.get('[data-testid="quotation-row"][data-status="APPROVED"]')
         .first()
         .click();
@@ -184,7 +183,7 @@ describe("Quotations - Complete E2E Tests", () => {
     });
 
     it("should allow quantity adjustment during conversion", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
       cy.get('[data-testid="quotation-row"][data-status="APPROVED"]')
         .first()
         .click();
@@ -199,7 +198,7 @@ describe("Quotations - Complete E2E Tests", () => {
     });
 
     it("should partial convert quotation", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
       cy.get('[data-testid="quotation-row"][data-status="APPROVED"]')
         .first()
         .click();
@@ -217,7 +216,7 @@ describe("Quotations - Complete E2E Tests", () => {
 
   describe("Quotation Expiration", () => {
     it("should mark expired quotation", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
 
       // Find quotation with past validity date
       cy.get('[data-testid="quotation-row"]').each(($row) => {
@@ -233,7 +232,7 @@ describe("Quotations - Complete E2E Tests", () => {
     });
 
     it("should renew expired quotation", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
       cy.get('[data-testid="quotation-row"][data-status="EXPIRED"]')
         .first()
         .click();
@@ -248,7 +247,7 @@ describe("Quotations - Complete E2E Tests", () => {
 
   describe("Quotation Tracking & Analytics", () => {
     it("should track quotation hit rate", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -264,7 +263,7 @@ describe("Quotations - Complete E2E Tests", () => {
     });
 
     it("should filter quotations by customer", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
 
       cy.get('input[placeholder*="Customer"]').type("Test Customer");
       cy.get('button:contains("Filter")').click();
@@ -275,7 +274,7 @@ describe("Quotations - Complete E2E Tests", () => {
     });
 
     it("should export quotations", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

@@ -8,7 +8,6 @@
  * - Short receipt and overage handling
  * - Batch variance tracking
  *
- * Run: npm run test:e2e -- --spec '**/delivery-variance.cy.js'
  */
 
 describe("Delivery Variance - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Delivery Variance - E2E Tests", () => {
 
   describe("Quantity Variance", () => {
     it("should detect short receipt", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"][data-status="PENDING"]').first().click();
 
       cy.get('button:contains("Receive")').click();
@@ -31,7 +30,7 @@ describe("Delivery Variance - E2E Tests", () => {
     });
 
     it("should detect overage receipt", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"][data-status="PENDING"]').first().click();
 
       cy.get('button:contains("Receive")').click();
@@ -44,7 +43,7 @@ describe("Delivery Variance - E2E Tests", () => {
     });
 
     it("should apply variance discount for short receipt", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"][data-status="PENDING"]').first().click();
 
       cy.get('button:contains("Receive")').click();
@@ -57,7 +56,7 @@ describe("Delivery Variance - E2E Tests", () => {
     });
 
     it("should reject overage with variance approval", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"]').first().click();
 
       cy.get('button:contains("Receive")').click();
@@ -71,7 +70,7 @@ describe("Delivery Variance - E2E Tests", () => {
 
   describe("Quality Inspection Variance", () => {
     it("should record rejected quantity", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"]').first().click();
 
       cy.get('button:contains("Receive")').click();
@@ -84,7 +83,7 @@ describe("Delivery Variance - E2E Tests", () => {
     });
 
     it("should mark batch as quarantine due to quality", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"]').first().click();
 
       cy.get('button:contains("Receive")').click();
@@ -98,7 +97,7 @@ describe("Delivery Variance - E2E Tests", () => {
     });
 
     it("should accept partial batch after inspection", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"]').first().click();
 
       cy.get('button:contains("Receive")').click();
@@ -113,7 +112,7 @@ describe("Delivery Variance - E2E Tests", () => {
 
   describe("Variance Approval Workflow", () => {
     it("should submit variance for approval", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"]').first().click();
 
       cy.get('button:contains("Receive")').click();
@@ -125,7 +124,7 @@ describe("Delivery Variance - E2E Tests", () => {
     });
 
     it("should approve variance", () => {
-      cy.visit("/variance-approvals");
+      cy.visit("/app/finance");
       cy.get('[data-testid="variance-row"][data-status="PENDING"]').first().click();
 
       cy.get('button:contains("Approve")').click();
@@ -135,7 +134,7 @@ describe("Delivery Variance - E2E Tests", () => {
     });
 
     it("should reject variance", () => {
-      cy.visit("/variance-approvals");
+      cy.visit("/app/finance");
       cy.get('[data-testid="variance-row"][data-status="PENDING"]').first().click();
 
       cy.get('button:contains("Reject")').click();
@@ -146,7 +145,7 @@ describe("Delivery Variance - E2E Tests", () => {
     });
 
     it("should escalate variance to manager", () => {
-      cy.visit("/variance-approvals");
+      cy.visit("/app/finance");
       cy.get('[data-testid="variance-row"]').first().click();
 
       cy.get('button:contains("Escalate")').click();
@@ -160,7 +159,7 @@ describe("Delivery Variance - E2E Tests", () => {
 
   describe("Variance Reconciliation", () => {
     it("should reconcile PO to received", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"]').first().click();
 
       cy.contains("PO Quantity").should("be.visible");
@@ -169,7 +168,7 @@ describe("Delivery Variance - E2E Tests", () => {
     });
 
     it("should track cumulative variance", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="po-row"]').first().click();
 
       cy.get('button:contains("View Receipts")').click();
@@ -180,7 +179,7 @@ describe("Delivery Variance - E2E Tests", () => {
     });
 
     it("should close PO after variance resolution", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="po-row"][data-status="PARTIAL"]').first().click();
 
       cy.get('button:contains("View Receipts")').click();
@@ -191,7 +190,7 @@ describe("Delivery Variance - E2E Tests", () => {
     });
 
     it("should calculate variance percentage", () => {
-      cy.visit("/grn");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="grn-row"]').first().click();
 
       cy.contains("Variance %").should("be.visible");
@@ -200,7 +199,7 @@ describe("Delivery Variance - E2E Tests", () => {
 
   describe("Variance Reporting", () => {
     it("should view variance report", () => {
-      cy.visit("/reports/variance");
+      cy.visit("/analytics/reports/variance");
 
       cy.contains("Variance Report").should("be.visible");
       cy.contains("Supplier").should("be.visible");
@@ -209,7 +208,7 @@ describe("Delivery Variance - E2E Tests", () => {
     });
 
     it("should identify problematic suppliers", () => {
-      cy.visit("/reports/variance");
+      cy.visit("/analytics/reports/variance");
 
       cy.get('button:contains("By Supplier")').click();
 
@@ -218,7 +217,7 @@ describe("Delivery Variance - E2E Tests", () => {
     });
 
     it("should export variance report", () => {
-      cy.visit("/reports/variance");
+      cy.visit("/analytics/reports/variance");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("EXCEL");

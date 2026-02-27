@@ -8,7 +8,6 @@
  * - Email settings
  * - Document templates
  *
- * Run: npm run test:e2e -- --spec '**/company-settings.cy.js'
  */
 
 describe("Company Settings - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Company Settings - E2E Tests", () => {
 
   describe("Company Information", () => {
     it("should view company details", () => {
-      cy.visit("/settings/company");
+      cy.visit("/app/settings/company");
 
       cy.contains("Company Name").should("be.visible");
       cy.contains("TRN").should("be.visible");
@@ -26,7 +25,7 @@ describe("Company Settings - E2E Tests", () => {
     });
 
     it("should edit company details", () => {
-      cy.visit("/settings/company");
+      cy.visit("/app/settings/company");
 
       cy.get('button:contains("Edit")').click();
 
@@ -37,7 +36,7 @@ describe("Company Settings - E2E Tests", () => {
     });
 
     it("should upload company logo", () => {
-      cy.visit("/settings/company");
+      cy.visit("/app/settings/company");
 
       cy.get('button:contains("Upload Logo")').click();
 
@@ -48,7 +47,7 @@ describe("Company Settings - E2E Tests", () => {
     });
 
     it("should configure fiscal year", () => {
-      cy.visit("/settings/company");
+      cy.visit("/app/settings/company");
 
       cy.get('button:contains("Edit")').click();
 
@@ -61,7 +60,7 @@ describe("Company Settings - E2E Tests", () => {
 
   describe("System Settings", () => {
     it("should configure system defaults", () => {
-      cy.visit("/settings/system");
+      cy.visit("/app/settings/system");
 
       cy.get('button:contains("Edit")').click();
 
@@ -74,7 +73,7 @@ describe("Company Settings - E2E Tests", () => {
     });
 
     it("should configure number format", () => {
-      cy.visit("/settings/system");
+      cy.visit("/app/settings/system");
 
       cy.get('button:contains("Number Format")').click();
 
@@ -86,7 +85,7 @@ describe("Company Settings - E2E Tests", () => {
     });
 
     it("should configure date format", () => {
-      cy.visit("/settings/system");
+      cy.visit("/app/settings/system");
 
       cy.get('select[name="Date Format"]').select("DD/MM/YYYY");
 
@@ -97,7 +96,7 @@ describe("Company Settings - E2E Tests", () => {
 
   describe("Email Configuration", () => {
     it("should configure SMTP settings", () => {
-      cy.visit("/settings/email");
+      cy.visit("/app/settings/email");
 
       cy.get('button:contains("Configure SMTP")').click();
 
@@ -111,7 +110,7 @@ describe("Company Settings - E2E Tests", () => {
     });
 
     it("should test email configuration", () => {
-      cy.visit("/settings/email");
+      cy.visit("/app/settings/email");
 
       cy.get('button:contains("Test Email")').click();
 
@@ -123,7 +122,7 @@ describe("Company Settings - E2E Tests", () => {
     });
 
     it("should configure email templates", () => {
-      cy.visit("/settings/email-templates");
+      cy.visit("/app/settings/email-templates");
 
       cy.get('[data-testid="template-row"]').first().click();
 
@@ -138,7 +137,7 @@ describe("Company Settings - E2E Tests", () => {
 
   describe("Document Templates", () => {
     it("should configure invoice template", () => {
-      cy.visit("/settings/document-templates");
+      cy.visit("/app/settings/document-templates");
 
       cy.get('[data-testid="template"]').contains("Invoice").click();
 
@@ -151,7 +150,7 @@ describe("Company Settings - E2E Tests", () => {
     });
 
     it("should upload custom logo to template", () => {
-      cy.visit("/settings/document-templates");
+      cy.visit("/app/settings/document-templates");
 
       cy.get('[data-testid="template"]').first().click();
 
@@ -164,7 +163,7 @@ describe("Company Settings - E2E Tests", () => {
     });
 
     it("should preview document template", () => {
-      cy.visit("/settings/document-templates");
+      cy.visit("/app/settings/document-templates");
 
       cy.get('[data-testid="template"]').first().click();
 
@@ -176,7 +175,7 @@ describe("Company Settings - E2E Tests", () => {
 
   describe("Integration Settings", () => {
     it("should configure API integrations", () => {
-      cy.visit("/settings/integrations");
+      cy.visit("/app/settings/integrations");
 
       cy.get('button:contains("New Integration")').click();
 
@@ -189,7 +188,7 @@ describe("Company Settings - E2E Tests", () => {
     });
 
     it("should test integration connection", () => {
-      cy.visit("/settings/integrations");
+      cy.visit("/app/settings/integrations");
 
       cy.get('[data-testid="integration-row"]').first().click();
 
@@ -199,7 +198,7 @@ describe("Company Settings - E2E Tests", () => {
     });
 
     it("should disable integration", () => {
-      cy.visit("/settings/integrations");
+      cy.visit("/app/settings/integrations");
 
       cy.get('[data-testid="integration-row"]').first().click();
 
@@ -212,7 +211,7 @@ describe("Company Settings - E2E Tests", () => {
 
   describe("Backup & Recovery", () => {
     it("should configure automatic backups", () => {
-      cy.visit("/settings/backup");
+      cy.visit("/app/settings/backup");
 
       cy.get('button:contains("Edit")').click();
 
@@ -224,7 +223,7 @@ describe("Company Settings - E2E Tests", () => {
     });
 
     it("should view backup list", () => {
-      cy.visit("/settings/backup");
+      cy.visit("/app/settings/backup");
 
       cy.get('button:contains("View Backups")').click();
 
@@ -232,7 +231,7 @@ describe("Company Settings - E2E Tests", () => {
     });
 
     it("should restore from backup", () => {
-      cy.visit("/settings/backup");
+      cy.visit("/app/settings/backup");
 
       cy.get('[data-testid="backup-row"]').first().click();
 
@@ -245,14 +244,14 @@ describe("Company Settings - E2E Tests", () => {
 
   describe("License & Subscription", () => {
     it("should view license information", () => {
-      cy.visit("/settings/license");
+      cy.visit("/app/settings/license");
 
       cy.contains("License Status").should("be.visible");
       cy.contains("Valid Until").should("be.visible");
     });
 
     it("should upgrade subscription", () => {
-      cy.visit("/settings/license");
+      cy.visit("/app/settings/license");
 
       cy.get('button:contains("Upgrade")').click();
 

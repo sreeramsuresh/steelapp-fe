@@ -8,7 +8,6 @@
  * - Stock level monitoring
  * - Warehouse transfers
  *
- * Run: npm run test:e2e -- --spec '**/warehouse-management.cy.js'
  */
 
 describe("Warehouse Management - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Warehouse Management - E2E Tests", () => {
 
   describe("Create Warehouses", () => {
     it("should create new warehouse", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('button:contains("Create Warehouse")').click();
 
       cy.get('input[placeholder*="Warehouse Name"]').type("New Warehouse");
@@ -38,7 +37,7 @@ describe("Warehouse Management - E2E Tests", () => {
     });
 
     it("should create warehouse with multiple zones", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('button:contains("Create Warehouse")').click();
 
       cy.get('input[placeholder*="Warehouse Name"]').type("Multi-Zone WH");
@@ -61,7 +60,7 @@ describe("Warehouse Management - E2E Tests", () => {
     });
 
     it("should create warehouse with special storage", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('button:contains("Create Warehouse")').click();
 
       cy.get('input[placeholder*="Warehouse Name"]').type("Climate Controlled WH");
@@ -83,7 +82,7 @@ describe("Warehouse Management - E2E Tests", () => {
 
   describe("Warehouse Configuration", () => {
     it("should configure warehouse settings", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"]').first().click();
 
       cy.get('button:contains("Settings")').click();
@@ -100,7 +99,7 @@ describe("Warehouse Management - E2E Tests", () => {
     });
 
     it("should manage warehouse locations", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"]').first().click();
 
       cy.get('button:contains("Manage Locations")').click();
@@ -118,7 +117,7 @@ describe("Warehouse Management - E2E Tests", () => {
     });
 
     it("should set warehouse holidays and closing dates", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"]').first().click();
 
       cy.get('button:contains("Operating Hours")').click();
@@ -139,7 +138,7 @@ describe("Warehouse Management - E2E Tests", () => {
 
   describe("Stock Level Monitoring", () => {
     it("should view warehouse stock levels", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"]').first().click();
 
       cy.get('button:contains("Stock Levels")').click();
@@ -151,7 +150,7 @@ describe("Warehouse Management - E2E Tests", () => {
     });
 
     it("should view stock by location", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"]').first().click();
 
       cy.get('button:contains("Stock by Location")').click();
@@ -167,7 +166,7 @@ describe("Warehouse Management - E2E Tests", () => {
     });
 
     it("should alert on low stock and capacity", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"]').first().click();
 
       cy.get('button:contains("Alerts")').click();
@@ -189,7 +188,7 @@ describe("Warehouse Management - E2E Tests", () => {
 
   describe("Warehouse Operations", () => {
     it("should initiate stock transfer between warehouses", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"]').first().click();
 
       cy.get('button:contains("Transfer Stock")').click();
@@ -205,7 +204,7 @@ describe("Warehouse Management - E2E Tests", () => {
     });
 
     it("should perform stock count and reconciliation", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"]').first().click();
 
       cy.get('button:contains("Stock Count")').click();
@@ -231,7 +230,7 @@ describe("Warehouse Management - E2E Tests", () => {
     });
 
     it("should record warehouse adjustment", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"]').first().click();
 
       cy.get('button:contains("Adjustments")').click();
@@ -251,7 +250,7 @@ describe("Warehouse Management - E2E Tests", () => {
 
   describe("Warehouse Analytics", () => {
     it("should view warehouse utilization metrics", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -262,7 +261,7 @@ describe("Warehouse Management - E2E Tests", () => {
     });
 
     it("should compare warehouse performance", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
 
       cy.get('button:contains("Performance")').click();
 
@@ -274,7 +273,7 @@ describe("Warehouse Management - E2E Tests", () => {
     });
 
     it("should view stock aging by warehouse", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
 
       cy.get('button:contains("Stock Aging")').click();
 
@@ -288,7 +287,7 @@ describe("Warehouse Management - E2E Tests", () => {
 
   describe("Warehouse Staff & Access", () => {
     it("should assign staff to warehouse", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"]').first().click();
 
       cy.get('button:contains("Manage Staff")').click();
@@ -305,7 +304,7 @@ describe("Warehouse Management - E2E Tests", () => {
     });
 
     it("should set warehouse access controls", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"]').first().click();
 
       cy.get('button:contains("Access Control")').click();
@@ -321,7 +320,7 @@ describe("Warehouse Management - E2E Tests", () => {
 
   describe("Warehouse Reporting", () => {
     it("should generate warehouse inventory report", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"]').first().click();
 
       cy.get('button:contains("Reports")').click();
@@ -336,7 +335,7 @@ describe("Warehouse Management - E2E Tests", () => {
     });
 
     it("should export warehouse data to CSV", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"]').first().click();
 
       cy.get('button:contains("Export")').click();
@@ -349,7 +348,7 @@ describe("Warehouse Management - E2E Tests", () => {
 
   describe("Warehouse Status", () => {
     it("should activate warehouse", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"][data-status="INACTIVE"]')
         .first()
         .click();
@@ -359,7 +358,7 @@ describe("Warehouse Management - E2E Tests", () => {
     });
 
     it("should deactivate warehouse", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"][data-status="ACTIVE"]')
         .first()
         .click();
@@ -372,7 +371,7 @@ describe("Warehouse Management - E2E Tests", () => {
     });
 
     it("should put warehouse temporarily offline", () => {
-      cy.visit("/warehouses");
+      cy.visit("/app/warehouses");
       cy.get('[data-testid="warehouse-row"][data-status="ACTIVE"]')
         .first()
         .click();

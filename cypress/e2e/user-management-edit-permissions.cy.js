@@ -30,10 +30,10 @@ describe("User Management - Edit User Roles and Verify Permissions", () => {
     cy.get('input[type="email"]').type("admin@ultimatesteel.com");
     cy.get('input[type="password"]').type("admin123");
     cy.get('button[type="submit"]').click();
-    cy.url().should("include", "/dashboard");
+    cy.url().should("match", /\/(app|analytics)/);
 
     // Create a test user first
-    cy.visit("/settings");
+    cy.visit("/app/settings");
     cy.contains("button", "Add User").click();
 
     cy.get('input[placeholder*="full name"]').type(testUser.name);
@@ -53,7 +53,7 @@ describe("User Management - Edit User Roles and Verify Permissions", () => {
   });
 
   it("should display user in the user list", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search for the test user
     cy.get('input[placeholder*="Search users"]').clear().type(testUser.email);
@@ -64,7 +64,7 @@ describe("User Management - Edit User Roles and Verify Permissions", () => {
   });
 
   it("should show initial role badge", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search for the test user
     cy.get('input[placeholder*="Search users"]').clear().type(testUser.email);
@@ -79,7 +79,7 @@ describe("User Management - Edit User Roles and Verify Permissions", () => {
   });
 
   it("should open View Permissions modal and show initial permissions", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search for the test user
     cy.get('input[placeholder*="Search users"]').clear().type(testUser.email);
@@ -108,7 +108,7 @@ describe("User Management - Edit User Roles and Verify Permissions", () => {
   });
 
   it("should open Edit User modal", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search for the test user
     cy.get('input[placeholder*="Search users"]').clear().type(testUser.email);
@@ -131,7 +131,7 @@ describe("User Management - Edit User Roles and Verify Permissions", () => {
   });
 
   it("should allow editing user name and email", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search and open edit modal
     cy.get('input[placeholder*="Search users"]').clear().type(testUser.email);
@@ -163,7 +163,7 @@ describe("User Management - Edit User Roles and Verify Permissions", () => {
   });
 
   it("should allow adding additional roles", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search and open edit modal
     cy.get('input[placeholder*="Search users"]').clear().type(testUser.email);
@@ -199,7 +199,7 @@ describe("User Management - Edit User Roles and Verify Permissions", () => {
   });
 
   it("should display both role badges after update", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search for the test user
     cy.get('input[placeholder*="Search users"]').clear().type(testUser.email);
@@ -215,7 +215,7 @@ describe("User Management - Edit User Roles and Verify Permissions", () => {
   });
 
   it("should show updated permissions in View Permissions modal", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search for the test user
     cy.get('input[placeholder*="Search users"]').clear().type(testUser.email);
@@ -242,7 +242,7 @@ describe("User Management - Edit User Roles and Verify Permissions", () => {
   });
 
   it("should allow removing a role", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search and open edit modal
     cy.get('input[placeholder*="Search users"]').clear().type(testUser.email);
@@ -273,7 +273,7 @@ describe("User Management - Edit User Roles and Verify Permissions", () => {
   });
 
   it("should only show remaining role after removal", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search for the test user
     cy.get('input[placeholder*="Search users"]').clear().type(testUser.email);
@@ -289,7 +289,7 @@ describe("User Management - Edit User Roles and Verify Permissions", () => {
   });
 
   it("should prevent removing all roles", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search and open edit modal
     cy.get('input[placeholder*="Search users"]').clear().type(testUser.email);
@@ -311,7 +311,7 @@ describe("User Management - Edit User Roles and Verify Permissions", () => {
   });
 
   it("should toggle user status between active and inactive", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search for the test user
     cy.get('input[placeholder*="Search users"]').clear().type(testUser.email);
@@ -352,7 +352,7 @@ describe("User Management - Edit User Roles and Verify Permissions", () => {
 
   after(() => {
     // Cleanup: Delete the test user
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search for test user
     cy.get('input[placeholder*="Search users"]').clear().type(testUser.email);

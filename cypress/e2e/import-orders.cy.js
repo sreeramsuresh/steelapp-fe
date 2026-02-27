@@ -8,7 +8,6 @@
  * - Customs documentation
  * - GRN receipt
  *
- * Run: npm run test:e2e -- --spec '**/import-orders.cy.js'
  */
 
 describe("Import Orders - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Import Orders - E2E Tests", () => {
 
   describe("Create Import Orders", () => {
     it("should create basic import order", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
       cy.get('button:contains("Create Import Order")').click();
 
       // Supplier details
@@ -41,7 +40,7 @@ describe("Import Orders - E2E Tests", () => {
     });
 
     it("should create import order with multiple items", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
       cy.get('button:contains("Create Import Order")').click();
 
       cy.get('input[placeholder*="Select supplier"]').type("International Supplier");
@@ -68,7 +67,7 @@ describe("Import Orders - E2E Tests", () => {
     });
 
     it("should create import order with landed costs", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
       cy.get('button:contains("Create Import Order")').click();
 
       cy.get('input[placeholder*="Select supplier"]').type("International Supplier");
@@ -92,7 +91,7 @@ describe("Import Orders - E2E Tests", () => {
 
   describe("Container Tracking", () => {
     it("should link import order to container", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="import-order-row"]').first().click();
 
       cy.get('button:contains("Link Container")').click();
@@ -106,7 +105,7 @@ describe("Import Orders - E2E Tests", () => {
     });
 
     it("should track container status", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="import-order-row"]').first().click();
 
       cy.get('button:contains("Container Tracking")').click();
@@ -117,7 +116,7 @@ describe("Import Orders - E2E Tests", () => {
     });
 
     it("should record port activities", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="import-order-row"]').first().click();
 
       cy.get('button:contains("Port Activities")').click();
@@ -134,7 +133,7 @@ describe("Import Orders - E2E Tests", () => {
 
   describe("Customs & Documentation", () => {
     it("should upload customs documents", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="import-order-row"]').first().click();
 
       cy.get('button:contains("Customs Documents")').click();
@@ -154,7 +153,7 @@ describe("Import Orders - E2E Tests", () => {
     });
 
     it("should track customs clearance status", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="import-order-row"]').first().click();
 
       cy.get('button:contains("Customs Status")').click();
@@ -165,7 +164,7 @@ describe("Import Orders - E2E Tests", () => {
     });
 
     it("should record customs payment", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="import-order-row"]').first().click();
 
       cy.get('button:contains("Customs Payment")').click();
@@ -181,7 +180,7 @@ describe("Import Orders - E2E Tests", () => {
 
   describe("Landed Cost Allocation", () => {
     it("should allocate landed costs to items", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="import-order-row"]').first().click();
 
       cy.get('button:contains("Allocate Costs")').click();
@@ -197,7 +196,7 @@ describe("Import Orders - E2E Tests", () => {
     });
 
     it("should calculate cost per unit with landed costs", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="import-order-row"]').first().click();
 
       cy.get('button:contains("Cost Breakdown")').click();
@@ -211,7 +210,7 @@ describe("Import Orders - E2E Tests", () => {
 
   describe("GRN from Import Order", () => {
     it("should create GRN from import order", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="import-order-row"][data-status="ARRIVED"]')
         .first()
         .click();
@@ -225,7 +224,7 @@ describe("Import Orders - E2E Tests", () => {
     });
 
     it("should record partial receipt of import", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="import-order-row"][data-status="ARRIVED"]')
         .first()
         .click();
@@ -242,7 +241,7 @@ describe("Import Orders - E2E Tests", () => {
 
   describe("Import Order Analytics", () => {
     it("should view import order metrics", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -252,7 +251,7 @@ describe("Import Orders - E2E Tests", () => {
     });
 
     it("should track import costs by supplier", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
 
       cy.get('button:contains("Cost Analysis")').click();
 
@@ -260,7 +259,7 @@ describe("Import Orders - E2E Tests", () => {
     });
 
     it("should export import orders report", () => {
-      cy.visit("/import-orders");
+      cy.visit("/app/import-export");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

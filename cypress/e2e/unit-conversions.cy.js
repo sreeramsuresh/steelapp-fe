@@ -8,7 +8,6 @@
  * - Default unit settings
  * - Quantity validation
  *
- * Run: npm run test:e2e -- --spec '**/unit-conversions.cy.js'
  */
 
 describe("Unit Conversions - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Unit Conversions - E2E Tests", () => {
 
   describe("Unit Setup", () => {
     it("should view available units", () => {
-      cy.visit("/settings/units");
+      cy.visit("/app/settings/units");
 
       cy.get('[data-testid="unit-row"]').should("have.length.greaterThan", 0);
 
@@ -30,7 +29,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should create new unit", () => {
-      cy.visit("/settings/units");
+      cy.visit("/app/settings/units");
       cy.get('button:contains("New Unit")').click();
 
       cy.get('input[placeholder*="Unit Name"]').type("Kilogram");
@@ -44,7 +43,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should create unit with category", () => {
-      cy.visit("/settings/units");
+      cy.visit("/app/settings/units");
       cy.get('button:contains("New Unit")').click();
 
       cy.get('input[placeholder*="Unit Name"]').type("Meter");
@@ -60,7 +59,7 @@ describe("Unit Conversions - E2E Tests", () => {
 
   describe("Unit Conversions", () => {
     it("should create unit conversion", () => {
-      cy.visit("/settings/conversions");
+      cy.visit("/app/settings/conversions");
       cy.get('button:contains("New Conversion")').click();
 
       cy.get('select[name="From Unit"]').select("KG");
@@ -73,7 +72,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should create bidirectional conversion", () => {
-      cy.visit("/settings/conversions");
+      cy.visit("/app/settings/conversions");
       cy.get('button:contains("New Conversion")').click();
 
       cy.get('select[name="From Unit"]').select("M");
@@ -88,7 +87,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should create complex conversion", () => {
-      cy.visit("/settings/conversions");
+      cy.visit("/app/settings/conversions");
       cy.get('button:contains("New Conversion")').click();
 
       cy.get('select[name="From Unit"]').select("KG");
@@ -103,7 +102,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should view conversion chain", () => {
-      cy.visit("/settings/conversions");
+      cy.visit("/app/settings/conversions");
 
       cy.get('button:contains("Conversion Chain")').click();
 
@@ -111,7 +110,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should edit conversion factor", () => {
-      cy.visit("/settings/conversions");
+      cy.visit("/app/settings/conversions");
       cy.get('[data-testid="conversion-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -123,7 +122,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should delete conversion", () => {
-      cy.visit("/settings/conversions");
+      cy.visit("/app/settings/conversions");
       cy.get('[data-testid="conversion-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -136,7 +135,7 @@ describe("Unit Conversions - E2E Tests", () => {
 
   describe("Unit Conversion Application", () => {
     it("should convert quantity on product entry", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Units")').click();
@@ -151,7 +150,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should convert quantity on invoice line", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Customer");
@@ -171,7 +170,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should convert quantity on delivery note", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('button:contains("Create Delivery Note")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Customer");
@@ -191,7 +190,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should validate quantity conversion", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Customer");
@@ -211,7 +210,7 @@ describe("Unit Conversions - E2E Tests", () => {
 
   describe("Default Units", () => {
     it("should set default unit for product", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -223,7 +222,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should set company default unit", () => {
-      cy.visit("/settings/company");
+      cy.visit("/app/settings/company");
 
       cy.get('button:contains("Edit")').click();
 
@@ -235,7 +234,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should use company default in transactions", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Customer");
@@ -253,7 +252,7 @@ describe("Unit Conversions - E2E Tests", () => {
 
   describe("Unit Calculator", () => {
     it("should use unit converter tool", () => {
-      cy.visit("/settings/converter");
+      cy.visit("/app/settings/converter");
 
       cy.get('input[placeholder*="From Quantity"]').type("1");
 
@@ -265,7 +264,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should perform reverse conversion", () => {
-      cy.visit("/settings/converter");
+      cy.visit("/app/settings/converter");
 
       cy.get('input[placeholder*="From Quantity"]').type("1000");
 
@@ -277,7 +276,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should save conversion history", () => {
-      cy.visit("/settings/converter");
+      cy.visit("/app/settings/converter");
 
       cy.get('input[placeholder*="From Quantity"]').type("100");
 
@@ -292,7 +291,7 @@ describe("Unit Conversions - E2E Tests", () => {
 
   describe("Stock Quantity Tracking with Units", () => {
     it("should track stock in multiple units", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Quantity")').click();
@@ -311,7 +310,7 @@ describe("Unit Conversions - E2E Tests", () => {
 
   describe("Unit Conversion Search & Filter", () => {
     it("should search units", () => {
-      cy.visit("/settings/units");
+      cy.visit("/app/settings/units");
 
       cy.get('input[placeholder*="Search"]').type("Kilogram");
 
@@ -320,7 +319,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should filter units by category", () => {
-      cy.visit("/settings/units");
+      cy.visit("/app/settings/units");
 
       cy.get('select[name="Category"]').select("WEIGHT");
 
@@ -328,7 +327,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should filter conversions by unit", () => {
-      cy.visit("/settings/conversions");
+      cy.visit("/app/settings/conversions");
 
       cy.get('select[name="From Unit"]').select("KG");
 
@@ -338,7 +337,7 @@ describe("Unit Conversions - E2E Tests", () => {
 
   describe("Unit Analytics", () => {
     it("should view unit metrics", () => {
-      cy.visit("/settings/units");
+      cy.visit("/app/settings/units");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -348,7 +347,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should export unit configuration", () => {
-      cy.visit("/settings/units");
+      cy.visit("/app/settings/units");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");
@@ -358,7 +357,7 @@ describe("Unit Conversions - E2E Tests", () => {
     });
 
     it("should export conversion mappings", () => {
-      cy.visit("/settings/conversions");
+      cy.visit("/app/settings/conversions");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

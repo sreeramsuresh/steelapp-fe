@@ -8,7 +8,6 @@
  * - Regional settings
  * - Currency conversion
  *
- * Run: npm run test:e2e -- --spec '**/countries-currencies.cy.js'
  */
 
 describe("Countries & Currencies - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Countries & Currencies - E2E Tests", () => {
 
   describe("Country Management", () => {
     it("should view available countries", () => {
-      cy.visit("/settings/countries");
+      cy.visit("/app/settings/countries");
 
       cy.get('[data-testid="country-row"]').should("have.length.greaterThan", 0);
 
@@ -30,7 +29,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should search for country", () => {
-      cy.visit("/settings/countries");
+      cy.visit("/app/settings/countries");
 
       cy.get('input[placeholder*="Search"]').type("Saudi");
 
@@ -39,7 +38,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should view country details", () => {
-      cy.visit("/settings/countries");
+      cy.visit("/app/settings/countries");
       cy.get('[data-testid="country-row"]').first().click();
 
       cy.contains("Country Code").should("be.visible");
@@ -49,7 +48,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should filter countries by region", () => {
-      cy.visit("/settings/countries");
+      cy.visit("/app/settings/countries");
 
       cy.get('select[name="Region"]').select("GCC");
 
@@ -57,7 +56,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should update country settings", () => {
-      cy.visit("/settings/countries");
+      cy.visit("/app/settings/countries");
       cy.get('[data-testid="country-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -71,7 +70,7 @@ describe("Countries & Currencies - E2E Tests", () => {
 
   describe("Currency Configuration", () => {
     it("should view active currencies", () => {
-      cy.visit("/settings/currencies");
+      cy.visit("/app/settings/currencies");
 
       cy.get('[data-testid="currency-row"]').should("have.length.greaterThan", 0);
 
@@ -83,7 +82,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should enable currency for transactions", () => {
-      cy.visit("/settings/currencies");
+      cy.visit("/app/settings/currencies");
       cy.get('[data-testid="currency-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -95,7 +94,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should set base currency", () => {
-      cy.visit("/settings/currencies");
+      cy.visit("/app/settings/currencies");
 
       cy.get('button:contains("Set Base Currency")').click();
 
@@ -107,7 +106,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should view currency symbols", () => {
-      cy.visit("/settings/currencies");
+      cy.visit("/app/settings/currencies");
       cy.get('[data-testid="currency-row"]').first().click();
 
       cy.contains("Symbol").should("be.visible");
@@ -116,7 +115,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should configure currency decimal places", () => {
-      cy.visit("/settings/currencies");
+      cy.visit("/app/settings/currencies");
       cy.get('[data-testid="currency-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -130,7 +129,7 @@ describe("Countries & Currencies - E2E Tests", () => {
 
   describe("Exchange Rates", () => {
     it("should view current exchange rates", () => {
-      cy.visit("/settings/exchange-rates");
+      cy.visit("/app/settings/exchange-rates");
 
       cy.get('[data-testid="rate-row"]').should("have.length.greaterThan", 0);
 
@@ -143,7 +142,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should add manual exchange rate", () => {
-      cy.visit("/settings/exchange-rates");
+      cy.visit("/app/settings/exchange-rates");
 
       cy.get('button:contains("Add Rate")').click();
 
@@ -158,7 +157,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should update exchange rate", () => {
-      cy.visit("/settings/exchange-rates");
+      cy.visit("/app/settings/exchange-rates");
       cy.get('[data-testid="rate-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -170,7 +169,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should set rate effective date", () => {
-      cy.visit("/settings/exchange-rates");
+      cy.visit("/app/settings/exchange-rates");
       cy.get('[data-testid="rate-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -182,7 +181,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should import exchange rates from API", () => {
-      cy.visit("/settings/exchange-rates");
+      cy.visit("/app/settings/exchange-rates");
 
       cy.get('button:contains("Import Rates")').click();
 
@@ -192,7 +191,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should view rate history", () => {
-      cy.visit("/settings/exchange-rates");
+      cy.visit("/app/settings/exchange-rates");
       cy.get('[data-testid="rate-row"]').first().click();
 
       cy.get('button:contains("History")').click();
@@ -203,7 +202,7 @@ describe("Countries & Currencies - E2E Tests", () => {
 
   describe("Regional Settings", () => {
     it("should configure VAT by country", () => {
-      cy.visit("/settings/regional");
+      cy.visit("/app/settings/regional");
 
       cy.get('[data-testid="region-row"]').first().click();
 
@@ -216,7 +215,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should set default payment terms by region", () => {
-      cy.visit("/settings/regional");
+      cy.visit("/app/settings/regional");
 
       cy.get('[data-testid="region-row"]').first().click();
 
@@ -229,7 +228,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should configure shipping restrictions", () => {
-      cy.visit("/settings/regional");
+      cy.visit("/app/settings/regional");
 
       cy.get('[data-testid="region-row"]').first().click();
 
@@ -242,7 +241,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should view regional tax configurations", () => {
-      cy.visit("/settings/regional");
+      cy.visit("/app/settings/regional");
 
       cy.get('button:contains("Tax Settings")').click();
 
@@ -254,7 +253,7 @@ describe("Countries & Currencies - E2E Tests", () => {
 
   describe("Currency Conversion", () => {
     it("should convert amount between currencies", () => {
-      cy.visit("/settings/converter");
+      cy.visit("/app/settings/converter");
 
       cy.get('input[placeholder*="Amount"]').type("1000");
 
@@ -267,7 +266,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should apply exchange rate to invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Select customer"]').type("Customer");
@@ -293,7 +292,7 @@ describe("Countries & Currencies - E2E Tests", () => {
 
   describe("Country & Currency Search & Filter", () => {
     it("should filter countries by status", () => {
-      cy.visit("/settings/countries");
+      cy.visit("/app/settings/countries");
 
       cy.get('select[name="Status"]').select("ACTIVE");
 
@@ -301,7 +300,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should filter currencies by status", () => {
-      cy.visit("/settings/currencies");
+      cy.visit("/app/settings/currencies");
 
       cy.get('select[name="Status"]').select("ACTIVE");
 
@@ -309,7 +308,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should search exchange rates by currency pair", () => {
-      cy.visit("/settings/exchange-rates");
+      cy.visit("/app/settings/exchange-rates");
 
       cy.get('input[placeholder*="Search"]').type("AED/USD");
 
@@ -320,7 +319,7 @@ describe("Countries & Currencies - E2E Tests", () => {
 
   describe("Country & Currency Analytics", () => {
     it("should view country/currency metrics", () => {
-      cy.visit("/settings/countries");
+      cy.visit("/app/settings/countries");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -330,7 +329,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should export country configuration", () => {
-      cy.visit("/settings/countries");
+      cy.visit("/app/settings/countries");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");
@@ -340,7 +339,7 @@ describe("Countries & Currencies - E2E Tests", () => {
     });
 
     it("should export exchange rates", () => {
-      cy.visit("/settings/exchange-rates");
+      cy.visit("/app/settings/exchange-rates");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

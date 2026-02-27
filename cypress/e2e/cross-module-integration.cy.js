@@ -35,7 +35,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
   describe("Multi-Invoice Payment Allocation", () => {
     it("should allocate single payment across multiple invoices", () => {
       // Create Invoice 1
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@listInvoices");
 
       cy.contains("button", "New")
@@ -62,7 +62,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
         const invoiceId1 = url.split("/").pop();
 
         // Create Invoice 2 for same customer
-        cy.visit("/invoices");
+        cy.visit("/app/invoices");
         cy.wait("@listInvoices");
 
         cy.contains("button", "New")
@@ -107,7 +107,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
     });
 
     it("should handle partial payments on multiple invoices", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@listInvoices");
 
       // Create 2 invoices
@@ -133,7 +133,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
         cy.wait("@createInvoice");
 
         // Return to list for next iteration
-        cy.visit("/invoices");
+        cy.visit("/app/invoices");
         cy.wait("@listInvoices");
       }
 
@@ -155,7 +155,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
 
         cy.wait("@recordPayment");
 
-        cy.visit("/invoices");
+        cy.visit("/app/invoices");
         cy.wait("@listInvoices");
       }
     });
@@ -163,7 +163,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
 
   describe("VAT Calculation Across Document Types", () => {
     it("should calculate consistent VAT on invoice and credit note", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       // Create invoice
@@ -219,7 +219,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
     });
 
     it("should maintain VAT consistency across document lifecycle", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -268,7 +268,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
 
   describe("Commission Calculation from Sales", () => {
     it("should calculate commission based on invoice amount", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       // Create invoice with substantial amount
@@ -313,7 +313,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
     });
 
     it("should calculate commission proportional to invoice subtotal", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       // Create 2 invoices with different amounts
@@ -343,7 +343,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
 
         cy.wait("@createInvoice");
 
-        cy.visit("/invoices");
+        cy.visit("/app/invoices");
         cy.wait("@listInvoices");
       }
     });
@@ -351,7 +351,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
 
   describe("Stock Allocation with Batch Costs", () => {
     it("should allocate batches and calculate cost of goods accurately", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       // Create invoice with batch allocation
@@ -389,7 +389,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
     });
 
     it("should calculate margin based on allocated batch costs", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -426,7 +426,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
 
   describe("Accounting Entry Generation", () => {
     it("should track accounting impact of invoice creation and payment", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       // Create invoice
@@ -472,7 +472,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
     });
 
     it("should record payment against accounts in transaction flow", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.wait("@getCustomers");
 
       cy.contains("button", "New")
@@ -513,7 +513,7 @@ describe("Cross-Module Integration - E2E Tests", () => {
 
   describe("Multi-Module Workflow Integrity", () => {
     it("should maintain consistency across procurement workflow", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.wait("@listPOs");
 
       const TEST_SUPPLIER_NAME = "ABC Suppliers";

@@ -63,7 +63,7 @@ describe('Supplier Quotations - Critical Flows', () => {
       cy.get('select option').should('have.length.greaterThan', 1);
 
       // Select a status filter
-      cy.get('select').select('draft');
+      cy.get('select').first().select('draft');
 
       // Verify filter was applied
       cy.get('select').should('have.value', 'draft');
@@ -277,7 +277,7 @@ describe('Supplier Quotations - Critical Flows', () => {
       cy.wait('@getQuotations', { timeout: 10000 });
 
       // Filter for draft quotations (only drafts can be edited)
-      cy.get('select').select('draft');
+      cy.get('select').first().select('draft');
       cy.wait(1000);
 
       cy.get('body').then(($body) => {
@@ -334,7 +334,7 @@ describe('Supplier Quotations - Critical Flows', () => {
       cy.wait('@getQuotations', { timeout: 10000 });
 
       // Filter by draft status (draft quotations can be approved)
-      cy.get('select').select('draft');
+      cy.get('select').first().select('draft');
       cy.wait(1000);
 
       cy.get('body').then(($body) => {
@@ -376,7 +376,7 @@ describe('Supplier Quotations - Critical Flows', () => {
       cy.wait('@getQuotations', { timeout: 10000 });
 
       // Filter by draft status
-      cy.get('select').select('draft');
+      cy.get('select').first().select('draft');
       cy.wait(1000);
 
       cy.get('body').then(($body) => {
@@ -434,7 +434,7 @@ describe('Supplier Quotations - Critical Flows', () => {
       cy.wait('@getQuotations', { timeout: 10000 });
 
       // Filter by approved status
-      cy.get('select').select('approved');
+      cy.get('select').first().select('approved');
       cy.wait(1000);
 
       cy.get('body').then(($body) => {
@@ -493,7 +493,7 @@ describe('Supplier Quotations - Critical Flows', () => {
       cy.wait('@getQuotations', { timeout: 10000 });
 
       // Filter by draft status (only drafts can be deleted)
-      cy.get('select').select('draft');
+      cy.get('select').first().select('draft');
       cy.wait(1000);
 
       cy.get('body').then(($body) => {

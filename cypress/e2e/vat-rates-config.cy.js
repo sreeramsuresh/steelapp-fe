@@ -8,7 +8,6 @@
  * - Regional tax settings
  * - Tax exemptions and overrides
  *
- * Run: npm run test:e2e -- --spec '**/vat-rates-config.cy.js'
  */
 
 describe("VAT Rates Configuration - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
 
   describe("VAT Rates Management", () => {
     it("should view existing VAT rates", () => {
-      cy.visit("/settings/vat-rates");
+      cy.visit("/app/settings/vat-rates");
 
       cy.get('[data-testid="rate-row"]').should("have.length.greaterThan", 0);
 
@@ -31,7 +30,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should create new VAT rate", () => {
-      cy.visit("/settings/vat-rates");
+      cy.visit("/app/settings/vat-rates");
       cy.get('button:contains("New Rate")').click();
 
       cy.get('input[placeholder*="Rate %"]').type("10");
@@ -43,7 +42,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should create zero-rated VAT entry", () => {
-      cy.visit("/settings/vat-rates");
+      cy.visit("/app/settings/vat-rates");
       cy.get('button:contains("New Rate")').click();
 
       cy.get('input[placeholder*="Rate %"]').type("0");
@@ -55,7 +54,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should create exempt supply rate", () => {
-      cy.visit("/settings/vat-rates");
+      cy.visit("/app/settings/vat-rates");
       cy.get('button:contains("New Rate")').click();
 
       cy.get('input[placeholder*="Description"]').type("Exempt Supply");
@@ -66,7 +65,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should edit VAT rate", () => {
-      cy.visit("/settings/vat-rates");
+      cy.visit("/app/settings/vat-rates");
       cy.get('[data-testid="rate-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -78,7 +77,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should activate/deactivate VAT rate", () => {
-      cy.visit("/settings/vat-rates");
+      cy.visit("/app/settings/vat-rates");
       cy.get('[data-testid="rate-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -90,7 +89,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should delete VAT rate", () => {
-      cy.visit("/settings/vat-rates");
+      cy.visit("/app/settings/vat-rates");
       cy.get('[data-testid="rate-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -103,7 +102,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
 
   describe("Tax Categories", () => {
     it("should create tax category", () => {
-      cy.visit("/settings/tax-categories");
+      cy.visit("/app/settings/tax-categories");
       cy.get('button:contains("New Category")').click();
 
       cy.get('input[placeholder*="Category Name"]').type("Services");
@@ -117,7 +116,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should assign products to tax category", () => {
-      cy.visit("/settings/tax-categories");
+      cy.visit("/app/settings/tax-categories");
       cy.get('[data-testid="category-row"]').first().click();
 
       cy.get('button:contains("Assign Products")').click();
@@ -130,7 +129,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should view products in tax category", () => {
-      cy.visit("/settings/tax-categories");
+      cy.visit("/app/settings/tax-categories");
       cy.get('[data-testid="category-row"]').first().click();
 
       cy.get('button:contains("Products")').click();
@@ -139,7 +138,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should edit tax category", () => {
-      cy.visit("/settings/tax-categories");
+      cy.visit("/app/settings/tax-categories");
       cy.get('[data-testid="category-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -151,7 +150,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should delete tax category", () => {
-      cy.visit("/settings/tax-categories");
+      cy.visit("/app/settings/tax-categories");
       cy.get('[data-testid="category-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -164,7 +163,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
 
   describe("Tax Codes & Groups", () => {
     it("should view tax codes", () => {
-      cy.visit("/settings/tax-codes");
+      cy.visit("/app/settings/tax-codes");
 
       cy.get('[data-testid="code-row"]').should("have.length.greaterThan", 0);
 
@@ -176,7 +175,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should create tax code", () => {
-      cy.visit("/settings/tax-codes");
+      cy.visit("/app/settings/tax-codes");
       cy.get('button:contains("New Code")').click();
 
       cy.get('input[placeholder*="Tax Code"]').type("TAX-2024-001");
@@ -190,7 +189,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should create tax group", () => {
-      cy.visit("/settings/tax-groups");
+      cy.visit("/app/settings/tax-groups");
       cy.get('button:contains("New Group")').click();
 
       cy.get('input[placeholder*="Group Name"]').type("Combined Tax");
@@ -205,7 +204,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should add multiple tax codes to group", () => {
-      cy.visit("/settings/tax-groups");
+      cy.visit("/app/settings/tax-groups");
       cy.get('[data-testid="group-row"]').first().click();
 
       cy.get('button:contains("Add Code")').click();
@@ -219,7 +218,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
 
   describe("Regional Tax Settings", () => {
     it("should configure UAE tax settings", () => {
-      cy.visit("/settings/regional-tax");
+      cy.visit("/app/settings/regional-tax");
 
       cy.get('[data-testid="region-row"]').first().click();
 
@@ -233,7 +232,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should set reverse charge applicable countries", () => {
-      cy.visit("/settings/regional-tax");
+      cy.visit("/app/settings/regional-tax");
 
       cy.get('[data-testid="region-row"]').first().click();
 
@@ -248,7 +247,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should configure tax by customer type", () => {
-      cy.visit("/settings/regional-tax");
+      cy.visit("/app/settings/regional-tax");
 
       cy.get('button:contains("Customer Types")').click();
 
@@ -265,7 +264,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
 
   describe("Tax Exemptions & Overrides", () => {
     it("should create tax exemption", () => {
-      cy.visit("/settings/tax-exemptions");
+      cy.visit("/app/settings/tax-exemptions");
       cy.get('button:contains("New Exemption")').click();
 
       cy.get('input[placeholder*="Exemption Code"]').type("EXEMPT-001");
@@ -279,7 +278,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should apply tax exemption to customer", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -291,7 +290,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should create tax override for transaction", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Select customer"]').type("Customer");
@@ -309,7 +308,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should view tax override history", () => {
-      cy.visit("/settings/tax-exemptions");
+      cy.visit("/app/settings/tax-exemptions");
 
       cy.get('button:contains("Override History")').click();
 
@@ -319,7 +318,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
 
   describe("Tax Configuration Search & Filter", () => {
     it("should search VAT rates", () => {
-      cy.visit("/settings/vat-rates");
+      cy.visit("/app/settings/vat-rates");
 
       cy.get('input[placeholder*="Search"]').type("Standard");
 
@@ -328,7 +327,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should filter tax categories by status", () => {
-      cy.visit("/settings/tax-categories");
+      cy.visit("/app/settings/tax-categories");
 
       cy.get('select[name="Status"]').select("ACTIVE");
 
@@ -336,7 +335,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should filter tax exemptions by type", () => {
-      cy.visit("/settings/tax-exemptions");
+      cy.visit("/app/settings/tax-exemptions");
 
       cy.get('select[name="Type"]').select("GOVERNMENT");
 
@@ -346,7 +345,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
 
   describe("Tax Configuration Analytics", () => {
     it("should view tax configuration metrics", () => {
-      cy.visit("/settings/vat-rates");
+      cy.visit("/app/settings/vat-rates");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -356,7 +355,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should export tax configuration", () => {
-      cy.visit("/settings/vat-rates");
+      cy.visit("/app/settings/vat-rates");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");
@@ -366,7 +365,7 @@ describe("VAT Rates Configuration - E2E Tests", () => {
     });
 
     it("should export tax categories", () => {
-      cy.visit("/settings/tax-categories");
+      cy.visit("/app/settings/tax-categories");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

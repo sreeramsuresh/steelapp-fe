@@ -8,7 +8,6 @@
  * - Financing document tracking
  * - LC amendment and extension
  *
- * Run: npm run test:e2e -- --spec '**/trade-finance.cy.js'
  */
 
 describe("Trade Finance - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Trade Finance - E2E Tests", () => {
 
   describe("Letter of Credit", () => {
     it("should create Letter of Credit", () => {
-      cy.visit("/trade-finance");
+      cy.visit("/app/finance");
       cy.get('button:contains("New LC")').click();
 
       cy.get('input[placeholder*="Supplier"]').type("Supplier");
@@ -33,7 +32,7 @@ describe("Trade Finance - E2E Tests", () => {
     });
 
     it("should track LC status", () => {
-      cy.visit("/trade-finance");
+      cy.visit("/app/finance");
       cy.get('[data-testid="lc-row"]').first().click();
 
       cy.contains("Status").should("be.visible");
@@ -42,7 +41,7 @@ describe("Trade Finance - E2E Tests", () => {
     });
 
     it("should utilization shipments against LC", () => {
-      cy.visit("/trade-finance");
+      cy.visit("/app/finance");
       cy.get('[data-testid="lc-row"]').first().click();
 
       cy.get('button:contains("Utilize")').click();
@@ -55,7 +54,7 @@ describe("Trade Finance - E2E Tests", () => {
     });
 
     it("should amend LC terms", () => {
-      cy.visit("/trade-finance");
+      cy.visit("/app/finance");
       cy.get('[data-testid="lc-row"]').first().click();
 
       cy.get('button:contains("Amend")').click();
@@ -67,7 +66,7 @@ describe("Trade Finance - E2E Tests", () => {
     });
 
     it("should extend LC expiry", () => {
-      cy.visit("/trade-finance");
+      cy.visit("/app/finance");
       cy.get('[data-testid="lc-row"]').first().click();
 
       cy.get('button:contains("Extend")').click();
@@ -81,7 +80,7 @@ describe("Trade Finance - E2E Tests", () => {
 
   describe("Invoice Discounting", () => {
     it("should discount invoice", () => {
-      cy.visit("/trade-finance");
+      cy.visit("/app/finance");
       cy.get('button:contains("Invoice Discounting")').click();
 
       cy.get('input[placeholder*="Invoice"]').type("INV-");
@@ -94,7 +93,7 @@ describe("Trade Finance - E2E Tests", () => {
     });
 
     it("should track discount proceeds", () => {
-      cy.visit("/trade-finance");
+      cy.visit("/app/finance");
       cy.get('[data-testid="discount-row"]').first().click();
 
       cy.contains("Original Amount").should("be.visible");
@@ -103,7 +102,7 @@ describe("Trade Finance - E2E Tests", () => {
     });
 
     it("should handle maturity of discounted invoice", () => {
-      cy.visit("/trade-finance");
+      cy.visit("/app/finance");
       cy.get('[data-testid="discount-row"]').first().click();
 
       cy.get('button:contains("Record Maturity")').click();
@@ -115,7 +114,7 @@ describe("Trade Finance - E2E Tests", () => {
 
   describe("Financing Documentation", () => {
     it("should upload LC document", () => {
-      cy.visit("/trade-finance");
+      cy.visit("/app/finance");
       cy.get('[data-testid="lc-row"]').first().click();
 
       cy.get('button:contains("Upload LC")').click();
@@ -127,7 +126,7 @@ describe("Trade Finance - E2E Tests", () => {
     });
 
     it("should track financing documents", () => {
-      cy.visit("/trade-finance");
+      cy.visit("/app/finance");
       cy.get('[data-testid="lc-row"]').first().click();
 
       cy.get('button:contains("Documents")').click();
@@ -136,7 +135,7 @@ describe("Trade Finance - E2E Tests", () => {
     });
 
     it("should download financing document", () => {
-      cy.visit("/trade-finance");
+      cy.visit("/app/finance");
       cy.get('[data-testid="lc-row"]').first().click();
 
       cy.get('button:contains("Documents")').click();
@@ -150,7 +149,7 @@ describe("Trade Finance - E2E Tests", () => {
 
   describe("Financing Costs & Fees", () => {
     it("should calculate LC fees", () => {
-      cy.visit("/trade-finance");
+      cy.visit("/app/finance");
       cy.get('[data-testid="lc-row"]').first().click();
 
       cy.contains("Commission").should("be.visible");
@@ -159,7 +158,7 @@ describe("Trade Finance - E2E Tests", () => {
     });
 
     it("should record financing charges", () => {
-      cy.visit("/trade-finance");
+      cy.visit("/app/finance");
       cy.get('[data-testid="lc-row"]').first().click();
 
       cy.get('button:contains("Record Charges")').click();
@@ -174,7 +173,7 @@ describe("Trade Finance - E2E Tests", () => {
 
   describe("Financing Reports", () => {
     it("should view financing summary", () => {
-      cy.visit("/reports/trade-finance");
+      cy.visit("/analytics/reports/trade-finance");
 
       cy.contains("Trade Finance Summary").should("be.visible");
       cy.contains("Active LCs").should("be.visible");
@@ -183,7 +182,7 @@ describe("Trade Finance - E2E Tests", () => {
     });
 
     it("should export financing data", () => {
-      cy.visit("/trade-finance");
+      cy.visit("/app/finance");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("EXCEL");

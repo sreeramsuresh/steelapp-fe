@@ -58,7 +58,7 @@ describe("Invoice Form - Stock Allocation Panel", () => {
     cy.intercept("POST", "**/api/invoices").as("createInvoice");
 
     // Navigate to create invoice page
-    cy.visit("/create-invoice");
+    cy.visit("/app/invoices/new");
   });
 
   /**

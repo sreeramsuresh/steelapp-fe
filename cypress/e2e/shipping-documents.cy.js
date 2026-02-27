@@ -8,7 +8,6 @@
  * - Commercial invoice for shipping
  * - Document collection and delivery
  *
- * Run: npm run test:e2e -- --spec '**/shipping-documents.cy.js'
  */
 
 describe("Shipping Documents - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Shipping Documents - E2E Tests", () => {
 
   describe("Bill of Lading", () => {
     it("should generate Bill of Lading", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Generate BOL")').click();
@@ -29,7 +28,7 @@ describe("Shipping Documents - E2E Tests", () => {
     });
 
     it("should populate BOL with shipment details", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("View BOL")').click();
@@ -42,7 +41,7 @@ describe("Shipping Documents - E2E Tests", () => {
     });
 
     it("should print BOL", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("BOL")').click();
@@ -52,7 +51,7 @@ describe("Shipping Documents - E2E Tests", () => {
     });
 
     it("should issue negotiable BOL", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("BOL Type")').click();
@@ -66,7 +65,7 @@ describe("Shipping Documents - E2E Tests", () => {
 
   describe("Air Waybill", () => {
     it("should generate Air Waybill for air shipments", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"][data-mode="AIR"]').first().click();
 
       cy.get('button:contains("Generate AWB")').click();
@@ -77,7 +76,7 @@ describe("Shipping Documents - E2E Tests", () => {
     });
 
     it("should track AWB status", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"][data-mode="AIR"]').first().click();
 
       cy.get('button:contains("AWB Details")').click();
@@ -87,7 +86,7 @@ describe("Shipping Documents - E2E Tests", () => {
     });
 
     it("should download AWB", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"][data-mode="AIR"]').first().click();
 
       cy.get('button:contains("Download AWB")').click();
@@ -98,7 +97,7 @@ describe("Shipping Documents - E2E Tests", () => {
 
   describe("Packing Lists & Marks", () => {
     it("should generate packing list", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Packing List")').click();
@@ -108,7 +107,7 @@ describe("Shipping Documents - E2E Tests", () => {
     });
 
     it("should define shipping marks", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Shipping Marks")').click();
@@ -120,7 +119,7 @@ describe("Shipping Documents - E2E Tests", () => {
     });
 
     it("should print packing list", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Packing List")').click();
@@ -132,7 +131,7 @@ describe("Shipping Documents - E2E Tests", () => {
 
   describe("Commercial Invoice", () => {
     it("should generate commercial invoice for export", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Commercial Invoice")').click();
@@ -143,7 +142,7 @@ describe("Shipping Documents - E2E Tests", () => {
     });
 
     it("should populate invoice with HS codes", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Commercial Invoice")').click();
@@ -154,7 +153,7 @@ describe("Shipping Documents - E2E Tests", () => {
     });
 
     it("should calculate duty and taxes", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Commercial Invoice")').click();
@@ -164,7 +163,7 @@ describe("Shipping Documents - E2E Tests", () => {
     });
 
     it("should print commercial invoice", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Commercial Invoice")').click();
@@ -176,7 +175,7 @@ describe("Shipping Documents - E2E Tests", () => {
 
   describe("Document Collection", () => {
     it("should collect all shipping documents", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Document Collection")').click();
@@ -187,7 +186,7 @@ describe("Shipping Documents - E2E Tests", () => {
     });
 
     it("should verify document completeness", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Verify Documents")').click();
@@ -196,7 +195,7 @@ describe("Shipping Documents - E2E Tests", () => {
     });
 
     it("should transmit documents to buyer", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Document Collection")').click();
@@ -211,7 +210,7 @@ describe("Shipping Documents - E2E Tests", () => {
 
   describe("Document Tracking & Archive", () => {
     it("should track document status", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Document Status")').click();
@@ -221,7 +220,7 @@ describe("Shipping Documents - E2E Tests", () => {
     });
 
     it("should archive shipping documents", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
       cy.get('[data-testid="shipment-row"]').first().click();
 
       cy.get('button:contains("Archive")').click();
@@ -231,7 +230,7 @@ describe("Shipping Documents - E2E Tests", () => {
     });
 
     it("should retrieve archived documents", () => {
-      cy.visit("/export-shipping");
+      cy.visit("/app/import-export");
 
       cy.get('button:contains("Archived Documents")').click();
 

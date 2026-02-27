@@ -31,12 +31,12 @@ describe("User Management - Create User with Roles", () => {
     cy.get('button[type="submit"]').click();
 
     // Wait for dashboard to load
-    cy.url().should("include", "/dashboard");
+    cy.url().should("match", /\/(app|analytics)/);
   });
 
   it("should navigate to User Management section", () => {
     // Navigate to Company Settings
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Wait for settings page to load
     cy.contains("Company Settings").should("be.visible");
@@ -46,7 +46,7 @@ describe("User Management - Create User with Roles", () => {
   });
 
   it("should open Add User modal", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Click Add User button
     cy.contains("button", "Add User").click();
@@ -56,7 +56,7 @@ describe("User Management - Create User with Roles", () => {
   });
 
   it("should validate required fields", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
     cy.contains("button", "Add User").click();
 
     // Try to submit without filling fields
@@ -67,7 +67,7 @@ describe("User Management - Create User with Roles", () => {
   });
 
   it("should validate email format", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
     cy.contains("button", "Add User").click();
 
     // Enter invalid email
@@ -83,7 +83,7 @@ describe("User Management - Create User with Roles", () => {
   });
 
   it("should validate password strength", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
     cy.contains("button", "Add User").click();
 
     // Enter short password
@@ -99,7 +99,7 @@ describe("User Management - Create User with Roles", () => {
   });
 
   it("should validate role selection", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
     cy.contains("button", "Add User").click();
 
     // Fill in all fields except roles
@@ -115,7 +115,7 @@ describe("User Management - Create User with Roles", () => {
   });
 
   it("should successfully create user with multiple roles", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
     cy.contains("button", "Add User").click();
 
     // Fill in user details
@@ -141,7 +141,7 @@ describe("User Management - Create User with Roles", () => {
   });
 
   it("should display newly created user in the list", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search for the new user
     cy.get('input[placeholder*="Search users"]').type(testUser.email);
@@ -156,7 +156,7 @@ describe("User Management - Create User with Roles", () => {
   });
 
   it("should show user as active by default", () => {
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search for the user
     cy.get('input[placeholder*="Search users"]').type(testUser.email);
@@ -181,7 +181,7 @@ describe("User Management - Create User with Roles", () => {
     cy.get('button[type="submit"]').click();
 
     // Verify successful login
-    cy.url().should("include", "/dashboard");
+    cy.url().should("match", /\/(app|analytics)/);
     cy.contains("Welcome").should("be.visible");
   });
 
@@ -196,7 +196,7 @@ describe("User Management - Create User with Roles", () => {
     cy.get('button[type="submit"]').click();
 
     // Navigate to user management
-    cy.visit("/settings");
+    cy.visit("/app/settings");
 
     // Search for test user
     cy.get('input[placeholder*="Search users"]').type(testUser.email);

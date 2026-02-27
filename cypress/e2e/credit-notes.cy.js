@@ -8,7 +8,6 @@
  * - VAT reversal on credits
  * - Stock return tracking
  *
- * Run: npm run test:e2e -- --spec '**/credit-notes.cy.js'
  */
 
 describe("Credit Notes - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Credit Notes - E2E Tests", () => {
 
   describe("Credit Note Creation", () => {
     it("should create credit note from invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button:contains("Create Credit Note")').click();
@@ -28,7 +27,7 @@ describe("Credit Notes - E2E Tests", () => {
     });
 
     it("should apply full credit", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button:contains("Create Credit Note")').click();
@@ -41,7 +40,7 @@ describe("Credit Notes - E2E Tests", () => {
     });
 
     it("should apply partial credit", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button:contains("Create Credit Note")').click();
@@ -59,7 +58,7 @@ describe("Credit Notes - E2E Tests", () => {
     });
 
     it("should select credit reason", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button:contains("Create Credit Note")').click();
@@ -72,7 +71,7 @@ describe("Credit Notes - E2E Tests", () => {
 
   describe("Credit Note Approval", () => {
     it("should submit credit note for approval", () => {
-      cy.visit("/credit-notes");
+      cy.visit("/app/credit-notes");
       cy.get('[data-testid="credit-note-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Submit for Approval")').click();
@@ -81,7 +80,7 @@ describe("Credit Notes - E2E Tests", () => {
     });
 
     it("should approve credit note", () => {
-      cy.visit("/credit-notes");
+      cy.visit("/app/credit-notes");
       cy.get('[data-testid="credit-note-row"][data-status="PENDING"]').first().click();
 
       cy.get('button:contains("Approve")').click();
@@ -91,7 +90,7 @@ describe("Credit Notes - E2E Tests", () => {
     });
 
     it("should reject credit note", () => {
-      cy.visit("/credit-notes");
+      cy.visit("/app/credit-notes");
       cy.get('[data-testid="credit-note-row"][data-status="PENDING"]').first().click();
 
       cy.get('button:contains("Reject")').click();
@@ -104,7 +103,7 @@ describe("Credit Notes - E2E Tests", () => {
 
   describe("Credit Note Posting & Accounting", () => {
     it("should post approved credit note", () => {
-      cy.visit("/credit-notes");
+      cy.visit("/app/credit-notes");
       cy.get('[data-testid="credit-note-row"][data-status="APPROVED"]').first().click();
 
       cy.get('button:contains("Post")').click();
@@ -114,7 +113,7 @@ describe("Credit Notes - E2E Tests", () => {
     });
 
     it("should reverse VAT on credit", () => {
-      cy.visit("/credit-notes");
+      cy.visit("/app/credit-notes");
       cy.get('[data-testid="credit-note-row"]').first().click();
 
       cy.contains("VAT Reversal").should("be.visible");
@@ -123,20 +122,20 @@ describe("Credit Notes - E2E Tests", () => {
     });
 
     it("should update customer balance on credit", () => {
-      cy.visit("/credit-notes");
+      cy.visit("/app/credit-notes");
       cy.get('[data-testid="credit-note-row"]').first().click();
 
       cy.get('button:contains("Post")').click();
       cy.get('button:contains("Confirm")').click();
 
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.contains("Outstanding Balance").should("be.visible");
     });
 
     it("should create GL entries for credit", () => {
-      cy.visit("/credit-notes");
+      cy.visit("/app/credit-notes");
       cy.get('[data-testid="credit-note-row"]').first().click();
 
       cy.get('button:contains("View GL Entries")').click();
@@ -148,7 +147,7 @@ describe("Credit Notes - E2E Tests", () => {
 
   describe("Stock Return Tracking", () => {
     it("should track returned stock in credit note", () => {
-      cy.visit("/credit-notes");
+      cy.visit("/app/credit-notes");
       cy.get('[data-testid="credit-note-row"]').first().click();
 
       cy.contains("Returned Items").should("be.visible");
@@ -156,7 +155,7 @@ describe("Credit Notes - E2E Tests", () => {
     });
 
     it("should create return receipt for credit", () => {
-      cy.visit("/credit-notes");
+      cy.visit("/app/credit-notes");
       cy.get('[data-testid="credit-note-row"]').first().click();
 
       cy.get('button:contains("Create Return Receipt")').click();
@@ -165,26 +164,26 @@ describe("Credit Notes - E2E Tests", () => {
     });
 
     it("should update stock on return receipt", () => {
-      cy.visit("/credit-notes");
+      cy.visit("/app/credit-notes");
       cy.get('[data-testid="credit-note-row"]').first().click();
 
       cy.get('button:contains("Create Return Receipt")').click();
       cy.get('button:contains("Post Return")').click();
 
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').should("have.length.greaterThan", 0);
     });
   });
 
   describe("Credit Note Listing & Search", () => {
     it("should list credit notes", () => {
-      cy.visit("/credit-notes");
+      cy.visit("/app/credit-notes");
 
       cy.get('[data-testid="credit-note-row"]').should("have.length.greaterThan", 0);
     });
 
     it("should filter credit notes by status", () => {
-      cy.visit("/credit-notes");
+      cy.visit("/app/credit-notes");
 
       cy.get('select[name="Status"]').select("APPROVED");
 
@@ -192,7 +191,7 @@ describe("Credit Notes - E2E Tests", () => {
     });
 
     it("should export credit notes", () => {
-      cy.visit("/credit-notes");
+      cy.visit("/app/credit-notes");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

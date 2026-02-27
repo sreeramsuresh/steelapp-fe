@@ -8,7 +8,6 @@
  * - Customer balance adjustment
  * - GL entry creation
  *
- * Run: npm run test:e2e -- --spec '**/debit-notes.cy.js'
  */
 
 describe("Debit Notes - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Debit Notes - E2E Tests", () => {
 
   describe("Debit Note Creation", () => {
     it("should create debit note from invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button:contains("Create Debit Note")').click();
@@ -28,7 +27,7 @@ describe("Debit Notes - E2E Tests", () => {
     });
 
     it("should add debit charge for extra items", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button:contains("Create Debit Note")').click();
@@ -46,7 +45,7 @@ describe("Debit Notes - E2E Tests", () => {
     });
 
     it("should add debit for services/freight", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button:contains("Create Debit Note")').click();
@@ -63,7 +62,7 @@ describe("Debit Notes - E2E Tests", () => {
     });
 
     it("should select debit reason", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button:contains("Create Debit Note")').click();
@@ -76,7 +75,7 @@ describe("Debit Notes - E2E Tests", () => {
 
   describe("Debit Note Approval", () => {
     it("should submit debit note for approval", () => {
-      cy.visit("/debit-notes");
+      cy.visit("/app/debit-notes");
       cy.get('[data-testid="debit-note-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Submit for Approval")').click();
@@ -85,7 +84,7 @@ describe("Debit Notes - E2E Tests", () => {
     });
 
     it("should approve debit note", () => {
-      cy.visit("/debit-notes");
+      cy.visit("/app/debit-notes");
       cy.get('[data-testid="debit-note-row"][data-status="PENDING"]').first().click();
 
       cy.get('button:contains("Approve")').click();
@@ -95,7 +94,7 @@ describe("Debit Notes - E2E Tests", () => {
     });
 
     it("should reject debit note", () => {
-      cy.visit("/debit-notes");
+      cy.visit("/app/debit-notes");
       cy.get('[data-testid="debit-note-row"][data-status="PENDING"]').first().click();
 
       cy.get('button:contains("Reject")').click();
@@ -108,7 +107,7 @@ describe("Debit Notes - E2E Tests", () => {
 
   describe("Debit Note Posting & Accounting", () => {
     it("should post approved debit note", () => {
-      cy.visit("/debit-notes");
+      cy.visit("/app/debit-notes");
       cy.get('[data-testid="debit-note-row"][data-status="APPROVED"]').first().click();
 
       cy.get('button:contains("Post")').click();
@@ -118,7 +117,7 @@ describe("Debit Notes - E2E Tests", () => {
     });
 
     it("should add VAT on debit", () => {
-      cy.visit("/debit-notes");
+      cy.visit("/app/debit-notes");
       cy.get('[data-testid="debit-note-row"]').first().click();
 
       cy.contains("VAT Addition").should("be.visible");
@@ -127,20 +126,20 @@ describe("Debit Notes - E2E Tests", () => {
     });
 
     it("should update customer balance on debit", () => {
-      cy.visit("/debit-notes");
+      cy.visit("/app/debit-notes");
       cy.get('[data-testid="debit-note-row"]').first().click();
 
       cy.get('button:contains("Post")').click();
       cy.get('button:contains("Confirm")').click();
 
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.contains("Outstanding Balance").should("be.visible");
     });
 
     it("should create GL entries for debit", () => {
-      cy.visit("/debit-notes");
+      cy.visit("/app/debit-notes");
       cy.get('[data-testid="debit-note-row"]').first().click();
 
       cy.get('button:contains("View GL Entries")').click();
@@ -152,7 +151,7 @@ describe("Debit Notes - E2E Tests", () => {
 
   describe("Debit Note Calculations", () => {
     it("should calculate line totals", () => {
-      cy.visit("/debit-notes");
+      cy.visit("/app/debit-notes");
       cy.get('[data-testid="debit-note-row"]').first().click();
 
       cy.contains("Subtotal").should("be.visible");
@@ -160,7 +159,7 @@ describe("Debit Notes - E2E Tests", () => {
     });
 
     it("should calculate VAT correctly", () => {
-      cy.visit("/debit-notes");
+      cy.visit("/app/debit-notes");
       cy.get('[data-testid="debit-note-row"]').first().click();
 
       cy.contains("VAT (5%)").should("be.visible");
@@ -168,7 +167,7 @@ describe("Debit Notes - E2E Tests", () => {
     });
 
     it("should calculate grand total", () => {
-      cy.visit("/debit-notes");
+      cy.visit("/app/debit-notes");
       cy.get('[data-testid="debit-note-row"]').first().click();
 
       cy.contains("Grand Total").should("be.visible");
@@ -177,13 +176,13 @@ describe("Debit Notes - E2E Tests", () => {
 
   describe("Debit Note Listing & Search", () => {
     it("should list debit notes", () => {
-      cy.visit("/debit-notes");
+      cy.visit("/app/debit-notes");
 
       cy.get('[data-testid="debit-note-row"]').should("have.length.greaterThan", 0);
     });
 
     it("should filter debit notes by status", () => {
-      cy.visit("/debit-notes");
+      cy.visit("/app/debit-notes");
 
       cy.get('select[name="Status"]').select("POSTED");
 
@@ -191,7 +190,7 @@ describe("Debit Notes - E2E Tests", () => {
     });
 
     it("should export debit notes", () => {
-      cy.visit("/debit-notes");
+      cy.visit("/app/debit-notes");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("PDF");

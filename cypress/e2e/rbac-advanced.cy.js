@@ -8,7 +8,6 @@
  * - Data-level access control
  * - Delegation workflows
  *
- * Run: npm run test:e2e -- --spec '**/rbac-advanced.cy.js'
  */
 
 describe("Role-Based Access Control Advanced - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
 
   describe("Advanced Role Management", () => {
     it("should create custom role", () => {
-      cy.visit("/admin/roles");
+      cy.visit("/app/roles");
       cy.get('button:contains("New Role")').click();
 
       cy.get('input[placeholder*="Role Name"]').type("Custom Sales Manager");
@@ -37,7 +36,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should create role with delegated permissions", () => {
-      cy.visit("/admin/roles");
+      cy.visit("/app/roles");
       cy.get('button:contains("New Role")').click();
 
       cy.get('input[placeholder*="Role Name"]').type("Delegated Approver");
@@ -52,7 +51,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should create time-limited role assignment", () => {
-      cy.visit("/admin/users");
+      cy.visit("/app/users");
       cy.get('[data-testid="user-row"]').first().click();
 
       cy.get('button:contains("Assign Role")').click();
@@ -68,7 +67,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should clone role", () => {
-      cy.visit("/admin/roles");
+      cy.visit("/app/roles");
       cy.get('[data-testid="role-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -81,7 +80,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should export role permissions", () => {
-      cy.visit("/admin/roles");
+      cy.visit("/app/roles");
       cy.get('[data-testid="role-row"]').first().click();
 
       cy.get('button:contains("Export Permissions")').click();
@@ -92,7 +91,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
 
   describe("Permission Hierarchies", () => {
     it("should view permission tree", () => {
-      cy.visit("/admin/permissions");
+      cy.visit("/app/permissions");
 
       cy.get('button:contains("View Hierarchy")').click();
 
@@ -103,7 +102,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should grant inherited permissions", () => {
-      cy.visit("/admin/roles");
+      cy.visit("/app/roles");
       cy.get('[data-testid="role-row"]').first().click();
 
       cy.get('button:contains("Edit Permissions")').click();
@@ -120,7 +119,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should deny specific permissions", () => {
-      cy.visit("/admin/roles");
+      cy.visit("/app/roles");
       cy.get('[data-testid="role-row"]').first().click();
 
       cy.get('button:contains("Edit Permissions")').click();
@@ -135,7 +134,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should view permission dependencies", () => {
-      cy.visit("/admin/permissions");
+      cy.visit("/app/permissions");
 
       cy.get('[data-testid="permission-row"]').first().click();
 
@@ -147,7 +146,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
 
   describe("Department-Based Access Control", () => {
     it("should assign user to department", () => {
-      cy.visit("/admin/users");
+      cy.visit("/app/users");
       cy.get('[data-testid="user-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -159,7 +158,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should restrict data by department", () => {
-      cy.visit("/admin/departments");
+      cy.visit("/app/departments");
       cy.get('[data-testid="department-row"]').first().click();
 
       cy.get('button:contains("Access Control")').click();
@@ -173,7 +172,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should view department members", () => {
-      cy.visit("/admin/departments");
+      cy.visit("/app/departments");
       cy.get('[data-testid="department-row"]').first().click();
 
       cy.get('button:contains("Members")').click();
@@ -182,7 +181,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should configure department hierarchy", () => {
-      cy.visit("/admin/departments");
+      cy.visit("/app/departments");
       cy.get('[data-testid="department-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -196,7 +195,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
 
   describe("Data-Level Access Control", () => {
     it("should restrict invoice access by salesperson", () => {
-      cy.visit("/admin/roles");
+      cy.visit("/app/roles");
       cy.get('[data-testid="role-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -212,7 +211,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should restrict data by customer group", () => {
-      cy.visit("/admin/roles");
+      cy.visit("/app/roles");
       cy.get('[data-testid="role-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -229,7 +228,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should restrict data by warehouse", () => {
-      cy.visit("/admin/roles");
+      cy.visit("/app/roles");
       cy.get('[data-testid="role-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -246,7 +245,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should restrict data by amount threshold", () => {
-      cy.visit("/admin/roles");
+      cy.visit("/app/roles");
       cy.get('[data-testid="role-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -265,7 +264,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
 
   describe("Permission Delegation", () => {
     it("should delegate role to user", () => {
-      cy.visit("/admin/users");
+      cy.visit("/app/users");
       cy.get('[data-testid="user-row"]').first().click();
 
       cy.get('button:contains("Delegate Role")').click();
@@ -282,7 +281,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should view delegation chain", () => {
-      cy.visit("/admin/delegations");
+      cy.visit("/app/delegations");
 
       cy.get('[data-testid="delegation-row"]').should("have.length.greaterThan", 0);
 
@@ -296,7 +295,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should revoke delegation", () => {
-      cy.visit("/admin/delegations");
+      cy.visit("/app/delegations");
       cy.get('[data-testid="delegation-row"]').first().click();
 
       cy.get('button:contains("Revoke")').click();
@@ -306,7 +305,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should configure delegation limits", () => {
-      cy.visit("/admin/settings/delegation");
+      cy.visit("/app/settings/delegation");
 
       cy.get('button:contains("Edit")').click();
 
@@ -321,7 +320,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
   describe("RBAC Validation", () => {
     it("should test permission enforcement", () => {
       // Create a test user without permissions
-      cy.visit("/admin/users");
+      cy.visit("/app/users");
       cy.get('button:contains("New User")').click();
 
       cy.get('input[placeholder*="Name"]').type("Test User");
@@ -334,13 +333,13 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
       cy.contains("User created").should("be.visible");
 
       // Verify restricted access
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       cy.get('button:contains("Create Invoice")').should("not.exist");
     });
 
     it("should validate cascading permissions", () => {
-      cy.visit("/admin/roles");
+      cy.visit("/app/roles");
       cy.get('[data-testid="role-row"]').first().click();
 
       cy.get('button:contains("Validate")').click();
@@ -350,7 +349,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should audit permission changes", () => {
-      cy.visit("/admin/roles");
+      cy.visit("/app/roles");
       cy.get('[data-testid="role-row"]').first().click();
 
       cy.get('button:contains("Audit Trail")').click();
@@ -368,7 +367,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
 
   describe("RBAC Reporting", () => {
     it("should generate role assignment report", () => {
-      cy.visit("/admin/rbac-reports");
+      cy.visit("/app/rbac-reports");
 
       cy.get('button:contains("Role Assignments")').click();
 
@@ -376,7 +375,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should generate permission matrix", () => {
-      cy.visit("/admin/rbac-reports");
+      cy.visit("/app/rbac-reports");
 
       cy.get('button:contains("Permission Matrix")').click();
 
@@ -386,7 +385,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should generate access control audit", () => {
-      cy.visit("/admin/rbac-reports");
+      cy.visit("/app/rbac-reports");
 
       cy.get('button:contains("Access Audit")').click();
 
@@ -399,7 +398,7 @@ describe("Role-Based Access Control Advanced - E2E Tests", () => {
     });
 
     it("should export role configuration", () => {
-      cy.visit("/admin/roles");
+      cy.visit("/app/roles");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

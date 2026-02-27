@@ -8,7 +8,6 @@
  * - Compliance tracking
  * - Certificate archival
  *
- * Run: npm run test:e2e -- --spec '**/material-certificates.cy.js'
  */
 
 describe("Material Certificates - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Material Certificates - E2E Tests", () => {
 
   describe("Certificate Upload", () => {
     it("should upload material certificate", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Upload Certificate")').click();
@@ -30,7 +29,7 @@ describe("Material Certificates - E2E Tests", () => {
     });
 
     it("should link certificate to batch", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Certificates")').click();
@@ -39,7 +38,7 @@ describe("Material Certificates - E2E Tests", () => {
     });
 
     it("should extract certificate metadata", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Certificates")').click();
@@ -53,7 +52,7 @@ describe("Material Certificates - E2E Tests", () => {
 
   describe("Certificate Types", () => {
     it("should handle Certificate of Analysis (COA)", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Upload Certificate")').click();
@@ -67,7 +66,7 @@ describe("Material Certificates - E2E Tests", () => {
     });
 
     it("should handle Mill Test Reports", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Upload Certificate")').click();
@@ -81,7 +80,7 @@ describe("Material Certificates - E2E Tests", () => {
     });
 
     it("should handle Quality Certifications", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Upload Certificate")').click();
@@ -97,7 +96,7 @@ describe("Material Certificates - E2E Tests", () => {
 
   describe("Certificate Verification", () => {
     it("should verify certificate authenticity", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Certificates")').click();
@@ -109,7 +108,7 @@ describe("Material Certificates - E2E Tests", () => {
     });
 
     it("should flag expired certificates", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Certificates")').click();
@@ -119,7 +118,7 @@ describe("Material Certificates - E2E Tests", () => {
     });
 
     it("should require re-certification", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Certificates")').click();
@@ -134,7 +133,7 @@ describe("Material Certificates - E2E Tests", () => {
 
   describe("Compliance Tracking", () => {
     it("should track compliance requirements", () => {
-      cy.visit("/settings/compliance");
+      cy.visit("/app/settings/compliance");
 
       cy.get('button:contains("Certificate Requirements")').click();
 
@@ -142,7 +141,7 @@ describe("Material Certificates - E2E Tests", () => {
     });
 
     it("should enforce certificate requirements", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Product"]').type("SS-304");
@@ -152,7 +151,7 @@ describe("Material Certificates - E2E Tests", () => {
     });
 
     it("should verify compliance on delivery", () => {
-      cy.visit("/delivery-notes");
+      cy.visit("/app/delivery-notes");
       cy.get('[data-testid="note-row"]').first().click();
 
       cy.get('button:contains("Verify Compliance")').click();
@@ -163,7 +162,7 @@ describe("Material Certificates - E2E Tests", () => {
 
   describe("Certificate Archival", () => {
     it("should archive certificate", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Certificates")').click();
@@ -176,7 +175,7 @@ describe("Material Certificates - E2E Tests", () => {
     });
 
     it("should retrieve archived certificate", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
       cy.get('[data-testid="batch-row"]').first().click();
 
       cy.get('button:contains("Certificates")').click();
@@ -188,7 +187,7 @@ describe("Material Certificates - E2E Tests", () => {
 
   describe("Certificate Reporting", () => {
     it("should generate compliance report", () => {
-      cy.visit("/reports/compliance");
+      cy.visit("/analytics/reports/compliance");
 
       cy.get('button:contains("Certificate Report")').click();
 
@@ -197,7 +196,7 @@ describe("Material Certificates - E2E Tests", () => {
     });
 
     it("should export certificates", () => {
-      cy.visit("/stock-batches");
+      cy.visit("/app/inventory");
 
       cy.get('button:contains("Export Certificates")').click();
       cy.get('select[name="Format"]').select("CSV");

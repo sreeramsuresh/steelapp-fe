@@ -7,7 +7,6 @@
  * - Transaction rollback
  * - Error notifications
  *
- * Run: npm run test:e2e -- --spec '**/error-recovery-scenarios.cy.js'
  */
 
 describe("Error Recovery Scenarios - E2E Tests", () => {
@@ -17,7 +16,7 @@ describe("Error Recovery Scenarios - E2E Tests", () => {
 
   describe("Network Error Recovery", () => {
     it("should handle network timeout gracefully", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("ABC");
@@ -35,7 +34,7 @@ describe("Error Recovery Scenarios - E2E Tests", () => {
     });
 
     it("should save draft on network failure", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Customer");
@@ -50,7 +49,7 @@ describe("Error Recovery Scenarios - E2E Tests", () => {
     });
 
     it("should resume operation after reconnection", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       // Simulate connection loss and recovery
       cy.get('button:contains("Create Invoice")').click();
@@ -73,7 +72,7 @@ describe("Error Recovery Scenarios - E2E Tests", () => {
 
   describe("Data Validation Errors", () => {
     it("should show validation errors", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       // Don't fill required fields
@@ -83,7 +82,7 @@ describe("Error Recovery Scenarios - E2E Tests", () => {
     });
 
     it("should highlight invalid fields", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('button:contains("New Customer")').click();
 
       cy.get('input[placeholder*="Email"]').type("invalid-email");
@@ -94,7 +93,7 @@ describe("Error Recovery Scenarios - E2E Tests", () => {
     });
 
     it("should suggest corrections", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Quantity"]').type("-100");
@@ -107,7 +106,7 @@ describe("Error Recovery Scenarios - E2E Tests", () => {
 
   describe("Transaction Rollback", () => {
     it("should rollback on critical error", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Customer");
@@ -126,7 +125,7 @@ describe("Error Recovery Scenarios - E2E Tests", () => {
     });
 
     it("should restore previous state after error", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -146,7 +145,7 @@ describe("Error Recovery Scenarios - E2E Tests", () => {
 
   describe("Error Notifications", () => {
     it("should display error toast", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       cy.get('button:contains("Create Invoice")').click();
 
@@ -156,7 +155,7 @@ describe("Error Recovery Scenarios - E2E Tests", () => {
     });
 
     it("should show error details", () => {
-      cy.visit("/products");
+      cy.visit("/app/products");
       cy.get('[data-testid="product-row"]').first().click();
 
       cy.get('button:contains("Delete")').click();
@@ -169,7 +168,7 @@ describe("Error Recovery Scenarios - E2E Tests", () => {
     });
 
     it("should log errors to activity", () => {
-      cy.visit("/admin/activity-logs");
+      cy.visit("/app/activity-logs");
 
       cy.get('select[name="Type"]').select("ERROR");
 

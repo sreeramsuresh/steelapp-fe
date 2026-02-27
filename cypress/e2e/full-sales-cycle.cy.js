@@ -35,7 +35,7 @@ describe("Full Sales Cycle - Complete Workflow E2E Tests", () => {
   describe("Quote to Invoice to Payment Cycle", () => {
     it("should complete full sales cycle: quotation → approval → invoice → payment", () => {
       // Step 1: Navigate to quotations
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
       cy.wait("@getQuotations", { timeout: 10000 });
       cy.contains(/quotation/i).should("be.visible");
 
@@ -86,7 +86,7 @@ describe("Full Sales Cycle - Complete Workflow E2E Tests", () => {
         cy.wait(2000);
 
         // Step 11: Approve the quotation (simulate manager approval)
-        cy.visit("/approvals");
+        cy.visit("/app/finance");
         cy.wait("@getQuotations");
 
         // Click on pending quotation
@@ -178,7 +178,7 @@ describe("Full Sales Cycle - Complete Workflow E2E Tests", () => {
     });
 
     it("should handle quotation with discount and carry to invoice", () => {
-      cy.visit("/quotations");
+      cy.visit("/app/quotations");
       cy.wait("@getQuotations");
 
       // Create quotation
@@ -226,7 +226,7 @@ describe("Full Sales Cycle - Complete Workflow E2E Tests", () => {
 
     it("should handle partial payment allocation", () => {
       // Create invoice
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.contains("button", "New")
         .first()
         .click();
@@ -284,7 +284,7 @@ describe("Full Sales Cycle - Complete Workflow E2E Tests", () => {
   describe("Credit Note and Delivery Workflows", () => {
     it("should create credit note and apply to future invoice", () => {
       // Create initial invoice
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.contains("button", "New")
         .first()
         .click();
@@ -326,7 +326,7 @@ describe("Full Sales Cycle - Complete Workflow E2E Tests", () => {
 
     it("should reconcile delivery notes with invoice quantities", () => {
       // Create invoice
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.contains("button", "New")
         .first()
         .click();

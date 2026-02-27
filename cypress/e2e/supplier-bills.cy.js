@@ -8,7 +8,6 @@
  * - Payment reconciliation
  * - Credit/debit notes
  *
- * Run: npm run test:e2e -- --spec '**/supplier-bills.cy.js'
  */
 
 describe("Supplier Bills - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Supplier Bills - E2E Tests", () => {
 
   describe("Create Supplier Bills", () => {
     it("should create supplier bill manually", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('button:contains("Create Bill")').click();
 
       // Select supplier
@@ -40,7 +39,7 @@ describe("Supplier Bills - E2E Tests", () => {
     });
 
     it("should create bill from GRN", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('button:contains("Create from GRN")').click();
 
       // Select GRN
@@ -60,7 +59,7 @@ describe("Supplier Bills - E2E Tests", () => {
     });
 
     it("should create bill with VAT", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('button:contains("Create Bill")').click();
 
       cy.get('input[placeholder*="Select supplier"]').type("Test Supplier");
@@ -83,7 +82,7 @@ describe("Supplier Bills - E2E Tests", () => {
 
   describe("Bill Matching", () => {
     it("should match bill with PO (two-way match)", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('[data-testid="bill-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Match with PO")').click();
@@ -97,7 +96,7 @@ describe("Supplier Bills - E2E Tests", () => {
     });
 
     it("should perform three-way matching (PO-GRN-Bill)", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('[data-testid="bill-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Three-Way Match")').click();
@@ -120,7 +119,7 @@ describe("Supplier Bills - E2E Tests", () => {
     });
 
     it("should handle matching variance", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('[data-testid="bill-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Three-Way Match")').click();
@@ -145,7 +144,7 @@ describe("Supplier Bills - E2E Tests", () => {
 
   describe("Bill Approval", () => {
     it("should submit bill for approval", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('[data-testid="bill-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Submit for Approval")').click();
@@ -153,7 +152,7 @@ describe("Supplier Bills - E2E Tests", () => {
     });
 
     it("should approve supplier bill", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('[data-testid="bill-row"][data-status="PENDING_APPROVAL"]')
         .first()
         .click();
@@ -166,7 +165,7 @@ describe("Supplier Bills - E2E Tests", () => {
     });
 
     it("should reject bill with reason", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('[data-testid="bill-row"][data-status="PENDING_APPROVAL"]')
         .first()
         .click();
@@ -183,7 +182,7 @@ describe("Supplier Bills - E2E Tests", () => {
 
   describe("Bill Adjustments", () => {
     it("should add debit note to bill", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('[data-testid="bill-row"][data-status="APPROVED"]')
         .first()
         .click();
@@ -198,7 +197,7 @@ describe("Supplier Bills - E2E Tests", () => {
     });
 
     it("should apply credit note to bill", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('[data-testid="bill-row"][data-status="APPROVED"]')
         .first()
         .click();
@@ -213,7 +212,7 @@ describe("Supplier Bills - E2E Tests", () => {
     });
 
     it("should adjust bill line item", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('[data-testid="bill-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -227,7 +226,7 @@ describe("Supplier Bills - E2E Tests", () => {
 
   describe("Payment Processing", () => {
     it("should record partial payment against bill", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('[data-testid="bill-row"][data-status="APPROVED"]')
         .first()
         .click();
@@ -246,7 +245,7 @@ describe("Supplier Bills - E2E Tests", () => {
     });
 
     it("should record full payment and mark as paid", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('[data-testid="bill-row"][data-status="APPROVED"]')
         .first()
         .click();
@@ -266,7 +265,7 @@ describe("Supplier Bills - E2E Tests", () => {
     });
 
     it("should record advance payment allocation", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('[data-testid="bill-row"][data-status="APPROVED"]')
         .first()
         .click();
@@ -282,7 +281,7 @@ describe("Supplier Bills - E2E Tests", () => {
 
   describe("Bill Analytics", () => {
     it("should view supplier payment performance", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -292,7 +291,7 @@ describe("Supplier Bills - E2E Tests", () => {
     });
 
     it("should filter bills by supplier", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
 
       cy.get('input[placeholder*="Supplier"]').type("Test Supplier");
       cy.get('button:contains("Filter")').click();
@@ -303,7 +302,7 @@ describe("Supplier Bills - E2E Tests", () => {
     });
 
     it("should filter bills by status", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
 
       cy.get('select[name="Status"]').select("PAID");
       cy.get('button:contains("Filter")').click();
@@ -316,7 +315,7 @@ describe("Supplier Bills - E2E Tests", () => {
 
   describe("Bill Printing & Export", () => {
     it("should download bill as PDF", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('[data-testid="bill-row"]').first().click();
 
       cy.get('button:contains("Download PDF")').click();
@@ -325,7 +324,7 @@ describe("Supplier Bills - E2E Tests", () => {
     });
 
     it("should export bills to accounting", () => {
-      cy.visit("/supplier-bills");
+      cy.visit("/app/supplier-bills");
       cy.get('[data-testid="bill-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();

@@ -8,7 +8,6 @@
  * - Credit suspension and restoration
  * - Credit history and aging
  *
- * Run: npm run test:e2e -- --spec '**/customer-credit-mgmt.cy.js'
  */
 
 describe("Customer Credit Management - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Customer Credit Management - E2E Tests", () => {
 
   describe("Credit Limit Management", () => {
     it("should set customer credit limit", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -30,7 +29,7 @@ describe("Customer Credit Management - E2E Tests", () => {
     });
 
     it("should modify credit limit", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Edit Credit")').click();
@@ -43,7 +42,7 @@ describe("Customer Credit Management - E2E Tests", () => {
     });
 
     it("should set credit terms", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('select[name="Credit Terms"]').select("NET 30");
@@ -55,7 +54,7 @@ describe("Customer Credit Management - E2E Tests", () => {
 
   describe("Credit Utilization", () => {
     it("should track credit utilization", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.contains("Credit Limit").should("be.visible");
@@ -65,7 +64,7 @@ describe("Customer Credit Management - E2E Tests", () => {
     });
 
     it("should warn when approaching limit", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Customer");
@@ -80,7 +79,7 @@ describe("Customer Credit Management - E2E Tests", () => {
     });
 
     it("should prevent exceeding credit limit without approval", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Customer");
@@ -99,7 +98,7 @@ describe("Customer Credit Management - E2E Tests", () => {
 
   describe("Credit Overage Approval", () => {
     it("should submit credit overage for approval", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"][data-exceeds-credit="true"]').first().click();
 
       cy.get('button:contains("Request Credit Approval")').click();
@@ -109,7 +108,7 @@ describe("Customer Credit Management - E2E Tests", () => {
     });
 
     it("should approve credit overage", () => {
-      cy.visit("/approvals/credit-overages");
+      cy.visit("/app/finance/credit-overages");
       cy.get('[data-testid="approval-row"][data-status="PENDING"]').first().click();
 
       cy.get('button:contains("Approve")').click();
@@ -119,7 +118,7 @@ describe("Customer Credit Management - E2E Tests", () => {
     });
 
     it("should reject credit overage", () => {
-      cy.visit("/approvals/credit-overages");
+      cy.visit("/app/finance/credit-overages");
       cy.get('[data-testid="approval-row"][data-status="PENDING"]').first().click();
 
       cy.get('button:contains("Reject")').click();
@@ -132,7 +131,7 @@ describe("Customer Credit Management - E2E Tests", () => {
 
   describe("Credit Suspension & Restoration", () => {
     it("should suspend customer credit for non-payment", () => {
-      cy.visit("/receivables");
+      cy.visit("/app/receivables");
       cy.get('[data-testid="invoice-row"][data-days-overdue=">90"]').first().click();
 
       cy.get('button:contains("Suspend Credit")').click();
@@ -143,7 +142,7 @@ describe("Customer Credit Management - E2E Tests", () => {
     });
 
     it("should track suspension period", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"][data-credit-status="SUSPENDED"]').first().click();
 
       cy.contains("Suspension Date").should("be.visible");
@@ -151,7 +150,7 @@ describe("Customer Credit Management - E2E Tests", () => {
     });
 
     it("should restore credit after payment", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"][data-credit-status="SUSPENDED"]').first().click();
 
       cy.get('button:contains("Restore Credit")').click();
@@ -161,7 +160,7 @@ describe("Customer Credit Management - E2E Tests", () => {
     });
 
     it("should prevent transactions during suspension", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('button:contains("Create Invoice")').click();
 
       cy.get('input[placeholder*="Customer"]').type("Suspended Customer");
@@ -174,7 +173,7 @@ describe("Customer Credit Management - E2E Tests", () => {
 
   describe("Credit History & Aging", () => {
     it("should view credit history", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Credit History")').click();
@@ -183,7 +182,7 @@ describe("Customer Credit Management - E2E Tests", () => {
     });
 
     it("should show credit aging", () => {
-      cy.visit("/reports/credit-aging");
+      cy.visit("/analytics/reports/credit-aging");
 
       cy.contains("Credit Aging Report").should("be.visible");
       cy.contains("Current").should("be.visible");
@@ -193,7 +192,7 @@ describe("Customer Credit Management - E2E Tests", () => {
     });
 
     it("should track limit changes", () => {
-      cy.visit("/customers");
+      cy.visit("/app/customers");
       cy.get('[data-testid="customer-row"]').first().click();
 
       cy.get('button:contains("Credit History")').click();
@@ -206,21 +205,21 @@ describe("Customer Credit Management - E2E Tests", () => {
 
   describe("Credit Reporting", () => {
     it("should view customer credit summary", () => {
-      cy.visit("/reports/customer-credit");
+      cy.visit("/analytics/reports/customer-credit");
 
       cy.contains("Customer Credit Report").should("be.visible");
       cy.get('[data-testid="customer-row"]').should("have.length.greaterThan", 0);
     });
 
     it("should identify at-risk customers", () => {
-      cy.visit("/reports/credit-at-risk");
+      cy.visit("/analytics/reports/credit-at-risk");
 
       cy.contains("At-Risk Customers").should("be.visible");
       cy.get('[data-testid="customer-row"]').should("have.length.greaterThan", 0);
     });
 
     it("should export credit report", () => {
-      cy.visit("/reports/customer-credit");
+      cy.visit("/analytics/reports/customer-credit");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("CSV");

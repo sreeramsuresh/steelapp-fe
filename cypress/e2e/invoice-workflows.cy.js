@@ -7,7 +7,6 @@
  * - Delivery note linkage
  * - Payment reconciliation
  *
- * Run: npm run test:e2e -- --spec '**/invoice-workflows.cy.js'
  */
 
 describe("Invoice Workflows - Advanced E2E Tests", () => {
@@ -17,7 +16,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
 
   describe("Invoice with Discounts", () => {
     it("should create invoice with line-item discount", () => {
-      cy.visit("/create-invoice");
+      cy.visit("/app/invoices/new");
 
       // Select customer
       cy.get('input[placeholder*="Select customer"]').type("Test Customer");
@@ -47,7 +46,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should create invoice with global discount", () => {
-      cy.visit("/create-invoice");
+      cy.visit("/app/invoices/new");
 
       // Select customer
       cy.get('input[placeholder*="Select customer"]').type("Test Customer");
@@ -73,7 +72,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should handle invalid discount values", () => {
-      cy.visit("/create-invoice");
+      cy.visit("/app/invoices/new");
 
       cy.get('input[placeholder*="Select customer"]').type("Test Customer");
       cy.get('[role="option"]').first().click();
@@ -96,7 +95,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
   describe("Invoice Adjustments & Amendments", () => {
     it("should edit invoice before confirmation", () => {
       // Navigate to existing invoice
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       // Edit invoice
@@ -111,7 +110,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should add line item to draft invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -127,7 +126,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should remove line item from draft invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Edit")').click();
@@ -141,7 +140,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should prevent editing confirmed invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"][data-status="CONFIRMED"]')
         .first()
         .click();
@@ -153,7 +152,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
 
   describe("Payment Reconciliation", () => {
     it("should apply partial payment to invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button:contains("Record Payment")').click();
@@ -170,7 +169,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should apply full payment and mark as paid", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       // Get invoice total
@@ -188,7 +187,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should overpayment validation", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button:contains("Record Payment")').click();
@@ -201,7 +200,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
 
   describe("Invoice Status Workflow", () => {
     it("should confirm draft invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Confirm")').click();
@@ -212,7 +211,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should cancel invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -224,7 +223,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should generate delivery note from invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button:contains("Generate Delivery Note")').click();
@@ -243,7 +242,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
 
   describe("Invoice Printing & Exports", () => {
     it("should preview invoice PDF", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button[aria-label="Preview"]').click();
@@ -253,7 +252,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should download invoice as PDF", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button:contains("Download PDF")').click();
@@ -263,7 +262,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should email invoice", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button[aria-label="Email"]').click();
@@ -277,7 +276,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should export invoice to accounting system", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
       cy.get('[data-testid="invoice-row"]').first().click();
 
       cy.get('button[aria-label="More"]').click();
@@ -291,7 +290,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
 
   describe("Invoice Batch Operations", () => {
     it("should bulk confirm invoices", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       // Select multiple invoices
       cy.get('input[aria-label="Select all"]').click();
@@ -304,7 +303,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should bulk send invoices via email", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       cy.get('input[aria-label="Select all"]').click();
 
@@ -316,7 +315,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should bulk export invoices", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       cy.get('input[aria-label="Select all"]').click();
 
@@ -331,7 +330,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
 
   describe("Invoice Filtering & Search", () => {
     it("should filter invoices by date range", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       cy.get('input[placeholder*="From Date"]').type("2024-01-01");
       cy.get('input[placeholder*="To Date"]').type("2024-12-31");
@@ -341,7 +340,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should filter invoices by status", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       cy.get('select[name="Status"]').select("PAID");
       cy.get('button:contains("Apply Filter")').click();
@@ -352,7 +351,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should search invoices by customer", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       cy.get('input[placeholder*="Search"]').type("Test Customer");
       cy.get('button:contains("Search")').click();
@@ -364,7 +363,7 @@ describe("Invoice Workflows - Advanced E2E Tests", () => {
     });
 
     it("should search invoices by invoice number", () => {
-      cy.visit("/invoices");
+      cy.visit("/app/invoices");
 
       cy.get('input[placeholder*="Invoice Number"]').type("INV-2024");
       cy.get('button:contains("Search")').click();

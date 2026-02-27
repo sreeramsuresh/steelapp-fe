@@ -8,7 +8,6 @@
  * - Partial receipts via GRN
  * - Supplier quotes to PO conversion
  *
- * Run: npm run test:e2e -- --spec '**/purchase-orders.cy.js'
  */
 
 describe("Purchase Orders - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Purchase Orders - E2E Tests", () => {
 
   describe("Create Purchase Orders", () => {
     it("should create new purchase order", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('button:contains("Create Purchase Order")').click();
 
       // Select supplier
@@ -44,7 +43,7 @@ describe("Purchase Orders - E2E Tests", () => {
     });
 
     it("should create PO with multiple line items", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('button:contains("Create Purchase Order")').click();
 
       cy.get('input[placeholder*="Select supplier"]').type("Test Supplier");
@@ -71,7 +70,7 @@ describe("Purchase Orders - E2E Tests", () => {
     });
 
     it("should create PO with delivery terms", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('button:contains("Create Purchase Order")').click();
 
       cy.get('input[placeholder*="Select supplier"]').type("Test Supplier");
@@ -94,7 +93,7 @@ describe("Purchase Orders - E2E Tests", () => {
 
   describe("PO Approval Workflow", () => {
     it("should submit PO for approval", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="po-row"][data-status="DRAFT"]').first().click();
 
       cy.get('button:contains("Submit for Approval")').click();
@@ -102,7 +101,7 @@ describe("Purchase Orders - E2E Tests", () => {
     });
 
     it("should approve purchase order", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="po-row"][data-status="PENDING_APPROVAL"]')
         .first()
         .click();
@@ -115,7 +114,7 @@ describe("Purchase Orders - E2E Tests", () => {
     });
 
     it("should reject purchase order with reason", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="po-row"][data-status="PENDING_APPROVAL"]')
         .first()
         .click();
@@ -132,7 +131,7 @@ describe("Purchase Orders - E2E Tests", () => {
     });
 
     it("should amend rejected purchase order", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="po-row"][data-status="REJECTED"]')
         .first()
         .click();
@@ -149,7 +148,7 @@ describe("Purchase Orders - E2E Tests", () => {
 
   describe("PO Amendments", () => {
     it("should add line item to approved PO", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="po-row"][data-status="APPROVED"]')
         .first()
         .click();
@@ -167,7 +166,7 @@ describe("Purchase Orders - E2E Tests", () => {
     });
 
     it("should remove line item from PO", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="po-row"][data-status="APPROVED"]')
         .first()
         .click();
@@ -183,7 +182,7 @@ describe("Purchase Orders - E2E Tests", () => {
     });
 
     it("should update quantity in PO", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="po-row"][data-status="APPROVED"]')
         .first()
         .click();
@@ -199,7 +198,7 @@ describe("Purchase Orders - E2E Tests", () => {
 
   describe("PO to GRN Workflow", () => {
     it("should create GRN from approved PO", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="po-row"][data-status="APPROVED"]')
         .first()
         .click();
@@ -215,7 +214,7 @@ describe("Purchase Orders - E2E Tests", () => {
     });
 
     it("should record partial receipt", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="po-row"][data-status="APPROVED"]')
         .first()
         .click();
@@ -232,7 +231,7 @@ describe("Purchase Orders - E2E Tests", () => {
 
   describe("PO Analytics & Tracking", () => {
     it("should view PO performance metrics", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -242,7 +241,7 @@ describe("Purchase Orders - E2E Tests", () => {
     });
 
     it("should filter POs by status", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
 
       cy.get('select[name="Status"]').select("APPROVED");
       cy.get('button:contains("Filter")').click();
@@ -253,7 +252,7 @@ describe("Purchase Orders - E2E Tests", () => {
     });
 
     it("should filter POs by supplier", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
 
       cy.get('input[placeholder*="Supplier"]').type("Test Supplier");
       cy.get('button:contains("Filter")').click();
@@ -266,7 +265,7 @@ describe("Purchase Orders - E2E Tests", () => {
 
   describe("PO Printing & Export", () => {
     it("should download PO as PDF", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="po-row"]').first().click();
 
       cy.get('button:contains("Download PDF")').click();
@@ -275,7 +274,7 @@ describe("Purchase Orders - E2E Tests", () => {
     });
 
     it("should email PO to supplier", () => {
-      cy.visit("/purchase-orders");
+      cy.visit("/app/purchases");
       cy.get('[data-testid="po-row"]').first().click();
 
       cy.get('button[aria-label="Email"]').click();

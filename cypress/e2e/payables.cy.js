@@ -8,7 +8,6 @@
  * - Payment scheduling
  * - Supplier disputes
  *
- * Run: npm run test:e2e -- --spec '**/payables.cy.js'
  */
 
 describe("Payables Management - E2E Tests", () => {
@@ -18,7 +17,7 @@ describe("Payables Management - E2E Tests", () => {
 
   describe("Payables Analysis", () => {
     it("should view AP aging report", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
       cy.get('button:contains("AP Aging")').click();
 
       cy.contains("Current").should("be.visible");
@@ -30,7 +29,7 @@ describe("Payables Management - E2E Tests", () => {
     });
 
     it("should view supplier payables summary", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
 
       cy.get('button:contains("Supplier Summary")').click();
 
@@ -44,7 +43,7 @@ describe("Payables Management - E2E Tests", () => {
     });
 
     it("should view payment due dates", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
 
       cy.get('button:contains("Payment Due")').click();
 
@@ -56,7 +55,7 @@ describe("Payables Management - E2E Tests", () => {
 
   describe("Payment Planning", () => {
     it("should create payment plan", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
       cy.get('button:contains("Payment Plan")').click();
 
       cy.get('input[placeholder*="Select Supplier"]').type("Test Supplier");
@@ -75,7 +74,7 @@ describe("Payables Management - E2E Tests", () => {
     });
 
     it("should optimize payment schedule", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
       cy.get('button:contains("Optimize Schedule")').click();
 
       cy.get('select[name="Optimization"]').select("EARLY_DISCOUNTS");
@@ -86,7 +85,7 @@ describe("Payables Management - E2E Tests", () => {
     });
 
     it("should set payment calendar", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
       cy.get('button:contains("Payment Calendar")').click();
 
       // Add payment date
@@ -100,7 +99,7 @@ describe("Payables Management - E2E Tests", () => {
 
   describe("Early Payment Discounts", () => {
     it("should identify available early discounts", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
 
       cy.get('button:contains("Available Discounts")').click();
 
@@ -115,7 +114,7 @@ describe("Payables Management - E2E Tests", () => {
     });
 
     it("should calculate discount savings", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
 
       cy.get('button:contains("Discount Analysis")').click();
 
@@ -130,7 +129,7 @@ describe("Payables Management - E2E Tests", () => {
     });
 
     it("should take early payment discount", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
 
       cy.get('button:contains("Available Discounts")').click();
 
@@ -149,7 +148,7 @@ describe("Payables Management - E2E Tests", () => {
 
   describe("Supplier Payment Coordination", () => {
     it("should consolidate supplier payments", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
       cy.get('button:contains("Consolidate Payments")').click();
 
       cy.get('input[placeholder*="Select Supplier"]').type("Test Supplier");
@@ -164,7 +163,7 @@ describe("Payables Management - E2E Tests", () => {
     });
 
     it("should batch multiple supplier payments", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
       cy.get('button:contains("Batch Payments")').click();
 
       cy.get('button:contains("Select Suppliers")').click();
@@ -180,7 +179,7 @@ describe("Payables Management - E2E Tests", () => {
 
   describe("Payment Holds & Disputes", () => {
     it("should place hold on supplier payment", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
       cy.get('button:contains("AP Aging")').click();
 
       cy.get('[data-testid="bill-row"]').first().click();
@@ -196,7 +195,7 @@ describe("Payables Management - E2E Tests", () => {
     });
 
     it("should record supplier dispute", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
       cy.get('button:contains("AP Aging")').click();
 
       cy.get('[data-testid="bill-row"]').first().click();
@@ -214,7 +213,7 @@ describe("Payables Management - E2E Tests", () => {
     });
 
     it("should resolve supplier dispute", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
       cy.get('button:contains("Active Disputes")').click();
 
       cy.get('[data-testid="dispute-row"]').first().click();
@@ -231,7 +230,7 @@ describe("Payables Management - E2E Tests", () => {
 
   describe("Payables Reconciliation", () => {
     it("should reconcile payables ledger", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
 
       cy.get('button:contains("Reconcile")').click();
 
@@ -244,7 +243,7 @@ describe("Payables Management - E2E Tests", () => {
     });
 
     it("should identify reconciliation variance", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
 
       cy.get('button:contains("Reconcile")').click();
 
@@ -262,7 +261,7 @@ describe("Payables Management - E2E Tests", () => {
 
   describe("Supplier Communication", () => {
     it("should send payment remittance", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
       cy.get('button:contains("Payment Remittance")').click();
 
       cy.get('input[placeholder*="Select Supplier"]').type("Test Supplier");
@@ -274,7 +273,7 @@ describe("Payables Management - E2E Tests", () => {
     });
 
     it("should email payment notification", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
       cy.get('button:contains("Payment Remittance")').click();
 
       cy.get('input[placeholder*="Select Supplier"]').type("Test Supplier");
@@ -291,7 +290,7 @@ describe("Payables Management - E2E Tests", () => {
 
   describe("Payables Analytics", () => {
     it("should view payables trends", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
 
       cy.get('button:contains("Analytics")').click();
 
@@ -301,7 +300,7 @@ describe("Payables Management - E2E Tests", () => {
     });
 
     it("should analyze supplier payment performance", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
 
       cy.get('button:contains("Supplier Performance")').click();
 
@@ -309,7 +308,7 @@ describe("Payables Management - E2E Tests", () => {
     });
 
     it("should export AP aging report", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
 
       cy.get('button:contains("Export")').click();
       cy.get('select[name="Format"]').select("PDF");
@@ -321,7 +320,7 @@ describe("Payables Management - E2E Tests", () => {
 
   describe("Payment Processing", () => {
     it("should generate payment voucher", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
       cy.get('button:contains("AP Aging")').click();
 
       cy.get('[data-testid="bill-row"]').first().click();
@@ -333,7 +332,7 @@ describe("Payables Management - E2E Tests", () => {
     });
 
     it("should approve payment request", () => {
-      cy.visit("/payables");
+      cy.visit("/app/payables");
       cy.get('button:contains("Pending Approvals")').click();
 
       cy.get('[data-testid="payment-row"]').first().click();
