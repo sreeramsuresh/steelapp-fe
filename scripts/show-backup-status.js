@@ -27,7 +27,7 @@ const BACKUP_INTERVAL_MS = BACKUP_INTERVAL_HOURS * 60 * 60 * 1000;
 const BACKUP_ROOT = process.env.BACKUP_ROOT || "D:\\DB Backup";
 const BACKUP_GUARD_SCRIPT =
   process.env.BACKUP_GUARD_SCRIPT ||
-  "D:\\Ultimate Steel\\steelapprnp\\backup-system\\scripts\\backup_guard.sh";
+  "D:\\Ultimate-Steel\\steelapprnp\\backup-system\\scripts\\backup_guard.sh";
 const CATCHUP_LOG_FILE = path.join(BACKUP_ROOT, "logs", "backup_catchup.log");
 
 /**
