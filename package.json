@@ -1,7 +1,7 @@
 {
   "name": "ultimate-steels-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "packageManager": "npm@10.2.3",
   "scripts": {
