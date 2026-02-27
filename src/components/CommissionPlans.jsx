@@ -99,11 +99,18 @@ const CommissionPlans = () => {
 
     try {
       setSaving(true);
+      const payload = {
+        planName: formData.name,
+        baseRate: formData.tiers[0]?.rate ?? 0,
+        isActive: formData.is_active,
+        description: formData.description,
+        tiers: formData.tiers,
+      };
       if (editingPlan) {
-        await commissionService.updatePlan(editingPlan.id, formData);
+        await commissionService.updatePlan(editingPlan.id, payload);
         notificationService.success("Plan updated successfully");
       } else {
-        await commissionService.createPlan(formData);
+        await commissionService.createPlan(payload);
         notificationService.success("Plan created successfully");
       }
       setShowModal(false);

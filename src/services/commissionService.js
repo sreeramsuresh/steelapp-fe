@@ -111,7 +111,10 @@ const commissionService = {
       });
 
       const data = response?.data || response;
-
+      // Normalize: backend returns { commissions, totalCount }, component reads pendingApprovals
+      if (data?.commissions && !data.pendingApprovals) {
+        data.pendingApprovals = data.commissions;
+      }
       return data;
     } catch (error) {
       console.error("[commissionService] Error fetching pending approvals:", error);
@@ -122,10 +125,33 @@ const commissionService = {
   // Get commission dashboard data
   getDashboard: async (period = "month") => {
     try {
-      const response = await api.get("/commissions/dashboard", {
-        params: { period },
-      });
-      return response;
+      const [metricsResponse, txResponse, agentsResponse] = await Promise.allSettled([
+        api.get("/commissions/dashboard", { params: { period } }),
+        api.get("/commissions/transactions", { params: { limit: 10 } }),
+        api.get("/commissions/agents", { params: { limit: 10, active_only: true } }),
+      ]);
+
+      const metrics = metricsResponse.status === "fulfilled" ? metricsResponse.value : {};
+      const txData = txResponse.status === "fulfilled" ? txResponse.value : {};
+      const agentsData = agentsResponse.status === "fulfilled" ? agentsResponse.value : {};
+
+      return {
+        ...metrics,
+        summary: {
+          totalAgents: metrics.activeAgents || 0,
+          pendingAmount: parseFloat(metrics.pendingCommissions || 0),
+          approvedAmount: parseFloat(metrics.approvedCommissions || 0),
+          paidAmount: parseFloat(metrics.paidThisPeriod || 0),
+        },
+        recentTransactions: txData.transactions || [],
+        topAgents: (agentsData.agents || []).map((a) => ({
+          id: a.userId,
+          fullName: a.userName,
+          totalCommission: a.totalCommission || a.commissionAmount || 0,
+          commissionRate: a.baseRate,
+        })),
+        trendData: [],
+      };
     } catch (error) {
       console.error("Error fetching commission dashboard:", error);
       throw error;
@@ -159,7 +185,14 @@ const commissionService = {
           ...(dateTo && { date_to: dateTo }),
         },
       });
-      return response;
+      // Normalize backend field names to what the UI components expect
+      const transactions = (response.transactions || []).map((t) => ({
+        ...t,
+        agentName: t.agentName || t.salesPersonName,
+        saleAmount: t.saleAmount ?? t.invoiceAmount,
+        id: t.id || t.commissionId,
+      }));
+      return { ...response, transactions };
     } catch (error) {
       console.error("Error fetching commission transactions:", error);
       throw error;

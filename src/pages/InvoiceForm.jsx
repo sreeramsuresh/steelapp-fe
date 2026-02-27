@@ -927,12 +927,19 @@ const InvoiceForm = ({ onSave }) => {
     [customersData, validateField, focusNextMandatoryField, checkTradeLicenseStatus, invoice.date]
   );
 
-  const handleSalesAgentSelect = useCallback((agentId) => {
-    setInvoice((prev) => ({
-      ...prev,
-      sales_agent_id: agentId && agentId !== "none" ? parseInt(agentId, 10) : null,
-    }));
-  }, []);
+  const handleSalesAgentSelect = useCallback(
+    (agentId) => {
+      const parsedId = agentId && agentId !== "none" ? parseInt(agentId, 10) : null;
+      const agents = salesAgentsData?.agents || [];
+      const agent = agents.find((a) => a.userId === parsedId);
+      setInvoice((prev) => ({
+        ...prev,
+        sales_agent_id: parsedId,
+        commissionPercentage: agent?.baseRate ?? prev.commissionPercentage,
+      }));
+    },
+    [salesAgentsData]
+  );
 
   // No automatic coupling; due date is independently editable by the user
 
@@ -2357,10 +2364,10 @@ const InvoiceForm = ({ onSave }) => {
                       className="text-base"
                     >
                       <SelectItem value="none">No sales agent</SelectItem>
-                      {(salesAgentsData?.data || []).map((agent) => (
-                        <SelectItem key={agent.id} value={agent.id}>
-                          {agent.fullName || agent.username}
-                          {agent.defaultCommissionRate ? ` (${agent.defaultCommissionRate}% commission)` : ""}
+                      {(salesAgentsData?.agents || []).map((agent) => (
+                        <SelectItem key={agent.userId} value={agent.userId}>
+                          {agent.userName || agent.email}
+                          {agent.baseRate ? ` (${agent.baseRate}% commission)` : ""}
                         </SelectItem>
                       ))}
                     </FormSelect>
