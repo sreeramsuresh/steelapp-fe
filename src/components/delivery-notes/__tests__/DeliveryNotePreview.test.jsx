@@ -27,9 +27,7 @@ const mockDeliveryNote = {
   invoiceNumber: "INV-001",
   vehicleNumber: "ABC 1234",
   driverName: "Ahmed",
-  items: [
-    { productName: "SS-304-Sheet", quantity: 50, weight: 500, unit: "KG" },
-  ],
+  items: [{ productName: "SS-304-Sheet", quantity: 50, weight: 500, unit: "KG" }],
 };
 
 const mockCompany = {

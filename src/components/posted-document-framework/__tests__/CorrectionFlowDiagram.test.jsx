@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
+import { AlertTriangle, CheckCircle, FileText } from "lucide-react";
 import { describe, expect, it, vi } from "vitest";
-import { FileText, AlertTriangle, CheckCircle } from "lucide-react";
 
 vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false, toggleTheme: vi.fn() }),
@@ -27,9 +27,7 @@ describe("CorrectionFlowDiagram", () => {
   });
 
   it("renders step descriptions when provided", () => {
-    const steps = [
-      { label: "Step 1", icon: FileText, color: "#3b82f6", description: "First step" },
-    ];
+    const steps = [{ label: "Step 1", icon: FileText, color: "#3b82f6", description: "First step" }];
     render(<CorrectionFlowDiagram steps={steps} />);
     expect(screen.getByText("First step")).toBeInTheDocument();
   });

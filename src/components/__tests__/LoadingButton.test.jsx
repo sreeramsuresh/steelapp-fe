@@ -13,16 +13,12 @@ import LoadingButton from "../LoadingButton";
 
 describe("LoadingButton", () => {
   it("renders without crashing", () => {
-    const { container } = renderWithProviders(
-      <LoadingButton onClick={vi.fn()}>Save</LoadingButton>
-    );
+    const { container } = renderWithProviders(<LoadingButton onClick={vi.fn()}>Save</LoadingButton>);
     expect(container).toBeTruthy();
   });
 
   it("displays children text", () => {
-    const { container } = renderWithProviders(
-      <LoadingButton onClick={vi.fn()}>Save</LoadingButton>
-    );
+    const { container } = renderWithProviders(<LoadingButton onClick={vi.fn()}>Save</LoadingButton>);
     expect(container.textContent).toContain("Save");
   });
 

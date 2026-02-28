@@ -33,9 +33,7 @@ describe("LoadingOverlay", () => {
   });
 
   it("displays custom message", () => {
-    const { container } = renderWithProviders(
-      <LoadingOverlay show={true} message="Saving invoice..." />
-    );
+    const { container } = renderWithProviders(<LoadingOverlay show={true} message="Saving invoice..." />);
     expect(container.textContent).toContain("Saving invoice...");
   });
 

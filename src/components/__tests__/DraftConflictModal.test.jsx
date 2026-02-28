@@ -46,9 +46,7 @@ describe("DraftConflictModal", () => {
   });
 
   it("returns null when not open", () => {
-    const { container } = renderWithProviders(
-      <DraftConflictModal {...defaultProps} isOpen={false} />
-    );
+    const { container } = renderWithProviders(<DraftConflictModal {...defaultProps} isOpen={false} />);
     expect(container.querySelector(".fixed")).toBeFalsy();
   });
 

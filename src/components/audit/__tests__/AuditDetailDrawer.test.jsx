@@ -30,9 +30,7 @@ const mockEntry = {
 
 describe("AuditDetailDrawer", () => {
   it("renders without crashing when entry is provided", () => {
-    const { container } = render(
-      <AuditDetailDrawer entry={mockEntry} open={true} onClose={vi.fn()} />
-    );
+    const { container } = render(<AuditDetailDrawer entry={mockEntry} open={true} onClose={vi.fn()} />);
     expect(container).toBeTruthy();
   });
 });

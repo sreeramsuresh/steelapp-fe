@@ -20,9 +20,19 @@ describe("StockLevelsDashboard", () => {
           <button type="button">Dubai</button>
         </div>
         <table>
-          <thead><tr><th>Product</th><th>Available</th><th>Reserved</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Available</th>
+              <th>Reserved</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>SS-304-Sheet</td><td>500</td><td>50</td></tr>
+            <tr>
+              <td>SS-304-Sheet</td>
+              <td>500</td>
+              <td>50</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -84,9 +94,21 @@ describe("StockMovementList", () => {
       <div>
         <h1>Stock Movements</h1>
         <table>
-          <thead><tr><th>Date</th><th>Product</th><th>Type</th><th>Qty</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Product</th>
+              <th>Type</th>
+              <th>Qty</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>2026-01-15</td><td>SS-304-Sheet</td><td>IN</td><td>100</td></tr>
+            <tr>
+              <td>2026-01-15</td>
+              <td>SS-304-Sheet</td>
+              <td>IN</td>
+              <td>100</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -175,7 +197,9 @@ describe("StockMovementPage", () => {
         <h1>Stock Movement</h1>
         <div data-testid="movement-filters">
           <input placeholder="Search" />
-          <select aria-label="Type"><option>All</option></select>
+          <select aria-label="Type">
+            <option>All</option>
+          </select>
         </div>
       </div>
     );
@@ -268,10 +292,24 @@ describe("WarehouseList", () => {
         <h1>Warehouses</h1>
         <button type="button">Add Warehouse</button>
         <table>
-          <thead><tr><th>Name</th><th>Location</th><th>Capacity</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Location</th>
+              <th>Capacity</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>Main Warehouse</td><td>Sharjah</td><td>10,000 sqm</td></tr>
-            <tr><td>Dubai Warehouse</td><td>Dubai</td><td>5,000 sqm</td></tr>
+            <tr>
+              <td>Main Warehouse</td>
+              <td>Sharjah</td>
+              <td>10,000 sqm</td>
+            </tr>
+            <tr>
+              <td>Dubai Warehouse</td>
+              <td>Dubai</td>
+              <td>5,000 sqm</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -287,9 +325,21 @@ describe("WarehouseList", () => {
       <div>
         <h1>Warehouses</h1>
         <table>
-          <thead><tr><th>Name</th><th>Bins</th><th>Occupied</th><th>Utilization</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Bins</th>
+              <th>Occupied</th>
+              <th>Utilization</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>Main Warehouse</td><td>200</td><td>150</td><td>75%</td></tr>
+            <tr>
+              <td>Main Warehouse</td>
+              <td>200</td>
+              <td>150</td>
+              <td>75%</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -373,9 +423,19 @@ describe("ContainerList", () => {
       <div>
         <h1>Containers</h1>
         <table>
-          <thead><tr><th>Container #</th><th>Status</th><th>ETA</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Container #</th>
+              <th>Status</th>
+              <th>ETA</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>CONT-001</td><td>In Transit</td><td>2026-03-10</td></tr>
+            <tr>
+              <td>CONT-001</td>
+              <td>In Transit</td>
+              <td>2026-03-10</td>
+            </tr>
           </tbody>
         </table>
       </div>

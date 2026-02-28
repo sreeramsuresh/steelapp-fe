@@ -27,9 +27,7 @@ import ReservationList from "../ReservationList";
 
 describe("ReservationList", () => {
   it("renders without crashing", () => {
-    const { container } = render(
-      <ReservationList onCreateNew={vi.fn()} onViewReservation={vi.fn()} />
-    );
+    const { container } = render(<ReservationList onCreateNew={vi.fn()} onViewReservation={vi.fn()} />);
     expect(container).toBeTruthy();
   });
 

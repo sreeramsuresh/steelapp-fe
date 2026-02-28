@@ -1,5 +1,5 @@
 /**
- * FTAHelpPanel Component Tests
+ * RoleGuideModal Component Tests
  */
 import { describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../test/component-setup";
@@ -14,11 +14,13 @@ vi.mock("../../contexts/ThemeContext", () => ({
   ThemeProvider: ({ children }) => <div>{children}</div>,
 }));
 
-import FTAHelpPanel from "../FTAHelpPanel";
+import RoleGuideModal from "../RoleGuideModal";
 
-describe("FTAHelpPanel", () => {
-  it("renders without crashing", () => {
-    const { container } = renderWithProviders(<FTAHelpPanel isOpen={true} onClose={vi.fn()} />);
+describe("RoleGuideModal", () => {
+  it("renders without crashing when open", () => {
+    const { container } = renderWithProviders(
+      <RoleGuideModal open={true} onClose={vi.fn()} />
+    );
     expect(container).toBeTruthy();
   });
 });

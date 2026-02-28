@@ -30,23 +30,17 @@ import AnalyticsSidebar from "../AnalyticsSidebar";
 
 describe("AnalyticsSidebar", () => {
   it("renders without crashing", () => {
-    const { container } = renderWithProviders(
-      <AnalyticsSidebar isOpen={true} onToggle={vi.fn()} />
-    );
+    const { container } = renderWithProviders(<AnalyticsSidebar isOpen={true} onToggle={vi.fn()} />);
     expect(container).toBeTruthy();
   });
 
   it("displays ANALYTICS HUB header", () => {
-    const { container } = renderWithProviders(
-      <AnalyticsSidebar isOpen={true} onToggle={vi.fn()} />
-    );
+    const { container } = renderWithProviders(<AnalyticsSidebar isOpen={true} onToggle={vi.fn()} />);
     expect(container.textContent).toContain("ANALYTICS HUB");
   });
 
   it("contains navigation links", () => {
-    const { container } = renderWithProviders(
-      <AnalyticsSidebar isOpen={true} onToggle={vi.fn()} />
-    );
+    const { container } = renderWithProviders(<AnalyticsSidebar isOpen={true} onToggle={vi.fn()} />);
     expect(container.textContent).toContain("Executive Dashboard");
     expect(container.textContent).toContain("Business Management");
   });

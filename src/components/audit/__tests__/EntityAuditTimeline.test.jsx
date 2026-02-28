@@ -19,9 +19,7 @@ import EntityAuditTimeline from "../EntityAuditTimeline";
 
 describe("EntityAuditTimeline", () => {
   it("renders without crashing", () => {
-    const { container } = render(
-      <EntityAuditTimeline entityType="invoice" entityId={1} />
-    );
+    const { container } = render(<EntityAuditTimeline entityType="invoice" entityId={1} />);
     expect(container).toBeTruthy();
   });
 });

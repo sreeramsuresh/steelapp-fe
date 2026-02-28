@@ -17,8 +17,7 @@ vi.mock("../../../services/api", () => ({
 }));
 
 vi.mock("../../../utils/fieldAccessors", () => ({
-  getProductDisplayName: (product) =>
-    product.displayName || product.uniqueName || product.name || "Unknown",
+  getProductDisplayName: (product) => product.displayName || product.uniqueName || product.name || "Unknown",
   normalizeProduct: (product) => ({
     ...product,
     displayName: product.displayName || product.name,
@@ -60,9 +59,7 @@ describe("ProductSelector", () => {
 
     it("should render search placeholder text", () => {
       render(<ProductSelector {...defaultProps} />);
-      expect(
-        screen.getByPlaceholderText(/Search products by name/),
-      ).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/Search products by name/)).toBeInTheDocument();
     });
 
     it("should display selected product name when provided", () => {
@@ -99,7 +96,7 @@ describe("ProductSelector", () => {
         () => {
           expect(mockSearch).toHaveBeenCalled();
         },
-        { timeout: 1000 },
+        { timeout: 1000 }
       );
     });
 
@@ -144,9 +141,7 @@ describe("ProductSelector", () => {
 
       await user.click(screen.getByText("Steel Plate A"));
 
-      expect(defaultProps.onSelectProduct).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 1 }),
-      );
+      expect(defaultProps.onSelectProduct).toHaveBeenCalledWith(expect.objectContaining({ id: 1 }));
     });
   });
 });

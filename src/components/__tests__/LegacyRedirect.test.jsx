@@ -6,9 +6,7 @@ import { renderWithProviders } from "../../test/component-setup";
 
 vi.mock("react-router-dom", () => ({
   useLocation: () => ({ pathname: "/invoices", search: "", hash: "" }),
-  Navigate: ({ to, replace }) => (
-    <div data-testid="navigate" data-to={to} data-replace={String(replace)} />
-  ),
+  Navigate: ({ to, replace }) => <div data-testid="navigate" data-to={to} data-replace={String(replace)} />,
 }));
 
 vi.mock("../../config/redirects", () => ({

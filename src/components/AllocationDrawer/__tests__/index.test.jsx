@@ -147,9 +147,7 @@ describe("AllocationDrawer", () => {
 
     it("should render Add to Invoice button", () => {
       render(<AllocationDrawer {...defaultProps} />);
-      expect(
-        screen.getByRole("button", { name: /Add to Invoice/ }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Add to Invoice/ })).toBeInTheDocument();
     });
 
     it("should not render when visible is false", () => {

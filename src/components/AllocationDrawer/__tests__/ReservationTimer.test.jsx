@@ -73,9 +73,7 @@ describe("ReservationTimer", () => {
   describe("Extend Button", () => {
     it("should show extend button when onExtend is provided", () => {
       const futureTime = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-      render(
-        <ReservationTimer expiresAt={futureTime} onExtend={vi.fn()} />,
-      );
+      render(<ReservationTimer expiresAt={futureTime} onExtend={vi.fn()} />);
       expect(screen.getByText("+30m")).toBeInTheDocument();
     });
 
@@ -91,9 +89,7 @@ describe("ReservationTimer", () => {
       const futureTime = new Date(Date.now() + 10 * 60 * 1000).toISOString();
       const user = userEvent.setup();
 
-      render(
-        <ReservationTimer expiresAt={futureTime} onExtend={mockExtend} />,
-      );
+      render(<ReservationTimer expiresAt={futureTime} onExtend={mockExtend} />);
 
       await user.click(screen.getByText("+30m"));
 
@@ -109,9 +105,7 @@ describe("ReservationTimer", () => {
       // Set expiry to 2 seconds from now
       const futureTime = new Date(Date.now() + 2000).toISOString();
 
-      render(
-        <ReservationTimer expiresAt={futureTime} onExpired={mockExpired} />,
-      );
+      render(<ReservationTimer expiresAt={futureTime} onExpired={mockExpired} />);
 
       // Advance timer past expiry
       vi.advanceTimersByTime(3000);

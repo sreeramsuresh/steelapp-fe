@@ -47,14 +47,7 @@ describe("QuickAddChips", () => {
   });
 
   it("renders pin buttons when onTogglePin is provided", () => {
-    render(
-      <QuickAddChips
-        products={mockProducts}
-        pinnedIds={[1]}
-        onSelect={vi.fn()}
-        onTogglePin={vi.fn()}
-      />
-    );
+    render(<QuickAddChips products={mockProducts} pinnedIds={[1]} onSelect={vi.fn()} onTogglePin={vi.fn()} />);
     const pinButtons = screen.getAllByTitle(/pin product/i);
     expect(pinButtons.length).toBeGreaterThan(0);
   });

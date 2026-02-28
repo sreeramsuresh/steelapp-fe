@@ -1,5 +1,5 @@
 /**
- * FTAHelpPanel Component Tests
+ * ProductNamingHelpPanel Component Tests
  */
 import { describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../test/component-setup";
@@ -14,11 +14,13 @@ vi.mock("../../contexts/ThemeContext", () => ({
   ThemeProvider: ({ children }) => <div>{children}</div>,
 }));
 
-import FTAHelpPanel from "../FTAHelpPanel";
+import ProductNamingHelpPanel from "../ProductNamingHelpPanel";
 
-describe("FTAHelpPanel", () => {
+describe("ProductNamingHelpPanel", () => {
   it("renders without crashing", () => {
-    const { container } = renderWithProviders(<FTAHelpPanel isOpen={true} onClose={vi.fn()} />);
+    const { container } = renderWithProviders(
+      <ProductNamingHelpPanel isOpen={true} onClose={vi.fn()} />
+    );
     expect(container).toBeTruthy();
   });
 });

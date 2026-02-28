@@ -22,7 +22,13 @@ vi.mock("../../../services/customerCreditService", () => ({
 vi.mock("../../../services/dataService", () => ({
   PAYMENT_MODES: {
     cash: { value: "cash", label: "Cash", icon: "💵", requiresRef: false },
-    bank_transfer: { value: "bank_transfer", label: "Bank Transfer", icon: "🏦", requiresRef: true, refLabel: "Transfer Ref" },
+    bank_transfer: {
+      value: "bank_transfer",
+      label: "Bank Transfer",
+      icon: "🏦",
+      requiresRef: true,
+      refLabel: "Transfer Ref",
+    },
     cheque: { value: "cheque", label: "Cheque", icon: "📝", requiresRef: true, refLabel: "Cheque #" },
   },
 }));
@@ -38,11 +44,7 @@ vi.mock("../../../utils/timezone", () => ({
 
 vi.mock("../../forms/CurrencyInput", () => ({
   default: ({ amount, onAmountChange }) => (
-    <input
-      data-testid="currency-input"
-      value={amount || ""}
-      onChange={(e) => onAmountChange(e.target.value)}
-    />
+    <input data-testid="currency-input" value={amount || ""} onChange={(e) => onAmountChange(e.target.value)} />
   ),
 }));
 

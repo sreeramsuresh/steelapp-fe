@@ -40,16 +40,12 @@ describe("DocumentHistoryPanel", () => {
   });
 
   it("renders the Document History header", () => {
-    render(
-      <DocumentHistoryPanel documentType="invoice" documentId={1} documentStatus="draft" />
-    );
+    render(<DocumentHistoryPanel documentType="invoice" documentId={1} documentStatus="draft" />);
     expect(screen.getByText("Document History")).toBeInTheDocument();
   });
 
   it("auto-expands for posted documents", () => {
-    render(
-      <DocumentHistoryPanel documentType="invoice" documentId={1} documentStatus="issued" />
-    );
+    render(<DocumentHistoryPanel documentType="invoice" documentId={1} documentStatus="issued" />);
     expect(screen.getByText("Document History")).toBeInTheDocument();
   });
 });

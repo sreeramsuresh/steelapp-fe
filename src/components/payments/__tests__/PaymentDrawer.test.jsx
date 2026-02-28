@@ -40,7 +40,7 @@ vi.mock("../../finance/paymentCorrectionConfig", () => ({
 }));
 
 vi.mock("../../posted-document-framework", () => ({
-  CorrectionHelpModal: ({ open }) => open ? <div data-testid="correction-modal" /> : null,
+  CorrectionHelpModal: ({ open }) => (open ? <div data-testid="correction-modal" /> : null),
 }));
 
 vi.mock("../AddPaymentForm", () => ({
@@ -70,16 +70,12 @@ describe("PaymentDrawer", () => {
   };
 
   it("renders nothing when isOpen is false", () => {
-    const { container } = render(
-      <PaymentDrawer invoice={mockInvoice} isOpen={false} onClose={vi.fn()} />
-    );
+    const { container } = render(<PaymentDrawer invoice={mockInvoice} isOpen={false} onClose={vi.fn()} />);
     expect(container.innerHTML).toBe("");
   });
 
   it("renders nothing when invoice is null", () => {
-    const { container } = render(
-      <PaymentDrawer invoice={null} isOpen={true} onClose={vi.fn()} />
-    );
+    const { container } = render(<PaymentDrawer invoice={null} isOpen={true} onClose={vi.fn()} />);
     expect(container.innerHTML).toBe("");
   });
 

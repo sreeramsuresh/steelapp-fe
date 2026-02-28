@@ -35,9 +35,7 @@ import TransferList from "../TransferList";
 
 describe("TransferList", () => {
   it("renders without crashing", () => {
-    const { container } = render(
-      <TransferList onCreateNew={vi.fn()} onViewTransfer={vi.fn()} />
-    );
+    const { container } = render(<TransferList onCreateNew={vi.fn()} onViewTransfer={vi.fn()} />);
     expect(container).toBeTruthy();
   });
 

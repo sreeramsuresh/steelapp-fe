@@ -46,9 +46,7 @@ describe("AccountStatementPreview", () => {
   });
 
   it("shows the preview title", () => {
-    render(
-      <AccountStatementPreview statement={mockStatement} company={mockCompany} onClose={vi.fn()} />
-    );
+    render(<AccountStatementPreview statement={mockStatement} company={mockCompany} onClose={vi.fn()} />);
     expect(screen.getByText("Account Statement Preview")).toBeInTheDocument();
   });
 });

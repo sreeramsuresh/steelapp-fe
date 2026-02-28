@@ -47,9 +47,7 @@ describe("LineItemCard", () => {
   });
 
   it("renders amount breakdown when provided", () => {
-    render(
-      <LineItemCard {...defaultProps} amountDisplay="AED 14,750.00" amountBreakdown="50 pcs x 295.00/MT" />
-    );
+    render(<LineItemCard {...defaultProps} amountDisplay="AED 14,750.00" amountBreakdown="50 pcs x 295.00/MT" />);
     expect(screen.getByText("50 pcs x 295.00/MT")).toBeInTheDocument();
   });
 

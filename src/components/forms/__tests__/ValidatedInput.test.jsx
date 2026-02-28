@@ -24,17 +24,13 @@ describe("ValidatedInput", () => {
   });
 
   it("applies valid validation class", () => {
-    const { container } = render(
-      <ValidatedInput label="Name" validationState="valid" showValidation={true} />
-    );
+    const { container } = render(<ValidatedInput label="Name" validationState="valid" showValidation={true} />);
     const input = container.querySelector("input");
     expect(input.className).toContain("border-green-500");
   });
 
   it("applies invalid validation class", () => {
-    const { container } = render(
-      <ValidatedInput label="Name" validationState="invalid" showValidation={true} />
-    );
+    const { container } = render(<ValidatedInput label="Name" validationState="invalid" showValidation={true} />);
     const input = container.querySelector("input");
     expect(input.className).toContain("border-red-500");
   });

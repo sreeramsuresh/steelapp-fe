@@ -51,9 +51,7 @@ describe("TRNInput", () => {
   });
 
   it("renders with custom label", () => {
-    const { container } = renderWithProviders(
-      <TRNInput onChange={vi.fn()} label="Customer TRN" />
-    );
+    const { container } = renderWithProviders(<TRNInput onChange={vi.fn()} label="Customer TRN" />);
     expect(container.textContent).toContain("Customer TRN");
   });
 });

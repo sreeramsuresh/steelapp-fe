@@ -30,9 +30,7 @@ describe("DeleteInvoiceModal", () => {
   });
 
   it("returns null when not open", () => {
-    const { container } = renderWithProviders(
-      <DeleteInvoiceModal {...defaultProps} isOpen={false} />
-    );
+    const { container } = renderWithProviders(<DeleteInvoiceModal {...defaultProps} isOpen={false} />);
     expect(container.querySelector(".fixed")).toBeFalsy();
   });
 

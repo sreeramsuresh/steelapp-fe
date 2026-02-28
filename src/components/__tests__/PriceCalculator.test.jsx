@@ -1,5 +1,5 @@
 /**
- * FTAHelpPanel Component Tests
+ * PriceCalculator Component Tests
  */
 import { describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../test/component-setup";
@@ -14,11 +14,15 @@ vi.mock("../../contexts/ThemeContext", () => ({
   ThemeProvider: ({ children }) => <div>{children}</div>,
 }));
 
-import FTAHelpPanel from "../FTAHelpPanel";
+vi.mock("../../utils/fieldAccessors", () => ({
+  getProductDisplayName: vi.fn().mockReturnValue("Test Product"),
+}));
 
-describe("FTAHelpPanel", () => {
+import PriceCalculator from "../PriceCalculator";
+
+describe("PriceCalculator", () => {
   it("renders without crashing", () => {
-    const { container } = renderWithProviders(<FTAHelpPanel isOpen={true} onClose={vi.fn()} />);
+    const { container } = renderWithProviders(<PriceCalculator />);
     expect(container).toBeTruthy();
   });
 });

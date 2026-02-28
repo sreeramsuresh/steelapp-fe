@@ -15,13 +15,29 @@ describe("TrialBalanceReport", () => {
       <div>
         <h1>Trial Balance</h1>
         <div data-testid="period-selector">
-          <select aria-label="Period"><option>Feb 2026</option></select>
+          <select aria-label="Period">
+            <option>Feb 2026</option>
+          </select>
         </div>
         <table>
-          <thead><tr><th>Account</th><th>Debit</th><th>Credit</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Account</th>
+              <th>Debit</th>
+              <th>Credit</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>Cash</td><td>50,000</td><td>0</td></tr>
-            <tr><td>Revenue</td><td>0</td><td>50,000</td></tr>
+            <tr>
+              <td>Cash</td>
+              <td>50,000</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>Revenue</td>
+              <td>0</td>
+              <td>50,000</td>
+            </tr>
           </tbody>
         </table>
         <div>Total Debit: 50,000 | Total Credit: 50,000</div>
@@ -82,9 +98,21 @@ describe("COGSAnalysisReport", () => {
           <div>Avg Margin: 30%</div>
         </div>
         <table>
-          <thead><tr><th>Product</th><th>Revenue</th><th>COGS</th><th>Margin</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Revenue</th>
+              <th>COGS</th>
+              <th>Margin</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>SS-304-Sheet</td><td>100,000</td><td>70,000</td><td>30%</td></tr>
+            <tr>
+              <td>SS-304-Sheet</td>
+              <td>100,000</td>
+              <td>70,000</td>
+              <td>30%</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -100,10 +128,27 @@ describe("COGSAnalysisReport", () => {
       <div>
         <h1>COGS Analysis</h1>
         <table>
-          <thead><tr><th>Product</th><th>Revenue</th><th>COGS</th><th>Margin</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Revenue</th>
+              <th>COGS</th>
+              <th>Margin</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>SS-304-Sheet</td><td>100,000</td><td>70,000</td><td>30%</td></tr>
-            <tr><td>SS-316-Coil</td><td>200,000</td><td>140,000</td><td>30%</td></tr>
+            <tr>
+              <td>SS-304-Sheet</td>
+              <td>100,000</td>
+              <td>70,000</td>
+              <td>30%</td>
+            </tr>
+            <tr>
+              <td>SS-316-Coil</td>
+              <td>200,000</td>
+              <td>140,000</td>
+              <td>30%</td>
+            </tr>
           </tbody>
         </table>
         <div data-testid="avg-margin">Average Margin: 30%</div>
@@ -126,9 +171,23 @@ describe("BankLedgerReport", () => {
           <option>Main Account - Emirates NBD</option>
         </select>
         <table>
-          <thead><tr><th>Date</th><th>Description</th><th>Debit</th><th>Credit</th><th>Balance</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Debit</th>
+              <th>Credit</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>2026-01-01</td><td>Opening Balance</td><td>0</td><td>0</td><td>100,000</td></tr>
+            <tr>
+              <td>2026-01-01</td>
+              <td>Opening Balance</td>
+              <td>0</td>
+              <td>0</td>
+              <td>100,000</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -185,9 +244,19 @@ describe("BankReconciliationStatement", () => {
         <div data-testid="unreconciled">
           <h2>Unreconciled Items</h2>
           <table>
-            <thead><tr><th>Date</th><th>Reference</th><th>Amount</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Reference</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>2026-01-20</td><td>CHQ-123</td><td>5,000</td></tr>
+              <tr>
+                <td>2026-01-20</td>
+                <td>CHQ-123</td>
+                <td>5,000</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -210,9 +279,21 @@ describe("CashBookReport", () => {
       <div>
         <h1>Cash Book</h1>
         <table>
-          <thead><tr><th>Date</th><th>Particulars</th><th>Receipts</th><th>Payments</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Particulars</th>
+              <th>Receipts</th>
+              <th>Payments</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>2026-01-05</td><td>Customer Payment</td><td>5,000</td><td>0</td></tr>
+            <tr>
+              <td>2026-01-05</td>
+              <td>Customer Payment</td>
+              <td>5,000</td>
+              <td>0</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -254,9 +335,23 @@ describe("JournalRegisterReport", () => {
       <div>
         <h1>Journal Register</h1>
         <table>
-          <thead><tr><th>Entry #</th><th>Date</th><th>Account</th><th>Debit</th><th>Credit</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Entry #</th>
+              <th>Date</th>
+              <th>Account</th>
+              <th>Debit</th>
+              <th>Credit</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>JE-001</td><td>2026-01-01</td><td>Cash</td><td>5,000</td><td>0</td></tr>
+            <tr>
+              <td>JE-001</td>
+              <td>2026-01-01</td>
+              <td>Cash</td>
+              <td>5,000</td>
+              <td>0</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -272,10 +367,30 @@ describe("JournalRegisterReport", () => {
       <div>
         <h1>Journal Register</h1>
         <table>
-          <thead><tr><th>Entry #</th><th>Date</th><th>Account</th><th>Debit</th><th>Credit</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Entry #</th>
+              <th>Date</th>
+              <th>Account</th>
+              <th>Debit</th>
+              <th>Credit</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>JE-001</td><td>2026-01-01</td><td>Cash</td><td>5,000</td><td>0</td></tr>
-            <tr><td>JE-001</td><td>2026-01-01</td><td>Sales Revenue</td><td>0</td><td>5,000</td></tr>
+            <tr>
+              <td>JE-001</td>
+              <td>2026-01-01</td>
+              <td>Cash</td>
+              <td>5,000</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>JE-001</td>
+              <td>2026-01-01</td>
+              <td>Sales Revenue</td>
+              <td>0</td>
+              <td>5,000</td>
+            </tr>
           </tbody>
         </table>
         <div data-testid="totals">Total Entries: 1</div>
@@ -314,9 +429,19 @@ describe("ReconciliationReport", () => {
         <div data-testid="exceptions">
           <h2>Exceptions</h2>
           <table>
-            <thead><tr><th>Reference</th><th>Type</th><th>Amount</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Type</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>TXN-456</td><td>Amount Mismatch</td><td>500</td></tr>
+              <tr>
+                <td>TXN-456</td>
+                <td>Amount Mismatch</td>
+                <td>500</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -336,9 +461,19 @@ describe("NormalizedMarginReport", () => {
       <div>
         <h1>Normalized Margin Report</h1>
         <table>
-          <thead><tr><th>Product</th><th>Raw Margin</th><th>Normalized</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Raw Margin</th>
+              <th>Normalized</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>SS-304-Sheet</td><td>28%</td><td>30%</td></tr>
+            <tr>
+              <td>SS-304-Sheet</td>
+              <td>28%</td>
+              <td>30%</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -359,10 +494,27 @@ describe("NormalizedMarginReport", () => {
           <button type="button">Export</button>
         </div>
         <table>
-          <thead><tr><th>Product</th><th>Raw Margin</th><th>Normalized</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Raw Margin</th>
+              <th>Normalized</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>SS-304-Sheet</td><td>28%</td><td>30%</td><td>Normal</td></tr>
-            <tr><td>SS-316-Coil</td><td>15%</td><td>18%</td><td>Below Target</td></tr>
+            <tr>
+              <td>SS-304-Sheet</td>
+              <td>28%</td>
+              <td>30%</td>
+              <td>Normal</td>
+            </tr>
+            <tr>
+              <td>SS-316-Coil</td>
+              <td>15%</td>
+              <td>18%</td>
+              <td>Below Target</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -402,9 +554,19 @@ describe("CertificateAuditReport", () => {
           <span data-testid="rejected-badge">Rejected: 5</span>
         </div>
         <table>
-          <thead><tr><th>Certificate</th><th>Supplier</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Certificate</th>
+              <th>Supplier</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>MTC-001</td><td>Steel Mills</td><td>Verified</td></tr>
+            <tr>
+              <td>MTC-001</td>
+              <td>Steel Mills</td>
+              <td>Verified</td>
+            </tr>
           </tbody>
         </table>
       </div>

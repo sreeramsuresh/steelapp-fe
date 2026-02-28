@@ -7,7 +7,12 @@ vi.mock("../../../contexts/ThemeContext", () => ({
 
 vi.mock("../../../services/warehouseService", () => ({
   warehouseService: {
-    getAll: vi.fn().mockResolvedValue({ data: [{ id: 1, name: "Main Warehouse" }, { id: 2, name: "Dubai Warehouse" }] }),
+    getAll: vi.fn().mockResolvedValue({
+      data: [
+        { id: 1, name: "Main Warehouse" },
+        { id: 2, name: "Dubai Warehouse" },
+      ],
+    }),
   },
 }));
 

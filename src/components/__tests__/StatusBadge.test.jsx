@@ -22,23 +22,17 @@ describe("StatusBadge", () => {
   };
 
   it("renders without crashing", () => {
-    const { container } = renderWithProviders(
-      <StatusBadge label="Active" config={defaultConfig} isDarkMode={false} />
-    );
+    const { container } = renderWithProviders(<StatusBadge label="Active" config={defaultConfig} isDarkMode={false} />);
     expect(container).toBeTruthy();
   });
 
   it("displays the label text", () => {
-    const { container } = renderWithProviders(
-      <StatusBadge label="Active" config={defaultConfig} isDarkMode={false} />
-    );
+    const { container } = renderWithProviders(<StatusBadge label="Active" config={defaultConfig} isDarkMode={false} />);
     expect(container.textContent).toContain("Active");
   });
 
   it("renders as span when not clickable", () => {
-    const { container } = renderWithProviders(
-      <StatusBadge label="Active" config={defaultConfig} isDarkMode={false} />
-    );
+    const { container } = renderWithProviders(<StatusBadge label="Active" config={defaultConfig} isDarkMode={false} />);
     expect(container.querySelector("span")).toBeTruthy();
     expect(container.querySelector("button")).toBeFalsy();
   });

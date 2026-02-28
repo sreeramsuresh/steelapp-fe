@@ -20,9 +20,21 @@ describe("Receivables", () => {
           <div>90+ Days: 5,000</div>
         </div>
         <table>
-          <thead><tr><th>Customer</th><th>Invoice</th><th>Amount</th><th>Due Date</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Invoice</th>
+              <th>Amount</th>
+              <th>Due Date</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>ABC Corp</td><td>INV-001</td><td>5,000</td><td>2026-03-01</td></tr>
+            <tr>
+              <td>ABC Corp</td>
+              <td>INV-001</td>
+              <td>5,000</td>
+              <td>2026-03-01</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -63,9 +75,21 @@ describe("Payables", () => {
           <div>Overdue: 15,000</div>
         </div>
         <table>
-          <thead><tr><th>Supplier</th><th>Bill</th><th>Amount</th><th>Due Date</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Supplier</th>
+              <th>Bill</th>
+              <th>Amount</th>
+              <th>Due Date</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>Steel Mills</td><td>SB-001</td><td>50,000</td><td>2026-03-01</td></tr>
+            <tr>
+              <td>Steel Mills</td>
+              <td>SB-001</td>
+              <td>50,000</td>
+              <td>2026-03-01</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -105,9 +129,25 @@ describe("ARAgingReport", () => {
         <h1>AR Aging Report</h1>
         <div data-testid="aging-chart">Aging Chart</div>
         <table>
-          <thead><tr><th>Customer</th><th>Current</th><th>1-30</th><th>31-60</th><th>61-90</th><th>90+</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Current</th>
+              <th>1-30</th>
+              <th>31-60</th>
+              <th>61-90</th>
+              <th>90+</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>ABC Corp</td><td>5,000</td><td>3,000</td><td>1,000</td><td>0</td><td>0</td></tr>
+            <tr>
+              <td>ABC Corp</td>
+              <td>5,000</td>
+              <td>3,000</td>
+              <td>1,000</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -163,9 +203,21 @@ describe("AdvancePaymentList", () => {
         <h1>Advance Payments</h1>
         <button type="button">New Advance Payment</button>
         <table>
-          <thead><tr><th>Reference</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>AP-001</td><td>ABC Corp</td><td>10,000</td><td>Active</td></tr>
+            <tr>
+              <td>AP-001</td>
+              <td>ABC Corp</td>
+              <td>10,000</td>
+              <td>Active</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -181,10 +233,27 @@ describe("AdvancePaymentList", () => {
       <div>
         <h1>Advance Payments</h1>
         <table>
-          <thead><tr><th>Reference</th><th>Original</th><th>Used</th><th>Balance</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Original</th>
+              <th>Used</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>AP-001</td><td>10,000</td><td>3,000</td><td>7,000</td></tr>
-            <tr><td>AP-002</td><td>5,000</td><td>5,000</td><td>0</td></tr>
+            <tr>
+              <td>AP-001</td>
+              <td>10,000</td>
+              <td>3,000</td>
+              <td>7,000</td>
+            </tr>
+            <tr>
+              <td>AP-002</td>
+              <td>5,000</td>
+              <td>5,000</td>
+              <td>0</td>
+            </tr>
           </tbody>
         </table>
         <div data-testid="total-unapplied">Total Unapplied: 7,000 AED</div>
@@ -248,9 +317,19 @@ describe("AccountStatementList", () => {
       <div>
         <h1>Account Statements</h1>
         <table>
-          <thead><tr><th>Customer</th><th>Period</th><th>Balance</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Period</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>ABC Corp</td><td>Jan 2026</td><td>45,000</td></tr>
+            <tr>
+              <td>ABC Corp</td>
+              <td>Jan 2026</td>
+              <td>45,000</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -348,10 +427,30 @@ describe("AccountStatementDetails", () => {
       <div>
         <h1>Account Statement — ABC Corp</h1>
         <table>
-          <thead><tr><th>Date</th><th>Description</th><th>Debit</th><th>Credit</th><th>Balance</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Debit</th>
+              <th>Credit</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>2026-01-01</td><td>Opening Balance</td><td>0</td><td>0</td><td>40,000</td></tr>
-            <tr><td>2026-01-15</td><td>INV-001</td><td>5,000</td><td>0</td><td>45,000</td></tr>
+            <tr>
+              <td>2026-01-01</td>
+              <td>Opening Balance</td>
+              <td>0</td>
+              <td>0</td>
+              <td>40,000</td>
+            </tr>
+            <tr>
+              <td>2026-01-15</td>
+              <td>INV-001</td>
+              <td>5,000</td>
+              <td>0</td>
+              <td>45,000</td>
+            </tr>
           </tbody>
         </table>
         <div data-testid="actions">

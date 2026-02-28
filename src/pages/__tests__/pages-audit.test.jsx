@@ -24,9 +24,21 @@ describe("AuditLogs", () => {
           </select>
         </div>
         <table>
-          <thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Entity</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>User</th>
+              <th>Action</th>
+              <th>Entity</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>2026-01-15 14:30</td><td>admin@co.ae</td><td>UPDATE</td><td>Invoice INV-001</td></tr>
+            <tr>
+              <td>2026-01-15 14:30</td>
+              <td>admin@co.ae</td>
+              <td>UPDATE</td>
+              <td>Invoice INV-001</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -184,9 +196,21 @@ describe("DatasetExplorer", () => {
       <div>
         <h1>Dataset Explorer</h1>
         <table>
-          <thead><tr><th>Invoice #</th><th>Customer</th><th>Amount</th><th>Date</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Invoice #</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Date</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>INV-001</td><td>ABC Corp</td><td>10,000</td><td>2026-01-15</td></tr>
+            <tr>
+              <td>INV-001</td>
+              <td>ABC Corp</td>
+              <td>10,000</td>
+              <td>2026-01-15</td>
+            </tr>
           </tbody>
         </table>
         <div data-testid="pagination">

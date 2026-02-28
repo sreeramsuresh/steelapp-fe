@@ -24,8 +24,7 @@ describe("BatchCostTable", () => {
         batchNumber: "B-001",
         procurementChannel: "LOCAL",
         unitCost: 90,
-        quantityOnHand: 100,
-        unit: "KG",
+        quantityRemaining: 100,
         createdAt: "2026-01-15",
       },
     ];

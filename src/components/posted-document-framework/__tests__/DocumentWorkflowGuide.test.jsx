@@ -39,11 +39,7 @@ describe("DocumentWorkflowGuide", () => {
   });
 
   it("renders banner when bannerText is provided", () => {
-    render(
-      <DocumentWorkflowGuide
-        config={{ title: "Guide", bannerText: "Documents are immutable" }}
-      />
-    );
+    render(<DocumentWorkflowGuide config={{ title: "Guide", bannerText: "Documents are immutable" }} />);
     expect(screen.getByText("Documents are immutable")).toBeInTheDocument();
   });
 });

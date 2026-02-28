@@ -27,19 +27,13 @@ import ProductBatchDrawer from "../ProductBatchDrawer";
 
 describe("ProductBatchDrawer", () => {
   it("renders without crashing when closed", () => {
-    const { container } = render(
-      <ProductBatchDrawer open={false} onClose={vi.fn()} product={null} />
-    );
+    const { container } = render(<ProductBatchDrawer open={false} onClose={vi.fn()} product={null} />);
     expect(container).toBeTruthy();
   });
 
   it("renders when open with product", () => {
     const { container } = render(
-      <ProductBatchDrawer
-        open={true}
-        onClose={vi.fn()}
-        product={{ productId: 1, productName: "SS-304" }}
-      />
+      <ProductBatchDrawer open={true} onClose={vi.fn()} product={{ productId: 1, productName: "SS-304" }} />
     );
     expect(container).toBeTruthy();
   });

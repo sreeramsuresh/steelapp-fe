@@ -21,9 +21,7 @@ import CorrectionHelpModal from "../CorrectionHelpModal";
 
 describe("CorrectionHelpModal", () => {
   it("renders nothing when closed", () => {
-    const { container } = render(
-      <CorrectionHelpModal open={false} onOpenChange={vi.fn()} config={{}} />
-    );
+    const { container } = render(<CorrectionHelpModal open={false} onOpenChange={vi.fn()} config={{}} />);
     expect(container.querySelector("[data-testid='dialog']")).toBeNull();
   });
 
@@ -36,6 +34,6 @@ describe("CorrectionHelpModal", () => {
       />
     );
     expect(screen.getAllByText("Invoice Correction Guide").length).toBeGreaterThan(0);
-    expect(screen.getByText("Learn how to correct posted documents")).toBeInTheDocument();
+    expect(screen.getByText("Learn how to correct")).toBeInTheDocument();
   });
 });

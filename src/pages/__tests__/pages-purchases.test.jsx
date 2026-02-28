@@ -20,9 +20,21 @@ describe("PurchaseOrderList", () => {
           <button type="button">Approved</button>
         </div>
         <table>
-          <thead><tr><th>PO #</th><th>Supplier</th><th>Amount</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>PO #</th>
+              <th>Supplier</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>PO-001</td><td>Steel Mills</td><td>25,000</td><td>Approved</td></tr>
+            <tr>
+              <td>PO-001</td>
+              <td>Steel Mills</td>
+              <td>25,000</td>
+              <td>Approved</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -171,9 +183,19 @@ describe("PO Workspace Pages", () => {
       <div>
         <h2>Goods Received Notes</h2>
         <table>
-          <thead><tr><th>GRN #</th><th>Date</th><th>Qty Received</th></tr></thead>
+          <thead>
+            <tr>
+              <th>GRN #</th>
+              <th>Date</th>
+              <th>Qty Received</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>GRN-001</td><td>2026-01-15</td><td>50</td></tr>
+            <tr>
+              <td>GRN-001</td>
+              <td>2026-01-15</td>
+              <td>50</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -217,9 +239,21 @@ describe("PO Workspace Pages", () => {
       <div>
         <h2>GRN-001 Details</h2>
         <table>
-          <thead><tr><th>Product</th><th>Ordered</th><th>Received</th><th>Quality</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Ordered</th>
+              <th>Received</th>
+              <th>Quality</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>SS-304-Sheet</td><td>100</td><td>50</td><td>Accepted</td></tr>
+            <tr>
+              <td>SS-304-Sheet</td>
+              <td>100</td>
+              <td>50</td>
+              <td>Accepted</td>
+            </tr>
           </tbody>
         </table>
         <div>Warehouse: Main Warehouse</div>
@@ -236,9 +270,19 @@ describe("PO Workspace Pages", () => {
       <div>
         <h2>Bills</h2>
         <table>
-          <thead><tr><th>Bill #</th><th>Amount</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Bill #</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>BILL-001</td><td>25,000</td><td>Pending</td></tr>
+            <tr>
+              <td>BILL-001</td>
+              <td>25,000</td>
+              <td>Pending</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -285,9 +329,19 @@ describe("PO Workspace Pages", () => {
       <div>
         <h2>Payments</h2>
         <table>
-          <thead><tr><th>Date</th><th>Amount</th><th>Reference</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Reference</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>2026-01-20</td><td>10,000</td><td>PAY-001</td></tr>
+            <tr>
+              <td>2026-01-20</td>
+              <td>10,000</td>
+              <td>PAY-001</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -406,9 +460,19 @@ describe("DebitNoteList", () => {
       <div>
         <h1>Debit Notes</h1>
         <table>
-          <thead><tr><th>DN #</th><th>Supplier</th><th>Amount</th></tr></thead>
+          <thead>
+            <tr>
+              <th>DN #</th>
+              <th>Supplier</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>DN-001</td><td>Steel Mills</td><td>2,500</td></tr>
+            <tr>
+              <td>DN-001</td>
+              <td>Steel Mills</td>
+              <td>2,500</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -425,10 +489,27 @@ describe("DebitNoteList", () => {
         <h1>Debit Notes</h1>
         <button type="button">New Debit Note</button>
         <table>
-          <thead><tr><th>DN #</th><th>Supplier</th><th>Amount</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>DN #</th>
+              <th>Supplier</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>DN-001</td><td>Steel Mills</td><td>2,500</td><td>Approved</td></tr>
-            <tr><td>DN-002</td><td>Metal Corp</td><td>1,200</td><td>Draft</td></tr>
+            <tr>
+              <td>DN-001</td>
+              <td>Steel Mills</td>
+              <td>2,500</td>
+              <td>Approved</td>
+            </tr>
+            <tr>
+              <td>DN-002</td>
+              <td>Metal Corp</td>
+              <td>1,200</td>
+              <td>Draft</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -485,9 +566,21 @@ describe("SupplierBillList", () => {
       <div>
         <h1>Supplier Bills</h1>
         <table>
-          <thead><tr><th>Bill #</th><th>Supplier</th><th>Amount</th><th>Due Date</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Bill #</th>
+              <th>Supplier</th>
+              <th>Amount</th>
+              <th>Due Date</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>SB-001</td><td>Steel Mills</td><td>50,000</td><td>2026-03-01</td></tr>
+            <tr>
+              <td>SB-001</td>
+              <td>Steel Mills</td>
+              <td>50,000</td>
+              <td>2026-03-01</td>
+            </tr>
           </tbody>
         </table>
       </div>
