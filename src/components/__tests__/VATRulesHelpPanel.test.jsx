@@ -18,9 +18,7 @@ import VATRulesHelpPanel from "../VATRulesHelpPanel";
 
 describe("VATRulesHelpPanel", () => {
   it("renders without crashing", () => {
-    const { container } = renderWithProviders(
-      <VATRulesHelpPanel isOpen={true} onClose={vi.fn()} />
-    );
+    const { container } = renderWithProviders(<VATRulesHelpPanel isOpen={true} onClose={vi.fn()} />);
     expect(container).toBeTruthy();
   });
 });
