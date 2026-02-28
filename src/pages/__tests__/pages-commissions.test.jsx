@@ -82,9 +82,23 @@ describe("AgentCommissionDashboard", () => {
           <div>YTD: 25,000</div>
         </div>
         <table>
-          <thead><tr><th>Invoice</th><th>Customer</th><th>Amount</th><th>Commission</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Commission</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>INV-001</td><td>ABC Corp</td><td>10,000</td><td>500</td><td>Approved</td></tr>
+            <tr>
+              <td>INV-001</td>
+              <td>ABC Corp</td>
+              <td>10,000</td>
+              <td>500</td>
+              <td>Approved</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -123,10 +137,30 @@ describe("AgentCommissionDashboard", () => {
       <div>
         <h1>My Commissions</h1>
         <table>
-          <thead><tr><th>Invoice</th><th>Customer</th><th>Invoice Amt</th><th>Rate</th><th>Commission</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th>Customer</th>
+              <th>Invoice Amt</th>
+              <th>Rate</th>
+              <th>Commission</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>INV-001</td><td>ABC Corp</td><td>10,000</td><td>5%</td><td>500</td></tr>
-            <tr><td>INV-002</td><td>XYZ Ltd</td><td>15,000</td><td>5%</td><td>750</td></tr>
+            <tr>
+              <td>INV-001</td>
+              <td>ABC Corp</td>
+              <td>10,000</td>
+              <td>5%</td>
+              <td>500</td>
+            </tr>
+            <tr>
+              <td>INV-002</td>
+              <td>XYZ Ltd</td>
+              <td>15,000</td>
+              <td>5%</td>
+              <td>750</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -151,7 +185,14 @@ describe("CommissionApprovalWorkflow", () => {
           <h1>Commission Approvals</h1>
           <div data-testid="pending-count">Pending: {commissions.length}</div>
           <table>
-            <thead><tr><th>Agent</th><th>Invoice</th><th>Amount</th><th>Actions</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Invoice</th>
+                <th>Amount</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
             <tbody>
               {commissions.map((c) => (
                 <tr key={c.id}>
@@ -208,7 +249,9 @@ describe("CommissionApprovalWorkflow", () => {
           {!approved ? (
             <div>
               <span>INV-001 - 500 AED</span>
-              <button type="button" onClick={() => setApproved(true)}>Approve</button>
+              <button type="button" onClick={() => setApproved(true)}>
+                Approve
+              </button>
             </div>
           ) : (
             <div data-testid="approved-msg">Commission approved successfully</div>

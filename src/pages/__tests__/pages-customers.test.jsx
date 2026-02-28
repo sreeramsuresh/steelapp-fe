@@ -153,9 +153,21 @@ describe("CustomerCreditManagement", () => {
       <div>
         <h1>Customer Credit Management</h1>
         <table>
-          <thead><tr><th>Customer</th><th>Credit Limit</th><th>Used</th><th>Available</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Credit Limit</th>
+              <th>Used</th>
+              <th>Available</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>ABC Corp</td><td>100,000</td><td>45,000</td><td>55,000</td></tr>
+            <tr>
+              <td>ABC Corp</td>
+              <td>100,000</td>
+              <td>45,000</td>
+              <td>55,000</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -193,9 +205,19 @@ describe("CustomerPricingPage", () => {
         <h1>Customer Pricing</h1>
         <div data-testid="pricing-table">
           <table>
-            <thead><tr><th>Product</th><th>Base Price</th><th>Customer Price</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Base Price</th>
+                <th>Customer Price</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>SS-304-Sheet</td><td>100</td><td>95</td></tr>
+              <tr>
+                <td>SS-304-Sheet</td>
+                <td>100</td>
+                <td>95</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -237,9 +259,19 @@ describe("SupplierList", () => {
         <h1>Suppliers</h1>
         <button type="button">Add Supplier</button>
         <table>
-          <thead><tr><th>Name</th><th>Code</th><th>Contact</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Code</th>
+              <th>Contact</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>Steel Mills Inc</td><td>SM-001</td><td>contact@steelmills.com</td></tr>
+            <tr>
+              <td>Steel Mills Inc</td>
+              <td>SM-001</td>
+              <td>contact@steelmills.com</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -256,9 +288,19 @@ describe("SupplierList", () => {
         <h1>Suppliers</h1>
         <input placeholder="Search suppliers..." />
         <table>
-          <thead><tr><th>Name</th><th>Active POs</th><th>Rating</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Active POs</th>
+              <th>Rating</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>Steel Mills Inc</td><td>3</td><td>4.5/5</td></tr>
+            <tr>
+              <td>Steel Mills Inc</td>
+              <td>3</td>
+              <td>4.5/5</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -316,9 +358,19 @@ describe("SupplierQuotationList", () => {
       <div>
         <h1>Supplier Quotations</h1>
         <table>
-          <thead><tr><th>Reference</th><th>Supplier</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Supplier</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>SQ-001</td><td>Steel Mills</td><td>Active</td></tr>
+            <tr>
+              <td>SQ-001</td>
+              <td>Steel Mills</td>
+              <td>Active</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -386,9 +438,19 @@ describe("CountriesList", () => {
       <div>
         <h1>Countries</h1>
         <table>
-          <thead><tr><th>Country</th><th>Code</th><th>Currency</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Country</th>
+              <th>Code</th>
+              <th>Currency</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>United Arab Emirates</td><td>AE</td><td>AED</td></tr>
+            <tr>
+              <td>United Arab Emirates</td>
+              <td>AE</td>
+              <td>AED</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -406,9 +468,19 @@ describe("ExchangeRateList", () => {
       <div>
         <h1>Exchange Rates</h1>
         <table>
-          <thead><tr><th>From</th><th>To</th><th>Rate</th></tr></thead>
+          <thead>
+            <tr>
+              <th>From</th>
+              <th>To</th>
+              <th>Rate</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>USD</td><td>AED</td><td>3.6725</td></tr>
+            <tr>
+              <td>USD</td>
+              <td>AED</td>
+              <td>3.6725</td>
+            </tr>
           </tbody>
         </table>
       </div>

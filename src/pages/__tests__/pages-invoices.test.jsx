@@ -23,7 +23,12 @@ describe("InvoiceList", () => {
           <button type="button">Create Invoice</button>
           <table>
             <thead>
-              <tr><th>Invoice #</th><th>Customer</th><th>Total</th><th>Status</th></tr>
+              <tr>
+                <th>Invoice #</th>
+                <th>Customer</th>
+                <th>Total</th>
+                <th>Status</th>
+              </tr>
             </thead>
             <tbody>
               {invoices.map((inv) => (
@@ -157,9 +162,19 @@ describe("QuotationList", () => {
       <div>
         <h1>Quotations</h1>
         <table>
-          <thead><tr><th>Quote #</th><th>Customer</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Quote #</th>
+              <th>Customer</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>QT-001</td><td>ABC Corp</td><td>Sent</td></tr>
+            <tr>
+              <td>QT-001</td>
+              <td>ABC Corp</td>
+              <td>Sent</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -231,9 +246,19 @@ describe("CreditNoteList", () => {
       <div>
         <h1>Credit Notes</h1>
         <table>
-          <thead><tr><th>CN #</th><th>Invoice</th><th>Amount</th></tr></thead>
+          <thead>
+            <tr>
+              <th>CN #</th>
+              <th>Invoice</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>CN-001</td><td>INV-001</td><td>500</td></tr>
+            <tr>
+              <td>CN-001</td>
+              <td>INV-001</td>
+              <td>500</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -268,7 +293,9 @@ describe("CreditNoteForm", () => {
       <div>
         <h1>New Credit Note</h1>
         <div>Original Invoice: INV-001</div>
-        <div>Reason: <input placeholder="Enter reason" /></div>
+        <div>
+          Reason: <input placeholder="Enter reason" />
+        </div>
         <button type="button">Create Credit Note</button>
       </div>
     );

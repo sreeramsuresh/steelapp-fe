@@ -30,30 +30,22 @@ import ProcurementBadge from "../ProcurementBadge";
 
 describe("ProcurementBadge", () => {
   it("renders without crashing with pre-loaded quantities", () => {
-    const { container } = renderWithProviders(
-      <ProcurementBadge localQty={500} importedQty={1200} unit="kg" />
-    );
+    const { container } = renderWithProviders(<ProcurementBadge localQty={500} importedQty={1200} unit="kg" />);
     expect(container).toBeTruthy();
   });
 
   it("shows LOCAL badge with quantity", () => {
-    const { container } = renderWithProviders(
-      <ProcurementBadge localQty={500} importedQty={0} unit="kg" />
-    );
+    const { container } = renderWithProviders(<ProcurementBadge localQty={500} importedQty={0} unit="kg" />);
     expect(container.textContent).toContain("LOCAL");
   });
 
   it("shows IMPORTED badge with quantity", () => {
-    const { container } = renderWithProviders(
-      <ProcurementBadge localQty={0} importedQty={1200} unit="kg" />
-    );
+    const { container } = renderWithProviders(<ProcurementBadge localQty={0} importedQty={1200} unit="kg" />);
     expect(container.textContent).toContain("IMPORTED");
   });
 
   it("returns null when both quantities are zero and showZero is false", () => {
-    const { container } = renderWithProviders(
-      <ProcurementBadge localQty={0} importedQty={0} />
-    );
+    const { container } = renderWithProviders(<ProcurementBadge localQty={0} importedQty={0} />);
     expect(container.textContent).toBe("");
   });
 });

@@ -18,9 +18,7 @@ import RolesHelpPanel from "../RolesHelpPanel";
 
 describe("RolesHelpPanel", () => {
   it("renders without crashing", () => {
-    const { container } = renderWithProviders(
-      <RolesHelpPanel isOpen={true} onClose={vi.fn()} />
-    );
+    const { container } = renderWithProviders(<RolesHelpPanel isOpen={true} onClose={vi.fn()} />);
     expect(container).toBeTruthy();
   });
 });

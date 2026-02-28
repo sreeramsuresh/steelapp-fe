@@ -42,9 +42,7 @@ import Sidebar from "../Sidebar";
 
 describe("Sidebar", () => {
   it("renders without crashing", () => {
-    const { container } = renderWithProviders(
-      <Sidebar isOpen={true} onToggle={vi.fn()} />
-    );
+    const { container } = renderWithProviders(<Sidebar isOpen={true} onToggle={vi.fn()} />);
     expect(container).toBeTruthy();
   });
 });

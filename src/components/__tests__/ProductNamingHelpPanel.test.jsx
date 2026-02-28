@@ -18,9 +18,7 @@ import ProductNamingHelpPanel from "../ProductNamingHelpPanel";
 
 describe("ProductNamingHelpPanel", () => {
   it("renders without crashing", () => {
-    const { container } = renderWithProviders(
-      <ProductNamingHelpPanel isOpen={true} onClose={vi.fn()} />
-    );
+    const { container } = renderWithProviders(<ProductNamingHelpPanel isOpen={true} onClose={vi.fn()} />);
     expect(container).toBeTruthy();
   });
 });

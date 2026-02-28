@@ -21,9 +21,7 @@ describe("WarehouseSummaryCards", () => {
   };
 
   it("renders without crashing", () => {
-    const { container } = render(
-      <WarehouseSummaryCards summary={defaultSummary} loading={false} />
-    );
+    const { container } = render(<WarehouseSummaryCards summary={defaultSummary} loading={false} />);
     expect(container).toBeTruthy();
   });
 
@@ -44,9 +42,7 @@ describe("WarehouseSummaryCards", () => {
   });
 
   it("renders loading placeholders when loading", () => {
-    const { container } = render(
-      <WarehouseSummaryCards summary={defaultSummary} loading={true} />
-    );
+    const { container } = render(<WarehouseSummaryCards summary={defaultSummary} loading={true} />);
     const placeholders = container.querySelectorAll(".animate-pulse");
     expect(placeholders.length).toBe(4);
   });

@@ -32,9 +32,7 @@ import PaymentSummary from "../PaymentSummary";
 
 describe("PaymentSummary", () => {
   it("renders without crashing", () => {
-    const { container } = renderWithProviders(
-      <PaymentSummary invoiceTotal={10000} payments={[]} />
-    );
+    const { container } = renderWithProviders(<PaymentSummary invoiceTotal={10000} payments={[]} />);
     expect(container).toBeTruthy();
   });
 });

@@ -314,10 +314,20 @@ describe("DeliveryVarianceDashboard", () => {
         <div data-testid="variance-table">
           <table>
             <thead>
-              <tr><th>PO</th><th>Expected</th><th>Received</th><th>Variance</th></tr>
+              <tr>
+                <th>PO</th>
+                <th>Expected</th>
+                <th>Received</th>
+                <th>Variance</th>
+              </tr>
             </thead>
             <tbody>
-              <tr><td>PO-001</td><td>100</td><td>95</td><td>-5%</td></tr>
+              <tr>
+                <td>PO-001</td>
+                <td>100</td>
+                <td>95</td>
+                <td>-5%</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -374,10 +384,27 @@ describe("SupplierPerformanceDashboard", () => {
           <option>Last 12 Months</option>
         </select>
         <table>
-          <thead><tr><th>Supplier</th><th>On-Time %</th><th>Quality</th><th>Overall</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Supplier</th>
+              <th>On-Time %</th>
+              <th>Quality</th>
+              <th>Overall</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>Steel Mills Inc</td><td>95%</td><td>4.8</td><td>A+</td></tr>
-            <tr><td>Metal Corp</td><td>85%</td><td>4.2</td><td>B+</td></tr>
+            <tr>
+              <td>Steel Mills Inc</td>
+              <td>95%</td>
+              <td>4.8</td>
+              <td>A+</td>
+            </tr>
+            <tr>
+              <td>Metal Corp</td>
+              <td>85%</td>
+              <td>4.2</td>
+              <td>B+</td>
+            </tr>
           </tbody>
         </table>
       </div>

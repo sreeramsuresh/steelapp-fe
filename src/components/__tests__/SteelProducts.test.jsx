@@ -1,12 +1,13 @@
 /**
- * PaymentReminderModal Component Tests
+ * SteelProducts Component Tests
  */
 import { describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../test/component-setup";
 
 vi.mock("react-router-dom", () => ({
   useNavigate: () => vi.fn(),
-  useLocation: () => ({ pathname: "/" }),
+  useLocation: () => ({ pathname: "/app/products" }),
+  Link: ({ children, to }) => <a href={to}>{children}</a>,
 }));
 
 vi.mock("../../contexts/ThemeContext", () => ({
@@ -14,21 +15,32 @@ vi.mock("../../contexts/ThemeContext", () => ({
   ThemeProvider: ({ children }) => <div>{children}</div>,
 }));
 
+vi.mock("../../contexts/AuthContext", () => ({
+  useAuth: () => ({
+    user: { id: 1, name: "Test", role: "admin", company_id: 1 },
+    isAuthenticated: true,
+  }),
+}));
+
 vi.mock("../../services/axiosApi", () => ({
   default: {
-    get: vi.fn().mockResolvedValue({ data: [] }),
+    get: vi.fn().mockResolvedValue({ data: { products: [], total: 0 } }),
     post: vi.fn().mockResolvedValue({ data: {} }),
     put: vi.fn().mockResolvedValue({ data: {} }),
     delete: vi.fn().mockResolvedValue({ data: {} }),
   },
   apiService: {
-    get: vi.fn().mockResolvedValue({ data: [] }),
+    get: vi.fn().mockResolvedValue({ data: { products: [], total: 0 } }),
     post: vi.fn().mockResolvedValue({ data: {} }),
     put: vi.fn().mockResolvedValue({ data: {} }),
     delete: vi.fn().mockResolvedValue({ data: {} }),
   },
-  tokenUtils: {
-    getToken: vi.fn().mockReturnValue("mock-token"),
+}));
+
+vi.mock("../../services/axiosAuthService", () => ({
+  authService: {
+    hasRole: vi.fn().mockReturnValue(true),
+    hasPermission: vi.fn().mockReturnValue(true),
   },
 }));
 
@@ -37,20 +49,17 @@ vi.mock("../../services/notificationService", () => ({
   default: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 }));
 
-vi.mock("../../utils/invoiceUtils", () => ({
-  formatCurrency: (val) => `$${val}`,
-  formatDateTime: (val) => val,
-}));
-
 vi.mock("../../hooks/useEscapeKey", () => ({ default: vi.fn() }));
 
-import PaymentReminderModal from "../PaymentReminderModal";
+vi.mock("../../utils/fieldAccessors", () => ({
+  getProductDisplayName: vi.fn().mockReturnValue("Test Product"),
+}));
 
-describe("PaymentReminderModal", () => {
+import SteelProducts from "../SteelProducts";
+
+describe("SteelProducts", () => {
   it("renders without crashing", () => {
-    const { container } = renderWithProviders(
-      <PaymentReminderModal invoiceId={1} isOpen={true} onClose={vi.fn()} isDarkMode={false} />
-    );
+    const { container } = renderWithProviders(<SteelProducts />);
     expect(container).toBeTruthy();
   });
 });

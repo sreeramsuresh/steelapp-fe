@@ -18,9 +18,7 @@ import RoleGuideModal from "../RoleGuideModal";
 
 describe("RoleGuideModal", () => {
   it("renders without crashing when open", () => {
-    const { container } = renderWithProviders(
-      <RoleGuideModal open={true} onClose={vi.fn()} />
-    );
+    const { container } = renderWithProviders(<RoleGuideModal open={true} onClose={vi.fn()} />);
     expect(container).toBeTruthy();
   });
 });
