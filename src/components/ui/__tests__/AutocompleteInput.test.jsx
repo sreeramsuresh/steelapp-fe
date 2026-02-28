@@ -10,6 +10,13 @@ vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false, theme: "light", toggleTheme: vi.fn() }),
 }));
 
+vi.mock("lucide-react", () => ({
+  AlertCircle: (props) => <svg data-testid="alert-circle" {...props} />,
+  ChevronDown: (props) => <svg data-testid="chevron-down" {...props} />,
+  Loader2: (props) => <svg data-testid="loader" {...props} />,
+  Search: (props) => <svg data-testid="search" {...props} />,
+}));
+
 import AutocompleteInput from "../AutocompleteInput";
 
 describe("AutocompleteInput", () => {
@@ -55,10 +62,8 @@ describe("AutocompleteInput", () => {
     expect(container).toBeTruthy();
   });
 
-  it("renders error icon when error prop is set", () => {
-    render(<AutocompleteInput error="Something went wrong" />);
-    // Error state renders AlertCircle icon
-    const { container } = render(<AutocompleteInput error="Error message" />);
-    expect(container).toBeTruthy();
+  it("renders chevron icon by default", () => {
+    render(<AutocompleteInput />);
+    expect(screen.getByTestId("chevron-down")).toBeInTheDocument();
   });
 });
