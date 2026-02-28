@@ -28,6 +28,7 @@
     "lint:staged": "biome lint --changed",
     "lint:fix": "biome check src --write --vcs-enabled=false",
     "format": "biome format src --write --vcs-enabled=false",
+    "format:check": "biome format src",
     "pre-commit": "biome check src --write && npm run typecheck",
     "prepare": "husky",
     "cypress": "cypress open",

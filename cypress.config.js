@@ -20,7 +20,7 @@ export default defineConfig({
     // Screenshots and videos
     screenshotsFolder: "cypress/screenshots",
     videosFolder: "cypress/videos",
-    video: false, // Disable video recording for faster tests
+    video: !!process.env.CI, // Record in CI, skip locally for speed
     screenshotOnRunFailure: true,
 
     // Environment variables
