@@ -348,6 +348,36 @@ class AuthService {
     }
   }
 
+  // ── Lockout Bypass via Email OTP ─────────────────
+
+  async sendLockoutOtp(email) {
+    try {
+      const response = await apiService.post("/auth/lockout/send-otp", { email });
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || "Failed to send unlock code");
+    }
+  }
+
+  async verifyLockoutOtp(lockoutToken, code) {
+    try {
+      const response = await apiService.post("/auth/lockout/verify-otp", { lockoutToken, code });
+
+      // Server sets HttpOnly cookies — store user data for UI
+      const user = response.user;
+      if (user) {
+        if (!user.permissions || Object.keys(user.permissions).length === 0) {
+          this._populatePermissionsForRole(user);
+        }
+        tokenUtils.setUser(user);
+      }
+
+      return response;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || "Invalid or expired code");
+    }
+  }
+
   // ── Accept Invitation ────────────────────────────
 
   async acceptInvite(token, username, password, name) {

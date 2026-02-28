@@ -293,6 +293,15 @@ const Login = ({ onLoginSuccess }) => {
   const [twoFactorToken, setTwoFactorToken] = useState(null);
   const [twoFactorMethods, setTwoFactorMethods] = useState([]);
 
+  // Lockout OTP bypass state
+  const [showLockoutOtp, setShowLockoutOtp] = useState(false);
+  const [lockoutToken, setLockoutToken] = useState(null);
+  const [lockoutOtpCode, setLockoutOtpCode] = useState("");
+  const [lockoutOtpLoading, setLockoutOtpLoading] = useState(false);
+  const [lockoutOtpError, setLockoutOtpError] = useState("");
+  const [lockoutOtpSent, setLockoutOtpSent] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
   // Passkey state
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const isPasskeySupported = typeof window !== "undefined" && window.PublicKeyCredential !== undefined;
@@ -304,6 +313,7 @@ const Login = ({ onLoginSuccess }) => {
       setLockoutMinutes((m) => {
         if (m <= 1) {
           setError("");
+          setShowLockoutOtp(false);
           return 0;
         }
         return m - 1;
@@ -311,6 +321,15 @@ const Login = ({ onLoginSuccess }) => {
     }, 60000);
     return () => clearInterval(timer);
   }, [lockoutMinutes]);
+
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((c) => (c <= 1 ? 0 : c - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
   // Auto-login in development mode
   useEffect(() => {
@@ -417,6 +436,61 @@ const Login = ({ onLoginSuccess }) => {
     setRequires2FA(false);
     setTwoFactorToken(null);
     setTwoFactorMethods([]);
+  };
+
+  // ── Lockout OTP bypass handlers ──────────────────────────────────
+  const maskEmail = (email) => {
+    const [local, domain] = email.split("@");
+    return `${local.slice(0, 2)}***@${domain}`;
+  };
+
+  const handleSendLockoutOtp = async () => {
+    setLockoutOtpLoading(true);
+    setLockoutOtpError("");
+    try {
+      const response = await authService.sendLockoutOtp(formData.email);
+      setLockoutToken(response.lockoutToken);
+      setLockoutOtpSent(true);
+      setShowLockoutOtp(true);
+      setResendCooldown(60);
+    } catch (err) {
+      setLockoutOtpError(err.message);
+    } finally {
+      setLockoutOtpLoading(false);
+    }
+  };
+
+  const handleVerifyLockoutOtp = async (code) => {
+    if (!code || code.length !== 6) return;
+    setLockoutOtpLoading(true);
+    setLockoutOtpError("");
+    try {
+      const response = await authService.verifyLockoutOtp(lockoutToken, code);
+      if (onLoginSuccess && response.user) {
+        onLoginSuccess(response.user);
+      }
+    } catch (err) {
+      setLockoutOtpError(err.message);
+      setLockoutOtpCode("");
+    } finally {
+      setLockoutOtpLoading(false);
+    }
+  };
+
+  const handleLockoutOtpChange = (e) => {
+    const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+    setLockoutOtpCode(val);
+    if (val.length === 6) {
+      handleVerifyLockoutOtp(val);
+    }
+  };
+
+  const handleCancelLockoutOtp = () => {
+    setShowLockoutOtp(false);
+    setLockoutOtpSent(false);
+    setLockoutToken(null);
+    setLockoutOtpCode("");
+    setLockoutOtpError("");
   };
 
   // Handle passkey login
@@ -569,7 +643,7 @@ const Login = ({ onLoginSuccess }) => {
                 </Link>
               </div>
 
-              {/* Lockout Warning */}
+              {/* Lockout Warning + OTP Bypass */}
               {lockoutMinutes > 0 && (
                 <div
                   className={`p-3 rounded-lg border ${
@@ -584,6 +658,81 @@ const Login = ({ onLoginSuccess }) => {
                       Account locked. Try again in {lockoutMinutes} minute{lockoutMinutes !== 1 ? "s" : ""}.
                     </span>
                   </div>
+
+                  {/* OTP Input View */}
+                  {showLockoutOtp && lockoutOtpSent ? (
+                    <div className="mt-3 space-y-2">
+                      <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        A 6-digit code has been sent to {maskEmail(formData.email)}
+                      </p>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        maxLength={6}
+                        value={lockoutOtpCode}
+                        onChange={handleLockoutOtpChange}
+                        disabled={lockoutOtpLoading}
+                        placeholder="Enter 6-digit code"
+                        className={`w-full px-3 py-2 text-center text-lg tracking-widest border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                          isDarkMode
+                            ? "bg-[#1E2328] border-gray-600 text-white placeholder-gray-500"
+                            : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+                        }`}
+                      />
+                      {lockoutOtpError && <p className="text-xs text-red-500">{lockoutOtpError}</p>}
+                      {lockoutOtpLoading && (
+                        <div className="flex items-center justify-center gap-2 text-xs">
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current" />
+                          Verifying...
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <button
+                          type="button"
+                          onClick={handleSendLockoutOtp}
+                          disabled={resendCooldown > 0 || lockoutOtpLoading}
+                          className={`text-xs font-medium ${
+                            resendCooldown > 0 || lockoutOtpLoading
+                              ? isDarkMode
+                                ? "text-gray-600"
+                                : "text-gray-400"
+                              : isDarkMode
+                                ? "text-teal-400 hover:text-teal-300"
+                                : "text-teal-600 hover:text-teal-700"
+                          }`}
+                        >
+                          {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend Code"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCancelLockoutOtp}
+                          className={`text-xs font-medium ${isDarkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-700"}`}
+                        >
+                          Back to Login
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Unlock Button */
+                    <button
+                      type="button"
+                      onClick={handleSendLockoutOtp}
+                      disabled={lockoutOtpLoading || !formData.email}
+                      className={`mt-2 w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                        isDarkMode
+                          ? "bg-teal-700/30 text-teal-300 hover:bg-teal-700/50 disabled:opacity-50"
+                          : "bg-teal-50 text-teal-700 hover:bg-teal-100 disabled:opacity-50"
+                      }`}
+                    >
+                      {lockoutOtpLoading ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
+                      ) : (
+                        <Mail size={16} />
+                      )}
+                      {lockoutOtpLoading ? "Sending..." : "Unlock via Email OTP"}
+                    </button>
+                  )}
                 </div>
               )}
 
