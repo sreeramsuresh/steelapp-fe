@@ -1571,7 +1571,13 @@ const WarehouseDetail = () => {
                     return labelA.localeCompare(labelB, undefined, { numeric: true });
                   });
                   return (
-                    <div className="p-4 space-y-5" onClick={() => { setSelectedBinInfo(null); setSelectedLocs(new Set()); }}>
+                    <div
+                      className="p-4 space-y-5"
+                      onClick={() => {
+                        setSelectedBinInfo(null);
+                        setSelectedLocs(new Set());
+                      }}
+                    >
                       {sortedAisles.map((aisleKey) => {
                         const rackMap = aisleMap.get(aisleKey);
                         const isRackOnly = aisleKey === "__rack_only__";
@@ -1849,7 +1855,11 @@ const WarehouseDetail = () => {
                                                   : "bg-green-500";
                                           const binInfoSelected = selectedBinInfo?.locId === loc.id;
                                           return (
-                                            <div key={loc.id} className="group relative flex flex-col gap-0.5" onClick={(e) => e.stopPropagation()}>
+                                            <div
+                                              key={loc.id}
+                                              className="group relative flex flex-col gap-0.5"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
                                               <div className="group/bintt relative">
                                                 {/* Hover tooltip */}
                                                 <div className="hidden group-hover/bintt:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 pointer-events-none min-w-[160px] rounded-lg border border-gray-700 bg-gray-900 shadow-xl p-2.5">
