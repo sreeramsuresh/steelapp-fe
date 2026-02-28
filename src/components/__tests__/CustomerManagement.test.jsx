@@ -7,6 +7,7 @@ import { renderWithProviders } from "../../test/component-setup";
 vi.mock("react-router-dom", () => ({
   useNavigate: () => vi.fn(),
   useLocation: () => ({ pathname: "/app/customers" }),
+  useSearchParams: () => [new URLSearchParams(""), vi.fn()],
   Link: ({ children, to }) => <a href={to}>{children}</a>,
 }));
 
@@ -42,11 +43,13 @@ vi.mock("../../services/notificationService", () => ({
     success: vi.fn(),
     error: vi.fn(),
     warning: vi.fn(),
+    setTheme: vi.fn(),
   },
   default: {
     success: vi.fn(),
     error: vi.fn(),
     warning: vi.fn(),
+    setTheme: vi.fn(),
   },
 }));
 

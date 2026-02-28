@@ -14,8 +14,8 @@ const SUMMARY_ONLY     = process.argv.includes("--summary");        // counts on
 const SHOW_BASELINE    = process.argv.includes("--show-baseline");  // print all baseline lines too
 
 // Layer 1: severity tiers
-const ERROR_PATH_PREFIXES = ["src/pages/", "src/components/"];
-const WARN_PATH_PREFIXES  = ["src/services/", "src/utils/"];
+const ERROR_PATH_PREFIXES = ["src/pages/", "src/components/", "src/services/", "src/utils/"];
+const WARN_PATH_PREFIXES  = [];
 const SKIP_FILE_RE = /(\/__tests__\/|\.test\.(js|jsx|ts|tsx)$|\.spec\.(js|jsx|ts|tsx)$)/;
 
 // Layer 2: API-context gate (tight regexes only)

@@ -24,6 +24,11 @@ vi.mock("../../services/trnService", () => ({
     }),
     formatForDisplay: vi.fn().mockReturnValue("100-1234-5678-9123"),
     verifyTRN: vi.fn().mockResolvedValue({ valid: true, name: "Test Company" }),
+    getFormatForCountry: vi.fn().mockReturnValue({
+      length: 15,
+      pattern: "XXX-XXXX-XXXX-XXXX",
+      label: "TRN",
+    }),
   },
 }));
 

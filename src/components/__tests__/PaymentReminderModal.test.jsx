@@ -29,6 +29,7 @@ vi.mock("../../services/axiosApi", () => ({
   },
   tokenUtils: {
     getToken: vi.fn().mockReturnValue("mock-token"),
+    getUser: vi.fn().mockReturnValue({ id: 1, name: "Test User" }),
   },
 }));
 

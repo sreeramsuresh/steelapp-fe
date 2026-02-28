@@ -7,6 +7,7 @@ import { renderWithProviders } from "../../test/component-setup";
 vi.mock("react-router-dom", () => ({
   useNavigate: () => vi.fn(),
   useLocation: () => ({ pathname: "/app/products" }),
+  useSearchParams: () => [new URLSearchParams(""), vi.fn()],
   Link: ({ children, to }) => <a href={to}>{children}</a>,
 }));
 
@@ -50,6 +51,17 @@ vi.mock("../../services/notificationService", () => ({
 }));
 
 vi.mock("../../hooks/useEscapeKey", () => ({ default: vi.fn() }));
+
+vi.mock("../../contexts/NotificationCenterContext", () => ({
+  useNotifications: () => ({
+    notifications: [],
+    unreadCount: 0,
+    addNotification: vi.fn(),
+    markAsRead: vi.fn(),
+    markAllAsRead: vi.fn(),
+    clearNotifications: vi.fn(),
+  }),
+}));
 
 vi.mock("../../utils/fieldAccessors", () => ({
   getProductDisplayName: vi.fn().mockReturnValue("Test Product"),

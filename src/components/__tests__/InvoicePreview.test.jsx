@@ -19,6 +19,11 @@ vi.mock("../../constants/defaultTemplateSettings", () => ({
     showLogo: true,
     showWatermark: false,
     fontSize: "medium",
+    colors: {
+      primary: "#0d9488",
+      secondary: "#6b7280",
+      accent: "#14b8a6",
+    },
   },
 }));
 

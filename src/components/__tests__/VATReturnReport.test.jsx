@@ -7,6 +7,7 @@ import { renderWithProviders } from "../../test/component-setup";
 vi.mock("react-router-dom", () => ({
   useNavigate: () => vi.fn(),
   useLocation: () => ({ pathname: "/" }),
+  useParams: () => ({ id: "1" }),
 }));
 
 vi.mock("../../contexts/ThemeContext", () => ({

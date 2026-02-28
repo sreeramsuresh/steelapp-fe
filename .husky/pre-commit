@@ -63,9 +63,9 @@ fi
 # ============================================
 # 3. Case consistency check (camelCase API access)
 # ============================================
-COMPONENT_FILES=$(echo "$STAGED_FILES" | grep -E '^src/(components|pages)/.+\.(js|jsx|ts|tsx)$' || true)
+FE_FILES=$(echo "$STAGED_FILES" | grep -E '^src/.+\.(js|jsx|ts|tsx)$' || true)
 
-if [ -n "$COMPONENT_FILES" ]; then
+if [ -n "$FE_FILES" ]; then
   echo "[3/3] Running case consistency check..."
 
   CASE_TMP="$(mktemp -t snakecase.XXXXXX 2>/dev/null || mktemp)"
@@ -115,7 +115,7 @@ if [ -n "$COMPONENT_FILES" ]; then
   rm -f "$CASE_TMP"
   echo "Case consistency check passed"
 else
-  echo "[3/3] No component/page files staged, skipping case consistency check"
+  echo "[3/3] No frontend source files staged, skipping case consistency check"
 fi
 
 # ============================================

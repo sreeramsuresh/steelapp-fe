@@ -44,11 +44,46 @@ vi.mock("../../services/axiosAuthService", () => ({
 }));
 
 vi.mock("../../services/notificationService", () => ({
-  notificationService: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
-  default: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
+  notificationService: { success: vi.fn(), error: vi.fn(), warning: vi.fn(), setTheme: vi.fn() },
+  default: { success: vi.fn(), error: vi.fn(), warning: vi.fn(), setTheme: vi.fn() },
 }));
 
 vi.mock("../../hooks/useEscapeKey", () => ({ default: vi.fn() }));
+
+vi.mock("../../hooks/useApi", () => ({
+  useApi: vi.fn().mockReturnValue({
+    loading: false,
+    error: null,
+    execute: vi.fn().mockResolvedValue({}),
+  }),
+  useApiData: vi.fn().mockReturnValue({
+    data: null,
+    loading: true,
+    error: null,
+    refresh: vi.fn(),
+  }),
+}));
+
+vi.mock("../../services/companyService", () => ({
+  companyService: {
+    getSettings: vi.fn().mockResolvedValue({ data: {} }),
+    updateSettings: vi.fn().mockResolvedValue({}),
+  },
+}));
+
+vi.mock("../../services/vatRateService", () => ({
+  default: {
+    getAll: vi.fn().mockResolvedValue({ vatRates: [] }),
+  },
+}));
+
+vi.mock("../../pages/FTAIntegrationSettings", () => ({
+  default: () => <div>FTA Settings</div>,
+}));
+
+vi.mock("./shared/PhoneInput", () => ({
+  default: ({ value, onChange }) => <input value={value || ""} onChange={onChange} />,
+}));
 
 import CompanySettings from "../CompanySettings";
 
