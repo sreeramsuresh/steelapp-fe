@@ -47,9 +47,6 @@ class AuthService {
         password,
       });
 
-      // eslint-disable-next-line no-console
-      console.log("Login response:", response); // Debug log
-
       // Handle 2FA challenge — server returns requires2FA instead of tokens
       if (response.requires2FA) {
         return {
@@ -188,9 +185,6 @@ class AuthService {
       const response = await apiService.post("/auth/refresh-token", {
         refreshToken,
       });
-
-      // eslint-disable-next-line no-console
-      console.log("Refresh response:", response); // Debug log
 
       // Support both response formats
       const newAccessToken = response.accessToken || response.token;

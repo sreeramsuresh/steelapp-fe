@@ -7,6 +7,10 @@ const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // Strip console.log/info/debug from production builds (keep error/warn)
+  esbuild: {
+    pure: ["console.log", "console.info", "console.debug"],
+  },
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },

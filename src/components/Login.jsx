@@ -131,7 +131,6 @@ const RBACTestPanel = ({ onLoginSuccess, isDarkMode }) => {
           tokenUtils.setRefreshToken(data.refreshToken);
         }
         tokenUtils.setUser(data.user);
-        localStorage.setItem("steel-app-user", JSON.stringify(data.user));
       }
       if (onLoginSuccess) onLoginSuccess(data.user);
       // Force navigate to /app (bypasses the ?rbac redirect prevention)
@@ -339,7 +338,7 @@ const Login = ({ onLoginSuccess }) => {
         return;
       }
 
-      const token = localStorage.getItem("token");
+      const token = tokenUtils.getToken();
       if (token) {
         return;
       }
@@ -477,7 +476,7 @@ const Login = ({ onLoginSuccess }) => {
           />
         ) : (
           <>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} method="post" className="space-y-4">
               {/* Email Input */}
               <div className="space-y-1">
                 <label
@@ -495,6 +494,8 @@ const Login = ({ onLoginSuccess }) => {
                     id="email-input"
                     type="email"
                     name="email"
+                    autoComplete="email"
+                    maxLength={254}
                     value={formData.email}
                     onChange={handleInputChange}
                     required
@@ -530,6 +531,8 @@ const Login = ({ onLoginSuccess }) => {
                     id="password-input"
                     type={showPassword ? "text" : "password"}
                     name="password"
+                    autoComplete="current-password"
+                    maxLength={128}
                     value={formData.password}
                     onChange={handleInputChange}
                     required

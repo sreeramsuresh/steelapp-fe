@@ -1,11 +1,6 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, act, waitFor } from "@testing-library/react";
-import React from "react";
-import {
-  ApiHealthProvider,
-  useApiHealthContext,
-  reportApiUnhealthy,
-} from "../ApiHealthContext";
+import { act, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ApiHealthProvider, reportApiUnhealthy, useApiHealthContext } from "../ApiHealthContext";
 
 function TestConsumer() {
   const health = useApiHealthContext();
@@ -15,13 +10,11 @@ function TestConsumer() {
       <span data-testid="isChecking">{String(health.isChecking)}</span>
       <span data-testid="error">{String(health.error ?? "")}</span>
       <span data-testid="isDismissed">{String(health.isDismissed)}</span>
-      <span data-testid="lastChecked">
-        {health.lastChecked ? "checked" : "never"}
-      </span>
-      <button data-testid="checkNow" onClick={health.checkNow}>
+      <span data-testid="lastChecked">{health.lastChecked ? "checked" : "never"}</span>
+      <button type="button" data-testid="checkNow" onClick={health.checkNow}>
         Check
       </button>
-      <button data-testid="dismiss" onClick={health.dismiss}>
+      <button type="button" data-testid="dismiss" onClick={health.dismiss}>
         Dismiss
       </button>
     </div>
@@ -66,10 +59,7 @@ describe("ApiHealthContext", () => {
       vi.advanceTimersByTime(1000);
     });
 
-    expect(global.fetch).toHaveBeenCalledWith(
-      "http://localhost:3000/health",
-      expect.objectContaining({ method: "GET" })
-    );
+    expect(global.fetch).toHaveBeenCalledWith("/health", expect.objectContaining({ method: "GET" }));
   });
 
   it("sets healthy state on successful health check", async () => {
@@ -104,9 +94,7 @@ describe("ApiHealthContext", () => {
     });
 
     expect(screen.getByTestId("isHealthy")).toHaveTextContent("false");
-    expect(screen.getByTestId("error")).toHaveTextContent(
-      "Server returned status 503"
-    );
+    expect(screen.getByTestId("error")).toHaveTextContent("Server returned status 503");
   });
 
   it("sets unhealthy state on network error", async () => {
@@ -123,9 +111,7 @@ describe("ApiHealthContext", () => {
     });
 
     expect(screen.getByTestId("isHealthy")).toHaveTextContent("false");
-    expect(screen.getByTestId("error")).toHaveTextContent(
-      "Cannot connect to server"
-    );
+    expect(screen.getByTestId("error")).toHaveTextContent("Cannot connect to server");
   });
 
   it("handles abort timeout error", async () => {
@@ -143,9 +129,7 @@ describe("ApiHealthContext", () => {
       await vi.advanceTimersByTimeAsync(1100);
     });
 
-    expect(screen.getByTestId("error")).toHaveTextContent(
-      "Server is not responding (timeout)"
-    );
+    expect(screen.getByTestId("error")).toHaveTextContent("Server is not responding (timeout)");
   });
 
   it("dismiss sets isDismissed to true", async () => {
@@ -213,18 +197,13 @@ describe("ApiHealthContext", () => {
       screen.getByTestId("checkNow").click();
     });
 
-    expect(global.fetch).toHaveBeenCalledWith(
-      "http://localhost:3000/health",
-      expect.any(Object)
-    );
+    expect(global.fetch).toHaveBeenCalledWith("/health", expect.any(Object));
   });
 
   it("throws error when useApiHealthContext is used outside provider", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    expect(() => render(<TestConsumer />)).toThrow(
-      "useApiHealthContext must be used within ApiHealthProvider"
-    );
+    expect(() => render(<TestConsumer />)).toThrow("useApiHealthContext must be used within ApiHealthProvider");
 
     spy.mockRestore();
   });

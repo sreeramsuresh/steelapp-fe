@@ -140,11 +140,7 @@ api.interceptors.response.use(
 
     // Account deactivated — force logout immediately, no refresh attempt
     if (error.response?.status === 403 && error.response?.data?.code === "ACCOUNT_DEACTIVATED") {
-      Cookies.remove("accessToken");
-      Cookies.remove("refreshToken");
-      localStorage.removeItem("steel-app-token");
-      localStorage.removeItem("steel-app-user");
-      localStorage.removeItem("token");
+      tokenUtils.removeTokens();
       alert("Your account has been deactivated. Please contact your administrator.");
       window.location.href = "/login";
       return Promise.reject(error);
@@ -345,6 +341,11 @@ export const tokenUtils = {
   removeTokens: () => {
     Cookies.remove("accessToken");
     Cookies.remove("refreshToken");
+    // Clean up legacy localStorage keys from older versions
+    localStorage.removeItem("steel-app-token");
+    localStorage.removeItem("steel-app-refresh-token");
+    localStorage.removeItem("token");
+    localStorage.removeItem("steel-app-user");
   },
 
   // Store user data in sessionStorage (matching GigLabz approach)
