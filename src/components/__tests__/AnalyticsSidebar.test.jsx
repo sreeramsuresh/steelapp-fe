@@ -1,8 +1,17 @@
 /**
  * AnalyticsSidebar Component Tests
  */
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../test/component-setup";
+
+// Polyfill ResizeObserver for JSDOM
+beforeAll(() => {
+  global.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+});
 
 vi.mock("react-router-dom", () => ({
   useNavigate: () => vi.fn(),
