@@ -29,12 +29,15 @@ describe("InvoiceTextarea", () => {
     expect(container.querySelector("textarea").className).toContain("border-red");
   });
 
-  it("calls onChange handler", () => {
+  it("calls onChange handler", async () => {
     const onChange = vi.fn();
+    const { user } = await import("@testing-library/user-event");
     renderWithTheme(<Textarea onChange={onChange} id="ta" />);
     const ta = document.getElementById("ta");
-    ta.value = "hello";
-    ta.dispatchEvent(new Event("change", { bubbles: true }));
+    // Textarea wraps onChange internally, so fire input event through React
+    await import("@testing-library/react").then(({ fireEvent }) => {
+      fireEvent.change(ta, { target: { value: "hello" } });
+    });
     expect(onChange).toHaveBeenCalled();
   });
 

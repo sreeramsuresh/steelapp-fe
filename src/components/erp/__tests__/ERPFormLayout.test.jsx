@@ -10,7 +10,7 @@ vi.mock("lucide-react", () => ({
   X: (props) => <svg data-testid="x-icon" {...props} />,
 }));
 
-import ERPFormLayout, { FormDrawer, FormDesignTokens } from "../ERPFormLayout";
+import ERPFormLayout, { FormDesignTokens, FormDrawer } from "../ERPFormLayout";
 
 describe("ERPFormLayout", () => {
   it("renders title and children", () => {
@@ -60,11 +60,7 @@ describe("ERPFormLayout", () => {
 
   it("renders aside sidebar when provided", () => {
     render(
-      <ERPFormLayout
-        title="Form"
-        onBack={() => {}}
-        aside={<div>Sidebar content</div>}
-      >
+      <ERPFormLayout title="Form" onBack={() => {}} aside={<div>Sidebar content</div>}>
         <div>Main content</div>
       </ERPFormLayout>
     );
@@ -113,12 +109,7 @@ describe("FormDrawer", () => {
 
   it("renders footer when provided", () => {
     render(
-      <FormDrawer
-        open={true}
-        onClose={() => {}}
-        title="Drawer"
-        footer={<button type="button">Save</button>}
-      >
+      <FormDrawer open={true} onClose={() => {}} title="Drawer" footer={<button type="button">Save</button>}>
         <div>Content</div>
       </FormDrawer>
     );

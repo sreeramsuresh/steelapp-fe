@@ -1,6 +1,5 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { fireEvent } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -50,23 +49,17 @@ describe("QCInspectionModal", () => {
   });
 
   it("returns null when not open", () => {
-    const { container } = render(
-      <QCInspectionModal isOpen={false} onClose={() => {}} creditNote={creditNote} />
-    );
+    const { container } = render(<QCInspectionModal isOpen={false} onClose={() => {}} creditNote={creditNote} />);
     expect(container.innerHTML).toBe("");
   });
 
   it("renders modal header when open", async () => {
-    render(
-      <QCInspectionModal isOpen={true} onClose={() => {}} creditNote={creditNote} />
-    );
+    render(<QCInspectionModal isOpen={true} onClose={() => {}} creditNote={creditNote} />);
     expect(screen.getByText("QC Inspection")).toBeInTheDocument();
   });
 
   it("renders cancel and submit buttons", async () => {
-    render(
-      <QCInspectionModal isOpen={true} onClose={() => {}} creditNote={creditNote} />
-    );
+    render(<QCInspectionModal isOpen={true} onClose={() => {}} creditNote={creditNote} />);
     await waitFor(() => {
       expect(screen.getByText("Cancel")).toBeInTheDocument();
       expect(screen.getByText("Complete Inspection")).toBeInTheDocument();
@@ -75,9 +68,7 @@ describe("QCInspectionModal", () => {
 
   it("calls onClose when cancel button is clicked", async () => {
     const onClose = vi.fn();
-    render(
-      <QCInspectionModal isOpen={true} onClose={onClose} creditNote={creditNote} />
-    );
+    render(<QCInspectionModal isOpen={true} onClose={onClose} creditNote={creditNote} />);
     await waitFor(() => {
       fireEvent.click(screen.getByText("Cancel"));
     });
@@ -86,17 +77,13 @@ describe("QCInspectionModal", () => {
 
   it("calls onClose when close X button is clicked", async () => {
     const onClose = vi.fn();
-    render(
-      <QCInspectionModal isOpen={true} onClose={onClose} creditNote={creditNote} />
-    );
+    render(<QCInspectionModal isOpen={true} onClose={onClose} creditNote={creditNote} />);
     fireEvent.click(screen.getByLabelText("Close"));
     expect(onClose).toHaveBeenCalled();
   });
 
   it("displays QC result radio options after items load", async () => {
-    render(
-      <QCInspectionModal isOpen={true} onClose={() => {}} creditNote={creditNote} />
-    );
+    render(<QCInspectionModal isOpen={true} onClose={() => {}} creditNote={creditNote} />);
     await waitFor(() => {
       expect(screen.getByText(/Good - All items can be restocked/)).toBeInTheDocument();
       expect(screen.getByText(/Bad - All items defective/)).toBeInTheDocument();
@@ -105,9 +92,7 @@ describe("QCInspectionModal", () => {
   });
 
   it("shows item names after loading", async () => {
-    render(
-      <QCInspectionModal isOpen={true} onClose={() => {}} creditNote={creditNote} />
-    );
+    render(<QCInspectionModal isOpen={true} onClose={() => {}} creditNote={creditNote} />);
     await waitFor(() => {
       expect(screen.getByText("Steel Rod")).toBeInTheDocument();
       expect(screen.getByText("Steel Sheet")).toBeInTheDocument();

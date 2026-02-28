@@ -10,11 +10,7 @@ import ERPListPageLayout from "../ERPListPageLayout";
 describe("ERPListPageLayout", () => {
   it("renders title and subtitle", () => {
     render(
-      <ERPListPageLayout
-        icon={<span>IC</span>}
-        title="Invoices"
-        subtitle="Manage customer invoices"
-      >
+      <ERPListPageLayout icon={<span>IC</span>} title="Invoices" subtitle="Manage customer invoices">
         <div>Table content</div>
       </ERPListPageLayout>
     );

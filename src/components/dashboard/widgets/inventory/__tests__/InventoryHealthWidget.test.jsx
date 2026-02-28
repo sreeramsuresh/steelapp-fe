@@ -1,11 +1,11 @@
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-vi.mock('../../../../../contexts/ThemeContext', () => ({
+vi.mock("../../../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock('../../../../../utils/safeAccess', () => ({
+vi.mock("../../../../../utils/safeAccess", () => ({
   safeEntries: (obj) => Object.entries(obj || {}),
   safeKeys: (obj) => Object.keys(obj || {}),
   safeNumber: (val, fallback = 0) => {
@@ -14,9 +14,9 @@ vi.mock('../../../../../utils/safeAccess', () => ({
   },
 }));
 
-import InventoryHealthWidget from '../InventoryHealthWidget';
+import InventoryHealthWidget from "../InventoryHealthWidget";
 
-describe('InventoryHealthWidget', () => {
+describe("InventoryHealthWidget", () => {
   const sampleData = {
     overallScore: 78,
     metrics: {
@@ -25,21 +25,19 @@ describe('InventoryHealthWidget', () => {
       fillRate: 88,
       deadStockPercent: 5,
     },
-    alerts: [
-      { id: 1, type: 'warning', message: 'Low stock on SS 304' },
-    ],
+    alerts: [{ id: 1, type: "warning", message: "Low stock on SS 304" }],
   };
 
-  it('renders without crashing', () => {
+  it("renders without crashing", () => {
     render(<InventoryHealthWidget data={sampleData} />);
   });
 
-  it('renders empty state when no data', () => {
+  it("renders empty state when no data", () => {
     render(<InventoryHealthWidget data={null} />);
     // Should render without crashing
   });
 
-  it('renders with data', () => {
+  it("renders with data", () => {
     const { container } = render(<InventoryHealthWidget data={sampleData} />);
     expect(container).toBeTruthy();
   });

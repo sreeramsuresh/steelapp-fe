@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -26,9 +26,7 @@ describe("VolumeDiscountTiersModal", () => {
   });
 
   it("returns null when not open", () => {
-    const { container } = render(
-      <VolumeDiscountTiersModal {...defaultProps} isOpen={false} />
-    );
+    const { container } = render(<VolumeDiscountTiersModal {...defaultProps} isOpen={false} />);
     expect(container.firstChild).toBeNull();
   });
 
@@ -39,9 +37,7 @@ describe("VolumeDiscountTiersModal", () => {
 
   it("shows description text", () => {
     render(<VolumeDiscountTiersModal {...defaultProps} />);
-    expect(
-      screen.getByText(/Define pricing breaks based on order quantity/)
-    ).toBeTruthy();
+    expect(screen.getByText(/Define pricing breaks based on order quantity/)).toBeTruthy();
   });
 
   it("shows requirements section", () => {
@@ -87,18 +83,14 @@ describe("VolumeDiscountTiersModal", () => {
     expect(defaultProps.onSave).toHaveBeenCalled();
     const savedTiers = defaultProps.onSave.mock.calls[0][0];
     // Should be sorted by minQuantity ascending
-    expect(savedTiers[0].minQuantity).toBeLessThanOrEqual(
-      savedTiers[1].minQuantity
-    );
+    expect(savedTiers[0].minQuantity).toBeLessThanOrEqual(savedTiers[1].minQuantity);
   });
 
   it("renders existing tiers", () => {
     render(
       <VolumeDiscountTiersModal
         {...defaultProps}
-        tiers={[
-          { minQuantity: 100, discountPercentage: 5, description: "Bulk" },
-        ]}
+        tiers={[{ minQuantity: 100, discountPercentage: 5, description: "Bulk" }]}
       />
     );
     expect(screen.getByDisplayValue("100")).toBeTruthy();

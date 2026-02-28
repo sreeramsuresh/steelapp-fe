@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -29,8 +29,24 @@ vi.mock("lucide-react", () => ({
 import CustomerInvoicesTab from "../tabs/CustomerInvoicesTab";
 
 const mockInvoices = [
-  { id: 1, invoiceNumber: "INV-001", date: "2025-01-10", dueDate: "2025-02-10", totalAmount: 5000, outstandingAmount: 2000, status: "open" },
-  { id: 2, invoiceNumber: "INV-002", date: "2025-01-15", dueDate: "2025-02-15", totalAmount: 3000, outstandingAmount: 0, status: "paid" },
+  {
+    id: 1,
+    invoiceNumber: "INV-001",
+    date: "2025-01-10",
+    dueDate: "2025-02-10",
+    totalAmount: 5000,
+    outstandingAmount: 2000,
+    status: "open",
+  },
+  {
+    id: 2,
+    invoiceNumber: "INV-002",
+    date: "2025-01-15",
+    dueDate: "2025-02-15",
+    totalAmount: 3000,
+    outstandingAmount: 0,
+    status: "paid",
+  },
 ];
 
 describe("CustomerInvoicesTab", () => {

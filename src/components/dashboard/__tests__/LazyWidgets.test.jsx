@@ -1,43 +1,43 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from "vitest";
 
 import {
-  LazyRevenueKPIWidget,
-  LazyARAgingWidget,
-  LazyInventoryHealthWidget,
-  LazyTopProductsWidget,
-  LazyCustomerCLVWidget,
-  LazyAgentScorecardWidget,
-  LazyVATCollectionWidget,
   LAZY_WIDGET_CATEGORIES,
-} from '../LazyWidgets';
+  LazyAgentScorecardWidget,
+  LazyARAgingWidget,
+  LazyCustomerCLVWidget,
+  LazyInventoryHealthWidget,
+  LazyRevenueKPIWidget,
+  LazyTopProductsWidget,
+  LazyVATCollectionWidget,
+} from "../LazyWidgets";
 
-describe('LazyWidgets', () => {
-  it('exports lazy financial widgets', () => {
+describe("LazyWidgets", () => {
+  it("exports lazy financial widgets", () => {
     expect(LazyRevenueKPIWidget).toBeDefined();
     expect(LazyARAgingWidget).toBeDefined();
   });
 
-  it('exports lazy inventory widgets', () => {
+  it("exports lazy inventory widgets", () => {
     expect(LazyInventoryHealthWidget).toBeDefined();
   });
 
-  it('exports lazy product widgets', () => {
+  it("exports lazy product widgets", () => {
     expect(LazyTopProductsWidget).toBeDefined();
   });
 
-  it('exports lazy customer widgets', () => {
+  it("exports lazy customer widgets", () => {
     expect(LazyCustomerCLVWidget).toBeDefined();
   });
 
-  it('exports lazy sales agent widgets', () => {
+  it("exports lazy sales agent widgets", () => {
     expect(LazyAgentScorecardWidget).toBeDefined();
   });
 
-  it('exports lazy VAT widgets', () => {
+  it("exports lazy VAT widgets", () => {
     expect(LazyVATCollectionWidget).toBeDefined();
   });
 
-  it('exports LAZY_WIDGET_CATEGORIES with all categories', () => {
+  it("exports LAZY_WIDGET_CATEGORIES with all categories", () => {
     expect(LAZY_WIDGET_CATEGORIES).toBeDefined();
     expect(LAZY_WIDGET_CATEGORIES.financial).toBeDefined();
     expect(LAZY_WIDGET_CATEGORIES.inventory).toBeDefined();
@@ -47,7 +47,7 @@ describe('LazyWidgets', () => {
     expect(LAZY_WIDGET_CATEGORIES.vat).toBeDefined();
   });
 
-  it('has correct number of widgets per category', () => {
+  it("has correct number of widgets per category", () => {
     expect(LAZY_WIDGET_CATEGORIES.financial).toHaveLength(11);
     expect(LAZY_WIDGET_CATEGORIES.inventory).toHaveLength(6);
     expect(LAZY_WIDGET_CATEGORIES.product).toHaveLength(5);

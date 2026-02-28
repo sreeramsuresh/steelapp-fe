@@ -29,25 +29,30 @@ Cypress.Commands.add("login", (email, password) => {
     cy.setCookie("accessToken", token);
     cy.setCookie("refreshToken", refreshToken);
 
-    // Set localStorage (matches authService.js)
-    window.localStorage.setItem("steel-app-token", token);
-    window.localStorage.setItem("token", token);
-    window.localStorage.setItem("steel-app-refresh-token", refreshToken);
-
-    // Set sessionStorage (matches axiosApi.js response interceptor)
-    window.sessionStorage.setItem("userId", String(user.id));
-    window.sessionStorage.setItem("userEmail", user.email);
-    window.sessionStorage.setItem("userRole", user.role);
-    window.sessionStorage.setItem("userName", user.name);
-    window.sessionStorage.setItem("userCompanyId", String(user.companyId));
-    if (user.permissions) {
-      window.sessionStorage.setItem("userPermissions", JSON.stringify(user.permissions));
-    }
-    if (user.roleNames) {
-      window.sessionStorage.setItem("userRoleNames", JSON.stringify(user.roleNames));
-    }
-
+    // Visit the app first to establish the AUT window
     cy.visit("/");
+
+    // Set localStorage and sessionStorage on the AUT window (not the spec runner)
+    cy.window().then((win) => {
+      // localStorage (matches authService.js)
+      win.localStorage.setItem("steel-app-token", token);
+      win.localStorage.setItem("token", token);
+      win.localStorage.setItem("steel-app-refresh-token", refreshToken);
+
+      // sessionStorage (matches axiosApi.js response interceptor)
+      win.sessionStorage.setItem("userId", String(user.id));
+      win.sessionStorage.setItem("userEmail", user.email);
+      win.sessionStorage.setItem("userRole", user.role);
+      win.sessionStorage.setItem("userName", user.name);
+      win.sessionStorage.setItem("userCompanyId", String(user.companyId));
+      if (user.permissions) {
+        win.sessionStorage.setItem("userPermissions", JSON.stringify(user.permissions));
+      }
+      if (user.roleNames) {
+        win.sessionStorage.setItem("userRoleNames", JSON.stringify(user.roleNames));
+      }
+    });
+
     cy.log("Logged in via API");
   });
 });
@@ -118,8 +123,11 @@ Cypress.Commands.add("loginViaUI", (email, password) => {
  * Usage: cy.logout()
  */
 Cypress.Commands.add("logout", () => {
-  cy.get('[data-testid="logout-button"], button:contains("Logout")').click();
-  cy.url().should("include", "/login");
+  // Click user profile button to open dropdown menu
+  cy.get('button').contains(/Development User|E2E Admin|admin/i).click({ force: true });
+  // Click Logout/Sign Out in the dropdown
+  cy.contains(/logout|sign out/i).click();
+  cy.url({ timeout: 10000 }).should("include", "/login");
 });
 
 /**

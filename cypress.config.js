@@ -25,7 +25,6 @@ export default defineConfig({
 
     // Environment variables
     env: {
-      apiUrl: process.env.CYPRESS_API_URL || "",
       testUserEmail: process.env.E2E_ADMIN_EMAIL || "admin@steelapp.test",
       testUserPassword: process.env.E2E_ADMIN_PASSWORD || "Test@12345",
     },

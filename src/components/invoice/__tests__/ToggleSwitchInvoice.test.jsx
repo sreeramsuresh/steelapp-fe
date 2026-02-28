@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import ToggleSwitchInvoice from "../ToggleSwitchInvoice";
 
@@ -46,9 +46,7 @@ describe("ToggleSwitchInvoice", () => {
   });
 
   it("applies dark mode styles when isDarkMode is true and disabled", () => {
-    render(
-      <ToggleSwitchInvoice {...defaultProps} isDarkMode={true} enabled={false} />
-    );
+    render(<ToggleSwitchInvoice {...defaultProps} isDarkMode={true} enabled={false} />);
     const btn = screen.getByRole("button");
     expect(btn.className).toContain("bg-gray-600");
   });

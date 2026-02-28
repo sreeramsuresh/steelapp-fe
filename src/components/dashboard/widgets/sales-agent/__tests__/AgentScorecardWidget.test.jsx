@@ -1,34 +1,34 @@
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-vi.mock('../../../../../contexts/ThemeContext', () => ({
+vi.mock("../../../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock('../../../../../services/dashboardService', () => ({
+vi.mock("../../../../../services/dashboardService", () => ({
   dashboardService: {
     getSalesAgentScorecard: vi.fn().mockResolvedValue(null),
   },
 }));
 
-import AgentScorecardWidget from '../AgentScorecardWidget';
+import AgentScorecardWidget from "../AgentScorecardWidget";
 
-describe('AgentScorecardWidget', () => {
-  it('renders without crashing', () => {
+describe("AgentScorecardWidget", () => {
+  it("renders without crashing", () => {
     render(<AgentScorecardWidget />);
   });
 
-  it('displays agent scorecard content', () => {
+  it("displays agent scorecard content", () => {
     const { container } = render(<AgentScorecardWidget />);
     expect(container).toBeTruthy();
   });
 
-  it('renders with loading state', () => {
+  it("renders with loading state", () => {
     const { container } = render(<AgentScorecardWidget />);
     expect(container).toBeTruthy();
   });
 
-  it('renders with agentId prop', () => {
+  it("renders with agentId prop", () => {
     const { container } = render(<AgentScorecardWidget agentId={1} />);
     expect(container).toBeTruthy();
   });

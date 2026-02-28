@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -59,9 +59,7 @@ describe("ReallocationHistoryPanel", () => {
   it("fetches data when expanded", async () => {
     apiClient.get.mockResolvedValueOnce({ history: [] });
     render(<ReallocationHistoryPanel invoiceId={1} collapsed={false} />);
-    expect(apiClient.get).toHaveBeenCalledWith(
-      "/invoices/1/reallocation-history"
-    );
+    expect(apiClient.get).toHaveBeenCalledWith("/invoices/1/reallocation-history");
   });
 
   it("expands on header click", async () => {
@@ -74,9 +72,7 @@ describe("ReallocationHistoryPanel", () => {
   it("shows empty message when no history", async () => {
     apiClient.get.mockResolvedValueOnce({ history: [] });
     render(<ReallocationHistoryPanel invoiceId={1} collapsed={false} />);
-    expect(
-      await screen.findByText("No reallocation history found")
-    ).toBeTruthy();
+    expect(await screen.findByText("No reallocation history found")).toBeTruthy();
   });
 
   it("shows error on API failure", async () => {
@@ -89,11 +85,7 @@ describe("ReallocationHistoryPanel", () => {
 
   it("fetches by invoiceItemId when provided", async () => {
     apiClient.get.mockResolvedValueOnce({ history: [] });
-    render(
-      <ReallocationHistoryPanel invoiceItemId={5} collapsed={false} />
-    );
-    expect(apiClient.get).toHaveBeenCalledWith(
-      "/invoices/items/5/reallocation-history"
-    );
+    render(<ReallocationHistoryPanel invoiceItemId={5} collapsed={false} />);
+    expect(apiClient.get).toHaveBeenCalledWith("/invoices/items/5/reallocation-history");
   });
 });

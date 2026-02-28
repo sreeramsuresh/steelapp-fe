@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -29,9 +29,7 @@ describe("DeliveryScheduleModal", () => {
   });
 
   it("returns null when not open", () => {
-    const { container } = render(
-      <DeliveryScheduleModal {...defaultProps} isOpen={false} />
-    );
+    const { container } = render(<DeliveryScheduleModal {...defaultProps} isOpen={false} />);
     expect(container.firstChild).toBeNull();
   });
 
@@ -42,9 +40,7 @@ describe("DeliveryScheduleModal", () => {
 
   it("shows line quantity in subtitle", () => {
     render(<DeliveryScheduleModal {...defaultProps} />);
-    expect(
-      screen.getByText(/Plan phased deliveries for line quantity: 100 units/)
-    ).toBeTruthy();
+    expect(screen.getByText(/Plan phased deliveries for line quantity: 100 units/)).toBeTruthy();
   });
 
   it("shows Add Delivery Date button", () => {

@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -32,9 +32,7 @@ describe("QuotationPreview", () => {
       quotationNumber: "QTN-001",
       quotationDate: "2024-01-15",
       status: "draft",
-      items: [
-        { id: 1, name: "Steel Bar", quantity: 10, rate: 100, amount: 1000 },
-      ],
+      items: [{ id: 1, name: "Steel Bar", quantity: 10, rate: 100, amount: 1000 }],
       customerDetails: {
         name: "Test Customer",
         company: "Test Corp",
@@ -92,9 +90,7 @@ describe("QuotationPreview", () => {
 
   it("shows timezone disclaimer", () => {
     render(<QuotationPreview {...defaultProps} />);
-    expect(
-      screen.getByText("All times are in UAE timezone (GST, UTC+4)")
-    ).toBeTruthy();
+    expect(screen.getByText("All times are in UAE timezone (GST, UTC+4)")).toBeTruthy();
   });
 
   it("calls onClose when X button is clicked", () => {

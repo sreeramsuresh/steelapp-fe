@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("lucide-react", () => ({
   X: (props) => <span data-testid="x-icon" {...props} />,
@@ -23,9 +23,7 @@ describe("NotesDrawer", () => {
     />
   );
 
-  const MockVatHelpIcon = ({ content }) => (
-    <span data-testid="vat-help-icon">help</span>
-  );
+  const MockVatHelpIcon = ({ content }) => <span data-testid="vat-help-icon">help</span>;
 
   const defaultProps = {
     isOpen: true,
@@ -48,9 +46,7 @@ describe("NotesDrawer", () => {
 
   it("shows subtitle text", () => {
     render(<NotesDrawer {...defaultProps} />);
-    expect(
-      screen.getByText("Add invoice notes, VAT notes, and payment terms")
-    ).toBeTruthy();
+    expect(screen.getByText("Add invoice notes, VAT notes, and payment terms")).toBeTruthy();
   });
 
   it("renders Invoice Notes section", () => {

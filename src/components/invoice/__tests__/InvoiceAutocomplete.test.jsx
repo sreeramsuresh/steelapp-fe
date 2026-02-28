@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -71,13 +71,7 @@ describe("InvoiceAutocomplete", () => {
   });
 
   it("shows no options text when empty", () => {
-    render(
-      <Autocomplete
-        {...defaultProps}
-        options={[]}
-        noOptionsText="Nothing found"
-      />
-    );
+    render(<Autocomplete {...defaultProps} options={[]} noOptionsText="Nothing found" />);
     fireEvent.focus(screen.getByPlaceholderText("Search products..."));
     expect(screen.getByText("Nothing found")).toBeTruthy();
   });
@@ -91,9 +85,6 @@ describe("InvoiceAutocomplete", () => {
 
   it("renders disabled state", () => {
     render(<Autocomplete {...defaultProps} disabled={true} />);
-    expect(screen.getByPlaceholderText("Search products...")).toHaveProperty(
-      "disabled",
-      true
-    );
+    expect(screen.getByPlaceholderText("Search products...")).toHaveProperty("disabled", true);
   });
 });

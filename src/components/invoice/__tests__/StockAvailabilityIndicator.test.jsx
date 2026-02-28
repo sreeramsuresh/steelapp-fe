@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -88,13 +88,7 @@ describe("StockAvailabilityIndicator", () => {
     api.get.mockResolvedValueOnce({
       batches: [{ quantityAvailable: 200 }],
     });
-    render(
-      <StockAvailabilityIndicator
-        {...defaultProps}
-        compact={true}
-        iconOnly={true}
-      />
-    );
+    render(<StockAvailabilityIndicator {...defaultProps} compact={true} iconOnly={true} />);
     expect(await screen.findByTestId("check-circle")).toBeTruthy();
   });
 });

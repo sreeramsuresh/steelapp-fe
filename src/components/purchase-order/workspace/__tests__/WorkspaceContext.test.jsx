@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../../../services/purchaseOrderService", () => ({
   purchaseOrderService: {
@@ -8,7 +8,7 @@ vi.mock("../../../../services/purchaseOrderService", () => ({
 }));
 
 import { purchaseOrderService } from "../../../../services/purchaseOrderService";
-import { WorkspaceProvider, useWorkspace } from "../WorkspaceContext";
+import { useWorkspace, WorkspaceProvider } from "../WorkspaceContext";
 
 // Test component that consumes the context
 function TestConsumer() {
@@ -88,9 +88,7 @@ describe("WorkspaceContext", () => {
   it("throws error when useWorkspace is used outside provider", () => {
     // Suppress error output
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
-    expect(() => render(<TestConsumer />)).toThrow(
-      "useWorkspace must be used within WorkspaceProvider"
-    );
+    expect(() => render(<TestConsumer />)).toThrow("useWorkspace must be used within WorkspaceProvider");
     spy.mockRestore();
   });
 });

@@ -41,21 +41,13 @@ describe("ConfigurableTable", () => {
   });
 
   it("shows custom empty state", () => {
-    render(
-      <ConfigurableTable
-        columns={columns}
-        data={[]}
-        emptyState={<p>Nothing here</p>}
-      />
-    );
+    render(<ConfigurableTable columns={columns} data={[]} emptyState={<p>Nothing here</p>} />);
     expect(screen.getByText("Nothing here")).toBeInTheDocument();
   });
 
   it("calls onRowClick when a row is clicked", () => {
     const onRowClick = vi.fn();
-    render(
-      <ConfigurableTable columns={columns} data={data} onRowClick={onRowClick} />
-    );
+    render(<ConfigurableTable columns={columns} data={data} onRowClick={onRowClick} />);
     fireEvent.click(screen.getByText("Steel Rod"));
     expect(onRowClick).toHaveBeenCalledWith(data[0]);
   });
@@ -73,13 +65,7 @@ describe("ConfigurableTable", () => {
   });
 
   it("renders footer content", () => {
-    render(
-      <ConfigurableTable
-        columns={columns}
-        data={data}
-        footer={<div>Page 1 of 2</div>}
-      />
-    );
+    render(<ConfigurableTable columns={columns} data={data} footer={<div>Page 1 of 2</div>} />);
     expect(screen.getByText("Page 1 of 2")).toBeInTheDocument();
   });
 });

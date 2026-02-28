@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -34,9 +34,7 @@ describe("AlternativeProductsModal", () => {
   });
 
   it("returns null when not open", () => {
-    const { container } = render(
-      <AlternativeProductsModal {...defaultProps} isOpen={false} />
-    );
+    const { container } = render(<AlternativeProductsModal {...defaultProps} isOpen={false} />);
     expect(container.firstChild).toBeNull();
   });
 
@@ -47,27 +45,17 @@ describe("AlternativeProductsModal", () => {
 
   it("shows subtitle text", () => {
     render(<AlternativeProductsModal {...defaultProps} />);
-    expect(
-      screen.getByText(
-        "Add up to 3 substitute products if primary is unavailable"
-      )
-    ).toBeTruthy();
+    expect(screen.getByText("Add up to 3 substitute products if primary is unavailable")).toBeTruthy();
   });
 
   it("shows empty state when no alternatives", () => {
     render(<AlternativeProductsModal {...defaultProps} />);
-    expect(
-      screen.getByText(
-        "No alternative products added yet. Search and add up to 3 alternatives."
-      )
-    ).toBeTruthy();
+    expect(screen.getByText("No alternative products added yet. Search and add up to 3 alternatives.")).toBeTruthy();
   });
 
   it("shows search input", () => {
     render(<AlternativeProductsModal {...defaultProps} />);
-    expect(
-      screen.getByPlaceholderText("Search by name, grade, specification...")
-    ).toBeTruthy();
+    expect(screen.getByPlaceholderText("Search by name, grade, specification...")).toBeTruthy();
   });
 
   it("shows Save and Cancel buttons", () => {
@@ -90,15 +78,8 @@ describe("AlternativeProductsModal", () => {
   });
 
   it("renders existing alternatives", () => {
-    const alternatives = [
-      { productId: 2, productName: "Alt Product 1", priceDifference: 5, notes: "" },
-    ];
-    render(
-      <AlternativeProductsModal
-        {...defaultProps}
-        alternatives={alternatives}
-      />
-    );
+    const alternatives = [{ productId: 2, productName: "Alt Product 1", priceDifference: 5, notes: "" }];
+    render(<AlternativeProductsModal {...defaultProps} alternatives={alternatives} />);
     // The input with the product name should be displayed
     const input = screen.getByDisplayValue("Alt Product 1");
     expect(input).toBeTruthy();

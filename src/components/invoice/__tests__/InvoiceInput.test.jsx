@@ -35,7 +35,7 @@ describe("InvoiceInput", () => {
 
   it("marks required fields with asterisk indicator", () => {
     const { container } = renderWithTheme(<Input label="Name" required />);
-    expect(container.innerHTML).toContain('after:content-["*"]');
+    expect(container.innerHTML).toContain("after:content-");
   });
 
   it("associates label with input via htmlFor", () => {

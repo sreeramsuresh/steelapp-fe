@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -32,9 +32,7 @@ describe("InvoiceStockMovements", () => {
   it("shows empty state when no movements", async () => {
     invoiceService.getInvoiceStockMovements.mockResolvedValueOnce([]);
     render(<InvoiceStockMovements {...defaultProps} />);
-    expect(
-      await screen.findByText("No stock movements recorded for this invoice")
-    ).toBeTruthy();
+    expect(await screen.findByText("No stock movements recorded for this invoice")).toBeTruthy();
   });
 
   it("shows Stock Movements header by default", async () => {
@@ -53,9 +51,7 @@ describe("InvoiceStockMovements", () => {
   it("shows Deduct Stock Manually button when no movements exist", async () => {
     invoiceService.getInvoiceStockMovements.mockResolvedValueOnce([]);
     render(<InvoiceStockMovements {...defaultProps} />);
-    expect(
-      await screen.findByText("Deduct Stock Manually")
-    ).toBeTruthy();
+    expect(await screen.findByText("Deduct Stock Manually")).toBeTruthy();
   });
 
   it("renders movements table when data exists", async () => {
@@ -78,9 +74,7 @@ describe("InvoiceStockMovements", () => {
   });
 
   it("shows error message on API failure", async () => {
-    invoiceService.getInvoiceStockMovements.mockRejectedValueOnce(
-      new Error("Network error")
-    );
+    invoiceService.getInvoiceStockMovements.mockRejectedValueOnce(new Error("Network error"));
     render(<InvoiceStockMovements {...defaultProps} />);
     expect(await screen.findByText("Network error")).toBeTruthy();
   });

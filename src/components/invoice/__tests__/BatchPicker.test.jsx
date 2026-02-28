@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -32,7 +32,9 @@ vi.mock("../ui/badge", () => ({
 
 vi.mock("../ui/button", () => ({
   Button: ({ children, onClick, ...props }) => (
-    <button onClick={onClick} {...props}>{children}</button>
+    <button onClick={onClick} {...props}>
+      {children}
+    </button>
   ),
 }));
 
@@ -116,9 +118,7 @@ describe("BatchPicker", () => {
       batches: [{ id: 1, batchNumber: "B-001", quantityAvailable: 100, unitCost: 10 }],
     });
     render(<BatchPicker {...defaultProps} />);
-    expect(
-      await screen.findByText(/Enter quantities for each batch you want to allocate/)
-    ).toBeTruthy();
+    expect(await screen.findByText(/Enter quantities for each batch you want to allocate/)).toBeTruthy();
   });
 
   it("shows error state when API fails", async () => {

@@ -1,24 +1,24 @@
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-vi.mock('../../../../../contexts/ThemeContext', () => ({
+vi.mock("../../../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-import ReverseChargeWidget from '../ReverseChargeWidget';
+import ReverseChargeWidget from "../ReverseChargeWidget";
 
-describe('ReverseChargeWidget', () => {
-  it('renders without crashing', () => {
+describe("ReverseChargeWidget", () => {
+  it("renders without crashing", () => {
     render(<ReverseChargeWidget />);
   });
 
-  it('displays reverse charge content with mock data', () => {
+  it("displays reverse charge content with mock data", () => {
     render(<ReverseChargeWidget />);
     const { container } = render(<ReverseChargeWidget />);
     expect(container).toBeTruthy();
   });
 
-  it('renders with custom data', () => {
+  it("renders with custom data", () => {
     const data = {
       summary: {
         totalTransactions: 10,
@@ -28,7 +28,7 @@ describe('ReverseChargeWidget', () => {
         inputVAT: 10000,
         netEffect: 0,
         nonRecoverableVAT: 500,
-        currentQuarter: 'Q4 2024',
+        currentQuarter: "Q4 2024",
       },
       transactions: [],
     };
@@ -37,7 +37,7 @@ describe('ReverseChargeWidget', () => {
     expect(container).toBeTruthy();
   });
 
-  it('renders with no data', () => {
+  it("renders with no data", () => {
     const { container } = render(<ReverseChargeWidget data={null} />);
     expect(container).toBeTruthy();
   });

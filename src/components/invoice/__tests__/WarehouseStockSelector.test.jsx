@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -43,9 +43,7 @@ describe("WarehouseStockSelector", () => {
   });
 
   it("shows no warehouses message when empty", () => {
-    render(
-      <WarehouseStockSelector {...defaultProps} warehouses={[]} />
-    );
+    render(<WarehouseStockSelector {...defaultProps} warehouses={[]} />);
     expect(screen.getByText("No warehouses available")).toBeTruthy();
   });
 
@@ -54,9 +52,7 @@ describe("WarehouseStockSelector", () => {
       batches: [{ quantityAvailable: 50 }],
     });
     render(<WarehouseStockSelector {...defaultProps} />);
-    expect(
-      await screen.findByText("Stock availability:")
-    ).toBeTruthy();
+    expect(await screen.findByText("Stock availability:")).toBeTruthy();
   });
 
   it("renders warehouse buttons", async () => {
@@ -81,8 +77,6 @@ describe("WarehouseStockSelector", () => {
   it("shows error message on API failure", async () => {
     api.get.mockRejectedValue(new Error("Network error"));
     render(<WarehouseStockSelector {...defaultProps} />);
-    expect(
-      await screen.findByText("Failed to load stock availability")
-    ).toBeTruthy();
+    expect(await screen.findByText("Failed to load stock availability")).toBeTruthy();
   });
 });

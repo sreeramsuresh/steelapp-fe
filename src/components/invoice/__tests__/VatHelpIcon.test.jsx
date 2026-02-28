@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -49,9 +49,7 @@ describe("VatHelpIcon", () => {
     expect(screen.getByText("Help text")).toBeTruthy();
     // Click the close X button inside the modal
     const closeButtons = screen.getAllByRole("button");
-    const closeBtn = closeButtons.find(
-      (btn) => btn.querySelector("[data-testid='x-icon']")
-    );
+    const closeBtn = closeButtons.find((btn) => btn.querySelector("[data-testid='x-icon']"));
     if (closeBtn) fireEvent.click(closeBtn);
     expect(screen.queryByText("Help text")).toBeNull();
   });

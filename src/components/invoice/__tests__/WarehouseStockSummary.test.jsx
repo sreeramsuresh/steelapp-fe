@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -35,9 +35,7 @@ describe("WarehouseStockSummary", () => {
 
   it("returns null when no warehouses", () => {
     api.get.mockResolvedValue({ batches: [] });
-    const { container } = render(
-      <WarehouseStockSummary {...defaultProps} warehouses={[]} />
-    );
+    const { container } = render(<WarehouseStockSummary {...defaultProps} warehouses={[]} />);
     expect(container.firstChild).toBeNull();
   });
 
@@ -65,10 +63,7 @@ describe("WarehouseStockSummary", () => {
     render(<WarehouseStockSummary {...defaultProps} />);
     const btn = await screen.findByText("Main Warehouse");
     fireEvent.click(btn.closest("button"));
-    expect(defaultProps.onWarehouseSelect).toHaveBeenCalledWith(
-      1,
-      "Main Warehouse"
-    );
+    expect(defaultProps.onWarehouseSelect).toHaveBeenCalledWith(1, "Main Warehouse");
   });
 
   it("shows zero stock correctly", async () => {

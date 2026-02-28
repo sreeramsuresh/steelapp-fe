@@ -1,25 +1,25 @@
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-vi.mock('../../../../../contexts/ThemeContext', () => ({
+vi.mock("../../../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-import DesignatedZoneWidget from '../DesignatedZoneWidget';
+import DesignatedZoneWidget from "../DesignatedZoneWidget";
 
-describe('DesignatedZoneWidget', () => {
-  it('renders without crashing', () => {
+describe("DesignatedZoneWidget", () => {
+  it("renders without crashing", () => {
     render(<DesignatedZoneWidget />);
   });
 
-  it('displays designated zone content with mock data', () => {
+  it("displays designated zone content with mock data", () => {
     render(<DesignatedZoneWidget />);
     // Mock data includes zone names like JAFZA
     const { container } = render(<DesignatedZoneWidget />);
     expect(container).toBeTruthy();
   });
 
-  it('renders with custom data', () => {
+  it("renders with custom data", () => {
     const data = {
       summary: {
         totalTransactions: 15,
@@ -28,8 +28,8 @@ describe('DesignatedZoneWidget', () => {
         compliantTransactions: 13,
       },
       zones: [
-        { name: 'JAFZA', transactions: 8, value: 450000 },
-        { name: 'DAFZA', transactions: 7, value: 350000 },
+        { name: "JAFZA", transactions: 8, value: 450000 },
+        { name: "DAFZA", transactions: 7, value: 350000 },
       ],
     };
     render(<DesignatedZoneWidget data={data} />);
@@ -37,7 +37,7 @@ describe('DesignatedZoneWidget', () => {
     expect(container).toBeTruthy();
   });
 
-  it('renders with no data', () => {
+  it("renders with no data", () => {
     const { container } = render(<DesignatedZoneWidget data={null} />);
     expect(container).toBeTruthy();
   });

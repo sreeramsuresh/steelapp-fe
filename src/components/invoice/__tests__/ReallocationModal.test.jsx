@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -61,9 +61,7 @@ describe("ReallocationModal", () => {
   });
 
   it("returns null when not open", () => {
-    const { container } = render(
-      <ReallocationModal {...defaultProps} isOpen={false} />
-    );
+    const { container } = render(<ReallocationModal {...defaultProps} isOpen={false} />);
     expect(container.firstChild).toBeNull();
   });
 

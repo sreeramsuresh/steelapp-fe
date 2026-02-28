@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 vi.mock("../../constants/defaultTemplateSettings", () => ({
   DEFAULT_TEMPLATE_SETTINGS: {
@@ -22,16 +22,12 @@ vi.mock("./InvoiceFooterNotes", () => ({
 
 vi.mock("./InvoiceHeader", () => ({
   default: ({ isFirstPage }) => (
-    <div data-testid="invoice-header">
-      {isFirstPage ? "First Page Header" : "Continued Header"}
-    </div>
+    <div data-testid="invoice-header">{isFirstPage ? "First Page Header" : "Continued Header"}</div>
   ),
 }));
 
 vi.mock("./InvoiceItemsTable", () => ({
-  default: ({ items }) => (
-    <div data-testid="invoice-items-table">{items.length} items</div>
-  ),
+  default: ({ items }) => <div data-testid="invoice-items-table">{items.length} items</div>,
 }));
 
 vi.mock("./InvoiceSignatureSection", () => ({
@@ -83,24 +79,12 @@ describe("InvoiceTemplate", () => {
   });
 
   it("renders totals on last page when showTotals is true", () => {
-    render(
-      <InvoiceTemplate
-        {...defaultProps}
-        isLastPage={true}
-        showTotals={true}
-      />
-    );
+    render(<InvoiceTemplate {...defaultProps} isLastPage={true} showTotals={true} />);
     expect(screen.getByTestId("invoice-totals")).toBeTruthy();
   });
 
   it("renders signature on last page when showSignature is true", () => {
-    render(
-      <InvoiceTemplate
-        {...defaultProps}
-        isLastPage={true}
-        showSignature={true}
-      />
-    );
+    render(<InvoiceTemplate {...defaultProps} isLastPage={true} showSignature={true} />);
     expect(screen.getByTestId("invoice-signature")).toBeTruthy();
   });
 

@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("lucide-react", () => ({
   X: (props) => <span data-testid="x-icon" {...props} />,
@@ -9,10 +9,7 @@ vi.mock("@/components/ui/form-select", () => ({
   FormSelect: ({ children, label, ...props }) => (
     <div>
       <label>{label}</label>
-      <select
-        value={props.value}
-        onChange={(e) => props.onValueChange(e.target.value)}
-      >
+      <select value={props.value} onChange={(e) => props.onValueChange(e.target.value)}>
         {children}
       </select>
     </div>
@@ -38,9 +35,7 @@ describe("ChargesDrawer", () => {
     </div>
   );
 
-  const MockVatHelpIcon = ({ heading }) => (
-    <span data-testid="vat-help-icon">{heading}</span>
-  );
+  const MockVatHelpIcon = ({ heading }) => <span data-testid="vat-help-icon">{heading}</span>;
 
   const defaultProps = {
     isOpen: true,

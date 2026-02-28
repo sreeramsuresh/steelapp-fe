@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -18,8 +18,12 @@ vi.mock("../../ConfirmDialog", () => ({
   default: ({ title, onConfirm, onCancel }) => (
     <div data-testid="confirm-dialog">
       <p>{title}</p>
-      <button type="button" onClick={onConfirm}>Yes</button>
-      <button type="button" onClick={onCancel}>No</button>
+      <button type="button" onClick={onConfirm}>
+        Yes
+      </button>
+      <button type="button" onClick={onCancel}>
+        No
+      </button>
     </div>
   ),
 }));
@@ -30,7 +34,9 @@ vi.mock("../../ui/badge", () => ({
 
 vi.mock("../../ui/button", () => ({
   Button: ({ children, onClick, disabled, ...props }) => (
-    <button type="button" onClick={onClick} disabled={disabled} {...props}>{children}</button>
+    <button type="button" onClick={onClick} disabled={disabled} {...props}>
+      {children}
+    </button>
   ),
 }));
 
@@ -43,7 +49,7 @@ vi.mock("../../ui/card", () => ({
 }));
 
 vi.mock("../../ui/dialog", () => ({
-  Dialog: ({ children, open }) => open ? <div data-testid="dialog">{children}</div> : null,
+  Dialog: ({ children, open }) => (open ? <div data-testid="dialog">{children}</div> : null),
   DialogContent: ({ children }) => <div>{children}</div>,
   DialogDescription: ({ children }) => <p>{children}</p>,
   DialogHeader: ({ children }) => <div>{children}</div>,
@@ -118,7 +124,15 @@ describe("CreditManagementPanel", () => {
     customerCreditService.getOverLimitCustomers.mockResolvedValue({ customers: [] });
     customerCreditService.getHighRiskCustomers.mockResolvedValue({
       customers: [
-        { id: 2, name: "XYZ Ltd", creditLimit: 30000, creditUsed: 28000, utilizationPct: 93, creditGrade: "E", dso: 100 },
+        {
+          id: 2,
+          name: "XYZ Ltd",
+          creditLimit: 30000,
+          creditUsed: 28000,
+          utilizationPct: 93,
+          creditGrade: "E",
+          dso: 100,
+        },
       ],
     });
     render(<CreditManagementPanel />);

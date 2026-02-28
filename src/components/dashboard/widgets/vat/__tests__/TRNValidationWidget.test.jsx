@@ -1,23 +1,23 @@
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-vi.mock('../../../../../contexts/ThemeContext', () => ({
+vi.mock("../../../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-import TRNValidationWidget from '../TRNValidationWidget';
+import TRNValidationWidget from "../TRNValidationWidget";
 
-describe('TRNValidationWidget', () => {
-  it('renders without crashing', () => {
+describe("TRNValidationWidget", () => {
+  it("renders without crashing", () => {
     render(<TRNValidationWidget />);
   });
 
-  it('renders with no data', () => {
+  it("renders with no data", () => {
     const { container } = render(<TRNValidationWidget data={null} />);
     expect(container).toBeTruthy();
   });
 
-  it('renders with custom data', () => {
+  it("renders with custom data", () => {
     const data = {
       summary: {
         totalEntities: 100,
@@ -29,10 +29,10 @@ describe('TRNValidationWidget', () => {
       entities: [
         {
           id: 1,
-          name: 'Test Corp',
-          trn: '100123456789012',
-          type: 'customer',
-          status: 'validated',
+          name: "Test Corp",
+          trn: "100123456789012",
+          type: "customer",
+          status: "validated",
         },
       ],
     };
@@ -41,13 +41,13 @@ describe('TRNValidationWidget', () => {
     expect(container).toBeTruthy();
   });
 
-  it('renders with onRefresh callback', () => {
+  it("renders with onRefresh callback", () => {
     const onRefresh = vi.fn();
     const { container } = render(<TRNValidationWidget onRefresh={onRefresh} />);
     expect(container).toBeTruthy();
   });
 
-  it('renders with onValidate callback', () => {
+  it("renders with onValidate callback", () => {
     const onValidate = vi.fn();
     const { container } = render(<TRNValidationWidget onValidate={onValidate} />);
     expect(container).toBeTruthy();

@@ -1,6 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { fireEvent } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -56,24 +55,18 @@ describe("StockReceiptForm", () => {
   });
 
   it("returns null when not open", () => {
-    const { container } = render(
-      <StockReceiptForm isOpen={false} onClose={() => {}} purchaseOrder={purchaseOrder} />
-    );
+    const { container } = render(<StockReceiptForm isOpen={false} onClose={() => {}} purchaseOrder={purchaseOrder} />);
     expect(container.innerHTML).toBe("");
   });
 
   it("renders modal header when open", () => {
-    render(
-      <StockReceiptForm isOpen={true} onClose={() => {}} purchaseOrder={purchaseOrder} />
-    );
+    render(<StockReceiptForm isOpen={true} onClose={() => {}} purchaseOrder={purchaseOrder} />);
     expect(screen.getByText(/Receive Stock/i)).toBeInTheDocument();
   });
 
   it("calls onClose when close button is clicked", () => {
     const onClose = vi.fn();
-    render(
-      <StockReceiptForm isOpen={true} onClose={onClose} purchaseOrder={purchaseOrder} />
-    );
+    render(<StockReceiptForm isOpen={true} onClose={onClose} purchaseOrder={purchaseOrder} />);
     // Find the X close button
     const closeBtn = screen.getByLabelText(/close/i);
     fireEvent.click(closeBtn);
@@ -81,16 +74,12 @@ describe("StockReceiptForm", () => {
   });
 
   it("renders PO number in header", () => {
-    render(
-      <StockReceiptForm isOpen={true} onClose={() => {}} purchaseOrder={purchaseOrder} />
-    );
+    render(<StockReceiptForm isOpen={true} onClose={() => {}} purchaseOrder={purchaseOrder} />);
     expect(screen.getByText("PO-2025-001")).toBeInTheDocument();
   });
 
   it("displays product names for PO items", () => {
-    render(
-      <StockReceiptForm isOpen={true} onClose={() => {}} purchaseOrder={purchaseOrder} />
-    );
+    render(<StockReceiptForm isOpen={true} onClose={() => {}} purchaseOrder={purchaseOrder} />);
     expect(screen.getByText("Steel Rod")).toBeInTheDocument();
     expect(screen.getByText("Steel Sheet")).toBeInTheDocument();
   });

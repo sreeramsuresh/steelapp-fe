@@ -36,9 +36,7 @@ const baseCreditNote = {
   creditNoteDate: "2025-01-15",
   reasonForReturn: "Defective items",
   customer: { name: "ABC Corp", phone: "555-1234" },
-  items: [
-    { id: 1, name: "Steel Rod", quantityReturned: 10, unitPrice: 50 },
-  ],
+  items: [{ id: 1, name: "Steel Rod", quantityReturned: 10, unitPrice: 50 }],
   subtotal: 500,
   vatAmount: 25,
   totalCredit: 525,
@@ -48,52 +46,38 @@ const company = { name: "Ultimate Steel Trading LLC" };
 
 describe("CreditNotePreview", () => {
   it("renders the preview header", () => {
-    render(
-      <CreditNotePreview creditNote={baseCreditNote} company={company} onClose={() => {}} />
-    );
+    render(<CreditNotePreview creditNote={baseCreditNote} company={company} onClose={() => {}} />);
     expect(screen.getByText("Credit Note Preview")).toBeInTheDocument();
   });
 
   it("displays credit note number", () => {
-    render(
-      <CreditNotePreview creditNote={baseCreditNote} company={company} onClose={() => {}} />
-    );
+    render(<CreditNotePreview creditNote={baseCreditNote} company={company} onClose={() => {}} />);
     expect(screen.getByText("CN-2025-001")).toBeInTheDocument();
   });
 
   it("displays customer name", () => {
-    render(
-      <CreditNotePreview creditNote={baseCreditNote} company={company} onClose={() => {}} />
-    );
+    render(<CreditNotePreview creditNote={baseCreditNote} company={company} onClose={() => {}} />);
     expect(screen.getByText("ABC Corp")).toBeInTheDocument();
   });
 
   it("displays status label", () => {
-    render(
-      <CreditNotePreview creditNote={baseCreditNote} company={company} onClose={() => {}} />
-    );
+    render(<CreditNotePreview creditNote={baseCreditNote} company={company} onClose={() => {}} />);
     expect(screen.getByText("Issued")).toBeInTheDocument();
   });
 
   it("displays type label", () => {
-    render(
-      <CreditNotePreview creditNote={baseCreditNote} company={company} onClose={() => {}} />
-    );
+    render(<CreditNotePreview creditNote={baseCreditNote} company={company} onClose={() => {}} />);
     expect(screen.getByText("Return with QC")).toBeInTheDocument();
   });
 
   it("displays reason for return", () => {
-    render(
-      <CreditNotePreview creditNote={baseCreditNote} company={company} onClose={() => {}} />
-    );
+    render(<CreditNotePreview creditNote={baseCreditNote} company={company} onClose={() => {}} />);
     expect(screen.getByText("Defective items")).toBeInTheDocument();
   });
 
   it("calls onClose when close button is clicked", () => {
     const onClose = vi.fn();
-    render(
-      <CreditNotePreview creditNote={baseCreditNote} company={company} onClose={onClose} />
-    );
+    render(<CreditNotePreview creditNote={baseCreditNote} company={company} onClose={onClose} />);
     fireEvent.click(screen.getByTitle("Close preview"));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -104,9 +88,7 @@ describe("CreditNotePreview", () => {
       warnings: ["Missing customer TRN"],
     });
 
-    render(
-      <CreditNotePreview creditNote={baseCreditNote} company={company} onClose={() => {}} />
-    );
+    render(<CreditNotePreview creditNote={baseCreditNote} company={company} onClose={() => {}} />);
     expect(screen.getByText("Missing customer TRN")).toBeInTheDocument();
     mockValidate.mockReturnValue({ isValid: true, warnings: [] });
   });

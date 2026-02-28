@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -34,9 +34,7 @@ describe("BatchesModal", () => {
   });
 
   it("returns null when not open", () => {
-    const { container } = render(
-      <BatchesModal {...defaultProps} isOpen={false} />
-    );
+    const { container } = render(<BatchesModal {...defaultProps} isOpen={false} />);
     expect(container.firstChild).toBeNull();
   });
 
@@ -50,9 +48,7 @@ describe("BatchesModal", () => {
   it("shows empty state when no batches", async () => {
     apiClient.get.mockResolvedValueOnce({ batches: [] });
     render(<BatchesModal {...defaultProps} />);
-    expect(
-      await screen.findByText("No batches available for this product")
-    ).toBeTruthy();
+    expect(await screen.findByText("No batches available for this product")).toBeTruthy();
   });
 
   it("renders batches table when data exists", async () => {
@@ -79,9 +75,7 @@ describe("BatchesModal", () => {
   it("shows error message on API failure", async () => {
     apiClient.get.mockRejectedValueOnce(new Error("Network error"));
     render(<BatchesModal {...defaultProps} />);
-    expect(
-      await screen.findByText("Failed to load batches. Please try again.")
-    ).toBeTruthy();
+    expect(await screen.findByText("Failed to load batches. Please try again.")).toBeTruthy();
   });
 
   it("shows Close button in footer", () => {
@@ -97,9 +91,7 @@ describe("BatchesModal", () => {
     render(<BatchesModal {...defaultProps} />);
     // Click the text Close button (footer)
     const closeButtons = screen.getAllByRole("button");
-    const footerClose = closeButtons.find(
-      (btn) => btn.textContent === "Close"
-    );
+    const footerClose = closeButtons.find((btn) => btn.textContent === "Close");
     if (footerClose) fireEvent.click(footerClose);
     expect(defaultProps.onClose).toHaveBeenCalled();
   });

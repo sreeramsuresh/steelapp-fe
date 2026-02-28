@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../../services/creditNoteService", () => ({
   creditNoteService: {
@@ -23,8 +23,12 @@ vi.mock("../../ConfirmDialog", () => ({
   default: ({ title, onConfirm, onCancel }) => (
     <div data-testid="confirm-dialog">
       <p>{title}</p>
-      <button type="button" onClick={onConfirm}>Confirm</button>
-      <button type="button" onClick={onCancel}>Cancel</button>
+      <button type="button" onClick={onConfirm}>
+        Confirm
+      </button>
+      <button type="button" onClick={onCancel}>
+        Cancel
+      </button>
     </div>
   ),
 }));

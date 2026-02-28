@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockNavigate = vi.fn();
 
@@ -54,18 +54,14 @@ describe("InvoiceCreditNotesSection", () => {
 
   it("hides New button for draft invoices", () => {
     creditNoteService.getCreditNotesByInvoice.mockResolvedValueOnce({ data: [] });
-    render(
-      <InvoiceCreditNotesSection {...defaultProps} invoiceStatus="draft" />
-    );
+    render(<InvoiceCreditNotesSection {...defaultProps} invoiceStatus="draft" />);
     expect(screen.queryByText("New")).toBeNull();
   });
 
   it("shows empty state message when no credit notes", async () => {
     creditNoteService.getCreditNotesByInvoice.mockResolvedValueOnce({ data: [] });
     render(<InvoiceCreditNotesSection {...defaultProps} />);
-    expect(
-      await screen.findByText("No credit notes for this invoice")
-    ).toBeTruthy();
+    expect(await screen.findByText("No credit notes for this invoice")).toBeTruthy();
   });
 
   it("renders credit notes list when data is available", async () => {
@@ -85,12 +81,8 @@ describe("InvoiceCreditNotesSection", () => {
   });
 
   it("shows error state on API failure", async () => {
-    creditNoteService.getCreditNotesByInvoice.mockRejectedValueOnce(
-      new Error("API Error")
-    );
+    creditNoteService.getCreditNotesByInvoice.mockRejectedValueOnce(new Error("API Error"));
     render(<InvoiceCreditNotesSection {...defaultProps} />);
-    expect(
-      await screen.findByText("Failed to load credit notes")
-    ).toBeTruthy();
+    expect(await screen.findByText("Failed to load credit notes")).toBeTruthy();
   });
 });

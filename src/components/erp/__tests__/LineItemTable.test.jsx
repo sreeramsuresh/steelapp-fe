@@ -25,65 +25,47 @@ const items = [
 
 describe("LineItemTable", () => {
   it("renders column headers", () => {
-    render(
-      <LineItemTable columns={columns} items={items} onAddItem={() => {}} onRemoveItem={() => {}} />
-    );
+    render(<LineItemTable columns={columns} items={items} onAddItem={() => {}} onRemoveItem={() => {}} />);
     expect(screen.getByText("Product")).toBeInTheDocument();
     expect(screen.getByText("Qty")).toBeInTheDocument();
     expect(screen.getByText("Price")).toBeInTheDocument();
   });
 
   it("renders item rows", () => {
-    render(
-      <LineItemTable columns={columns} items={items} onAddItem={() => {}} onRemoveItem={() => {}} />
-    );
+    render(<LineItemTable columns={columns} items={items} onAddItem={() => {}} onRemoveItem={() => {}} />);
     expect(screen.getByText("Steel Rod")).toBeInTheDocument();
     expect(screen.getByText("Steel Sheet")).toBeInTheDocument();
   });
 
   it("renders add item button with default label", () => {
-    render(
-      <LineItemTable columns={columns} items={items} onAddItem={() => {}} onRemoveItem={() => {}} />
-    );
+    render(<LineItemTable columns={columns} items={items} onAddItem={() => {}} onRemoveItem={() => {}} />);
     expect(screen.getByText("Add Item")).toBeInTheDocument();
   });
 
   it("renders add item button with custom label", () => {
     render(
-      <LineItemTable
-        columns={columns}
-        items={items}
-        onAddItem={() => {}}
-        onRemoveItem={() => {}}
-        addLabel="Add Line"
-      />
+      <LineItemTable columns={columns} items={items} onAddItem={() => {}} onRemoveItem={() => {}} addLabel="Add Line" />
     );
     expect(screen.getByText("Add Line")).toBeInTheDocument();
   });
 
   it("calls onAddItem when add button is clicked", () => {
     const onAddItem = vi.fn();
-    render(
-      <LineItemTable columns={columns} items={items} onAddItem={onAddItem} onRemoveItem={() => {}} />
-    );
+    render(<LineItemTable columns={columns} items={items} onAddItem={onAddItem} onRemoveItem={() => {}} />);
     fireEvent.click(screen.getByText("Add Item"));
     expect(onAddItem).toHaveBeenCalledTimes(1);
   });
 
   it("calls onRemoveItem when remove button is clicked", () => {
     const onRemoveItem = vi.fn();
-    render(
-      <LineItemTable columns={columns} items={items} onAddItem={() => {}} onRemoveItem={onRemoveItem} />
-    );
+    render(<LineItemTable columns={columns} items={items} onAddItem={() => {}} onRemoveItem={onRemoveItem} />);
     const removeButtons = screen.getAllByTitle("Remove item");
     fireEvent.click(removeButtons[0]);
     expect(onRemoveItem).toHaveBeenCalledWith(0);
   });
 
   it("hides add and remove buttons in readOnly mode", () => {
-    render(
-      <LineItemTable columns={columns} items={items} onAddItem={() => {}} onRemoveItem={() => {}} readOnly />
-    );
+    render(<LineItemTable columns={columns} items={items} onAddItem={() => {}} onRemoveItem={() => {}} readOnly />);
     expect(screen.queryByText("Add Item")).not.toBeInTheDocument();
     expect(screen.queryByTitle("Remove item")).not.toBeInTheDocument();
   });

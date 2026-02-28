@@ -1,5 +1,5 @@
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -60,9 +60,7 @@ describe("POStockMovements", () => {
 
   it("renders movement count badge when movements exist", async () => {
     stockMovementService.getByPurchaseOrder.mockResolvedValue({
-      data: [
-        { id: 1, movementType: "IN", quantity: 100, productName: "Steel Rod", movementDate: "2025-01-15" },
-      ],
+      data: [{ id: 1, movementType: "IN", quantity: 100, productName: "Steel Rod", movementDate: "2025-01-15" }],
     });
     render(<POStockMovements purchaseOrderId={1} />);
     await waitFor(() => {

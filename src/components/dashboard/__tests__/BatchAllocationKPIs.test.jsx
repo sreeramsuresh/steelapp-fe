@@ -1,72 +1,72 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock('react-router-dom', () => ({
+vi.mock("react-router-dom", () => ({
   useNavigate: () => vi.fn(),
 }));
 
-vi.mock('../../../contexts/ThemeContext', () => ({
+vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock('../../../services/api', () => ({
+vi.mock("../../../services/api", () => ({
   apiClient: {
     get: vi.fn().mockResolvedValue({}),
   },
 }));
 
-import BatchAllocationKPIs from '../BatchAllocationKPIs';
-import { apiClient } from '../../../services/api';
+import { apiClient } from "../../../services/api";
+import BatchAllocationKPIs from "../BatchAllocationKPIs";
 
-describe('BatchAllocationKPIs', () => {
+describe("BatchAllocationKPIs", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     apiClient.get.mockResolvedValue({});
   });
 
-  it('renders without crashing', () => {
+  it("renders without crashing", () => {
     render(<BatchAllocationKPIs />);
   });
 
-  it('displays the header title', async () => {
+  it("displays the header title", async () => {
     apiClient.get.mockResolvedValue({});
     render(<BatchAllocationKPIs />);
     await waitFor(() => {
-      expect(screen.getByText('Batch Allocation Metrics')).toBeInTheDocument();
+      expect(screen.getByText("Batch Allocation Metrics")).toBeInTheDocument();
     });
   });
 
-  it('displays all four KPI card titles', async () => {
+  it("displays all four KPI card titles", async () => {
     apiClient.get.mockResolvedValue({});
     render(<BatchAllocationKPIs />);
     await waitFor(() => {
-      expect(screen.getByText('Batch Issues')).toBeInTheDocument();
-      expect(screen.getByText('Allocated Value')).toBeInTheDocument();
-      expect(screen.getByText('Pending Allocations')).toBeInTheDocument();
-      expect(screen.getByText('Cost Variance')).toBeInTheDocument();
+      expect(screen.getByText("Batch Issues")).toBeInTheDocument();
+      expect(screen.getByText("Allocated Value")).toBeInTheDocument();
+      expect(screen.getByText("Pending Allocations")).toBeInTheDocument();
+      expect(screen.getByText("Cost Variance")).toBeInTheDocument();
     });
   });
 
-  it('shows error state when API fails', async () => {
-    apiClient.get.mockRejectedValue(new Error('Network error'));
+  it("shows error state when API fails", async () => {
+    apiClient.get.mockRejectedValue(new Error("Network error"));
     render(<BatchAllocationKPIs />);
     await waitFor(() => {
-      expect(screen.getByText('Failed to Load Metrics')).toBeInTheDocument();
+      expect(screen.getByText("Failed to Load Metrics")).toBeInTheDocument();
     });
   });
 
-  it('shows retry button on error', async () => {
-    apiClient.get.mockRejectedValue(new Error('Network error'));
+  it("shows retry button on error", async () => {
+    apiClient.get.mockRejectedValue(new Error("Network error"));
     render(<BatchAllocationKPIs />);
     await waitFor(() => {
-      expect(screen.getByText('Retry')).toBeInTheDocument();
+      expect(screen.getByText("Retry")).toBeInTheDocument();
     });
   });
 
-  it('has a refresh button', async () => {
+  it("has a refresh button", async () => {
     render(<BatchAllocationKPIs />);
     await waitFor(() => {
-      expect(screen.getByText('Refresh')).toBeInTheDocument();
+      expect(screen.getByText("Refresh")).toBeInTheDocument();
     });
   });
 });

@@ -1,23 +1,23 @@
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-vi.mock('../../../../../contexts/ThemeContext', () => ({
+vi.mock("../../../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-import ZeroRatedExportsWidget from '../ZeroRatedExportsWidget';
+import ZeroRatedExportsWidget from "../ZeroRatedExportsWidget";
 
-describe('ZeroRatedExportsWidget', () => {
-  it('renders without crashing', () => {
+describe("ZeroRatedExportsWidget", () => {
+  it("renders without crashing", () => {
     render(<ZeroRatedExportsWidget />);
   });
 
-  it('renders with no data', () => {
+  it("renders with no data", () => {
     const { container } = render(<ZeroRatedExportsWidget data={null} />);
     expect(container).toBeTruthy();
   });
 
-  it('renders with custom data', () => {
+  it("renders with custom data", () => {
     const data = {
       summary: {
         totalExports: 12,
@@ -28,10 +28,10 @@ describe('ZeroRatedExportsWidget', () => {
       exports: [
         {
           id: 1,
-          customer: 'Export Corp',
+          customer: "Export Corp",
           value: 150000,
-          destination: 'India',
-          documentStatus: 'complete',
+          destination: "India",
+          documentStatus: "complete",
         },
       ],
     };
@@ -40,7 +40,7 @@ describe('ZeroRatedExportsWidget', () => {
     expect(container).toBeTruthy();
   });
 
-  it('renders with callbacks', () => {
+  it("renders with callbacks", () => {
     const onViewExport = vi.fn();
     const onUploadDocument = vi.fn();
     const { container } = render(

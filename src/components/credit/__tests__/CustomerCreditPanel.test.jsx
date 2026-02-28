@@ -13,7 +13,9 @@ vi.mock("../../ui/badge", () => ({
 
 vi.mock("../../ui/button", () => ({
   Button: ({ children, onClick, disabled, size, variant, className, ...rest }) => (
-    <button type="button" onClick={onClick} disabled={disabled} className={className} {...rest}>{children}</button>
+    <button type="button" onClick={onClick} disabled={disabled} className={className} {...rest}>
+      {children}
+    </button>
   ),
 }));
 
@@ -26,7 +28,7 @@ vi.mock("../../ui/card", () => ({
 }));
 
 vi.mock("../../ui/dialog", () => ({
-  Dialog: ({ children, open }) => open ? <div data-testid="dialog">{children}</div> : null,
+  Dialog: ({ children, open }) => (open ? <div data-testid="dialog">{children}</div> : null),
   DialogContent: ({ children }) => <div>{children}</div>,
   DialogDescription: ({ children }) => <p>{children}</p>,
   DialogHeader: ({ children }) => <div>{children}</div>,
@@ -64,11 +66,7 @@ const customer = {
 };
 
 function renderWithTheme(ui) {
-  return render(
-    <ThemeContext.Provider value={{ isDarkMode: false }}>
-      {ui}
-    </ThemeContext.Provider>
-  );
+  return render(<ThemeContext.Provider value={{ isDarkMode: false }}>{ui}</ThemeContext.Provider>);
 }
 
 describe("CustomerCreditPanel", () => {
