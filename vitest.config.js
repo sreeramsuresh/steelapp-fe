@@ -30,6 +30,24 @@ export default defineConfig({
       "**/*.spec.mjs",
       "**/*.node.test.mjs",
     ],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "text-summary", "lcov", "json-summary"],
+      reportsDirectory: "./coverage",
+      include: ["src/**/*.{js,jsx}"],
+      exclude: [
+        "src/test/**",
+        "src/**/*.test.{js,jsx}",
+        "src/**/*.spec.{js,jsx}",
+        "src/main.jsx",
+      ],
+      thresholds: {
+        branches: 40,
+        functions: 40,
+        lines: 40,
+        statements: 40,
+      },
+    },
     server: {
       deps: {
         inline: ["html-encoding-sniffer", "@exodus/bytes", /react-router/],

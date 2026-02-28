@@ -1,0 +1,221 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+import { deliveryVarianceService } from "../deliveryVarianceService.js";
+
+
+import api from "../api.js";
+
+describe("deliveryVarianceService", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  describe("getDeliveryVarianceKPIs", () => {
+    it("should fetch delivery variance KPIs with default days", async () => {
+      const mockResponse = {
+        on_time_percentage: 92.5,
+        late_deliveries: 8,
+        average_delay_days: 2.3,
+        total_deliveries: 100,
+      };
+
+      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+
+      const result = await deliveryVarianceService.getDeliveryVarianceKPIs();
+
+      expect(result.on_time_percentage).toBeTruthy();
+      expect(result.late_deliveries).toBeTruthy();
+      expect(api.get).toHaveBeenCalledWith("/delivery-variance/kpis",
+        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+    });
+
+    it("should support custom daysBack parameter", async () => {
+      vi.spyOn(api, 'get').mockResolvedValue({
+        on_time_percentage: 95,
+        late_deliveries: 5,
+      });
+
+      await deliveryVarianceService.getDeliveryVarianceKPIs(30);
+
+      expect(api.get).toHaveBeenCalledWith("/delivery-variance/kpis",
+        Object.keys({ params: { daysBack: 30 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+    });
+  });
+
+  describe("getDeliveryVarianceTrend", () => {
+    it("should fetch delivery variance trend data", async () => {
+      const mockResponse = [
+        { date: "2024-01-01", on_time_percentage: 90, late_count: 10 },
+        { date: "2024-01-02", on_time_percentage: 92, late_count: 8 },
+      ];
+
+      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+
+      const result = await deliveryVarianceService.getDeliveryVarianceTrend(90);
+
+      expect(result).toBeTruthy();
+      expect(result[0].on_time_percentage).toBeTruthy();
+      expect(api.get).toHaveBeenCalledWith("/delivery-variance/trend",
+        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+    });
+  });
+
+  describe("getLateDeliveriesBreakdown", () => {
+    it("should fetch late deliveries breakdown by variance range", async () => {
+      const mockResponse = [
+        { range: "1-3 days", count: 15, percentage: 60 },
+        { range: "4-7 days", count: 8, percentage: 32 },
+        { range: "8+ days", count: 2, percentage: 8 },
+      ];
+
+      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+
+      const result = await deliveryVarianceService.getLateDeliveriesBreakdown(90);
+
+      expect(result).toBeTruthy();
+      expect(result[0].range).toBeTruthy();
+      expect(api.get).toHaveBeenCalledWith("/delivery-variance/breakdown",
+        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+    });
+  });
+
+  describe("getRecentLateDeliveries", () => {
+    it("should fetch recent late deliveries with details", async () => {
+      const mockResponse = [
+        {
+          id: 1,
+          order_id: "ORD-001",
+          expected_date: "2024-01-10",
+          actual_date: "2024-01-12",
+          variance_days: 2,
+        },
+        {
+          id: 2,
+          order_id: "ORD-002",
+          expected_date: "2024-01-15",
+          actual_date: "2024-01-18",
+          variance_days: 3,
+        },
+      ];
+
+      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+
+      const result = await deliveryVarianceService.getRecentLateDeliveries(20, 90);
+
+      expect(result).toBeTruthy();
+      expect(result[0].variance_days).toBeTruthy();
+      expect(api.get).toHaveBeenCalledWith("/delivery-variance/late-deliveries",
+        Object.keys({
+          params: { limit: 20, daysBack: 90 },
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
+    });
+
+    it("should support custom limit parameter", async () => {
+      vi.spyOn(api, 'get').mockResolvedValue([]);
+
+      await deliveryVarianceService.getRecentLateDeliveries(50, 180);
+
+      expect(api.get).toHaveBeenCalledWith("/delivery-variance/late-deliveries",
+        Object.keys({
+          params: { limit: 50, daysBack: 180 },
+        }).every(k => typeof arguments[0][k] !== 'undefined'));
+    });
+  });
+
+  describe("getSupplierPerformanceComparison", () => {
+    it("should fetch supplier performance comparison", async () => {
+      const mockResponse = [
+        {
+          supplier_id: 1,
+          supplier_name: "Supplier A",
+          on_time_percentage: 95,
+          avg_delay_days: 0.5,
+        },
+      ];
+
+      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+
+      const result = await deliveryVarianceService.getSupplierPerformanceComparison(10, 90);
+
+      expect(Array.isArray(result).toBeTruthy());
+      expect(api.get).toHaveBeenCalledWith("/delivery-variance/supplier-comparison",
+        Object.keys({ params: { limit: 10, daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+    });
+  });
+
+  describe("getHealthReport", () => {
+    it("should fetch delivery health report", async () => {
+      const mockResponse = {
+        overall_health: "good",
+        on_time_percentage: 92,
+        critical_suppliers: 2,
+      };
+
+      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+
+      const result = await deliveryVarianceService.getHealthReport(90);
+
+      expect(result.overall_health).toBeTruthy();
+      expect(api.get).toHaveBeenCalledWith("/delivery-variance/health-report",
+        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+    });
+  });
+
+  describe("generateRecommendations", () => {
+    it("should generate recommendations for improvements", async () => {
+      const mockResponse = [
+        {
+          id: 1,
+          title: "Address supplier performance",
+          priority: "high",
+        },
+      ];
+
+      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+
+      const result = await deliveryVarianceService.generateRecommendations(90);
+
+      expect(Array.isArray(result).toBeTruthy());
+      expect(api.get).toHaveBeenCalledWith("/delivery-variance/recommendations",
+        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+    });
+  });
+
+  describe("getSupplierScorecard", () => {
+    it("should fetch supplier scorecard", async () => {
+      const mockResponse = {
+        supplier_id: 1,
+        supplier_name: "Supplier A",
+        score: 85,
+        metrics: [],
+      };
+
+      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+
+      const result = await deliveryVarianceService.getSupplierScorecard(1, 90);
+
+      expect(result.supplier_name).toBeTruthy();
+      expect(api.get).toHaveBeenCalledWith("/delivery-variance/supplier/1/scorecard",
+        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+    });
+  });
+
+  describe("getAtRiskSuppliers", () => {
+    it("should fetch at-risk suppliers list", async () => {
+      const mockResponse = [
+        {
+          supplier_id: 1,
+          supplier_name: "At Risk Supplier",
+          risk_level: "high",
+        },
+      ];
+
+      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+
+      const result = await deliveryVarianceService.getAtRiskSuppliers();
+
+      expect(Array.isArray(result).toBeTruthy());
+      expect(api.get).toHaveBeenCalledWith("/delivery-variance/at-risk-suppliers");
+    });
+  });
+});
