@@ -180,7 +180,7 @@ const WarehouseDetail = () => {
       }
     } else {
       for (let ai = 0; ai < a; ai++) {
-        const aisle = String.fromCharCode(65 + ai);
+        const aisle = `A${ai}`;
         for (let ri = 1; ri <= r; ri++) {
           const key = `${aisle}-R${ri}`;
           total += parseInt(genOverrides[key], 10) || d;
@@ -1188,7 +1188,7 @@ const WarehouseDetail = () => {
                             );
                           })
                         : Array.from({ length: Math.min(parseInt(genAisles, 10) || 0, 26) }, (_, ai) => {
-                            const aisle = String.fromCharCode(65 + ai);
+                            const aisle = `A${ai}`;
                             return Array.from({ length: Math.min(parseInt(genRacks, 10) || 0, 99) }, (_, ri) => {
                               const rack = `R${ri + 1}`;
                               const key = `${aisle}-${rack}`;
@@ -1571,7 +1571,7 @@ const WarehouseDetail = () => {
                     return labelA.localeCompare(labelB, undefined, { numeric: true });
                   });
                   return (
-                    <div className="p-4 space-y-5">
+                    <div className="p-4 space-y-5" onClick={() => { setSelectedBinInfo(null); setSelectedLocs(new Set()); }}>
                       {sortedAisles.map((aisleKey) => {
                         const rackMap = aisleMap.get(aisleKey);
                         const isRackOnly = aisleKey === "__rack_only__";
@@ -1639,7 +1639,7 @@ const WarehouseDetail = () => {
                                         ? "text-amber-400"
                                         : "text-green-400";
                                 return (
-                                  <div className={infoBarBase}>
+                                  <div className={infoBarBase} onClick={(e) => e.stopPropagation()}>
                                     <span
                                       className={`font-mono font-bold text-sm ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
                                     >
@@ -1826,7 +1826,7 @@ const WarehouseDetail = () => {
                                               <div
                                                 key={binLabel}
                                                 title="Empty slot (bin deleted)"
-                                                className={`text-sm px-3 py-1.5 rounded font-mono border border-dashed ${
+                                                className={`text-sm px-3 py-1.5 pr-7 rounded font-mono border border-dashed ${
                                                   isDarkMode
                                                     ? "border-gray-700 text-gray-700"
                                                     : "border-gray-200 text-gray-300"
@@ -1849,7 +1849,7 @@ const WarehouseDetail = () => {
                                                   : "bg-green-500";
                                           const binInfoSelected = selectedBinInfo?.locId === loc.id;
                                           return (
-                                            <div key={loc.id} className="group relative flex flex-col gap-0.5">
+                                            <div key={loc.id} className="group relative flex flex-col gap-0.5" onClick={(e) => e.stopPropagation()}>
                                               <div className="group/bintt relative">
                                                 {/* Hover tooltip */}
                                                 <div className="hidden group-hover/bintt:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 pointer-events-none min-w-[160px] rounded-lg border border-gray-700 bg-gray-900 shadow-xl p-2.5">
