@@ -32,6 +32,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      // Proxy health check endpoint
+      "/health": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        secure: false,
+      },
       // Also proxy static uploads to serve images from same origin
       "/uploads": {
         target: "http://localhost:3000",

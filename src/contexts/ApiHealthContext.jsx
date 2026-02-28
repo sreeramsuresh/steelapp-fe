@@ -12,6 +12,8 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
  * not waiting for the next health poll.
  */
 
+import { HEALTH_URL } from "../utils/healthUrl";
+
 const ApiHealthContext = createContext(null);
 
 // Module-level listeners for reporting unhealthy status from outside React
@@ -44,7 +46,7 @@ export const ApiHealthProvider = ({ children }) => {
 
   const isMountedRef = useRef(true);
   const intervalRef = useRef(null);
-  const healthUrl = "http://localhost:3000/health";
+  const healthUrl = HEALTH_URL;
   const pollingInterval = 30000;
 
   /**

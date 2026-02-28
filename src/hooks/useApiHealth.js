@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { HEALTH_URL } from "../utils/healthUrl";
 
 /**
  * useApiHealth - Hook that polls the API Gateway health endpoint
@@ -21,7 +22,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export const useApiHealth = (options = {}) => {
   const {
     pollingInterval = 30000, // 30 seconds
-    healthUrl = "http://localhost:3000/health",
+    healthUrl = HEALTH_URL,
     enabled = true,
   } = options;
 
