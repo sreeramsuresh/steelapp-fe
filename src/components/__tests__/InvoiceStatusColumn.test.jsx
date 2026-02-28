@@ -32,16 +32,12 @@ describe("InvoiceStatusColumn", () => {
   const invoice = { id: 1, status: "draft", paymentStatus: "unpaid" };
 
   it("renders without crashing", () => {
-    const { container } = renderWithProviders(
-      <InvoiceStatusColumn invoice={invoice} isDarkMode={false} />
-    );
+    const { container } = renderWithProviders(<InvoiceStatusColumn invoice={invoice} isDarkMode={false} />);
     expect(container).toBeTruthy();
   });
 
   it("displays status badge", () => {
-    const { container } = renderWithProviders(
-      <InvoiceStatusColumn invoice={invoice} isDarkMode={false} />
-    );
+    const { container } = renderWithProviders(<InvoiceStatusColumn invoice={invoice} isDarkMode={false} />);
     expect(container.textContent).toContain("Draft");
   });
 });
