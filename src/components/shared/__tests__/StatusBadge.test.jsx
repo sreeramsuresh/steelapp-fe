@@ -11,13 +11,13 @@ import StatusBadge from "../StatusBadge";
 
 describe("StatusBadge", () => {
   it("should render status text", () => {
-    render(<StatusBadge status="ACTIVE" />);
+    render(<StatusBadge status="ACTIVE" variant="active" />);
 
     expect(screen.getByText("ACTIVE")).toBeInTheDocument();
   });
 
   it("should apply default variant styles", () => {
-    const { container } = render(<StatusBadge status="DEFAULT" />);
+    const { container } = render(<StatusBadge status="DEFAULT" variant="draft" />);
 
     const badge = container.firstChild;
     expect(badge).toHaveClass("inline-flex", "rounded-full", "font-medium", "border");
@@ -80,28 +80,28 @@ describe("StatusBadge", () => {
   });
 
   it("should apply small size styling", () => {
-    const { container } = render(<StatusBadge status="DRAFT" size="sm" />);
+    const { container } = render(<StatusBadge status="DRAFT" variant="draft" size="sm" />);
 
     const badge = container.firstChild;
     expect(badge).toHaveClass("px-2", "py-0.5", "text-xs");
   });
 
   it("should apply medium size styling (default)", () => {
-    const { container } = render(<StatusBadge status="ACTIVE" size="md" />);
+    const { container } = render(<StatusBadge status="ACTIVE" variant="active" size="md" />);
 
     const badge = container.firstChild;
     expect(badge).toHaveClass("px-2.5", "py-1", "text-sm");
   });
 
   it("should apply large size styling", () => {
-    const { container } = render(<StatusBadge status="SUCCESS" size="lg" />);
+    const { container } = render(<StatusBadge status="SUCCESS" variant="success" size="lg" />);
 
     const badge = container.firstChild;
     expect(badge).toHaveClass("px-3", "py-1.5", "text-base");
   });
 
   it("should apply custom className", () => {
-    const { container } = render(<StatusBadge status="ACTIVE" className="custom-class" />);
+    const { container } = render(<StatusBadge status="ACTIVE" variant="active" className="custom-class" />);
 
     const badge = container.firstChild;
     expect(badge).toHaveClass("custom-class");
@@ -129,11 +129,11 @@ describe("StatusBadge", () => {
   });
 
   it("should handle uppercase and lowercase status text", () => {
-    const { rerender } = render(<StatusBadge status="Active" />);
+    const { rerender } = render(<StatusBadge status="Active" variant="active" />);
 
     expect(screen.getByText("Active")).toBeInTheDocument();
 
-    rerender(<StatusBadge status="INACTIVE" />);
+    rerender(<StatusBadge status="INACTIVE" variant="inactive" />);
 
     expect(screen.getByText("INACTIVE")).toBeInTheDocument();
   });
@@ -151,8 +151,8 @@ describe("StatusBadge", () => {
     expect(screen.getByText("AWAITING_APPROVAL")).toBeInTheDocument();
   });
 
-  it("should render with only status prop", () => {
-    render(<StatusBadge status="TEST" />);
+  it("should render with status and variant props", () => {
+    render(<StatusBadge status="TEST" variant="info" />);
 
     expect(screen.getByText("TEST")).toBeInTheDocument();
   });

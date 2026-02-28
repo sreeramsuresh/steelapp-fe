@@ -32,7 +32,7 @@ describe('transitService', () => {
       const result = await transitService.getAll({ page: 1 });
 
       expect(result.data).toBeTruthy();
-      expect(apiClient.get.calledWith('/transit', expect.anything().toBeTruthy()));
+      expect(apiClient.get).toHaveBeenCalledWith('/transit', expect.anything());
     });
 
     it('should support parameters', async () => {
@@ -59,7 +59,7 @@ describe('transitService', () => {
       const result = await transitService.getTracking('shipment', 1);
 
       expect(result.status).toBe('in_transit');
-      expect(apiClient.get.calledWith('/transit/shipment/1').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/transit/shipment/1');
     });
 
     it('should handle different item types', async () => {
@@ -67,7 +67,7 @@ describe('transitService', () => {
 
       await transitService.getTracking('purchase_order', 5);
 
-      expect(apiClient.get.calledWith('/transit/purchase_order/5').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/transit/purchase_order/5');
     });
   });
 
@@ -85,9 +85,7 @@ describe('transitService', () => {
       const result = await transitService.updateStatus('shipment', 1, 'arrived');
 
       expect(result.status).toBe('arrived');
-      expect(
-        apiClient.patch.calledWith('/transit/shipment/1/status', { status: 'arrived' }).toBeTruthy()
-      );
+      expect(apiClient.patch).toHaveBeenCalledWith('/transit/shipment/1/status', { status: 'arrived' });
     });
 
     it('should handle status changes', async () => {
@@ -95,7 +93,7 @@ describe('transitService', () => {
 
       await transitService.updateStatus('invoice', 2, 'in_transit');
 
-      expect(apiClient.patch.calledWith('/transit/invoice/2/status', expect.anything().toBeTruthy()));
+      expect(apiClient.patch).toHaveBeenCalledWith('/transit/invoice/2/status', expect.anything());
     });
   });
 });

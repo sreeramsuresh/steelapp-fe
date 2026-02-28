@@ -81,14 +81,13 @@ describe("ApiHealthContext", () => {
       </ApiHealthProvider>
     );
 
+    // Advance past 1s initial delay and flush async
     await act(async () => {
-      vi.advanceTimersByTime(1000);
+      await vi.advanceTimersByTimeAsync(1100);
     });
 
-    await waitFor(() => {
-      expect(screen.getByTestId("isHealthy")).toHaveTextContent("true");
-      expect(screen.getByTestId("lastChecked")).toHaveTextContent("checked");
-    });
+    expect(screen.getByTestId("isHealthy")).toHaveTextContent("true");
+    expect(screen.getByTestId("lastChecked")).toHaveTextContent("checked");
   });
 
   it("sets unhealthy state on failed health check", async () => {
@@ -101,15 +100,13 @@ describe("ApiHealthContext", () => {
     );
 
     await act(async () => {
-      vi.advanceTimersByTime(1000);
+      await vi.advanceTimersByTimeAsync(1100);
     });
 
-    await waitFor(() => {
-      expect(screen.getByTestId("isHealthy")).toHaveTextContent("false");
-      expect(screen.getByTestId("error")).toHaveTextContent(
-        "Server returned status 503"
-      );
-    });
+    expect(screen.getByTestId("isHealthy")).toHaveTextContent("false");
+    expect(screen.getByTestId("error")).toHaveTextContent(
+      "Server returned status 503"
+    );
   });
 
   it("sets unhealthy state on network error", async () => {
@@ -122,15 +119,13 @@ describe("ApiHealthContext", () => {
     );
 
     await act(async () => {
-      vi.advanceTimersByTime(1000);
+      await vi.advanceTimersByTimeAsync(1100);
     });
 
-    await waitFor(() => {
-      expect(screen.getByTestId("isHealthy")).toHaveTextContent("false");
-      expect(screen.getByTestId("error")).toHaveTextContent(
-        "Cannot connect to server"
-      );
-    });
+    expect(screen.getByTestId("isHealthy")).toHaveTextContent("false");
+    expect(screen.getByTestId("error")).toHaveTextContent(
+      "Cannot connect to server"
+    );
   });
 
   it("handles abort timeout error", async () => {
@@ -145,14 +140,12 @@ describe("ApiHealthContext", () => {
     );
 
     await act(async () => {
-      vi.advanceTimersByTime(1000);
+      await vi.advanceTimersByTimeAsync(1100);
     });
 
-    await waitFor(() => {
-      expect(screen.getByTestId("error")).toHaveTextContent(
-        "Server is not responding (timeout)"
-      );
-    });
+    expect(screen.getByTestId("error")).toHaveTextContent(
+      "Server is not responding (timeout)"
+    );
   });
 
   it("dismiss sets isDismissed to true", async () => {

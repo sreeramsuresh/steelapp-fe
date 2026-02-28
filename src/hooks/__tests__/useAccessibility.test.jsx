@@ -46,25 +46,26 @@ describe("useReducedMotion", () => {
 });
 
 describe("useAnnounce", () => {
-  afterEach(() => {
-    // Clean up any announcer elements
-    document.querySelectorAll('[aria-live]').forEach(el => {
-      if (el.parentNode === document.body) {
-        document.body.removeChild(el);
-      }
+  beforeEach(() => {
+    window.matchMedia = vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
     });
   });
 
   it("returns an announce function", () => {
-    const { result } = renderHook(() => useAnnounce());
+    const { result, unmount } = renderHook(() => useAnnounce());
     expect(typeof result.current).toBe("function");
+    unmount();
   });
 
   it("creates an announcer element in the DOM", () => {
-    renderHook(() => useAnnounce());
+    const { unmount } = renderHook(() => useAnnounce());
     const announcer = document.querySelector('[aria-live="polite"]');
     expect(announcer).toBeTruthy();
     expect(announcer.getAttribute("role")).toBe("status");
+    unmount();
   });
 
   it("removes announcer on unmount", () => {
@@ -185,16 +186,8 @@ describe("useAccessibility (main hook)", () => {
     });
   });
 
-  afterEach(() => {
-    document.querySelectorAll('[aria-live]').forEach(el => {
-      if (el.parentNode === document.body) {
-        document.body.removeChild(el);
-      }
-    });
-  });
-
   it("returns all accessibility utilities", () => {
-    const { result } = renderHook(() => useAccessibility());
+    const { result, unmount } = renderHook(() => useAccessibility());
 
     expect(typeof result.current.prefersReducedMotion).toBe("boolean");
     expect(typeof result.current.announce).toBe("function");
@@ -205,10 +198,11 @@ describe("useAccessibility (main hook)", () => {
     expect(typeof result.current.getDialogProps).toBe("function");
     expect(typeof result.current.getAlertProps).toBe("function");
     expect(result.current.SkipLink).toBeTruthy();
+    unmount();
   });
 
   it("getButtonProps returns ARIA attributes", () => {
-    const { result } = renderHook(() => useAccessibility());
+    const { result, unmount } = renderHook(() => useAccessibility());
 
     const props = result.current.getButtonProps({
       label: "Close",
@@ -221,10 +215,11 @@ describe("useAccessibility (main hook)", () => {
     expect(props["aria-pressed"]).toBe(true);
     expect(props["aria-expanded"]).toBe(false);
     expect(props["aria-controls"]).toBe("panel-1");
+    unmount();
   });
 
   it("getInputProps returns ARIA attributes", () => {
-    const { result } = renderHook(() => useAccessibility());
+    const { result, unmount } = renderHook(() => useAccessibility());
 
     const props = result.current.getInputProps({
       label: "Email",
@@ -237,22 +232,25 @@ describe("useAccessibility (main hook)", () => {
     expect(props["aria-required"]).toBe(true);
     expect(props["aria-invalid"]).toBe(true);
     expect(props["aria-errormessage"]).toBe("email-error");
+    unmount();
   });
 
   it("getDialogProps returns dialog ARIA", () => {
-    const { result } = renderHook(() => useAccessibility());
+    const { result, unmount } = renderHook(() => useAccessibility());
 
     const props = result.current.getDialogProps({ label: "Confirm" });
     expect(props.role).toBe("dialog");
     expect(props["aria-modal"]).toBe(true);
     expect(props["aria-label"]).toBe("Confirm");
+    unmount();
   });
 
   it("getAlertProps returns role based on type", () => {
-    const { result } = renderHook(() => useAccessibility());
+    const { result, unmount } = renderHook(() => useAccessibility());
 
     expect(result.current.getAlertProps({ type: "error" }).role).toBe("alert");
     expect(result.current.getAlertProps({ type: "info" }).role).toBe("status");
+    unmount();
   });
 });
 

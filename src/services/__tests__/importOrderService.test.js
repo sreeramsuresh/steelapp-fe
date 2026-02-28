@@ -62,7 +62,7 @@ describe('importOrderService', () => {
       const result = await importOrderService.createImportOrder(orderData);
 
       expect(result.id).toBe(1);
-      expect(apiClient.post.calledWith('/import-orders', expect.anything().toBeTruthy()));
+      expect(apiClient.post).toHaveBeenCalledWith('/import-orders', expect.anything());
     });
   });
 
@@ -85,8 +85,8 @@ describe('importOrderService', () => {
       const result = await importOrderService.getImportOrder(1);
 
       expect(
-        ['PENDING', 'IN_TRANSIT', 'ARRIVED', 'CUSTOMS', 'RECEIVED'].includes(result.status).toBeTruthy()
-      );
+        ['PENDING', 'IN_TRANSIT', 'ARRIVED', 'CUSTOMS', 'RECEIVED'].includes(result.status)
+      ).toBeTruthy();
     });
   });
 

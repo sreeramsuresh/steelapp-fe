@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../../contexts/ThemeContext", () => ({
+vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../services/invoiceService", () => ({
+vi.mock("../../../services/invoiceService", () => ({
   invoiceService: {
     getInvoiceStockMovements: vi.fn().mockResolvedValue([]),
     createStockMovements: vi.fn().mockResolvedValue({ success: true }),
@@ -16,7 +16,7 @@ vi.mock("date-fns", () => ({
   format: (date, fmt) => "01 Jan 2024 10:00",
 }));
 
-import { invoiceService } from "../../services/invoiceService";
+import { invoiceService } from "../../../services/invoiceService";
 import InvoiceStockMovements from "../InvoiceStockMovements";
 
 describe("InvoiceStockMovements", () => {

@@ -35,7 +35,7 @@ describe('customsDocumentService', () => {
 
       expect(result.length).toBe(2);
       expect(result[0].document_type).toBe('BOE');
-      expect(api.get.calledWith('/customs-documents', { params: {} }).toBeTruthy());
+      expect(api.get).toHaveBeenCalledWith('/customs-documents', { params: {} });
     });
 
     it('should support filtering by status', async () => {
@@ -43,11 +43,9 @@ describe('customsDocumentService', () => {
 
       await api.get('/customs-documents', { params: { status: 'cleared' } });
 
-      expect(
-        api.get.calledWith(
-          '/customs-documents',
-          expect.objectContaining({ params: { status: 'cleared' } }).toBeTruthy()
-        )
+      expect(api.get).toHaveBeenCalledWith(
+        '/customs-documents',
+        expect.objectContaining({ params: { status: 'cleared' } })
       );
     });
   });
@@ -68,7 +66,7 @@ describe('customsDocumentService', () => {
 
       expect(result.document_type).toBe('BOE');
       expect(result.clearance_status).toBe('cleared');
-      expect(api.get.calledWith('/customs-documents/1').toBeTruthy());
+      expect(api.get).toHaveBeenCalledWith('/customs-documents/1');
     });
   });
 
@@ -91,7 +89,7 @@ describe('customsDocumentService', () => {
       const result = await api.post('/customs-documents', payload);
 
       expect(result.id).toBe(1);
-      expect(api.post.calledWith('/customs-documents', payload).toBeTruthy());
+      expect(api.post).toHaveBeenCalledWith('/customs-documents', payload);
     });
   });
 
@@ -109,7 +107,7 @@ describe('customsDocumentService', () => {
       const result = await api.put('/customs-documents/1', payload);
 
       expect(result.reference_number).toBe('BOE-2024-001-UPDATED');
-      expect(api.put.calledWith('/customs-documents/1', payload).toBeTruthy());
+      expect(api.put).toHaveBeenCalledWith('/customs-documents/1', payload);
     });
   });
 
@@ -120,7 +118,7 @@ describe('customsDocumentService', () => {
       const result = await api.delete('/customs-documents/1');
 
       expect(result.success).toBe(true);
-      expect(api.delete.calledWith('/customs-documents/1').toBeTruthy());
+      expect(api.delete).toHaveBeenCalledWith('/customs-documents/1');
     });
   });
 
@@ -142,9 +140,7 @@ describe('customsDocumentService', () => {
       });
 
       expect(result.clearance_status).toBe('cleared');
-      expect(
-        api.patch.calledWith('/customs-documents/1/clearance', expect.objectContaining({}).toBeTruthy())
-      );
+      expect(api.patch).toHaveBeenCalledWith('/customs-documents/1/clearance', expect.objectContaining({}));
     });
 
     it('should handle clearance without notes and date', async () => {
@@ -184,9 +180,7 @@ describe('customsDocumentService', () => {
 
       expect(result.customs_duty).toBe(5000);
       expect(result.total_duties).toBe(5250);
-      expect(
-        api.post.calledWith('/customs-documents/1/calculate-duties', payload).toBeTruthy()
-      );
+      expect(api.post).toHaveBeenCalledWith('/customs-documents/1/calculate-duties', payload);
     });
   });
 
@@ -204,7 +198,7 @@ describe('customsDocumentService', () => {
 
       expect(result.length).toBe(3);
       expect(result[0].value).toBe('BOE');
-      expect(api.get.calledWith('/customs-documents/types/list').toBeTruthy());
+      expect(api.get).toHaveBeenCalledWith('/customs-documents/types/list');
     });
   });
 
@@ -227,7 +221,7 @@ describe('customsDocumentService', () => {
 
       expect(result.length).toBe(2);
       expect(result[0].code).toBe('7226.91.00');
-      expect(api.get.calledWith('/customs-documents/hs-codes/list').toBeTruthy());
+      expect(api.get).toHaveBeenCalledWith('/customs-documents/hs-codes/list');
     });
   });
 });

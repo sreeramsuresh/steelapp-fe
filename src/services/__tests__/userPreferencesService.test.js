@@ -134,14 +134,16 @@ describe("userPreferencesService", () => {
       const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
       // Mock localStorage.setItem to throw
-      Storage.prototype.setItem = vi.fn(() => {
+      const originalSetItem = localStorage.setItem;
+      localStorage.setItem = vi.fn(() => {
         throw new Error("QuotaExceededError");
       });
 
       userPreferencesService.setHomeSectionOrder(mockOrder);
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith("Failed to save section order to localStorage:", );
+      expect(consoleWarnSpy).toHaveBeenCalledWith("Failed to save section order to localStorage:", expect.any(Error));
 
+      localStorage.setItem = originalSetItem;
       consoleWarnSpy.mockRestore();
     });
   });
@@ -156,7 +158,7 @@ describe("userPreferencesService", () => {
       userPreferencesService.setHomeSectionOrder(order);
 
       // Get order
-      expect(userPreferencesService.getHomeSectionOrder().toBeTruthy());
+      expect(userPreferencesService.getHomeSectionOrder()).toBeTruthy();
 
       // Update permissions
       const mockUpdatedUser = {

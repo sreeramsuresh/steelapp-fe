@@ -1,12 +1,30 @@
-import { describe, expect, it } from "vitest";
-import { renderWithProviders } from "../../../test/component-setup";
-import Input from "../Input";
+import { describe, expect, it, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import React from "react";
+import { Input } from "../Input";
 
 describe("Input", () => {
-  ["should render input", "should accept value", "should handle change", "should validate input"].forEach((test) => {
-    it(test, () => {
-      const { container } = renderWithProviders(<Input />);
-      expect(container).toBeInTheDocument();
-    });
+  it("should render input", () => {
+    render(<Input placeholder="Enter text" />);
+    expect(screen.getByPlaceholderText("Enter text")).toBeInTheDocument();
+  });
+
+  it("should accept value", () => {
+    render(<Input value="hello" readOnly />);
+    expect(screen.getByDisplayValue("hello")).toBeInTheDocument();
+  });
+
+  it("should handle change", () => {
+    const onChange = vi.fn();
+    render(<Input onChange={onChange} />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "new" } });
+    expect(onChange).toHaveBeenCalled();
+  });
+
+  it("should validate input", () => {
+    render(<Input type="email" required />);
+    const input = screen.getByRole("textbox");
+    expect(input).toHaveAttribute("type", "email");
+    expect(input).toBeRequired();
   });
 });

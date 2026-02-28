@@ -23,16 +23,16 @@ describe('analyticsService', () => {
       };
       vi.spyOn(apiClient, 'get').mockResolvedValue(mockMetrics);
 
-      const result = await analyticsService.getDashboardMetrics();
+      const result = await analyticsService.getDashboardData();
 
       expect(result.totalRevenue).toBe(500000);
-      expect(apiClient.get.calledWith('/analytics/dashboard').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/analytics/dashboard', {});
     });
 
     it('should handle empty metrics', async () => {
       vi.spyOn(apiClient, 'get').mockResolvedValue({});
 
-      const result = await analyticsService.getDashboardMetrics();
+      const result = await analyticsService.getDashboardData();
 
       expect(result !== undefined).toBeTruthy();
     });
@@ -51,9 +51,9 @@ describe('analyticsService', () => {
       };
       vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
 
-      const result = await analyticsService.getSalesAnalytics({ period: 'month' });
+      const result = await analyticsService.getSalesTrends({ period: 'month' });
 
-      expect(Array.isArray(result.dailySales).toBeTruthy());
+      expect(Array.isArray(result.dailySales)).toBeTruthy();
       expect(apiClient.get.mock.calls.length > 0).toBeTruthy();
     });
   });
@@ -67,7 +67,7 @@ describe('analyticsService', () => {
       };
       vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
 
-      const result = await analyticsService.getCustomerAnalytics();
+      const result = await analyticsService.getCustomerAnalysis();
 
       expect(result.totalCustomers).toBe(150);
       expect(apiClient.get.mock.calls.length > 0).toBeTruthy();
@@ -83,7 +83,7 @@ describe('analyticsService', () => {
       };
       vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
 
-      const result = await analyticsService.getRevenueAnalytics();
+      const result = await analyticsService.getRevenueMetrics();
 
       expect(result.monthlyRevenue).toBe(500000);
       expect(apiClient.get.mock.calls.length > 0).toBeTruthy();
@@ -95,7 +95,7 @@ describe('analyticsService', () => {
       vi.spyOn(apiClient, 'get').mockRejectedValue(new Error('API Error'));
 
       try {
-        await analyticsService.getDashboardMetrics();
+        await analyticsService.getDashboardData();
         throw new Error('Expected error');
       } catch (error) {
         expect(error.message).toBe('API Error');

@@ -26,8 +26,8 @@ describe('roleService', () => {
 
       const result = await roleService.getRoles();
 
-      expect(Array.isArray(result).toBeTruthy());
-      expect(apiClient.get.calledWith('/roles').toBeTruthy());
+      expect(Array.isArray(result)).toBeTruthy();
+      expect(apiClient.get).toHaveBeenCalledWith('/roles');
     });
 
     it('should handle error', async () => {
@@ -51,8 +51,8 @@ describe('roleService', () => {
 
       const result = await roleService.getAvailableRoles();
 
-      expect(Array.isArray(result).toBeTruthy());
-      expect(apiClient.get.calledWith('/roles/list/available').toBeTruthy());
+      expect(Array.isArray(result)).toBeTruthy();
+      expect(apiClient.get).toHaveBeenCalledWith('/roles/list/available');
     });
 
     it('should handle error', async () => {
@@ -76,7 +76,7 @@ describe('roleService', () => {
       const result = await roleService.getRole(1);
 
       expect(result).toEqual(mockRole);
-      expect(apiClient.get.calledWith('/roles/1').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/roles/1');
     });
 
     it('should handle error', async () => {
@@ -103,7 +103,7 @@ describe('roleService', () => {
       const result = await roleService.createRole(roleData);
 
       expect(result.id).toBeTruthy();
-      expect(apiClient.post.calledWith('/roles', roleData).toBeTruthy());
+      expect(apiClient.post).toHaveBeenCalledWith('/roles', roleData);
     });
 
     it('should handle error', async () => {
@@ -132,7 +132,7 @@ describe('roleService', () => {
       const result = await roleService.updateRole(1, roleData);
 
       expect(result.id).toBeTruthy();
-      expect(apiClient.put.calledWith('/roles/1', roleData).toBeTruthy());
+      expect(apiClient.put).toHaveBeenCalledWith('/roles/1', roleData);
     });
 
     it('should handle error', async () => {
@@ -154,7 +154,7 @@ describe('roleService', () => {
       const result = await roleService.deleteRole(1);
 
       expect(result.success).toBe(true);
-      expect(apiClient.delete.calledWith('/roles/1').toBeTruthy());
+      expect(apiClient.delete).toHaveBeenCalledWith('/roles/1');
     });
 
     it('should handle error', async () => {
@@ -181,7 +181,7 @@ describe('roleService', () => {
       const result = await roleService.getAllPermissions();
 
       expect(result).toEqual(mockPermissions);
-      expect(apiClient.get.calledWith('/roles/permissions/all').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/roles/permissions/all');
     });
 
     it('should handle error', async () => {
@@ -208,7 +208,7 @@ describe('roleService', () => {
       const result = await roleService.getUserPermissions(1);
 
       expect(result).toEqual(mockPermissions);
-      expect(apiClient.get.calledWith('/roles/users/1/permissions').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/roles/users/1/permissions');
     });
 
     it('should handle error', async () => {
@@ -230,9 +230,9 @@ describe('roleService', () => {
       const result = await roleService.assignRoles(1, [1, 2]);
 
       expect(result.success).toBe(true);
-      expect(apiClient.post.calledWith('/roles/users/1/roles', {
+      expect(apiClient.post).toHaveBeenCalledWith('/roles/users/1/roles', {
         role_ids: [1, 2],
-      }).toBeTruthy());
+      });
     });
 
     it('should handle error', async () => {
@@ -254,9 +254,9 @@ describe('roleService', () => {
       const result = await roleService.replaceUserRoles(1, [2, 3]);
 
       expect(result.success).toBe(true);
-      expect(apiClient.put.calledWith('/roles/users/1/roles', {
+      expect(apiClient.put).toHaveBeenCalledWith('/roles/users/1/roles', {
         role_ids: [2, 3],
-      }).toBeTruthy());
+      });
     });
 
     it('should handle error', async () => {
@@ -278,7 +278,7 @@ describe('roleService', () => {
       const result = await roleService.removeRole(1, 2);
 
       expect(result.success).toBe(true);
-      expect(apiClient.delete.calledWith('/roles/users/1/roles/2').toBeTruthy());
+      expect(apiClient.delete).toHaveBeenCalledWith('/roles/users/1/roles/2');
     });
 
     it('should handle error', async () => {
@@ -300,11 +300,11 @@ describe('roleService', () => {
       const result = await roleService.grantCustomPermission(1, 'invoices.export', 'Need reports', '2024-12-31');
 
       expect(result.success).toBe(true);
-      expect(apiClient.post.calledWith('/roles/users/1/permissions/grant', {
+      expect(apiClient.post).toHaveBeenCalledWith('/roles/users/1/permissions/grant', {
         permission_key: 'invoices.export',
         reason: 'Need reports',
         expires_at: '2024-12-31',
-      }).toBeTruthy());
+      });
     });
 
     it('should handle error', async () => {
@@ -326,9 +326,9 @@ describe('roleService', () => {
       const result = await roleService.revokeCustomPermission(1, 'invoices.export', 'No longer needed');
 
       expect(result.success).toBe(true);
-      expect(apiClient.delete.calledWith('/roles/users/1/permissions/invoices.export', {
+      expect(apiClient.delete).toHaveBeenCalledWith('/roles/users/1/permissions/invoices.export', {
         data: { reason: 'No longer needed' },
-      }).toBeTruthy());
+      });
     });
 
     it('should handle error', async () => {
@@ -351,10 +351,10 @@ describe('roleService', () => {
 
       const result = await roleService.getAuditLog(1, 50);
 
-      expect(Array.isArray(result).toBeTruthy());
-      expect(apiClient.get.calledWith('/roles/users/1/audit-log', {
+      expect(Array.isArray(result)).toBeTruthy();
+      expect(apiClient.get).toHaveBeenCalledWith('/roles/users/1/audit-log', {
         params: { limit: 50 },
-      }).toBeTruthy());
+      });
     });
 
     it('should handle error', async () => {

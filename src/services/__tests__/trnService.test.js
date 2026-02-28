@@ -144,7 +144,7 @@ describe("trnService", () => {
 
       const result = await trnService.getFormats();
       expect(result.success).toBe(true);
-      expect(Array.isArray(result.formats).toBeTruthy());
+      expect(Array.isArray(result.formats)).toBeTruthy();
     });
   });
 
@@ -184,8 +184,8 @@ describe("trnService", () => {
 
   describe("hasVatSystem", () => {
     it("should return true for countries with VAT", () => {
-      expect(trnService.hasVatSystem("AE").toBeTruthy());
-      expect(trnService.hasVatSystem("SA").toBeTruthy());
+      expect(trnService.hasVatSystem("AE")).toBeTruthy();
+      expect(trnService.hasVatSystem("SA")).toBeTruthy();
     });
 
     it("should return false for countries without VAT", () => {
@@ -194,7 +194,7 @@ describe("trnService", () => {
     });
 
     it("should handle lowercase country codes", () => {
-      expect(trnService.hasVatSystem("ae").toBeTruthy());
+      expect(trnService.hasVatSystem("ae")).toBeTruthy();
     });
   });
 });

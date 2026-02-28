@@ -14,7 +14,7 @@ describe("CollectionPerformanceWidget", () => {
 
   it("displays collection performance content with mock data", () => {
     render(<CollectionPerformanceWidget />);
-    expect(screen.getByText(/Collection/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Collection/i).length).toBeGreaterThan(0);
   });
 
   it("renders with custom data", () => {
@@ -33,7 +33,7 @@ describe("CollectionPerformanceWidget", () => {
       agingBuckets: [{ label: "0-30 Days", amount: 500000, percent: 50 }],
     };
     render(<CollectionPerformanceWidget data={data} />);
-    expect(screen.getByText(/Collection/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Collection/i).length).toBeGreaterThan(0);
   });
 
   it("renders with isLoading prop", () => {

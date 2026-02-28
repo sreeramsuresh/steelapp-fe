@@ -1,11 +1,11 @@
 /**
- * Audit Hub Service Unit Tests (Node Native Test Runner)
- * Tests audit logging and activity tracking
+ * Audit Hub Service Unit Tests
+ * Tests audit hub operations (accounting periods and datasets)
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 
-import { apiClient } from '../api.js';
+import api from '../api.js';
 import { auditHubService } from '../auditHubService.js';
 
 describe('auditHubService', () => {
@@ -13,55 +13,47 @@ describe('auditHubService', () => {
     vi.restoreAllMocks();
   });
 
-  describe('getAuditLog', () => {
-    it('should fetch audit log', async () => {
-      const mockLog = [
-        { id: 1, action: 'CREATE', entity: 'Invoice', timestamp: '2026-01-15' },
-        { id: 2, action: 'UPDATE', entity: 'Invoice', timestamp: '2026-01-16' },
+  describe('getPeriods', () => {
+    it('should fetch accounting periods', async () => {
+      const mockPeriods = [
+        { id: 1, year: 2024, month: 1, status: 'open' },
+        { id: 2, year: 2024, month: 2, status: 'closed' },
       ];
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockLog);
+      vi.spyOn(api, 'get').mockResolvedValue(mockPeriods);
 
-      const result = await auditHubService.getAuditLog();
+      const result = await auditHubService.getPeriods(1);
 
       expect(result.length).toBe(2);
-      expect(apiClient.get.mock.calls.length > 0).toBeTruthy();
+      expect(api.get).toHaveBeenCalled();
+    });
+
+    it('should support year filter', async () => {
+      vi.spyOn(api, 'get').mockResolvedValue([]);
+
+      await auditHubService.getPeriods(1, { year: 2024 });
+
+      expect(api.get).toHaveBeenCalled();
     });
   });
 
-  describe('logAction', () => {
-    it('should log user action', async () => {
-      const actionData = { action: 'CREATE', entity: 'Invoice', entityId: 1 };
-      const mockResponse = { id: 1, ...actionData };
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+  describe('getPeriodById', () => {
+    it('should fetch single period by ID', async () => {
+      const mockPeriod = { id: 1, year: 2024, month: 1, status: 'open' };
+      vi.spyOn(api, 'get').mockResolvedValue(mockPeriod);
 
-      const result = await auditHubService.logAction(actionData);
+      const result = await auditHubService.getPeriodById(1, 1);
 
       expect(result.id).toBe(1);
-      expect(apiClient.post.mock.calls.length > 0).toBeTruthy();
-    });
-  });
-
-  describe('getActivitySummary', () => {
-    it('should fetch activity summary', async () => {
-      const mockSummary = {
-        totalActions: 500,
-        topUsers: [{ userId: 1, actions: 150 }],
-      };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockSummary);
-
-      const result = await auditHubService.getActivitySummary();
-
-      expect(result.totalActions).toBe(500);
-      expect(apiClient.get.mock.calls.length > 0).toBeTruthy();
+      expect(api.get).toHaveBeenCalled();
     });
   });
 
   describe('error handling', () => {
     it('should handle API errors', async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValue(new Error('Network error'));
+      vi.spyOn(api, 'get').mockRejectedValue(new Error('Network error'));
 
       try {
-        await auditHubService.getAuditLog();
+        await auditHubService.getPeriods(1);
         throw new Error('Expected error');
       } catch (error) {
         expect(error.message).toBe('Network error');

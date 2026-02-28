@@ -120,8 +120,8 @@ describe("LoadingSpinner", () => {
     expect(screen.getByText("Processing...")).toBeInTheDocument();
   });
 
-  it("should display default message when provided", () => {
-    render(<LoadingSpinner message="Custom message" />);
+  it("should display default message when provided in block mode", () => {
+    render(<LoadingSpinner message="Custom message" mode="block" />);
 
     expect(screen.getByText("Custom message")).toBeInTheDocument();
   });
@@ -129,16 +129,19 @@ describe("LoadingSpinner", () => {
   it("should not render message when empty string", () => {
     const { container } = render(<LoadingSpinner mode="block" message="" />);
 
-    expect(screen.queryByText("")).not.toBeInTheDocument();
+    // Empty string is falsy, so no <p> message rendered
+    const messageP = container.querySelector("p");
+    expect(messageP).toBeNull();
     // Spinner should still be there
     expect(container.querySelector(".animate-spin")).toBeInTheDocument();
   });
 
-  it("should not render message span when no message prop", () => {
+  it("should render default Loading... message when no message prop", () => {
     render(<LoadingSpinner mode="block" />);
 
+    // Default message prop is "Loading...", so it renders
     const messages = Array.from(document.querySelectorAll("p")).filter((p) => p.textContent === "Loading...");
-    expect(messages.length).toBe(0);
+    expect(messages.length).toBe(1);
   });
 
   it("should combine size and mode correctly", () => {

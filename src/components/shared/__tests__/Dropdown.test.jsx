@@ -11,7 +11,7 @@
  * - Icon and badge support
  */
 
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
 // Mock Dropdown component
@@ -251,7 +251,7 @@ describe("Dropdown Component", () => {
       const itemsWithBadges = [{ label: "Item", value: "item", badge: "10" }];
       const { getByText } = renderWithProviders(<Dropdown {...defaultProps} items={itemsWithBadges} />);
       const badge = getByText("10");
-      expect(badge.parentElement.className).toContain("ml-auto");
+      expect(badge.className).toContain("ml-auto");
     });
 
     it("should support both icons and badges", () => {

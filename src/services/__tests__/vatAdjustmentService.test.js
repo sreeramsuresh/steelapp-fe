@@ -22,7 +22,7 @@ describe("vatAdjustmentService", () => {
 
       expect(result && result.data).toBeTruthy();
       expect(result && result.pagination).toBeTruthy();
-      expect(Array.isArray(result.data).toBeTruthy());
+      expect(Array.isArray(result.data)).toBeTruthy();
     });
 
     it("should handle array response", async () => {
@@ -30,7 +30,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.getAll();
 
-      expect(Array.isArray(result.data).toBeTruthy());
+      expect(Array.isArray(result.data)).toBeTruthy();
     });
 
     it("should handle error", async () => {
@@ -57,7 +57,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.getByPeriod("2024-01-01", "2024-12-31");
 
-      expect(Array.isArray(result).toBeTruthy());
+      expect(Array.isArray(result)).toBeTruthy();
       expect(apiClient.get).toHaveBeenCalledWith("/vat-adjustments/by-period", {
         startDate: "2024-01-01",
         endDate: "2024-12-31",
@@ -71,7 +71,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.getPendingApproval();
 
-      expect(Array.isArray(result).toBeTruthy());
+      expect(Array.isArray(result)).toBeTruthy();
       expect(apiClient.get).toHaveBeenCalledWith("/vat-adjustments/pending-approval");
     });
   });
@@ -91,7 +91,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.create(adjustmentData);
 
-      expect(apiClient.post).toHaveBeenCalledWith("/vat-adjustments");
+      expect(apiClient.post).toHaveBeenCalledWith("/vat-adjustments", expect.any(Object));
       expect(result && result.id).toBeTruthy();
     });
   });
@@ -107,7 +107,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.update(1, adjustmentData);
 
-      expect(apiClient.put).toHaveBeenCalledWith("/vat-adjustments/1");
+      expect(apiClient.put).toHaveBeenCalledWith("/vat-adjustments/1", expect.any(Object));
       expect(result && result.id).toBeTruthy();
     });
   });
@@ -268,7 +268,7 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.getAuditTrail(1);
 
       expect(apiClient.get).toHaveBeenCalledWith("/vat-adjustments/1/audit-trail");
-      expect(Array.isArray(result).toBeTruthy());
+      expect(Array.isArray(result)).toBeTruthy();
     });
   });
 
@@ -280,7 +280,7 @@ describe("vatAdjustmentService", () => {
 
       const result = await vatAdjustmentService.search("VA", { status: "draft" });
 
-      expect(Array.isArray(result).toBeTruthy());
+      expect(Array.isArray(result)).toBeTruthy();
       expect(apiClient.get).toBeTruthy();
     });
   });

@@ -81,7 +81,9 @@ describe("CustomerInvoicesTab", () => {
     render(<CustomerInvoicesTab customerId={1} />);
     await waitFor(() => {
       expect(screen.getByText("Total Invoices")).toBeInTheDocument();
-      expect(screen.getByText("Total Amount")).toBeInTheDocument();
+      // "Total Amount" may appear multiple times (summary card + table column header)
+      const totalAmountLabels = screen.getAllByText("Total Amount");
+      expect(totalAmountLabels.length).toBeGreaterThan(0);
       expect(screen.getByText("Total Outstanding")).toBeInTheDocument();
       expect(screen.getByText("Overdue Count")).toBeInTheDocument();
     });

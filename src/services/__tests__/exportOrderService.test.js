@@ -83,7 +83,7 @@ describe('exportOrderService', () => {
 
       const result = await exportOrderService.getExportOrder(1);
 
-      expect(['DRAFT', 'PACKING', 'READY', 'SHIPPED', 'DELIVERED'].includes(result.status).toBeTruthy());
+      expect(['DRAFT', 'PACKING', 'READY', 'SHIPPED', 'DELIVERED'].includes(result.status)).toBeTruthy();
     });
   });
 

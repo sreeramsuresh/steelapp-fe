@@ -72,7 +72,7 @@ describe('importContainerService', () => {
 
       const result = await importContainerService.getContainer(1);
 
-      expect(['20FT', '40FT'].includes(result.type).toBeTruthy());
+      expect(['20FT', '40FT'].includes(result.type)).toBeTruthy();
     });
   });
 

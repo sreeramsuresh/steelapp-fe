@@ -80,7 +80,7 @@ describe("stockMovementService", () => {
 
       await stockMovementService.getAll({ productId: 100 });
 
-      expect(apiClient.get).toHaveBeenCalledWith("/stock-movements", Object.keys({ product_id: 100 }).every(k => typeof arguments[0][k] !== 'undefined'));
+      expect(apiClient.get).toHaveBeenCalledWith("/stock-movements", expect.objectContaining({ product_id: 100 }));
     });
 
     it("should filter by warehouse", async () => {
@@ -88,7 +88,7 @@ describe("stockMovementService", () => {
 
       await stockMovementService.getAll({ warehouseId: 1 });
 
-      expect(apiClient.get).toHaveBeenCalledWith("/stock-movements", Object.keys({ warehouse_id: 1 }).every(k => typeof arguments[0][k] !== 'undefined'));
+      expect(apiClient.get).toHaveBeenCalledWith("/stock-movements", expect.objectContaining({ warehouse_id: 1 }));
     });
 
     it("should filter by movement type", async () => {
@@ -96,7 +96,7 @@ describe("stockMovementService", () => {
 
       await stockMovementService.getAll({ movementType: "IN" });
 
-      expect(apiClient.get).toHaveBeenCalledWith("/stock-movements", Object.keys({ movement_type: "IN" }).every(k => typeof arguments[0][k] !== 'undefined'));
+      expect(apiClient.get).toHaveBeenCalledWith("/stock-movements", expect.objectContaining({ movement_type: "IN" }));
     });
 
     it("should filter by date range", async () => {
@@ -107,7 +107,10 @@ describe("stockMovementService", () => {
         endDate: "2024-01-31",
       });
 
-      expect(apiClient.get).toHaveBeenCalledWith("/stock-movements", );
+      expect(apiClient.get).toHaveBeenCalledWith("/stock-movements", expect.objectContaining({
+        page: 1,
+        limit: 20,
+      }));
     });
   });
 

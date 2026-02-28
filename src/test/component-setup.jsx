@@ -1,14 +1,11 @@
 /**
  * Component Test Setup Utilities
  * Provides common utilities for testing React components
- * Phase 5.3 Infrastructure
  */
 
-import { configureStore } from "@reduxjs/toolkit";
 import { render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import { Provider } from "react-redux";
 import { vi } from "vitest";
 import { ThemeProvider } from "../contexts/ThemeContext";
 
@@ -16,13 +13,27 @@ import { ThemeProvider } from "../contexts/ThemeContext";
 // issue in vitest vmForks pool. Component tests don't need real routing.
 const MockRouter = ({ children }) => <div data-testid="mock-router">{children}</div>;
 
+// Minimal auth context for components that need it
+const MockAuthContext = React.createContext({
+  user: {
+    id: "user-123",
+    name: "Test User",
+    email: "test@example.com",
+    companyId: "company-123",
+  },
+  isAuthenticated: true,
+  token: "mock-jwt-token",
+  login: () => {},
+  logout: () => {},
+});
+
 /**
- * Create a mock Redux store for component testing
+ * Create a mock store-like object for backward compatibility
  * @param {Object} initialState - Initial state overrides
- * @returns {Object} Mock Redux store
+ * @returns {Object} Mock state object
  */
 export function createMockStore(initialState = {}) {
-  const defaultState = {
+  return {
     auth: {
       user: {
         id: "user-123",
@@ -32,36 +43,30 @@ export function createMockStore(initialState = {}) {
       },
       isAuthenticated: true,
       token: "mock-jwt-token",
+      ...(initialState.auth || {}),
     },
     company: {
       id: "company-123",
       name: "Test Company",
       trn: "12345678901234",
+      ...(initialState.company || {}),
     },
     ui: {
       sidebarOpen: true,
       darkMode: false,
+      ...(initialState.ui || {}),
     },
     ...initialState,
   };
-
-  return configureStore({
-    reducer: {
-      auth: (state = defaultState.auth) => state,
-      company: (state = defaultState.company) => state,
-      ui: (state = defaultState.ui) => state,
-    },
-    preloadedState: defaultState,
-  });
 }
 
 /**
- * Render component with common providers (Router, Redux)
+ * Render component with common providers (Theme, Mock Router)
  * @param {React.ReactElement} component - Component to render
  * @param {Object} options - Render options
- * @param {Object} options.store - Redux store
+ * @param {Object} options.store - Mock state (backward compatibility)
  * @param {string} options.initialRoute - Initial route path
- * @param {Object} options.reduxState - Redux state overrides
+ * @param {Object} options.reduxState - State overrides (backward compatibility)
  * @returns {Object} Render result + utilities
  */
 export function renderWithProviders(component, options = {}) {
@@ -70,12 +75,18 @@ export function renderWithProviders(component, options = {}) {
   // Set up router initial entry
   window.history.pushState({}, "Test page", initialRoute);
 
+  const authValue = {
+    ...(store.auth || {}),
+    login: vi.fn(),
+    logout: vi.fn(),
+  };
+
   const Wrapper = ({ children }) => (
-    <Provider store={store}>
+    <MockAuthContext.Provider value={authValue}>
       <ThemeProvider>
         <MockRouter>{children}</MockRouter>
       </ThemeProvider>
-    </Provider>
+    </MockAuthContext.Provider>
   );
 
   return {

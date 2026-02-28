@@ -20,25 +20,25 @@ describe('customerCreditService', () => {
         { id: 101, name: 'Risky Corp', creditGrade: 'D', dso: 85 },
         { id: 102, name: 'Danger Ltd', creditGrade: 'E', dso: 120 },
       ];
-      vi.spyOn(api, 'get').mockResolvedValue({ data: mockHighRisk });
+      vi.spyOn(api, 'get').mockResolvedValue(mockHighRisk);
 
       const result = await customerCreditService.getHighRiskCustomers(50);
 
       expect(result.length).toBe(2);
       expect(result[0].creditGrade).toBe('D');
-      expect(api.get.calledWith('/customers/credit-risk/high', {
+      expect(api.get).toHaveBeenCalledWith('/customers/credit-risk/high', {
         params: { limit: 50 },
-      }).toBeTruthy());
+      });
     });
 
     it('should use default limit of 50', async () => {
-      vi.spyOn(api, 'get').mockResolvedValue({ data: [] });
+      vi.spyOn(api, 'get').mockResolvedValue([]);
 
       await customerCreditService.getHighRiskCustomers();
 
-      expect(api.get.calledWith('/customers/credit-risk/high', {
+      expect(api.get).toHaveBeenCalledWith('/customers/credit-risk/high', {
         params: { limit: 50 },
-      }).toBeTruthy());
+      });
     });
   });
 
@@ -52,13 +52,13 @@ describe('customerCreditService', () => {
           totalOutstanding: 125000,
         },
       ];
-      vi.spyOn(api, 'get').mockResolvedValue({ data: mockOverLimit });
+      vi.spyOn(api, 'get').mockResolvedValue(mockOverLimit);
 
       const result = await customerCreditService.getOverLimitCustomers();
 
       expect(result.length).toBe(1);
       expect(result[0].totalOutstanding > result[0].creditLimit).toBeTruthy();
-      expect(api.get.calledWith('/customers/credit-risk/over-limit').toBeTruthy());
+      expect(api.get).toHaveBeenCalledWith('/customers/credit-risk/over-limit');
     });
   });
 
@@ -73,13 +73,13 @@ describe('customerCreditService', () => {
         creditGrade: 'A',
         dso: 35,
       };
-      vi.spyOn(api, 'get').mockResolvedValue({ data: mockSummary });
+      vi.spyOn(api, 'get').mockResolvedValue(mockSummary);
 
       const result = await customerCreditService.getCustomerCreditSummary(101);
 
       expect(result.creditGrade).toBe('A');
       expect(result.utilizationPercent).toBe(70);
-      expect(api.get.calledWith('/customers/101/credit-summary').toBeTruthy());
+      expect(api.get).toHaveBeenCalledWith('/customers/101/credit-summary');
     });
 
     it('should handle customer not found', async () => {

@@ -398,7 +398,10 @@ describe("productService", () => {
 
   describe("File Operations", () => {
     describe("downloadProducts()", () => {
-      test.skip("should download products as file", async () => {
+      test("should download products as file", async () => {
+        const { mockBrowserDownload } = await import("../../test/downloadMocks.js");
+        const mocks = mockBrowserDownload();
+
         const mockBlob = new Blob(["product data"], {
           type: "application/vnd.openxmlformats",
         });
@@ -406,14 +409,11 @@ describe("productService", () => {
         const { apiService } = await import("../axiosApi.js");
         apiService.request = vi.fn().mockResolvedValueOnce(mockBlob);
 
-        // Mock document functions
-        const mockLink = { click: vi.fn(), style: {}, download: "" };
-        vi.mocked(global.document.createElement).mockReturnValueOnce(mockLink);
-
         await productService.downloadProducts();
 
-        expect(global.URL.createObjectURL.mock.calls.length > 0).toBeTruthy();
-        expect(mockLink.download).toMatch(/^products_\d{4}-\d{2}-\d{2}\.xlsx$/);
+        expect(mocks.createObjectURL).toHaveBeenCalled();
+        expect(mocks.click).toHaveBeenCalled();
+        expect(mocks.anchor.download).toMatch(/^products_\d{4}-\d{2}-\d{2}\.xlsx$/);
       });
     });
   });
@@ -464,7 +464,7 @@ describe("productService", () => {
 
         expect(result.uniqueName).toBe("SS-304-Sheet-Brushed-1000mm-2mm-2000mm");
         expect(result.displayName).toBe("SS-304-Sheet");
-        expect(result.fullName.includes("Stainless Steel").toBeTruthy());
+        expect(result.fullName).toContain("Stainless Steel");
       });
 
       it("should handle material specifications", () => {
@@ -561,8 +561,8 @@ describe("productService", () => {
 
       const result = await productService.createProduct(data);
 
-      expect(result.name.includes("™").toBeTruthy());
-      expect(result.notes.includes("é").toBeTruthy());
+      expect(result.name).toContain("™");
+      expect(result.notes).toContain("é");
     });
 
     it("should handle zero prices", () => {

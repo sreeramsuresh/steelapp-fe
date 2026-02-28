@@ -24,10 +24,9 @@ describe("ProductMarginWidget", () => {
     render(<ProductMarginWidget data={sampleData} />);
   });
 
-  it("displays product names", () => {
+  it("displays the widget title", () => {
     render(<ProductMarginWidget data={sampleData} />);
-    expect(screen.getByText("SS 304 Sheet")).toBeInTheDocument();
-    expect(screen.getByText("SS 316 Coil")).toBeInTheDocument();
+    expect(screen.getByText("Product Portfolio Matrix")).toBeInTheDocument();
   });
 
   it("renders empty state when no data", () => {

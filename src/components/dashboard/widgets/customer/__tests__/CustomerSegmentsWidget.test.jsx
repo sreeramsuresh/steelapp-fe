@@ -24,8 +24,8 @@ describe("CustomerSegmentsWidget", () => {
 
   it("shows industry segments by default", () => {
     render(<CustomerSegmentsWidget />);
-    expect(screen.getByText("Fabricators")).toBeInTheDocument();
-    expect(screen.getByText("Traders")).toBeInTheDocument();
+    expect(screen.getAllByText("Fabricators").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Traders").length).toBeGreaterThan(0);
   });
 
   it("displays total revenue", () => {

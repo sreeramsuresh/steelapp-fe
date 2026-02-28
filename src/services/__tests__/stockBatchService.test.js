@@ -1,26 +1,19 @@
 /**
  * Stock Batch Service Unit Tests (Node Native Test Runner)
- * ✅ Tests batch listing, filtering, and retrieval
- * ✅ Tests procurement channel tracking (LOCAL vs IMPORTED)
- * ✅ Tests stock availability and FIFO logic
- * ✅ 100% coverage target for stockBatchService.js
+ * Tests batch listing, filtering, and retrieval
+ * Tests procurement channel tracking (LOCAL vs IMPORTED)
+ * Tests stock availability and FIFO logic
+ * 100% coverage target for stockBatchService.js
  */
 
-// Initialize test environment first
-// Import actual modules
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { apiClient } from '../api.js';
 import stockBatchService from '../stockBatchService.js';
 
 describe('stockBatchService', () => {
-  beforeEach(() => {
-    // Reset all stubs before each test
-    Object.keys(apiClient).forEach((method) => {
-      if (typeof apiClient[method].resetHistory === 'function') {
-        apiClient[method].resetHistory();
-      }
-    });
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('getBatches', () => {
@@ -49,15 +42,10 @@ describe('stockBatchService', () => {
       const result = await stockBatchService.getBatches({ page: 1, limit: 20 });
 
       expect(result.batches.length).toBe(2);
-      expect(
-        apiClient.get.calledWith('/stock-batches', {
-          page: 1,
-          limit: 20,
-        }).toBeTruthy(),
-        'apiClient.get should be called with correct arguments'
-      );
-
-      apiClient.get.restore();
+      expect(apiClient.get).toHaveBeenCalledWith('/stock-batches', {
+        page: 1,
+        limit: 20,
+      });
     });
 
     it('should filter batches by product', async () => {
@@ -65,16 +53,11 @@ describe('stockBatchService', () => {
 
       await stockBatchService.getBatches({ productId: 5 });
 
-      expect(
-        apiClient.get.calledWith('/stock-batches', {
-          page: 1,
-          limit: 20,
-          productId: 5,
-        }).toBeTruthy(),
-        'apiClient.get should be called with productId filter'
-      );
-
-      apiClient.get.restore();
+      expect(apiClient.get).toHaveBeenCalledWith('/stock-batches', {
+        page: 1,
+        limit: 20,
+        productId: 5,
+      });
     });
 
     it('should filter batches by procurement channel', async () => {
@@ -82,16 +65,11 @@ describe('stockBatchService', () => {
 
       await stockBatchService.getBatches({ procurementChannel: 'IMPORTED' });
 
-      expect(
-        apiClient.get.calledWith('/stock-batches', {
-          page: 1,
-          limit: 20,
-          procurementChannel: 'IMPORTED',
-        }).toBeTruthy(),
-        'apiClient.get should be called with procurementChannel filter'
-      );
-
-      apiClient.get.restore();
+      expect(apiClient.get).toHaveBeenCalledWith('/stock-batches', {
+        page: 1,
+        limit: 20,
+        procurementChannel: 'IMPORTED',
+      });
     });
 
     it('should filter batches with remaining stock', async () => {
@@ -99,16 +77,11 @@ describe('stockBatchService', () => {
 
       await stockBatchService.getBatches({ hasStock: true });
 
-      expect(
-        apiClient.get.calledWith('/stock-batches', {
-          page: 1,
-          limit: 20,
-          hasStock: true,
-        }).toBeTruthy(),
-        'apiClient.get should be called with hasStock filter'
-      );
-
-      apiClient.get.restore();
+      expect(apiClient.get).toHaveBeenCalledWith('/stock-batches', {
+        page: 1,
+        limit: 20,
+        hasStock: true,
+      });
     });
   });
 
@@ -123,12 +96,7 @@ describe('stockBatchService', () => {
       const result = await stockBatchService.getBatchesByProduct(5);
 
       expect(result.length).toBe(2);
-      expect(
-        apiClient.get.calledWith('/stock-batches/product/5', {}).toBeTruthy(),
-        'apiClient.get should be called with product endpoint'
-      );
-
-      apiClient.get.restore();
+      expect(apiClient.get).toHaveBeenCalledWith('/stock-batches/product/5', {});
     });
 
     it('should filter product batches by procurement channel', async () => {
@@ -138,11 +106,9 @@ describe('stockBatchService', () => {
         procurementChannel: 'LOCAL',
       });
 
-      const callArgs = apiClient.get.firstCall.args;
+      const callArgs = apiClient.get.mock.calls[0];
       expect(callArgs[0]).toBe('/stock-batches/product/5');
       expect(callArgs[1].procurementChannel).toBe('LOCAL');
-
-      apiClient.get.restore();
     });
   });
 
@@ -160,12 +126,7 @@ describe('stockBatchService', () => {
       expect(result.totalQty).toBe(200);
       expect(result.localQty).toBe(150);
       expect(result.importedQty).toBe(50);
-      expect(
-        apiClient.get.calledWith('/stock-batches/product/5/summary', {}).toBeTruthy(),
-        'apiClient.get should be called with summary endpoint'
-      );
-
-      apiClient.get.restore();
+      expect(apiClient.get).toHaveBeenCalledWith('/stock-batches/product/5/summary', {});
     });
   });
 
@@ -184,12 +145,7 @@ describe('stockBatchService', () => {
 
       expect(result.id).toBe(1);
       expect(result.procurementChannel).toBe('LOCAL');
-      expect(
-        apiClient.get.calledWith('/stock-batches/1').toBeTruthy(),
-        'apiClient.get should be called with batch ID'
-      );
-
-      apiClient.get.restore();
+      expect(apiClient.get).toHaveBeenCalledWith('/stock-batches/1');
     });
   });
 
@@ -203,8 +159,6 @@ describe('stockBatchService', () => {
       } catch (error) {
         expect(error.message).toBe('Network error');
       }
-
-      apiClient.get.restore();
     });
 
     it('should handle API errors in getProcurementSummary', async () => {
@@ -216,8 +170,6 @@ describe('stockBatchService', () => {
       } catch (error) {
         expect(error.message).toBe('Product not found');
       }
-
-      apiClient.get.restore();
     });
 
     it('should handle API errors in getBatchesByProduct', async () => {
@@ -229,8 +181,6 @@ describe('stockBatchService', () => {
       } catch (error) {
         expect(error.message).toBe('Not found');
       }
-
-      apiClient.get.restore();
     });
   });
 });

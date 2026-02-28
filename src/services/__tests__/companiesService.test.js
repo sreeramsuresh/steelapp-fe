@@ -9,30 +9,25 @@
  * ✅ 40-50 tests covering all critical paths
  */
 
-// Mock fetch for file uploads
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-global.fetch = vi.fn();
-
-
-
-import { tokenUtils } from "../axiosApi.js";
+import { apiService, tokenUtils } from "../axiosApi.js";
 import { companyService } from "../companyService.js";
 import { apiClient } from "../api.js";
 
 describe("companiesService", () => {
-  let fetchStub;
   let getStub;
   let postStub;
   let putStub;
   let deleteStub;
+  let uploadStub;
   beforeEach(() => {
     vi.restoreAllMocks();
-    fetchStub = vi.spyOn(global, 'fetch');
     getStub = vi.spyOn(apiClient, 'get');
     postStub = vi.spyOn(apiClient, 'post');
     putStub = vi.spyOn(apiClient, 'put');
     deleteStub = vi.spyOn(apiClient, 'delete');
+    uploadStub = vi.spyOn(apiService, 'upload');
   });
 
   // ============================================================================
@@ -194,61 +189,46 @@ describe("companiesService", () => {
     it("should upload company logo", async () => {
       const file = new File(["logo content"], "logo.png", { type: "image/png" });
       const mockResponse = { success: true, filename: "logo_12345.png" };
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: true,
-        json: async () => mockResponse,
-      });
+      uploadStub.mockResolvedValue(mockResponse);
 
       const result = await companyService.uploadLogo(file);
 
       expect(result.success).toBeTruthy();
       expect(result.filename).toBeTruthy();
-      expect(global.fetch).toBeTruthy();
+      expect(uploadStub).toHaveBeenCalledWith('/company/upload-logo', expect.any(FormData));
     });
 
     it("should set correct headers for logo upload", async () => {
       const file = new File(["logo"], "logo.png", { type: "image/png" });
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: true,
-        json: async () => ({ success: true, filename: "logo.png" }),
-      });
+      uploadStub.mockResolvedValue({ success: true, filename: "logo.png" });
 
       await companyService.uploadLogo(file);
 
-      expect(call[0]).toBeTruthy();
-      expect(call[1].method).toBeTruthy();
-      expect(call[1].headers && call[1].headers.Authorization).toBeTruthy();
+      expect(uploadStub).toHaveBeenCalled();
+      const formData = uploadStub.mock.calls[0][1];
+      expect(formData).toBeInstanceOf(FormData);
     });
 
     it("should include auth token in upload headers", async () => {
       const file = new File(["logo"], "logo.png", { type: "image/png" });
-      tokenUtils.getToken.mockReturnValueOnce("test-token");
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: true,
-        json: async () => ({ success: true }),
-      });
+      uploadStub.mockResolvedValue({ success: true });
 
       await companyService.uploadLogo(file);
 
-      expect(call[1].headers.Authorization).toBeTruthy();
+      // Auth is handled by apiService internally
+      expect(uploadStub).toHaveBeenCalled();
     });
 
     it("should handle logo upload error", async () => {
       const file = new File(["logo"], "logo.png", { type: "image/png" });
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: false,
-        json: async () => ({ error: "File too large" }),
-      });
+      uploadStub.mockRejectedValue(new Error("File too large"));
 
       await expect(companyService.uploadLogo(file)).rejects.toThrow();
     });
 
     it("should validate logo file type", async () => {
       const file = new File(["content"], "document.pdf", { type: "application/pdf" });
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: false,
-        json: async () => ({ error: "Only image files allowed" }),
-      });
+      uploadStub.mockRejectedValue(new Error("Only image files allowed"));
 
       await expect(companyService.uploadLogo(file)).rejects.toThrow();
     });
@@ -279,10 +259,7 @@ describe("companiesService", () => {
     it("should upload company brandmark", async () => {
       const file = new File(["brandmark"], "brandmark.png", { type: "image/png" });
       const mockResponse = { success: true, filename: "brandmark_12345.png" };
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: true,
-        json: async () => mockResponse,
-      });
+      uploadStub.mockResolvedValue(mockResponse);
 
       const result = await companyService.uploadBrandmark(file);
 
@@ -302,10 +279,7 @@ describe("companiesService", () => {
 
     it("should handle brandmark upload error", async () => {
       const file = new File(["content"], "brandmark.txt", { type: "text/plain" });
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: false,
-        json: async () => ({ error: "Invalid file type" }),
-      });
+      uploadStub.mockRejectedValue(new Error("Invalid file type"));
 
       await expect(companyService.uploadBrandmark(file)).rejects.toThrow();
     });
@@ -315,10 +289,7 @@ describe("companiesService", () => {
     it("should upload company seal", async () => {
       const file = new File(["seal"], "seal.png", { type: "image/png" });
       const mockResponse = { success: true, filename: "seal_12345.png" };
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: true,
-        json: async () => mockResponse,
-      });
+      uploadStub.mockResolvedValue(mockResponse);
 
       const result = await companyService.uploadSeal(file);
 
@@ -482,7 +453,7 @@ describe("companiesService", () => {
   describe("Error Handling", () => {
     it("should handle file upload timeout", async () => {
       const file = new File(["logo"], "logo.png", { type: "image/png" });
-      vi.spyOn(global, 'fetch').mockRejectedValue(new Error("Upload timeout"));
+      uploadStub.mockRejectedValue(new Error("Upload timeout"));
 
       await expect(companyService.uploadLogo(file)).rejects.toThrow();
     });
@@ -513,10 +484,7 @@ describe("companiesService", () => {
       const largeFile = new File(["x".repeat(50 * 1024 * 1024)], "large.png", {
         type: "image/png",
       });
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: true,
-        json: async () => ({ success: true, filename: "large.png" }),
-      });
+      uploadStub.mockResolvedValue({ success: true, filename: "large.png" });
 
       const result = await companyService.uploadLogo(largeFile);
 
@@ -533,10 +501,9 @@ describe("companiesService", () => {
 
     it("should retry failed file uploads", async () => {
       const file = new File(["logo"], "logo.png", { type: "image/png" });
-      vi.spyOn(global, 'fetch').mockRejectedValue(new Error("Network error")).mockResolvedValue({
-        ok: true,
-        json: async () => ({ success: true, filename: "logo.png" }),
-      });
+      uploadStub
+        .mockRejectedValueOnce(new Error("Network error"))
+        .mockResolvedValueOnce({ success: true, filename: "logo.png" });
 
       // First call fails, second succeeds
       try {
@@ -561,10 +528,7 @@ describe("companiesService", () => {
       const file = new File(["logo"], "logo.png", { type: "image/png" });
 
       postStub.mockResolvedValue({ id: 1, ...companyData });
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: true,
-        json: async () => ({ success: true, filename: "logo.png" }),
-      });
+      uploadStub.mockResolvedValue({ success: true, filename: "logo.png" });
 
       const companyResult = await companyService.updateCompany(companyData);
       const logoResult = await companyService.uploadLogo(file);
@@ -579,10 +543,7 @@ describe("companiesService", () => {
       const templates = { selectedTemplate: "PROFESSIONAL" };
 
       postStub.mockResolvedValue({ id: 2, ...company });
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: true,
-        json: async () => ({ success: true, filename: "logo.png" }),
-      });
+      uploadStub.mockResolvedValue({ success: true, filename: "logo.png" });
       postStub.mockResolvedValue({ success: true, ...templates });
 
       await companyService.updateCompany(company);

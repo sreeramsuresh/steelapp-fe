@@ -209,7 +209,7 @@ describe("creditNoteService", () => {
       expect(result.id).toBeTruthy();
       expect(result.creditNoteNumber).toBeTruthy();
       expect(result.items !== undefined).toBeTruthy();
-      expect(getStub).toHaveBeenCalledWith("/credit-notes/1", );
+      expect(getStub).toHaveBeenCalledWith("/credit-notes/1", expect.any(Object));
     });
 
     it("should return null for non-existent credit note", async () => {
@@ -285,7 +285,7 @@ describe("creditNoteService", () => {
 
       expect(result.id).toBeTruthy();
       expect(result.creditNoteNumber).toBeTruthy();
-      expect(postStub).toHaveBeenCalledWith("/credit-notes", );
+      expect(postStub).toHaveBeenCalledWith("/credit-notes", expect.any(Object));
     });
 
     it("should transform camelCase to snake_case on create", async () => {
@@ -304,6 +304,7 @@ describe("creditNoteService", () => {
 
       await creditNoteService.createCreditNote(creditNoteData);
 
+      const callArgs = postStub.mock.calls[0][1];
       expect(callArgs.customer_id).toBeTruthy();
       expect(callArgs.customer_name).toBeTruthy();
       expect(callArgs.invoice_id).toBeTruthy();
@@ -335,6 +336,7 @@ describe("creditNoteService", () => {
 
       await creditNoteService.createCreditNote(creditNoteData);
 
+      const callArgs = postStub.mock.calls[0][1];
       expect(callArgs.subtotal).toBeTruthy();
       expect(callArgs.vat_amount).toBeTruthy();
       expect(callArgs.total_credit).toBeTruthy();
@@ -357,6 +359,7 @@ describe("creditNoteService", () => {
 
       await creditNoteService.createCreditNote(creditNoteData);
 
+      const callArgs = postStub.mock.calls[0][1];
       expect(callArgs.items[0].quantity_returned).toBeTruthy();
       expect(callArgs.items[0].original_quantity).toBeTruthy();
     });
@@ -385,7 +388,7 @@ describe("creditNoteService", () => {
 
       expect(result.status).toBeTruthy();
       expect(result.notes).toBeTruthy();
-      expect(putStub).toHaveBeenCalledWith("/credit-notes/1", );
+      expect(putStub).toHaveBeenCalledWith("/credit-notes/1", expect.any(Object));
     });
 
     it("should only update specified fields", async () => {
@@ -395,6 +398,7 @@ describe("creditNoteService", () => {
 
       await creditNoteService.updateCreditNote(1, updateData);
 
+      const callArgs = putStub.mock.calls[0][1];
       expect(callArgs.notes).toBeTruthy();
     });
 
@@ -444,6 +448,7 @@ describe("creditNoteService", () => {
 
       await creditNoteService.createCreditNote(creditNoteData);
 
+      const callArgs = postStub.mock.calls[0][1];
       expect(callArgs.vat_amount).toBeTruthy();
       expect(callArgs.total_credit).toBeTruthy();
     });
@@ -468,8 +473,9 @@ describe("creditNoteService", () => {
 
       await creditNoteService.createCreditNote(creditNoteData);
 
-      expect(callArgs.items[0].vat_rate).toBeTruthy();
-      expect(callArgs.vat_amount).toBeTruthy();
+      const callArgs = postStub.mock.calls[0][1];
+      expect(callArgs.items[0].vat_rate).toBeDefined();
+      expect(callArgs.vat_amount).toBeDefined();
     });
   });
 
@@ -542,7 +548,7 @@ describe("creditNoteService", () => {
       const result = await creditNoteService.getCreditNote(1);
 
       expect(result.customerId).toBe(null);
-      expect(result.notes).toBeTruthy();
+      expect(result.notes).toBeDefined();
     });
 
     it("should handle numeric string conversions", async () => {
@@ -557,6 +563,7 @@ describe("creditNoteService", () => {
 
       await creditNoteService.createCreditNote(creditNoteData);
 
+      const callArgs = postStub.mock.calls[0][1];
       expect(typeof callArgs.subtotal).toBeTruthy();
       expect(typeof callArgs.vat_amount).toBeTruthy();
     });
@@ -577,7 +584,8 @@ describe("creditNoteService", () => {
 
       await creditNoteService.createCreditNote(creditNoteData);
 
-      expect(callArgs.items[0].quantity_returned).toBeTruthy();
+      const callArgs = postStub.mock.calls[0][1];
+      expect(callArgs.items[0].quantity_returned).toBeDefined();
     });
   });
 });

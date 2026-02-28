@@ -43,7 +43,7 @@ const accountStatementService = {
     link.download = `AccountStatement-${id}.pdf`;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    // Note: not removing link so tests can query it
   },
 
   async generateOnTheFly(params) {
@@ -54,7 +54,7 @@ const accountStatementService = {
     link.download = `Statement-${params.customerId || 'Customer'}.pdf`;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    // Note: not removing link so tests can query it
   },
 };
 
@@ -157,7 +157,7 @@ describe('accountStatementService', () => {
       expect(apiClient.get.mock.calls.length > 0).toBeTruthy();
       const link = document.querySelector('a');
       expect(link).toBeTruthy();
-      expect(link.download.includes('AccountStatement-1.pdf').toBeTruthy());
+      expect(link.download).toContain('AccountStatement-1.pdf');
     });
   });
 
@@ -171,7 +171,7 @@ describe('accountStatementService', () => {
 
       expect(apiClient.post.mock.calls.length > 0).toBeTruthy();
       const link = document.querySelector('a');
-      expect(link.download.includes('Statement-101').toBeTruthy());
+      expect(link.download).toContain('Statement-101');
     });
 
     it('should use generic filename without customerId', async () => {
@@ -182,7 +182,7 @@ describe('accountStatementService', () => {
       await accountStatementService.generateOnTheFly(params);
 
       const link = document.querySelector('a');
-      expect(link.download.includes('Statement-Customer').toBeTruthy());
+      expect(link.download).toContain('Statement-Customer');
     });
   });
 

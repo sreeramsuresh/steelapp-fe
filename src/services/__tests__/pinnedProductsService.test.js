@@ -39,8 +39,8 @@ describe('pinnedProductsService', () => {
       const result = await pinnedProductsService.getPinnedProducts();
 
       expect(result.length).toBe(2);
-      expect(result[0].product_name.includes('SS304').toBeTruthy());
-      expect(apiClient.get.calledWith('/pinned-products').toBeTruthy());
+      expect(result[0].product_name).toContain('SS304');
+      expect(apiClient.get).toHaveBeenCalledWith('/pinned-products');
     });
 
     it('should return empty array if no products pinned', async () => {
@@ -49,7 +49,7 @@ describe('pinnedProductsService', () => {
       const result = await pinnedProductsService.getPinnedProducts();
 
       expect(result.length).toBe(0);
-      expect(apiClient.get.calledWith('/pinned-products').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/pinned-products');
     });
   });
 
@@ -69,7 +69,7 @@ describe('pinnedProductsService', () => {
 
       expect(result.product_id).toBe(100);
       expect(result.pinned_at).toBeTruthy();
-      expect(apiClient.post.calledWith('/pinned-products/100').toBeTruthy());
+      expect(apiClient.post).toHaveBeenCalledWith('/pinned-products/100');
     });
 
     it('should handle multiple product pins', async () => {
@@ -82,7 +82,7 @@ describe('pinnedProductsService', () => {
       const result = await pinnedProductsService.pinProduct(101);
 
       expect(result.product_id).toBe(101);
-      expect(apiClient.post.calledWith('/pinned-products/101').toBeTruthy());
+      expect(apiClient.post).toHaveBeenCalledWith('/pinned-products/101');
     });
   });
 
@@ -93,7 +93,7 @@ describe('pinnedProductsService', () => {
       const result = await pinnedProductsService.unpinProduct(100);
 
       expect(result.success).toBe(true);
-      expect(apiClient.delete.calledWith('/pinned-products/100').toBeTruthy());
+      expect(apiClient.delete).toHaveBeenCalledWith('/pinned-products/100');
     });
 
     it('should handle unpinning non-existent pin', async () => {

@@ -1,11 +1,11 @@
 /**
- * Category Policy Service Unit Tests (Node Native Test Runner)
+ * Category Policy Service Unit Tests
  * Tests product category policies and rules
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 
-import { apiClient } from '../api.js';
+import { api } from '../api.js';
 import { categoryPolicyService } from '../categoryPolicyService.js';
 
 describe('categoryPolicyService', () => {
@@ -13,59 +13,60 @@ describe('categoryPolicyService', () => {
     vi.restoreAllMocks();
   });
 
-  describe('getPolicies', () => {
+  describe('listCategoryPolicies', () => {
     it('should fetch category policies', async () => {
       const mockPolicies = [
-        { id: 1, category: 'sheet', minMargin: 10, maxDiscount: 20 },
-        { id: 2, category: 'pipe', minMargin: 12, maxDiscount: 15 },
+        { category: 'coil', pricing_mode: 'MT_ONLY', requires_weight: true },
+        { category: 'sheet', pricing_mode: 'CONVERTIBLE', requires_weight: true },
       ];
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockPolicies);
+      vi.spyOn(api, 'get').mockResolvedValue(mockPolicies);
 
-      const result = await categoryPolicyService.getPolicies();
+      const result = await categoryPolicyService.listCategoryPolicies(1);
 
       expect(result.length).toBe(2);
-      expect(apiClient.get.mock.calls.length > 0).toBeTruthy();
+      expect(api.get).toHaveBeenCalled();
     });
   });
 
-  describe('getPolicy', () => {
+  describe('getCategoryPolicy', () => {
     it('should fetch single category policy', async () => {
-      const mockPolicy = { id: 1, category: 'sheet', minMargin: 10 };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockPolicy);
+      const mockPolicy = { category: 'coil', pricing_mode: 'MT_ONLY' };
+      vi.spyOn(api, 'get').mockResolvedValue(mockPolicy);
 
-      const result = await categoryPolicyService.getPolicy('sheet');
+      const result = await categoryPolicyService.getCategoryPolicy(1, 'coil');
 
-      expect(result.category).toBe('sheet');
-      expect(apiClient.get.mock.calls.length > 0).toBeTruthy();
+      expect(result.category).toBe('coil');
+      expect(api.get).toHaveBeenCalled();
     });
   });
 
-  describe('updatePolicy', () => {
-    it('should update category policy', async () => {
-      const updates = { minMargin: 15, maxDiscount: 18 };
-      const mockResponse = { id: 1, ...updates };
-      vi.spyOn(apiClient, 'put').mockResolvedValue(mockResponse);
+  describe('getPricingUnitFromPolicy', () => {
+    it('should map MT_ONLY to WEIGHT', () => {
+      const result = categoryPolicyService.getPricingUnitFromPolicy({ pricing_mode: 'MT_ONLY' });
+      expect(result).toBe('WEIGHT');
+    });
 
-      const result = await categoryPolicyService.updatePolicy(1, updates);
+    it('should map PCS_ONLY to PIECE', () => {
+      const result = categoryPolicyService.getPricingUnitFromPolicy({ pricing_mode: 'PCS_ONLY' });
+      expect(result).toBe('PIECE');
+    });
 
-      expect(result.minMargin).toBe(15);
-      expect(apiClient.put.mock.calls.length > 0).toBeTruthy();
+    it('should return null for missing policy', () => {
+      const result = categoryPolicyService.getPricingUnitFromPolicy(null);
+      expect(result).toBeNull();
     });
   });
 
-  describe('validatePricing', () => {
-    it('should validate pricing against policy', async () => {
-      const mockResult = { valid: true, margin: 15, withinLimits: true };
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResult);
+  describe('error handling', () => {
+    it('should handle API errors', async () => {
+      vi.spyOn(api, 'get').mockRejectedValue(new Error('Network error'));
 
-      const result = await categoryPolicyService.validatePricing({
-        category: 'sheet',
-        price: 1000,
-        cost: 850,
-      });
-
-      expect(result.valid).toBe(true);
-      expect(apiClient.post.mock.calls.length > 0).toBeTruthy();
+      try {
+        await categoryPolicyService.listCategoryPolicies(1);
+        throw new Error('Expected error');
+      } catch (error) {
+        expect(error.message).toBe('Network error');
+      }
     });
   });
 });

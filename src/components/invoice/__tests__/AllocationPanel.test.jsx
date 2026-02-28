@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-vi.mock("../../contexts/ThemeContext", () => ({
+vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../services/axiosAuthService", () => ({
+vi.mock("../../../services/axiosAuthService", () => ({
   authService: {
     getUserRole: vi.fn(() => "admin"),
   },
@@ -21,15 +21,15 @@ vi.mock("lucide-react", () => ({
   Unlock: (props) => <span data-testid="unlock-icon" {...props} />,
 }));
 
-vi.mock("../ui/badge", () => ({
+vi.mock("../../ui/badge", () => ({
   Badge: ({ children, ...props }) => <span {...props}>{children}</span>,
 }));
 
-vi.mock("../ui/button", () => ({
+vi.mock("../../ui/button", () => ({
   Button: ({ children, ...props }) => <button {...props}>{children}</button>,
 }));
 
-vi.mock("../ui/table", () => ({
+vi.mock("../../ui/table", () => ({
   Table: ({ children }) => <table>{children}</table>,
   TableBody: ({ children }) => <tbody>{children}</tbody>,
   TableCell: ({ children, ...props }) => <td {...props}>{children}</td>,

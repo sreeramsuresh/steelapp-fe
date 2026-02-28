@@ -24,8 +24,8 @@ describe("AtRiskCustomersWidget", () => {
 
   it("displays risk factor badges", () => {
     render(<AtRiskCustomersWidget />);
-    expect(screen.getByText("Declining Orders")).toBeInTheDocument();
-    expect(screen.getByText("Payment Delays")).toBeInTheDocument();
+    expect(screen.getAllByText("Declining Orders").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Payment Delays").length).toBeGreaterThan(0);
   });
 
   it("shows customer list from mock data", () => {

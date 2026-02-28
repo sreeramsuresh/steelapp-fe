@@ -11,10 +11,11 @@ import FormError from "../FormError";
 
 describe("FormError", () => {
   it("should render error message with icon", () => {
-    render(<FormError message="This field is required" />);
+    const { container } = render(<FormError message="This field is required" />);
 
     expect(screen.getByText("This field is required")).toBeInTheDocument();
-    expect(screen.getByRole("img", { hidden: true })).toBeInTheDocument(); // AlertCircle icon
+    // AlertCircle icon renders as SVG
+    expect(container.querySelector("svg")).toBeInTheDocument();
   });
 
   it("should not render when message is not provided", () => {
@@ -57,9 +58,10 @@ describe("FormError", () => {
 
   it("should display multiple line error messages", () => {
     const multiLineMessage = "Error on line 1\nError on line 2";
-    render(<FormError message={multiLineMessage} />);
+    const { container } = render(<FormError message={multiLineMessage} />);
 
-    expect(screen.getByText(multiLineMessage)).toBeInTheDocument();
+    expect(container.textContent).toContain("Error on line 1");
+    expect(container.textContent).toContain("Error on line 2");
   });
 
   it("should handle special characters in error messages", () => {

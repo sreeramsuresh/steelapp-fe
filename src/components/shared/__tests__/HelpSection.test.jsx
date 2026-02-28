@@ -173,29 +173,29 @@ describe("HelpSection", () => {
   it("should apply info icon color", () => {
     const { container } = render(<HelpSection title="Info" items="Content" variant="info" />);
 
-    const iconWrapper = container.querySelector('[class*="text-blue"]');
-    expect(iconWrapper).toHaveClass("text-blue-600", "dark:text-blue-400");
+    const icon = container.querySelector("svg");
+    expect(icon).toHaveClass("text-blue-600", "dark:text-blue-400");
   });
 
   it("should apply tip icon color", () => {
     const { container } = render(<HelpSection title="Tip" items="Content" variant="tip" />);
 
-    const iconWrapper = container.querySelector('[class*="text-amber"]');
-    expect(iconWrapper).toHaveClass("text-amber-600", "dark:text-amber-400");
+    const icon = container.querySelector("svg");
+    expect(icon).toHaveClass("text-amber-600", "dark:text-amber-400");
   });
 
   it("should apply warning icon color", () => {
     const { container } = render(<HelpSection title="Warning" items="Content" variant="warning" />);
 
-    const iconWrapper = container.querySelector('[class*="text-orange"]');
-    expect(iconWrapper).toHaveClass("text-orange-600", "dark:text-orange-400");
+    const icon = container.querySelector("svg");
+    expect(icon).toHaveClass("text-orange-600", "dark:text-orange-400");
   });
 
   it("should apply success icon color", () => {
     const { container } = render(<HelpSection title="Success" items="Content" variant="success" />);
 
-    const iconWrapper = container.querySelector('[class*="text-green"]');
-    expect(iconWrapper).toHaveClass("text-green-600", "dark:text-green-400");
+    const icon = container.querySelector("svg");
+    expect(icon).toHaveClass("text-green-600", "dark:text-green-400");
   });
 
   it("should apply header styling", () => {

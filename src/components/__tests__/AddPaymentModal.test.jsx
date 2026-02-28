@@ -341,7 +341,7 @@ describe("AddPaymentModal", () => {
     it("should load editing payment data", async () => {
       const editingPayment = createMockPayment({
         amount: 5000,
-        paymentMethod: "check",
+        paymentMethod: "cheque",
       });
 
       const { container } = renderWithProviders(<AddPaymentModal {...defaultProps} editingPayment={editingPayment} />);
@@ -351,8 +351,10 @@ describe("AddPaymentModal", () => {
         expect(amountField.value).toBe("5000");
       });
 
-      const modeField = container.querySelector("#payment-mode");
-      expect(modeField.value).toBe("check");
+      await waitFor(() => {
+        const modeField = container.querySelector("#payment-mode");
+        expect(modeField.value).toBe("cheque");
+      });
     });
 
     it("should format date correctly when editing", () => {
@@ -484,7 +486,8 @@ describe("AddPaymentModal", () => {
 
       if (options.length > 1) {
         await user.selectOptions(modeSelect, options[1].value);
-        expect(container.textContent).toContain("Reference");
+        // Label changes based on payment mode (e.g., "Cheque Number" for cheque)
+        expect(container.querySelector("#payment-reference")).toBeInTheDocument();
       }
     });
   });

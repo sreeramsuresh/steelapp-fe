@@ -30,9 +30,13 @@ describe("ReverseChargeWidget", () => {
         nonRecoverableVAT: 500,
         currentQuarter: "Q4 2024",
       },
-      transactions: [],
+      categories: [],
+      recentTransactions: [],
+      form201Mapping: {
+        box9: 10000,
+        box7Contribution: 10000,
+      },
     };
-    render(<ReverseChargeWidget data={data} />);
     const { container } = render(<ReverseChargeWidget data={data} />);
     expect(container).toBeTruthy();
   });

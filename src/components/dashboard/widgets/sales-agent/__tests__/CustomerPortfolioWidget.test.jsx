@@ -14,7 +14,7 @@ describe("CustomerPortfolioWidget", () => {
 
   it("displays portfolio content with mock data", () => {
     render(<CustomerPortfolioWidget />);
-    expect(screen.getByText(/Portfolio/i)).toBeInTheDocument();
+    expect(screen.getByText(/Customer Portfolio/i)).toBeInTheDocument();
   });
 
   it("shows customer names from mock data", () => {
@@ -36,6 +36,11 @@ describe("CustomerPortfolioWidget", () => {
       },
       topCustomers: [{ id: 1, name: "Test Corp", revenue: 500000, percent: 25 }],
       segments: [],
+      trendData: {
+        newThisMonth: 2,
+        churnedThisMonth: 0,
+        reactivated: 1,
+      },
     };
     render(<CustomerPortfolioWidget data={data} />);
     expect(screen.getByText("Test Corp")).toBeInTheDocument();

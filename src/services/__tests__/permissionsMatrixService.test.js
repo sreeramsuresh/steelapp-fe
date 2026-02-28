@@ -22,7 +22,7 @@ describe('permissionsMatrixService', () => {
         roles: ['admin', 'viewer'],
         permissions: { admin: ['read', 'write'], viewer: ['read'] },
       };
-      apiClient.get.mockResolvedValue(mockMatrix);
+      vi.spyOn(apiClient, 'get').mockResolvedValue(mockMatrix);
 
       const result = await permissionsMatrixService.getMatrix();
 
@@ -31,7 +31,7 @@ describe('permissionsMatrixService', () => {
     });
 
     it('should propagate API errors', async () => {
-      apiClient.get.mockRejectedValue(new Error('Forbidden'));
+      vi.spyOn(apiClient, 'get').mockRejectedValue(new Error('Forbidden'));
 
       await expect(permissionsMatrixService.getMatrix()).rejects.toThrow('Forbidden');
     });
@@ -39,7 +39,7 @@ describe('permissionsMatrixService', () => {
 
   describe('setCustomPermission', () => {
     it('should set a custom permission with reason', async () => {
-      apiClient.put.mockResolvedValue({ success: true });
+      vi.spyOn(apiClient, 'put').mockResolvedValue({ success: true });
 
       const result = await permissionsMatrixService.setCustomPermission(5, 'invoices.create', 'grant', 'Manager request');
 
@@ -52,7 +52,7 @@ describe('permissionsMatrixService', () => {
     });
 
     it('should omit reason when not provided', async () => {
-      apiClient.put.mockResolvedValue({ success: true });
+      vi.spyOn(apiClient, 'put').mockResolvedValue({ success: true });
 
       await permissionsMatrixService.setCustomPermission(5, 'invoices.delete', 'deny');
 
@@ -64,7 +64,7 @@ describe('permissionsMatrixService', () => {
     });
 
     it('should omit reason when empty string provided', async () => {
-      apiClient.put.mockResolvedValue({ success: true });
+      vi.spyOn(apiClient, 'put').mockResolvedValue({ success: true });
 
       await permissionsMatrixService.setCustomPermission(5, 'invoices.delete', 'deny', '');
 
@@ -78,7 +78,7 @@ describe('permissionsMatrixService', () => {
 
   describe('removeCustomPermission', () => {
     it('should remove a custom permission', async () => {
-      apiClient.delete.mockResolvedValue({ success: true });
+      vi.spyOn(apiClient, 'delete').mockResolvedValue({ success: true });
 
       const result = await permissionsMatrixService.removeCustomPermission(5, 'invoices.create');
 

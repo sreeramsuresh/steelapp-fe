@@ -18,10 +18,16 @@ vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: vi.fn(() => ({ isDarkMode: false, themeMode: "light", toggleTheme: vi.fn() })),
 }));
 vi.mock("../../services/stockMovementService", () => ({
-  stockMovementService: { getMovements: vi.fn(), createMovement: vi.fn(), deleteMovement: vi.fn() },
+  stockMovementService: { getAllMovements: vi.fn(), getMovements: vi.fn(), createMovement: vi.fn(), deleteMovement: vi.fn() },
 }));
 vi.mock("../../services/purchaseOrderService", () => ({
   purchaseOrderService: { getAll: vi.fn() },
+}));
+vi.mock("../../services/purchaseOrderSyncService", () => ({
+  purchaseOrderSyncService: { generateTransitStockMovements: vi.fn().mockReturnValue([]) },
+}));
+vi.mock("../../services/productService", () => ({
+  productService: { searchProducts: vi.fn().mockResolvedValue([]) },
 }));
 vi.mock("../../hooks/useConfirm", () => ({
   useConfirm: vi.fn(() => ({
@@ -36,7 +42,7 @@ describe("StockMovement", () => {
   let mockConfirm;
 
   beforeEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
 
     useTheme.mockReturnValue({ isDarkMode: false });
 
@@ -48,38 +54,42 @@ describe("StockMovement", () => {
       handleCancel: vi.fn(),
     });
 
-    stockMovementService.getAllMovements = vi.fn().mockResolvedValue({
+    // Mock data must match the component's actual data model:
+    // Table columns: Date, Movement (IN/OUT), Product Type, Grade, Thickness, Size, Finish, Invoice No, Qty, Current Stock, Seller, Actions
+    stockMovementService.getAllMovements.mockResolvedValue({
       data: [
         {
           id: 1,
-          productName: "SS-304-Sheet",
-          warehouseName: "Main Warehouse",
-          quantity: 100,
-          unit: "KG",
-          movement: "OUT",
-          movementType: "INVOICE",
-          referenceNumber: "INV-2024-001",
           date: new Date().toISOString(),
-          notes: "Invoice delivery",
-          status: "completed",
+          movement: "OUT",
+          productType: "Sheet",
+          grade: "304",
+          thickness: "1.5",
+          size: "1000x2000",
+          finish: "BA",
+          invoiceNo: "INV-2024-001",
+          quantity: 100,
+          currentStock: 900,
+          seller: "Steel Corp",
         },
         {
           id: 2,
-          productName: "SS-316L-Coil",
-          warehouseName: "Secondary Warehouse",
-          quantity: 50,
-          unit: "KG",
-          movement: "IN",
-          movementType: "ADJUSTMENT",
-          referenceNumber: "ADJ-2024-001",
           date: new Date().toISOString(),
-          notes: "Stock adjustment",
-          status: "completed",
+          movement: "IN",
+          productType: "Coil",
+          grade: "316L",
+          thickness: "0.8",
+          size: "500",
+          finish: "2B",
+          invoiceNo: "ADJ-2024-001",
+          quantity: 50,
+          currentStock: 450,
+          seller: "Metro Steel",
         },
       ],
     });
 
-    purchaseOrderService.getAll = vi.fn().mockResolvedValue({
+    purchaseOrderService.getAll.mockResolvedValue({
       data: [
         {
           id: 1,
@@ -97,12 +107,12 @@ describe("StockMovement", () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        expect(screen.getByText(/Stock Movement|stock movement/i)).toBeInTheDocument();
+        expect(screen.getByText(/Stock Movements/i)).toBeInTheDocument();
       });
     });
 
     it("should display loading state initially", () => {
-      stockMovementService.getAllMovements = vi.fn(
+      stockMovementService.getAllMovements.mockImplementation(
         () => new Promise((resolve) => setTimeout(() => resolve({ data: [] }), 100))
       );
 
@@ -115,39 +125,41 @@ describe("StockMovement", () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        expect(screen.getByText("SS-304-Sheet")).toBeInTheDocument();
-        expect(screen.getByText("SS-316L-Coil")).toBeInTheDocument();
+        // Component renders productType, grade, invoiceNo in the table
+        expect(screen.getByText("Sheet")).toBeInTheDocument();
+        expect(screen.getByText("Coil")).toBeInTheDocument();
       });
     });
 
     it("should display empty state when no movements", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue({ data: [] });
-      purchaseOrderService.getAll = vi.fn().mockResolvedValue({ data: [] });
+      stockMovementService.getAllMovements.mockResolvedValue({ data: [] });
+      purchaseOrderService.getAll.mockResolvedValue({ data: [] });
 
       render(<StockMovement />);
 
       await waitFor(() => {
-        expect(screen.getByText(/No movements|empty/i) || true).toBeTruthy();
+        // Page should render with title even when empty
+        expect(screen.getByText(/Stock Movements/i)).toBeInTheDocument();
       });
     });
   });
 
   describe("Movement Display", () => {
-    it("should display product name", async () => {
+    it("should display product type", async () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        expect(screen.getByText("SS-304-Sheet")).toBeInTheDocument();
-        expect(screen.getByText("SS-316L-Coil")).toBeInTheDocument();
+        expect(screen.getByText("Sheet")).toBeInTheDocument();
+        expect(screen.getByText("Coil")).toBeInTheDocument();
       });
     });
 
-    it("should display warehouse name", async () => {
+    it("should display grade", async () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        expect(screen.getByText("Main Warehouse")).toBeInTheDocument();
-        expect(screen.getByText("Secondary Warehouse")).toBeInTheDocument();
+        expect(screen.getByText("304")).toBeInTheDocument();
+        expect(screen.getByText("316L")).toBeInTheDocument();
       });
     });
 
@@ -160,16 +172,16 @@ describe("StockMovement", () => {
       });
     });
 
-    it("should display unit", async () => {
+    it("should display finish", async () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        const kgLabels = screen.getAllByText("KG");
-        expect(kgLabels.length).toBeGreaterThan(0);
+        expect(screen.getByText("BA")).toBeInTheDocument();
+        expect(screen.getByText("2B")).toBeInTheDocument();
       });
     });
 
-    it("should display reference number", async () => {
+    it("should display invoice number", async () => {
       render(<StockMovement />);
 
       await waitFor(() => {
@@ -182,8 +194,9 @@ describe("StockMovement", () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        // Should display date in some format
-        expect(screen.getByText(/2024|Jan|Feb|Mar/i) || true).toBeTruthy();
+        // Component formats date with toLocaleDateString("en-AE")
+        // Just verify the table is rendered with data rows
+        expect(screen.getByText("Sheet")).toBeInTheDocument();
       });
     });
   });
@@ -193,8 +206,7 @@ describe("StockMovement", () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        const inMovements = screen.queryAllByText(/IN/);
-        expect(inMovements.length).toBeGreaterThanOrEqual(0);
+        expect(screen.getByText("IN")).toBeInTheDocument();
       });
     });
 
@@ -202,16 +214,16 @@ describe("StockMovement", () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        const outMovements = screen.queryAllByText(/OUT/);
-        expect(outMovements.length).toBeGreaterThanOrEqual(0);
+        expect(screen.getByText("OUT")).toBeInTheDocument();
       });
     });
 
-    it("should display movement type (INVOICE, ADJUSTMENT, etc)", async () => {
+    it("should display movement direction badge", async () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        expect(screen.getByText(/INVOICE|ADJUSTMENT/)).toBeInTheDocument();
+        expect(screen.getByText("IN")).toBeInTheDocument();
+        expect(screen.getByText("OUT")).toBeInTheDocument();
       });
     });
   });
@@ -220,15 +232,23 @@ describe("StockMovement", () => {
     it("should have search input", async () => {
       render(<StockMovement />);
 
-      const searchInput = screen.queryByPlaceholderText(/search|filter/i);
-      expect(searchInput || true).toBeTruthy();
+      await waitFor(() => {
+        expect(screen.getByText(/Stock Movements/i)).toBeInTheDocument();
+      });
+
+      const searchInput = screen.queryByPlaceholderText(/search/i);
+      expect(searchInput).toBeInTheDocument();
     });
 
     it("should have filter button", async () => {
       render(<StockMovement />);
 
-      const filterButton = screen.queryByRole("button", { name: /filter/i });
-      expect(filterButton || true).toBeTruthy();
+      await waitFor(() => {
+        expect(screen.getByText(/Stock Movements/i)).toBeInTheDocument();
+      });
+
+      const filterButton = screen.getByRole("button", { name: /filter/i });
+      expect(filterButton).toBeInTheDocument();
     });
 
     it("should filter movements by search term", async () => {
@@ -236,17 +256,15 @@ describe("StockMovement", () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        expect(screen.getByText("SS-304-Sheet")).toBeInTheDocument();
+        expect(screen.getByText("Sheet")).toBeInTheDocument();
       });
 
-      const searchInput = screen.queryByPlaceholderText(/search|filter/i);
-      if (searchInput) {
-        await user.type(searchInput, "304");
+      const searchInput = screen.getByPlaceholderText(/search/i);
+      await user.type(searchInput, "304");
 
-        await waitFor(() => {
-          expect(screen.getByText("SS-304-Sheet")).toBeInTheDocument();
-        });
-      }
+      await waitFor(() => {
+        expect(screen.getByText("304")).toBeInTheDocument();
+      });
     });
   });
 
@@ -254,40 +272,51 @@ describe("StockMovement", () => {
     it("should have Add Movement button", async () => {
       render(<StockMovement />);
 
-      const addButton = screen.queryByRole("button", { name: /Add|Create|New/i });
-      expect(addButton || true).toBeTruthy();
+      await waitFor(() => {
+        expect(screen.getByText(/Stock Movements/i)).toBeInTheDocument();
+      });
+
+      expect(screen.getByRole("button", { name: /Add Movement/i })).toBeInTheDocument();
     });
 
     it("should open dialog when Add Movement clicked", async () => {
       const user = userEvent.setup();
       render(<StockMovement />);
 
-      const addButton = screen.queryByRole("button", { name: /Add|Create|New/i });
-      if (addButton) {
-        await user.click(addButton);
+      // Wait for data to load (table shows data rows)
+      await waitFor(() => {
+        expect(screen.getByText("Sheet")).toBeInTheDocument();
+      });
 
-        await waitFor(() => {
-          expect(screen.getByText(/Add.*Movement|Create.*Movement/i) || true).toBeTruthy();
-        });
-      }
+      const addButton = screen.getByRole("button", { name: /Add Movement/i });
+      await user.click(addButton);
+
+      // Dialog should show "Add Stock Movement" title
+      await waitFor(() => {
+        expect(screen.getByText("Add Stock Movement")).toBeInTheDocument();
+      });
     });
 
     it("should have edit button for each movement", async () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        const editButtons = screen.queryAllByTitle(/Edit|edit/);
-        expect(editButtons.length).toBeGreaterThanOrEqual(0);
+        expect(screen.getByText("Sheet")).toBeInTheDocument();
       });
+
+      const editButtons = screen.queryAllByTitle(/Edit|edit/);
+      expect(editButtons.length).toBeGreaterThanOrEqual(0);
     });
 
     it("should have delete button for each movement", async () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        const deleteButtons = screen.queryAllByTitle(/Delete|delete/);
-        expect(deleteButtons.length).toBeGreaterThanOrEqual(0);
+        expect(screen.getByText("Sheet")).toBeInTheDocument();
       });
+
+      const deleteButtons = screen.queryAllByTitle(/Delete|delete/);
+      expect(deleteButtons.length).toBeGreaterThanOrEqual(0);
     });
   });
 
@@ -301,9 +330,9 @@ describe("StockMovement", () => {
     });
 
     it("should filter for in-transit purchase orders", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue({ data: [] });
+      stockMovementService.getAllMovements.mockResolvedValue({ data: [] });
 
-      purchaseOrderService.getAll = vi.fn().mockResolvedValue({
+      purchaseOrderService.getAll.mockResolvedValue({
         data: [
           {
             id: 1,
@@ -333,79 +362,27 @@ describe("StockMovement", () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        // Should not display received POs as transit movements
         expect(purchaseOrderService.getAll).toHaveBeenCalled();
       });
     });
   });
 
-  describe("Movement Status", () => {
-    it("should display completed status", async () => {
+  describe("Seller Display", () => {
+    it("should display seller name", async () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        expect(screen.getByText(/completed|Completed/)).toBeInTheDocument();
+        expect(screen.getByText("Steel Corp")).toBeInTheDocument();
+        expect(screen.getByText("Metro Steel")).toBeInTheDocument();
       });
     });
 
-    it("should display pending status if applicable", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue({
-        data: [
-          {
-            id: 1,
-            productName: "Test Product",
-            warehouseName: "Test Warehouse",
-            quantity: 100,
-            unit: "KG",
-            movement: "OUT",
-            movementType: "ADJUSTMENT",
-            referenceNumber: "ADJ-001",
-            date: new Date().toISOString(),
-            status: "pending",
-          },
-        ],
-      });
-
+    it("should display current stock value", async () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        expect(screen.getByText(/pending|Pending/)).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe("Notes and Details", () => {
-    it("should display movement notes", async () => {
-      render(<StockMovement />);
-
-      await waitFor(() => {
-        expect(screen.getByText(/Invoice delivery|Stock adjustment/)).toBeInTheDocument();
-      });
-    });
-
-    it("should truncate long notes", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue({
-        data: [
-          {
-            id: 1,
-            productName: "Test",
-            warehouseName: "Test WH",
-            quantity: 100,
-            unit: "KG",
-            movement: "OUT",
-            movementType: "INVOICE",
-            referenceNumber: "INV-001",
-            date: new Date().toISOString(),
-            notes: "This is a very long note that should be truncated in the list view",
-            status: "completed",
-          },
-        ],
-      });
-
-      render(<StockMovement />);
-
-      await waitFor(() => {
-        expect(screen.getByText(/Test/)).toBeInTheDocument();
+        expect(screen.getByText("900")).toBeInTheDocument();
+        expect(screen.getByText("450")).toBeInTheDocument();
       });
     });
   });
@@ -430,55 +407,49 @@ describe("StockMovement", () => {
 
   describe("Error Handling", () => {
     it("should display error on fetch failure", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockRejectedValue(new Error("API Error"));
+      stockMovementService.getAllMovements.mockRejectedValue(new Error("API Error"));
 
       render(<StockMovement />);
 
       await waitFor(() => {
-        expect(screen.getByText(/Failed to load|error/i)).toBeInTheDocument();
+        expect(screen.getByText(/Failed to load stock movements/)).toBeInTheDocument();
       });
     });
 
     it("should handle missing movement data gracefully", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue(null);
-      purchaseOrderService.getAll = vi.fn().mockResolvedValue(null);
+      stockMovementService.getAllMovements.mockResolvedValue(null);
+      purchaseOrderService.getAll.mockResolvedValue(null);
 
       render(<StockMovement />);
 
       await waitFor(() => {
-        // Should render without crashing
-        expect(screen.getByText(/Stock Movement|stock movement/i)).toBeInTheDocument();
+        // Error path catches the null response
+        expect(screen.getByText(/Stock Movements|Failed to load/i)).toBeInTheDocument();
       });
     });
   });
 
   describe("Data Sorting", () => {
     it("should display movements in chronological order (newest first)", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue({
+      stockMovementService.getAllMovements.mockResolvedValue({
         data: [
           {
             id: 1,
-            productName: "Product 1",
-            warehouseName: "WH-1",
-            quantity: 100,
-            unit: "KG",
+            date: new Date(Date.now() - 86400000).toISOString(),
             movement: "OUT",
-            movementType: "INVOICE",
-            referenceNumber: "INV-001",
-            date: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-            status: "completed",
+            productType: "Sheet",
+            grade: "304",
+            quantity: 100,
+            currentStock: 900,
           },
           {
             id: 2,
-            productName: "Product 2",
-            warehouseName: "WH-2",
-            quantity: 50,
-            unit: "KG",
+            date: new Date().toISOString(),
             movement: "IN",
-            movementType: "ADJUSTMENT",
-            referenceNumber: "ADJ-001",
-            date: new Date().toISOString(), // Today
-            status: "completed",
+            productType: "Coil",
+            grade: "316L",
+            quantity: 50,
+            currentStock: 450,
           },
         ],
       });
@@ -486,27 +457,24 @@ describe("StockMovement", () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        expect(screen.getByText("Product 1")).toBeInTheDocument();
-        expect(screen.getByText("Product 2")).toBeInTheDocument();
+        expect(screen.getByText("Sheet")).toBeInTheDocument();
+        expect(screen.getByText("Coil")).toBeInTheDocument();
       });
     });
   });
 
   describe("Quantity Display", () => {
     it("should format quantities with decimals for KG", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue({
+      stockMovementService.getAllMovements.mockResolvedValue({
         data: [
           {
             id: 1,
-            productName: "Test Product",
-            warehouseName: "Test WH",
-            quantity: 123.456,
-            unit: "KG",
-            movement: "OUT",
-            movementType: "INVOICE",
-            referenceNumber: "INV-001",
             date: new Date().toISOString(),
-            status: "completed",
+            movement: "OUT",
+            productType: "Sheet",
+            grade: "304",
+            quantity: 123.456,
+            currentStock: 876,
           },
         ],
       });
@@ -514,24 +482,21 @@ describe("StockMovement", () => {
       render(<StockMovement />);
 
       await waitFor(() => {
-        expect(screen.getByText(/123|456/)).toBeInTheDocument();
+        expect(screen.getByText(/123/)).toBeInTheDocument();
       });
     });
 
     it("should format integer quantities for PCS", async () => {
-      stockMovementService.getAllMovements = vi.fn().mockResolvedValue({
+      stockMovementService.getAllMovements.mockResolvedValue({
         data: [
           {
             id: 1,
-            productName: "Test Product",
-            warehouseName: "Test WH",
-            quantity: 100,
-            unit: "PCS",
-            movement: "OUT",
-            movementType: "INVOICE",
-            referenceNumber: "INV-001",
             date: new Date().toISOString(),
-            status: "completed",
+            movement: "OUT",
+            productType: "Sheet",
+            grade: "304",
+            quantity: 100,
+            currentStock: 500,
           },
         ],
       });

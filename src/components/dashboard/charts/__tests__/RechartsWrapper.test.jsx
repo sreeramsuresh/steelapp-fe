@@ -2,17 +2,17 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("recharts", () => ({
-  ResponsiveContainer: ({ children }) => <div data-testid="responsive-container">{children}</div>,
-  BarChart: ({ children }) => <div data-testid="bar-chart">{children}</div>,
+  ResponsiveContainer: ({ children }) => <div>{children}</div>,
+  BarChart: ({ children }) => <div>{children}</div>,
   Bar: () => null,
-  LineChart: ({ children }) => <div data-testid="line-chart">{children}</div>,
+  LineChart: ({ children }) => <div>{children}</div>,
   Line: () => null,
-  AreaChart: ({ children }) => <div data-testid="area-chart">{children}</div>,
+  AreaChart: ({ children }) => <div>{children}</div>,
   Area: () => null,
-  PieChart: ({ children }) => <div data-testid="pie-chart">{children}</div>,
+  PieChart: ({ children }) => <div>{children}</div>,
   Pie: ({ children }) => <div>{children}</div>,
   Cell: () => null,
-  RadarChart: ({ children }) => <div data-testid="radar-chart">{children}</div>,
+  RadarChart: ({ children }) => <div>{children}</div>,
   Radar: () => null,
   XAxis: () => null,
   YAxis: () => null,

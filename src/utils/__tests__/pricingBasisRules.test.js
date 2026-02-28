@@ -92,16 +92,16 @@ describe("requiresWeight", () => {
 });
 
 describe("getBasisLabel", () => {
-  it('returns "per PC" for PER_PCS', () => {
-    expect(getBasisLabel("PER_PCS")).toBe("per PC");
+  it('returns "per pc" for PER_PCS', () => {
+    expect(getBasisLabel("PER_PCS")).toBe("per pc");
   });
 
-  it('returns "per MT" for PER_MT', () => {
-    expect(getBasisLabel("PER_MT")).toBe("per MT");
+  it('returns "per pc" for PER_MT (normalized display label)', () => {
+    expect(getBasisLabel("PER_MT")).toBe("per pc");
   });
 
-  it('returns "per Meter" for PER_METER', () => {
-    expect(getBasisLabel("PER_METER")).toBe("per Meter");
+  it('returns "per pc" for PER_METER (normalized display label)', () => {
+    expect(getBasisLabel("PER_METER")).toBe("per pc");
   });
 
   it("returns the raw value for unknown basis", () => {

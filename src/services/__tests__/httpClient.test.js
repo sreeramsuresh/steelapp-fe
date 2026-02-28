@@ -3,17 +3,17 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ApiError, ERROR_CODES, apiRequest, httpClient, isApiError, getErrorMessage, getErrorRequestId } from '../httpClient.js';
 
 // Mock dependencies
-vi.mock('../config/env.js', () => ({
+vi.mock('../../config/env.js', () => ({
   default: { DEV: false, PROD: false },
 }));
 
-vi.mock('../utils/caseConverters', () => ({
+vi.mock('../../utils/caseConverters', () => ({
   findSnakeCaseKeys: vi.fn(() => []),
   toCamelCaseDeep: vi.fn((data) => data),
   toSnakeCaseDeep: vi.fn((data) => data),
 }));
 
-vi.mock('../utils/requestId', () => ({
+vi.mock('../../utils/requestId', () => ({
   generateRequestId: vi.fn(() => 'test-request-id'),
 }));
 
@@ -29,7 +29,7 @@ vi.mock('../axiosApi', () => ({
 
 describe('httpClient', () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('ApiError', () => {

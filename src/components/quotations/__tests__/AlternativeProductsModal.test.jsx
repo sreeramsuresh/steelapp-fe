@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../../contexts/ThemeContext", () => ({
+vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../services/api", () => ({
+vi.mock("../../../services/api", () => ({
   productsAPI: {
     list: vi.fn().mockResolvedValue({ data: { products: [] } }),
   },

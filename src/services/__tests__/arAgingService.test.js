@@ -98,8 +98,8 @@ describe('arAgingService', () => {
       expect(result.agingBuckets.current.invoiceCount).toBe(10);
       expect(result.totalOutstanding).toBe(105000);
       expect(apiClient.get.mock.calls.length > 0).toBeTruthy();
-      const call = apiClient.get.getCall(0);
-      expect(call.args[1].headers['X-Company-Id']).toBe(companyId);
+      const call = apiClient.get.mock.calls[0];
+      expect(call[1].headers['X-Company-Id']).toBe(companyId);
     });
 
     it('should filter aging report by customer', async () => {
@@ -453,8 +453,8 @@ describe('arAgingService', () => {
 
       await arAgingService.getAgingReport(companyId, '2024-02-15');
 
-      const call = apiClient.get.getCall(0);
-      expect(call.args[1].headers['X-Company-Id']).toBe(companyId);
+      const call = apiClient.get.mock.calls[0];
+      expect(call[1].headers['X-Company-Id']).toBe(companyId);
     });
 
     it('should include company ID in payment recording', async () => {
@@ -462,8 +462,8 @@ describe('arAgingService', () => {
 
       await arAgingService.recordPayment(companyId, { invoiceId: 1, amount: 100 });
 
-      const call = apiClient.post.getCall(0);
-      expect(call.args[2].headers['X-Company-Id']).toBe(companyId);
+      const call = apiClient.post.mock.calls[0];
+      expect(call[2].headers['X-Company-Id']).toBe(companyId);
     });
 
     it('should enforce company isolation for customer aging', async () => {
@@ -495,7 +495,7 @@ describe('arAgingService', () => {
         await arAgingService.getOutstandingInvoices(companyId);
         throw new Error('Expected error');
       } catch (error) {
-        expect(error.message.includes('Server error').toBeTruthy());
+        expect(error.message).toContain('Server error');
       }
     });
 
@@ -545,7 +545,7 @@ describe('arAgingService', () => {
       const result = await arAgingService.getAgingSummary(companyId, '2024-02-15');
 
       const calculatedDSO = Math.round(result.totalARBalance / result.dailySales);
-      expect(Math.abs(calculatedDSO - result.daysalesOutstanding).toBeTruthy() <= 1);
+      expect(Math.abs(calculatedDSO - result.daysalesOutstanding)).toBeLessThanOrEqual(1);
     });
 
     it('should calculate collection percentage', async () => {

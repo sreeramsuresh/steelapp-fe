@@ -237,7 +237,7 @@ describe("purchaseOrderService", () => {
       const result = await purchaseOrderService.updateTransitStatus(1, "in_transit");
 
       expect(result.transitStatus).toBeTruthy();
-      expect(patchStub).toHaveBeenCalledWith("/purchase-orders/1/transit-status", {
+      expect(patchStub).toHaveBeenCalledWith("/purchase-orders/1/status", {
         transit_status: "in_transit",
       });
     });
@@ -249,7 +249,7 @@ describe("purchaseOrderService", () => {
 
       await purchaseOrderService.updateTransitStatus(1, "delivered");
 
-      expect(patchStub).toHaveBeenCalledWith("/purchase-orders/1/transit-status", {
+      expect(patchStub).toHaveBeenCalledWith("/purchase-orders/1/status", {
         transit_status: "delivered",
       });
     });
@@ -263,7 +263,7 @@ describe("purchaseOrderService", () => {
       const result = await purchaseOrderService.updateStockStatus(1, "received");
 
       expect(result.stockStatus).toBeTruthy();
-      expect(patchStub).toHaveBeenCalledWith("/purchase-orders/1/stock-status", { stock_status: "received" });
+      expect(patchStub).toHaveBeenCalledWith("/purchase-orders/1/status", { stock_status: "received" });
     });
 
     it("should support GRN workflow (pending → received → inspected → closed)", async () => {
@@ -271,7 +271,7 @@ describe("purchaseOrderService", () => {
 
       await purchaseOrderService.updateStockStatus(1, "inspected");
 
-      expect(patchStub).toHaveBeenCalledWith("/purchase-orders/1/stock-status", { stock_status: "inspected" });
+      expect(patchStub).toHaveBeenCalledWith("/purchase-orders/1/status", { stock_status: "inspected" });
     });
   });
 
@@ -345,7 +345,7 @@ describe("purchaseOrderService", () => {
       document.body.appendChild = vi.fn();
       document.body.removeChild = vi.fn();
 
-      apiService.request.mockResolvedValue(mockBlob);
+      vi.spyOn(apiService, 'request').mockResolvedValue(mockBlob);
 
       await purchaseOrderService.downloadPDF(1);
 
@@ -357,7 +357,7 @@ describe("purchaseOrderService", () => {
     });
 
     it("should handle PDF download errors", async () => {
-      apiService.request.mockRejectedValue(new Error("PDF generation failed"));
+      vi.spyOn(apiService, 'request').mockRejectedValue(new Error("PDF generation failed"));
 
       await expect(purchaseOrderService.downloadPDF(999)).rejects.toThrow();
     });

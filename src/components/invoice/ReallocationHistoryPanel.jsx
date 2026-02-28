@@ -2,7 +2,7 @@ import { AlertCircle, ChevronDown, ChevronRight, History, TrendingDown, Trending
 import PropTypes from "prop-types";
 import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
-import apiClient from "../../services/apiClient";
+import apiClient from "../../services/api";
 import { Badge } from "../ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 

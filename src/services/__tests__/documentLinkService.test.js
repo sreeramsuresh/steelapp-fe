@@ -23,7 +23,7 @@ describe('documentLinkService', () => {
         edges: [{ source: 1, target: 2 }],
         computed: { totalAdjustment: 500 },
       };
-      apiClient.get.mockResolvedValue(mockChain);
+      vi.spyOn(apiClient, 'get').mockResolvedValue(mockChain);
 
       const result = await documentLinkService.getCorrectionChain('invoice', 1);
 
@@ -32,7 +32,7 @@ describe('documentLinkService', () => {
     });
 
     it('should handle different document types', async () => {
-      apiClient.get.mockResolvedValue({ root: null, nodes: [], edges: [] });
+      vi.spyOn(apiClient, 'get').mockResolvedValue({ root: null, nodes: [], edges: [] });
 
       await documentLinkService.getCorrectionChain('credit_note', 42);
 
@@ -40,7 +40,7 @@ describe('documentLinkService', () => {
     });
 
     it('should propagate API errors', async () => {
-      apiClient.get.mockRejectedValue(new Error('Not found'));
+      vi.spyOn(apiClient, 'get').mockRejectedValue(new Error('Not found'));
 
       await expect(documentLinkService.getCorrectionChain('invoice', 999)).rejects.toThrow('Not found');
     });
@@ -56,7 +56,7 @@ describe('documentLinkService', () => {
         linkType: 'correction',
       };
       const mockResult = { id: 10, ...payload };
-      apiClient.post.mockResolvedValue(mockResult);
+      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResult);
 
       const result = await documentLinkService.createLink(payload);
 
@@ -65,7 +65,7 @@ describe('documentLinkService', () => {
     });
 
     it('should propagate API errors on creation', async () => {
-      apiClient.post.mockRejectedValue(new Error('Conflict'));
+      vi.spyOn(apiClient, 'post').mockRejectedValue(new Error('Conflict'));
 
       await expect(documentLinkService.createLink({})).rejects.toThrow('Conflict');
     });

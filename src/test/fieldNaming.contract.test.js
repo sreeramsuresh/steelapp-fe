@@ -91,13 +91,13 @@ describe("getProductDisplayName", () => {
     expect(getProductDisplayName(product)).toBe("SS-316L-Bar-25mm");
   });
 
-  it("falls back to fullName when display names are missing", () => {
-    const product = { fullName: "SS-316L-Bar-25mm-UAE" };
+  it("falls back to uniqueName when display names are missing", () => {
+    const product = { uniqueName: "SS-316L-Bar-25mm-UAE" };
     expect(getProductDisplayName(product)).toBe("SS-316L-Bar-25mm-UAE");
   });
 
-  it("falls back to full_name (snake_case)", () => {
-    const product = { full_name: "SS-316L-Bar-25mm-UAE" };
+  it("falls back to unique_name (snake_case)", () => {
+    const product = { unique_name: "SS-316L-Bar-25mm-UAE" };
     expect(getProductDisplayName(product)).toBe("SS-316L-Bar-25mm-UAE");
   });
 
@@ -143,8 +143,8 @@ describe("getProductFullName", () => {
     expect(getProductFullName(product)).toBe("SS-316L-Bar-25mm-UAE");
   });
 
-  it("falls back to displayName when full names are missing", () => {
-    const product = { displayName: "SS-316L-Bar-25mm" };
+  it("falls back to name when full/unique names are missing", () => {
+    const product = { name: "SS-316L-Bar-25mm" };
     expect(getProductFullName(product)).toBe("SS-316L-Bar-25mm");
   });
 

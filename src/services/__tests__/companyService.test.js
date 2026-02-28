@@ -8,7 +8,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { apiClient } from '../api.js';
-import { tokenUtils } from '../axiosApi.js';
+import { apiService, tokenUtils } from '../axiosApi.js';
 import { companyService } from '../companyService.js';
 
 describe('companyService', () => {
@@ -29,7 +29,7 @@ describe('companyService', () => {
       const result = await companyService.getCompany();
 
       expect(result.name).toBe('Steel Corp');
-      expect(apiClient.get.calledWith('/company').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/company');
     });
 
     it('should handle fetch error', async () => {
@@ -53,7 +53,7 @@ describe('companyService', () => {
       const result = await companyService.updateCompany(companyData);
 
       expect(result.name).toBe('Updated Steel Corp');
-      expect(apiClient.post.calledWith('/company', companyData).toBeTruthy());
+      expect(apiClient.post).toHaveBeenCalledWith('/company', companyData);
     });
   });
 
@@ -66,7 +66,7 @@ describe('companyService', () => {
       const result = await companyService.updateCompanyById(2, companyData);
 
       expect(result.id).toBe(2);
-      expect(apiClient.put.calledWith('/company/2', companyData).toBeTruthy());
+      expect(apiClient.put).toHaveBeenCalledWith('/company/2', companyData);
     });
   });
 
@@ -75,26 +75,20 @@ describe('companyService', () => {
       const mockFile = new File(['logo content'], 'logo.png', { type: 'image/png' });
       const mockResponse = { filename: 'logo-12345.png', url: '/logos/logo-12345.png' };
 
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: true,
-        json: async () => mockResponse,
-      });
+      vi.spyOn(apiService, 'upload').mockResolvedValue(mockResponse);
 
       const result = await companyService.uploadLogo(mockFile);
 
       expect(result.filename).toBe('logo-12345.png');
-      expect(global.fetch.mock.calls.length > 0).toBeTruthy();
-      const call = global.fetch.getCall(0);
-      expect(call.args[0]).toBe('http://localhost:3001/api/company/upload-logo');
-      expect(call.args[1].method).toBe('POST');
+      expect(apiService.upload).toHaveBeenCalledWith(
+        '/company/upload-logo',
+        expect.any(FormData)
+      );
     });
 
     it('should handle upload failure', async () => {
       const mockFile = new File(['logo'], 'logo.png', { type: 'image/png' });
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: false,
-        json: async () => ({ error: 'File too large' }),
-      });
+      vi.spyOn(apiService, 'upload').mockRejectedValue(new Error('File too large'));
 
       try {
         await companyService.uploadLogo(mockFile);
@@ -112,7 +106,7 @@ describe('companyService', () => {
       const result = await companyService.deleteLogo('logo-12345.png');
 
       expect(result.success).toBe(true);
-      expect(apiClient.delete.calledWith('/company/logo/logo-12345.png').toBeTruthy());
+      expect(apiClient.delete).toHaveBeenCalledWith('/company/logo/logo-12345.png');
     });
   });
 
@@ -124,7 +118,7 @@ describe('companyService', () => {
       const result = await companyService.cleanupLogos();
 
       expect(result.deleted).toBe(3);
-      expect(apiClient.post.calledWith('/company/cleanup-logos').toBeTruthy());
+      expect(apiClient.post).toHaveBeenCalledWith('/company/cleanup-logos');
     });
   });
 
@@ -135,16 +129,15 @@ describe('companyService', () => {
       });
       const mockResponse = { filename: 'brandmark-12345.png' };
 
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: true,
-        json: async () => mockResponse,
-      });
+      vi.spyOn(apiService, 'upload').mockResolvedValue(mockResponse);
 
       const result = await companyService.uploadBrandmark(mockFile);
 
       expect(result.filename).toBe('brandmark-12345.png');
-      const call = global.fetch.getCall(0);
-      expect(call.args[0]).toBe('http://localhost:3001/api/company/upload-brandmark');
+      expect(apiService.upload).toHaveBeenCalledWith(
+        '/company/upload-brandmark',
+        expect.any(FormData)
+      );
     });
   });
 
@@ -154,7 +147,7 @@ describe('companyService', () => {
 
       await companyService.deleteBrandmark('brandmark-12345.png');
 
-      expect(apiClient.delete.calledWith('/company/brandmark/brandmark-12345.png').toBeTruthy());
+      expect(apiClient.delete).toHaveBeenCalledWith('/company/brandmark/brandmark-12345.png');
     });
   });
 
@@ -163,16 +156,15 @@ describe('companyService', () => {
       const mockFile = new File(['seal'], 'seal.png', { type: 'image/png' });
       const mockResponse = { filename: 'seal-12345.png' };
 
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: true,
-        json: async () => mockResponse,
-      });
+      vi.spyOn(apiService, 'upload').mockResolvedValue(mockResponse);
 
       const result = await companyService.uploadSeal(mockFile);
 
       expect(result.filename).toBe('seal-12345.png');
-      const call = global.fetch.getCall(0);
-      expect(call.args[0]).toBe('http://localhost:3001/api/company/upload-seal');
+      expect(apiService.upload).toHaveBeenCalledWith(
+        '/company/upload-seal',
+        expect.any(FormData)
+      );
     });
   });
 
@@ -182,7 +174,7 @@ describe('companyService', () => {
 
       await companyService.deleteSeal('seal-12345.png');
 
-      expect(apiClient.delete.calledWith('/company/seal/seal-12345.png').toBeTruthy());
+      expect(apiClient.delete).toHaveBeenCalledWith('/company/seal/seal-12345.png');
     });
   });
 
@@ -199,38 +191,34 @@ describe('companyService', () => {
       const result = await companyService.updateTemplateSettings(templateSettings);
 
       expect(result.success).toBe(true);
-      expect(apiClient.post.calledWith('/company/template-settings', templateSettings).toBeTruthy());
+      expect(apiClient.post).toHaveBeenCalledWith('/company/template-settings', templateSettings);
     });
   });
 
   describe('authentication in uploads', () => {
-    it('should include authorization token in upload requests', async () => {
-      vi.spyOn(tokenUtils, 'getToken').mockReturnValue('test-token-xyz');
+    it('should call apiService.upload for file uploads', async () => {
       const mockFile = new File(['test'], 'test.png', { type: 'image/png' });
 
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: true,
-        json: async () => ({ filename: 'test.png' }),
-      });
+      vi.spyOn(apiService, 'upload').mockResolvedValue({ filename: 'test.png' });
 
       await companyService.uploadLogo(mockFile);
 
-      const call = global.fetch.getCall(0);
-      expect(call.args[1].headers.Authorization).toBe('Bearer test-token-xyz');
+      expect(apiService.upload).toHaveBeenCalledWith(
+        '/company/upload-logo',
+        expect.any(FormData)
+      );
     });
 
-    it('should set correct content headers for uploads', async () => {
+    it('should pass FormData without explicit Content-Type', async () => {
       const mockFile = new File(['test'], 'test.png', { type: 'image/png' });
 
-      vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: true,
-        json: async () => ({ filename: 'test.png' }),
-      });
+      vi.spyOn(apiService, 'upload').mockResolvedValue({ filename: 'test.png' });
 
       await companyService.uploadLogo(mockFile);
 
-      const call = global.fetch.getCall(0);
-      expect(call.args[1].headers['Content-Type']).toBe(undefined);
+      // apiService.upload handles headers internally (Content-Type is auto-set by browser for FormData)
+      const callArgs = apiService.upload.mock.calls[0];
+      expect(callArgs[1]).toBeInstanceOf(FormData);
     });
   });
 });

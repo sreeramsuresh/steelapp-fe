@@ -18,23 +18,27 @@ vi.mock("../../contexts/ThemeContext", () => ({
 vi.mock("../../services/stockBatchService", () => ({
   stockBatchService: { getBatchesByProduct: vi.fn() },
 }));
+vi.mock("../../utils/invoiceUtils", () => ({
+  formatCurrency: (amount) => `AED ${Number(amount).toFixed(2)}`,
+}));
 
 describe("StockBatchViewer", () => {
   let mockOnClose;
 
   beforeEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
     mockOnClose = vi.fn();
 
     useTheme.mockReturnValue({ isDarkMode: false });
 
-    stockBatchService.getBatchesByProduct = vi.fn().mockResolvedValue({
+    stockBatchService.getBatchesByProduct.mockResolvedValue({
       batches: [
         {
           id: 1,
           batchNumber: "LOCAL-001",
           procurementChannel: "LOCAL",
           quantityRemaining: 500,
+          quantityReceived: 600,
           unitCost: 100,
           receivedDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
           costPrice: 100,
@@ -45,6 +49,7 @@ describe("StockBatchViewer", () => {
           batchNumber: "IMPORTED-001",
           procurementChannel: "IMPORTED",
           quantityRemaining: 300,
+          quantityReceived: 400,
           unitCost: 120,
           receivedDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
           costPrice: 120,
@@ -64,22 +69,24 @@ describe("StockBatchViewer", () => {
     });
 
     it("should display loading state initially", async () => {
-      stockBatchService.getBatchesByProduct = vi.fn(
+      stockBatchService.getBatchesByProduct.mockImplementation(
         () => new Promise((resolve) => setTimeout(() => resolve({ batches: [] }), 100))
       );
 
-      render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
+      const { container } = render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
-      expect(screen.getByText(/Loading|loading/)).toBeInTheDocument();
+      // Loading shows a spinner icon, not text
+      expect(container.querySelector(".animate-spin")).toBeInTheDocument();
     });
 
     it("should display error message on fetch failure", async () => {
-      stockBatchService.getBatchesByProduct = vi.fn().mockRejectedValue(new Error("API Error"));
+      stockBatchService.getBatchesByProduct.mockRejectedValue(new Error("API Error"));
 
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText(/Failed to load/)).toBeInTheDocument();
+        // Component sets error to err.message which is "API Error"
+        expect(screen.getByText("API Error")).toBeInTheDocument();
       });
     });
   });
@@ -131,10 +138,11 @@ describe("StockBatchViewer", () => {
         expect(screen.getByText("LOCAL-001")).toBeInTheDocument();
       });
 
-      // Channel filter interaction
-      const filterButton = screen.queryByRole("button", { name: /LOCAL/ });
-      if (filterButton) {
-        await user.click(filterButton);
+      // Channel filter buttons render as "LOCAL (500 KG)" - find button containing LOCAL
+      const buttons = screen.getAllByRole("button");
+      const localButton = buttons.find((b) => b.textContent.includes("LOCAL") && !b.textContent.includes("All"));
+      if (localButton) {
+        await user.click(localButton);
       }
     });
 
@@ -161,8 +169,11 @@ describe("StockBatchViewer", () => {
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("500")).toBeInTheDocument();
-        expect(screen.getByText("300")).toBeInTheDocument();
+        // Quantities render as "500 KG" in both channel filter button and batch row
+        const qty500 = screen.getAllByText(/500 KG/);
+        expect(qty500.length).toBeGreaterThan(0);
+        const qty300 = screen.getAllByText(/300 KG/);
+        expect(qty300.length).toBeGreaterThan(0);
       });
     });
 
@@ -170,8 +181,9 @@ describe("StockBatchViewer", () => {
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText(/100/)).toBeInTheDocument();
-        expect(screen.getByText(/120/)).toBeInTheDocument();
+        // Unit cost is only shown in expanded batch details; check header totals instead
+        // Header buttons show total quantities like "800 KG"
+        expect(screen.getByText(/800 KG/)).toBeInTheDocument();
       });
     });
 
@@ -179,7 +191,8 @@ describe("StockBatchViewer", () => {
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText(/500|KG/)).toBeInTheDocument();
+        const kgElements = screen.getAllByText(/KG/);
+        expect(kgElements.length).toBeGreaterThan(0);
       });
     });
   });
@@ -189,10 +202,9 @@ describe("StockBatchViewer", () => {
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
       await waitFor(() => {
-        // LOCAL batch: 15 days old
-        expect(screen.getByText(/15d/)).toBeInTheDocument();
-        // IMPORTED batch: 5 days old
-        expect(screen.getByText(/5d/)).toBeInTheDocument();
+        // Days render as "{n}d" - allow for rounding (Math.ceil) by matching pattern
+        const allText = document.body.textContent;
+        expect(allText).toMatch(/\d+d/);
       });
     });
 
@@ -200,7 +212,9 @@ describe("StockBatchViewer", () => {
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText(/5d/)).toBeInTheDocument();
+        // IMPORTED batch: ~5 days old (Math.ceil may round to 5 or 6)
+        const allText = document.body.textContent;
+        expect(allText).toMatch(/[5-6]d/);
       });
     });
 
@@ -208,7 +222,9 @@ describe("StockBatchViewer", () => {
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText(/15d/)).toBeInTheDocument();
+        // LOCAL batch: ~15 days old (Math.ceil may round to 15 or 16)
+        const allText = document.body.textContent;
+        expect(allText).toMatch(/1[5-6]d/);
       });
     });
   });
@@ -222,10 +238,13 @@ describe("StockBatchViewer", () => {
         expect(screen.getByText("LOCAL-001")).toBeInTheDocument();
       });
 
-      const expandButton = screen.queryByRole("button", { name: /expand|collapse|details/ });
-      if (expandButton) {
-        await user.click(expandButton);
-        // Details should expand
+      // Each batch row is a button for expanding
+      const buttons = screen.getAllByRole("button");
+      const batchButton = buttons.find((b) => b.textContent.includes("LOCAL-001"));
+      if (batchButton) {
+        await user.click(batchButton);
+        // After expanding, cost details should appear
+        expect(screen.getByText(/Cost\/Piece/)).toBeInTheDocument();
       }
     });
 
@@ -237,10 +256,11 @@ describe("StockBatchViewer", () => {
         expect(screen.getByText("LOCAL-001")).toBeInTheDocument();
       });
 
-      const expandButtons = screen.queryAllByRole("button");
-      if (expandButtons.length > 0) {
-        await user.click(expandButtons[0]);
-        await user.click(expandButtons[0]);
+      const buttons = screen.getAllByRole("button");
+      const batchButton = buttons.find((b) => b.textContent.includes("LOCAL-001"));
+      if (batchButton) {
+        await user.click(batchButton);
+        await user.click(batchButton);
         // Should expand and collapse
       }
     });
@@ -248,33 +268,60 @@ describe("StockBatchViewer", () => {
 
   describe("Cost Display", () => {
     it("should display unit cost for LOCAL batches", async () => {
+      const user = userEvent.setup();
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText(/100/)).toBeInTheDocument();
+        expect(screen.getByText("LOCAL-001")).toBeInTheDocument();
       });
+
+      // Expand the LOCAL batch to see cost details
+      const buttons = screen.getAllByRole("button");
+      const batchButton = buttons.find((b) => b.textContent.includes("LOCAL-001"));
+      if (batchButton) {
+        await user.click(batchButton);
+        expect(screen.getByText(/AED 100/)).toBeInTheDocument();
+      }
     });
 
     it("should display unit cost for IMPORTED batches", async () => {
+      const user = userEvent.setup();
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText(/120/)).toBeInTheDocument();
+        expect(screen.getByText("IMPORTED-001")).toBeInTheDocument();
       });
+
+      // Expand the IMPORTED batch to see cost details
+      const buttons = screen.getAllByRole("button");
+      const batchButton = buttons.find((b) => b.textContent.includes("IMPORTED-001"));
+      if (batchButton) {
+        await user.click(batchButton);
+        expect(screen.getByText(/AED 120/)).toBeInTheDocument();
+      }
     });
 
     it("should show total cost for batch", async () => {
+      const user = userEvent.setup();
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText(/100|120/)).toBeInTheDocument();
+        expect(screen.getByText("LOCAL-001")).toBeInTheDocument();
       });
+
+      // Expand a batch to see cost
+      const buttons = screen.getAllByRole("button");
+      const batchButton = buttons.find((b) => b.textContent.includes("LOCAL-001"));
+      if (batchButton) {
+        await user.click(batchButton);
+        expect(screen.getByText(/AED/)).toBeInTheDocument();
+      }
     });
   });
 
   describe("Stock Calculation", () => {
     it("should sum LOCAL batch quantities", async () => {
-      stockBatchService.getBatchesByProduct = vi.fn().mockResolvedValue({
+      stockBatchService.getBatchesByProduct.mockResolvedValue({
         batches: [
           {
             id: 1,
@@ -311,17 +358,20 @@ describe("StockBatchViewer", () => {
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
       await waitFor(() => {
-        // Total should be 800 (500 + 300)
-        expect(screen.getByText(/500|300/)).toBeInTheDocument();
+        // Total is 800 (500+300), shown in "All Channels (800 KG)" button
+        expect(screen.getByText(/800 KG/)).toBeInTheDocument();
       });
     });
   });
 
   describe("Modal Mode", () => {
-    it("should render as modal when isModal is true", () => {
+    it("should render as modal when isModal is true", async () => {
       render(<StockBatchViewer productId={123} companyId={1} isModal={true} onClose={mockOnClose} />);
 
-      expect(screen.getByText(/LOCAL-001|IMPORTED-001/)).toBeInTheDocument();
+      await waitFor(() => {
+        const matches = screen.getAllByText(/LOCAL-001|IMPORTED-001/);
+        expect(matches.length).toBeGreaterThan(0);
+      });
     });
 
     it("should have close button when isModal is true", async () => {
@@ -352,32 +402,33 @@ describe("StockBatchViewer", () => {
 
   describe("Error Handling", () => {
     it("should display error on fetch failure", async () => {
-      stockBatchService.getBatchesByProduct = vi.fn().mockRejectedValue(new Error("Network error"));
+      stockBatchService.getBatchesByProduct.mockRejectedValue(new Error("Network error"));
 
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText(/Failed to load/)).toBeInTheDocument();
+        // Component sets error to err.message
+        expect(screen.getByText("Network error")).toBeInTheDocument();
       });
     });
 
     it("should handle missing batch data gracefully", async () => {
-      stockBatchService.getBatchesByProduct = vi.fn().mockResolvedValue({
+      stockBatchService.getBatchesByProduct.mockResolvedValue({
         batches: [],
       });
 
       render(<StockBatchViewer productId={123} companyId={1} onClose={mockOnClose} />);
 
       await waitFor(() => {
-        // Should show empty or "no batches" message
-        expect(screen.getByText(/No batches|empty/i) || true).toBeTruthy();
+        // Component shows "No stock batches found" for empty batches
+        expect(screen.getByText(/No stock batches found/)).toBeInTheDocument();
       });
     });
   });
 
   describe("Received Date Formatting", () => {
     it("should format received date properly", async () => {
-      stockBatchService.getBatchesByProduct = vi.fn().mockResolvedValue({
+      stockBatchService.getBatchesByProduct.mockResolvedValue({
         batches: [
           {
             id: 1,

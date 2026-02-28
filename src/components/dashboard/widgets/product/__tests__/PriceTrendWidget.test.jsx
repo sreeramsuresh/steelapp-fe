@@ -17,11 +17,12 @@ describe("PriceTrendWidget", () => {
       {
         id: 1,
         name: "SS 304 Sheet",
+        grade: "304",
         currentPrice: 285,
-        previousPrice: 275,
-        priceChange: 3.6,
         marketPrice: 290,
-        history: [
+        spread: -5,
+        change6m: 3.6,
+        trend: [
           { price: 270, market: 280 },
           { price: 275, market: 282 },
           { price: 285, market: 290 },

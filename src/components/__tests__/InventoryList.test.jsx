@@ -31,10 +31,17 @@ vi.mock("../../hooks/useConfirm", () => ({
     handleCancel: vi.fn(),
   })),
 }));
+vi.mock("../../contexts/NotificationCenterContext", () => ({
+  useNotifications: vi.fn(() => ({ addNotification: vi.fn() })),
+}));
+vi.mock("../../services/axiosApi", () => ({
+  default: { post: vi.fn(), get: vi.fn() },
+  apiService: { get: vi.fn().mockResolvedValue({ warehouses: [] }), post: vi.fn(), put: vi.fn(), delete: vi.fn(), setAuthToken: vi.fn(), removeAuthToken: vi.fn() },
+}));
 
 describe("InventoryList", () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
 
     useTheme.mockReturnValue({ isDarkMode: false });
 
@@ -145,7 +152,9 @@ describe("InventoryList", () => {
 
       await waitFor(() => {
         expect(screen.getByText("1000")).toBeInTheDocument();
-        expect(screen.getByText("500")).toBeInTheDocument();
+        // "500" may appear multiple times (quantity + size field), so use getAllByText
+        const matches = screen.getAllByText("500");
+        expect(matches.length).toBeGreaterThan(0);
       });
     });
 
@@ -235,8 +244,11 @@ describe("InventoryList", () => {
       render(<InventoryList />);
 
       await waitFor(() => {
-        expect(screen.getByText("Main Warehouse")).toBeInTheDocument();
-        expect(screen.getByText("Secondary Warehouse")).toBeInTheDocument();
+        // Warehouse name may appear in multiple places (badge + location cell)
+        const mainWarehouse = screen.getAllByText("Main Warehouse");
+        expect(mainWarehouse.length).toBeGreaterThan(0);
+        const secondaryWarehouse = screen.getAllByText("Secondary Warehouse");
+        expect(secondaryWarehouse.length).toBeGreaterThan(0);
       });
     });
 
@@ -254,13 +266,19 @@ describe("InventoryList", () => {
     it("should have status filter dropdown", async () => {
       render(<InventoryList />);
 
-      const statusFilter = screen.getByDisplayValue("All Status");
-      expect(statusFilter).toBeInTheDocument();
+      await waitFor(() => {
+        const statusFilter = screen.getByDisplayValue("All Status");
+        expect(statusFilter).toBeInTheDocument();
+      });
     });
 
     it("should filter by status when selected", async () => {
       const user = userEvent.setup();
       render(<InventoryList />);
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue("All Status")).toBeInTheDocument();
+      });
 
       const statusFilter = screen.getByDisplayValue("All Status");
       await user.selectOptions(statusFilter, "AVAILABLE");
@@ -273,9 +291,11 @@ describe("InventoryList", () => {
     it("should show all status options", async () => {
       render(<InventoryList />);
 
-      const statusFilter = screen.getByDisplayValue("All Status");
-      expect(statusFilter).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByDisplayValue("All Status")).toBeInTheDocument();
+      });
 
+      const statusFilter = screen.getByDisplayValue("All Status");
       const options = statusFilter.querySelectorAll("option");
       expect(options.length).toBeGreaterThanOrEqual(4); // All, Available, Reserved, Blocked, Scrap
     });
@@ -285,13 +305,19 @@ describe("InventoryList", () => {
     it("should have search input", async () => {
       render(<InventoryList />);
 
-      const searchInput = screen.getByPlaceholderText(/Search inventory/);
-      expect(searchInput).toBeInTheDocument();
+      await waitFor(() => {
+        const searchInput = screen.getByPlaceholderText(/Search inventory/);
+        expect(searchInput).toBeInTheDocument();
+      });
     });
 
     it("should filter items by search term", async () => {
       const user = userEvent.setup();
       render(<InventoryList />);
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText(/Search inventory/)).toBeInTheDocument();
+      });
 
       const searchInput = screen.getByPlaceholderText(/Search inventory/);
       await user.type(searchInput, "304");
@@ -306,13 +332,19 @@ describe("InventoryList", () => {
     it("should have Add Item button", async () => {
       render(<InventoryList />);
 
-      const addButton = screen.getByRole("button", { name: /Add Item/ });
-      expect(addButton).toBeInTheDocument();
+      await waitFor(() => {
+        const addButton = screen.getByRole("button", { name: /Add Item/ });
+        expect(addButton).toBeInTheDocument();
+      });
     });
 
     it("should open add dialog when Add Item clicked", async () => {
       const user = userEvent.setup();
       render(<InventoryList />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Add Item/ })).toBeInTheDocument();
+      });
 
       const addButton = screen.getByRole("button", { name: /Add Item/ });
       await user.click(addButton);
@@ -468,13 +500,19 @@ describe("InventoryList", () => {
     it("should have Upload Items button", async () => {
       render(<InventoryList />);
 
-      const uploadButton = screen.getByRole("button", { name: /Upload Items/ });
-      expect(uploadButton).toBeInTheDocument();
+      await waitFor(() => {
+        const uploadButton = screen.getByRole("button", { name: /Upload Items/ });
+        expect(uploadButton).toBeInTheDocument();
+      });
     });
 
     it("should open upload modal when Upload Items clicked", async () => {
       const user = userEvent.setup();
       render(<InventoryList />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Upload Items/ })).toBeInTheDocument();
+      });
 
       const uploadButton = screen.getByRole("button", { name: /Upload Items/ });
       await user.click(uploadButton);
@@ -533,7 +571,9 @@ describe("InventoryList", () => {
       render(<InventoryList />);
 
       await waitFor(() => {
-        expect(screen.getByText("AVAILABLE")).toBeInTheDocument();
+        // Both items have AVAILABLE status, so multiple elements expected
+        const badges = screen.getAllByText("AVAILABLE");
+        expect(badges.length).toBeGreaterThan(0);
       });
     });
 
@@ -541,7 +581,7 @@ describe("InventoryList", () => {
       render(<InventoryList />);
 
       await waitFor(() => {
-        const kgLabels = screen.getAllByText("KG");
+        const kgLabels = screen.getAllByText(/KG/);
         expect(kgLabels.length).toBeGreaterThan(0);
       });
     });

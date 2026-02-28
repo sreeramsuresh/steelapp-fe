@@ -15,7 +15,7 @@ vi.mock('../axiosApi.js', () => ({
   },
 }));
 
-vi.mock('../utils/fieldAccessors.js', () => ({
+vi.mock('../../utils/fieldAccessors.js', () => ({
   normalizeProduct: vi.fn((p) => ({ ...p, normalized: true })),
 }));
 
@@ -23,7 +23,7 @@ describe('api.js', () => {
   let apiClient, invoicesAPI, customersAPI, productsAPI, suppliersAPI, paymentsAPI;
 
   beforeEach(async () => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
     const mod = await import('../api.js');
     apiClient = mod.apiClient;
     invoicesAPI = mod.invoicesAPI;
@@ -97,7 +97,7 @@ describe('api.js', () => {
     it('getById calls GET /invoices/:id', async () => {
       apiService.get.mockResolvedValue({ invoice: { id: 1 } });
       await invoicesAPI.getById(1);
-      expect(apiService.get).toHaveBeenCalledWith('/invoices/1');
+      expect(apiService.get).toHaveBeenCalledWith('/invoices/1', {});
     });
 
     it('create calls POST /invoices', async () => {
@@ -121,13 +121,13 @@ describe('api.js', () => {
     it('delete calls DELETE /invoices/:id', async () => {
       apiService.delete.mockResolvedValue({ success: true });
       await invoicesAPI.delete(1);
-      expect(apiService.delete).toHaveBeenCalledWith('/invoices/1');
+      expect(apiService.delete).toHaveBeenCalledWith('/invoices/1', {});
     });
 
     it('getNextNumber calls GET /invoices/number/next', async () => {
       apiService.get.mockResolvedValue({ number: 'INV-100' });
       await invoicesAPI.getNextNumber();
-      expect(apiService.get).toHaveBeenCalledWith('/invoices/number/next');
+      expect(apiService.get).toHaveBeenCalledWith('/invoices/number/next', {});
     });
 
     it('getAnalytics calls GET /invoices/analytics', async () => {
@@ -147,7 +147,7 @@ describe('api.js', () => {
     it('getById calls GET /customers/:id', async () => {
       apiService.get.mockResolvedValue({ id: 1, name: 'Acme' });
       await customersAPI.getById(1);
-      expect(apiService.get).toHaveBeenCalledWith('/customers/1');
+      expect(apiService.get).toHaveBeenCalledWith('/customers/1', {});
     });
 
     it('create calls POST /customers', async () => {
@@ -165,7 +165,7 @@ describe('api.js', () => {
     it('delete calls DELETE /customers/:id', async () => {
       apiService.delete.mockResolvedValue({ success: true });
       await customersAPI.delete(1);
-      expect(apiService.delete).toHaveBeenCalledWith('/customers/1');
+      expect(apiService.delete).toHaveBeenCalledWith('/customers/1', {});
     });
 
     it('search calls GET /customers/search', async () => {
@@ -209,7 +209,7 @@ describe('api.js', () => {
     it('getCategories calls GET /products/categories', async () => {
       apiService.get.mockResolvedValue({ categories: ['steel'] });
       await productsAPI.getCategories();
-      expect(apiService.get).toHaveBeenCalledWith('/products/categories');
+      expect(apiService.get).toHaveBeenCalledWith('/products/categories', {});
     });
 
     it('getByCategory normalizes products', async () => {
@@ -229,7 +229,7 @@ describe('api.js', () => {
     it('getById calls GET /suppliers/:id', async () => {
       apiService.get.mockResolvedValue({ id: 1 });
       await suppliersAPI.getById(1);
-      expect(apiService.get).toHaveBeenCalledWith('/suppliers/1');
+      expect(apiService.get).toHaveBeenCalledWith('/suppliers/1', {});
     });
 
     it('create calls POST /suppliers', async () => {
@@ -247,7 +247,7 @@ describe('api.js', () => {
     it('getAnalytics calls GET /suppliers/:id/analytics', async () => {
       apiService.get.mockResolvedValue({ analytics: {} });
       await suppliersAPI.getAnalytics(1);
-      expect(apiService.get).toHaveBeenCalledWith('/suppliers/1/analytics');
+      expect(apiService.get).toHaveBeenCalledWith('/suppliers/1/analytics', {});
     });
 
     it('search calls GET /suppliers/search', async () => {
@@ -267,13 +267,13 @@ describe('api.js', () => {
     it('getById calls GET /payments/:id', async () => {
       apiService.get.mockResolvedValue({ id: 1 });
       await paymentsAPI.getById(1);
-      expect(apiService.get).toHaveBeenCalledWith('/payments/1');
+      expect(apiService.get).toHaveBeenCalledWith('/payments/1', {});
     });
 
     it('getByInvoice calls GET /payments/invoice/:id', async () => {
       apiService.get.mockResolvedValue({ payments: [] });
       await paymentsAPI.getByInvoice(5);
-      expect(apiService.get).toHaveBeenCalledWith('/payments/invoice/5');
+      expect(apiService.get).toHaveBeenCalledWith('/payments/invoice/5', {});
     });
 
     it('create calls POST /payments', async () => {
@@ -291,7 +291,7 @@ describe('api.js', () => {
     it('restore calls POST /payments/:id/restore', async () => {
       apiService.post.mockResolvedValue({ restored: true });
       await paymentsAPI.restore(1);
-      expect(apiService.post).toHaveBeenCalledWith('/payments/1/restore');
+      expect(apiService.post).toHaveBeenCalledWith('/payments/1/restore', undefined);
     });
   });
 });

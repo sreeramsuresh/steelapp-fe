@@ -26,7 +26,7 @@ describe("deliveryVarianceService", () => {
       expect(result.on_time_percentage).toBeTruthy();
       expect(result.late_deliveries).toBeTruthy();
       expect(api.get).toHaveBeenCalledWith("/delivery-variance/kpis",
-        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+        expect.objectContaining({ params: { daysBack: 90 } }));
     });
 
     it("should support custom daysBack parameter", async () => {
@@ -38,7 +38,7 @@ describe("deliveryVarianceService", () => {
       await deliveryVarianceService.getDeliveryVarianceKPIs(30);
 
       expect(api.get).toHaveBeenCalledWith("/delivery-variance/kpis",
-        Object.keys({ params: { daysBack: 30 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+        expect.objectContaining({ params: { daysBack: 30 } }));
     });
   });
 
@@ -56,7 +56,7 @@ describe("deliveryVarianceService", () => {
       expect(result).toBeTruthy();
       expect(result[0].on_time_percentage).toBeTruthy();
       expect(api.get).toHaveBeenCalledWith("/delivery-variance/trend",
-        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+        expect.objectContaining({ params: { daysBack: 90 } }));
     });
   });
 
@@ -75,7 +75,7 @@ describe("deliveryVarianceService", () => {
       expect(result).toBeTruthy();
       expect(result[0].range).toBeTruthy();
       expect(api.get).toHaveBeenCalledWith("/delivery-variance/breakdown",
-        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+        expect.objectContaining({ params: { daysBack: 90 } }));
     });
   });
 
@@ -105,9 +105,9 @@ describe("deliveryVarianceService", () => {
       expect(result).toBeTruthy();
       expect(result[0].variance_days).toBeTruthy();
       expect(api.get).toHaveBeenCalledWith("/delivery-variance/late-deliveries",
-        Object.keys({
+        expect.objectContaining({
           params: { limit: 20, daysBack: 90 },
-        }).every(k => typeof arguments[0][k] !== 'undefined'));
+        }));
     });
 
     it("should support custom limit parameter", async () => {
@@ -116,9 +116,9 @@ describe("deliveryVarianceService", () => {
       await deliveryVarianceService.getRecentLateDeliveries(50, 180);
 
       expect(api.get).toHaveBeenCalledWith("/delivery-variance/late-deliveries",
-        Object.keys({
+        expect.objectContaining({
           params: { limit: 50, daysBack: 180 },
-        }).every(k => typeof arguments[0][k] !== 'undefined'));
+        }));
     });
   });
 
@@ -137,9 +137,9 @@ describe("deliveryVarianceService", () => {
 
       const result = await deliveryVarianceService.getSupplierPerformanceComparison(10, 90);
 
-      expect(Array.isArray(result).toBeTruthy());
+      expect(Array.isArray(result)).toBeTruthy();
       expect(api.get).toHaveBeenCalledWith("/delivery-variance/supplier-comparison",
-        Object.keys({ params: { limit: 10, daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+        expect.objectContaining({ params: { limit: 10, daysBack: 90 } }));
     });
   });
 
@@ -157,7 +157,7 @@ describe("deliveryVarianceService", () => {
 
       expect(result.overall_health).toBeTruthy();
       expect(api.get).toHaveBeenCalledWith("/delivery-variance/health-report",
-        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+        expect.objectContaining({ params: { daysBack: 90 } }));
     });
   });
 
@@ -175,9 +175,9 @@ describe("deliveryVarianceService", () => {
 
       const result = await deliveryVarianceService.generateRecommendations(90);
 
-      expect(Array.isArray(result).toBeTruthy());
+      expect(Array.isArray(result)).toBeTruthy();
       expect(api.get).toHaveBeenCalledWith("/delivery-variance/recommendations",
-        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+        expect.objectContaining({ params: { daysBack: 90 } }));
     });
   });
 
@@ -196,7 +196,7 @@ describe("deliveryVarianceService", () => {
 
       expect(result.supplier_name).toBeTruthy();
       expect(api.get).toHaveBeenCalledWith("/delivery-variance/supplier/1/scorecard",
-        Object.keys({ params: { daysBack: 90 } }).every(k => typeof arguments[0][k] !== 'undefined'));
+        expect.objectContaining({ params: { daysBack: 90 } }));
     });
   });
 
@@ -214,7 +214,7 @@ describe("deliveryVarianceService", () => {
 
       const result = await deliveryVarianceService.getAtRiskSuppliers();
 
-      expect(Array.isArray(result).toBeTruthy());
+      expect(Array.isArray(result)).toBeTruthy();
       expect(api.get).toHaveBeenCalledWith("/delivery-variance/at-risk-suppliers");
     });
   });

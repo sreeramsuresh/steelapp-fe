@@ -8,19 +8,24 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("../../../services/productService", () => ({
+  productService: {
+    getWarehouseStock: vi.fn(),
+  },
+}));
+
 import { productService } from "../../../services/productService";
 import WarehouseAvailability from "../WarehouseAvailability";
-
-// vi.fn() // "../../../services/productService");
 
 describe("WarehouseAvailability", () => {
   let mockOnWarehouseSelect;
 
   beforeEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
     mockOnWarehouseSelect = vi.fn();
 
-    productService.getWarehouseStock = vi.fn().mockResolvedValue({
+    productService.getWarehouseStock.mockResolvedValue({
       data: [
         {
           warehouseId: 1,
@@ -59,7 +64,7 @@ describe("WarehouseAvailability", () => {
     });
 
     it("should display loading state initially", async () => {
-      productService.getWarehouseStock = vi.fn(
+      productService.getWarehouseStock.mockImplementation(
         () => new Promise((resolve) => setTimeout(() => resolve({ data: [] }), 100))
       );
 
@@ -69,7 +74,7 @@ describe("WarehouseAvailability", () => {
     });
 
     it("should display empty state when no warehouses", async () => {
-      productService.getWarehouseStock = vi.fn().mockResolvedValue({ data: [] });
+      productService.getWarehouseStock.mockResolvedValue({ data: [] });
 
       render(<WarehouseAvailability productId={123} />);
 
@@ -79,7 +84,7 @@ describe("WarehouseAvailability", () => {
     });
 
     it("should display error message on fetch failure", async () => {
-      productService.getWarehouseStock = vi.fn().mockRejectedValue(new Error("API Error"));
+      productService.getWarehouseStock.mockRejectedValue(new Error("API Error"));
 
       render(<WarehouseAvailability productId={123} />);
 
@@ -113,9 +118,10 @@ describe("WarehouseAvailability", () => {
       render(<WarehouseAvailability productId={123} />);
 
       await waitFor(() => {
-        expect(screen.getByText("500.00")).toBeInTheDocument();
-        expect(screen.getByText("300.00")).toBeInTheDocument();
-        expect(screen.getByText("0.00")).toBeInTheDocument();
+        // Unit is PCS, so quantities are rendered as integers via Math.round()
+        expect(screen.getByText("500")).toBeInTheDocument();
+        expect(screen.getByText("300")).toBeInTheDocument();
+        expect(screen.getByText("0")).toBeInTheDocument();
       });
     });
 
@@ -262,7 +268,7 @@ describe("WarehouseAvailability", () => {
     });
 
     it("should skip warehouses with zero stock for auto-selection", async () => {
-      productService.getWarehouseStock = vi.fn().mockResolvedValue({
+      productService.getWarehouseStock.mockResolvedValue({
         data: [
           {
             warehouseId: 3,
@@ -324,11 +330,10 @@ describe("WarehouseAvailability", () => {
 
   describe("Accessibility", () => {
     it("should have descriptive label for warehouse list", async () => {
-      const { getByRole } = render(<WarehouseAvailability productId={123} />);
+      render(<WarehouseAvailability productId={123} />);
 
-      const warehouseList =
-        getByRole("region", { hidden: true }) || screen.getByText("Warehouse Availability").parentElement;
-      expect(warehouseList).toBeInTheDocument();
+      // Component uses a label element with "Warehouse Availability" text
+      expect(screen.getByText("Warehouse Availability")).toBeInTheDocument();
     });
 
     it("should have proper button roles", async () => {
@@ -354,7 +359,7 @@ describe("WarehouseAvailability", () => {
 
   describe("Edge Cases", () => {
     it("should handle warehouses with very large quantities", async () => {
-      productService.getWarehouseStock = vi.fn().mockResolvedValue({
+      productService.getWarehouseStock.mockResolvedValue({
         data: [
           {
             warehouseId: 1,
@@ -369,12 +374,13 @@ describe("WarehouseAvailability", () => {
       render(<WarehouseAvailability productId={123} />);
 
       await waitFor(() => {
-        expect(screen.getByText("1000000.00")).toBeInTheDocument();
+        // Unit is KG, so rendered with .toFixed(2): "999999.99"
+        expect(screen.getByText("999999.99")).toBeInTheDocument();
       });
     });
 
     it("should handle warehouses with decimal quantities", async () => {
-      productService.getWarehouseStock = vi.fn().mockResolvedValue({
+      productService.getWarehouseStock.mockResolvedValue({
         data: [
           {
             warehouseId: 1,
@@ -394,7 +400,7 @@ describe("WarehouseAvailability", () => {
     });
 
     it("should handle missing warehouse code gracefully", async () => {
-      productService.getWarehouseStock = vi.fn().mockResolvedValue({
+      productService.getWarehouseStock.mockResolvedValue({
         data: [
           {
             warehouseId: 1,

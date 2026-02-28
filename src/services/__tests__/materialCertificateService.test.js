@@ -44,9 +44,9 @@ describe("materialCertificateService", () => {
       });
 
       expect(api.get).toHaveBeenCalledWith("/material-certificates",
-        Object.keys({
+        expect.objectContaining({
           params: { material: "SS304" },
-        }).every(k => typeof arguments[0][k] !== 'undefined'));
+        }));
     });
   });
 
@@ -128,41 +128,22 @@ describe("materialCertificateService", () => {
     });
   });
 
-  describe("uploadTestReport", () => {
-    it("should upload test report for certificate", async () => {
+  describe("updateVerification", () => {
+    it("should update verification status", async () => {
       const mockResponse = {
         id: 1,
-        test_report_url: "/files/test-report-123.pdf",
-        uploaded_at: "2024-01-15T10:00:00Z",
+        verification_status: "verified",
       };
 
-      vi.spyOn(api, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(api, 'patch').mockResolvedValue(mockResponse);
 
-      const result = await materialCertificateService.uploadTestReport(1, "file-content");
+      const result = await materialCertificateService.updateVerification(1, "verified", "All checks passed");
 
-      expect(result.test_report_url).toBeTruthy();
-      expect(api.post).toHaveBeenCalledWith("/material-certificates/1/test-report", );
-    });
-  });
-
-  describe("verifyTestResults", () => {
-    it("should verify test results against standards", async () => {
-      const mockResponse = {
-        all_tests_pass: true,
-        results: [
-          { test_name: "tensile_strength", status: "pass" },
-          { test_name: "yield_strength", status: "pass" },
-          { test_name: "elongation", status: "pass" },
-        ],
-      };
-
-      vi.spyOn(api, 'post').mockResolvedValue(mockResponse);
-
-      const result = await materialCertificateService.verifyTestResults(1);
-
-      expect(result.all_tests_pass).toBeTruthy();
-      expect(result.results).toBeTruthy();
-      expect(api.post).toHaveBeenCalledWith("/material-certificates/1/verify", );
+      expect(result.verification_status).toBe("verified");
+      expect(api.patch).toHaveBeenCalledWith("/material-certificates/1/verify", {
+        verification_status: "verified",
+        notes: "All checks passed",
+      });
     });
   });
 });

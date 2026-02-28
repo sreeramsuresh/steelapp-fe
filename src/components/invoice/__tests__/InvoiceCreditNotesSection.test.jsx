@@ -7,13 +7,13 @@ vi.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
 }));
 
-vi.mock("../../services/creditNoteService", () => ({
+vi.mock("../../../services/creditNoteService", () => ({
   creditNoteService: {
     getCreditNotesByInvoice: vi.fn().mockResolvedValue({ data: [] }),
   },
 }));
 
-vi.mock("../../utils/invoiceUtils", () => ({
+vi.mock("../../../utils/invoiceUtils", () => ({
   formatCurrency: (v) => `AED ${v}`,
   formatDate: (d) => d || "N/A",
 }));
@@ -26,7 +26,7 @@ vi.mock("lucide-react", () => ({
   ReceiptText: (props) => <span data-testid="receipt-icon" {...props} />,
 }));
 
-import { creditNoteService } from "../../services/creditNoteService";
+import { creditNoteService } from "../../../services/creditNoteService";
 import InvoiceCreditNotesSection from "../InvoiceCreditNotesSection";
 
 describe("InvoiceCreditNotesSection", () => {

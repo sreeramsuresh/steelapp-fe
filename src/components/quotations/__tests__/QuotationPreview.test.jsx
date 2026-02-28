@@ -1,21 +1,21 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../../contexts/ThemeContext", () => ({
+vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../constants/defaultTemplateSettings", () => ({
+vi.mock("../../../constants/defaultTemplateSettings", () => ({
   getDocumentTemplateColor: () => "#1a5276",
 }));
 
-vi.mock("../../utils/invoiceUtils", () => ({
+vi.mock("../../../utils/invoiceUtils", () => ({
   formatCurrency: (v) => `AED ${v}`,
   TIMEZONE_DISCLAIMER: "All times are in UAE timezone (GST, UTC+4)",
   toUAEDateProfessional: (d) => d || "N/A",
 }));
 
-vi.mock("../../utils/recordUtils", () => ({
+vi.mock("../../../utils/recordUtils", () => ({
   validateQuotationForDownload: () => ({ isValid: true, warnings: [] }),
 }));
 

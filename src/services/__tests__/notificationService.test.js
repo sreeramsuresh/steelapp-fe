@@ -1,32 +1,39 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
+// Must use vi.hoisted so the mock is available before vi.mock factory runs
+const { toastMock } = vi.hoisted(() => {
+  const toastMock = vi.fn().mockReturnValue({ id: "w1", type: "blank" });
+  toastMock.success = vi.fn().mockReturnValue({ id: "1", type: "success" });
+  toastMock.error = vi.fn().mockReturnValue({ id: "2", type: "error" });
+  toastMock.loading = vi.fn().mockReturnValue({ id: "3", type: "loading" });
+  toastMock.promise = vi.fn().mockImplementation((...args) => args[0]);
+  toastMock.custom = vi.fn().mockReturnValue({ id: "4", type: "custom" });
+  toastMock.dismiss = vi.fn();
+  toastMock.remove = vi.fn();
+  return { toastMock };
+});
+
+vi.mock('react-hot-toast', () => ({
+  default: toastMock,
+}));
+
 import { notificationService } from "../notificationService.js";
 
 describe("notificationService", () => {
-  let toastMock;
-
   beforeEach(() => {
-    vi.restoreAllMocks();
-    toastMock = {
-      success: vi.fn().returns({ id: "1", type: "success" }),
-      error: vi.fn().returns({ id: "2", type: "error" }),
-      loading: vi.fn().returns({ id: "3", type: "loading" }),
-      promise: vi.fn().returnsArg(0),
-      custom: vi.fn().returns({ id: "4", type: "custom" }),
-      dismiss: vi.fn(),
-      remove: vi.fn(),
-    };
-  })
+    vi.clearAllMocks();
+    notificationService.setTheme(false);
+  });
 
   describe("Theme Configuration", () => {
     it("should set theme to dark mode", () => {
       notificationService.setTheme(true);
-      expect(notificationService.isDarkMode).toBeTruthy();
+      expect(notificationService.isDarkMode).toBe(true);
     });
 
     it("should set theme to light mode", () => {
       notificationService.setTheme(false);
-      expect(notificationService.isDarkMode).toBeTruthy();
+      expect(notificationService.isDarkMode).toBe(false);
     });
   });
 
@@ -34,52 +41,72 @@ describe("notificationService", () => {
     it("should show success toast with correct styling", () => {
       const result = notificationService.success("Operation completed!");
 
-      expect(toastMock.success).toHaveBeenCalledWith("Operation completed!",
-        Object.keys({
+      expect(toastMock.success).toHaveBeenCalledWith(
+        "Operation completed!",
+        expect.objectContaining({
           duration: 4000,
           position: "top-right",
-          iconTheme: {
-            primary: "#10b981", // green-500
+          iconTheme: expect.objectContaining({
+            primary: "#10b981",
             secondary: "#ffffff",
-          },
-        }).every(k => typeof arguments[0][k] !== 'undefined'));
-      expect(result.type).toBeTruthy();
+          }),
+        })
+      );
+      expect(result).toBeTruthy();
     });
 
     it("should support custom options", () => {
       notificationService.success("Custom message", { duration: 2000 });
 
-      expect(toastMock.success).toHaveBeenCalledWith("Custom message", Object.keys({ duration: 2000 }).every(k => typeof arguments[0][k] !== 'undefined'));
+      expect(toastMock.success).toHaveBeenCalledWith(
+        "Custom message",
+        expect.objectContaining({ duration: 2000 })
+      );
     });
 
     it("should use apiSuccess helper", () => {
       notificationService.apiSuccess("Save");
 
-      expect(toastMock.success).toHaveBeenCalledWith("Save completed successfully!", );
+      expect(toastMock.success).toHaveBeenCalledWith(
+        "Save completed successfully!",
+        expect.any(Object)
+      );
     });
 
     it("should use formSuccess helper", () => {
       notificationService.formSuccess("Contact Form");
 
-      expect(toastMock.success).toHaveBeenCalledWith("Contact Form saved successfully!", );
+      expect(toastMock.success).toHaveBeenCalledWith(
+        "Contact Form saved successfully!",
+        expect.any(Object)
+      );
     });
 
     it("should use createSuccess helper", () => {
       notificationService.createSuccess("Invoice");
 
-      expect(toastMock.success).toHaveBeenCalledWith("Invoice created successfully!", );
+      expect(toastMock.success).toHaveBeenCalledWith(
+        "Invoice created successfully!",
+        expect.any(Object)
+      );
     });
 
     it("should use updateSuccess helper", () => {
       notificationService.updateSuccess("Customer");
 
-      expect(toastMock.success).toHaveBeenCalledWith("Customer updated successfully!", );
+      expect(toastMock.success).toHaveBeenCalledWith(
+        "Customer updated successfully!",
+        expect.any(Object)
+      );
     });
 
     it("should use deleteSuccess helper", () => {
       notificationService.deleteSuccess("Product");
 
-      expect(toastMock.success).toHaveBeenCalledWith("Product deleted successfully!", );
+      expect(toastMock.success).toHaveBeenCalledWith(
+        "Product deleted successfully!",
+        expect.any(Object)
+      );
     });
   });
 
@@ -87,21 +114,26 @@ describe("notificationService", () => {
     it("should show error toast with longer duration", () => {
       const result = notificationService.error("Something went wrong!");
 
-      expect(toastMock.error).toHaveBeenCalledWith("Something went wrong!",
-        Object.keys({
-          duration: 6000, // Longer than success
-          iconTheme: {
-            primary: "#ef4444", // red-500
+      expect(toastMock.error).toHaveBeenCalledWith(
+        "Something went wrong!",
+        expect.objectContaining({
+          duration: 6000,
+          iconTheme: expect.objectContaining({
+            primary: "#ef4444",
             secondary: "#ffffff",
-          },
-        }).every(k => typeof arguments[0][k] !== 'undefined'));
-      expect(result.type).toBeTruthy();
+          }),
+        })
+      );
+      expect(result).toBeTruthy();
     });
 
     it("should support custom error options", () => {
       notificationService.error("Custom error", { duration: 8000 });
 
-      expect(toastMock.error).toHaveBeenCalledWith("Custom error", Object.keys({ duration: 8000 }).every(k => typeof arguments[0][k] !== 'undefined'));
+      expect(toastMock.error).toHaveBeenCalledWith(
+        "Custom error",
+        expect.objectContaining({ duration: 8000 })
+      );
     });
 
     it("should use apiError helper with error object", () => {
@@ -111,7 +143,10 @@ describe("notificationService", () => {
 
       notificationService.apiError("Upload", error);
 
-      expect(toastMock.error).toHaveBeenCalledWith("Server error", );
+      expect(toastMock.error).toHaveBeenCalledWith(
+        "Server error",
+        expect.any(Object)
+      );
     });
 
     it("should use apiError helper with fallback message", () => {
@@ -119,7 +154,10 @@ describe("notificationService", () => {
 
       notificationService.apiError("Delete", error);
 
-      expect(toastMock.error).toHaveBeenCalledWith("Network error", );
+      expect(toastMock.error).toHaveBeenCalledWith(
+        "Network error",
+        expect.any(Object)
+      );
     });
 
     it("should use formError helper", () => {
@@ -127,7 +165,10 @@ describe("notificationService", () => {
 
       notificationService.formError("Profile", error);
 
-      expect(toastMock.error).toHaveBeenCalledWith("Validation failed", );
+      expect(toastMock.error).toHaveBeenCalledWith(
+        "Validation failed",
+        expect.any(Object)
+      );
     });
 
     it("should use deleteError helper", () => {
@@ -137,7 +178,10 @@ describe("notificationService", () => {
 
       notificationService.deleteError("Department", error);
 
-      expect(toastMock.error).toHaveBeenCalledWith("Item in use", );
+      expect(toastMock.error).toHaveBeenCalledWith(
+        "Item in use",
+        expect.any(Object)
+      );
     });
 
     it("should use updateError helper", () => {
@@ -145,7 +189,10 @@ describe("notificationService", () => {
 
       notificationService.updateError("Settings", error);
 
-      expect(toastMock.error).toHaveBeenCalledWith("Update failed", );
+      expect(toastMock.error).toHaveBeenCalledWith(
+        "Update failed",
+        expect.any(Object)
+      );
     });
 
     it("should use createError helper", () => {
@@ -153,7 +200,10 @@ describe("notificationService", () => {
 
       notificationService.createError("Account", error);
 
-      expect(toastMock.error).toHaveBeenCalledWith("Create failed", );
+      expect(toastMock.error).toHaveBeenCalledWith(
+        "Create failed",
+        expect.any(Object)
+      );
     });
   });
 
@@ -161,20 +211,21 @@ describe("notificationService", () => {
     it("should show warning toast", () => {
       notificationService.warning("Please review this carefully");
 
-      expect(toast).toHaveBeenCalledWith("Please review this carefully",
-        Object.keys({
-          icon: "⚠️",
-          iconTheme: {
-            primary: "#f59e0b", // amber-500
-            secondary: "#ffffff",
-          },
-        }).every(k => typeof arguments[0][k] !== 'undefined'));
+      expect(toastMock).toHaveBeenCalledWith(
+        "Please review this carefully",
+        expect.objectContaining({
+          icon: expect.any(String),
+        })
+      );
     });
 
     it("should support custom warning options", () => {
       notificationService.warning("Warning message", { duration: 5000 });
 
-      expect(toast).toHaveBeenCalledWith("Warning message", Object.keys({ duration: 5000 }).every(k => typeof arguments[0][k] !== 'undefined'));
+      expect(toastMock).toHaveBeenCalledWith(
+        "Warning message",
+        expect.objectContaining({ duration: 5000 })
+      );
     });
   });
 
@@ -182,20 +233,21 @@ describe("notificationService", () => {
     it("should show info toast", () => {
       notificationService.info("Processing your request...");
 
-      expect(toast).toHaveBeenCalledWith("Processing your request...",
-        Object.keys({
-          icon: "ℹ️",
-          iconTheme: {
-            primary: "#3b82f6", // blue-500
-            secondary: "#ffffff",
-          },
-        }).every(k => typeof arguments[0][k] !== 'undefined'));
+      expect(toastMock).toHaveBeenCalledWith(
+        "Processing your request...",
+        expect.objectContaining({
+          icon: expect.any(String),
+        })
+      );
     });
 
     it("should support custom info options", () => {
       notificationService.info("Info message", { position: "bottom-center" });
 
-      expect(toast).toHaveBeenCalledWith("Info message", Object.keys({ position: "bottom-center" }).every(k => typeof arguments[0][k] !== 'undefined'));
+      expect(toastMock).toHaveBeenCalledWith(
+        "Info message",
+        expect.objectContaining({ position: "bottom-center" })
+      );
     });
   });
 
@@ -203,14 +255,20 @@ describe("notificationService", () => {
     it("should show loading state", () => {
       const result = notificationService.loading("Loading data...");
 
-      expect(toastMock.loading).toHaveBeenCalledWith("Loading data...", );
-      expect(result.type).toBeTruthy();
+      expect(toastMock.loading).toHaveBeenCalledWith(
+        "Loading data...",
+        expect.any(Object)
+      );
+      expect(result).toBeTruthy();
     });
 
     it("should support custom loading options", () => {
       notificationService.loading("Processing...", { duration: 10000 });
 
-      expect(toastMock.loading).toHaveBeenCalledWith("Processing...", Object.keys({ duration: 10000 }).every(k => typeof arguments[0][k] !== 'undefined'));
+      expect(toastMock.loading).toHaveBeenCalledWith(
+        "Processing...",
+        expect.objectContaining({ duration: 10000 })
+      );
     });
   });
 
@@ -225,7 +283,11 @@ describe("notificationService", () => {
 
       await notificationService.promise(testPromise, messages);
 
-      expect(toastMock.promise).toHaveBeenCalledWith(testPromise, messages, );
+      expect(toastMock.promise).toHaveBeenCalledWith(
+        testPromise,
+        messages,
+        expect.any(Object)
+      );
     });
 
     it("should handle rejected promises", async () => {
@@ -242,7 +304,7 @@ describe("notificationService", () => {
         // Expected to reject
       }
 
-      expect(toast.promise).toBeTruthy();
+      expect(toastMock.promise).toHaveBeenCalled();
     });
   });
 
@@ -252,7 +314,10 @@ describe("notificationService", () => {
 
       notificationService.custom(customJsx);
 
-      expect(toastMock.custom).toHaveBeenCalledWith(customJsx, );
+      expect(toastMock.custom).toHaveBeenCalledWith(
+        customJsx,
+        expect.any(Object)
+      );
     });
 
     it("should support custom options", () => {
@@ -260,7 +325,10 @@ describe("notificationService", () => {
 
       notificationService.custom(customJsx, { duration: 3000 });
 
-      expect(toastMock.custom).toHaveBeenCalledWith(customJsx, Object.keys({ duration: 3000 }).every(k => typeof arguments[0][k] !== 'undefined'));
+      expect(toastMock.custom).toHaveBeenCalledWith(
+        customJsx,
+        expect.objectContaining({ duration: 3000 })
+      );
     });
   });
 
@@ -283,28 +351,30 @@ describe("notificationService", () => {
       notificationService.setTheme(true);
       notificationService.success("Dark mode message");
 
-      expect(toastMock.success).toHaveBeenCalledWith("Dark mode message",
-        Object.keys({
+      expect(toastMock.success).toHaveBeenCalledWith(
+        "Dark mode message",
+        expect.objectContaining({
           style: expect.objectContaining({
-            background: "#1f2937", // gray-800
-            color: "#f9fafb", // gray-50
-            border: expect.stringContaining("#374151").every(k => typeof arguments[0][k] !== 'undefined'), // gray-700
+            background: "#1f2937",
+            color: "#f9fafb",
           }),
-        }));
+        })
+      );
     });
 
     it("should apply light mode styles when disabled", () => {
       notificationService.setTheme(false);
       notificationService.success("Light mode message");
 
-      expect(toastMock.success).toHaveBeenCalledWith("Light mode message",
-        Object.keys({
+      expect(toastMock.success).toHaveBeenCalledWith(
+        "Light mode message",
+        expect.objectContaining({
           style: expect.objectContaining({
             background: "#ffffff",
-            color: "#111827", // gray-900
-            border: expect.stringContaining("#e5e7eb").every(k => typeof arguments[0][k] !== 'undefined'), // gray-200
+            color: "#111827",
           }),
-        }));
+        })
+      );
     });
   });
 
@@ -312,28 +382,30 @@ describe("notificationService", () => {
     it("should apply consistent styling across all notifications", () => {
       notificationService.success("Styled message");
 
+      const callArgs = toastMock.success.mock.calls[0];
       const options = callArgs[1];
 
-      expect(options && options.position).toBeTruthy();
-      expect(options && options.style).toBeTruthy();
-      expect(options && options.duration).toBeTruthy();
-      expect(options).toBeTruthy().toHaveProperty("fontSize", "0.875rem");
+      expect(options.position).toBeTruthy();
+      expect(options.style).toBeTruthy();
+      expect(options.style.fontSize).toBe("0.875rem");
     });
 
     it("should use border-radius for rounded corners", () => {
       notificationService.info("Rounded notification");
 
+      const callArgs = toastMock.mock.calls[0];
       const options = callArgs[1];
 
-      expect(options.style).toBeTruthy().toHaveProperty("borderRadius", "0.75rem");
+      expect(options.style.borderRadius).toBe("0.75rem");
     });
 
     it("should use box-shadow for elevation", () => {
       notificationService.success("Shadow notification");
 
+      const callArgs = toastMock.success.mock.calls[0];
       const options = callArgs[1];
 
-      expect(options.style && options.style.boxShadow).toBeTruthy();
+      expect(options.style.boxShadow).toBeTruthy();
     });
   });
 
@@ -343,9 +415,9 @@ describe("notificationService", () => {
       notificationService.success("Second notification");
       notificationService.error("Third notification");
 
-      expect(toast).toBeTruthy().toHaveBeenCalledTimes(1);
-      expect(toast.success).toBeTruthy().toHaveBeenCalledTimes(1);
-      expect(toast.error).toBeTruthy().toHaveBeenCalledTimes(1);
+      expect(toastMock).toHaveBeenCalledTimes(1);
+      expect(toastMock.success).toHaveBeenCalledTimes(1);
+      expect(toastMock.error).toHaveBeenCalledTimes(1);
     });
 
     it("should maintain notification queue position", () => {
@@ -353,7 +425,7 @@ describe("notificationService", () => {
       notificationService.success("Second");
       notificationService.success("Third");
 
-      expect(toast.success).toBeTruthy().toHaveBeenCalledTimes(3);
+      expect(toastMock.success).toHaveBeenCalledTimes(3);
     });
   });
 
@@ -367,7 +439,10 @@ describe("notificationService", () => {
 
       notificationService.apiError("Operation", error);
 
-      expect(toastMock.error).toHaveBeenCalledWith("Custom error message", );
+      expect(toastMock.error).toHaveBeenCalledWith(
+        "Custom error message",
+        expect.any(Object)
+      );
     });
 
     it("should fallback to error.message", () => {
@@ -375,13 +450,19 @@ describe("notificationService", () => {
 
       notificationService.apiError("Operation", error);
 
-      expect(toastMock.error).toHaveBeenCalledWith("Fallback message", );
+      expect(toastMock.error).toHaveBeenCalledWith(
+        "Fallback message",
+        expect.any(Object)
+      );
     });
 
     it("should use default message if no error details available", () => {
       notificationService.apiError("Operation");
 
-      expect(toastMock.error).toHaveBeenCalledWith("Operation failed", );
+      expect(toastMock.error).toHaveBeenCalledWith(
+        "Operation failed",
+        expect.any(Object)
+      );
     });
   });
 
@@ -391,7 +472,7 @@ describe("notificationService", () => {
       notificationService.success("Message");
       notificationService.error("Another message");
 
-      expect(notificationService.isDarkMode).toBeTruthy();
+      expect(notificationService.isDarkMode).toBe(true);
     });
   });
 });

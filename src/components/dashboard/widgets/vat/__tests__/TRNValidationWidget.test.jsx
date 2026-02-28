@@ -22,21 +22,28 @@ describe("TRNValidationWidget", () => {
       summary: {
         totalEntities: 100,
         validated: 85,
-        pending: 10,
+        pendingVerification: 10,
         invalid: 5,
         validationRate: 85,
+        lastBatchValidation: "2024-12-26T09:00:00Z",
       },
-      entities: [
+      byType: {
+        customers: { total: 60, validated: 50, invalid: 5, pending: 5 },
+        suppliers: { total: 40, validated: 35, invalid: 0, pending: 5 },
+      },
+      recentValidations: [
         {
           id: 1,
+          entityType: "customer",
           name: "Test Corp",
           trn: "100123456789012",
-          type: "customer",
-          status: "validated",
+          status: "valid",
+          validatedAt: "2024-12-27T10:30:00Z",
+          expiryDate: null,
         },
       ],
+      invalidTRNs: [],
     };
-    render(<TRNValidationWidget data={data} />);
     const { container } = render(<TRNValidationWidget data={data} />);
     expect(container).toBeTruthy();
   });

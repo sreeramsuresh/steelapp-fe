@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../../contexts/ThemeContext", () => ({
+vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../services/api", () => ({
+vi.mock("../../../services/api", () => ({
   default: {
     get: vi.fn().mockResolvedValue({ batches: [] }),
     post: vi.fn().mockResolvedValue({ success: true, newAllocations: [] }),
@@ -21,11 +21,11 @@ vi.mock("lucide-react", () => ({
   X: (props) => <span data-testid="x-icon" {...props} />,
 }));
 
-vi.mock("../ui/badge", () => ({
+vi.mock("../../ui/badge", () => ({
   Badge: ({ children, ...props }) => <span {...props}>{children}</span>,
 }));
 
-vi.mock("../ui/button", () => ({
+vi.mock("../../ui/button", () => ({
   Button: ({ children, onClick, disabled, ...props }) => (
     <button onClick={onClick} disabled={disabled} {...props}>
       {children}
@@ -33,7 +33,7 @@ vi.mock("../ui/button", () => ({
   ),
 }));
 
-vi.mock("../ui/table", () => ({
+vi.mock("../../ui/table", () => ({
   Table: ({ children }) => <table>{children}</table>,
   TableBody: ({ children }) => <tbody>{children}</tbody>,
   TableCell: ({ children, ...props }) => <td {...props}>{children}</td>,

@@ -29,7 +29,7 @@ describe('permissionsService (roleService)', () => {
 
       expect(result.length).toBe(3);
       expect(result[0].name).toBe('ADMIN');
-      expect(apiClient.get.calledWith('/roles').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/roles');
     });
 
     it('should get available roles for dropdown', async () => {
@@ -42,7 +42,7 @@ describe('permissionsService (roleService)', () => {
       const result = await roleService.getAvailableRoles();
 
       expect(result.length).toBe(2);
-      expect(apiClient.get.calledWith('/roles/list/available').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/roles/list/available');
     });
 
     it('should get specific role by ID', async () => {
@@ -58,7 +58,7 @@ describe('permissionsService (roleService)', () => {
 
       expect(result.name).toBe('ADMIN');
       expect(result.permissions.length).toBe(4);
-      expect(apiClient.get.calledWith('/roles/1').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/roles/1');
     });
 
     it('should handle role not found error', async () => {
@@ -106,7 +106,7 @@ describe('permissionsService (roleService)', () => {
 
       expect(result.id).toBe(4);
       expect(result.name).toBe('OPERATOR');
-      expect(apiClient.post.calledWith('/roles', roleData).toBeTruthy());
+      expect(apiClient.post).toHaveBeenCalledWith('/roles', roleData);
     });
 
     it('should validate required role fields', async () => {
@@ -135,7 +135,7 @@ describe('permissionsService (roleService)', () => {
         await roleService.createRole(roleData);
         throw new Error('Expected error to be thrown');
       } catch (error) {
-        expect(error.message.includes('Role name required').toBeTruthy());
+        expect(error.message).toContain('Role name required');
       }
     });
 
@@ -151,7 +151,7 @@ describe('permissionsService (roleService)', () => {
         await roleService.createRole(roleData);
         throw new Error('Expected error to be thrown');
       } catch (error) {
-        expect(error.message.includes('Role name already exists').toBeTruthy());
+        expect(error.message).toContain('Role name already exists');
       }
     });
 
@@ -167,7 +167,7 @@ describe('permissionsService (roleService)', () => {
         await roleService.createRole(roleData);
         throw new Error('Expected error to be thrown');
       } catch (error) {
-        expect(error.message.includes('Only directors').toBeTruthy());
+        expect(error.message).toContain('Only directors');
       }
     });
   });
@@ -182,7 +182,7 @@ describe('permissionsService (roleService)', () => {
       const result = await roleService.updateRole(roleId, updateData);
 
       expect(result.description).toBe('Updated manager role');
-      expect(apiClient.put.calledWith(`/roles/${roleId}`, updateData).toBeTruthy());
+      expect(apiClient.put).toHaveBeenCalledWith(`/roles/${roleId}`, updateData);
     });
 
     it('should update role permissions', async () => {
@@ -196,7 +196,7 @@ describe('permissionsService (roleService)', () => {
       const result = await roleService.updateRole(roleId, updateData);
 
       expect(result.permissions.length).toBe(3);
-      expect(result.permissions.includes('APPROVE_PO').toBeTruthy());
+      expect(result.permissions).toContain('APPROVE_PO');
     });
 
     it('should handle role not found on update', async () => {
@@ -218,7 +218,7 @@ describe('permissionsService (roleService)', () => {
         await roleService.updateRole(roleId, { name: 'SUPER_ADMIN' });
         throw new Error('Expected error to be thrown');
       } catch (error) {
-        expect(error.message.includes('System roles cannot be modified').toBeTruthy());
+        expect(error.message).toContain('System roles cannot be modified');
       }
     });
 
@@ -245,7 +245,7 @@ describe('permissionsService (roleService)', () => {
       const result = await roleService.deleteRole(roleId);
 
       expect(result.success).toBe(true);
-      expect(apiClient.delete.calledWith(`/roles/${roleId}`).toBeTruthy());
+      expect(apiClient.delete).toHaveBeenCalledWith(`/roles/${roleId}`);
     });
 
     it('should handle deletion of non-existent role', async () => {
@@ -266,7 +266,7 @@ describe('permissionsService (roleService)', () => {
         await roleService.deleteRole(1);
         throw new Error('Expected error to be thrown');
       } catch (error) {
-        expect(error.message.includes('Cannot delete system role').toBeTruthy());
+        expect(error.message).toContain('Cannot delete system role');
       }
     });
 
@@ -278,7 +278,7 @@ describe('permissionsService (roleService)', () => {
         await roleService.deleteRole(roleId);
         throw new Error('Expected error to be thrown');
       } catch (error) {
-        expect(error.message.includes('Cannot delete role').toBeTruthy());
+        expect(error.message).toContain('Cannot delete role');
       }
     });
 
@@ -312,10 +312,10 @@ describe('permissionsService (roleService)', () => {
 
       const result = await roleService.getAllPermissions();
 
-      expect(Object.keys(result).toBeTruthy().includes('INVOICING'));
-      expect(Object.keys(result).toBeTruthy().includes('PURCHASE'));
+      expect(Object.keys(result)).toContain('INVOICING');
+      expect(Object.keys(result)).toContain('PURCHASE');
       expect(result.INVOICING.length).toBe(3);
-      expect(apiClient.get.calledWith('/roles/permissions/all').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/roles/permissions/all');
     });
 
     it('should get user permissions by user ID', async () => {
@@ -326,8 +326,8 @@ describe('permissionsService (roleService)', () => {
       const result = await roleService.getUserPermissions(userId);
 
       expect(result.length).toBe(3);
-      expect(result.includes('APPROVE_PAYMENT').toBeTruthy());
-      expect(apiClient.get.calledWith(`/roles/users/${userId}/permissions`).toBeTruthy());
+      expect(result).toContain('APPROVE_PAYMENT');
+      expect(apiClient.get).toHaveBeenCalledWith(`/roles/users/${userId}/permissions`);
     });
 
     it('should return empty permissions for user with no permissions', async () => {
@@ -350,9 +350,9 @@ describe('permissionsService (roleService)', () => {
       const result = await roleService.assignRoles(userId, roleIds);
 
       expect(result.success).toBe(true);
-      expect(apiClient.post.calledWith(`/roles/users/${userId}/roles`, {
+      expect(apiClient.post).toHaveBeenCalledWith(`/roles/users/${userId}/roles`, {
         role_ids: roleIds,
-      }).toBeTruthy());
+      });
     });
 
     it('should assign multiple roles to user', async () => {
@@ -381,9 +381,9 @@ describe('permissionsService (roleService)', () => {
       const result = await roleService.replaceUserRoles(userId, roleIds);
 
       expect(result.success).toBe(true);
-      expect(apiClient.put.calledWith(`/roles/users/${userId}/roles`, {
+      expect(apiClient.put).toHaveBeenCalledWith(`/roles/users/${userId}/roles`, {
         role_ids: roleIds,
-      }).toBeTruthy());
+      });
     });
 
     it('should handle user not found on role assignment', async () => {
@@ -417,7 +417,7 @@ describe('permissionsService (roleService)', () => {
       const result = await roleService.removeRole(userId, roleId);
 
       expect(result.success).toBe(true);
-      expect(apiClient.delete.calledWith(`/roles/users/${userId}/roles/${roleId}`).toBeTruthy());
+      expect(apiClient.delete).toHaveBeenCalledWith(`/roles/users/${userId}/roles/${roleId}`);
     });
 
     it('should prevent removal of all roles from user', async () => {
@@ -429,7 +429,7 @@ describe('permissionsService (roleService)', () => {
         await roleService.removeRole(userId, roleId);
         throw new Error('Expected error to be thrown');
       } catch (error) {
-        expect(error.message.includes('must have at least one role').toBeTruthy());
+        expect(error.message).toContain('must have at least one role');
       }
     });
   });
@@ -445,11 +445,11 @@ describe('permissionsService (roleService)', () => {
       const result = await roleService.grantCustomPermission(userId, permissionKey, reason);
 
       expect(result.success).toBe(true);
-      expect(apiClient.post.calledWith(`/roles/users/${userId}/permissions/grant`, {
+      expect(apiClient.post).toHaveBeenCalledWith(`/roles/users/${userId}/permissions/grant`, {
         permission_key: permissionKey,
         reason,
         expires_at: null,
-      }).toBeTruthy());
+      });
     });
 
     it('should grant permission with expiration', async () => {
@@ -463,10 +463,10 @@ describe('permissionsService (roleService)', () => {
       const result = await roleService.grantCustomPermission(userId, permissionKey, reason, expiresAt);
 
       expect(result.expiresAt).toBe(expiresAt);
-      expect(apiClient.post.calledWith(
+      expect(apiClient.post).toHaveBeenCalledWith(
         `/roles/users/${userId}/permissions/grant`,
-        expect.objectContaining.has('expires_at', expiresAt).toBeTruthy()
-      ));
+        expect.objectContaining({ expires_at: expiresAt })
+      );
     });
 
     it('should revoke custom permission from user', async () => {
@@ -478,9 +478,9 @@ describe('permissionsService (roleService)', () => {
       const result = await roleService.revokeCustomPermission(userId, permissionKey);
 
       expect(result.success).toBe(true);
-      expect(apiClient.delete.calledWith(`/roles/users/${userId}/permissions/${permissionKey}`, {
+      expect(apiClient.delete).toHaveBeenCalledWith(`/roles/users/${userId}/permissions/${permissionKey}`, {
         data: { reason: null },
-      }).toBeTruthy());
+      });
     });
 
     it('should revoke permission with reason', async () => {
@@ -493,9 +493,9 @@ describe('permissionsService (roleService)', () => {
       const result = await roleService.revokeCustomPermission(userId, permissionKey, reason);
 
       expect(result.success).toBe(true);
-      expect(apiClient.delete.calledWith(`/roles/users/${userId}/permissions/${permissionKey}`, {
+      expect(apiClient.delete).toHaveBeenCalledWith(`/roles/users/${userId}/permissions/${permissionKey}`, {
         data: { reason },
-      }).toBeTruthy());
+      });
     });
 
     it('should handle invalid permission code on grant', async () => {
@@ -505,7 +505,7 @@ describe('permissionsService (roleService)', () => {
         await roleService.grantCustomPermission(5, 'INVALID_PERM', 'Reason');
         throw new Error('Expected error to be thrown');
       } catch (error) {
-        expect(error.message.includes('Permission does not exist').toBeTruthy());
+        expect(error.message).toContain('Permission does not exist');
       }
     });
 
@@ -516,7 +516,7 @@ describe('permissionsService (roleService)', () => {
         await roleService.grantCustomPermission(5, 'READ_INVOICE', 'Reason');
         throw new Error('Expected error to be thrown');
       } catch (error) {
-        expect(error.message.includes('User already has this permission').toBeTruthy());
+        expect(error.message).toContain('User already has this permission');
       }
     });
   });
@@ -547,9 +547,9 @@ describe('permissionsService (roleService)', () => {
       expect(result.length).toBe(2);
       expect(result[0].action).toBe('GRANT');
       expect(result[1].action).toBe('REVOKE');
-      expect(apiClient.get.calledWith(`/roles/users/${userId}/audit-log`, {
+      expect(apiClient.get).toHaveBeenCalledWith(`/roles/users/${userId}/audit-log`, {
         params: { limit: 100 },
-      }).toBeTruthy());
+      });
     });
 
     it('should get audit log with custom limit', async () => {
@@ -560,9 +560,9 @@ describe('permissionsService (roleService)', () => {
 
       await roleService.getAuditLog(userId, limit);
 
-      expect(apiClient.get.calledWith(`/roles/users/${userId}/audit-log`, {
+      expect(apiClient.get).toHaveBeenCalledWith(`/roles/users/${userId}/audit-log`, {
         params: { limit },
-      }).toBeTruthy());
+      });
     });
 
     it('should return empty audit log when no changes recorded', async () => {
@@ -622,7 +622,7 @@ describe('permissionsService (roleService)', () => {
         await roleService.getRoles();
         throw new Error('Expected error to be thrown');
       } catch (error) {
-        expect(error.message.includes('Server error').toBeTruthy());
+        expect(error.message).toContain('Server error');
       }
     });
 
@@ -667,7 +667,7 @@ describe('permissionsService (roleService)', () => {
 
       const result = await roleService.getAllPermissions();
 
-      expect(Object.keys(result).toBeTruthy().includes('INVOICING'));
+      expect(Object.keys(result)).toContain('INVOICING');
     });
   });
 });

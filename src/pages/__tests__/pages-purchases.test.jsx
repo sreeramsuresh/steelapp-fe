@@ -196,7 +196,9 @@ describe("PO Workspace Pages", () => {
     );
 
     render(<MockPODispatch />);
-    expect(screen.getByText("Confirm Dispatch")).toBeInTheDocument();
+    // "Confirm Dispatch" appears in both the h2 and the button
+    const elements = screen.getAllByText("Confirm Dispatch");
+    expect(elements.length).toBeGreaterThan(0);
   });
 
   it("POReceiveReturn renders receive/return form", () => {

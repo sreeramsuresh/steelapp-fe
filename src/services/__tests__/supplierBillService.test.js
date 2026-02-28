@@ -185,7 +185,7 @@ describe("supplierBillService", () => {
 
       const result = await supplierBillService.getBySupplier(1);
 
-      expect(Array.isArray(result).toBeTruthy());
+      expect(Array.isArray(result)).toBeTruthy();
       expect(result).toBeTruthy();
     });
 
@@ -235,7 +235,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.create(billData);
 
       expect(result.id).toBeTruthy();
-      expect(postStub).toHaveBeenCalledWith("/supplier-bills", );
+      expect(postStub).toHaveBeenCalledWith("/supplier-bills", expect.any(Object));
     });
 
     it("should handle VAT categories in items", async () => {
@@ -279,7 +279,7 @@ describe("supplierBillService", () => {
 
       await supplierBillService.update(1, updateData);
 
-      expect(putStub).toHaveBeenCalledWith("/supplier-bills/1", );
+      expect(putStub).toHaveBeenCalledWith("/supplier-bills/1", expect.any(Object));
     });
   });
 
@@ -373,7 +373,7 @@ describe("supplierBillService", () => {
 
       expect(result.amountPaid).toBeTruthy();
       expect(postStub).toHaveBeenCalledWith("/supplier-bills/1/payments",
-        Object.keys({ amount: 500 }).every(k => typeof arguments[0][k] !== 'undefined'));
+        expect.objectContaining({ amount: 500 }));
     });
 
     it("should handle payment with attachment", async () => {
@@ -442,7 +442,7 @@ describe("supplierBillService", () => {
       });
 
       expect(result.totalInputVat).toBeTruthy();
-      expect(getStub).toHaveBeenCalledWith("/supplier-bills/vat-summary", );
+      expect(getStub).toHaveBeenCalledWith("/supplier-bills/vat-summary", expect.any(Object));
     });
 
     it("should filter by VAT category", async () => {
@@ -490,7 +490,7 @@ describe("supplierBillService", () => {
         supplierId: 1,
       });
 
-      expect(getStub).toHaveBeenCalledWith("/supplier-bills/analytics", );
+      expect(getStub).toHaveBeenCalledWith("/supplier-bills/analytics", expect.any(Object));
     });
   });
 
@@ -522,7 +522,7 @@ describe("supplierBillService", () => {
 
       const result = await supplierBillService.search("ABC Suppliers");
 
-      expect(Array.isArray(result).toBeTruthy());
+      expect(Array.isArray(result)).toBeTruthy();
       expect(result).toBeTruthy();
     });
 
@@ -579,15 +579,16 @@ describe("supplierBillService", () => {
       getStub.mockResolvedValue(mockBlob);
 
       // Mock window.URL and document methods
-      // Skipped: global.URL.createObjectURL = vi.fn().returns("blob:mock-url");
+      global.URL.createObjectURL = vi.fn().mockReturnValue("blob:mock-url");
       global.URL.revokeObjectURL = vi.fn();
-      document.createElement = vi.fn().returns({
+      const mockLink = {
         href: "",
         download: "",
         click: vi.fn(),
-      });
-      document.body.appendChild = vi.spyOn();
-      document.body.removeChild = vi.fn();
+      };
+      vi.spyOn(document, 'createElement').mockReturnValue(mockLink);
+      vi.spyOn(document.body, 'appendChild').mockImplementation(() => {});
+      vi.spyOn(document.body, 'removeChild').mockImplementation(() => {});
 
       const result = await supplierBillService.downloadPDF(1, 'SB-001');
 
@@ -603,21 +604,19 @@ describe("supplierBillService", () => {
 
   describe("getBlockedVATItems", () => {
     it("should get blocked VAT items from bill", async () => {
-      const mockResponse = {
-        data: [
-          {
-            id: 1,
-            product_name: "Blocked Item",
-            vat_category: "BLOCKED",
-            blocked_reason: "Input VAT not recoverable",
-          },
-        ],
-      };
+      const mockResponse = [
+        {
+          id: 1,
+          product_name: "Blocked Item",
+          vat_category: "BLOCKED",
+          blocked_reason: "Input VAT not recoverable",
+        },
+      ];
       getStub.mockResolvedValue(mockResponse);
 
       const result = await supplierBillService.getBlockedVATItems(1);
 
-      expect(Array.isArray(result).toBeTruthy());
+      expect(Array.isArray(result)).toBeTruthy();
       expect(result).toBeTruthy();
     });
 
@@ -641,7 +640,7 @@ describe("supplierBillService", () => {
 
       const result = await supplierBillService.getBlockedVATItems(1);
 
-      expect(result).toBeTruthy();
+      expect(Array.isArray(result)).toBeTruthy();
     });
   });
 
@@ -660,7 +659,7 @@ describe("supplierBillService", () => {
 
       await supplierBillService.create(billData);
 
-      const callArgs = postStub.firstCall.args[1];
+      const callArgs = postStub.mock.calls[0][1];
       expect(callArgs.supplierId).toBe(1);
       expect(callArgs.supplierInvoiceNumber).toBe("INV-001");
     });

@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../../contexts/ThemeContext", () => ({
+vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../services/api", () => ({
+vi.mock("../../../services/api", () => ({
   default: {
     get: vi.fn().mockResolvedValue({ batches: [] }),
   },
@@ -16,7 +16,7 @@ vi.mock("lucide-react", () => ({
   Package: (props) => <span data-testid="package-icon" {...props} />,
 }));
 
-import api from "../../services/api";
+import api from "../../../services/api";
 import WarehouseStockSummary from "../WarehouseStockSummary";
 
 describe("WarehouseStockSummary", () => {

@@ -1,14 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("../../constants/defaultTemplateSettings", () => ({
+vi.mock("../../../constants/defaultTemplateSettings", () => ({
   DEFAULT_TEMPLATE_SETTINGS: {
     colors: { primary: "#1a5276" },
     fonts: { body: "Inter, sans-serif" },
   },
 }));
 
-vi.mock("./InvoiceFooter", () => ({
+vi.mock("../InvoiceFooter", () => ({
   default: ({ pageNumber, totalPages }) => (
     <div data-testid="invoice-footer">
       Page {pageNumber}/{totalPages}
@@ -16,25 +16,25 @@ vi.mock("./InvoiceFooter", () => ({
   ),
 }));
 
-vi.mock("./InvoiceFooterNotes", () => ({
+vi.mock("../InvoiceFooterNotes", () => ({
   default: () => <div data-testid="invoice-footer-notes" />,
 }));
 
-vi.mock("./InvoiceHeader", () => ({
+vi.mock("../InvoiceHeader", () => ({
   default: ({ isFirstPage }) => (
     <div data-testid="invoice-header">{isFirstPage ? "First Page Header" : "Continued Header"}</div>
   ),
 }));
 
-vi.mock("./InvoiceItemsTable", () => ({
+vi.mock("../InvoiceItemsTable", () => ({
   default: ({ items }) => <div data-testid="invoice-items-table">{items.length} items</div>,
 }));
 
-vi.mock("./InvoiceSignatureSection", () => ({
+vi.mock("../InvoiceSignatureSection", () => ({
   default: () => <div data-testid="invoice-signature" />,
 }));
 
-vi.mock("./InvoiceTotalsSection", () => ({
+vi.mock("../InvoiceTotalsSection", () => ({
   default: () => <div data-testid="invoice-totals" />,
 }));
 

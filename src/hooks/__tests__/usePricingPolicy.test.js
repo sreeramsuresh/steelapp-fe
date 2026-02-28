@@ -1,18 +1,18 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { usePricingPolicy, PRICING_MODES, PRIMARY_UNITS } from "../usePricingPolicy";
-
-const mockService = {
-  listCategoryPolicies: vi.fn(),
-  buildPolicyCache: vi.fn(),
-  getPricingUnitFromPolicy: vi.fn(),
-  requiresWeight: vi.fn(),
-  isConvertible: vi.fn(),
-};
 
 vi.mock("../../services/categoryPolicyService", () => ({
-  default: mockService,
+  default: {
+    listCategoryPolicies: vi.fn(),
+    buildPolicyCache: vi.fn(),
+    getPricingUnitFromPolicy: vi.fn(),
+    requiresWeight: vi.fn(),
+    isConvertible: vi.fn(),
+  },
 }));
+
+import mockService from "../../services/categoryPolicyService";
+import { usePricingPolicy, PRICING_MODES, PRIMARY_UNITS } from "../usePricingPolicy";
 
 describe("usePricingPolicy", () => {
   beforeEach(() => {
@@ -51,13 +51,14 @@ describe("usePricingPolicy", () => {
     expect(result.current.isFrozen).toBe(true);
   });
 
-  it("sets error when companyId is missing", async () => {
+  it("does not auto-fetch when companyId is null", async () => {
     const { result } = renderHook(() => usePricingPolicy(null));
 
-    // autoFetch with null companyId should set error
-    await vi.waitFor(() => {
-      expect(result.current.error).toBe("Company ID is required");
-    });
+    // autoFetch with null companyId skips the fetch entirely
+    await new Promise((r) => setTimeout(r, 50));
+    expect(result.current.policies).toEqual([]);
+    expect(result.current.loading).toBe(false);
+    expect(mockService.listCategoryPolicies).not.toHaveBeenCalled();
   });
 
   it("handles API error", async () => {

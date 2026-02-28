@@ -34,14 +34,13 @@ describe("FormField", () => {
   });
 
   it("should not display required indicator when required is false", () => {
-    const { container } = render(
+    render(
       <FormField label="Phone Number" htmlFor="phone" required={false}>
         <input id="phone" type="tel" />
       </FormField>
     );
 
-    const requiredMarks = container.querySelectorAll("span:contains('*')");
-    expect(requiredMarks.length).toBe(0);
+    expect(screen.queryByText("*")).not.toBeInTheDocument();
   });
 
   it("should display helper text", () => {
@@ -165,14 +164,15 @@ describe("FormField", () => {
   });
 
   it("should render multiple children if provided as array", () => {
-    render(
+    const { container } = render(
       <FormField label="Date Range" htmlFor="date-start">
         <input id="date-start" type="date" />
         <input id="date-end" type="date" />
       </FormField>
     );
 
-    expect(screen.getByDisplayValue("")).toHaveCount(2);
+    const inputs = container.querySelectorAll("input");
+    expect(inputs.length).toBe(2);
   });
 
   it("should handle null/undefined values gracefully", () => {

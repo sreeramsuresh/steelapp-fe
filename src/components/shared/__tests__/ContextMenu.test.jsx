@@ -12,6 +12,8 @@
  * - Disabled items
  */
 
+import { fireEvent } from "@testing-library/react";
+import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
@@ -64,7 +66,7 @@ const ContextMenu = ({ children, items = [], onItemSelect, onShow = null, onHide
           aria-orientation="vertical"
           data-testid="context-menu"
         >
-          {items.map((item) => (
+          {items.map((item, index) => (
             <button
               type="button"
               key={item.id || item.label}
@@ -83,8 +85,6 @@ const ContextMenu = ({ children, items = [], onItemSelect, onShow = null, onHide
     </div>
   );
 };
-
-import React from "react";
 
 describe("ContextMenu Component", () => {
   let mockOnItemSelect;
@@ -135,7 +135,7 @@ describe("ContextMenu Component", () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       const menu = queryByTestId("context-menu");
       if (menu) {
@@ -149,30 +149,25 @@ describe("ContextMenu Component", () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       const menu = queryByTestId("context-menu");
-      if (menu) {
-        expect(menu).toBeInTheDocument();
-      }
+      expect(menu).toBeInTheDocument();
     });
 
     it("should prevent default context menu", async () => {
       const { getByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      const event = new MouseEvent("contextmenu", { bubbles: true, cancelable: true });
-      const preventDefaultSpy = vi.spyOn(event, "preventDefault");
-
-      trigger.dispatchEvent(event);
-      expect(preventDefaultSpy).toHaveBeenCalled();
+      const prevented = !fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
+      expect(prevented).toBe(true);
     });
 
     it("should call onShow when menu appears", async () => {
       const { getByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       expect(mockOnShow).toHaveBeenCalled();
     });
@@ -181,7 +176,7 @@ describe("ContextMenu Component", () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 150, clientY: 200 }));
+      fireEvent.contextMenu(trigger, { clientX: 150, clientY: 200 });
 
       const menu = queryByTestId("context-menu");
       if (menu) {
@@ -196,7 +191,7 @@ describe("ContextMenu Component", () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       expect(queryByTestId("context-item-0")).toBeInTheDocument();
       expect(queryByTestId("context-item-1")).toBeInTheDocument();
@@ -207,7 +202,7 @@ describe("ContextMenu Component", () => {
       const { getByTestId, getByText } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       expect(getByText("Copy")).toBeInTheDocument();
       expect(getByText("Paste")).toBeInTheDocument();
@@ -218,7 +213,7 @@ describe("ContextMenu Component", () => {
       const { getByTestId, getByText } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       expect(getByText("📋")).toBeInTheDocument();
       expect(getByText("📌")).toBeInTheDocument();
@@ -229,90 +224,78 @@ describe("ContextMenu Component", () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       const item = queryByTestId("context-item-0");
-      if (item) {
-        expect(item).toHaveAttribute("role", "menuitem");
-      }
+      expect(item).toHaveAttribute("role", "menuitem");
     });
   });
 
   describe("Item Selection", () => {
     it("should call onItemSelect when item is clicked", async () => {
       const user = setupUser();
-      const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
+      const { getByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
-      const item = queryByTestId("context-item-0");
-      if (item) {
-        await user.click(item);
-        expect(mockOnItemSelect).toHaveBeenCalledWith(defaultItems[0]);
-      }
+      const item = getByTestId("context-item-0");
+      await user.click(item);
+      expect(mockOnItemSelect).toHaveBeenCalledWith(defaultItems[0]);
     });
 
     it("should close menu after item selection", async () => {
       const user = setupUser();
-      const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
+      const { getByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
-      const item = queryByTestId("context-item-0");
-      if (item) {
-        await user.click(item);
-        expect(mockOnHide).toHaveBeenCalled();
-      }
+      const item = getByTestId("context-item-0");
+      await user.click(item);
+      expect(mockOnHide).toHaveBeenCalled();
     });
 
     it("should pass correct item data on selection", async () => {
       const user = setupUser();
-      const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
+      const { getByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
-      const item = queryByTestId("context-item-1");
-      if (item) {
-        await user.click(item);
-        expect(mockOnItemSelect).toHaveBeenCalledWith(defaultItems[1]);
-      }
+      const item = getByTestId("context-item-1");
+      await user.click(item);
+      expect(mockOnItemSelect).toHaveBeenCalledWith(defaultItems[1]);
     });
   });
 
   describe("Disabled Items", () => {
     it("should render disabled items", async () => {
       const itemsWithDisabled = [{ label: "Option 1" }, { label: "Option 2", disabled: true }, { label: "Option 3" }];
-      const { getByTestId, queryByTestId } = renderWithProviders(
+      const { getByTestId } = renderWithProviders(
         <ContextMenu {...defaultProps} items={itemsWithDisabled} />
       );
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
-      const disabledItem = queryByTestId("context-item-1");
-      if (disabledItem) {
-        expect(disabledItem).toBeDisabled();
-      }
+      const disabledItem = getByTestId("context-item-1");
+      expect(disabledItem).toBeDisabled();
     });
 
     it("should not trigger selection for disabled items", async () => {
       const user = setupUser();
       const itemsWithDisabled = [{ label: "Option 1" }, { label: "Option 2", disabled: true }];
-      const { getByTestId, queryByTestId } = renderWithProviders(
+      const { getByTestId } = renderWithProviders(
         <ContextMenu {...defaultProps} items={itemsWithDisabled} />
       );
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
-      const disabledItem = queryByTestId("context-item-1");
-      if (disabledItem) {
-        await user.click(disabledItem);
-        expect(mockOnItemSelect).not.toHaveBeenCalled();
-      }
+      const disabledItem = getByTestId("context-item-1");
+      await user.click(disabledItem);
+      expect(mockOnItemSelect).not.toHaveBeenCalled();
     });
   });
 
@@ -322,42 +305,39 @@ describe("ContextMenu Component", () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
-      let menu = queryByTestId("context-menu");
+      const menu = queryByTestId("context-menu");
       expect(menu).toBeInTheDocument();
 
-      const item = queryByTestId("context-item-0");
-      if (item) {
-        await user.click(item);
-        menu = queryByTestId("context-menu");
-        // Note: Full test would verify it's closed
-      }
+      const item = getByTestId("context-item-0");
+      await user.click(item);
+      // After click, menu should close
     });
 
     it("should call onHide when closing", async () => {
-      const { getByTestId, container } = renderWithProviders(<ContextMenu {...defaultProps} />);
+      const { getByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       // Simulate click away
-      container.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      fireEvent.click(document);
 
       expect(mockOnHide).toHaveBeenCalled();
     });
 
     it("should close menu when clicking outside", async () => {
-      const { getByTestId, queryByTestId, container } = renderWithProviders(<ContextMenu {...defaultProps} />);
+      const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       let menu = queryByTestId("context-menu");
       expect(menu).toBeInTheDocument();
 
       // Click outside
-      container.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      fireEvent.click(document);
       menu = queryByTestId("context-menu");
       expect(menu).not.toBeInTheDocument();
     });
@@ -368,7 +348,7 @@ describe("ContextMenu Component", () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       const items = queryByTestId("context-menu")?.querySelectorAll("[role='menuitem']");
       expect(items?.length).toBeGreaterThan(0);
@@ -380,24 +360,20 @@ describe("ContextMenu Component", () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       const menu = queryByTestId("context-menu");
-      if (menu) {
-        expect(menu).toHaveAttribute("role", "menu");
-      }
+      expect(menu).toHaveAttribute("role", "menu");
     });
 
     it("should have vertical orientation", async () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       const menu = queryByTestId("context-menu");
-      if (menu) {
-        expect(menu).toHaveAttribute("aria-orientation", "vertical");
-      }
+      expect(menu).toHaveAttribute("aria-orientation", "vertical");
     });
   });
 
@@ -406,36 +382,30 @@ describe("ContextMenu Component", () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       const menu = queryByTestId("context-menu");
-      if (menu) {
-        expect(menu.className).toContain("bg-white");
-      }
+      expect(menu.className).toContain("bg-white");
     });
 
     it("should have shadow", async () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       const menu = queryByTestId("context-menu");
-      if (menu) {
-        expect(menu.className).toContain("shadow-lg");
-      }
+      expect(menu.className).toContain("shadow-lg");
     });
 
     it("should have border", async () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       const menu = queryByTestId("context-menu");
-      if (menu) {
-        expect(menu.className).toContain("border");
-      }
+      expect(menu.className).toContain("border");
     });
   });
 
@@ -444,12 +414,10 @@ describe("ContextMenu Component", () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       const menu = queryByTestId("context-menu");
-      if (menu) {
-        expect(menu.className).toContain("z-50");
-      }
+      expect(menu.className).toContain("z-50");
     });
   });
 
@@ -461,7 +429,7 @@ describe("ContextMenu Component", () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} items={manyItems} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       expect(queryByTestId("context-item-0")).toBeInTheDocument();
       expect(queryByTestId("context-item-19")).toBeInTheDocument();
@@ -474,11 +442,11 @@ describe("ContextMenu Component", () => {
 
       const trigger = getByTestId("context-menu-trigger");
 
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 50, clientY: 50 }));
+      fireEvent.contextMenu(trigger, { clientX: 50, clientY: 50 });
       let menu = queryByTestId("context-menu");
       expect(menu?.style.top).toBe("50px");
 
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 500, clientY: 300 }));
+      fireEvent.contextMenu(trigger, { clientX: 500, clientY: 300 });
       menu = queryByTestId("context-menu");
       expect(menu?.style.top).toBe("300px");
     });
@@ -487,7 +455,7 @@ describe("ContextMenu Component", () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} items={[]} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       const menu = queryByTestId("context-menu");
       expect(menu).toBeInTheDocument();
@@ -498,7 +466,7 @@ describe("ContextMenu Component", () => {
       const { getByTestId, getByText } = renderWithProviders(<ContextMenu {...defaultProps} items={specialItems} />);
 
       const trigger = getByTestId("context-menu-trigger");
-      trigger.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 100, clientY: 100 }));
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
 
       expect(getByText(specialItems[0].label)).toBeInTheDocument();
     });

@@ -15,8 +15,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
-    pool: "vmForks",
-    maxWorkers: 4,
+    pool: "forks",
+    fileParallelism: false,
     testTimeout: 30000,
     hookTimeout: 30000,
     setupFiles: ["src/test/setup.js"],

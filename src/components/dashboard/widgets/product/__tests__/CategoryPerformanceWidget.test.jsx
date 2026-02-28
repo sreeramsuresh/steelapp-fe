@@ -10,9 +10,9 @@ import CategoryPerformanceWidget from "../CategoryPerformanceWidget";
 describe("CategoryPerformanceWidget", () => {
   const sampleData = {
     categories: [
-      { id: 1, name: "Sheets", revenue: 5000000, growth: 12.5, color: "#14B8A6" },
-      { id: 2, name: "Coils", revenue: 3500000, growth: -5.2, color: "#3B82F6" },
-      { id: 3, name: "Pipes", revenue: 2000000, growth: 8.1, color: "#F59E0B" },
+      { id: 1, name: "Sheets", revenue: 5000000, growth: 12.5, margin: 18.5, orders: 45, volume: 120 },
+      { id: 2, name: "Coils", revenue: 3500000, growth: -5.2, margin: 15.2, orders: 32, volume: 85 },
+      { id: 3, name: "Pipes", revenue: 2000000, growth: 8.1, margin: 20.1, orders: 28, volume: 60 },
     ],
   };
 

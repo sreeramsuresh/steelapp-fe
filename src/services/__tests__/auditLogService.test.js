@@ -35,7 +35,7 @@ describe('auditLogService - API calls', () => {
 
       expect(result.logs.length).toBe(2);
       expect(result.pagination.total).toBe(2);
-      expect(apiClient.get.calledWith('/audit-logs').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/audit-logs');
     });
 
     it('should apply category filter', async () => {
@@ -44,7 +44,7 @@ describe('auditLogService - API calls', () => {
 
       await apiClient.get('/audit-logs?category=SUPPLIER');
 
-      expect(apiClient.get.calledWith('/audit-logs?category=SUPPLIER').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/audit-logs?category=SUPPLIER');
     });
 
     it('should apply date range filters', async () => {
@@ -53,9 +53,9 @@ describe('auditLogService - API calls', () => {
 
       await apiClient.get('/audit-logs?start_date=2026-01-01&end_date=2026-01-31');
 
-      const callArg = apiClient.get.firstCall.args[0];
-      expect(callArg.includes('start_date=').toBeTruthy());
-      expect(callArg.includes('end_date=').toBeTruthy());
+      const callArg = apiClient.get.mock.calls[0][0];
+      expect(callArg).toContain('start_date=');
+      expect(callArg).toContain('end_date=');
     });
 
     it('should apply entity_type and action filters', async () => {
@@ -64,9 +64,9 @@ describe('auditLogService - API calls', () => {
 
       await apiClient.get('/audit-logs?entity_type=invoice&action=CREATE_INVOICE');
 
-      const callArg = apiClient.get.firstCall.args[0];
-      expect(callArg.includes('entity_type=invoice').toBeTruthy());
-      expect(callArg.includes('action=CREATE_INVOICE').toBeTruthy());
+      const callArg = apiClient.get.mock.calls[0][0];
+      expect(callArg).toContain('entity_type=invoice');
+      expect(callArg).toContain('action=CREATE_INVOICE');
     });
 
     it('should handle network errors', async () => {
@@ -97,7 +97,7 @@ describe('auditLogService - API calls', () => {
       const result = await apiClient.get('/audit-logs/recent');
 
       expect(result.logs.length).toBe(2);
-      expect(apiClient.get.calledWith('/audit-logs/recent').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/audit-logs/recent');
     });
 
     it('should return empty logs gracefully', async () => {

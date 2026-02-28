@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../../contexts/ThemeContext", () => ({
+vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../services/apiClient", () => ({
+vi.mock("../../../services/api", () => ({
   default: {
     get: vi.fn().mockResolvedValue({ history: [] }),
   },
@@ -20,11 +20,11 @@ vi.mock("lucide-react", () => ({
   TrendingUp: (props) => <span data-testid="trending-up" {...props} />,
 }));
 
-vi.mock("../ui/badge", () => ({
+vi.mock("../../ui/badge", () => ({
   Badge: ({ children, ...props }) => <span {...props}>{children}</span>,
 }));
 
-vi.mock("../ui/table", () => ({
+vi.mock("../../ui/table", () => ({
   Table: ({ children }) => <table>{children}</table>,
   TableBody: ({ children }) => <tbody>{children}</tbody>,
   TableCell: ({ children, ...props }) => <td {...props}>{children}</td>,
@@ -33,7 +33,7 @@ vi.mock("../ui/table", () => ({
   TableRow: ({ children, ...props }) => <tr {...props}>{children}</tr>,
 }));
 
-import apiClient from "../../services/apiClient";
+import apiClient from "../../../services/api";
 import ReallocationHistoryPanel from "../ReallocationHistoryPanel";
 
 describe("ReallocationHistoryPanel", () => {

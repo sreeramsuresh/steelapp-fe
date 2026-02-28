@@ -127,7 +127,7 @@ describe("inventoryService", () => {
 
       expect(result !== undefined).toBeTruthy();
       expect(result.id).toBeTruthy();
-      expect(apiClient.post).toHaveBeenCalledWith("/inventory");
+      expect(apiClient.post).toHaveBeenCalledWith("/inventory", expect.any(Object));
     });
   });
 
@@ -152,7 +152,7 @@ describe("inventoryService", () => {
 
       expect(result !== undefined).toBeTruthy();
       expect(result.quantity).toBeTruthy();
-      expect(apiClient.put).toHaveBeenCalledWith("/inventory/1", );
+      expect(apiClient.put).toHaveBeenCalledWith("/inventory/1", expect.any(Object));
     });
   });
 

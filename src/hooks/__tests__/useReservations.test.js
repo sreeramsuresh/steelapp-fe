@@ -1,19 +1,19 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useReservations } from "../useReservations";
-
-const mockService = {
-  reserveFIFO: vi.fn(),
-  reserveManual: vi.fn(),
-  cancelReservation: vi.fn(),
-  cancelLineItemReservations: vi.fn(),
-  extendReservation: vi.fn(),
-  getDraftReservations: vi.fn(),
-};
 
 vi.mock("../../services/batchReservationService", () => ({
-  batchReservationService: mockService,
+  batchReservationService: {
+    reserveFIFO: vi.fn().mockResolvedValue({}),
+    reserveManual: vi.fn().mockResolvedValue({}),
+    cancelReservation: vi.fn().mockResolvedValue({}),
+    cancelLineItemReservations: vi.fn().mockResolvedValue({}),
+    extendReservation: vi.fn().mockResolvedValue({}),
+    getDraftReservations: vi.fn().mockResolvedValue({ success: true, reservations: [] }),
+  },
 }));
+
+import { batchReservationService as mockService } from "../../services/batchReservationService";
+import { useReservations } from "../useReservations";
 
 describe("useReservations", () => {
   const defaultOptions = {

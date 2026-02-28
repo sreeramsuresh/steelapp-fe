@@ -10,7 +10,7 @@
  * - Destructive actions
  */
 
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../../test/component-setup";
 
 // Mock ConfirmDialog component
@@ -306,8 +306,10 @@ describe("ConfirmDialog Component", () => {
 
     it("should handle multiline messages", () => {
       const multilineMessage = "Line 1\nLine 2\nLine 3";
-      const { getByText } = renderWithProviders(<ConfirmDialog {...defaultProps} message={multilineMessage} />);
-      expect(getByText(multilineMessage)).toBeInTheDocument();
+      const { container } = renderWithProviders(<ConfirmDialog {...defaultProps} message={multilineMessage} />);
+      expect(container.textContent).toContain("Line 1");
+      expect(container.textContent).toContain("Line 2");
+      expect(container.textContent).toContain("Line 3");
     });
   });
 

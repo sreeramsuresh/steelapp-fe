@@ -24,18 +24,29 @@ describe("ZeroRatedExportsWidget", () => {
         totalValue: 650000,
         documentedExports: 10,
         pendingDocumentation: 2,
+        compliancePercentage: 83.3,
       },
-      exports: [
+      recentExports: [
         {
           id: 1,
+          invoiceNumber: "INV-001",
           customer: "Export Corp",
-          value: 150000,
-          destination: "India",
-          documentStatus: "complete",
+          amount: 150000,
+          country: "India",
+          status: "complete",
+          daysRemaining: null,
+          documents: {
+            billOfLading: true,
+            customsDeclaration: true,
+            exportCertificate: true,
+          },
         },
       ],
+      documentTypes: [
+        { id: 1, name: "Bill of Lading", required: true, complete: 10, pending: 2 },
+        { id: 2, name: "Customs Declaration", required: true, complete: 8, pending: 4 },
+      ],
     };
-    render(<ZeroRatedExportsWidget data={data} />);
     const { container } = render(<ZeroRatedExportsWidget data={data} />);
     expect(container).toBeTruthy();
   });

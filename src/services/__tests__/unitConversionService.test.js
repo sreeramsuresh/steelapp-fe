@@ -28,12 +28,12 @@ describe('unitConversionService', () => {
         ],
       };
 
-      vi.spyOn(api, 'get').mockResolvedValue({ data: mockResponse });
+      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
 
       const result = await unitConversionService.listConversionFormulas();
 
       expect(result.formulas.length).toBe(2);
-      expect(api.get.calledWith('/unit-conversions/formulas').toBeTruthy());
+      expect(api.get).toHaveBeenCalledWith('/unit-conversions/formulas');
     });
   });
 
@@ -45,13 +45,13 @@ describe('unitConversionService', () => {
         variables: ['width', 'thickness', 'length', 'density'],
       };
 
-      vi.spyOn(api, 'get').mockResolvedValue({ data: mockResponse });
+      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
 
       const result = await unitConversionService.getConversionFormula('sheet');
 
-      expect(result.formula.includes('weight').toBeTruthy());
-      expect(result.variables.includes('width').toBeTruthy());
-      expect(api.get.calledWith('/unit-conversions/formulas/sheet').toBeTruthy());
+      expect(result.formula).toContain('weight');
+      expect(result.variables).toContain('width');
+      expect(api.get).toHaveBeenCalledWith('/unit-conversions/formulas/sheet');
     });
   });
 
@@ -64,13 +64,13 @@ describe('unitConversionService', () => {
         is_theoretical: true,
       };
 
-      vi.spyOn(api, 'post').mockResolvedValue({ data: mockResponse });
+      vi.spyOn(api, 'post').mockResolvedValue(mockResponse);
 
       const result = await unitConversionService.calculateWeight(1, 10, 'PCS');
 
       expect(result.weight_kg).toBe(100);
       expect(result.weight_mt).toBe(0.1);
-      expect(api.post.calledWith('/unit-conversions/calculate-weight', expect.anything().toBeTruthy()));
+      expect(api.post).toHaveBeenCalledWith('/unit-conversions/calculate-weight', expect.anything());
     });
   });
 
@@ -83,13 +83,13 @@ describe('unitConversionService', () => {
         display_only: false,
       };
 
-      vi.spyOn(api, 'post').mockResolvedValue({ data: mockResponse });
+      vi.spyOn(api, 'post').mockResolvedValue(mockResponse);
 
       const result = await unitConversionService.convertUnits(1, 1000, 'KG', 'MT');
 
       expect(result.to_quantity).toBe(0.5);
       expect(result.success).toBe(true);
-      expect(api.post.calledWith('/unit-conversions/convert', expect.anything().toBeTruthy()));
+      expect(api.post).toHaveBeenCalledWith('/unit-conversions/convert', expect.anything());
     });
 
     it('should handle conversion errors gracefully', async () => {
@@ -101,7 +101,7 @@ describe('unitConversionService', () => {
         missing_fields: ['width', 'thickness'],
       };
 
-      vi.spyOn(api, 'post').mockResolvedValue({ data: mockResponse });
+      vi.spyOn(api, 'post').mockResolvedValue(mockResponse);
 
       const result = await unitConversionService.convertUnits(1, 100, 'PCS', 'KG');
 

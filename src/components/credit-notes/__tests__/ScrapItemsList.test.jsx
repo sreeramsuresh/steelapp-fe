@@ -29,7 +29,7 @@ import ScrapItemsList from "../ScrapItemsList";
 
 const mockItems = [
   { id: 1, productName: "Steel Rod", quantity: 5, scrapReason: "MANUFACTURING_DEFECT", scrapValue: 100 },
-  { id: 2, productName: "Steel Sheet", quantity: 3, scrapReason: "SHIPPING_DAMAGE", scrapValue: 200 },
+  { id: 2, productName: "Steel Sheet", quantity: 3, scrapReason: "DAMAGED_IN_TRANSIT", scrapValue: 200 },
 ];
 
 describe("ScrapItemsList", () => {
@@ -102,7 +102,7 @@ describe("ScrapItemsList", () => {
     render(<ScrapItemsList />);
     await waitFor(() => {
       expect(screen.getByText("Manufacturing Defect")).toBeInTheDocument();
-      expect(screen.getByText("Shipping Damage")).toBeInTheDocument();
+      expect(screen.getByText("Damaged in Transit")).toBeInTheDocument();
     });
   });
 });

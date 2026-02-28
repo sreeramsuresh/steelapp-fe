@@ -38,7 +38,7 @@ describe("CorrectionChainTimeline", () => {
     renderWithTheme(
       <CorrectionChainTimeline nodes={nodes} edges={[]} />
     );
-    expect(screen.getByText(/1,000.00/)).toBeInTheDocument();
+    expect(screen.getByText(/\+ AED 1,000\.00/)).toBeInTheDocument();
   });
 
   it("shows computed summary when provided", () => {

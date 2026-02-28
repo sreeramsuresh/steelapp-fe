@@ -195,7 +195,7 @@ describe('deliveryNoteService', () => {
 
       expect(result.deliveryNotes.length).toBe(2);
       expect(result.pageInfo.total).toBe(45);
-      expect(apiClient.get.calledWith('/delivery-notes', { page: 1, limit: 10 }).toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/delivery-notes', { page: 1, limit: 10 });
     });
 
     it('should fetch delivery notes with filters', async () => {
@@ -208,13 +208,11 @@ describe('deliveryNoteService', () => {
         page: 1,
       });
 
-      expect(
-        apiClient.get.calledWith('/delivery-notes', expect.objectContaining({
-          status: 'DELIVERED',
-          invoiceId: 100,
-          page: 1,
-        }).toBeTruthy())
-      );
+      expect(apiClient.get).toHaveBeenCalledWith('/delivery-notes', expect.objectContaining({
+        status: 'DELIVERED',
+        invoiceId: 100,
+        page: 1,
+      }));
     });
 
     it('should handle API errors gracefully', async () => {
@@ -244,7 +242,7 @@ describe('deliveryNoteService', () => {
 
       expect(result.deliveryNoteNumber).toBe('DN-2026-001');
       expect(result.items.length).toBe(1);
-      expect(apiClient.get.calledWith('/delivery-notes/1').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/delivery-notes/1');
     });
 
     it('should return null for non-existent delivery note', async () => {
@@ -284,7 +282,7 @@ describe('deliveryNoteService', () => {
 
       expect(result.id).toBe(1);
       expect(result.deliveryNoteNumber).toBe('DN-2026-001');
-      expect(apiClient.post.calledWith('/delivery-notes', deliveryNoteData).toBeTruthy());
+      expect(apiClient.post).toHaveBeenCalledWith('/delivery-notes', deliveryNoteData);
     });
 
     it('should validate required fields on create', async () => {
@@ -321,7 +319,7 @@ describe('deliveryNoteService', () => {
 
       expect(result.driverName).toBe('Jane Doe');
       expect(result.vehicleNumber).toBe('XYZ999');
-      expect(apiClient.put.calledWith('/delivery-notes/1', updateData).toBeTruthy());
+      expect(apiClient.put).toHaveBeenCalledWith('/delivery-notes/1', updateData);
     });
 
     it('should handle update errors', async () => {
@@ -358,9 +356,7 @@ describe('deliveryNoteService', () => {
       expect(result.deliveredQuantity).toBe(50);
       expect(result.remainingQuantity).toBe(50);
       expect(result.isFullyDelivered).toBe(false);
-      expect(
-        apiClient.patch.calledWith('/delivery-notes/1/items/10/deliver', deliveryData).toBeTruthy()
-      );
+      expect(apiClient.patch).toHaveBeenCalledWith('/delivery-notes/1/items/10/deliver', deliveryData);
     });
 
     it('should mark item as fully delivered', async () => {
@@ -415,9 +411,7 @@ describe('deliveryNoteService', () => {
 
       expect(result.status).toBe('DELIVERED');
       expect(result.stockDeducted).toBe(true);
-      expect(
-        apiClient.patch.calledWith('/delivery-notes/1/status', expect.objectContaining({}).toBeTruthy())
-      );
+      expect(apiClient.patch).toHaveBeenCalledWith('/delivery-notes/1/status', expect.objectContaining({}));
     });
 
     it('should prevent invalid status transitions', async () => {
@@ -441,7 +435,7 @@ describe('deliveryNoteService', () => {
       const result = await apiClient.delete('/delivery-notes/1');
 
       expect(result.success).toBe(true);
-      expect(apiClient.delete.calledWith('/delivery-notes/1').toBeTruthy());
+      expect(apiClient.delete).toHaveBeenCalledWith('/delivery-notes/1');
     });
 
     it('should prevent deleting delivered note', async () => {

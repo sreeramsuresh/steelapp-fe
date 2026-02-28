@@ -121,8 +121,8 @@ describe('accountingService', () => {
       expect(result.length).toBe(2);
       expect(result[0].type).toBe('ASSET');
       expect(apiClient.get.mock.calls.length > 0).toBeTruthy();
-      const call = apiClient.get.getCall(0);
-      expect(call.args[1].headers['X-Company-Id']).toBe(companyId);
+      const call = apiClient.get.mock.calls[0];
+      expect(call[1].headers['X-Company-Id']).toBe(companyId);
     });
 
     it('should filter accounts by type', async () => {
@@ -372,7 +372,7 @@ describe('accountingService', () => {
         await accountingService.getAccountBalance(companyId, 1, '2023-01-01');
         throw new Error('Expected error');
       } catch (error) {
-        expect(error.message.includes('No balance available').toBeTruthy());
+        expect(error.message).toContain('No balance available');
       }
     });
 
@@ -554,8 +554,8 @@ describe('accountingService', () => {
 
       await accountingService.getAccounts(companyId);
 
-      const call = apiClient.get.getCall(0);
-      expect(call.args[1].headers['X-Company-Id']).toBe(companyId);
+      const call = apiClient.get.mock.calls[0];
+      expect(call[1].headers['X-Company-Id']).toBe(companyId);
     });
 
     it('should include company ID in transaction records', async () => {
@@ -564,8 +564,8 @@ describe('accountingService', () => {
 
       await accountingService.recordTransaction(companyId, transactionData);
 
-      const call = apiClient.post.getCall(0);
-      expect(call.args[2].headers['X-Company-Id']).toBe(companyId);
+      const call = apiClient.post.mock.calls[0];
+      expect(call[2].headers['X-Company-Id']).toBe(companyId);
     });
 
     it('should prevent cross-company account access', async () => {

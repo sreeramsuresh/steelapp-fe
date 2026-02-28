@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../../contexts/ThemeContext", () => ({
+vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../services/api", () => ({
+vi.mock("../../../services/api", () => ({
   apiClient: {
     get: vi.fn().mockResolvedValue({ batches: [] }),
   },
@@ -17,7 +17,7 @@ vi.mock("lucide-react", () => ({
   X: (props) => <span data-testid="x-icon" {...props} />,
 }));
 
-import { apiClient } from "../../services/api";
+import { apiClient } from "../../../services/api";
 import BatchesModal from "../BatchesModal";
 
 describe("BatchesModal", () => {

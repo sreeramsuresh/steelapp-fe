@@ -1,10 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("echarts/core", () => ({
-  default: { use: vi.fn() },
-  __esModule: true,
-}));
+vi.mock("echarts/core", () => {
+  const use = vi.fn();
+  return {
+    default: { use },
+    use,
+    __esModule: true,
+  };
+});
 
 vi.mock("echarts/charts", () => ({
   BarChart: {},

@@ -284,7 +284,7 @@ describe("paymentService", () => {
       const result = validatePayment(payment);
 
       expect(result.valid).toBe(false);
-      expect(result.errors.includes("Amount must be greater than 0").toBeTruthy());
+      expect(result.errors).toContain("Amount must be greater than 0");
     });
 
     it("should reject payment with negative amount", () => {
@@ -297,7 +297,7 @@ describe("paymentService", () => {
       const result = validatePayment(payment);
 
       expect(result.valid).toBe(false);
-      expect(result.errors.includes("Amount must be greater than 0").toBeTruthy());
+      expect(result.errors).toContain("Amount must be greater than 0");
     });
 
     it("should reject payment without method", () => {
@@ -309,7 +309,7 @@ describe("paymentService", () => {
       const result = validatePayment(payment);
 
       expect(result.valid).toBe(false);
-      expect(result.errors.includes("Payment method is required").toBeTruthy());
+      expect(result.errors).toContain("Payment method is required");
     });
 
     it("should reject payment without date", () => {
@@ -321,7 +321,7 @@ describe("paymentService", () => {
       const result = validatePayment(payment);
 
       expect(result.valid).toBe(false);
-      expect(result.errors.includes("Payment date is required").toBeTruthy());
+      expect(result.errors).toContain("Payment date is required");
     });
 
     it("should validate payment with all required fields", () => {
@@ -587,11 +587,11 @@ describe("paymentService", () => {
     it("should have required payment methods", () => {
       const values = PAYMENT_METHOD_OPTIONS.map((opt) => opt.value);
 
-      expect(values.includes("cash").toBeTruthy());
-      expect(values.includes("bank_transfer").toBeTruthy());
-      expect(values.includes("cheque").toBeTruthy());
-      expect(values.includes("credit_card").toBeTruthy());
-      expect(values.includes("other").toBeTruthy());
+      expect(values).toContain("cash");
+      expect(values).toContain("bank_transfer");
+      expect(values).toContain("cheque");
+      expect(values).toContain("credit_card");
+      expect(values).toContain("other");
     });
 
     it("should have proper structure", () => {
@@ -643,7 +643,7 @@ describe("paymentService", () => {
         notes: "Payment for order #123 & special items (™ © ®)",
       });
 
-      expect(payload.notes.includes("™").toBeTruthy());
+      expect(payload.notes).toContain("™");
     });
 
     it("should handle very long reference numbers", () => {

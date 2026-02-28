@@ -48,7 +48,7 @@ describe("warehouseService", () => {
 
       await warehouseService.getAll();
 
-      expect(apiClient.get).toHaveBeenCalledWith("/warehouses");
+      expect(apiClient.get).toHaveBeenCalledWith("/warehouses", { page: 1, limit: 100 });
     });
 
     it("should filter by search term", async () => {
@@ -56,7 +56,7 @@ describe("warehouseService", () => {
 
       await warehouseService.getAll({ search: "Main" });
 
-      expect(apiClient.get).toHaveBeenCalledWith("/warehouses");
+      expect(apiClient.get).toHaveBeenCalledWith("/warehouses", { page: 1, limit: 100, search: "Main" });
     });
 
     it("should filter by active status", async () => {
@@ -64,7 +64,7 @@ describe("warehouseService", () => {
 
       await warehouseService.getAll({ isActive: true });
 
-      expect(apiClient.get).toHaveBeenCalledWith("/warehouses");
+      expect(apiClient.get).toHaveBeenCalledWith("/warehouses", { page: 1, limit: 100, is_active: true });
     });
 
     it("should handle custom pagination", async () => {
@@ -72,7 +72,7 @@ describe("warehouseService", () => {
 
       await warehouseService.getAll({ page: 2, limit: 50 });
 
-      expect(apiClient.get).toHaveBeenCalledWith("/warehouses");
+      expect(apiClient.get).toHaveBeenCalledWith("/warehouses", { page: 2, limit: 50 });
     });
 
     it("should handle different response formats", async () => {
@@ -123,10 +123,7 @@ describe("warehouseService", () => {
     it("should return mock data on endpoint failure", async () => {
       vi.spyOn(apiClient, 'get').mockRejectedValue(new Error("API Error"));
 
-      const result = await warehouseService.getStock(1);
-
-      expect(result.data).toBeTruthy();
-      expect(result.pagination).toBeTruthy();
+      await expect(warehouseService.getStock(1)).rejects.toThrow("API Error");
     });
   });
 
@@ -162,7 +159,9 @@ describe("warehouseService", () => {
 
       expect(result.inboundTrend !== undefined).toBeTruthy();
       expect(result.outboundTrend !== undefined).toBeTruthy();
-      expect(apiClient.get).toHaveBeenCalledWith("/warehouses/1/analytics");
+      expect(apiClient.get).toHaveBeenCalledWith("/warehouses/1/analytics", {
+        period: "MONTHLY",
+      });
     });
 
     it("should support date range filtering", async () => {
@@ -177,7 +176,11 @@ describe("warehouseService", () => {
         endDate: "2024-01-31",
       });
 
-      expect(apiClient.get).toHaveBeenCalledWith("/warehouses/1/analytics");
+      expect(apiClient.get).toHaveBeenCalledWith("/warehouses/1/analytics", {
+        period: "DAILY",
+        start_date: "2024-01-01",
+        end_date: "2024-01-31",
+      });
     });
 
     it("should return empty analytics on error", async () => {

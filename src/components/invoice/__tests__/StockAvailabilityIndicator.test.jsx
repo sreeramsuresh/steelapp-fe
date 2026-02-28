@@ -1,17 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../../contexts/ThemeContext", () => ({
+vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
 }));
 
-vi.mock("../../services/api", () => ({
+vi.mock("../../../services/api", () => ({
   default: {
     get: vi.fn().mockResolvedValue({ batches: [] }),
   },
 }));
 
-vi.mock("../../services/axiosAuthService", () => ({
+vi.mock("../../../services/axiosAuthService", () => ({
   authService: {
     hasPermission: vi.fn(() => true),
   },
@@ -25,7 +25,7 @@ vi.mock("lucide-react", () => ({
   RefreshCw: (props) => <span data-testid="refresh-icon" {...props} />,
 }));
 
-import api from "../../services/api";
+import api from "../../../services/api";
 import StockAvailabilityIndicator from "../StockAvailabilityIndicator";
 
 describe("StockAvailabilityIndicator", () => {

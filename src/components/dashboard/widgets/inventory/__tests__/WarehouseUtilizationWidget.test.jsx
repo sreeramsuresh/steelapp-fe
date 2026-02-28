@@ -36,6 +36,7 @@ describe("WarehouseUtilizationWidget", () => {
       totalCapacity: 500,
       totalUsed: 425,
       overallUtilization: 85,
+      transfers: [],
     };
     render(<WarehouseUtilizationWidget data={data} />);
     expect(screen.getByText("Main Warehouse")).toBeInTheDocument();

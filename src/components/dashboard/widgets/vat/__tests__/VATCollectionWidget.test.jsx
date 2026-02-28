@@ -21,13 +21,28 @@ describe("VATCollectionWidget", () => {
 
   it("renders with custom data", () => {
     const data = {
-      outputVAT: 250000,
-      inputVAT: 180000,
-      netVAT: 70000,
-      trend: { outputChange: 5, inputChange: 3 },
-      currentQuarter: "Q4 2024",
+      currentQuarter: {
+        period: "Q4 2024",
+        periodStart: "2024-10-01",
+        periodEnd: "2024-12-31",
+        outputVAT: 250000,
+        inputVAT: 180000,
+        netVAT: 70000,
+        dueDate: "2025-01-28",
+        daysUntilDue: 30,
+      },
+      previousQuarter: {
+        period: "Q3 2024",
+        outputVAT: 240000,
+        inputVAT: 175000,
+        netVAT: 65000,
+      },
+      yearToDate: {
+        outputVAT: 900000,
+        inputVAT: 650000,
+        netVAT: 250000,
+      },
     };
-    render(<VATCollectionWidget data={data} />);
     const { container } = render(<VATCollectionWidget data={data} />);
     expect(container).toBeTruthy();
   });

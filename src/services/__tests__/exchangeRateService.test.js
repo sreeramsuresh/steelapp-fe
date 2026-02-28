@@ -23,22 +23,22 @@ describe('exchangeRateService', () => {
         { id: 1, fromCurrency: 'AED', toCurrency: 'USD', rate: 3.67 },
         { id: 2, fromCurrency: 'AED', toCurrency: 'EUR', rate: 4.01 },
       ];
-      vi.spyOn(api, 'get').mockResolvedValue({ data: mockRates });
+      vi.spyOn(api, 'get').mockResolvedValue(mockRates);
 
       const result = await exchangeRateService.getExchangeRates();
 
       expect(result).toEqual(mockRates);
-      expect(api.get.calledWith('/exchange-rates', { params: {} }).toBeTruthy());
+      expect(api.get).toHaveBeenCalledWith('/exchange-rates', { params: {} });
     });
 
     it('should get latest rate for currency pair', async () => {
       const mockRate = { rate: 3.67, from: 'AED', to: 'USD', timestamp: '2026-02-01T09:00:00Z' };
-      vi.spyOn(api, 'get').mockResolvedValue({ data: mockRate });
+      vi.spyOn(api, 'get').mockResolvedValue(mockRate);
 
       const result = await exchangeRateService.getLatestRate('AED', 'USD');
 
       expect(result.rate).toBe(3.67);
-      expect(api.get.calledWith('/exchange-rates/latest/AED/USD').toBeTruthy());
+      expect(api.get).toHaveBeenCalledWith('/exchange-rates/latest/AED/USD');
     });
 
     it('should get all latest rates for base currency', async () => {
@@ -47,12 +47,12 @@ describe('exchangeRateService', () => {
         AED_EUR: 4.01,
         AED_GBP: 4.58,
       };
-      vi.spyOn(api, 'get').mockResolvedValue({ data: mockRates });
+      vi.spyOn(api, 'get').mockResolvedValue(mockRates);
 
       const result = await exchangeRateService.getLatestRatesForBase('AED');
 
       expect(result.AED_USD).toBe(3.67);
-      expect(api.get.calledWith('/exchange-rates/latest/AED').toBeTruthy());
+      expect(api.get).toHaveBeenCalledWith('/exchange-rates/latest/AED');
     });
   });
 
@@ -60,32 +60,32 @@ describe('exchangeRateService', () => {
     it('should create new exchange rate', async () => {
       const newRate = { fromCurrency: 'AED', toCurrency: 'JPY', rate: 2.75 };
       const mockResponse = { id: 100, ...newRate };
-      vi.spyOn(api, 'post').mockResolvedValue({ data: mockResponse });
+      vi.spyOn(api, 'post').mockResolvedValue(mockResponse);
 
       const result = await exchangeRateService.createExchangeRate(newRate);
 
       expect(result.id).toBe(100);
-      expect(api.post.calledWith('/exchange-rates', newRate).toBeTruthy());
+      expect(api.post).toHaveBeenCalledWith('/exchange-rates', newRate);
     });
 
     it('should update exchange rate', async () => {
       const updateData = { rate: 3.7 };
       const mockResponse = { id: 1, fromCurrency: 'AED', toCurrency: 'USD', rate: 3.7 };
-      vi.spyOn(api, 'put').mockResolvedValue({ data: mockResponse });
+      vi.spyOn(api, 'put').mockResolvedValue(mockResponse);
 
       const result = await exchangeRateService.updateExchangeRate(1, updateData);
 
       expect(result.rate).toBe(3.7);
-      expect(api.put.calledWith('/exchange-rates/1', updateData).toBeTruthy());
+      expect(api.put).toHaveBeenCalledWith('/exchange-rates/1', updateData);
     });
 
     it('should delete exchange rate', async () => {
-      vi.spyOn(api, 'delete').mockResolvedValue({ data: { success: true } });
+      vi.spyOn(api, 'delete').mockResolvedValue({ success: true });
 
       const result = await exchangeRateService.deleteExchangeRate(1);
 
       expect(result.success).toBe(true);
-      expect(api.delete.calledWith('/exchange-rates/1').toBeTruthy());
+      expect(api.delete).toHaveBeenCalledWith('/exchange-rates/1');
     });
   });
 
@@ -93,13 +93,13 @@ describe('exchangeRateService', () => {
     it('should convert amount between currencies', async () => {
       const conversionData = { amount: 100, from: 'AED', to: 'USD' };
       const mockResult = { convertedAmount: 27.25, from: 'AED', to: 'USD', rate: 3.67 };
-      vi.spyOn(api, 'post').mockResolvedValue({ data: mockResult });
+      vi.spyOn(api, 'post').mockResolvedValue(mockResult);
 
       const result = await exchangeRateService.convertCurrency(conversionData);
 
       // Check closeness to 2 decimal places (27.25)
-      expect(Math.abs(result.convertedAmount - 27.25).toBeTruthy() < 0.01);
-      expect(api.post.calledWith('/exchange-rates/convert', conversionData).toBeTruthy());
+      expect(Math.abs(result.convertedAmount - 27.25)).toBeLessThan(0.01);
+      expect(api.post).toHaveBeenCalledWith('/exchange-rates/convert', conversionData);
     });
 
     it('should handle currency conversion error', async () => {
@@ -121,26 +121,26 @@ describe('exchangeRateService', () => {
         { fromCurrency: 'AED', toCurrency: 'EUR', rate: 4.01 },
       ];
       const mockResponse = { imported: 2, failed: 0 };
-      vi.spyOn(api, 'post').mockResolvedValue({ data: mockResponse });
+      vi.spyOn(api, 'post').mockResolvedValue(mockResponse);
 
       const result = await exchangeRateService.bulkImportRates(importData);
 
       expect(result.imported).toBe(2);
-      expect(api.post.calledWith('/exchange-rates/bulk-import', importData).toBeTruthy());
+      expect(api.post).toHaveBeenCalledWith('/exchange-rates/bulk-import', importData);
     });
   });
 
   describe('Supported Currencies', () => {
     it('should get list of supported currencies', async () => {
       const mockCurrencies = ['AED', 'USD', 'EUR', 'GBP', 'INR', 'SAR', 'KWD'];
-      vi.spyOn(api, 'get').mockResolvedValue({ data: mockCurrencies });
+      vi.spyOn(api, 'get').mockResolvedValue(mockCurrencies);
 
       const result = await exchangeRateService.getCurrencies();
 
-      expect(result.includes('AED').toBeTruthy());
-      expect(result.includes('USD').toBeTruthy());
+      expect(result).toContain('AED');
+      expect(result).toContain('USD');
       expect(result.length).toBe(7);
-      expect(api.get.calledWith('/exchange-rates/currencies/list').toBeTruthy());
+      expect(api.get).toHaveBeenCalledWith('/exchange-rates/currencies/list');
     });
   });
 
@@ -151,17 +151,15 @@ describe('exchangeRateService', () => {
         { rate: 3.68, date: '2026-01-31' },
         { rate: 3.65, date: '2026-01-30' },
       ];
-      vi.spyOn(api, 'get').mockResolvedValue({ data: mockHistory });
+      vi.spyOn(api, 'get').mockResolvedValue(mockHistory);
 
       const result = await exchangeRateService.getRateHistory('AED', 'USD', 30);
 
       expect(result.length).toBe(3);
       expect(result[0].rate).toBe(3.67);
-      expect(
-        api.get.calledWith('/exchange-rates/history/AED/USD', {
+      expect(api.get).toHaveBeenCalledWith('/exchange-rates/history/AED/USD', {
           params: { days: 30 },
-        }).toBeTruthy()
-      );
+        });
     });
 
     it('should use default days parameter (30)', async () => {
@@ -169,11 +167,9 @@ describe('exchangeRateService', () => {
 
       await exchangeRateService.getRateHistory('AED', 'USD');
 
-      expect(
-        api.get.calledWith('/exchange-rates/history/AED/USD', {
+      expect(api.get).toHaveBeenCalledWith('/exchange-rates/history/AED/USD', {
           params: { days: 30 },
-        }).toBeTruthy()
-      );
+        });
     });
   });
 
@@ -181,15 +177,15 @@ describe('exchangeRateService', () => {
     it('should format amount as currency', () => {
       const formatted = exchangeRateService.formatCurrency(1234.56, 'AED');
 
-      expect(formatted.includes('1,234.56').toBeTruthy());
-      expect(formatted.includes('AED').toBeTruthy());
+      expect(formatted).toContain('1,234.56');
+      expect(formatted).toContain('AED');
     });
 
     it('should use AED as default currency for formatting', () => {
       const formatted = exchangeRateService.formatCurrency(100);
 
-      expect(formatted.includes('100.00').toBeTruthy());
-      expect(formatted.includes('AED').toBeTruthy());
+      expect(formatted).toContain('100.00');
+      expect(formatted).toContain('AED');
     });
 
     it('should format exchange rate display', () => {

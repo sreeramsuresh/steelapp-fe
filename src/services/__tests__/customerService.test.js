@@ -443,7 +443,7 @@ describe("customerService", () => {
 
       const result = await customerService.getCustomers({ companyId: 5 });
 
-      expect(result.customers.every((c).toBeTruthy() => c.companyId === 5));
+      expect(result.customers.every((c) => c.companyId === 5)).toBeTruthy();
     });
 
     it("should not allow cross-tenant customer access", async () => {

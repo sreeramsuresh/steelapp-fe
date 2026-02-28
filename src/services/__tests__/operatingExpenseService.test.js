@@ -1,176 +1,126 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { operatingExpenseService } from "../operatingExpenseService.js";
-import { apiClient } from "../api.js";
+import apiClient from "../api.js";
 
 describe("operatingExpenseService", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
-  describe("getExpenses", () => {
-    it("should fetch all operating expenses with pagination", async () => {
+  describe("list", () => {
+    it("should fetch all operating expenses", async () => {
       const mockResponse = {
         data: [
-          {
-            id: 1,
-            expense_type: "salaries",
-            amount: 50000,
-            date: "2024-01-15",
-            status: "approved",
-          },
-          {
-            id: 2,
-            expense_type: "utilities",
-            amount: 5000,
-            date: "2024-01-16",
-            status: "pending",
-          },
+          { id: 1, expense_type: "salaries", amount: 50000, status: "approved" },
+          { id: 2, expense_type: "utilities", amount: 5000, status: "pending" },
         ],
         pagination: { total: 2, page: 1 },
       };
 
       vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
 
-      const result = await operatingExpenseService.getExpenses();
+      const result = await operatingExpenseService.list();
 
       expect(result.data).toBeTruthy();
-      expect(result.pagination.total).toBeTruthy();
-      expect(apiClient.get).toHaveBeenCalledWith("/operating-expenses", );
+      expect(apiClient.get).toHaveBeenCalledWith("/operating-expenses", { params: {} });
     });
 
     it("should filter by expense type", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [], pagination: {} });
+      vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [] });
 
-      await operatingExpenseService.getExpenses({
-        expense_type: "salaries",
-      });
+      await operatingExpenseService.list({ expense_type: "salaries" });
 
       expect(apiClient.get).toHaveBeenCalledWith("/operating-expenses",
-        Object.keys({
-          params: expect.objectContaining({
-            expense_type: "salaries",
-          }).every(k => typeof arguments[0][k] !== 'undefined'),
+        expect.objectContaining({
+          params: expect.objectContaining({ expense_type: "salaries" }),
         }));
     });
   });
 
-  describe("getExpenseById", () => {
+  describe("getById", () => {
     it("should fetch single expense with details", async () => {
       const mockResponse = {
         id: 1,
         expense_type: "salaries",
         amount: 50000,
         currency: "AED",
-        department: "operations",
-        approved_by: "manager@company.com",
-        approval_date: "2024-01-15",
       };
 
       vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
 
-      const result = await operatingExpenseService.getExpenseById(1);
+      const result = await operatingExpenseService.getById(1);
 
       expect(result.amount).toBeTruthy();
-      expect(result.approved_by).toBeTruthy();
       expect(apiClient.get).toHaveBeenCalledWith("/operating-expenses/1");
     });
   });
 
-  describe("createExpense", () => {
+  describe("create", () => {
     it("should create new operating expense", async () => {
-      const mockResponse = {
-        id: 1,
-        expense_type: "utilities",
-        amount: 5000,
-        status: "pending",
-      };
+      const mockResponse = { id: 1, expense_type: "utilities", amount: 5000, status: "pending" };
 
       vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
 
-      const payload = {
-        expense_type: "utilities",
-        amount: 5000,
-        date: "2024-01-16",
-      };
+      const payload = { expense_type: "utilities", amount: 5000, date: "2024-01-16" };
 
-      const result = await operatingExpenseService.createExpense(payload);
+      const result = await operatingExpenseService.create(payload);
 
       expect(result.id).toBeTruthy();
       expect(apiClient.post).toHaveBeenCalledWith("/operating-expenses", payload);
     });
   });
 
-  describe("updateExpense", () => {
+  describe("update", () => {
     it("should update operating expense", async () => {
       const mockResponse = { id: 1, amount: 5500, status: "pending" };
 
-      vi.spyOn(apiClient, 'put').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, 'patch').mockResolvedValue(mockResponse);
 
       const payload = { amount: 5500 };
 
-      const result = await operatingExpenseService.updateExpense(1, payload);
+      const result = await operatingExpenseService.update(1, payload);
 
       expect(result.amount).toBeTruthy();
-      expect(apiClient.put).toHaveBeenCalledWith("/operating-expenses/1", payload);
+      expect(apiClient.patch).toHaveBeenCalledWith("/operating-expenses/1", payload);
     });
   });
 
-  describe("deleteExpense", () => {
+  describe("delete", () => {
     it("should delete expense", async () => {
       vi.spyOn(apiClient, 'delete').mockResolvedValue({ success: true });
 
-      const result = await operatingExpenseService.deleteExpense(1);
+      const result = await operatingExpenseService.delete(1);
 
       expect(result.success).toBeTruthy();
       expect(apiClient.delete).toHaveBeenCalledWith("/operating-expenses/1");
     });
   });
 
-  describe("approveExpense", () => {
+  describe("approve", () => {
     it("should approve operating expense", async () => {
-      const mockResponse = {
-        id: 1,
-        status: "approved",
-        approved_by: "manager@company.com",
-        approval_date: "2024-01-16T10:00:00Z",
-      };
+      const mockResponse = { id: 1, status: "approved" };
 
-      vi.spyOn(apiClient, 'put').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
 
-      const result = await operatingExpenseService.approveExpense(1, {
-        comments: "Approved",
-      });
+      const result = await operatingExpenseService.approve(1);
 
-      expect(result.status).toBeTruthy();
-      expect(apiClient.put).toHaveBeenCalledWith("/operating-expenses/1/approve", );
+      expect(result.status).toBe("approved");
+      expect(apiClient.post).toHaveBeenCalledWith("/operating-expenses/1/approve");
     });
   });
 
-  describe("getExpenseAnalytics", () => {
-    it("should fetch expense analytics by type", async () => {
-      const mockResponse = {
-        total_expenses: 100000,
-        by_type: [
-          { type: "salaries", amount: 50000, percentage: 50 },
-          { type: "utilities", amount: 20000, percentage: 20 },
-          { type: "maintenance", amount: 30000, percentage: 30 },
-        ],
-        by_period: [
-          { period: "January", amount: 60000 },
-          { period: "February", amount: 40000 },
-        ],
-      };
+  describe("error handling", () => {
+    it("should handle API errors in list", async () => {
+      vi.spyOn(apiClient, 'get').mockRejectedValue(new Error("Network error"));
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      await expect(operatingExpenseService.list()).rejects.toThrow("Network error");
+    });
 
-      const result = await operatingExpenseService.getExpenseAnalytics({
-        start_date: "2024-01-01",
-        end_date: "2024-02-28",
-      });
+    it("should handle API errors in create", async () => {
+      vi.spyOn(apiClient, 'post').mockRejectedValue(new Error("Validation failed"));
 
-      expect(result.total_expenses).toBeTruthy();
-      expect(result.by_type).toBeTruthy();
+      await expect(operatingExpenseService.create({})).rejects.toThrow("Validation failed");
     });
   });
 });

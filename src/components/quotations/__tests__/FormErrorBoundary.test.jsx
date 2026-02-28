@@ -7,7 +7,14 @@
 
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+// Mock useTheme so FormErrorBoundaryWithTheme can render
+vi.mock("../../../contexts/ThemeContext", () => ({
+  useTheme: () => ({ isDarkMode: false }),
+}));
+
+// Import after mocks
 import FormErrorBoundary from "../FormErrorBoundary";
 
 // Suppress console.error for cleaner test output
@@ -33,7 +40,7 @@ const WorkingComponent = () => {
 describe("FormErrorBoundary (Class Component)", () => {
   it("should render children when no error occurs", () => {
     render(
-      <FormErrorBoundary isDarkMode={false} formName="Test Form">
+      <FormErrorBoundary formName="Test Form">
         <WorkingComponent />
       </FormErrorBoundary>
     );
@@ -43,7 +50,7 @@ describe("FormErrorBoundary (Class Component)", () => {
 
   it("should catch errors and display error UI", () => {
     render(
-      <FormErrorBoundary isDarkMode={false} formName="Test Form">
+      <FormErrorBoundary formName="Test Form">
         <BrokenComponent />
       </FormErrorBoundary>
     );
@@ -54,7 +61,7 @@ describe("FormErrorBoundary (Class Component)", () => {
 
   it("should display form name in error message", () => {
     render(
-      <FormErrorBoundary isDarkMode={false} formName="Quotation Form">
+      <FormErrorBoundary formName="Quotation Form">
         <BrokenComponent />
       </FormErrorBoundary>
     );
@@ -64,7 +71,7 @@ describe("FormErrorBoundary (Class Component)", () => {
 
   it("should display default form name when none provided", () => {
     render(
-      <FormErrorBoundary isDarkMode={false}>
+      <FormErrorBoundary>
         <BrokenComponent />
       </FormErrorBoundary>
     );
@@ -77,7 +84,7 @@ describe("FormErrorBoundary (Class Component)", () => {
     process.env.NODE_ENV = "development";
 
     render(
-      <FormErrorBoundary isDarkMode={false} formName="Test Form">
+      <FormErrorBoundary formName="Test Form">
         <BrokenComponent />
       </FormErrorBoundary>
     );
@@ -89,8 +96,8 @@ describe("FormErrorBoundary (Class Component)", () => {
 
   it("should provide Try Again button to retry", async () => {
     const user = userEvent.setup();
-    const { rerender: _rerender } = render(
-      <FormErrorBoundary isDarkMode={false} formName="Test Form">
+    render(
+      <FormErrorBoundary formName="Test Form">
         <BrokenComponent />
       </FormErrorBoundary>
     );
@@ -108,10 +115,10 @@ describe("FormErrorBoundary (Class Component)", () => {
     const user = userEvent.setup();
     const originalLocation = window.location.href;
     delete window.location;
-    window.location = { href: originalLocation };
+    window.location = { href: originalLocation, pathname: "/test" };
 
     render(
-      <FormErrorBoundary isDarkMode={false} formName="Test Form">
+      <FormErrorBoundary formName="Test Form">
         <BrokenComponent />
       </FormErrorBoundary>
     );
@@ -122,12 +129,12 @@ describe("FormErrorBoundary (Class Component)", () => {
     // Go Home button should navigate to home
     expect(window.location.href).toBe("/");
 
-    window.location.href = originalLocation;
+    window.location = { href: originalLocation, pathname: "/" };
   });
 
   it("should display support message", () => {
     render(
-      <FormErrorBoundary isDarkMode={false} formName="Test Form">
+      <FormErrorBoundary formName="Test Form">
         <BrokenComponent />
       </FormErrorBoundary>
     );
@@ -139,7 +146,7 @@ describe("FormErrorBoundary (Class Component)", () => {
     const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     render(
-      <FormErrorBoundary isDarkMode={false} formName="Test Form">
+      <FormErrorBoundary formName="Test Form">
         <BrokenComponent />
       </FormErrorBoundary>
     );
@@ -148,32 +155,22 @@ describe("FormErrorBoundary (Class Component)", () => {
     consoleErrorSpy.mockRestore();
   });
 
-  it("should apply dark mode styles when isDarkMode is true", () => {
+  it("should apply light mode styles (default from mock)", () => {
     const { container } = render(
-      <FormErrorBoundary isDarkMode={true} formName="Test Form">
+      <FormErrorBoundary formName="Test Form">
         <BrokenComponent />
       </FormErrorBoundary>
     );
 
-    const errorContainer = container.querySelector('[class*="bg-gray-900"]');
-    expect(errorContainer).toBeInTheDocument();
-  });
-
-  it("should apply light mode styles when isDarkMode is false", () => {
-    const { container } = render(
-      <FormErrorBoundary isDarkMode={false} formName="Test Form">
-        <BrokenComponent />
-      </FormErrorBoundary>
-    );
-
+    // isDarkMode is false from mock, so we get bg-gray-50
     const errorContainer = container.querySelector('[class*="bg-gray-50"]');
     expect(errorContainer).toBeInTheDocument();
   });
 
   it("should handle nested error boundaries", () => {
     render(
-      <FormErrorBoundary isDarkMode={false} formName="Outer Form">
-        <FormErrorBoundary isDarkMode={false} formName="Inner Form">
+      <FormErrorBoundary formName="Outer Form">
+        <FormErrorBoundary formName="Inner Form">
           <BrokenComponent />
         </FormErrorBoundary>
       </FormErrorBoundary>
@@ -195,7 +192,7 @@ describe("FormErrorBoundary (Class Component)", () => {
     };
 
     const { rerender } = render(
-      <FormErrorBoundary isDarkMode={false} formName="Test Form">
+      <FormErrorBoundary formName="Test Form">
         <ConditionalComponent />
       </FormErrorBoundary>
     );
@@ -211,7 +208,7 @@ describe("FormErrorBoundary (Class Component)", () => {
 
     // Rerender with updated condition
     rerender(
-      <FormErrorBoundary isDarkMode={false} formName="Test Form">
+      <FormErrorBoundary formName="Test Form">
         <ConditionalComponent />
       </FormErrorBoundary>
     );
@@ -222,7 +219,7 @@ describe("FormErrorBoundary (Class Component)", () => {
 
   it("should not render error UI for warnings or non-fatal issues", () => {
     render(
-      <FormErrorBoundary isDarkMode={false} formName="Test Form">
+      <FormErrorBoundary formName="Test Form">
         <WorkingComponent />
       </FormErrorBoundary>
     );
@@ -232,8 +229,8 @@ describe("FormErrorBoundary (Class Component)", () => {
 });
 
 describe("FormErrorBoundaryWithTheme Wrapper", () => {
-  it("should exist as a named export", () => {
-    const { FormErrorBoundaryWithTheme } = require("../FormErrorBoundary");
-    expect(FormErrorBoundaryWithTheme).toBeDefined();
+  it("should exist as a named export", async () => {
+    const mod = await import("../FormErrorBoundary");
+    expect(mod.FormErrorBoundaryWithTheme).toBeDefined();
   });
 });

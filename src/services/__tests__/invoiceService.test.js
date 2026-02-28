@@ -37,7 +37,7 @@ describe('invoiceService', () => {
 
       expect(result.invoices.length).toBe(1);
       expect(result.pagination).toBeTruthy();
-      expect(apiClient.get.calledWith('/invoices', expect.objectContaining({}).toBeTruthy()));
+      expect(apiClient.get).toHaveBeenCalledWith('/invoices', expect.objectContaining({}));
     });
 
     it('should support abort signal for cancellation', async () => {
@@ -105,7 +105,7 @@ describe('invoiceService', () => {
 
       expect(result.id).toBe(1);
       expect(result.invoiceNumber).toBe('INV-001');
-      expect(apiClient.get.calledWith('/invoices/1').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/invoices/1');
     });
 
     it('should transform server response to client format', async () => {
@@ -283,7 +283,7 @@ describe('invoiceService', () => {
       const result = await apiClient.patch('/invoices/1/restore', {});
 
       expect(result.status).toBe('restored');
-      expect(apiClient.patch.calledWith('/invoices/1/restore', {}).toBeTruthy());
+      expect(apiClient.patch).toHaveBeenCalledWith('/invoices/1/restore', {});
     });
   });
 
@@ -326,7 +326,7 @@ describe('invoiceService', () => {
 
       expect(result.isLocked).toBe(true);
       expect(result.status).toBe('issued');
-      expect(apiClient.post.calledWith('/invoices/1/issue').toBeTruthy());
+      expect(apiClient.post).toHaveBeenCalledWith('/invoices/1/issue');
     });
 
     it('should make invoice immutable after issuing (per UAE VAT Rules)', async () => {
@@ -352,7 +352,7 @@ describe('invoiceService', () => {
 
       expect(result.success).toBe(true);
       expect(result.allocationCount).toBe(2);
-      expect(apiClient.post.calledWith('/invoices/1/confirm-allocation').toBeTruthy());
+      expect(apiClient.post).toHaveBeenCalledWith('/invoices/1/confirm-allocation');
     });
 
     it('should release batch reservation for re-allocation', async () => {
@@ -363,7 +363,7 @@ describe('invoiceService', () => {
 
       expect(result.success).toBe(true);
       expect(result.released).toBe(true);
-      expect(apiClient.post.calledWith('/invoices/1/release-reservation').toBeTruthy());
+      expect(apiClient.post).toHaveBeenCalledWith('/invoices/1/release-reservation');
     });
   });
 
@@ -375,7 +375,7 @@ describe('invoiceService', () => {
       const result = await apiClient.get('/invoices/number/next');
 
       expect(result.nextNumber).toBe('INV-00123');
-      expect(apiClient.get.calledWith('/invoices/number/next').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/invoices/number/next');
     });
   });
 

@@ -91,7 +91,9 @@ describe("CustomerOverviewTab", () => {
     expect(screen.getByText("1-30 days")).toBeInTheDocument();
     expect(screen.getByText("31-60 days")).toBeInTheDocument();
     expect(screen.getByText("61-90 days")).toBeInTheDocument();
-    expect(screen.getByText("90+ days")).toBeInTheDocument();
+    // "90+ days" may appear multiple times (aging bucket + oldest invoice bucket label)
+    const ninetyPlusLabels = screen.getAllByText("90+ days");
+    expect(ninetyPlusLabels.length).toBeGreaterThan(0);
   });
 
   it("shows 90+ days warning when aging90Plus > 0", () => {

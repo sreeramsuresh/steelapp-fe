@@ -18,8 +18,8 @@ describe("vatReturnService", () => {
 
     it("should support status transitions", () => {
       const statuses = Object.values(VAT_RETURN_STATUSES);
-      expect(statuses.includes("draft").toBeTruthy());
-      expect(statuses.includes("submitted").toBeTruthy());
+      expect(statuses).toContain("draft");
+      expect(statuses).toContain("submitted");
     });
   });
 
@@ -53,8 +53,8 @@ describe("vatReturnService", () => {
     });
 
     it("should support zero-rated and exempt supplies", () => {
-      expect(FORM_201_BOXES.BOX_3.label.includes("Zero-rated").toBeTruthy());
-      expect(FORM_201_BOXES.BOX_4.label.includes("Exempt").toBeTruthy());
+      expect(FORM_201_BOXES.BOX_3.label).toContain("Zero-rated");
+      expect(FORM_201_BOXES.BOX_4.label).toContain("Exempt");
     });
   });
 
@@ -497,19 +497,29 @@ describe("vatReturnService", () => {
   });
 
   describe("downloadPDF", () => {
-    test.skip("should download VAT return as PDF", async () => {
+    test("should download VAT return as PDF", async () => {
+      const { mockBrowserDownload } = await import("../../test/downloadMocks.js");
+      const mocks = mockBrowserDownload();
+
       const mockBlob = new Blob(["PDF content"], { type: "application/pdf" });
       vi.spyOn(apiClient, 'get').mockResolvedValue(mockBlob);
 
       const result = await vatReturnService.downloadPDF(1, "VAT-2024-Q1");
 
       expect(result).toBe(true);
-      expect(apiClient.get.mock.calls.length > 0).toBeTruthy();
+      expect(apiClient.get).toHaveBeenCalledWith("/vat-returns/1/pdf", { responseType: "blob" });
+      expect(mocks.createObjectURL).toHaveBeenCalled();
+      expect(mocks.click).toHaveBeenCalled();
+      expect(mocks.revokeObjectURL).toHaveBeenCalled();
+      expect(mocks.anchor.download).toBe("vat-return-VAT-2024-Q1.pdf");
     });
   });
 
   describe("exportExcel", () => {
-    test.skip("should export VAT return as Excel", async () => {
+    test("should export VAT return as Excel", async () => {
+      const { mockBrowserDownload } = await import("../../test/downloadMocks.js");
+      const mocks = mockBrowserDownload();
+
       const mockBlob = new Blob(["Excel content"], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
@@ -518,7 +528,11 @@ describe("vatReturnService", () => {
       const result = await vatReturnService.exportExcel(1);
 
       expect(result).toBe(true);
-      expect(apiClient.get.mock.calls.length > 0).toBeTruthy();
+      expect(apiClient.get).toHaveBeenCalledWith("/vat-returns/1/export/excel", { responseType: "blob" });
+      expect(mocks.createObjectURL).toHaveBeenCalled();
+      expect(mocks.click).toHaveBeenCalled();
+      expect(mocks.revokeObjectURL).toHaveBeenCalled();
+      expect(mocks.anchor.download).toBe("vat-return-1.xlsx");
     });
   });
 

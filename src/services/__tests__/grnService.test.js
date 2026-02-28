@@ -27,7 +27,7 @@ describe('grnService', () => {
 
       expect(result.data.length).toBe(2);
       expect(result.pagination.total).toBe(28);
-      expect(apiClient.get.calledWith('/grns', { page: 1, pageSize: 10 }).toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/grns', { page: 1, pageSize: 10 });
     });
 
     it('should fetch GRNs with filters', async () => {
@@ -41,14 +41,12 @@ describe('grnService', () => {
         supplierId: 5,
       });
 
-      expect(
-        apiClient.get.calledWith('/grns', expect.objectContaining({
-          page: 1,
-          pageSize: 50,
-          status: 'draft',
-          supplierId: 5,
-        }).toBeTruthy())
-      );
+      expect(apiClient.get).toHaveBeenCalledWith('/grns', expect.objectContaining({
+        page: 1,
+        pageSize: 50,
+        status: 'draft',
+        supplierId: 5,
+      }));
     });
   });
 
@@ -75,7 +73,7 @@ describe('grnService', () => {
 
       expect(result.grnNumber).toBe('GRN-2026-001');
       expect(result.items.length).toBe(1);
-      expect(apiClient.get.calledWith('/grns/1').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/grns/1');
     });
 
     it('should handle GRN not found', async () => {
@@ -211,7 +209,7 @@ describe('grnService', () => {
         });
         throw new Error('Expected error');
       } catch (error) {
-        expect(error.message.includes('exceeds ordered quantity').toBeTruthy());
+        expect(error.message).toContain('exceeds ordered quantity');
       }
     });
   });
@@ -230,9 +228,7 @@ describe('grnService', () => {
       });
 
       expect(result.status).toBe('approved');
-      expect(
-        apiClient.post.calledWith('/grns/1/approve', expect.objectContaining({}).toBeTruthy())
-      );
+      expect(apiClient.post).toHaveBeenCalledWith('/grns/1/approve', expect.objectContaining({}));
     });
 
     it('should prevent approving GRN with rejections', async () => {
@@ -244,7 +240,7 @@ describe('grnService', () => {
         await apiClient.post('/grns/1/approve', {});
         throw new Error('Expected error');
       } catch (error) {
-        expect(error.message.includes('Cannot approve GRN').toBeTruthy());
+        expect(error.message).toContain('Cannot approve GRN');
       }
     });
   });
@@ -263,9 +259,7 @@ describe('grnService', () => {
       });
 
       expect(result.status).toBe('cancelled');
-      expect(
-        apiClient.post.calledWith('/grns/1/cancel', expect.objectContaining({}).toBeTruthy())
-      );
+      expect(apiClient.post).toHaveBeenCalledWith('/grns/1/cancel', expect.objectContaining({}));
     });
 
     it('should prevent cancelling approved GRN', async () => {
@@ -296,9 +290,7 @@ describe('grnService', () => {
       });
 
       expect(result.status).toBe('billed');
-      expect(
-        apiClient.post.calledWith('/grns/1/mark-billed', expect.objectContaining({}).toBeTruthy())
-      );
+      expect(apiClient.post).toHaveBeenCalledWith('/grns/1/mark-billed', expect.objectContaining({}));
     });
 
     it('should enforce 3-way match logic', async () => {
@@ -310,7 +302,7 @@ describe('grnService', () => {
         await apiClient.post('/grns/1/mark-billed', { supplierBillId: 500 });
         throw new Error('Expected error');
       } catch (error) {
-        expect(error.message.includes('do not match').toBeTruthy());
+        expect(error.message).toContain('do not match');
       }
     });
   });
@@ -323,7 +315,7 @@ describe('grnService', () => {
       const result = await apiClient.get('/grns/number/next');
 
       expect(result.nextNumber).toBe('GRN-2026-042');
-      expect(apiClient.get.calledWith('/grns/number/next').toBeTruthy());
+      expect(apiClient.get).toHaveBeenCalledWith('/grns/number/next');
     });
   });
 

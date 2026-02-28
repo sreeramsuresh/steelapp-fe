@@ -14,7 +14,11 @@ vi.mock("../../../services/api", () => ({
 
 vi.mock("../../../utils/invoiceUtils", () => ({
   formatCurrency: (val) => `AED ${parseFloat(val || 0).toFixed(2)}`,
-  formatDate: (d) => d || "N/A",
+  formatDate: (d) => {
+    if (!d) return "N/A";
+    if (d instanceof Date) return d.toISOString().split("T")[0];
+    return String(d);
+  },
 }));
 
 vi.mock("lucide-react", () => ({

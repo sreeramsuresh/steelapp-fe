@@ -80,7 +80,7 @@ describe("integrationService", () => {
 
       const result = await integrationService.unlock("fta_trn");
 
-      expect(result.locked).toBeTruthy();
+      expect(result.locked).toBe(false);
       expect(postStub).toHaveBeenCalledWith("/integrations/fta_trn/unlock");
     });
   });

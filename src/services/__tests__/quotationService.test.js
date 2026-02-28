@@ -245,7 +245,7 @@ describe("quotationService", () => {
       document.body.appendChild = vi.fn();
       document.body.removeChild = vi.fn();
 
-      apiService.request.mockResolvedValue(mockBlob);
+      vi.spyOn(apiService, 'request').mockResolvedValue(mockBlob);
 
       await quotationService.downloadPDF(1);
 
@@ -257,7 +257,7 @@ describe("quotationService", () => {
     });
 
     it("should handle PDF download errors", async () => {
-      apiService.request.mockRejectedValue(new Error("PDF generation failed"));
+      vi.spyOn(apiService, 'request').mockRejectedValue(new Error("PDF generation failed"));
 
       await expect(quotationService.downloadPDF(999)).rejects.toThrow();
     });

@@ -1,17 +1,17 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import useHomeSectionOrder from "../useHomeSectionOrder";
-
-const mockService = {
-  getHomeSectionOrder: vi.fn(),
-  setHomeSectionOrder: vi.fn(),
-  getCurrentUser: vi.fn(),
-  updatePermissions: vi.fn(),
-};
 
 vi.mock("../../services/userPreferencesService", () => ({
-  userPreferencesService: mockService,
+  userPreferencesService: {
+    getHomeSectionOrder: vi.fn(),
+    setHomeSectionOrder: vi.fn(),
+    getCurrentUser: vi.fn(),
+    updatePermissions: vi.fn(),
+  },
 }));
+
+import { userPreferencesService as mockService } from "../../services/userPreferencesService";
+import useHomeSectionOrder from "../useHomeSectionOrder";
 
 const DEFAULT_ORDER = ["quickAccess", "createNew", "recentItems", "integritySummary"];
 

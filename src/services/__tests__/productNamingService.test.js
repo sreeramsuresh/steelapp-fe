@@ -1,23 +1,21 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { productNamingService } from "../productNamingService.js";
+import { apiService } from "../axiosApi.js";
+
 describe("productNamingService", () => {
-  beforeEach(() => {
+  afterEach(() => {
     vi.restoreAllMocks();
   });
 
   describe("verifyNamingLogic", () => {
     it("should verify sheet product naming", async () => {
-      const mockResponse = {
-        ok: true,
-        json: async () => ({
-          uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm",
-          displayName: "304 Sheet 2B 1220×2×2440",
-          isValid: true,
-        }),
+      const mockResult = {
+        uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm",
+        displayName: "304 Sheet 2B 1220x2x2440",
+        isValid: true,
       };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue(mockResult);
 
       const result = await productNamingService.verifyNamingLogic("sheet", {
         grade: "304",
@@ -28,21 +26,24 @@ describe("productNamingService", () => {
       });
 
       expect(result.uniqueName).toBeTruthy();
-      expect(result.uniqueName).toBeTruthy();
       expect(result.displayName).toBeTruthy();
+      expect(apiService.post).toHaveBeenCalledWith("/product-naming/verify", {
+        productType: "sheet",
+        grade: "304",
+        finish: "2B",
+        width: "1220mm",
+        thickness: "2mm",
+        length: "2440mm",
+      });
     });
 
     it("should verify pipe product naming", async () => {
-      const mockResponse = {
-        ok: true,
-        json: async () => ({
-          uniqueName: "SS-316L-PIPE-BA-2inch-Sch40",
-          displayName: '316L Pipe BA 2" Sch40',
-          isValid: true,
-        }),
+      const mockResult = {
+        uniqueName: "SS-316L-PIPE-BA-2inch-Sch40",
+        displayName: '316L Pipe BA 2" Sch40',
+        isValid: true,
       };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue(mockResult);
 
       const result = await productNamingService.verifyNamingLogic("pipe", {
         grade: "316L",
@@ -52,20 +53,15 @@ describe("productNamingService", () => {
       });
 
       expect(result.uniqueName).toBeTruthy();
-      expect(result.uniqueName).toBeTruthy();
     });
 
     it("should verify tube product naming", async () => {
-      const mockResponse = {
-        ok: true,
-        json: async () => ({
-          uniqueName: "SS-316-TUBE-2B-25mm-1.5mm",
-          displayName: "316 Tube 2B 25×1.5",
-          isValid: true,
-        }),
+      const mockResult = {
+        uniqueName: "SS-316-TUBE-2B-25mm-1.5mm",
+        displayName: "316 Tube 2B 25x1.5",
+        isValid: true,
       };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue(mockResult);
 
       const result = await productNamingService.verifyNamingLogic("tube", {
         grade: "316",
@@ -79,16 +75,12 @@ describe("productNamingService", () => {
     });
 
     it("should verify coil product naming", async () => {
-      const mockResponse = {
-        ok: true,
-        json: async () => ({
-          uniqueName: "SS-304-COIL-2B-1000mm-1mm",
-          displayName: "304 Coil 2B 1000×1",
-          isValid: true,
-        }),
+      const mockResult = {
+        uniqueName: "SS-304-COIL-2B-1000mm-1mm",
+        displayName: "304 Coil 2B 1000x1",
+        isValid: true,
       };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue(mockResult);
 
       const result = await productNamingService.verifyNamingLogic("coil", {
         grade: "304",
@@ -101,16 +93,12 @@ describe("productNamingService", () => {
     });
 
     it("should include mill information in naming", async () => {
-      const mockResponse = {
-        ok: true,
-        json: async () => ({
-          uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm-POSCO-KR",
-          displayName: "304 Sheet 2B 1220×2×2440 (POSCO, Korea)",
-          isValid: true,
-        }),
+      const mockResult = {
+        uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm-POSCO-KR",
+        displayName: "304 Sheet 2B 1220x2x2440 (POSCO, Korea)",
+        isValid: true,
       };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue(mockResult);
 
       const result = await productNamingService.verifyNamingLogic("sheet", {
         grade: "304",
@@ -130,16 +118,11 @@ describe("productNamingService", () => {
       const grades = ["201", "304", "304L", "316", "316L", "430"];
 
       for (const grade of grades) {
-        const mockResponse = {
-          ok: true,
-          json: async () => ({
-            uniqueName: `SS-${grade}-SHEET-2B`,
-            displayName: `${grade} Sheet 2B`,
-            isValid: true,
-          }),
-        };
-
-        vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+        vi.spyOn(apiService, 'post').mockResolvedValue({
+          uniqueName: `SS-${grade}-SHEET-2B`,
+          displayName: `${grade} Sheet 2B`,
+          isValid: true,
+        });
 
         const result = await productNamingService.verifyNamingLogic("sheet", {
           grade,
@@ -154,16 +137,11 @@ describe("productNamingService", () => {
       const finishes = ["2B", "BA", "2D", "1D", "Bright"];
 
       for (const finish of finishes) {
-        const mockResponse = {
-          ok: true,
-          json: vi.fn().mockResolvedValue({
-            uniqueName: `SS-304-SHEET-${finish}`,
-            displayName: `304 Sheet ${finish}`,
-            isValid: true,
-          }),
-        };
-
-        vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+        vi.spyOn(apiService, 'post').mockResolvedValue({
+          uniqueName: `SS-304-SHEET-${finish}`,
+          displayName: `304 Sheet ${finish}`,
+          isValid: true,
+        });
 
         const result = await productNamingService.verifyNamingLogic("sheet", {
           grade: "304",
@@ -175,36 +153,24 @@ describe("productNamingService", () => {
     });
 
     it("should return error on API failure", async () => {
-      const mockResponse = {
-        ok: false,
-        json: vi.fn().mockResolvedValue({
-          error: "Invalid grade specification",
-        }),
-      };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockRejectedValue(new Error("Invalid grade specification"));
 
       await expect(productNamingService.verifyNamingLogic("sheet", { grade: "INVALID" })).rejects.toThrow();
     });
 
     it("should handle network errors", async () => {
-      global.fetch.mockRejectedValue(new Error("Network error"));
+      vi.spyOn(apiService, 'post').mockRejectedValue(new Error("Network error"));
 
       await expect(productNamingService.verifyNamingLogic("sheet", { grade: "304" })).rejects.toThrow();
     });
 
     it("should include mandatory SSOT concatenation format", async () => {
-      const mockResponse = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          uniqueName: "SS-316L-SHEET-2B-1220mm-2mm-2440mm",
-          displayName: "316L Sheet 2B 1220×2×2440",
-          isValid: true,
-          format: "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
-        }),
-      };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue({
+        uniqueName: "SS-316L-SHEET-2B-1220mm-2mm-2440mm",
+        displayName: "316L Sheet 2B 1220x2x2440",
+        isValid: true,
+        format: "SS-{Grade}-{Form}-{Finish}-{Width}mm-{Thickness}mm-{Length}mm",
+      });
 
       const result = await productNamingService.verifyNamingLogic("sheet", {
         grade: "316L",
@@ -220,72 +186,39 @@ describe("productNamingService", () => {
 
   describe("verifyAllProductTypes", () => {
     it("should verify all product types with sample data", async () => {
-      const mockResponses = [
-        {
-          uniqueName: "SS-316L-SHEET-2B-1220mm-2mm-2440mm",
-          displayName: "316L Sheet 2B 1220×2×2440",
-        },
-        {
-          uniqueName: "SS-304-PIPE-BA-2inch-Sch40",
-          displayName: '304 Pipe BA 2" Sch40',
-        },
-        {
-          uniqueName: "SS-316-TUBE-2B-25mm-1.5mm",
-          displayName: "316 Tube 2B 25×1.5",
-        },
-        {
-          uniqueName: "SS-304-COIL-2B-1000mm-1mm",
-          displayName: "304 Coil 2B 1000×1",
-        },
-      ];
-
-      let callIndex = 0;
-      vi.spyOn(global, 'fetch').callsFake(() => {
-        const mockResponse = {
-          ok: true,
-          json: vi.fn() = vi.fn().mockResolvedValue(mockResponses[callIndex]),
-        };
-        callIndex++;
-        return Promise.resolve(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue({
+        uniqueName: "SS-TEST-PRODUCT",
+        displayName: "Test Product",
+        isValid: true,
       });
 
       const results = await productNamingService.verifyAllProductTypes();
 
       expect(results).toBeTruthy();
+      expect(Array.isArray(results)).toBeTruthy();
+      expect(results.length).toBe(6); // sheet, pipe, tube, coil, bar, anglebar
       expect(results[0].uniqueName).toBeTruthy();
-      expect(results[1].uniqueName).toBeTruthy();
-      expect(results[2].uniqueName).toBeTruthy();
-      expect(results[3].uniqueName).toBeTruthy();
     });
 
     it("should verify standard product type sample data", async () => {
-      const mockResponse = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          verifiedTypes: ["sheet", "pipe", "tube", "coil", "bar", "anglebar"],
-          allValid: true,
-        }),
-      };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue({
+        uniqueName: "SS-TEST",
+        displayName: "Test",
+        isValid: true,
+      });
 
       const results = await productNamingService.verifyAllProductTypes();
 
-      expect(results.verifiedTypes).toBeTruthy();
-      expect(results.verifiedTypes).toBeTruthy();
+      expect(results).toBeTruthy();
+      expect(results.length).toBe(6);
     });
   });
 
   describe("Product Type Support", () => {
     it("should support sheet products", async () => {
-      const mockResponse = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm",
-        }),
-      };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue({
+        uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm",
+      });
 
       const result = await productNamingService.verifyNamingLogic("sheet", {
         grade: "304",
@@ -295,14 +228,9 @@ describe("productNamingService", () => {
     });
 
     it("should support pipe products", async () => {
-      const mockResponse = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          uniqueName: "SS-304-PIPE-BA-2inch-Sch40",
-        }),
-      };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue({
+        uniqueName: "SS-304-PIPE-BA-2inch-Sch40",
+      });
 
       const result = await productNamingService.verifyNamingLogic("pipe", {
         grade: "304",
@@ -312,14 +240,9 @@ describe("productNamingService", () => {
     });
 
     it("should support tube products", async () => {
-      const mockResponse = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          uniqueName: "SS-316-TUBE-2B-25mm-1.5mm",
-        }),
-      };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue({
+        uniqueName: "SS-316-TUBE-2B-25mm-1.5mm",
+      });
 
       const result = await productNamingService.verifyNamingLogic("tube", {
         grade: "316",
@@ -329,14 +252,9 @@ describe("productNamingService", () => {
     });
 
     it("should support coil products", async () => {
-      const mockResponse = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          uniqueName: "SS-304-COIL-2B-1000mm-1mm",
-        }),
-      };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue({
+        uniqueName: "SS-304-COIL-2B-1000mm-1mm",
+      });
 
       const result = await productNamingService.verifyNamingLogic("coil", {
         grade: "304",
@@ -346,14 +264,9 @@ describe("productNamingService", () => {
     });
 
     it("should support bar products", async () => {
-      const mockResponse = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          uniqueName: "SS-304-BAR-Bright-16mm",
-        }),
-      };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue({
+        uniqueName: "SS-304-BAR-Bright-16mm",
+      });
 
       const result = await productNamingService.verifyNamingLogic("bar", {
         grade: "304",
@@ -366,14 +279,9 @@ describe("productNamingService", () => {
 
   describe("Dimension Support", () => {
     it("should support standard metric dimensions", async () => {
-      const mockResponse = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm",
-        }),
-      };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue({
+        uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm",
+      });
 
       const result = await productNamingService.verifyNamingLogic("sheet", {
         width: "1220mm",
@@ -385,14 +293,9 @@ describe("productNamingService", () => {
     });
 
     it("should support imperial dimensions", async () => {
-      const mockResponse = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          uniqueName: "SS-304-PIPE-BA-2inch-Sch40",
-        }),
-      };
-
-      vi.spyOn(global, 'fetch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiService, 'post').mockResolvedValue({
+        uniqueName: "SS-304-PIPE-BA-2inch-Sch40",
+      });
 
       const result = await productNamingService.verifyNamingLogic("pipe", {
         diameter: "2inch",
@@ -405,21 +308,9 @@ describe("productNamingService", () => {
 
   describe("Naming Uniqueness", () => {
     it("should generate unique names for different products", async () => {
-      const product1 = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm",
-        }),
-      };
-
-      const product2 = {
-        ok: true,
-        json: vi.fn().mockResolvedValue({
-          uniqueName: "SS-316L-SHEET-2B-1220mm-3mm-2440mm",
-        }),
-      };
-
-      global.fetch.mockResolvedValueOnce(product1).mockResolvedValueOnce(product2);
+      vi.spyOn(apiService, 'post')
+        .mockResolvedValueOnce({ uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm" })
+        .mockResolvedValueOnce({ uniqueName: "SS-316L-SHEET-2B-1220mm-3mm-2440mm" });
 
       const result1 = await productNamingService.verifyNamingLogic("sheet", {
         grade: "304",
@@ -431,7 +322,7 @@ describe("productNamingService", () => {
         thickness: "3mm",
       });
 
-      expect(result1.uniqueName).toBeTruthy().not;
+      expect(result1.uniqueName).not.toBe(result2.uniqueName);
     });
   });
 });

@@ -31,6 +31,6 @@ describe("StockTurnoverWidget", () => {
       worstPerformer: "SS 410 Coil",
     };
     render(<StockTurnoverWidget data={data} />);
-    expect(screen.getByText("SS 304 Sheet")).toBeInTheDocument();
+    expect(screen.getAllByText("SS 304 Sheet").length).toBeGreaterThan(0);
   });
 });

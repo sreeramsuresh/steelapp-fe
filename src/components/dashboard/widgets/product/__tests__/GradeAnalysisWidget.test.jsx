@@ -11,28 +11,34 @@ describe("GradeAnalysisWidget", () => {
   const sampleData = {
     grades: [
       {
-        name: "SS 304",
+        grade: "SS 304",
         revenue: 8000000,
         volume: 250,
-        trend: "hot",
-        sparkline: [100, 120, 130, 125, 140],
-        growth: 15.2,
+        demand: "high",
+        margin: 18.5,
+        avgPrice: 320,
+        priceChange: 5.2,
+        trend: [100, 120, 130, 125, 140],
       },
       {
-        name: "SS 316",
+        grade: "SS 316",
         revenue: 5000000,
         volume: 150,
-        trend: "hot",
-        sparkline: [80, 85, 90, 95, 100],
-        growth: 8.5,
+        demand: "high",
+        margin: 22.3,
+        avgPrice: 450,
+        priceChange: 3.1,
+        trend: [80, 85, 90, 95, 100],
       },
       {
-        name: "SS 430",
+        grade: "SS 430",
         revenue: 2000000,
         volume: 80,
-        trend: "cold",
-        sparkline: [60, 55, 50, 48, 45],
-        growth: -12.3,
+        demand: "low",
+        margin: 12.0,
+        avgPrice: 180,
+        priceChange: -2.5,
+        trend: [60, 55, 50, 48, 45],
       },
     ],
   };
@@ -43,8 +49,8 @@ describe("GradeAnalysisWidget", () => {
 
   it("displays grade names", () => {
     render(<GradeAnalysisWidget data={sampleData} />);
-    expect(screen.getByText("SS 304")).toBeInTheDocument();
-    expect(screen.getByText("SS 316")).toBeInTheDocument();
+    expect(screen.getAllByText("SS 304").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("SS 316").length).toBeGreaterThan(0);
   });
 
   it("renders empty state when no data", () => {

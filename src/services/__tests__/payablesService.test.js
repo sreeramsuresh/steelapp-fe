@@ -177,7 +177,7 @@ describe("payablesService", () => {
         const result = await payablesService.addInvoicePayment(1, paymentData);
 
         expect(result.id).toBeTruthy();
-        expect(postStub).toHaveBeenCalledWith("/payables/invoices/1/payments", );
+        expect(postStub).toHaveBeenCalledWith("/payables/invoices/1/payments", paymentData);
       });
 
       it("should fall back to local storage on error", async () => {
@@ -331,7 +331,7 @@ describe("payablesService", () => {
         const result = await payablesService.addPOPayment(1, paymentData);
 
         expect(result.id).toBeTruthy();
-        expect(postStub).toHaveBeenCalledWith("/payables/pos/1/payments", );
+        expect(postStub).toHaveBeenCalledWith("/payables/pos/1/payments", paymentData);
       });
 
       it("should fall back to local storage on error", async () => {
@@ -475,7 +475,7 @@ describe("payablesService", () => {
 
       const result = await payablesService.getInvoice(1);
 
-      expect(Array.isArray(result.payments).toBeTruthy());
+      expect(Array.isArray(result.payments)).toBeTruthy();
     });
   });
 });

@@ -146,7 +146,7 @@ describe("supplierService", () => {
       expect(result.name).toBeTruthy();
       // Verify it was saved to localStorage
       const stored = JSON.parse(localStorage.getItem("steel-app-suppliers"));
-      expect(stored.some((s).toBeTruthy() => s.id === 10));
+      expect(stored.some((s) => s.id === 10)).toBeTruthy();
     });
 
     it("should generate ID if not provided in fallback", async () => {
@@ -191,7 +191,7 @@ describe("supplierService", () => {
       expect(result.status).toBeTruthy();
       // Verify it was saved to localStorage
       const stored = JSON.parse(localStorage.getItem("steel-app-suppliers"));
-      expect(stored.some((s).toBeTruthy() => s.id === 3 && s.status === "INACTIVE"));
+      expect(stored.some((s) => s.id === 3 && s.status === "INACTIVE")).toBeTruthy();
     });
   });
 
@@ -221,7 +221,7 @@ describe("supplierService", () => {
       // Verify deleted from localStorage
       const stored = JSON.parse(localStorage.getItem("steel-app-suppliers"));
       expect(stored.some((s) => s.id === 5)).toBe(false);
-      expect(stored.some((s).toBeTruthy() => s.id === 6));
+      expect(stored.some((s) => s.id === 6)).toBeTruthy();
     });
   });
 

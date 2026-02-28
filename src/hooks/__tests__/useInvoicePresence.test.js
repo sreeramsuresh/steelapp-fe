@@ -1,14 +1,11 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useInvoicePresence } from "../useInvoicePresence";
-
-const mockApiClient = {
-  get: vi.fn(),
-  post: vi.fn(),
-};
 
 vi.mock("../../services/api", () => ({
-  apiClient: mockApiClient,
+  apiClient: {
+    get: vi.fn(),
+    post: vi.fn(),
+  },
 }));
 
 vi.mock("../../services/axiosApi", () => ({
@@ -16,6 +13,9 @@ vi.mock("../../services/axiosApi", () => ({
     getUser: () => ({ id: 1, name: "Test User" }),
   },
 }));
+
+import { apiClient as mockApiClient } from "../../services/api";
+import { useInvoicePresence } from "../useInvoicePresence";
 
 // Mock crypto.randomUUID
 const mockUUID = "test-uuid-1234";

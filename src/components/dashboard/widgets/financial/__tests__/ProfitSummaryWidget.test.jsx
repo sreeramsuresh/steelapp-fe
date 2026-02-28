@@ -37,7 +37,7 @@ describe("ProfitSummaryWidget", () => {
     expect(screen.getByText("Revenue")).toBeInTheDocument();
     expect(screen.getByText("COGS")).toBeInTheDocument();
     expect(screen.getByText("Gross Profit")).toBeInTheDocument();
-    expect(screen.getByText("Net Profit")).toBeInTheDocument();
+    expect(screen.getAllByText("Net Profit").length).toBeGreaterThan(0);
   });
 
   it("shows margin percentages", () => {

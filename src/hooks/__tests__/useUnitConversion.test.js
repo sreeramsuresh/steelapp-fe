@@ -1,19 +1,19 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useUnitConversion, FORMULA_TYPES, UNIT_CODES, PRICING_MODES, DEFAULT_DENSITY } from "../useUnitConversion";
-
-const mockService = {
-  listConversionFormulas: vi.fn(),
-  calculateWeight: vi.fn(),
-  convertUnits: vi.fn(),
-  getProductWeightSpec: vi.fn(),
-  saveProductWeightSpec: vi.fn(),
-  batchCalculateWeight: vi.fn(),
-};
 
 vi.mock("../../services/unitConversionService", () => ({
-  default: mockService,
+  default: {
+    listConversionFormulas: vi.fn(),
+    calculateWeight: vi.fn(),
+    convertUnits: vi.fn(),
+    getProductWeightSpec: vi.fn(),
+    saveProductWeightSpec: vi.fn(),
+    batchCalculateWeight: vi.fn(),
+  },
 }));
+
+import mockService from "../../services/unitConversionService";
+import { useUnitConversion, FORMULA_TYPES, UNIT_CODES, PRICING_MODES, DEFAULT_DENSITY } from "../useUnitConversion";
 
 describe("useUnitConversion", () => {
   beforeEach(() => {
