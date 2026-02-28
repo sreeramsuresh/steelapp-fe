@@ -11,7 +11,7 @@ vi.mock("../../../constants/defaultTemplateSettings", () => ({
 
 vi.mock("../../../utils/invoiceUtils", () => ({
   formatCurrency: (v) => `AED ${v}`,
-  formatDate: (d) => d || "-",
+  formatDate: (d) => (d ? String(d) : "-"),
 }));
 
 vi.mock("../../../utils/recordUtils", () => ({
