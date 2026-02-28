@@ -51,9 +51,20 @@ function App() {
     const initializeApp = async () => {
       try {
         if (authService.isAuthenticated()) {
-          const storedUser = authService.getUser();
-          if (storedUser && mounted) {
-            setUser(storedUser);
+          // User exists in sessionStorage — validate session with server
+          try {
+            const freshUser = await authService.getCurrentUser();
+            if (freshUser && mounted) {
+              setUser(freshUser);
+            } else if (mounted) {
+              setUser(null);
+            }
+          } catch (_err) {
+            // Session invalid (401) or server unreachable — clear stale data
+            if (mounted) {
+              authService.clearSession();
+              setUser(null);
+            }
           }
         } else if (mounted) {
           setUser(null);

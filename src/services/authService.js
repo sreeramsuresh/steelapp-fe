@@ -61,42 +61,25 @@ class AuthService {
     });
   }
 
-  // Token management
-  setToken(token) {
-    // Store in localStorage for backward compatibility
-    localStorage.setItem(this.TOKEN_KEY, token);
-    localStorage.setItem("token", token); // Also store as 'token' for components using it
-
-    // Store in cookies for automatic refresh interceptor
-    tokenUtils.setToken(token);
-
-    this.updateApiHeaders();
+  // Token management — tokens are now in HttpOnly cookies set by the server
+  setToken(_token) {
+    // No-op: server sets HttpOnly cookies
   }
 
-  setRefreshToken(refreshToken) {
-    // Store in localStorage for backup
-    localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
-
-    // Store in cookies for automatic refresh interceptor
-    tokenUtils.setRefreshToken(refreshToken);
+  setRefreshToken(_refreshToken) {
+    // No-op: server sets HttpOnly cookies
   }
 
   getToken() {
-    // Try cookies first (used by interceptor), then localStorage (backward compatibility)
-    return tokenUtils.getToken() || localStorage.getItem(this.TOKEN_KEY);
+    return null; // Tokens are in HttpOnly cookies, not accessible from JS
   }
 
   getRefreshToken() {
-    return tokenUtils.getRefreshToken() || localStorage.getItem(this.REFRESH_TOKEN_KEY);
+    return null; // Tokens are in HttpOnly cookies, not accessible from JS
   }
 
   removeToken() {
-    // Remove from both localStorage and cookies
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem("token");
-    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
-    tokenUtils.removeTokens();
-    this.updateApiHeaders();
+    tokenUtils.clearSession();
   }
 
   // User data management
@@ -123,11 +106,9 @@ class AuthService {
     tokenUtils.removeUser();
   }
 
-  // Authentication status
+  // Authentication status — user in sessionStorage is a hint; validated by /auth/me on boot
   isAuthenticated() {
-    const token = this.getToken();
-    const user = this.getUser();
-    return !!(token && user);
+    return !!this.getUser();
   }
 
   // Check if user has specific permission
@@ -175,20 +156,11 @@ class AuthService {
     return roleNames.some((r) => ["Managing Director", "Operations Manager", "Finance Manager"].includes(r));
   }
 
-  // Update API client headers
-  updateApiHeaders() {
-    const token = this.getToken();
-    if (token) {
-      apiClient.setAuthHeader(token);
-    } else {
-      apiClient.removeAuthHeader();
-    }
-  }
+  // Update API client headers — no-op, auth is via HttpOnly cookies
+  updateApiHeaders() {}
 
-  // Initialize authentication state
-  initialize() {
-    this.updateApiHeaders();
-  }
+  // Initialize authentication state — no-op, auth is via HttpOnly cookies
+  initialize() {}
 }
 
 export const authService = new AuthService();

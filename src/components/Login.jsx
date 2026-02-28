@@ -119,17 +119,14 @@ const RBACTestPanel = ({ onLoginSuccess, isDarkMode }) => {
       const res = await fetch("/api/auth/dev/quick-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Login failed");
 
-      // Store auth data (cookies + sessionStorage + localStorage)
-      if (data.token) {
-        tokenUtils.setToken(data.token);
-        if (data.refreshToken) {
-          tokenUtils.setRefreshToken(data.refreshToken);
-        }
+      // Server sets HttpOnly cookies — store user data for UI
+      if (data.user) {
         tokenUtils.setUser(data.user);
       }
       if (onLoginSuccess) onLoginSuccess(data.user);
@@ -338,8 +335,8 @@ const Login = ({ onLoginSuccess }) => {
         return;
       }
 
-      const token = tokenUtils.getToken();
-      if (token) {
+      const user = tokenUtils.getUser();
+      if (user) {
         return;
       }
 

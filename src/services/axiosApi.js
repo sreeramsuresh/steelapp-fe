@@ -72,30 +72,6 @@ try {
 
 const REFRESH_ENDPOINT = import.meta?.env?.VITE_REFRESH_ENDPOINT ?? "/auth/refresh-token";
 
-// Simple cookie helper (matching GigLabz approach)
-const Cookies = {
-  get(name) {
-    if (typeof document === "undefined") return null;
-    const match = document.cookie.match(new RegExp(`(?:^|; )${name.replace(/([.$?*|{}()[\]/+^])/g, "\\$1")}=([^;]*)`));
-    return match ? decodeURIComponent(match[1]) : null;
-  },
-
-  set(name, value, options = {}) {
-    if (typeof document === "undefined") return;
-    const { expires = 7, path = "/" } = options;
-    const expiresDate = new Date(Date.now() + expires * 864e5).toUTCString();
-    // biome-ignore lint/suspicious/noDocumentCookie: Cookie utility - intentional cookie management
-    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expiresDate}; path=${path}`;
-  },
-
-  remove(name, options = {}) {
-    if (typeof document === "undefined") return;
-    const { path = "/" } = options;
-    // biome-ignore lint/suspicious/noDocumentCookie: Cookie utility - intentional cookie management
-    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}`;
-  },
-};
-
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -106,13 +82,9 @@ const api = axios.create({
   },
 });
 
-// Request interceptor - adds Bearer token and handles FormData
+// Request interceptor - handles FormData Content-Type
+// Auth is handled via HttpOnly cookies (withCredentials: true) — no manual header needed
 api.interceptors.request.use((config) => {
-  const accessToken = Cookies.get("accessToken");
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
-  }
-
   // For FormData, let the browser set the Content-Type with boundary
   if (config.data instanceof FormData) {
     delete config.headers["Content-Type"];
@@ -121,7 +93,24 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor - handles 403 and refreshes (matching GigLabz logic)
+// Single-flight refresh mutex to prevent thundering herd on concurrent 401s
+let isRefreshing = false;
+let refreshSubscribers = [];
+
+function onRefreshed() {
+  refreshSubscribers.forEach((cb) => {
+    cb();
+  });
+  refreshSubscribers = [];
+}
+
+function subscribeToRefresh() {
+  return new Promise((resolve) => {
+    refreshSubscribers.push(resolve);
+  });
+}
+
+// Response interceptor - handles 401 refresh and account deactivation
 api.interceptors.response.use(
   (response) => {
     if (import.meta.env.DEV || import.meta.env.MODE === "test") {
@@ -140,57 +129,44 @@ api.interceptors.response.use(
 
     // Account deactivated — force logout immediately, no refresh attempt
     if (error.response?.status === 403 && error.response?.data?.code === "ACCOUNT_DEACTIVATED") {
-      tokenUtils.removeTokens();
-      alert("Your account has been deactivated. Please contact your administrator.");
+      try {
+        await axios.post(`${API_BASE_URL}/auth/logout`, {}, { withCredentials: true });
+      } catch {
+        // Best-effort logout
+      }
+      tokenUtils.clearSession();
       window.location.href = "/login";
+      return Promise.reject(error);
+    }
+
+    // Account locked — clear session, no refresh attempt
+    if (error.response?.status === 423) {
+      tokenUtils.clearSession();
       return Promise.reject(error);
     }
 
     // Trigger refresh on 401 only (not 403 — that means permission denied, not token expired)
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      const refreshToken = Cookies.get("refreshToken");
 
-      if (!refreshToken) {
-        // No refresh token, clear tokens and reject
-        Cookies.remove("accessToken");
-        Cookies.remove("refreshToken");
-        return Promise.reject(error);
+      if (isRefreshing) {
+        // Queue this request — wait for in-flight refresh
+        await subscribeToRefresh();
+        return api(originalRequest);
       }
 
+      isRefreshing = true;
       try {
-        const { data } = await axios.post(
-          `${API_BASE_URL}${REFRESH_ENDPOINT}`,
-          { refreshToken },
-          { withCredentials: true }
-        );
-
-        // Backend already sends camelCase
-        const newAccessToken = data.accessToken || data.token;
-        const newRefreshToken = data.refreshToken || data.refreshToken;
-
-        if (newAccessToken) {
-          // Store new tokens
-          Cookies.set("accessToken", newAccessToken);
-          if (newRefreshToken) {
-            Cookies.set("refreshToken", newRefreshToken, { expires: 7 });
-          }
-
-          // Retry original request with new token
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          return api(originalRequest);
-        } else {
-          throw new Error("No tokens in refresh response");
-        }
+        // Server reads refresh token from HttpOnly cookie automatically
+        await axios.post(`${API_BASE_URL}${REFRESH_ENDPOINT}`, {}, { withCredentials: true });
+        onRefreshed();
+        return api(originalRequest);
       } catch (refreshError) {
-        // Clear tokens on refresh failure
-        Cookies.remove("accessToken");
-        Cookies.remove("refreshToken");
-
-        // Optional: Redirect to login (commented out like GigLabz)
-        // window.location.href = '/login';
-
+        tokenUtils.clearSession();
+        refreshSubscribers = [];
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 
@@ -325,30 +301,25 @@ export const apiService = {
   },
 };
 
-// Token utilities (simplified)
+// Token utilities
+// With HttpOnly cookies, tokens are managed by the server. These utilities
+// handle user data in sessionStorage (UI hints) and legacy cleanup only.
 export const tokenUtils = {
-  getToken: () => Cookies.get("accessToken"),
-  getRefreshToken: () => Cookies.get("refreshToken"),
-
-  setToken: (token) => {
-    if (token) Cookies.set("accessToken", token);
-  },
-
-  setRefreshToken: (refreshToken) => {
-    if (refreshToken) Cookies.set("refreshToken", refreshToken, { expires: 7 });
-  },
+  // No-ops: tokens are now in HttpOnly cookies set by the server
+  getToken: () => null,
+  getRefreshToken: () => null,
+  setToken: (_token) => {},
+  setRefreshToken: (_refreshToken) => {},
 
   removeTokens: () => {
-    Cookies.remove("accessToken");
-    Cookies.remove("refreshToken");
-    // Clean up legacy localStorage keys from older versions
+    // Clean up legacy localStorage keys from older versions (defense-in-depth)
     localStorage.removeItem("steel-app-token");
     localStorage.removeItem("steel-app-refresh-token");
     localStorage.removeItem("token");
     localStorage.removeItem("steel-app-user");
   },
 
-  // Store user data in sessionStorage (matching GigLabz approach)
+  // Store user data in sessionStorage (UI hints only — session is validated server-side)
   setUser: (user) => {
     if (user) {
       sessionStorage.setItem("userId", user.id || "");
@@ -389,16 +360,6 @@ export const tokenUtils = {
   clearSession: () => {
     tokenUtils.removeTokens();
     tokenUtils.removeUser();
-
-    // Comprehensive cookie cleanup (matching GigLabz approach)
-    // eslint-disable-next-line no-assign-to-cookie-api
-    document.cookie.split(";").forEach((cookie) => {
-      const name = cookie.substring(0, cookie.indexOf("=")).trim();
-      // biome-ignore lint/suspicious/noDocumentCookie: Cookie utility - intentional cookie clearing
-      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
-      // biome-ignore lint/suspicious/noDocumentCookie: Cookie utility - intentional cookie clearing
-      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-    });
   },
 };
 

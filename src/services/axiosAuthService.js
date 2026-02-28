@@ -56,33 +56,21 @@ class AuthService {
         };
       }
 
-      // Support both response formats: SteelApp (token) and GigLabz (accessToken)
-      const accessToken = response.accessToken || response.token;
-      const refreshToken = response.refreshToken || response.refreshToken;
+      // Server sets HttpOnly cookies — we only store user data for UI
       const user = response.user;
 
-      if (accessToken && user) {
-        // Store tokens in cookies
-        tokenUtils.setToken(accessToken);
-        if (refreshToken) {
-          tokenUtils.setRefreshToken(refreshToken);
-        }
-
+      if (user) {
         // Use backend-resolved permissions if available, otherwise fall back to static role map
         if (!user.permissions || Object.keys(user.permissions).length === 0) {
           this._populatePermissionsForRole(user);
         }
 
-        // Store user data in sessionStorage
+        // Store user data in sessionStorage (UI hints only)
         tokenUtils.setUser(user);
 
         return response;
       } else {
-        console.error("Missing required fields in response:", {
-          accessToken,
-          refreshToken,
-          user,
-        });
+        console.error("Missing user in response");
         throw new Error("Invalid response format from server");
       }
     } catch (error) {
@@ -110,14 +98,10 @@ class AuthService {
     }
   }
 
-  // Logout user (matching GigLabz approach)
+  // Logout user — server reads refresh token from HttpOnly cookie
   async logout() {
     try {
-      const refreshToken = tokenUtils.getRefreshToken();
-
-      if (refreshToken) {
-        await apiService.post("/auth/logout", { refreshToken });
-      }
+      await apiService.post("/auth/logout", {});
     } catch (error) {
       console.warn("Logout API call failed:", error);
     } finally {
@@ -126,16 +110,13 @@ class AuthService {
     }
   }
 
-  // Register new user
+  // Register new user — server sets HttpOnly cookies
   async register(userData) {
     try {
       const response = await apiService.post("/auth/register", userData);
 
-      if (response.accessToken && response.refreshToken && response.user) {
-        const { accessToken, refreshToken, user } = response;
-
-        tokenUtils.setToken(accessToken);
-        tokenUtils.setRefreshToken(refreshToken);
+      if (response.user) {
+        const { user } = response;
 
         // Use backend-resolved permissions if available, otherwise fall back to static role map
         if (!user.permissions || Object.keys(user.permissions).length === 0) {
@@ -173,40 +154,8 @@ class AuthService {
     }
   }
 
-  // Manual token refresh (for rare cases)
-  async refreshToken() {
-    try {
-      const refreshToken = tokenUtils.getRefreshToken();
-
-      if (!refreshToken) {
-        throw new Error("No refresh token available");
-      }
-
-      const response = await apiService.post("/auth/refresh-token", {
-        refreshToken,
-      });
-
-      // Support both response formats
-      const newAccessToken = response.accessToken || response.token;
-      const newRefreshToken = response.refreshToken || response.refreshToken;
-
-      if (newAccessToken) {
-        tokenUtils.setToken(newAccessToken);
-        if (newRefreshToken) {
-          tokenUtils.setRefreshToken(newRefreshToken);
-        }
-        return newAccessToken;
-      }
-
-      throw new Error("Token refresh failed - no tokens in response");
-    } catch (error) {
-      console.error("Token refresh failed:", error);
-      if (error?.response?.status === 401 || error?.response?.status === 403) {
-        this.clearSession();
-      }
-      throw error;
-    }
-  }
+  // Token refresh is now handled transparently by the 401 response interceptor in axiosApi.js
+  // The server reads the refresh token from the HttpOnly cookie and sets new cookies.
 
   // Change password
   async changePassword(currentPassword, newPassword) {
@@ -253,16 +202,10 @@ class AuthService {
         method,
       });
 
-      // On success, store tokens just like a normal login
-      const accessToken = response.accessToken || response.token;
-      const refreshToken = response.refreshToken;
+      // Server sets HttpOnly cookies — store user data for UI
       const user = response.user;
 
-      if (accessToken && user) {
-        tokenUtils.setToken(accessToken);
-        if (refreshToken) {
-          tokenUtils.setRefreshToken(refreshToken);
-        }
+      if (user) {
         if (!user.permissions || Object.keys(user.permissions).length === 0) {
           this._populatePermissionsForRole(user);
         }
@@ -362,16 +305,10 @@ class AuthService {
     try {
       const response = await apiService.post("/auth/passkey/login/finish", { credential });
 
-      // On success, store tokens just like a normal login
-      const accessToken = response.accessToken || response.token;
-      const refreshToken = response.refreshToken;
+      // Server sets HttpOnly cookies — store user data for UI
       const user = response.user;
 
-      if (accessToken && user) {
-        tokenUtils.setToken(accessToken);
-        if (refreshToken) {
-          tokenUtils.setRefreshToken(refreshToken);
-        }
+      if (user) {
         if (!user.permissions || Object.keys(user.permissions).length === 0) {
           this._populatePermissionsForRole(user);
         }
@@ -464,14 +401,9 @@ class AuthService {
     });
   }
 
-  // Authentication status
+  // Authentication status — user in sessionStorage is a hint; validated by /auth/me on boot
   isAuthenticated() {
-    const token = tokenUtils.getToken();
-    const user = tokenUtils.getUser();
-
-    // Simple check: if we have both token and user data, consider authenticated
-    // Let the interceptor handle token refresh automatically
-    return !!(token && user);
+    return !!tokenUtils.getUser();
   }
 
   // Get user data
