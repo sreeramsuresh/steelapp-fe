@@ -1,8 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React, { Suspense } from "react";
-import WidgetSuspense, { withWidgetSuspense } from "../WidgetSuspense";
+import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import WidgetSuspense, { withWidgetSuspense } from "../WidgetSuspense";
 
 vi.mock("../WidgetSkeleton", () => ({
   default: ({ variant }) => <div data-testid="skeleton">Loading {variant}</div>,

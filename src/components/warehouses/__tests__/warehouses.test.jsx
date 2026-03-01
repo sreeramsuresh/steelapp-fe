@@ -4,8 +4,6 @@
  */
 
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import React from "react";
 import { describe, expect, it, vi } from "vitest";
 
 describe("WarehouseCard", () => {
@@ -39,7 +37,9 @@ describe("WarehouseFormDialog", () => {
           <input placeholder="Location" />
           <input placeholder="Number of Aisles" type="number" />
           <input placeholder="Bins per Aisle" type="number" />
-          <button type="button" onClick={onClose}>Cancel</button>
+          <button type="button" onClick={onClose}>
+            Cancel
+          </button>
           <button type="button">Save</button>
         </div>
       );
@@ -68,10 +68,27 @@ describe("WarehouseStockView", () => {
       <div data-testid="warehouse-stock">
         <h3>Stock — Main Warehouse</h3>
         <table>
-          <thead><tr><th>Product</th><th>Bin</th><th>Qty</th><th>Weight</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Bin</th>
+              <th>Qty</th>
+              <th>Weight</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>SS-304-Sheet</td><td>A1-01</td><td>50 PCS</td><td>500 KG</td></tr>
-            <tr><td>SS-316-Bar</td><td>A2-03</td><td>30 PCS</td><td>300 KG</td></tr>
+            <tr>
+              <td>SS-304-Sheet</td>
+              <td>A1-01</td>
+              <td>50 PCS</td>
+              <td>500 KG</td>
+            </tr>
+            <tr>
+              <td>SS-316-Bar</td>
+              <td>A2-03</td>
+              <td>30 PCS</td>
+              <td>300 KG</td>
+            </tr>
           </tbody>
         </table>
       </div>

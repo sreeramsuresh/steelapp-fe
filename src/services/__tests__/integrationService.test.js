@@ -2,12 +2,11 @@
  * Integration Service Unit Tests
  * ✅ Tests third-party system integrations (FTA, Central Bank, etc.)
  * ✅ 100% coverage target for integrationService.js
-*/
+ */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import integrationService from "../integrationService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
+import integrationService from "../integrationService.js";
 
 describe("integrationService", () => {
   let getStub;
@@ -15,9 +14,9 @@ describe("integrationService", () => {
   let deleteStub;
   beforeEach(() => {
     vi.restoreAllMocks();
-    getStub = vi.spyOn(apiClient, 'get');
-    postStub = vi.spyOn(apiClient, 'post');
-    deleteStub = vi.spyOn(apiClient, 'delete');
+    getStub = vi.spyOn(apiClient, "get");
+    postStub = vi.spyOn(apiClient, "post");
+    deleteStub = vi.spyOn(apiClient, "delete");
   });
 
   describe("getAll", () => {

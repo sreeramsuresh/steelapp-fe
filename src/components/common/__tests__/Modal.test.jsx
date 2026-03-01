@@ -22,23 +22,17 @@ describe("ErrorState (modal-like)", () => {
 
   it("should show go home button when onGoHome is provided", () => {
     const onGoHome = vi.fn();
-    const { container } = renderWithProviders(
-      <ErrorState onGoHome={onGoHome} />
-    );
+    const { container } = renderWithProviders(<ErrorState onGoHome={onGoHome} />);
     expect(container.textContent).toContain("Go Home");
   });
 
   it("should not show retry button when canRetry is false", () => {
-    const { container } = renderWithProviders(
-      <ErrorState canRetry={false} />
-    );
+    const { container } = renderWithProviders(<ErrorState canRetry={false} />);
     expect(container.textContent).not.toContain("Try Again");
   });
 
   it("should apply custom className", () => {
-    const { container } = renderWithProviders(
-      <ErrorState className="custom-error" />
-    );
+    const { container } = renderWithProviders(<ErrorState className="custom-error" />);
     expect(container.querySelector(".custom-error")).toBeTruthy();
   });
 });

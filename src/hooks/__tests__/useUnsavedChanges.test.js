@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useUnsavedChanges } from "../useUnsavedChanges";
 
 vi.mock("react-router-dom", () => ({
@@ -72,9 +72,7 @@ describe("useUnsavedChanges", () => {
     const addSpy = vi.spyOn(window, "addEventListener");
     renderHook(() => useUnsavedChanges(false));
 
-    const beforeunloadCalls = addSpy.mock.calls.filter(
-      (call) => call[0] === "beforeunload"
-    );
+    const beforeunloadCalls = addSpy.mock.calls.filter((call) => call[0] === "beforeunload");
     expect(beforeunloadCalls).toHaveLength(0);
     addSpy.mockRestore();
   });
@@ -83,9 +81,7 @@ describe("useUnsavedChanges", () => {
     const addSpy = vi.spyOn(window, "addEventListener");
     renderHook(() => useUnsavedChanges(true));
 
-    const popstateCalls = addSpy.mock.calls.filter(
-      (call) => call[0] === "popstate"
-    );
+    const popstateCalls = addSpy.mock.calls.filter((call) => call[0] === "popstate");
     expect(popstateCalls).toHaveLength(1);
     addSpy.mockRestore();
   });
@@ -96,12 +92,8 @@ describe("useUnsavedChanges", () => {
 
     unmount();
 
-    const beforeunloadCalls = removeSpy.mock.calls.filter(
-      (call) => call[0] === "beforeunload"
-    );
-    const popstateCalls = removeSpy.mock.calls.filter(
-      (call) => call[0] === "popstate"
-    );
+    const beforeunloadCalls = removeSpy.mock.calls.filter((call) => call[0] === "beforeunload");
+    const popstateCalls = removeSpy.mock.calls.filter((call) => call[0] === "popstate");
     expect(beforeunloadCalls.length).toBeGreaterThanOrEqual(1);
     expect(popstateCalls.length).toBeGreaterThanOrEqual(1);
     removeSpy.mockRestore();

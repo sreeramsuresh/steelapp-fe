@@ -4,7 +4,6 @@
  */
 
 import { render, screen } from "@testing-library/react";
-import React from "react";
 import { describe, expect, it } from "vitest";
 
 describe("DeliveryNotePreview", () => {
@@ -17,9 +16,19 @@ describe("DeliveryNotePreview", () => {
         <div>Vehicle: ABC 1234</div>
         <div>Driver: Ahmed</div>
         <table>
-          <thead><tr><th>Product</th><th>Qty</th><th>Weight</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Weight</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>SS-304-Sheet</td><td>50</td><td>500 KG</td></tr>
+            <tr>
+              <td>SS-304-Sheet</td>
+              <td>50</td>
+              <td>500 KG</td>
+            </tr>
           </tbody>
         </table>
         <div>Status: Dispatched</div>

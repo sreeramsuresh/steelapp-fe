@@ -2,10 +2,9 @@
  * Template Service Unit Tests
  * Tests template management operations (invoices, delivery notes, etc.)
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import { templateService } from "../templateService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
+import { templateService } from "../templateService.js";
 
 describe("templateService", () => {
   beforeEach(() => {
@@ -19,7 +18,7 @@ describe("templateService", () => {
         { id: 2, name: "Delivery Note Default", type: "delivery", status: "active" },
       ];
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockTemplates);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockTemplates);
 
       const result = await templateService.getTemplates();
 
@@ -28,7 +27,7 @@ describe("templateService", () => {
     });
 
     it("should handle empty template list", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue([]);
+      vi.spyOn(apiClient, "get").mockResolvedValue([]);
 
       const result = await templateService.getTemplates();
 
@@ -37,7 +36,7 @@ describe("templateService", () => {
 
     it("should handle API errors", async () => {
       const error = new Error("Network error");
-      vi.spyOn(apiClient, 'get').mockRejectedValue(error);
+      vi.spyOn(apiClient, "get").mockRejectedValue(error);
 
       await expect(templateService.getTemplates()).rejects.toThrow();
     });
@@ -53,7 +52,7 @@ describe("templateService", () => {
         content: "<html>...</html>",
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockTemplate);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockTemplate);
 
       const result = await templateService.getTemplate(1);
 
@@ -63,7 +62,7 @@ describe("templateService", () => {
 
     it("should handle template not found", async () => {
       const error = new Error("Not found");
-      vi.spyOn(apiClient, 'get').mockRejectedValue(error);
+      vi.spyOn(apiClient, "get").mockRejectedValue(error);
 
       await expect(templateService.getTemplate(999)).rejects.toThrow();
     });
@@ -79,7 +78,7 @@ describe("templateService", () => {
 
       const mockResponse = { id: 10, ...templateData, status: "active" };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await templateService.createTemplate(templateData);
 
@@ -89,7 +88,7 @@ describe("templateService", () => {
 
     it("should handle creation errors", async () => {
       const error = new Error("Invalid template");
-      vi.spyOn(apiClient, 'post').mockRejectedValue(error);
+      vi.spyOn(apiClient, "post").mockRejectedValue(error);
 
       await expect(templateService.createTemplate({})).rejects.toThrow();
     });
@@ -104,7 +103,7 @@ describe("templateService", () => {
 
       const mockResponse = { id: 1, ...updateData, status: "active", type: "invoice" };
 
-      vi.spyOn(apiClient, 'put').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "put").mockResolvedValue(mockResponse);
 
       const result = await templateService.updateTemplate(1, updateData);
 
@@ -114,7 +113,7 @@ describe("templateService", () => {
 
     it("should handle update errors", async () => {
       const error = new Error("Template in use");
-      vi.spyOn(apiClient, 'put').mockRejectedValue(error);
+      vi.spyOn(apiClient, "put").mockRejectedValue(error);
 
       await expect(templateService.updateTemplate(1, {})).rejects.toThrow();
     });
@@ -124,7 +123,7 @@ describe("templateService", () => {
     it("should delete template", async () => {
       const mockResponse = { id: 1, deleted: true };
 
-      vi.spyOn(apiClient, 'delete').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "delete").mockResolvedValue(mockResponse);
 
       const result = await templateService.deleteTemplate(1);
 
@@ -134,7 +133,7 @@ describe("templateService", () => {
 
     it("should handle deletion errors", async () => {
       const error = new Error("Cannot delete default template");
-      vi.spyOn(apiClient, 'delete').mockRejectedValue(error);
+      vi.spyOn(apiClient, "delete").mockRejectedValue(error);
 
       await expect(templateService.deleteTemplate(1)).rejects.toThrow();
     });
@@ -143,7 +142,7 @@ describe("templateService", () => {
   describe("Error Handling", () => {
     it("should propagate all API errors", async () => {
       const error = new Error("Server error");
-      vi.spyOn(apiClient, 'get').mockRejectedValue(error);
+      vi.spyOn(apiClient, "get").mockRejectedValue(error);
 
       await expect(templateService.getTemplates()).rejects.toThrow();
     });

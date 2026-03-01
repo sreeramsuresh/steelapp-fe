@@ -1,8 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
-import WidgetErrorBoundaryWithTheme from "../WidgetErrorBoundary";
+import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import WidgetErrorBoundaryWithTheme from "../WidgetErrorBoundary";
 
 function renderWithTheme(ui) {
   return render(<ThemeProvider>{ui}</ThemeProvider>);

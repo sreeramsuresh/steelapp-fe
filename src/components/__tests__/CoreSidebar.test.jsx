@@ -3,9 +3,8 @@
  * Phase 3C: Core layout component
  */
 
-import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { renderWithProviders, setupUser } from "../../test/component-setup";
+import { renderWithProviders } from "../../test/component-setup";
 
 // Mock react-router-dom
 vi.mock("react-router-dom", () => ({
@@ -42,7 +41,6 @@ describe("CoreSidebar", () => {
     mockOnToggle = vi.fn();
     // Mock ResizeObserver as a proper constructor
     global.ResizeObserver = class ResizeObserver {
-      constructor() {}
       observe() {}
       unobserve() {}
       disconnect() {}
@@ -51,24 +49,18 @@ describe("CoreSidebar", () => {
 
   describe("Rendering", () => {
     it("should render without crash", () => {
-      const { container } = renderWithProviders(
-        <CoreSidebar isOpen={true} onToggle={mockOnToggle} />
-      );
+      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
       expect(container).toBeTruthy();
     });
 
     it("should display company branding", () => {
-      const { container } = renderWithProviders(
-        <CoreSidebar isOpen={true} onToggle={mockOnToggle} />
-      );
+      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
       expect(container.textContent).toContain("ULTIMATE STEELS");
       expect(container.textContent).toContain("Business Management");
     });
 
     it("should render navigation section headers", () => {
-      const { container } = renderWithProviders(
-        <CoreSidebar isOpen={true} onToggle={mockOnToggle} />
-      );
+      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
       expect(container.textContent).toContain("Sales");
       expect(container.textContent).toContain("Purchases");
       expect(container.textContent).toContain("Finance");
@@ -76,9 +68,7 @@ describe("CoreSidebar", () => {
     });
 
     it("should render navigation items", () => {
-      const { container } = renderWithProviders(
-        <CoreSidebar isOpen={true} onToggle={mockOnToggle} />
-      );
+      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
       expect(container.textContent).toContain("Invoices");
       expect(container.textContent).toContain("Customers");
       expect(container.textContent).toContain("Products");
@@ -86,9 +76,7 @@ describe("CoreSidebar", () => {
     });
 
     it("should render links with correct paths", () => {
-      const { container } = renderWithProviders(
-        <CoreSidebar isOpen={true} onToggle={mockOnToggle} />
-      );
+      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
 
       const invoiceLink = container.querySelector('a[href="/app/invoices"]');
       const customerLink = container.querySelector('a[href="/app/customers"]');
@@ -99,9 +87,7 @@ describe("CoreSidebar", () => {
 
   describe("Open/Close State", () => {
     it("should apply translate-x-0 when open", () => {
-      const { container } = renderWithProviders(
-        <CoreSidebar isOpen={true} onToggle={mockOnToggle} />
-      );
+      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
 
       // The sidebar element might be nested; search for the element with the translate class
       const sidebar = container.querySelector(".translate-x-0") || container.firstChild;
@@ -109,9 +95,7 @@ describe("CoreSidebar", () => {
     });
 
     it("should apply -translate-x-full when closed", () => {
-      const { container } = renderWithProviders(
-        <CoreSidebar isOpen={false} onToggle={mockOnToggle} />
-      );
+      const { container } = renderWithProviders(<CoreSidebar isOpen={false} onToggle={mockOnToggle} />);
 
       // The sidebar element might be nested; search for the element with the translate class
       const sidebar = container.querySelector(".-translate-x-full") || container.firstChild;
@@ -121,25 +105,19 @@ describe("CoreSidebar", () => {
 
   describe("Navigation Sections", () => {
     it("should render Analytics Hub link", () => {
-      const { container } = renderWithProviders(
-        <CoreSidebar isOpen={true} onToggle={mockOnToggle} />
-      );
+      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
       expect(container.textContent).toContain("Analytics Hub");
     });
 
     it("should render Settings section", () => {
-      const { container } = renderWithProviders(
-        <CoreSidebar isOpen={true} onToggle={mockOnToggle} />
-      );
+      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
       expect(container.textContent).toContain("Company Settings");
       expect(container.textContent).toContain("User Management");
       expect(container.textContent).toContain("Audit Trail");
     });
 
     it("should render Trade section", () => {
-      const { container } = renderWithProviders(
-        <CoreSidebar isOpen={true} onToggle={mockOnToggle} />
-      );
+      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
       expect(container.textContent).toContain("Import / Export");
       expect(container.textContent).toContain("Containers");
     });
@@ -147,9 +125,7 @@ describe("CoreSidebar", () => {
 
   describe("Scroll Indicators", () => {
     it("should render scroll indicator buttons", () => {
-      const { container } = renderWithProviders(
-        <CoreSidebar isOpen={true} onToggle={mockOnToggle} />
-      );
+      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
 
       const scrollTopBtn = container.querySelector('[aria-label="Scroll to top"]');
       const scrollBottomBtn = container.querySelector('[aria-label="Scroll to bottom"]');

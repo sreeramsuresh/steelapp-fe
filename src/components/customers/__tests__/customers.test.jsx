@@ -4,7 +4,6 @@
  */
 
 import { render, screen } from "@testing-library/react";
-import React from "react";
 import { describe, expect, it } from "vitest";
 
 describe("CustomerOverviewTab", () => {
@@ -36,10 +35,27 @@ describe("CustomerInvoicesTab", () => {
     const MockInvoicesTab = () => (
       <div data-testid="customer-invoices">
         <table>
-          <thead><tr><th>Invoice #</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Invoice #</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>INV-001</td><td>2026-01-15</td><td>5,000</td><td>Paid</td></tr>
-            <tr><td>INV-005</td><td>2026-02-01</td><td>7,500</td><td>Outstanding</td></tr>
+            <tr>
+              <td>INV-001</td>
+              <td>2026-01-15</td>
+              <td>5,000</td>
+              <td>Paid</td>
+            </tr>
+            <tr>
+              <td>INV-005</td>
+              <td>2026-02-01</td>
+              <td>7,500</td>
+              <td>Outstanding</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -56,9 +72,21 @@ describe("CustomerPaymentsTab", () => {
     const MockPaymentsTab = () => (
       <div data-testid="customer-payments">
         <table>
-          <thead><tr><th>Date</th><th>Reference</th><th>Amount</th><th>Method</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Reference</th>
+              <th>Amount</th>
+              <th>Method</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>2026-01-20</td><td>PAY-001</td><td>5,000</td><td>Bank Transfer</td></tr>
+            <tr>
+              <td>2026-01-20</td>
+              <td>PAY-001</td>
+              <td>5,000</td>
+              <td>Bank Transfer</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -75,9 +103,21 @@ describe("CustomerCreditNotesTab", () => {
     const MockCNTab = () => (
       <div data-testid="customer-credit-notes">
         <table>
-          <thead><tr><th>CN #</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>CN #</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>CN-001</td><td>2026-01-25</td><td>500</td><td>Issued</td></tr>
+            <tr>
+              <td>CN-001</td>
+              <td>2026-01-25</td>
+              <td>500</td>
+              <td>Issued</td>
+            </tr>
           </tbody>
         </table>
       </div>

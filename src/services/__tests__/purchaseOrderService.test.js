@@ -2,16 +2,15 @@
  * Purchase Order Service Unit Tests
  * ✅ Tests CRUD operations for purchase orders
  * ✅ Tests status transitions (draft → approved → received → closed)
-* ✅ Tests stock status and transit status updates
+ * ✅ Tests stock status and transit status updates
  * ✅ Tests GRN/stock receipt workflows
  * ✅ 100% coverage target for purchaseOrderService.js
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { apiClient } from "../api.js";
 import { apiService } from "../axiosApi.js";
 import { purchaseOrderService } from "../purchaseOrderService.js";
-import { apiClient } from "../api.js";
 
 describe("purchaseOrderService", () => {
   let getStub;
@@ -21,11 +20,11 @@ describe("purchaseOrderService", () => {
   let deleteStub;
   beforeEach(() => {
     vi.restoreAllMocks();
-    getStub = vi.spyOn(apiClient, 'get');
-    postStub = vi.spyOn(apiClient, 'post');
-    putStub = vi.spyOn(apiClient, 'put');
-    patchStub = vi.spyOn(apiClient, 'patch');
-    deleteStub = vi.spyOn(apiClient, 'delete');
+    getStub = vi.spyOn(apiClient, "get");
+    postStub = vi.spyOn(apiClient, "post");
+    putStub = vi.spyOn(apiClient, "put");
+    patchStub = vi.spyOn(apiClient, "patch");
+    deleteStub = vi.spyOn(apiClient, "delete");
   });
 
   describe("getAll", () => {
@@ -345,7 +344,7 @@ describe("purchaseOrderService", () => {
       document.body.appendChild = vi.fn();
       document.body.removeChild = vi.fn();
 
-      vi.spyOn(apiService, 'request').mockResolvedValue(mockBlob);
+      vi.spyOn(apiService, "request").mockResolvedValue(mockBlob);
 
       await purchaseOrderService.downloadPDF(1);
 
@@ -357,7 +356,7 @@ describe("purchaseOrderService", () => {
     });
 
     it("should handle PDF download errors", async () => {
-      vi.spyOn(apiService, 'request').mockRejectedValue(new Error("PDF generation failed"));
+      vi.spyOn(apiService, "request").mockRejectedValue(new Error("PDF generation failed"));
 
       await expect(purchaseOrderService.downloadPDF(999)).rejects.toThrow();
     });

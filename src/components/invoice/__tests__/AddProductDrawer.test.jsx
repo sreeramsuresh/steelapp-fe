@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("lucide-react", () => ({
   X: (props) => <span data-testid="x-icon" {...props} />,
@@ -8,15 +8,19 @@ vi.mock("lucide-react", () => ({
 vi.mock("../../AllocationDrawer", () => ({
   default: (props) => (
     <div data-testid="allocation-drawer">
-      <button onClick={() => props.onAddLineItem({ id: 1 })}>Add</button>
-      <button onClick={props.onCancel}>Cancel</button>
+      <button type="button" onClick={() => props.onAddLineItem({ id: 1 })}>
+        Add
+      </button>
+      <button type="button" onClick={props.onCancel}>
+        Cancel
+      </button>
     </div>
   ),
 }));
 
 vi.mock("../invoiceStyles", () => ({
   DRAWER_OVERLAY_CLASSES: (isOpen) => (isOpen ? "overlay-open" : "overlay-closed"),
-  DRAWER_PANEL_CLASSES: (isDark, isOpen) => (isOpen ? "panel-open" : "panel-closed"),
+  DRAWER_PANEL_CLASSES: (_isDark, isOpen) => (isOpen ? "panel-open" : "panel-closed"),
   DRAWER_STYLE: { borderTopLeftRadius: "8px" },
 }));
 
@@ -44,9 +48,7 @@ describe("AddProductDrawer", () => {
 
   it("shows header subtitle", () => {
     render(<AddProductDrawer {...defaultProps} />);
-    expect(
-      screen.getByText("Search products, allocate batches, and add to invoice")
-    ).toBeTruthy();
+    expect(screen.getByText("Search products, allocate batches, and add to invoice")).toBeTruthy();
   });
 
   it("renders AllocationDrawer component", () => {
@@ -65,9 +67,7 @@ describe("AddProductDrawer", () => {
     render(<AddProductDrawer {...defaultProps} />);
     const xButtons = screen.getAllByRole("button");
     // The second button-like element is the X close button in the header
-    const closeBtn = xButtons.find(
-      (btn) => btn.querySelector("[data-testid='x-icon']")
-    );
+    const closeBtn = xButtons.find((btn) => btn.querySelector("[data-testid='x-icon']"));
     if (closeBtn) fireEvent.click(closeBtn);
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
@@ -86,13 +86,7 @@ describe("AddProductDrawer", () => {
   });
 
   it("passes optional customerId and priceListId to AllocationDrawer", () => {
-    render(
-      <AddProductDrawer
-        {...defaultProps}
-        customerId={10}
-        priceListId={20}
-      />
-    );
+    render(<AddProductDrawer {...defaultProps} customerId={10} priceListId={20} />);
     expect(screen.getByTestId("allocation-drawer")).toBeTruthy();
   });
 });

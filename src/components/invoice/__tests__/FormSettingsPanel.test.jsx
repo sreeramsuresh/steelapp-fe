@@ -1,8 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
-import FormSettingsPanel from "../FormSettingsPanel";
+import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import FormSettingsPanel from "../FormSettingsPanel";
 
 vi.mock("../ToggleSwitchInvoice", () => ({
   default: ({ label, description }) => (
@@ -26,9 +25,7 @@ describe("FormSettingsPanel", () => {
   };
 
   it("returns null when not open", () => {
-    const { container } = renderWithTheme(
-      <FormSettingsPanel {...defaultProps} isOpen={false} />
-    );
+    const { container } = renderWithTheme(<FormSettingsPanel {...defaultProps} isOpen={false} />);
     expect(container.innerHTML).toBe("");
   });
 

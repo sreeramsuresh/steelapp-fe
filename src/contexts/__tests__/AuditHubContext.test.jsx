@@ -1,6 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, act, waitFor } from "@testing-library/react";
-import React from "react";
+import { act, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AuditHubProvider, useAuditHub } from "../AuditHubContext";
 import { AuthProvider } from "../AuthContext";
 
@@ -38,34 +37,23 @@ function TestConsumer() {
       <span data-testid="loading">{String(hub.loading)}</span>
       <span data-testid="error">{String(hub.error ?? "")}</span>
       <span data-testid="periods">{JSON.stringify(hub.periods)}</span>
-      <span data-testid="selectedPeriod">
-        {JSON.stringify(hub.selectedPeriod)}
-      </span>
+      <span data-testid="selectedPeriod">{JSON.stringify(hub.selectedPeriod)}</span>
       <span data-testid="datasets">{JSON.stringify(hub.datasets)}</span>
       <span data-testid="companyId">{String(hub.companyId ?? "")}</span>
       <span data-testid="filtersYear">{hub.filters.year}</span>
-      <button
-        data-testid="selectPeriod"
-        onClick={() => hub.selectPeriod({ id: 1, name: "Q1" })}
-      >
+      <button type="button" data-testid="selectPeriod" onClick={() => hub.selectPeriod({ id: 1, name: "Q1" })}>
         Select
       </button>
-      <button
-        data-testid="updateFilters"
-        onClick={() => hub.updateFilters({ year: 2025 })}
-      >
+      <button type="button" data-testid="updateFilters" onClick={() => hub.updateFilters({ year: 2025 })}>
         Filter
       </button>
-      <button
-        data-testid="createPeriod"
-        onClick={() => hub.createPeriod("monthly", 2025, 1)}
-      >
+      <button type="button" data-testid="createPeriod" onClick={() => hub.createPeriod("monthly", 2025, 1)}>
         Create
       </button>
-      <button data-testid="closePeriod" onClick={() => hub.closePeriod(1)}>
+      <button type="button" data-testid="closePeriod" onClick={() => hub.closePeriod(1)}>
         Close
       </button>
-      <button data-testid="lockPeriod" onClick={() => hub.lockPeriod(1)}>
+      <button type="button" data-testid="lockPeriod" onClick={() => hub.lockPeriod(1)}>
         Lock
       </button>
     </div>
@@ -105,9 +93,7 @@ describe("AuditHubContext", () => {
   it("provides current year as default filter", () => {
     renderWithAuth();
 
-    expect(screen.getByTestId("filtersYear")).toHaveTextContent(
-      String(new Date().getFullYear())
-    );
+    expect(screen.getByTestId("filtersYear")).toHaveTextContent(String(new Date().getFullYear()));
   });
 
   it("loads periods on mount when user has companyId", async () => {
@@ -117,9 +103,7 @@ describe("AuditHubContext", () => {
     renderWithAuth();
 
     await waitFor(() => {
-      expect(screen.getByTestId("periods")).toHaveTextContent(
-        JSON.stringify(periods)
-      );
+      expect(screen.getByTestId("periods")).toHaveTextContent(JSON.stringify(periods));
     });
     expect(auditHubService.getPeriods).toHaveBeenCalledWith(10, expect.any(Object));
   });
@@ -128,9 +112,7 @@ describe("AuditHubContext", () => {
     renderWithAuth({ id: 1, companyId: null, role: "admin" });
 
     await waitFor(() => {
-      expect(screen.getByTestId("error")).toHaveTextContent(
-        "No company context available"
-      );
+      expect(screen.getByTestId("error")).toHaveTextContent("No company context available");
     });
   });
 
@@ -149,9 +131,7 @@ describe("AuditHubContext", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId("datasets")).toHaveTextContent(
-        JSON.stringify(datasets)
-      );
+      expect(screen.getByTestId("datasets")).toHaveTextContent(JSON.stringify(datasets));
     });
     expect(auditHubService.getDatasets).toHaveBeenCalledWith(10, 1);
   });
@@ -200,9 +180,7 @@ describe("AuditHubContext", () => {
   it("throws error when useAuditHub is used outside provider", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    expect(() => render(<TestConsumer />)).toThrow(
-      "useAuditHub must be used within AuditHubProvider"
-    );
+    expect(() => render(<TestConsumer />)).toThrow("useAuditHub must be used within AuditHubProvider");
 
     spy.mockRestore();
   });

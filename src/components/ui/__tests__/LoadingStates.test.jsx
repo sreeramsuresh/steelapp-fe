@@ -1,16 +1,15 @@
-import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
+import { describe, expect, it } from "vitest";
 import {
-  Spinner,
-  PulsingDots,
-  Skeleton,
-  TableRowSkeleton,
   CardSkeleton,
-  PageLoader,
   InlineLoader,
+  PageLoader,
   ProgressBar,
+  PulsingDots,
   SavingIndicator,
+  Skeleton,
+  Spinner,
+  TableRowSkeleton,
 } from "../LoadingStates";
 
 describe("LoadingStates", () => {
@@ -87,10 +86,7 @@ describe("LoadingStates", () => {
   describe("ProgressBar", () => {
     it("renders progress bar with correct aria value", () => {
       render(<ProgressBar progress={75} />);
-      expect(screen.getByRole("progressbar")).toHaveAttribute(
-        "aria-valuenow",
-        "75"
-      );
+      expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "75");
     });
 
     it("shows percentage text", () => {

@@ -2,10 +2,9 @@
  * Supplier Bill Service Unit Tests
  * Tests supplier bill CRUD, VAT compliance, payment tracking, approval workflows
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import supplierBillService from "../supplierBillService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
+import supplierBillService from "../supplierBillService.js";
 
 describe("supplierBillService", () => {
   let getStub;
@@ -14,10 +13,10 @@ describe("supplierBillService", () => {
   let deleteStub;
   beforeEach(() => {
     vi.restoreAllMocks();
-    getStub = vi.spyOn(apiClient, 'get');
-    postStub = vi.spyOn(apiClient, 'post');
-    putStub = vi.spyOn(apiClient, 'put');
-    deleteStub = vi.spyOn(apiClient, 'delete');
+    getStub = vi.spyOn(apiClient, "get");
+    postStub = vi.spyOn(apiClient, "post");
+    putStub = vi.spyOn(apiClient, "put");
+    deleteStub = vi.spyOn(apiClient, "delete");
   });
 
   describe("getAll", () => {
@@ -372,8 +371,7 @@ describe("supplierBillService", () => {
       const result = await supplierBillService.recordPayment(1, paymentData);
 
       expect(result.amountPaid).toBeTruthy();
-      expect(postStub).toHaveBeenCalledWith("/supplier-bills/1/payments",
-        expect.objectContaining({ amount: 500 }));
+      expect(postStub).toHaveBeenCalledWith("/supplier-bills/1/payments", expect.objectContaining({ amount: 500 }));
     });
 
     it("should handle payment with attachment", async () => {
@@ -586,11 +584,11 @@ describe("supplierBillService", () => {
         download: "",
         click: vi.fn(),
       };
-      vi.spyOn(document, 'createElement').mockReturnValue(mockLink);
-      vi.spyOn(document.body, 'appendChild').mockImplementation(() => {});
-      vi.spyOn(document.body, 'removeChild').mockImplementation(() => {});
+      vi.spyOn(document, "createElement").mockReturnValue(mockLink);
+      vi.spyOn(document.body, "appendChild").mockImplementation(() => {});
+      vi.spyOn(document.body, "removeChild").mockImplementation(() => {});
 
-      const result = await supplierBillService.downloadPDF(1, 'SB-001');
+      const result = await supplierBillService.downloadPDF(1, "SB-001");
 
       expect(result).toBeTruthy();
     });
@@ -837,7 +835,7 @@ describe("supplierBillService", () => {
       };
       getStub.mockResolvedValue(mockResponse);
 
-      const result = await supplierBillService.getById(1);
+      const _result = await supplierBillService.getById(1);
 
       expect(["pending", "approved", "rejected"]).toBeTruthy();
     });

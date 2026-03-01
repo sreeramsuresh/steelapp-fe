@@ -1,8 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
-import Textarea from "../InvoiceTextarea";
+import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import Textarea from "../InvoiceTextarea";
 
 function renderWithTheme(ui) {
   return render(<ThemeProvider>{ui}</ThemeProvider>);
@@ -31,7 +30,7 @@ describe("InvoiceTextarea", () => {
 
   it("calls onChange handler", async () => {
     const onChange = vi.fn();
-    const { user } = await import("@testing-library/user-event");
+    const { default: _userEvent } = await import("@testing-library/user-event");
     renderWithTheme(<Textarea onChange={onChange} id="ta" />);
     const ta = document.getElementById("ta");
     // Textarea wraps onChange internally, so fire input event through React

@@ -1571,11 +1571,20 @@ const WarehouseDetail = () => {
                     return labelA.localeCompare(labelB, undefined, { numeric: true });
                   });
                   return (
+                    // biome-ignore lint/a11y/useSemanticElements: container deselects bins on background click
                     <div
                       className="p-4 space-y-5"
+                      role="button"
+                      tabIndex={0}
                       onClick={() => {
                         setSelectedBinInfo(null);
                         setSelectedLocs(new Set());
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          setSelectedBinInfo(null);
+                          setSelectedLocs(new Set());
+                        }
                       }}
                     >
                       {sortedAisles.map((aisleKey) => {
@@ -1645,6 +1654,8 @@ const WarehouseDetail = () => {
                                         ? "text-amber-400"
                                         : "text-green-400";
                                 return (
+                                  // biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation-only event boundary
+                                  // biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only, not interactive
                                   <div className={infoBarBase} onClick={(e) => e.stopPropagation()}>
                                     <span
                                       className={`font-mono font-bold text-sm ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}
@@ -1855,6 +1866,8 @@ const WarehouseDetail = () => {
                                                   : "bg-green-500";
                                           const binInfoSelected = selectedBinInfo?.locId === loc.id;
                                           return (
+                                            // biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation-only event boundary
+                                            // biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only, not interactive
                                             <div
                                               key={loc.id}
                                               className="group relative flex flex-col gap-0.5"

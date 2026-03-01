@@ -4,7 +4,6 @@
  */
 
 import { fireEvent, waitFor } from "@testing-library/react";
-import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../test/component-setup";
 
@@ -186,7 +185,11 @@ describe("ResetPassword", () => {
     it("should show loading state during submission", async () => {
       const user = setupUser();
       let resolveReset;
-      mockResetPassword.mockReturnValue(new Promise((resolve) => { resolveReset = resolve; }));
+      mockResetPassword.mockReturnValue(
+        new Promise((resolve) => {
+          resolveReset = resolve;
+        })
+      );
 
       const { container } = renderWithProviders(<ResetPassword />);
       const passwordInput = container.querySelector("#new-password");

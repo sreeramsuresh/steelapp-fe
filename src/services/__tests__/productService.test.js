@@ -2,13 +2,12 @@
  * Product Service Unit Tests
  * ✅ Comprehensive test coverage for productService
  * ✅ Tests CRUD operations, search, filtering, stock management
-* ✅ Covers data transformation, analytics, and file downloads
+ * ✅ Covers data transformation, analytics, and file downloads
  * ✅ 100% coverage target for productService.js
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { apiService } from "../axiosApi.js";
 // Mock API client and file operations
 
 // Mock DOM APIs
@@ -52,7 +51,7 @@ describe("productService", () => {
           },
         ];
 
-        vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockProducts);
+        vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockProducts);
 
         const result = await productService.getProducts({ page: 1, limit: 20 });
 
@@ -62,7 +61,7 @@ describe("productService", () => {
       });
 
       it("should fetch products with getAll() alias", async () => {
-        vi.spyOn(apiClient, 'get').mockResolvedValueOnce([]);
+        vi.spyOn(apiClient, "get").mockResolvedValueOnce([]);
 
         await productService.getAll({ page: 1 });
 
@@ -70,7 +69,7 @@ describe("productService", () => {
       });
 
       it("should filter products by category", async () => {
-        vi.spyOn(apiClient, 'get').mockResolvedValueOnce([]);
+        vi.spyOn(apiClient, "get").mockResolvedValueOnce([]);
 
         await productService.getProducts({ category: "Sheet" });
 
@@ -78,7 +77,7 @@ describe("productService", () => {
       });
 
       it("should handle empty product list", async () => {
-        vi.spyOn(apiClient, 'get').mockResolvedValueOnce([]);
+        vi.spyOn(apiClient, "get").mockResolvedValueOnce([]);
 
         const result = await productService.getProducts();
 
@@ -103,7 +102,7 @@ describe("productService", () => {
           status: "ACTIVE",
         };
 
-        vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockProduct);
+        vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockProduct);
 
         const result = await productService.getProduct(1);
 
@@ -113,7 +112,7 @@ describe("productService", () => {
       });
 
       it("should handle non-existent product", async () => {
-        vi.spyOn(apiClient, 'get').mockRejectedValueOnce(new Error("Not found"));
+        vi.spyOn(apiClient, "get").mockRejectedValueOnce(new Error("Not found"));
 
         await expect(productService.getProduct(999)).rejects.toThrow();
       });
@@ -139,7 +138,7 @@ describe("productService", () => {
           ...newProduct,
         };
 
-        vi.spyOn(apiClient, 'post').mockResolvedValueOnce(created);
+        vi.spyOn(apiClient, "post").mockResolvedValueOnce(created);
 
         const result = await productService.createProduct(newProduct);
 
@@ -149,11 +148,13 @@ describe("productService", () => {
       });
 
       it("should validate required fields", async () => {
-        vi.spyOn(apiClient, 'post').mockRejectedValueOnce(new Error("Validation: Name required"));
+        vi.spyOn(apiClient, "post").mockRejectedValueOnce(new Error("Validation: Name required"));
 
-        await expect(productService.createProduct({
+        await expect(
+          productService.createProduct({
             sku: "INCOMPLETE",
-          })).rejects.toThrow();
+          })
+        ).rejects.toThrow();
       });
     });
 
@@ -171,7 +172,7 @@ describe("productService", () => {
           ...updates,
         };
 
-        vi.spyOn(apiClient, 'put').mockResolvedValueOnce(updated);
+        vi.spyOn(apiClient, "put").mockResolvedValueOnce(updated);
 
         const result = await productService.updateProduct(1, updates);
 
@@ -182,7 +183,7 @@ describe("productService", () => {
 
     describe("deleteProduct()", () => {
       it("should delete product", async () => {
-        vi.spyOn(apiClient, 'delete').mockResolvedValueOnce({ success: true });
+        vi.spyOn(apiClient, "delete").mockResolvedValueOnce({ success: true });
 
         const result = await productService.deleteProduct(1);
 
@@ -205,7 +206,7 @@ describe("productService", () => {
           margin: "68.42%",
         };
 
-        vi.spyOn(apiClient, 'post').mockResolvedValueOnce({
+        vi.spyOn(apiClient, "post").mockResolvedValueOnce({
           id: 1,
           ...priceData,
         });
@@ -225,7 +226,7 @@ describe("productService", () => {
           maxStock: 1000,
         };
 
-        vi.spyOn(apiClient, 'put').mockResolvedValueOnce({
+        vi.spyOn(apiClient, "put").mockResolvedValueOnce({
           id: 1,
           ...stockData,
         });
@@ -254,7 +255,7 @@ describe("productService", () => {
           outOfStockItems: 3,
         };
 
-        vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockAnalytics);
+        vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockAnalytics);
 
         const result = await productService.getProductAnalytics();
 
@@ -264,7 +265,7 @@ describe("productService", () => {
       });
 
       it("should handle empty analytics", async () => {
-        vi.spyOn(apiClient, 'get').mockResolvedValueOnce({
+        vi.spyOn(apiClient, "get").mockResolvedValueOnce({
           totalProducts: 0,
           activeProducts: 0,
         });
@@ -291,7 +292,7 @@ describe("productService", () => {
           },
         ];
 
-        vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockResults);
+        vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockResults);
 
         const result = await productService.searchProducts("304");
 
@@ -300,7 +301,7 @@ describe("productService", () => {
       });
 
       it("should search with additional filters", async () => {
-        vi.spyOn(apiClient, 'get').mockResolvedValueOnce([]);
+        vi.spyOn(apiClient, "get").mockResolvedValueOnce([]);
 
         await productService.searchProducts("SS-304", { category: "Sheet" });
 
@@ -308,7 +309,7 @@ describe("productService", () => {
       });
 
       it("should handle no search results", async () => {
-        vi.spyOn(apiClient, 'get').mockResolvedValueOnce([]);
+        vi.spyOn(apiClient, "get").mockResolvedValueOnce([]);
 
         const result = await productService.searchProducts("NONEXISTENT");
 
@@ -323,7 +324,7 @@ describe("productService", () => {
           { id: 2, category: "Sheet", name: "Product 2" },
         ];
 
-        vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockProducts);
+        vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockProducts);
 
         const result = await productService.getProductsByCategory("Sheet");
 
@@ -339,7 +340,7 @@ describe("productService", () => {
           { id: 4, name: "Low Stock Item 2", quantityInStock: 5 },
         ];
 
-        vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockProducts);
+        vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockProducts);
 
         const result = await productService.getLowStockProducts();
 
@@ -348,7 +349,7 @@ describe("productService", () => {
       });
 
       it("should handle no low stock products", async () => {
-        vi.spyOn(apiClient, 'get').mockResolvedValueOnce([]);
+        vi.spyOn(apiClient, "get").mockResolvedValueOnce([]);
 
         const result = await productService.getLowStockProducts();
 
@@ -381,7 +382,7 @@ describe("productService", () => {
           totalStock: 500,
         };
 
-        vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockStock);
+        vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockStock);
 
         const result = await productService.getWarehouseStock(1);
 
@@ -543,7 +544,7 @@ describe("productService", () => {
         unit: "KG",
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValueOnce({ id: 1, ...data });
+      vi.spyOn(apiClient, "post").mockResolvedValueOnce({ id: 1, ...data });
 
       const result = await productService.createProduct(data);
 
@@ -557,7 +558,7 @@ describe("productService", () => {
         notes: "Product with é, ñ, ü characters",
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValueOnce({ id: 1, ...data });
+      vi.spyOn(apiClient, "post").mockResolvedValueOnce({ id: 1, ...data });
 
       const result = await productService.createProduct(data);
 
@@ -592,13 +593,13 @@ describe("productService", () => {
     });
 
     it("should handle network timeout", async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValueOnce(new Error("Network timeout"));
+      vi.spyOn(apiClient, "get").mockRejectedValueOnce(new Error("Network timeout"));
 
       await expect(productService.getProducts()).rejects.toThrow();
     });
 
     it("should handle server errors", async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValueOnce(new Error("Server error: 500"));
+      vi.spyOn(apiClient, "get").mockRejectedValueOnce(new Error("Server error: 500"));
 
       await expect(productService.getProducts()).rejects.toThrow();
     });

@@ -1,10 +1,10 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import useCreditNoteDrafts, {
+  cleanupExpiredDrafts,
   formatRelativeTime,
   formatTimeUntilExpiry,
   getDraftStatusMessage,
-  cleanupExpiredDrafts,
 } from "../useCreditNoteDrafts";
 
 vi.mock("../../utils/invoiceUtils", () => ({
@@ -30,9 +30,7 @@ describe("useCreditNoteDrafts", () => {
   });
 
   it("saves a draft", () => {
-    const { result } = renderHook(() =>
-      useCreditNoteDrafts({ currentInvoiceId: 42 })
-    );
+    const { result } = renderHook(() => useCreditNoteDrafts({ currentInvoiceId: 42 }));
 
     act(() => {
       result.current.saveDraft(
@@ -66,9 +64,7 @@ describe("useCreditNoteDrafts", () => {
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ 10: draft }));
 
-    const { result } = renderHook(() =>
-      useCreditNoteDrafts({ currentInvoiceId: 10 })
-    );
+    const { result } = renderHook(() => useCreditNoteDrafts({ currentInvoiceId: 10 }));
 
     const fetched = result.current.getDraft(10);
     expect(fetched).toBeTruthy();
@@ -98,9 +94,7 @@ describe("useCreditNoteDrafts", () => {
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ 5: draft }));
 
-    const { result } = renderHook(() =>
-      useCreditNoteDrafts({ currentInvoiceId: 5 })
-    );
+    const { result } = renderHook(() => useCreditNoteDrafts({ currentInvoiceId: 5 }));
 
     act(() => {
       result.current.deleteDraft(5);

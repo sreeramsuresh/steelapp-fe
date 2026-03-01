@@ -3,7 +3,6 @@
  * Phase 3C: Core auth/routing component
  */
 
-import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../test/component-setup";
 

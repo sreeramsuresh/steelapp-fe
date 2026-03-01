@@ -1,8 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
-import LeadTimeInput from "../LeadTimeInput";
+import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import LeadTimeInput from "../LeadTimeInput";
 
 function renderWithTheme(ui) {
   return render(<ThemeProvider>{ui}</ThemeProvider>);
@@ -17,35 +16,25 @@ describe("LeadTimeInput", () => {
   });
 
   it("renders when sourceType is TO_BE_PROCURED", () => {
-    renderWithTheme(
-      <LeadTimeInput item={{ sourceType: "TO_BE_PROCURED" }} index={0} onUpdate={vi.fn()} />
-    );
+    renderWithTheme(<LeadTimeInput item={{ sourceType: "TO_BE_PROCURED" }} index={0} onUpdate={vi.fn()} />);
     expect(screen.getByText("Lead Time:")).toBeInTheDocument();
     expect(screen.getByText("days")).toBeInTheDocument();
   });
 
   it("renders when no productId", () => {
-    renderWithTheme(
-      <LeadTimeInput item={{ sourceType: "WAREHOUSE" }} index={0} onUpdate={vi.fn()} />
-    );
+    renderWithTheme(<LeadTimeInput item={{ sourceType: "WAREHOUSE" }} index={0} onUpdate={vi.fn()} />);
     expect(screen.getByText("Lead Time:")).toBeInTheDocument();
   });
 
   it("shows current lead time value", () => {
     renderWithTheme(
-      <LeadTimeInput
-        item={{ sourceType: "TO_BE_PROCURED", estimatedLeadTimeDays: 14 }}
-        index={0}
-        onUpdate={vi.fn()}
-      />
+      <LeadTimeInput item={{ sourceType: "TO_BE_PROCURED", estimatedLeadTimeDays: 14 }} index={0} onUpdate={vi.fn()} />
     );
     expect(screen.getByDisplayValue("14")).toBeInTheDocument();
   });
 
   it("shows description text", () => {
-    renderWithTheme(
-      <LeadTimeInput item={{ sourceType: "TO_BE_PROCURED" }} index={0} onUpdate={vi.fn()} />
-    );
+    renderWithTheme(<LeadTimeInput item={{ sourceType: "TO_BE_PROCURED" }} index={0} onUpdate={vi.fn()} />);
     expect(screen.getByText(/Expected days for supplier/)).toBeInTheDocument();
   });
 });

@@ -13,7 +13,7 @@ vi.mock("../../../services/invoiceService", () => ({
 }));
 
 vi.mock("date-fns", () => ({
-  format: (date, fmt) => "01 Jan 2024 10:00",
+  format: (_date, _fmt) => "01 Jan 2024 10:00",
 }));
 
 import { invoiceService } from "../../../services/invoiceService";

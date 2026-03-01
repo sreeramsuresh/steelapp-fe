@@ -1,9 +1,6 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderHook } from "@testing-library/react";
-import useKeyboardShortcuts, {
-  getShortcutDisplayString,
-  INVOICE_SHORTCUTS,
-} from "../useKeyboardShortcuts";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import useKeyboardShortcuts, { getShortcutDisplayString, INVOICE_SHORTCUTS } from "../useKeyboardShortcuts";
 
 describe("useKeyboardShortcuts", () => {
   beforeEach(() => {
@@ -26,13 +23,9 @@ describe("useKeyboardShortcuts", () => {
 
   it("does not call when disabled", () => {
     const handleSave = vi.fn();
-    renderHook(() =>
-      useKeyboardShortcuts({ "ctrl+s": handleSave }, { enabled: false })
-    );
+    renderHook(() => useKeyboardShortcuts({ "ctrl+s": handleSave }, { enabled: false }));
 
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "s", ctrlKey: true, bubbles: true })
-    );
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "s", ctrlKey: true, bubbles: true }));
 
     expect(handleSave).not.toHaveBeenCalled();
   });
@@ -41,9 +34,7 @@ describe("useKeyboardShortcuts", () => {
     const handleClose = vi.fn();
     renderHook(() => useKeyboardShortcuts({ escape: handleClose }));
 
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Escape", bubbles: true })
-    );
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
 
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
@@ -89,9 +80,7 @@ describe("useKeyboardShortcuts", () => {
 
   it("allows all shortcuts in inputs when enableInInputs is true", () => {
     const handleSave = vi.fn();
-    renderHook(() =>
-      useKeyboardShortcuts({ "ctrl+s": handleSave }, { enableInInputs: true })
-    );
+    renderHook(() => useKeyboardShortcuts({ "ctrl+s": handleSave }, { enableInInputs: true }));
 
     const input = document.createElement("input");
     document.body.appendChild(input);
@@ -143,15 +132,11 @@ describe("useKeyboardShortcuts", () => {
 
   it("cleans up on unmount", () => {
     const handler = vi.fn();
-    const { unmount } = renderHook(() =>
-      useKeyboardShortcuts({ "ctrl+s": handler })
-    );
+    const { unmount } = renderHook(() => useKeyboardShortcuts({ "ctrl+s": handler }));
 
     unmount();
 
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "s", ctrlKey: true, bubbles: true })
-    );
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "s", ctrlKey: true, bubbles: true }));
 
     expect(handler).not.toHaveBeenCalled();
   });

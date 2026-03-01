@@ -1,6 +1,5 @@
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
-import React from "react";
 import BulkPriceModal from "../BulkPriceModal";
 
 describe("BulkPriceModal", () => {
@@ -13,9 +12,7 @@ describe("BulkPriceModal", () => {
   };
 
   it("returns null when not open", () => {
-    const { container } = render(
-      <BulkPriceModal {...defaultProps} isOpen={false} />
-    );
+    const { container } = render(<BulkPriceModal {...defaultProps} isOpen={false} />);
     expect(container.innerHTML).toBe("");
   });
 

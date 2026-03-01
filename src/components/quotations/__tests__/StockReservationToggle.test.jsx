@@ -1,8 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
-import StockReservationToggle from "../StockReservationToggle";
+import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import StockReservationToggle from "../StockReservationToggle";
 
 function renderWithTheme(ui) {
   return render(<ThemeProvider>{ui}</ThemeProvider>);
@@ -10,13 +9,7 @@ function renderWithTheme(ui) {
 
 describe("StockReservationToggle", () => {
   it("shows Reserve button when not reserved", () => {
-    renderWithTheme(
-      <StockReservationToggle
-        item={{ stockReserved: false }}
-        index={0}
-        onToggleReservation={vi.fn()}
-      />
-    );
+    renderWithTheme(<StockReservationToggle item={{ stockReserved: false }} index={0} onToggleReservation={vi.fn()} />);
     expect(screen.getByText("Reserve")).toBeInTheDocument();
   });
 
@@ -49,11 +42,7 @@ describe("StockReservationToggle", () => {
   it("calls onToggleReservation with true when reserving", () => {
     const onToggle = vi.fn();
     renderWithTheme(
-      <StockReservationToggle
-        item={{ stockReserved: false }}
-        index={1}
-        onToggleReservation={onToggle}
-      />
+      <StockReservationToggle item={{ stockReserved: false }} index={1} onToggleReservation={onToggle} />
     );
     screen.getByText("Reserve").click();
     expect(onToggle).toHaveBeenCalledWith(1, true, expect.any(String));

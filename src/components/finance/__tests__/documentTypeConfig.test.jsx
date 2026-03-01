@@ -38,7 +38,7 @@ describe("documentTypeConfig", () => {
   });
 
   it("has navigateTo function for all types", () => {
-    for (const [key, config] of Object.entries(DOC_TYPE_CONFIG)) {
+    for (const [_key, config] of Object.entries(DOC_TYPE_CONFIG)) {
       expect(typeof config.navigateTo).toBe("function");
       const path = config.navigateTo(123);
       expect(path).toContain("123");
@@ -46,13 +46,13 @@ describe("documentTypeConfig", () => {
   });
 
   it("has icon component for all types", () => {
-    for (const [key, config] of Object.entries(DOC_TYPE_CONFIG)) {
+    for (const [_key, config] of Object.entries(DOC_TYPE_CONFIG)) {
       expect(config.icon).toBeDefined();
     }
   });
 
   it("has color for all types", () => {
-    for (const [key, config] of Object.entries(DOC_TYPE_CONFIG)) {
+    for (const [_key, config] of Object.entries(DOC_TYPE_CONFIG)) {
       expect(typeof config.color).toBe("string");
     }
   });

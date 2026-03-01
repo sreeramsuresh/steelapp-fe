@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../services/unitConversionService", () => ({
   default: {
@@ -13,7 +13,7 @@ vi.mock("../../services/unitConversionService", () => ({
 }));
 
 import mockService from "../../services/unitConversionService";
-import { useUnitConversion, FORMULA_TYPES, UNIT_CODES, PRICING_MODES, DEFAULT_DENSITY } from "../useUnitConversion";
+import { DEFAULT_DENSITY, FORMULA_TYPES, UNIT_CODES, useUnitConversion } from "../useUnitConversion";
 
 describe("useUnitConversion", () => {
   beforeEach(() => {
@@ -35,9 +35,7 @@ describe("useUnitConversion", () => {
   });
 
   it("auto-fetches formulas on mount", async () => {
-    const formulas = [
-      { category: "Sheet", formula_type: "DIMENSIONAL", density_kg_m3: 7930 },
-    ];
+    const formulas = [{ category: "Sheet", formula_type: "DIMENSIONAL", density_kg_m3: 7930 }];
     mockService.listConversionFormulas.mockResolvedValue({ formulas });
 
     const { result } = renderHook(() => useUnitConversion());
@@ -182,10 +180,7 @@ describe("useUnitConversion", () => {
 
   it("getCategories returns cached categories", async () => {
     mockService.listConversionFormulas.mockResolvedValue({
-      formulas: [
-        { category: "Sheet" },
-        { category: "Pipe" },
-      ],
+      formulas: [{ category: "Sheet" }, { category: "Pipe" }],
     });
 
     const { result } = renderHook(() => useUnitConversion());

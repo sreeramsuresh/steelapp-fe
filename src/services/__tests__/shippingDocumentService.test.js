@@ -1,7 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-import { shippingDocumentService } from "../shippingDocumentService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { api } from "../api.js";
+import { shippingDocumentService } from "../shippingDocumentService.js";
 
 describe("shippingDocumentService", () => {
   beforeEach(() => {
@@ -14,7 +13,7 @@ describe("shippingDocumentService", () => {
         { id: 1, status: "draft", documentType: "bill_of_lading" },
         { id: 2, status: "confirmed", documentType: "packing_list" },
       ];
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await shippingDocumentService.getShippingDocuments();
 
@@ -24,7 +23,7 @@ describe("shippingDocumentService", () => {
     });
 
     it("should pass filter params", async () => {
-      vi.spyOn(api, 'get').mockResolvedValue([]);
+      vi.spyOn(api, "get").mockResolvedValue([]);
 
       await shippingDocumentService.getShippingDocuments({ status: "in_transit" });
 
@@ -41,7 +40,7 @@ describe("shippingDocumentService", () => {
         status: "confirmed",
         documentType: "bill_of_lading",
       };
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await shippingDocumentService.getShippingDocument(1);
 
@@ -54,7 +53,7 @@ describe("shippingDocumentService", () => {
     it("should create a new shipping document", async () => {
       const payload = { documentType: "bill_of_lading", shipmentId: 5 };
       const mockResponse = { id: 10, ...payload, status: "draft" };
-      vi.spyOn(api, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "post").mockResolvedValue(mockResponse);
 
       const result = await shippingDocumentService.createShippingDocument(payload);
 
@@ -67,7 +66,7 @@ describe("shippingDocumentService", () => {
     it("should update a shipping document", async () => {
       const updates = { status: "confirmed" };
       const mockResponse = { id: 1, status: "confirmed" };
-      vi.spyOn(api, 'put').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "put").mockResolvedValue(mockResponse);
 
       const result = await shippingDocumentService.updateShippingDocument(1, updates);
 
@@ -78,7 +77,7 @@ describe("shippingDocumentService", () => {
 
   describe("deleteShippingDocument", () => {
     it("should delete a shipping document", async () => {
-      vi.spyOn(api, 'delete').mockResolvedValue({ success: true });
+      vi.spyOn(api, "delete").mockResolvedValue({ success: true });
 
       const result = await shippingDocumentService.deleteShippingDocument(1);
 
@@ -90,7 +89,7 @@ describe("shippingDocumentService", () => {
   describe("updateStatus", () => {
     it("should update shipping status", async () => {
       const mockResponse = { id: 1, status: "in_transit" };
-      vi.spyOn(api, 'patch').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "patch").mockResolvedValue(mockResponse);
 
       const result = await shippingDocumentService.updateStatus(1, "in_transit", "Shipped via DHL");
 

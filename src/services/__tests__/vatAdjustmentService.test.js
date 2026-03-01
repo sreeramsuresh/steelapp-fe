@@ -1,8 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { apiClient } from "../api.js";
 import vatAdjustmentService from "../vatAdjustmentService.js";
-
 
 describe("vatAdjustmentService", () => {
   beforeEach(() => {
@@ -13,20 +12,22 @@ describe("vatAdjustmentService", () => {
 
   describe("getAll", () => {
     it("should fetch all VAT adjustments with pagination", async () => {
-      const getStub = vi.spyOn(apiClient, 'get'); getStub.mockResolvedValue({
+      const getStub = vi.spyOn(apiClient, "get");
+      getStub.mockResolvedValue({
         data: [{ id: 1, adjustmentNumber: "VA001", status: "draft" }],
         pagination: { page: 1, totalPages: 1 },
       });
 
       const result = await vatAdjustmentService.getAll({ page: 1, pageSize: 50 });
 
-      expect(result && result.data).toBeTruthy();
-      expect(result && result.pagination).toBeTruthy();
+      expect(result?.data).toBeTruthy();
+      expect(result?.pagination).toBeTruthy();
       expect(Array.isArray(result.data)).toBeTruthy();
     });
 
     it("should handle array response", async () => {
-      const getStub = vi.spyOn(apiClient, 'get'); getStub.mockResolvedValue([{ id: 1, adjustmentNumber: "VA001" }]);
+      const getStub = vi.spyOn(apiClient, "get");
+      getStub.mockResolvedValue([{ id: 1, adjustmentNumber: "VA001" }]);
 
       const result = await vatAdjustmentService.getAll();
 
@@ -34,7 +35,8 @@ describe("vatAdjustmentService", () => {
     });
 
     it("should handle error", async () => {
-      const getStub = vi.spyOn(apiClient, 'get'); getStub.mockRejectedValue(new Error("API Error"));
+      const getStub = vi.spyOn(apiClient, "get");
+      getStub.mockRejectedValue(new Error("API Error"));
 
       await expect(vatAdjustmentService.getAll()).rejects.toThrow();
     });
@@ -42,7 +44,8 @@ describe("vatAdjustmentService", () => {
 
   describe("getById", () => {
     it("should fetch adjustment by ID", async () => {
-      const getStub = vi.spyOn(apiClient, 'get'); getStub.mockResolvedValue({ id: 1, adjustmentNumber: "VA001" });
+      const getStub = vi.spyOn(apiClient, "get");
+      getStub.mockResolvedValue({ id: 1, adjustmentNumber: "VA001" });
 
       const result = await vatAdjustmentService.getById(1);
 
@@ -53,7 +56,8 @@ describe("vatAdjustmentService", () => {
 
   describe("getByPeriod", () => {
     it("should fetch adjustments for a period", async () => {
-      const getStub = vi.spyOn(apiClient, 'get'); getStub.mockResolvedValue([{ id: 1, adjustmentNumber: "VA001" }]);
+      const getStub = vi.spyOn(apiClient, "get");
+      getStub.mockResolvedValue([{ id: 1, adjustmentNumber: "VA001" }]);
 
       const result = await vatAdjustmentService.getByPeriod("2024-01-01", "2024-12-31");
 
@@ -67,7 +71,8 @@ describe("vatAdjustmentService", () => {
 
   describe("getPendingApproval", () => {
     it("should fetch pending adjustments", async () => {
-      const getStub = vi.spyOn(apiClient, 'get'); getStub.mockResolvedValue([{ id: 1, status: "pending_approval" }]);
+      const getStub = vi.spyOn(apiClient, "get");
+      getStub.mockResolvedValue([{ id: 1, status: "pending_approval" }]);
 
       const result = await vatAdjustmentService.getPendingApproval();
 
@@ -84,7 +89,8 @@ describe("vatAdjustmentService", () => {
         status: "draft",
       };
 
-      const postStub = vi.spyOn(apiClient, 'post'); postStub.mockResolvedValue({
+      const postStub = vi.spyOn(apiClient, "post");
+      postStub.mockResolvedValue({
         id: 1,
         ...adjustmentData,
       });
@@ -92,7 +98,7 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.create(adjustmentData);
 
       expect(apiClient.post).toHaveBeenCalledWith("/vat-adjustments", expect.any(Object));
-      expect(result && result.id).toBeTruthy();
+      expect(result?.id).toBeTruthy();
     });
   });
 
@@ -100,7 +106,8 @@ describe("vatAdjustmentService", () => {
     it("should update existing adjustment", async () => {
       const adjustmentData = { status: "pending_approval" };
 
-      const putStub = vi.spyOn(apiClient, 'put'); putStub.mockResolvedValue({
+      const putStub = vi.spyOn(apiClient, "put");
+      putStub.mockResolvedValue({
         id: 1,
         ...adjustmentData,
       });
@@ -108,13 +115,14 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.update(1, adjustmentData);
 
       expect(apiClient.put).toHaveBeenCalledWith("/vat-adjustments/1", expect.any(Object));
-      expect(result && result.id).toBeTruthy();
+      expect(result?.id).toBeTruthy();
     });
   });
 
   describe("delete", () => {
     it("should delete adjustment", async () => {
-      const deleteStub = vi.spyOn(apiClient, 'delete'); deleteStub.mockResolvedValue({ success: true });
+      const deleteStub = vi.spyOn(apiClient, "delete");
+      deleteStub.mockResolvedValue({ success: true });
 
       await vatAdjustmentService.delete(1);
 
@@ -124,7 +132,8 @@ describe("vatAdjustmentService", () => {
 
   describe("submitForApproval", () => {
     it("should submit adjustment for approval", async () => {
-      const postStub = vi.spyOn(apiClient, 'post'); postStub.mockResolvedValue({
+      const postStub = vi.spyOn(apiClient, "post");
+      postStub.mockResolvedValue({
         id: 1,
         status: "pending_approval",
       });
@@ -138,7 +147,8 @@ describe("vatAdjustmentService", () => {
 
   describe("approve", () => {
     it("should approve adjustment", async () => {
-      const postStub = vi.spyOn(apiClient, 'post'); postStub.mockResolvedValue({
+      const postStub = vi.spyOn(apiClient, "post");
+      postStub.mockResolvedValue({
         id: 1,
         status: "approved",
       });
@@ -154,7 +164,8 @@ describe("vatAdjustmentService", () => {
 
   describe("reject", () => {
     it("should reject adjustment", async () => {
-      const postStub = vi.spyOn(apiClient, 'post'); postStub.mockResolvedValue({
+      const postStub = vi.spyOn(apiClient, "post");
+      postStub.mockResolvedValue({
         id: 1,
         status: "rejected",
       });
@@ -170,7 +181,8 @@ describe("vatAdjustmentService", () => {
 
   describe("applyToVatReturn", () => {
     it("should apply adjustment to VAT return", async () => {
-      const postStub = vi.spyOn(apiClient, 'post'); postStub.mockResolvedValue({
+      const postStub = vi.spyOn(apiClient, "post");
+      postStub.mockResolvedValue({
         id: 1,
         status: "applied",
       });
@@ -186,7 +198,8 @@ describe("vatAdjustmentService", () => {
 
   describe("cancel", () => {
     it("should cancel adjustment", async () => {
-      const postStub = vi.spyOn(apiClient, 'post'); postStub.mockResolvedValue({
+      const postStub = vi.spyOn(apiClient, "post");
+      postStub.mockResolvedValue({
         id: 1,
         status: "cancelled",
       });
@@ -202,20 +215,22 @@ describe("vatAdjustmentService", () => {
 
   describe("getNextNumber", () => {
     it("should get next adjustment number", async () => {
-      const getStub = vi.spyOn(apiClient, 'get'); getStub.mockResolvedValue({
+      const getStub = vi.spyOn(apiClient, "get");
+      getStub.mockResolvedValue({
         adjustmentNumber: "VA025",
       });
 
       const result = await vatAdjustmentService.getNextNumber();
 
       expect(apiClient.get).toHaveBeenCalledWith("/vat-adjustments/number/next");
-      expect(result && result.adjustmentNumber).toBeTruthy();
+      expect(result?.adjustmentNumber).toBeTruthy();
     });
   });
 
   describe("checkBadDebtEligibility", () => {
     it("should check bad debt eligibility", async () => {
-      const getStub = vi.spyOn(apiClient, 'get'); getStub.mockResolvedValue({
+      const getStub = vi.spyOn(apiClient, "get");
+      getStub.mockResolvedValue({
         eligible: true,
         debtAgeDays: 180,
       });
@@ -229,7 +244,8 @@ describe("vatAdjustmentService", () => {
 
   describe("createBadDebtRelief", () => {
     it("should create bad debt relief adjustment", async () => {
-      const postStub = vi.spyOn(apiClient, 'post'); postStub.mockResolvedValue({
+      const postStub = vi.spyOn(apiClient, "post");
+      postStub.mockResolvedValue({
         id: 1,
         adjustmentType: "BAD_DEBT_RELIEF",
       });
@@ -241,7 +257,7 @@ describe("vatAdjustmentService", () => {
         notes: "Test",
         supportingDocuments: [],
       });
-      expect(result && result.id).toBeTruthy();
+      expect(result?.id).toBeTruthy();
     });
   });
 
@@ -249,7 +265,8 @@ describe("vatAdjustmentService", () => {
     it("should get adjustment summary", async () => {
       const params = { startDate: "2024-01-01", endDate: "2024-12-31" };
 
-      const getStub = vi.spyOn(apiClient, 'get'); getStub.mockResolvedValue({
+      const getStub = vi.spyOn(apiClient, "get");
+      getStub.mockResolvedValue({
         totalAdjustments: 10,
         totalAmount: 50000,
       });
@@ -257,13 +274,14 @@ describe("vatAdjustmentService", () => {
       const result = await vatAdjustmentService.getSummary(params);
 
       expect(apiClient.get).toHaveBeenCalledWith("/vat-adjustments/summary", params);
-      expect(result && result.totalAdjustments).toBeTruthy();
+      expect(result?.totalAdjustments).toBeTruthy();
     });
   });
 
   describe("getAuditTrail", () => {
     it("should get audit trail", async () => {
-      const getStub = vi.spyOn(apiClient, 'get'); getStub.mockResolvedValue([{ action: "created", timestamp: "2024-01-15" }]);
+      const getStub = vi.spyOn(apiClient, "get");
+      getStub.mockResolvedValue([{ action: "created", timestamp: "2024-01-15" }]);
 
       const result = await vatAdjustmentService.getAuditTrail(1);
 
@@ -274,7 +292,8 @@ describe("vatAdjustmentService", () => {
 
   describe("search", () => {
     it("should search adjustments", async () => {
-      const getStub = vi.spyOn(apiClient, 'get'); getStub.mockResolvedValue({
+      const getStub = vi.spyOn(apiClient, "get");
+      getStub.mockResolvedValue({
         data: [{ id: 1, adjustmentNumber: "VA001" }],
       });
 

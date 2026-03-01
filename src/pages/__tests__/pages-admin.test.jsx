@@ -14,10 +14,27 @@ describe("UserManagementPage", () => {
         <h1>User Management</h1>
         <button type="button">Add User</button>
         <table>
-          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>John Admin</td><td>john@co.ae</td><td>Admin</td><td>Active</td></tr>
-            <tr><td>Sara Sales</td><td>sara@co.ae</td><td>Sales Agent</td><td>Active</td></tr>
+            <tr>
+              <td>John Admin</td>
+              <td>john@co.ae</td>
+              <td>Admin</td>
+              <td>Active</td>
+            </tr>
+            <tr>
+              <td>Sara Sales</td>
+              <td>sara@co.ae</td>
+              <td>Sales Agent</td>
+              <td>Active</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -37,10 +54,24 @@ describe("RolesPage", () => {
         <h1>Roles</h1>
         <button type="button">Create Role</button>
         <table>
-          <thead><tr><th>Role</th><th>Users</th><th>Permissions</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th>Users</th>
+              <th>Permissions</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>Admin</td><td>3</td><td>Full Access</td></tr>
-            <tr><td>Sales Agent</td><td>5</td><td>Invoices, Quotations</td></tr>
+            <tr>
+              <td>Admin</td>
+              <td>3</td>
+              <td>Full Access</td>
+            </tr>
+            <tr>
+              <td>Sales Agent</td>
+              <td>5</td>
+              <td>Invoices, Quotations</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -59,10 +90,27 @@ describe("PermissionsMatrix", () => {
       <div>
         <h1>Permissions Matrix</h1>
         <table>
-          <thead><tr><th>Permission</th><th>Admin</th><th>Sales</th><th>Warehouse</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Permission</th>
+              <th>Admin</th>
+              <th>Sales</th>
+              <th>Warehouse</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>Create Invoice</td><td>Yes</td><td>Yes</td><td>No</td></tr>
-            <tr><td>View Stock</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+            <tr>
+              <td>Create Invoice</td>
+              <td>Yes</td>
+              <td>Yes</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>View Stock</td>
+              <td>Yes</td>
+              <td>Yes</td>
+              <td>Yes</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -112,10 +160,20 @@ describe("FeedbackManagement", () => {
             <button type="button">Resolved (0)</button>
           </div>
           <table>
-            <thead><tr><th>Message</th><th>Route</th><th>Status</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Message</th>
+                <th>Route</th>
+                <th>Status</th>
+              </tr>
+            </thead>
             <tbody>
               {feedbacks.map((f) => (
-                <tr key={f.id}><td>{f.message}</td><td>{f.route}</td><td>{f.status}</td></tr>
+                <tr key={f.id}>
+                  <td>{f.message}</td>
+                  <td>{f.route}</td>
+                  <td>{f.status}</td>
+                </tr>
               ))}
             </tbody>
           </table>
@@ -138,9 +196,21 @@ describe("OperatingExpenses", () => {
         <h1>Operating Expenses</h1>
         <button type="button">New Expense</button>
         <table>
-          <thead><tr><th>Description</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>Office Rent</td><td>Rent</td><td>15,000</td><td>Approved</td></tr>
+            <tr>
+              <td>Office Rent</td>
+              <td>Rent</td>
+              <td>15,000</td>
+              <td>Approved</td>
+            </tr>
           </tbody>
         </table>
       </div>

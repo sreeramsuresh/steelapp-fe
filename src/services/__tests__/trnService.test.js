@@ -1,9 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import { trnService } from "../trnService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
-
-
+import { trnService } from "../trnService.js";
 
 describe("trnService", () => {
   beforeEach(() => {
@@ -96,7 +93,7 @@ describe("trnService", () => {
         trn: "100123456789123",
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await trnService.verify("100123456789123", "AE");
 
@@ -114,7 +111,7 @@ describe("trnService", () => {
         },
       };
 
-      vi.spyOn(apiClient, 'post').mockRejectedValue(error);
+      vi.spyOn(apiClient, "post").mockRejectedValue(error);
 
       const result = await trnService.validateRemote("INVALID");
       expect(result.success).toBe(false);
@@ -130,7 +127,7 @@ describe("trnService", () => {
         ftaConfigured: true,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await trnService.getStatus();
 
@@ -140,7 +137,7 @@ describe("trnService", () => {
 
     it("should handle service error", async () => {
       const error = new Error("Service Error");
-      vi.spyOn(apiClient, 'get').mockRejectedValue(error);
+      vi.spyOn(apiClient, "get").mockRejectedValue(error);
 
       const result = await trnService.getFormats();
       expect(result.success).toBe(true);

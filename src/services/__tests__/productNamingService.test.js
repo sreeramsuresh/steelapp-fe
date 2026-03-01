@@ -1,7 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import { productNamingService } from "../productNamingService.js";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { apiService } from "../axiosApi.js";
+import { productNamingService } from "../productNamingService.js";
 
 describe("productNamingService", () => {
   afterEach(() => {
@@ -15,7 +14,7 @@ describe("productNamingService", () => {
         displayName: "304 Sheet 2B 1220x2x2440",
         isValid: true,
       };
-      vi.spyOn(apiService, 'post').mockResolvedValue(mockResult);
+      vi.spyOn(apiService, "post").mockResolvedValue(mockResult);
 
       const result = await productNamingService.verifyNamingLogic("sheet", {
         grade: "304",
@@ -43,7 +42,7 @@ describe("productNamingService", () => {
         displayName: '316L Pipe BA 2" Sch40',
         isValid: true,
       };
-      vi.spyOn(apiService, 'post').mockResolvedValue(mockResult);
+      vi.spyOn(apiService, "post").mockResolvedValue(mockResult);
 
       const result = await productNamingService.verifyNamingLogic("pipe", {
         grade: "316L",
@@ -61,7 +60,7 @@ describe("productNamingService", () => {
         displayName: "316 Tube 2B 25x1.5",
         isValid: true,
       };
-      vi.spyOn(apiService, 'post').mockResolvedValue(mockResult);
+      vi.spyOn(apiService, "post").mockResolvedValue(mockResult);
 
       const result = await productNamingService.verifyNamingLogic("tube", {
         grade: "316",
@@ -80,7 +79,7 @@ describe("productNamingService", () => {
         displayName: "304 Coil 2B 1000x1",
         isValid: true,
       };
-      vi.spyOn(apiService, 'post').mockResolvedValue(mockResult);
+      vi.spyOn(apiService, "post").mockResolvedValue(mockResult);
 
       const result = await productNamingService.verifyNamingLogic("coil", {
         grade: "304",
@@ -98,7 +97,7 @@ describe("productNamingService", () => {
         displayName: "304 Sheet 2B 1220x2x2440 (POSCO, Korea)",
         isValid: true,
       };
-      vi.spyOn(apiService, 'post').mockResolvedValue(mockResult);
+      vi.spyOn(apiService, "post").mockResolvedValue(mockResult);
 
       const result = await productNamingService.verifyNamingLogic("sheet", {
         grade: "304",
@@ -118,7 +117,7 @@ describe("productNamingService", () => {
       const grades = ["201", "304", "304L", "316", "316L", "430"];
 
       for (const grade of grades) {
-        vi.spyOn(apiService, 'post').mockResolvedValue({
+        vi.spyOn(apiService, "post").mockResolvedValue({
           uniqueName: `SS-${grade}-SHEET-2B`,
           displayName: `${grade} Sheet 2B`,
           isValid: true,
@@ -137,7 +136,7 @@ describe("productNamingService", () => {
       const finishes = ["2B", "BA", "2D", "1D", "Bright"];
 
       for (const finish of finishes) {
-        vi.spyOn(apiService, 'post').mockResolvedValue({
+        vi.spyOn(apiService, "post").mockResolvedValue({
           uniqueName: `SS-304-SHEET-${finish}`,
           displayName: `304 Sheet ${finish}`,
           isValid: true,
@@ -153,19 +152,19 @@ describe("productNamingService", () => {
     });
 
     it("should return error on API failure", async () => {
-      vi.spyOn(apiService, 'post').mockRejectedValue(new Error("Invalid grade specification"));
+      vi.spyOn(apiService, "post").mockRejectedValue(new Error("Invalid grade specification"));
 
       await expect(productNamingService.verifyNamingLogic("sheet", { grade: "INVALID" })).rejects.toThrow();
     });
 
     it("should handle network errors", async () => {
-      vi.spyOn(apiService, 'post').mockRejectedValue(new Error("Network error"));
+      vi.spyOn(apiService, "post").mockRejectedValue(new Error("Network error"));
 
       await expect(productNamingService.verifyNamingLogic("sheet", { grade: "304" })).rejects.toThrow();
     });
 
     it("should include mandatory SSOT concatenation format", async () => {
-      vi.spyOn(apiService, 'post').mockResolvedValue({
+      vi.spyOn(apiService, "post").mockResolvedValue({
         uniqueName: "SS-316L-SHEET-2B-1220mm-2mm-2440mm",
         displayName: "316L Sheet 2B 1220x2x2440",
         isValid: true,
@@ -186,7 +185,7 @@ describe("productNamingService", () => {
 
   describe("verifyAllProductTypes", () => {
     it("should verify all product types with sample data", async () => {
-      vi.spyOn(apiService, 'post').mockResolvedValue({
+      vi.spyOn(apiService, "post").mockResolvedValue({
         uniqueName: "SS-TEST-PRODUCT",
         displayName: "Test Product",
         isValid: true,
@@ -201,7 +200,7 @@ describe("productNamingService", () => {
     });
 
     it("should verify standard product type sample data", async () => {
-      vi.spyOn(apiService, 'post').mockResolvedValue({
+      vi.spyOn(apiService, "post").mockResolvedValue({
         uniqueName: "SS-TEST",
         displayName: "Test",
         isValid: true,
@@ -216,7 +215,7 @@ describe("productNamingService", () => {
 
   describe("Product Type Support", () => {
     it("should support sheet products", async () => {
-      vi.spyOn(apiService, 'post').mockResolvedValue({
+      vi.spyOn(apiService, "post").mockResolvedValue({
         uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm",
       });
 
@@ -228,7 +227,7 @@ describe("productNamingService", () => {
     });
 
     it("should support pipe products", async () => {
-      vi.spyOn(apiService, 'post').mockResolvedValue({
+      vi.spyOn(apiService, "post").mockResolvedValue({
         uniqueName: "SS-304-PIPE-BA-2inch-Sch40",
       });
 
@@ -240,7 +239,7 @@ describe("productNamingService", () => {
     });
 
     it("should support tube products", async () => {
-      vi.spyOn(apiService, 'post').mockResolvedValue({
+      vi.spyOn(apiService, "post").mockResolvedValue({
         uniqueName: "SS-316-TUBE-2B-25mm-1.5mm",
       });
 
@@ -252,7 +251,7 @@ describe("productNamingService", () => {
     });
 
     it("should support coil products", async () => {
-      vi.spyOn(apiService, 'post').mockResolvedValue({
+      vi.spyOn(apiService, "post").mockResolvedValue({
         uniqueName: "SS-304-COIL-2B-1000mm-1mm",
       });
 
@@ -264,7 +263,7 @@ describe("productNamingService", () => {
     });
 
     it("should support bar products", async () => {
-      vi.spyOn(apiService, 'post').mockResolvedValue({
+      vi.spyOn(apiService, "post").mockResolvedValue({
         uniqueName: "SS-304-BAR-Bright-16mm",
       });
 
@@ -279,7 +278,7 @@ describe("productNamingService", () => {
 
   describe("Dimension Support", () => {
     it("should support standard metric dimensions", async () => {
-      vi.spyOn(apiService, 'post').mockResolvedValue({
+      vi.spyOn(apiService, "post").mockResolvedValue({
         uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm",
       });
 
@@ -293,7 +292,7 @@ describe("productNamingService", () => {
     });
 
     it("should support imperial dimensions", async () => {
-      vi.spyOn(apiService, 'post').mockResolvedValue({
+      vi.spyOn(apiService, "post").mockResolvedValue({
         uniqueName: "SS-304-PIPE-BA-2inch-Sch40",
       });
 
@@ -308,7 +307,7 @@ describe("productNamingService", () => {
 
   describe("Naming Uniqueness", () => {
     it("should generate unique names for different products", async () => {
-      vi.spyOn(apiService, 'post')
+      vi.spyOn(apiService, "post")
         .mockResolvedValueOnce({ uniqueName: "SS-304-SHEET-2B-1220mm-2mm-2440mm" })
         .mockResolvedValueOnce({ uniqueName: "SS-316L-SHEET-2B-1220mm-3mm-2440mm" });
 

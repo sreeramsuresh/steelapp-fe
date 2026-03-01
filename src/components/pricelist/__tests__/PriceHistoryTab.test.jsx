@@ -12,7 +12,7 @@ vi.mock("../../../services/pricelistService", () => ({
 }));
 
 vi.mock("date-fns", () => ({
-  format: (d, f) => d?.toString() || "-",
+  format: (d, _f) => d?.toString() || "-",
 }));
 
 import PriceHistoryTab from "../PriceHistoryTab";

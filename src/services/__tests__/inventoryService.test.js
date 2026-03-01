@@ -3,10 +3,9 @@
  * Tests inventory management operations with proper data transformations
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import { inventoryService } from "../inventoryService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
+import { inventoryService } from "../inventoryService.js";
 
 describe("inventoryService", () => {
   beforeEach(() => {
@@ -34,7 +33,7 @@ describe("inventoryService", () => {
         },
       ];
 
-      vi.spyOn(apiClient, 'get').mockResolvedValueOnce({ data: mockItems });
+      vi.spyOn(apiClient, "get").mockResolvedValueOnce({ data: mockItems });
 
       const result = await inventoryService.getAllItems({ page: 1, limit: 20 });
 
@@ -45,7 +44,7 @@ describe("inventoryService", () => {
     });
 
     it("should handle empty inventory list", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValueOnce({ data: [] });
+      vi.spyOn(apiClient, "get").mockResolvedValueOnce({ data: [] });
 
       const result = await inventoryService.getAllItems();
 
@@ -65,7 +64,7 @@ describe("inventoryService", () => {
         },
       ];
 
-      vi.spyOn(apiClient, 'get').mockResolvedValueOnce({ data: mockServerData });
+      vi.spyOn(apiClient, "get").mockResolvedValueOnce({ data: mockServerData });
 
       const result = await inventoryService.getAllItems();
 
@@ -87,7 +86,7 @@ describe("inventoryService", () => {
         warehouseName: "Warehouse A",
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockItem);
+      vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockItem);
 
       const result = await inventoryService.getItemById(1);
 
@@ -99,7 +98,7 @@ describe("inventoryService", () => {
 
     it("should handle item not found", async () => {
       const error = new Error("Item not found");
-      vi.spyOn(apiClient, 'get').mockRejectedValueOnce(error);
+      vi.spyOn(apiClient, "get").mockRejectedValueOnce(error);
 
       await expect(inventoryService.getItemById(999)).rejects.toThrow();
     });
@@ -121,7 +120,7 @@ describe("inventoryService", () => {
         quantityOnHand: 100,
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValueOnce(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValueOnce(mockResponse);
 
       const result = await inventoryService.createItem(itemData);
 
@@ -146,7 +145,7 @@ describe("inventoryService", () => {
         minStock: 15,
       };
 
-      vi.spyOn(apiClient, 'put').mockResolvedValueOnce(mockResponse);
+      vi.spyOn(apiClient, "put").mockResolvedValueOnce(mockResponse);
 
       const result = await inventoryService.updateItem(1, updateData);
 
@@ -160,7 +159,7 @@ describe("inventoryService", () => {
     it("should delete inventory item", async () => {
       const mockResponse = { id: 1, deleted: true };
 
-      vi.spyOn(apiClient, 'delete').mockResolvedValueOnce(mockResponse);
+      vi.spyOn(apiClient, "delete").mockResolvedValueOnce(mockResponse);
 
       const result = await inventoryService.deleteItem(1);
 
@@ -176,7 +175,7 @@ describe("inventoryService", () => {
         { id: 2, productType: "PIPE", grade: "304", quantity: 50 },
       ];
 
-      vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockItems);
+      vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockItems);
 
       const result = await inventoryService.getItemsByProduct("PIPE", "304");
 
@@ -195,7 +194,7 @@ describe("inventoryService", () => {
         previousQuantity: 100,
       };
 
-      vi.spyOn(apiClient, 'patch').mockResolvedValueOnce(mockResponse);
+      vi.spyOn(apiClient, "patch").mockResolvedValueOnce(mockResponse);
 
       const result = await inventoryService.updateQuantity(1, 20, "add");
 
@@ -207,7 +206,7 @@ describe("inventoryService", () => {
     it("should support set operation", async () => {
       const mockResponse = { id: 1, quantity: 100, operation: "set" };
 
-      vi.spyOn(apiClient, 'patch').mockResolvedValueOnce(mockResponse);
+      vi.spyOn(apiClient, "patch").mockResolvedValueOnce(mockResponse);
 
       const result = await inventoryService.updateQuantity(1, 100, "set");
 
@@ -218,7 +217,7 @@ describe("inventoryService", () => {
     it("should support subtract operation", async () => {
       const mockResponse = { id: 1, quantity: 80, operation: "subtract" };
 
-      vi.spyOn(apiClient, 'patch').mockResolvedValueOnce(mockResponse);
+      vi.spyOn(apiClient, "patch").mockResolvedValueOnce(mockResponse);
 
       const result = await inventoryService.updateQuantity(1, 20, "subtract");
 
@@ -234,7 +233,7 @@ describe("inventoryService", () => {
         { id: 2, productType: "PLATE", quantity: 3, minStock: 5 },
       ];
 
-      vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockItems);
+      vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockItems);
 
       const result = await inventoryService.getLowStockItems(5);
 
@@ -245,7 +244,7 @@ describe("inventoryService", () => {
     it("should use default threshold", async () => {
       const mockItems = [];
 
-      vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockItems);
+      vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockItems);
 
       await inventoryService.getLowStockItems();
 
@@ -265,7 +264,7 @@ describe("inventoryService", () => {
         avgDaysToSell: 30,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockSummary);
+      vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockSummary);
 
       const result = await inventoryService.getInventorySummary();
 
@@ -283,7 +282,7 @@ describe("inventoryService", () => {
         { id: 2, productType: "PIPE", grade: "316" },
       ];
 
-      vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockResults);
+      vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockResults);
 
       const result = await inventoryService.searchItems("PIPE");
 
@@ -292,7 +291,7 @@ describe("inventoryService", () => {
     });
 
     it("should handle empty search results", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValueOnce([]);
+      vi.spyOn(apiClient, "get").mockResolvedValueOnce([]);
 
       const result = await inventoryService.searchItems("NONEXISTENT");
 
@@ -308,7 +307,7 @@ describe("inventoryService", () => {
         { id: 2, productType: "PLATE", location: "WH-A-01" },
       ];
 
-      vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockItems);
+      vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockItems);
 
       const result = await inventoryService.getItemsByLocation("WH-A-01");
 
@@ -321,21 +320,21 @@ describe("inventoryService", () => {
   describe("Error Handling", () => {
     it("should propagate API errors", async () => {
       const error = new Error("Network error");
-      vi.spyOn(apiClient, 'get').mockRejectedValueOnce(error);
+      vi.spyOn(apiClient, "get").mockRejectedValueOnce(error);
 
       await expect(inventoryService.getAllItems()).rejects.toThrow();
     });
 
     it("should handle validation errors", async () => {
       const error = new Error("Invalid item data");
-      vi.spyOn(apiClient, 'post').mockRejectedValueOnce(error);
+      vi.spyOn(apiClient, "post").mockRejectedValueOnce(error);
 
       await expect(inventoryService.createItem({})).rejects.toThrow();
     });
 
     it("should handle deletion errors", async () => {
       const error = new Error("Item in use");
-      vi.spyOn(apiClient, 'delete').mockRejectedValueOnce(error);
+      vi.spyOn(apiClient, "delete").mockRejectedValueOnce(error);
 
       await expect(inventoryService.deleteItem(1)).rejects.toThrow();
     });
@@ -350,7 +349,7 @@ describe("inventoryService", () => {
         productType: "PIPE",
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockItem);
+      vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockItem);
 
       const result = await inventoryService.getItemById(1);
 
@@ -368,7 +367,7 @@ describe("inventoryService", () => {
         productType: "PIPE",
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValueOnce(mockItem);
+      vi.spyOn(apiClient, "get").mockResolvedValueOnce(mockItem);
 
       const result = await inventoryService.getItemById(1);
 

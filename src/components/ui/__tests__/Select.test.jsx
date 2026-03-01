@@ -1,10 +1,9 @@
-import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
+import { describe, expect, it } from "vitest";
 
 // The Select component is a Radix UI primitive (SelectPrimitive.Root).
 // Test the named exports: Select, SelectTrigger, SelectContent, SelectItem, SelectValue
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "../Select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../Select";
 
 describe("Select", () => {
   it("should render select", () => {

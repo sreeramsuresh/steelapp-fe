@@ -1,6 +1,6 @@
 // Initialize test environment first
 // Simple mock implementations for testing
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { beforeEach, describe, expect, it } from "vitest";
 
 const createMockAuthService = () => {
   const tokenStore = {};

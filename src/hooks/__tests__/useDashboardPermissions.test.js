@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useDashboardPermissions } from "../useDashboardPermissions";
 
 const mockGetUser = vi.fn();
@@ -23,7 +23,7 @@ vi.mock("../../components/dashboard/config/DashboardConfig", () => ({
     SALES_AGENT: "SALES_AGENT",
     ACCOUNTANT: "ACCOUNTANT",
   },
-  canViewWidget: vi.fn((widgetId, role) => role === "ADMIN"),
+  canViewWidget: vi.fn((_widgetId, role) => role === "ADMIN"),
   getDefaultLayout: vi.fn((role) => [{ id: "default", role }]),
   getVisibleWidgets: vi.fn((role) => [{ id: "widget1", role }]),
   getWidgetsByCategory: vi.fn((category, role) => [{ category, role }]),

@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import useInvoiceTemplates, { INVOICE_TEMPLATES, RECURRING_FREQUENCIES } from "../useInvoiceTemplates";
 
 vi.mock("../../services/companyService", () => ({
@@ -191,9 +191,7 @@ describe("useInvoiceTemplates", () => {
       },
     };
 
-    const { result } = renderHook(() =>
-      useInvoiceTemplates("standard", companySettings)
-    );
+    const { result } = renderHook(() => useInvoiceTemplates("standard", companySettings));
 
     await vi.waitFor(() => {
       expect(result.current.selectedTemplateId).toBe("minimal");

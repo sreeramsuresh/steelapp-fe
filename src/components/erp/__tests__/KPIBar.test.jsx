@@ -1,8 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
-import KPIBar from "../KPIBar";
+import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import KPIBar from "../KPIBar";
 
 function renderWithTheme(ui) {
   return render(<ThemeProvider>{ui}</ThemeProvider>);
@@ -42,9 +41,7 @@ describe("KPIBar", () => {
   });
 
   it("renders empty when no items", () => {
-    const { container } = renderWithTheme(
-      <KPIBar items={[]} activeFilter="" onFilter={vi.fn()} />
-    );
+    const { container } = renderWithTheme(<KPIBar items={[]} activeFilter="" onFilter={vi.fn()} />);
     expect(container.querySelector("button")).toBeNull();
   });
 

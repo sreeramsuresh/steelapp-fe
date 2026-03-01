@@ -1,7 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-import { operatingExpenseService } from "../operatingExpenseService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import apiClient from "../api.js";
+import { operatingExpenseService } from "../operatingExpenseService.js";
 
 describe("operatingExpenseService", () => {
   beforeEach(() => {
@@ -18,7 +17,7 @@ describe("operatingExpenseService", () => {
         pagination: { total: 2, page: 1 },
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await operatingExpenseService.list();
 
@@ -27,14 +26,16 @@ describe("operatingExpenseService", () => {
     });
 
     it("should filter by expense type", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [] });
+      vi.spyOn(apiClient, "get").mockResolvedValue({ data: [] });
 
       await operatingExpenseService.list({ expense_type: "salaries" });
 
-      expect(apiClient.get).toHaveBeenCalledWith("/operating-expenses",
+      expect(apiClient.get).toHaveBeenCalledWith(
+        "/operating-expenses",
         expect.objectContaining({
           params: expect.objectContaining({ expense_type: "salaries" }),
-        }));
+        })
+      );
     });
   });
 
@@ -47,7 +48,7 @@ describe("operatingExpenseService", () => {
         currency: "AED",
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await operatingExpenseService.getById(1);
 
@@ -60,7 +61,7 @@ describe("operatingExpenseService", () => {
     it("should create new operating expense", async () => {
       const mockResponse = { id: 1, expense_type: "utilities", amount: 5000, status: "pending" };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const payload = { expense_type: "utilities", amount: 5000, date: "2024-01-16" };
 
@@ -75,7 +76,7 @@ describe("operatingExpenseService", () => {
     it("should update operating expense", async () => {
       const mockResponse = { id: 1, amount: 5500, status: "pending" };
 
-      vi.spyOn(apiClient, 'patch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "patch").mockResolvedValue(mockResponse);
 
       const payload = { amount: 5500 };
 
@@ -88,7 +89,7 @@ describe("operatingExpenseService", () => {
 
   describe("delete", () => {
     it("should delete expense", async () => {
-      vi.spyOn(apiClient, 'delete').mockResolvedValue({ success: true });
+      vi.spyOn(apiClient, "delete").mockResolvedValue({ success: true });
 
       const result = await operatingExpenseService.delete(1);
 
@@ -101,7 +102,7 @@ describe("operatingExpenseService", () => {
     it("should approve operating expense", async () => {
       const mockResponse = { id: 1, status: "approved" };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await operatingExpenseService.approve(1);
 
@@ -112,13 +113,13 @@ describe("operatingExpenseService", () => {
 
   describe("error handling", () => {
     it("should handle API errors in list", async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValue(new Error("Network error"));
+      vi.spyOn(apiClient, "get").mockRejectedValue(new Error("Network error"));
 
       await expect(operatingExpenseService.list()).rejects.toThrow("Network error");
     });
 
     it("should handle API errors in create", async () => {
-      vi.spyOn(apiClient, 'post').mockRejectedValue(new Error("Validation failed"));
+      vi.spyOn(apiClient, "post").mockRejectedValue(new Error("Validation failed"));
 
       await expect(operatingExpenseService.create({})).rejects.toThrow("Validation failed");
     });

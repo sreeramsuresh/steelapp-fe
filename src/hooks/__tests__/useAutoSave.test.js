@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import useAutoSave, { formatRelativeTime, getAutoSaveStatusDisplay } from "../useAutoSave";
 
 vi.mock("../../utils/invoiceUtils", () => ({
@@ -78,9 +78,7 @@ describe("useAutoSave", () => {
   });
 
   it("does not save when disabled", () => {
-    const { result } = renderHook(() =>
-      useAutoSave({ test: true }, "100", { enabled: false })
-    );
+    const { result } = renderHook(() => useAutoSave({ test: true }, "100", { enabled: false }));
 
     act(() => {
       result.current.saveNow();

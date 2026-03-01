@@ -3,8 +3,7 @@
  * Phase 3C: Core auth component
  */
 
-import { fireEvent, screen, waitFor } from "@testing-library/react";
-import React from "react";
+import { fireEvent, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../test/component-setup";
 
@@ -130,9 +129,7 @@ describe("Login", () => {
 
       // Find and click the toggle button (eye icon button)
       const toggleButtons = container.querySelectorAll('button[type="button"]');
-      const toggleBtn = Array.from(toggleButtons).find(
-        (btn) => btn.closest(".relative") && btn.querySelector("svg")
-      );
+      const toggleBtn = Array.from(toggleButtons).find((btn) => btn.closest(".relative") && btn.querySelector("svg"));
       if (toggleBtn) {
         await user.click(toggleBtn);
         expect(passwordInput.type).toBe("text");
@@ -246,7 +243,11 @@ describe("Login", () => {
     it("should show loading state during submission", async () => {
       const user = setupUser();
       let resolveLogin;
-      mockLogin.mockReturnValue(new Promise((resolve) => { resolveLogin = resolve; }));
+      mockLogin.mockReturnValue(
+        new Promise((resolve) => {
+          resolveLogin = resolve;
+        })
+      );
 
       const { container } = renderWithProviders(<Login onLoginSuccess={mockOnLoginSuccess} />);
       const emailInput = container.querySelector('input[name="email"]');

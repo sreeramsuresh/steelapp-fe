@@ -2,18 +2,17 @@
  * Companies Service Unit Tests
  * ✅ Tests company/tenant management operations
  * ✅ Tests company CRUD operations
-* ✅ Tests file uploads (logo, brandmark, seal)
+ * ✅ Tests file uploads (logo, brandmark, seal)
  * ✅ Tests template settings management
  * ✅ Tests company isolation and multi-tenancy
  * ✅ Tests error handling and validation
  * ✅ 40-50 tests covering all critical paths
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import { apiService, tokenUtils } from "../axiosApi.js";
-import { companyService } from "../companyService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
+import { apiService } from "../axiosApi.js";
+import { companyService } from "../companyService.js";
 
 describe("companiesService", () => {
   let getStub;
@@ -23,11 +22,11 @@ describe("companiesService", () => {
   let uploadStub;
   beforeEach(() => {
     vi.restoreAllMocks();
-    getStub = vi.spyOn(apiClient, 'get');
-    postStub = vi.spyOn(apiClient, 'post');
-    putStub = vi.spyOn(apiClient, 'put');
-    deleteStub = vi.spyOn(apiClient, 'delete');
-    uploadStub = vi.spyOn(apiService, 'upload');
+    getStub = vi.spyOn(apiClient, "get");
+    postStub = vi.spyOn(apiClient, "post");
+    putStub = vi.spyOn(apiClient, "put");
+    deleteStub = vi.spyOn(apiClient, "delete");
+    uploadStub = vi.spyOn(apiService, "upload");
   });
 
   // ============================================================================
@@ -195,7 +194,7 @@ describe("companiesService", () => {
 
       expect(result.success).toBeTruthy();
       expect(result.filename).toBeTruthy();
-      expect(uploadStub).toHaveBeenCalledWith('/company/upload-logo', expect.any(FormData));
+      expect(uploadStub).toHaveBeenCalledWith("/company/upload-logo", expect.any(FormData));
     });
 
     it("should set correct headers for logo upload", async () => {

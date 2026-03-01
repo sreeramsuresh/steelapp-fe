@@ -4,7 +4,6 @@
  */
 
 import { waitFor } from "@testing-library/react";
-import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../test/component-setup";
 
@@ -33,7 +32,11 @@ vi.mock("../../services/axiosAuthService", () => ({
 
 // Mock QRCodeSVG
 vi.mock("qrcode.react", () => ({
-  QRCodeSVG: ({ value }) => <div data-testid="qr-code" data-value={value}>QR Code</div>,
+  QRCodeSVG: ({ value }) => (
+    <div data-testid="qr-code" data-value={value}>
+      QR Code
+    </div>
+  ),
 }));
 
 import TwoFactorSetup from "../TwoFactorSetup";
@@ -52,49 +55,35 @@ describe("TwoFactorSetup", () => {
 
   describe("Step 1: Introduction", () => {
     it("should render without crash", () => {
-      const { container } = renderWithProviders(
-        <TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />
-      );
+      const { container } = renderWithProviders(<TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />);
       expect(container).toBeTruthy();
     });
 
     it("should display enable 2FA heading", () => {
-      const { container } = renderWithProviders(
-        <TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />
-      );
+      const { container } = renderWithProviders(<TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />);
       expect(container.textContent).toContain("Enable Two-Factor Authentication");
     });
 
     it("should display description about authenticator apps", () => {
-      const { container } = renderWithProviders(
-        <TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />
-      );
+      const { container } = renderWithProviders(<TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />);
       expect(container.textContent).toContain("authenticator app");
     });
 
     it("should render Begin Setup button", () => {
-      const { container } = renderWithProviders(
-        <TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />
-      );
+      const { container } = renderWithProviders(<TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />);
       expect(container.textContent).toContain("Begin Setup");
     });
 
     it("should render Cancel button", () => {
-      const { container } = renderWithProviders(
-        <TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />
-      );
+      const { container } = renderWithProviders(<TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />);
       expect(container.textContent).toContain("Cancel");
     });
 
     it("should call onCancel when Cancel is clicked", async () => {
       const user = setupUser();
-      const { container } = renderWithProviders(
-        <TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />
-      );
+      const { container } = renderWithProviders(<TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />);
 
-      const cancelBtn = Array.from(container.querySelectorAll("button")).find(
-        (b) => b.textContent.includes("Cancel")
-      );
+      const cancelBtn = Array.from(container.querySelectorAll("button")).find((b) => b.textContent.includes("Cancel"));
       await user.click(cancelBtn);
       expect(mockOnCancel).toHaveBeenCalled();
     });
@@ -108,12 +97,10 @@ describe("TwoFactorSetup", () => {
         otpauthUrl: "otpauth://totp/UltimateSteel:test@test.com?secret=JBSWY3DPEHPK3PXP",
       });
 
-      const { container } = renderWithProviders(
-        <TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />
-      );
+      const { container } = renderWithProviders(<TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />);
 
-      const beginBtn = Array.from(container.querySelectorAll("button")).find(
-        (b) => b.textContent.includes("Begin Setup")
+      const beginBtn = Array.from(container.querySelectorAll("button")).find((b) =>
+        b.textContent.includes("Begin Setup")
       );
       await user.click(beginBtn);
 
@@ -126,12 +113,10 @@ describe("TwoFactorSetup", () => {
       const user = setupUser();
       mockSetup2FA.mockRejectedValue(new Error("Setup failed"));
 
-      const { container } = renderWithProviders(
-        <TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />
-      );
+      const { container } = renderWithProviders(<TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />);
 
-      const beginBtn = Array.from(container.querySelectorAll("button")).find(
-        (b) => b.textContent.includes("Begin Setup")
+      const beginBtn = Array.from(container.querySelectorAll("button")).find((b) =>
+        b.textContent.includes("Begin Setup")
       );
       await user.click(beginBtn);
 
@@ -149,12 +134,10 @@ describe("TwoFactorSetup", () => {
         otpauthUrl: "otpauth://totp/Test?secret=JBSWY3DPEHPK3PXP",
       });
 
-      const result = renderWithProviders(
-        <TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />
-      );
+      const result = renderWithProviders(<TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />);
 
-      const beginBtn = Array.from(result.container.querySelectorAll("button")).find(
-        (b) => b.textContent.includes("Begin Setup")
+      const beginBtn = Array.from(result.container.querySelectorAll("button")).find((b) =>
+        b.textContent.includes("Begin Setup")
       );
       await user.click(beginBtn);
 
@@ -199,13 +182,11 @@ describe("TwoFactorSetup", () => {
         recoveryCodes: ["code1", "code2", "code3"],
       });
 
-      const { container } = renderWithProviders(
-        <TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />
-      );
+      const { container } = renderWithProviders(<TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />);
 
       // Step 1 -> Step 2
-      const beginBtn = Array.from(container.querySelectorAll("button")).find(
-        (b) => b.textContent.includes("Begin Setup")
+      const beginBtn = Array.from(container.querySelectorAll("button")).find((b) =>
+        b.textContent.includes("Begin Setup")
       );
       await user.click(beginBtn);
 
@@ -217,8 +198,8 @@ describe("TwoFactorSetup", () => {
       const input = container.querySelector("#totp-verify");
       await user.type(input, "123456");
 
-      const verifyBtn = Array.from(container.querySelectorAll("button")).find(
-        (b) => b.textContent.includes("Verify & Enable")
+      const verifyBtn = Array.from(container.querySelectorAll("button")).find((b) =>
+        b.textContent.includes("Verify & Enable")
       );
       await user.click(verifyBtn);
 
@@ -239,13 +220,11 @@ describe("TwoFactorSetup", () => {
         recoveryCodes: ["abc-123", "def-456", "ghi-789"],
       });
 
-      const result = renderWithProviders(
-        <TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />
-      );
+      const result = renderWithProviders(<TwoFactorSetup onComplete={mockOnComplete} onCancel={mockOnCancel} />);
 
       // Step 1 -> 2
-      const beginBtn = Array.from(result.container.querySelectorAll("button")).find(
-        (b) => b.textContent.includes("Begin Setup")
+      const beginBtn = Array.from(result.container.querySelectorAll("button")).find((b) =>
+        b.textContent.includes("Begin Setup")
       );
       await user.click(beginBtn);
       await waitFor(() => expect(result.container.textContent).toContain("Scan QR Code"));
@@ -253,8 +232,8 @@ describe("TwoFactorSetup", () => {
       // Step 2 -> 3
       const input = result.container.querySelector("#totp-verify");
       await user.type(input, "123456");
-      const verifyBtn = Array.from(result.container.querySelectorAll("button")).find(
-        (b) => b.textContent.includes("Verify & Enable")
+      const verifyBtn = Array.from(result.container.querySelectorAll("button")).find((b) =>
+        b.textContent.includes("Verify & Enable")
       );
       await user.click(verifyBtn);
       await waitFor(() => expect(result.container.textContent).toContain("Two-Factor Authentication Enabled"));
@@ -283,9 +262,7 @@ describe("TwoFactorSetup", () => {
 
     it("should disable Done button until checkbox is checked", async () => {
       const { container, user } = await setupStep3();
-      const doneBtn = Array.from(container.querySelectorAll("button")).find(
-        (b) => b.textContent === "Done"
-      );
+      const doneBtn = Array.from(container.querySelectorAll("button")).find((b) => b.textContent === "Done");
       expect(doneBtn.disabled).toBe(true);
 
       const checkbox = container.querySelector('input[type="checkbox"]');
@@ -299,9 +276,7 @@ describe("TwoFactorSetup", () => {
       const checkbox = container.querySelector('input[type="checkbox"]');
       await user.click(checkbox);
 
-      const doneBtn = Array.from(container.querySelectorAll("button")).find(
-        (b) => b.textContent === "Done"
-      );
+      const doneBtn = Array.from(container.querySelectorAll("button")).find((b) => b.textContent === "Done");
       await user.click(doneBtn);
 
       expect(mockOnComplete).toHaveBeenCalled();

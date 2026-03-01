@@ -1,7 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-import financialReportsService from "../financialReportsService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
+import financialReportsService from "../financialReportsService.js";
 
 describe("financialReportsService", () => {
   beforeEach(() => {
@@ -23,16 +22,18 @@ describe("financialReportsService", () => {
         },
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await financialReportsService.getTrialBalance(1);
 
       expect(result.totals.isBalanced).toBeTruthy();
       expect(result.totals.totalDebit).toBeTruthy();
-      expect(apiClient.get).toHaveBeenCalledWith("/financial-reports/trial-balance",
+      expect(apiClient.get).toHaveBeenCalledWith(
+        "/financial-reports/trial-balance",
         expect.objectContaining({
           params: expect.objectContaining({ periodId: 1 }),
-        }));
+        })
+      );
     });
 
     it("should include zero balance accounts when requested", async () => {
@@ -43,21 +44,23 @@ describe("financialReportsService", () => {
         ],
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await financialReportsService.getTrialBalance(1, {
         includeZeroBalances: true,
       });
 
       expect(result.accountDetails).toBeTruthy();
-      expect(apiClient.get).toHaveBeenCalledWith("/financial-reports/trial-balance",
+      expect(apiClient.get).toHaveBeenCalledWith(
+        "/financial-reports/trial-balance",
         expect.objectContaining({
           params: expect.objectContaining({ includeZeroBalances: true }),
-        }));
+        })
+      );
     });
 
     it("should filter by account category", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({
+      vi.spyOn(apiClient, "get").mockResolvedValue({
         accountDetails: [{ accountCode: "1000", accountCategory: "ASSET", debit: 50000 }],
       });
 
@@ -66,10 +69,12 @@ describe("financialReportsService", () => {
       });
 
       expect(result.accountDetails[0].accountCategory).toBeTruthy();
-      expect(apiClient.get).toHaveBeenCalledWith("/financial-reports/trial-balance",
+      expect(apiClient.get).toHaveBeenCalledWith(
+        "/financial-reports/trial-balance",
         expect.objectContaining({
           params: expect.objectContaining({ accountCategory: "ASSET" }),
-        }));
+        })
+      );
     });
 
     it("should detect unbalanced trial balance", async () => {
@@ -83,7 +88,7 @@ describe("financialReportsService", () => {
         },
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await financialReportsService.getTrialBalance(1);
 
@@ -111,7 +116,7 @@ describe("financialReportsService", () => {
         limit: 100,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await financialReportsService.getJournalRegister({
         startDate: "2024-01-01",
@@ -120,17 +125,19 @@ describe("financialReportsService", () => {
 
       expect(result.entries).toBeTruthy();
       expect(result.entries[0].lines).toBeTruthy();
-      expect(apiClient.get).toHaveBeenCalledWith("/financial-reports/journal-register",
+      expect(apiClient.get).toHaveBeenCalledWith(
+        "/financial-reports/journal-register",
         expect.objectContaining({
           params: expect.objectContaining({
             startDate: "2024-01-01",
             endDate: "2024-01-31",
           }),
-        }));
+        })
+      );
     });
 
     it("should filter by source module", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({
+      vi.spyOn(apiClient, "get").mockResolvedValue({
         entries: [{ journalId: 1, sourceModule: "INVOICING" }],
       });
 
@@ -144,7 +151,7 @@ describe("financialReportsService", () => {
     });
 
     it("should support pagination", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({
+      vi.spyOn(apiClient, "get").mockResolvedValue({
         entries: [],
         page: 2,
         limit: 50,
@@ -174,7 +181,7 @@ describe("financialReportsService", () => {
         ],
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await financialReportsService.getJournalRegister({
         startDate: "2024-01-01",
@@ -198,7 +205,7 @@ describe("financialReportsService", () => {
         closingBalance: 55000,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await financialReportsService.getGeneralLedger("1000", {
         startDate: "2024-01-01",
@@ -208,10 +215,12 @@ describe("financialReportsService", () => {
       expect(result.accountCode).toBeTruthy();
       expect(result.transactions).toBeTruthy();
       expect(result.closingBalance).toBeTruthy();
-      expect(apiClient.get).toHaveBeenCalledWith("/financial-reports/general-ledger/1000",
+      expect(apiClient.get).toHaveBeenCalledWith(
+        "/financial-reports/general-ledger/1000",
         expect.objectContaining({
           params: expect.objectContaining({ startDate: "2024-01-01", endDate: "2024-01-31" }),
-        }));
+        })
+      );
     });
 
     it("should track running balance", async () => {
@@ -224,7 +233,7 @@ describe("financialReportsService", () => {
         ],
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await financialReportsService.getGeneralLedger("1000");
 
@@ -234,20 +243,22 @@ describe("financialReportsService", () => {
     });
 
     it("should support date range filtering", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({ transactions: [] });
+      vi.spyOn(apiClient, "get").mockResolvedValue({ transactions: [] });
 
       await financialReportsService.getGeneralLedger("1000", {
         startDate: "2024-01-01",
         endDate: "2024-12-31",
       });
 
-      expect(apiClient.get).toHaveBeenCalledWith("/financial-reports/general-ledger/1000",
+      expect(apiClient.get).toHaveBeenCalledWith(
+        "/financial-reports/general-ledger/1000",
         expect.objectContaining({
           params: expect.objectContaining({
             startDate: "2024-01-01",
             endDate: "2024-12-31",
           }),
-        }));
+        })
+      );
     });
   });
 
@@ -255,10 +266,16 @@ describe("financialReportsService", () => {
     it("should fetch chart of accounts", async () => {
       const mockData = [
         { accountCode: "1000", accountName: "Cash", accountType: "ASSET", category: "CURRENT_ASSET", isActive: true },
-        { accountCode: "2000", accountName: "Accounts Payable", accountType: "LIABILITY", category: "CURRENT_LIABILITY", isActive: true },
+        {
+          accountCode: "2000",
+          accountName: "Accounts Payable",
+          accountType: "LIABILITY",
+          category: "CURRENT_LIABILITY",
+          isActive: true,
+        },
       ];
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await financialReportsService.getChartOfAccounts();
 
@@ -268,7 +285,7 @@ describe("financialReportsService", () => {
     });
 
     it("should filter by category", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue([{ accountCode: "1000", category: "ASSET" }]);
+      vi.spyOn(apiClient, "get").mockResolvedValue([{ accountCode: "1000", category: "ASSET" }]);
 
       const result = await financialReportsService.getChartOfAccounts({ category: "ASSET" });
 
@@ -276,7 +293,7 @@ describe("financialReportsService", () => {
     });
 
     it("should filter by account type", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue([{ accountCode: "1000", accountType: "ASSET" }]);
+      vi.spyOn(apiClient, "get").mockResolvedValue([{ accountCode: "1000", accountType: "ASSET" }]);
 
       const result = await financialReportsService.getChartOfAccounts({ type: "ASSET" });
 
@@ -284,7 +301,7 @@ describe("financialReportsService", () => {
     });
 
     it("should exclude inactive accounts by default", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue([
+      vi.spyOn(apiClient, "get").mockResolvedValue([
         { accountCode: "1000", isActive: true },
         { accountCode: "1100", isActive: true },
       ]);
@@ -295,7 +312,7 @@ describe("financialReportsService", () => {
     });
 
     it("should include inactive accounts when requested", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue([
+      vi.spyOn(apiClient, "get").mockResolvedValue([
         { accountCode: "1000", isActive: true },
         { accountCode: "1100", isActive: false },
       ]);
@@ -316,14 +333,16 @@ describe("financialReportsService", () => {
         transactionCount: 150,
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockData);
 
       const result = await financialReportsService.validateTrialBalance(1);
 
       expect(result.isValid).toBeTruthy();
       expect(result.totalDebit).toBeTruthy();
-      expect(apiClient.post).toHaveBeenCalledWith("/financial-reports/validate-trial-balance",
-        expect.objectContaining({ periodId: 1 }));
+      expect(apiClient.post).toHaveBeenCalledWith(
+        "/financial-reports/validate-trial-balance",
+        expect.objectContaining({ periodId: 1 })
+      );
     });
 
     it("should report validation errors", async () => {
@@ -332,7 +351,7 @@ describe("financialReportsService", () => {
         errors: [{ accountCode: "1000", issue: "Unbalanced account", amount: 500 }],
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockData);
 
       const result = await financialReportsService.validateTrialBalance(1);
 
@@ -375,7 +394,7 @@ describe("financialReportsService", () => {
 
   describe("Multi-tenancy", () => {
     it("should respect company context in all reports", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({
+      vi.spyOn(apiClient, "get").mockResolvedValue({
         periodId: 1,
         companyId: 1,
         accountDetails: [],
@@ -389,13 +408,13 @@ describe("financialReportsService", () => {
 
   describe("Error Handling", () => {
     it("should handle API errors gracefully", async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValue(new Error("Period not found"));
+      vi.spyOn(apiClient, "get").mockRejectedValue(new Error("Period not found"));
 
       await expect(financialReportsService.getTrialBalance(999)).rejects.toThrow();
     });
 
     it("should handle multiple fiscal periods", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({
+      vi.spyOn(apiClient, "get").mockResolvedValue({
         periodId: 1,
         fiscalYear: 2024,
         periodNumber: 1,
@@ -418,7 +437,7 @@ describe("financialReportsService", () => {
         isBalanced: true,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await financialReportsService.getTrialBalance(1);
 

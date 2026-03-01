@@ -1,12 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import { purchaseOrderSyncService } from "../purchaseOrderSyncService.js";
-
-
-
-
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { inventoryService } from "../inventoryService.js";
 import { notificationService } from "../notificationService.js";
+import { purchaseOrderSyncService } from "../purchaseOrderSyncService.js";
 import { stockMovementService } from "../stockMovementService.js";
 
 describe("purchaseOrderSyncService", () => {
@@ -34,8 +29,8 @@ describe("purchaseOrderSyncService", () => {
         supplierName: "Steel Supplier",
       };
 
-      vi.spyOn(inventoryService, 'createItem').mockResolvedValue({ id: 1 });
-      vi.spyOn(stockMovementService, 'createMovement').mockResolvedValue({ id: 1 });
+      vi.spyOn(inventoryService, "createItem").mockResolvedValue({ id: 1 });
+      vi.spyOn(stockMovementService, "createMovement").mockResolvedValue({ id: 1 });
 
       const result = await purchaseOrderSyncService.handlePOStatusChange(po, "received", "retain");
 
@@ -76,8 +71,8 @@ describe("purchaseOrderSyncService", () => {
         supplierName: "Steel Supplier",
       };
 
-      vi.spyOn(inventoryService, 'createItem').mockRejectedValue(new Error("DB Error"));
-      vi.spyOn(notificationService, 'error').mockImplementation(() => {});
+      vi.spyOn(inventoryService, "createItem").mockRejectedValue(new Error("DB Error"));
+      vi.spyOn(notificationService, "error").mockImplementation(() => {});
 
       await expect(purchaseOrderSyncService.handlePOStatusChange(po, "received", "retain")).rejects.toThrow();
     });
@@ -102,8 +97,8 @@ describe("purchaseOrderSyncService", () => {
         supplierName: "Supplier A",
       };
 
-      vi.spyOn(inventoryService, 'createItem').mockResolvedValue({ id: 1 });
-      vi.spyOn(stockMovementService, 'createMovement').mockResolvedValue({ id: 1 });
+      vi.spyOn(inventoryService, "createItem").mockResolvedValue({ id: 1 });
+      vi.spyOn(stockMovementService, "createMovement").mockResolvedValue({ id: 1 });
 
       await purchaseOrderSyncService.addPOItemsToInventory(po);
 
@@ -129,8 +124,8 @@ describe("purchaseOrderSyncService", () => {
         supplierName: "Supplier A",
       };
 
-      vi.spyOn(inventoryService, 'createItem').mockResolvedValue({ id: 1 });
-      vi.spyOn(stockMovementService, 'createMovement').mockResolvedValue({ id: 1 });
+      vi.spyOn(inventoryService, "createItem").mockResolvedValue({ id: 1 });
+      vi.spyOn(stockMovementService, "createMovement").mockResolvedValue({ id: 1 });
 
       await purchaseOrderSyncService.addPOItemsToInventory(po);
 
@@ -262,7 +257,7 @@ describe("purchaseOrderSyncService", () => {
         quantity: 50,
       };
 
-      vi.spyOn(stockMovementService, 'createMovement').mockResolvedValue({ id: 1 });
+      vi.spyOn(stockMovementService, "createMovement").mockResolvedValue({ id: 1 });
 
       await purchaseOrderSyncService.createStockMovement(po, item, "IN", "Received from PO");
 

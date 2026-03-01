@@ -1,8 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
-import PrimaryFilters, { AdvancedFilterField } from "../PrimaryFilters";
+import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import PrimaryFilters, { AdvancedFilterField } from "../PrimaryFilters";
 
 function renderWithTheme(ui) {
   return render(<ThemeProvider>{ui}</ThemeProvider>);
@@ -16,10 +15,7 @@ describe("PrimaryFilters", () => {
 
   it("renders search input when search prop provided", () => {
     renderWithTheme(
-      <PrimaryFilters
-        onApply={vi.fn()}
-        search={{ value: "", onChange: vi.fn(), placeholder: "Search invoices..." }}
-      />
+      <PrimaryFilters onApply={vi.fn()} search={{ value: "", onChange: vi.fn(), placeholder: "Search invoices..." }} />
     );
     expect(screen.getByPlaceholderText("Search invoices...")).toBeInTheDocument();
   });
@@ -53,9 +49,7 @@ describe("PrimaryFilters", () => {
   });
 
   it("renders More button when onToggleAdvanced provided", () => {
-    renderWithTheme(
-      <PrimaryFilters onApply={vi.fn()} onToggleAdvanced={vi.fn()} />
-    );
+    renderWithTheme(<PrimaryFilters onApply={vi.fn()} onToggleAdvanced={vi.fn()} />);
     expect(screen.getByText("More")).toBeInTheDocument();
   });
 
@@ -81,7 +75,9 @@ describe("AdvancedFilterField", () => {
   it("renders label and children", () => {
     render(
       <AdvancedFilterField label="Status" htmlFor="status-select">
-        <select id="status-select"><option>All</option></select>
+        <select id="status-select">
+          <option>All</option>
+        </select>
       </AdvancedFilterField>
     );
     expect(screen.getByText("Status")).toBeInTheDocument();

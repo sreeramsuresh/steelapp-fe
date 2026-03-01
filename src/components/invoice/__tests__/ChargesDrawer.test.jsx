@@ -8,8 +8,8 @@ vi.mock("lucide-react", () => ({
 vi.mock("@/components/ui/form-select", () => ({
   FormSelect: ({ children, label, ...props }) => (
     <div>
-      <label>{label}</label>
-      <select value={props.value} onChange={(e) => props.onValueChange(e.target.value)}>
+      <label htmlFor={`formselect-${label}`}>{label}</label>
+      <select id={`formselect-${label}`} value={props.value} onChange={(e) => props.onValueChange(e.target.value)}>
         {children}
       </select>
     </div>
@@ -22,7 +22,7 @@ vi.mock("@/components/ui/select", () => ({
 
 vi.mock("../invoiceStyles", () => ({
   DRAWER_OVERLAY_CLASSES: (isOpen) => (isOpen ? "overlay-open" : "overlay-closed"),
-  DRAWER_PANEL_CLASSES: (isDark, isOpen) => (isOpen ? "panel-open" : "panel-closed"),
+  DRAWER_PANEL_CLASSES: (_isDark, isOpen) => (isOpen ? "panel-open" : "panel-closed"),
 }));
 
 import ChargesDrawer from "../ChargesDrawer";
@@ -30,8 +30,8 @@ import ChargesDrawer from "../ChargesDrawer";
 describe("ChargesDrawer", () => {
   const MockInput = ({ label, ...props }) => (
     <div>
-      <label>{label}</label>
-      <input {...props} />
+      <label htmlFor={`input-${label}`}>{label}</label>
+      <input id={`input-${label}`} {...props} />
     </div>
   );
 

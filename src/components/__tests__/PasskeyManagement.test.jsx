@@ -4,7 +4,6 @@
  */
 
 import { waitFor } from "@testing-library/react";
-import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../test/component-setup";
 
@@ -195,9 +194,7 @@ describe("PasskeyManagement", () => {
   describe("Delete Passkey", () => {
     it("should show confirm/cancel buttons on delete click", async () => {
       const user = setupUser();
-      mockListPasskeys.mockResolvedValue([
-        { id: "cred-1", deviceLabel: "My Key", createdAt: "2025-01-01T00:00:00Z" },
-      ]);
+      mockListPasskeys.mockResolvedValue([{ id: "cred-1", deviceLabel: "My Key", createdAt: "2025-01-01T00:00:00Z" }]);
 
       const { container } = renderWithProviders(<PasskeyManagement />);
       await waitFor(() => {
@@ -217,9 +214,7 @@ describe("PasskeyManagement", () => {
 
     it("should call deletePasskey on confirm", async () => {
       const user = setupUser();
-      mockListPasskeys.mockResolvedValue([
-        { id: "cred-1", deviceLabel: "My Key", createdAt: "2025-01-01T00:00:00Z" },
-      ]);
+      mockListPasskeys.mockResolvedValue([{ id: "cred-1", deviceLabel: "My Key", createdAt: "2025-01-01T00:00:00Z" }]);
       mockDeletePasskey.mockResolvedValue({});
 
       const { container } = renderWithProviders(<PasskeyManagement />);
@@ -234,9 +229,7 @@ describe("PasskeyManagement", () => {
           expect(container.textContent).toContain("Confirm");
         });
 
-        const confirmBtn = Array.from(container.querySelectorAll("button")).find(
-          (b) => b.textContent === "Confirm"
-        );
+        const confirmBtn = Array.from(container.querySelectorAll("button")).find((b) => b.textContent === "Confirm");
         if (confirmBtn) {
           await user.click(confirmBtn);
           await waitFor(() => {
@@ -248,9 +241,7 @@ describe("PasskeyManagement", () => {
 
     it("should cancel delete on Cancel click", async () => {
       const user = setupUser();
-      mockListPasskeys.mockResolvedValue([
-        { id: "cred-1", deviceLabel: "My Key", createdAt: "2025-01-01T00:00:00Z" },
-      ]);
+      mockListPasskeys.mockResolvedValue([{ id: "cred-1", deviceLabel: "My Key", createdAt: "2025-01-01T00:00:00Z" }]);
 
       const { container } = renderWithProviders(<PasskeyManagement />);
       await waitFor(() => {
@@ -264,9 +255,7 @@ describe("PasskeyManagement", () => {
           expect(container.textContent).toContain("Confirm");
         });
 
-        const cancelBtn = Array.from(container.querySelectorAll("button")).find(
-          (b) => b.textContent === "Cancel"
-        );
+        const cancelBtn = Array.from(container.querySelectorAll("button")).find((b) => b.textContent === "Cancel");
         if (cancelBtn) {
           await user.click(cancelBtn);
           // Should go back to normal state with Remove button

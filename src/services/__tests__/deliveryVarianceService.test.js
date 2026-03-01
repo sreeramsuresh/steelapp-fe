@@ -1,9 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import { deliveryVarianceService } from "../deliveryVarianceService.js";
-
-
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import api from "../api.js";
+import { deliveryVarianceService } from "../deliveryVarianceService.js";
 
 describe("deliveryVarianceService", () => {
   beforeEach(() => {
@@ -19,26 +16,30 @@ describe("deliveryVarianceService", () => {
         total_deliveries: 100,
       };
 
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await deliveryVarianceService.getDeliveryVarianceKPIs();
 
       expect(result.on_time_percentage).toBeTruthy();
       expect(result.late_deliveries).toBeTruthy();
-      expect(api.get).toHaveBeenCalledWith("/delivery-variance/kpis",
-        expect.objectContaining({ params: { daysBack: 90 } }));
+      expect(api.get).toHaveBeenCalledWith(
+        "/delivery-variance/kpis",
+        expect.objectContaining({ params: { daysBack: 90 } })
+      );
     });
 
     it("should support custom daysBack parameter", async () => {
-      vi.spyOn(api, 'get').mockResolvedValue({
+      vi.spyOn(api, "get").mockResolvedValue({
         on_time_percentage: 95,
         late_deliveries: 5,
       });
 
       await deliveryVarianceService.getDeliveryVarianceKPIs(30);
 
-      expect(api.get).toHaveBeenCalledWith("/delivery-variance/kpis",
-        expect.objectContaining({ params: { daysBack: 30 } }));
+      expect(api.get).toHaveBeenCalledWith(
+        "/delivery-variance/kpis",
+        expect.objectContaining({ params: { daysBack: 30 } })
+      );
     });
   });
 
@@ -49,14 +50,16 @@ describe("deliveryVarianceService", () => {
         { date: "2024-01-02", on_time_percentage: 92, late_count: 8 },
       ];
 
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await deliveryVarianceService.getDeliveryVarianceTrend(90);
 
       expect(result).toBeTruthy();
       expect(result[0].on_time_percentage).toBeTruthy();
-      expect(api.get).toHaveBeenCalledWith("/delivery-variance/trend",
-        expect.objectContaining({ params: { daysBack: 90 } }));
+      expect(api.get).toHaveBeenCalledWith(
+        "/delivery-variance/trend",
+        expect.objectContaining({ params: { daysBack: 90 } })
+      );
     });
   });
 
@@ -68,14 +71,16 @@ describe("deliveryVarianceService", () => {
         { range: "8+ days", count: 2, percentage: 8 },
       ];
 
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await deliveryVarianceService.getLateDeliveriesBreakdown(90);
 
       expect(result).toBeTruthy();
       expect(result[0].range).toBeTruthy();
-      expect(api.get).toHaveBeenCalledWith("/delivery-variance/breakdown",
-        expect.objectContaining({ params: { daysBack: 90 } }));
+      expect(api.get).toHaveBeenCalledWith(
+        "/delivery-variance/breakdown",
+        expect.objectContaining({ params: { daysBack: 90 } })
+      );
     });
   });
 
@@ -98,27 +103,31 @@ describe("deliveryVarianceService", () => {
         },
       ];
 
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await deliveryVarianceService.getRecentLateDeliveries(20, 90);
 
       expect(result).toBeTruthy();
       expect(result[0].variance_days).toBeTruthy();
-      expect(api.get).toHaveBeenCalledWith("/delivery-variance/late-deliveries",
+      expect(api.get).toHaveBeenCalledWith(
+        "/delivery-variance/late-deliveries",
         expect.objectContaining({
           params: { limit: 20, daysBack: 90 },
-        }));
+        })
+      );
     });
 
     it("should support custom limit parameter", async () => {
-      vi.spyOn(api, 'get').mockResolvedValue([]);
+      vi.spyOn(api, "get").mockResolvedValue([]);
 
       await deliveryVarianceService.getRecentLateDeliveries(50, 180);
 
-      expect(api.get).toHaveBeenCalledWith("/delivery-variance/late-deliveries",
+      expect(api.get).toHaveBeenCalledWith(
+        "/delivery-variance/late-deliveries",
         expect.objectContaining({
           params: { limit: 50, daysBack: 180 },
-        }));
+        })
+      );
     });
   });
 
@@ -133,13 +142,15 @@ describe("deliveryVarianceService", () => {
         },
       ];
 
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await deliveryVarianceService.getSupplierPerformanceComparison(10, 90);
 
       expect(Array.isArray(result)).toBeTruthy();
-      expect(api.get).toHaveBeenCalledWith("/delivery-variance/supplier-comparison",
-        expect.objectContaining({ params: { limit: 10, daysBack: 90 } }));
+      expect(api.get).toHaveBeenCalledWith(
+        "/delivery-variance/supplier-comparison",
+        expect.objectContaining({ params: { limit: 10, daysBack: 90 } })
+      );
     });
   });
 
@@ -151,13 +162,15 @@ describe("deliveryVarianceService", () => {
         critical_suppliers: 2,
       };
 
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await deliveryVarianceService.getHealthReport(90);
 
       expect(result.overall_health).toBeTruthy();
-      expect(api.get).toHaveBeenCalledWith("/delivery-variance/health-report",
-        expect.objectContaining({ params: { daysBack: 90 } }));
+      expect(api.get).toHaveBeenCalledWith(
+        "/delivery-variance/health-report",
+        expect.objectContaining({ params: { daysBack: 90 } })
+      );
     });
   });
 
@@ -171,13 +184,15 @@ describe("deliveryVarianceService", () => {
         },
       ];
 
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await deliveryVarianceService.generateRecommendations(90);
 
       expect(Array.isArray(result)).toBeTruthy();
-      expect(api.get).toHaveBeenCalledWith("/delivery-variance/recommendations",
-        expect.objectContaining({ params: { daysBack: 90 } }));
+      expect(api.get).toHaveBeenCalledWith(
+        "/delivery-variance/recommendations",
+        expect.objectContaining({ params: { daysBack: 90 } })
+      );
     });
   });
 
@@ -190,13 +205,15 @@ describe("deliveryVarianceService", () => {
         metrics: [],
       };
 
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await deliveryVarianceService.getSupplierScorecard(1, 90);
 
       expect(result.supplier_name).toBeTruthy();
-      expect(api.get).toHaveBeenCalledWith("/delivery-variance/supplier/1/scorecard",
-        expect.objectContaining({ params: { daysBack: 90 } }));
+      expect(api.get).toHaveBeenCalledWith(
+        "/delivery-variance/supplier/1/scorecard",
+        expect.objectContaining({ params: { daysBack: 90 } })
+      );
     });
   });
 
@@ -210,7 +227,7 @@ describe("deliveryVarianceService", () => {
         },
       ];
 
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await deliveryVarianceService.getAtRiskSuppliers();
 

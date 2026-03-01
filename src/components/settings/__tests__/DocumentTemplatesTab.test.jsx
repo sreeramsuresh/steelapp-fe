@@ -24,7 +24,7 @@ vi.mock("../../../services/notificationService", () => ({
 }));
 
 vi.mock("../../InvoiceTemplateSettings", () => ({
-  default: ({ company }) => <div data-testid="template-settings">Template Settings</div>,
+  default: ({ company: _company }) => <div data-testid="template-settings">Template Settings</div>,
 }));
 
 import DocumentTemplatesTab from "../DocumentTemplatesTab";

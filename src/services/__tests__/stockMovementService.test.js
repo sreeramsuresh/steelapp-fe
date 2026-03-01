@@ -1,9 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import { MOVEMENT_TYPES, REFERENCE_TYPES, stockMovementService } from "../stockMovementService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
-
-
+import { MOVEMENT_TYPES, REFERENCE_TYPES, stockMovementService } from "../stockMovementService.js";
 
 describe("stockMovementService", () => {
   beforeEach(() => {
@@ -67,7 +64,7 @@ describe("stockMovementService", () => {
         pagination: { total: 1, page: 1 },
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await stockMovementService.getAll();
 
@@ -76,7 +73,7 @@ describe("stockMovementService", () => {
     });
 
     it("should filter by product", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [] });
+      vi.spyOn(apiClient, "get").mockResolvedValue({ data: [] });
 
       await stockMovementService.getAll({ productId: 100 });
 
@@ -84,7 +81,7 @@ describe("stockMovementService", () => {
     });
 
     it("should filter by warehouse", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [] });
+      vi.spyOn(apiClient, "get").mockResolvedValue({ data: [] });
 
       await stockMovementService.getAll({ warehouseId: 1 });
 
@@ -92,7 +89,7 @@ describe("stockMovementService", () => {
     });
 
     it("should filter by movement type", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [] });
+      vi.spyOn(apiClient, "get").mockResolvedValue({ data: [] });
 
       await stockMovementService.getAll({ movementType: "IN" });
 
@@ -100,17 +97,20 @@ describe("stockMovementService", () => {
     });
 
     it("should filter by date range", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [] });
+      vi.spyOn(apiClient, "get").mockResolvedValue({ data: [] });
 
       await stockMovementService.getAll({
         startDate: "2024-01-01",
         endDate: "2024-01-31",
       });
 
-      expect(apiClient.get).toHaveBeenCalledWith("/stock-movements", expect.objectContaining({
-        page: 1,
-        limit: 20,
-      }));
+      expect(apiClient.get).toHaveBeenCalledWith(
+        "/stock-movements",
+        expect.objectContaining({
+          page: 1,
+          limit: 20,
+        })
+      );
     });
   });
 
@@ -133,7 +133,7 @@ describe("stockMovementService", () => {
         batchNumber: "BATCH-123",
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await stockMovementService.getById(1);
 
@@ -150,7 +150,7 @@ describe("stockMovementService", () => {
         heatNumber: "HEAT-789",
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await stockMovementService.getById(1);
 
@@ -169,7 +169,7 @@ describe("stockMovementService", () => {
         balanceAfter: 1500,
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await stockMovementService.createMovement({
         movementType: "IN",
@@ -192,7 +192,7 @@ describe("stockMovementService", () => {
         balanceAfter: 1300,
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await stockMovementService.createMovement({
         movementType: "OUT",
@@ -215,7 +215,7 @@ describe("stockMovementService", () => {
         transferId: 50,
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await stockMovementService.createMovement({
         movementType: "TRANSFER_OUT",
@@ -236,7 +236,7 @@ describe("stockMovementService", () => {
         totalCost: 12750,
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await stockMovementService.createMovement({
         productId: 100,
@@ -254,7 +254,7 @@ describe("stockMovementService", () => {
         productId: 100,
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await stockMovementService.createMovement({
         productId: 100,
@@ -274,7 +274,7 @@ describe("stockMovementService", () => {
         quantity: 450,
       };
 
-      vi.spyOn(apiClient, 'put').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "put").mockResolvedValue(mockResponse);
 
       const result = await stockMovementService.updateMovement(1, {
         notes: "Damaged goods identified",
@@ -285,7 +285,7 @@ describe("stockMovementService", () => {
     });
 
     it("should handle quantity adjustments", async () => {
-      vi.spyOn(apiClient, 'put').mockResolvedValue({ id: 1, quantity: 450 });
+      vi.spyOn(apiClient, "put").mockResolvedValue({ id: 1, quantity: 450 });
 
       const result = await stockMovementService.updateMovement(1, {
         quantity: 450,
@@ -297,7 +297,7 @@ describe("stockMovementService", () => {
 
   describe("deleteMovement", () => {
     it("should delete movement", async () => {
-      vi.spyOn(apiClient, 'delete').mockResolvedValue({ success: true });
+      vi.spyOn(apiClient, "delete").mockResolvedValue({ success: true });
 
       const result = await stockMovementService.deleteMovement(1);
 
@@ -306,7 +306,7 @@ describe("stockMovementService", () => {
     });
 
     it("should handle deletion errors", async () => {
-      vi.spyOn(apiClient, 'delete').mockRejectedValue(new Error("Movement already processed"));
+      vi.spyOn(apiClient, "delete").mockRejectedValue(new Error("Movement already processed"));
 
       await expect(stockMovementService.deleteMovement(1)).rejects.toThrow();
     });
@@ -328,7 +328,7 @@ describe("stockMovementService", () => {
         heat_number: "HEAT-789",
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await stockMovementService.getById(1);
 
@@ -344,7 +344,7 @@ describe("stockMovementService", () => {
 
   describe("Stock Level Calculations", () => {
     it("should track balance after each movement", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({
+      vi.spyOn(apiClient, "get").mockResolvedValue({
         data: [
           { movementType: "IN", quantity: 1000, balanceAfter: 1000 },
           { movementType: "OUT", quantity: 200, balanceAfter: 800 },
@@ -362,7 +362,7 @@ describe("stockMovementService", () => {
 
   describe("Multi-tenancy", () => {
     it("should maintain company context", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({
+      vi.spyOn(apiClient, "get").mockResolvedValue({
         data: [{ id: 1, companyId: 1 }],
       });
 
@@ -381,7 +381,7 @@ describe("stockMovementService", () => {
         createdAt: "2024-01-15T10:00:00Z",
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await stockMovementService.getById(1);
 
@@ -395,7 +395,7 @@ describe("stockMovementService", () => {
         updatedAt: "2024-01-16T14:30:00Z",
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await stockMovementService.getById(1);
 

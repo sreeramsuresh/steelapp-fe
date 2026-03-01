@@ -4,7 +4,6 @@
  */
 
 import { render, screen } from "@testing-library/react";
-import React from "react";
 import { describe, expect, it } from "vitest";
 
 describe("DeliveryNoteList", () => {
@@ -14,9 +13,21 @@ describe("DeliveryNoteList", () => {
         <h1>Delivery Notes</h1>
         <button type="button">Create Delivery Note</button>
         <table>
-          <thead><tr><th>DN #</th><th>Invoice</th><th>Customer</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>DN #</th>
+              <th>Invoice</th>
+              <th>Customer</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>DN-001</td><td>INV-001</td><td>ABC Corp</td><td>Delivered</td></tr>
+            <tr>
+              <td>DN-001</td>
+              <td>INV-001</td>
+              <td>ABC Corp</td>
+              <td>Delivered</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -73,9 +84,19 @@ describe("ShippingDocumentList", () => {
       <div>
         <h1>Shipping Documents</h1>
         <table>
-          <thead><tr><th>Document</th><th>Type</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Document</th>
+              <th>Type</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>BL-001</td><td>Bill of Lading</td><td>Active</td></tr>
+            <tr>
+              <td>BL-001</td>
+              <td>Bill of Lading</td>
+              <td>Active</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -93,9 +114,19 @@ describe("MaterialCertificateList", () => {
       <div>
         <h1>Material Certificates</h1>
         <table>
-          <thead><tr><th>Certificate</th><th>Product</th><th>Grade</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Certificate</th>
+              <th>Product</th>
+              <th>Grade</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>MTC-001</td><td>SS-304-Sheet</td><td>304</td></tr>
+            <tr>
+              <td>MTC-001</td>
+              <td>SS-304-Sheet</td>
+              <td>304</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -113,9 +144,19 @@ describe("CustomsDocumentList", () => {
       <div>
         <h1>Customs Documents</h1>
         <table>
-          <thead><tr><th>Document</th><th>Import Order</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Document</th>
+              <th>Import Order</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>CD-001</td><td>IO-001</td><td>Cleared</td></tr>
+            <tr>
+              <td>CD-001</td>
+              <td>IO-001</td>
+              <td>Cleared</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -133,9 +174,21 @@ describe("TransitList", () => {
       <div>
         <h1>Items in Transit</h1>
         <table>
-          <thead><tr><th>Reference</th><th>Type</th><th>Status</th><th>ETA</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>ETA</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>PO-001</td><td>Purchase Order</td><td>Shipped</td><td>2026-03-05</td></tr>
+            <tr>
+              <td>PO-001</td>
+              <td>Purchase Order</td>
+              <td>Shipped</td>
+              <td>2026-03-05</td>
+            </tr>
           </tbody>
         </table>
       </div>

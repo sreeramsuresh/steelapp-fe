@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../services/categoryPolicyService", () => ({
   default: {
@@ -12,7 +12,7 @@ vi.mock("../../services/categoryPolicyService", () => ({
 }));
 
 import mockService from "../../services/categoryPolicyService";
-import { usePricingPolicy, PRICING_MODES, PRIMARY_UNITS } from "../usePricingPolicy";
+import { PRICING_MODES, PRIMARY_UNITS, usePricingPolicy } from "../usePricingPolicy";
 
 describe("usePricingPolicy", () => {
   beforeEach(() => {

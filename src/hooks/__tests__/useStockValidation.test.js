@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useStockValidation } from "../useStockValidation";
 
 const mockGetAllItems = vi.fn();
@@ -88,11 +88,7 @@ describe("useStockValidation", () => {
 
     it("aggregates quantities from multiple items", async () => {
       mockGetAllItems.mockResolvedValue({
-        data: [
-          { quantityAvailable: 30 },
-          { quantityAvailable: 40 },
-          { quantityAvailable: 50 },
-        ],
+        data: [{ quantityAvailable: 30 }, { quantityAvailable: 40 }, { quantityAvailable: 50 }],
       });
       const { result } = renderHook(() => useStockValidation());
 

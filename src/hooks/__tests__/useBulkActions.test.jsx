@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import useBulkActions from "../useBulkActions";
 
 describe("useBulkActions", () => {
@@ -260,9 +260,7 @@ describe("useBulkActions", () => {
       { key: "a", label: "A" },
       { key: "b", label: "B" },
     ];
-    const { result } = renderHook(() =>
-      useBulkActions({ items: customItems, onUpdate, getId: (item) => item.key })
-    );
+    const { result } = renderHook(() => useBulkActions({ items: customItems, onUpdate, getId: (item) => item.key }));
 
     act(() => {
       result.current.toggleSelect(customItems[0]);

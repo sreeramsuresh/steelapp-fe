@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../services/batchReservationService", () => ({
   batchReservationService: {
@@ -64,9 +64,7 @@ describe("useReservations", () => {
     });
 
     it("sets error on missing parameters", async () => {
-      const { result } = renderHook(() =>
-        useReservations({ ...defaultOptions, productId: null })
-      );
+      const { result } = renderHook(() => useReservations({ ...defaultOptions, productId: null }));
 
       await act(async () => {
         await result.current.reserveFIFO(100);
@@ -174,9 +172,7 @@ describe("useReservations", () => {
         expiresAt: "2025-12-31T23:59:59Z",
       });
 
-      const { result } = renderHook(() =>
-        useReservations({ ...defaultOptions, draftInvoiceId: 10 })
-      );
+      const { result } = renderHook(() => useReservations({ ...defaultOptions, draftInvoiceId: 10 }));
 
       await act(async () => {
         await result.current.extendReservation();

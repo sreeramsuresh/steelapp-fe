@@ -4,7 +4,6 @@
  */
 
 import { fireEvent, waitFor } from "@testing-library/react";
-import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../test/component-setup";
 
@@ -135,7 +134,11 @@ describe("ForgotPassword", () => {
     it("should show loading state during submission", async () => {
       const user = setupUser();
       let resolveSubmit;
-      mockForgotPassword.mockReturnValue(new Promise((resolve) => { resolveSubmit = resolve; }));
+      mockForgotPassword.mockReturnValue(
+        new Promise((resolve) => {
+          resolveSubmit = resolve;
+        })
+      );
 
       const { container } = renderWithProviders(<ForgotPassword />);
       const emailInput = container.querySelector('input[type="email"]');

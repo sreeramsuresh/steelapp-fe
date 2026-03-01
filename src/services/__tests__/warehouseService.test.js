@@ -1,10 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import { warehouseService } from "../warehouseService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
+import { warehouseService } from "../warehouseService.js";
 
 // Mock API client
-
 
 describe("warehouseService", () => {
   beforeEach(() => {
@@ -31,7 +29,7 @@ describe("warehouseService", () => {
         pagination: { total: 2, page: 1, pageSize: 100 },
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await warehouseService.getAll();
 
@@ -41,7 +39,7 @@ describe("warehouseService", () => {
     });
 
     it("should apply default pagination values", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({
+      vi.spyOn(apiClient, "get").mockResolvedValue({
         data: [],
         pagination: {},
       });
@@ -52,7 +50,7 @@ describe("warehouseService", () => {
     });
 
     it("should filter by search term", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [] });
+      vi.spyOn(apiClient, "get").mockResolvedValue({ data: [] });
 
       await warehouseService.getAll({ search: "Main" });
 
@@ -60,7 +58,7 @@ describe("warehouseService", () => {
     });
 
     it("should filter by active status", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [] });
+      vi.spyOn(apiClient, "get").mockResolvedValue({ data: [] });
 
       await warehouseService.getAll({ isActive: true });
 
@@ -68,7 +66,7 @@ describe("warehouseService", () => {
     });
 
     it("should handle custom pagination", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [] });
+      vi.spyOn(apiClient, "get").mockResolvedValue({ data: [] });
 
       await warehouseService.getAll({ page: 2, limit: 50 });
 
@@ -76,7 +74,7 @@ describe("warehouseService", () => {
     });
 
     it("should handle different response formats", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({
+      vi.spyOn(apiClient, "get").mockResolvedValue({
         warehouses: [{ id: 1, name: "Main" }],
       });
 
@@ -86,12 +84,12 @@ describe("warehouseService", () => {
     });
 
     it("should return empty data on API error", async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValue(new Error("Not Found"));
+      vi.spyOn(apiClient, "get").mockRejectedValue(new Error("Not Found"));
 
       const result = await warehouseService.getSummary();
 
       // Expect empty or default values on error
-      expect(typeof result === 'object').toBeTruthy();
+      expect(typeof result === "object").toBeTruthy();
       // Either the properties should be falsy/0 or the object should be empty
       expect(result.totalWarehouses === undefined || result.totalWarehouses === 0).toBeTruthy();
     });
@@ -111,7 +109,7 @@ describe("warehouseService", () => {
         lowStockAlerts: [],
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await warehouseService.getDashboard(1);
 
@@ -121,7 +119,7 @@ describe("warehouseService", () => {
     });
 
     it("should return mock data on endpoint failure", async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValue(new Error("API Error"));
+      vi.spyOn(apiClient, "get").mockRejectedValue(new Error("API Error"));
 
       await expect(warehouseService.getStock(1)).rejects.toThrow("API Error");
     });
@@ -130,7 +128,7 @@ describe("warehouseService", () => {
   describe("clearSummaryCache", () => {
     it("should be no-op for non-cached implementation", () => {
       // Just verify the function exists and can be called
-      expect(typeof warehouseService.clearSummaryCache).toBe('function');
+      expect(typeof warehouseService.clearSummaryCache).toBe("function");
       expect(() => warehouseService.clearSummaryCache()).not.toThrow();
     });
   });
@@ -151,7 +149,7 @@ describe("warehouseService", () => {
         utilizationHistory: [{ date: "2024-01-01", utilization: 45 }],
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await warehouseService.getAnalytics(1, {
         period: "MONTHLY",
@@ -165,7 +163,7 @@ describe("warehouseService", () => {
     });
 
     it("should support date range filtering", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({
+      vi.spyOn(apiClient, "get").mockResolvedValue({
         inboundTrend: [],
         outboundTrend: [],
       });
@@ -184,7 +182,7 @@ describe("warehouseService", () => {
     });
 
     it("should return empty analytics on error", async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValue(new Error("Network error"));
+      vi.spyOn(apiClient, "get").mockRejectedValue(new Error("Network error"));
 
       await expect(warehouseService.getById("invalid")).rejects.toThrow();
     });

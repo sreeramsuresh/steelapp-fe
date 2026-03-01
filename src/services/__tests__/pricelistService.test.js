@@ -2,12 +2,12 @@
  * Pricelist Service Unit Tests
  * ✅ Tests pricelist CRUD operations
  * ✅ Tests pricelist item management
-* ✅ Tests bulk operations and price calculations
+ * ✅ Tests bulk operations and price calculations
  * ✅ Tests percentage adjustments and copying
  * ✅ 100% coverage target for pricelistService.js
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import api from "../api.js";
 import pricelistService from "../pricelistService.js";
@@ -19,10 +19,10 @@ describe("pricelistService", () => {
   let deleteStub;
   beforeEach(() => {
     vi.restoreAllMocks();
-    getStub = vi.spyOn(api, 'get');
-    postStub = vi.spyOn(api, 'post');
-    putStub = vi.spyOn(api, 'put');
-    deleteStub = vi.spyOn(api, 'delete');
+    getStub = vi.spyOn(api, "get");
+    postStub = vi.spyOn(api, "post");
+    putStub = vi.spyOn(api, "put");
+    deleteStub = vi.spyOn(api, "delete");
   });
 
   describe("getAll", () => {

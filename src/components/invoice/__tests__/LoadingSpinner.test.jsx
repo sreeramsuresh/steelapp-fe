@@ -1,8 +1,7 @@
-import { describe, expect, it } from "vitest";
 import { render } from "@testing-library/react";
-import React from "react";
-import LoadingSpinner from "../LoadingSpinner";
+import { describe, expect, it } from "vitest";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import LoadingSpinner from "../LoadingSpinner";
 
 function renderWithTheme(ui) {
   return render(<ThemeProvider>{ui}</ThemeProvider>);

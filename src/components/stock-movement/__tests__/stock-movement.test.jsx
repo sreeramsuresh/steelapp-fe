@@ -4,9 +4,7 @@
  */
 
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import React from "react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 describe("StockMovementOverview", () => {
   it("renders movement overview with summary stats", () => {
@@ -33,9 +31,25 @@ describe("TransferList", () => {
       <div data-testid="transfer-list">
         <h3>Stock Transfers</h3>
         <table>
-          <thead><tr><th>ID</th><th>From</th><th>To</th><th>Product</th><th>Qty</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>TF-001</td><td>Main WH</td><td>Dubai WH</td><td>SS-304</td><td>20</td><td>Completed</td></tr>
+            <tr>
+              <td>TF-001</td>
+              <td>Main WH</td>
+              <td>Dubai WH</td>
+              <td>SS-304</td>
+              <td>20</td>
+              <td>Completed</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -102,9 +116,23 @@ describe("ReservationList", () => {
       <div data-testid="reservation-list">
         <h3>Stock Reservations</h3>
         <table>
-          <thead><tr><th>ID</th><th>Product</th><th>Qty</th><th>For</th><th>Expires</th></tr></thead>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>For</th>
+              <th>Expires</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>RES-001</td><td>SS-304</td><td>50</td><td>INV-005</td><td>2026-03-01</td></tr>
+            <tr>
+              <td>RES-001</td>
+              <td>SS-304</td>
+              <td>50</td>
+              <td>INV-005</td>
+              <td>2026-03-01</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -165,9 +193,21 @@ describe("ReconciliationDashboard", () => {
           <div>Last Reconciliation: 2026-02-15</div>
         </div>
         <table>
-          <thead><tr><th>Product</th><th>System Qty</th><th>Physical Qty</th><th>Diff</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>System Qty</th>
+              <th>Physical Qty</th>
+              <th>Diff</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>SS-304-Sheet</td><td>500</td><td>498</td><td>-2</td></tr>
+            <tr>
+              <td>SS-304-Sheet</td>
+              <td>500</td>
+              <td>498</td>
+              <td>-2</td>
+            </tr>
           </tbody>
         </table>
       </div>

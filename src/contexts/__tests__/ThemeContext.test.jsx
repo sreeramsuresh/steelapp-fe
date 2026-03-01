@@ -1,6 +1,5 @@
-import { describe, expect, it, beforeEach } from "vitest";
-import { render, screen, act } from "@testing-library/react";
-import React from "react";
+import { act, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it } from "vitest";
 import { ThemeProvider, useTheme } from "../ThemeContext";
 
 function TestConsumer() {
@@ -9,13 +8,13 @@ function TestConsumer() {
     <div>
       <span data-testid="isDarkMode">{String(isDarkMode)}</span>
       <span data-testid="themeMode">{themeMode}</span>
-      <button data-testid="toggle" onClick={toggleTheme}>
+      <button type="button" data-testid="toggle" onClick={toggleTheme}>
         Toggle
       </button>
-      <button data-testid="setDark" onClick={() => setTheme("dark")}>
+      <button type="button" data-testid="setDark" onClick={() => setTheme("dark")}>
         Set Dark
       </button>
-      <button data-testid="setLight" onClick={() => setTheme("light")}>
+      <button type="button" data-testid="setLight" onClick={() => setTheme("light")}>
         Set Light
       </button>
     </div>
@@ -159,9 +158,7 @@ describe("ThemeContext", () => {
   it("throws error when useTheme is used outside ThemeProvider", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    expect(() => render(<TestConsumer />)).toThrow(
-      "useTheme must be used within a ThemeProvider"
-    );
+    expect(() => render(<TestConsumer />)).toThrow("useTheme must be used within a ThemeProvider");
 
     spy.mockRestore();
   });

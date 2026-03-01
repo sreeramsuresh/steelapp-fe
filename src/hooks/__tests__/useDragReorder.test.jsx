@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import useDragReorder from "../useDragReorder";
 
 describe("useDragReorder", () => {
@@ -34,9 +34,7 @@ describe("useDragReorder", () => {
   });
 
   it("returns empty props when disabled", () => {
-    const { result } = renderHook(() =>
-      useDragReorder({ items, onReorder, enabled: false })
-    );
+    const { result } = renderHook(() => useDragReorder({ items, onReorder, enabled: false }));
 
     const props = result.current.getDragItemProps(0);
     expect(props).toEqual({});
@@ -92,9 +90,7 @@ describe("useDragReorder", () => {
   });
 
   it("moveItemUp does nothing when disabled", () => {
-    const { result } = renderHook(() =>
-      useDragReorder({ items, onReorder, enabled: false })
-    );
+    const { result } = renderHook(() => useDragReorder({ items, onReorder, enabled: false }));
 
     act(() => {
       result.current.moveItemUp(1);

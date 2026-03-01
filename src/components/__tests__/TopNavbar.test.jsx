@@ -3,7 +3,6 @@
  * Phase 3C: Core layout component
  */
 
-import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../test/component-setup";
 
@@ -28,9 +27,7 @@ vi.mock("react-router-dom", () => ({
 // Mock NotificationCenterContext
 vi.mock("../../contexts/NotificationCenterContext", () => ({
   useNotifications: () => ({
-    notifications: [
-      { id: "1", title: "Test Notification", message: "A test message", time: "just now", unread: true },
-    ],
+    notifications: [{ id: "1", title: "Test Notification", message: "A test message", time: "just now", unread: true }],
     unreadCount: 1,
     markAsRead: vi.fn(),
     markAllAsRead: vi.fn(),
@@ -49,7 +46,11 @@ vi.mock("../../services/productService", () => ({
 
 // Mock HomeButton
 vi.mock("../HomeButton", () => ({
-  default: () => <button type="button" data-testid="home-button">Home</button>,
+  default: () => (
+    <button type="button" data-testid="home-button">
+      Home
+    </button>
+  ),
 }));
 
 // Mock __APP_VERSION__
@@ -213,9 +214,7 @@ describe("TopNavbar", () => {
 
   describe("Default Props", () => {
     it("should handle missing user gracefully", () => {
-      const { container } = renderWithProviders(
-        <TopNavbar {...defaultProps} user={null} />
-      );
+      const { container } = renderWithProviders(<TopNavbar {...defaultProps} user={null} />);
       expect(container.textContent).toContain("User");
     });
   });

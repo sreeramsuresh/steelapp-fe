@@ -1,6 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
+import { describe, expect, it, vi } from "vitest";
 import InvoiceValidationPanel from "../InvoiceValidationPanel";
 
 describe("InvoiceValidationPanel", () => {
@@ -15,9 +14,7 @@ describe("InvoiceValidationPanel", () => {
   };
 
   it("returns null when not open", () => {
-    const { container } = render(
-      <InvoiceValidationPanel {...defaultProps} isOpen={false} />
-    );
+    const { container } = render(<InvoiceValidationPanel {...defaultProps} isOpen={false} />);
     expect(container.innerHTML).toBe("");
   });
 

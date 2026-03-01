@@ -8,23 +8,21 @@
  * ✅ 40-50 tests covering all critical paths
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { apiService } from "../axiosApi.js";
 import { userAdminAPI } from "../userAdminApi.js";
 
-
 // Helper to create fresh stubs for each test
-function stubApiService() {
+function _stubApiService() {
   const stubs = {};
-  stubs.get = vi.spyOn(apiService, 'get');
-  stubs.post = vi.spyOn(apiService, 'post');
-  stubs.put = vi.spyOn(apiService, 'put');
-  stubs.patch = vi.spyOn(apiService, 'patch');
-  stubs.delete = vi.spyOn(apiService, 'delete');
+  stubs.get = vi.spyOn(apiService, "get");
+  stubs.post = vi.spyOn(apiService, "post");
+  stubs.put = vi.spyOn(apiService, "put");
+  stubs.patch = vi.spyOn(apiService, "patch");
+  stubs.delete = vi.spyOn(apiService, "delete");
   return stubs;
 }
-
 
 describe("usersService (userAdminAPI)", () => {
   beforeEach(() => {
@@ -53,7 +51,8 @@ describe("usersService (userAdminAPI)", () => {
           companyId: 1,
         },
       ];
-      const getStub = vi.spyOn(apiService, 'get'); getStub.mockResolvedValue({ users: mockUsers });
+      const getStub = vi.spyOn(apiService, "get");
+      getStub.mockResolvedValue({ users: mockUsers });
 
       const result = await userAdminAPI.list();
 
@@ -71,7 +70,8 @@ describe("usersService (userAdminAPI)", () => {
           role: "USER",
         },
       ];
-      const getStub = vi.spyOn(apiService, 'get'); getStub.mockResolvedValue({ users: mockUsers });
+      const getStub = vi.spyOn(apiService, "get");
+      getStub.mockResolvedValue({ users: mockUsers });
 
       const result = await userAdminAPI.list({ page: 1, limit: 10 });
 
@@ -83,7 +83,8 @@ describe("usersService (userAdminAPI)", () => {
 
     it("should list users filtered by role", async () => {
       const mockUsers = [{ id: 1, name: "Admin User", email: "admin@example.com", role: "ADMIN" }];
-      const getStub = vi.spyOn(apiService, 'get'); getStub.mockResolvedValue({ users: mockUsers });
+      const getStub = vi.spyOn(apiService, "get");
+      getStub.mockResolvedValue({ users: mockUsers });
 
       const result = await userAdminAPI.list({ role: "ADMIN" });
 
@@ -96,7 +97,8 @@ describe("usersService (userAdminAPI)", () => {
 
     it("should list users filtered by company", async () => {
       const mockUsers = [{ id: 1, name: "User", email: "user@example.com", companyId: 5 }];
-      const getStub = vi.spyOn(apiService, 'get'); getStub.mockResolvedValue({ users: mockUsers });
+      const getStub = vi.spyOn(apiService, "get");
+      getStub.mockResolvedValue({ users: mockUsers });
 
       const result = await userAdminAPI.list({ companyId: 5 });
 
@@ -106,7 +108,8 @@ describe("usersService (userAdminAPI)", () => {
 
     it("should handle array response format", async () => {
       const mockUsers = [{ id: 1, name: "User One", email: "user1@example.com" }];
-      const getStub = vi.spyOn(apiService, 'get'); getStub.mockResolvedValue(mockUsers);
+      const getStub = vi.spyOn(apiService, "get");
+      getStub.mockResolvedValue(mockUsers);
 
       const result = await userAdminAPI.list();
 
@@ -114,7 +117,8 @@ describe("usersService (userAdminAPI)", () => {
     });
 
     it("should handle empty user list", async () => {
-      const getStub = vi.spyOn(apiService, 'get'); getStub.mockResolvedValue({ users: [] });
+      const getStub = vi.spyOn(apiService, "get");
+      getStub.mockResolvedValue({ users: [] });
 
       const result = await userAdminAPI.list();
 
@@ -122,7 +126,8 @@ describe("usersService (userAdminAPI)", () => {
     });
 
     it("should handle null response gracefully", async () => {
-      const getStub = vi.spyOn(apiService, 'get'); getStub.mockResolvedValue(null);
+      const getStub = vi.spyOn(apiService, "get");
+      getStub.mockResolvedValue(null);
 
       const result = await userAdminAPI.list();
 
@@ -131,7 +136,8 @@ describe("usersService (userAdminAPI)", () => {
 
     it("should search users by email", async () => {
       const mockUsers = [{ id: 1, name: "John", email: "john@example.com", role: "ADMIN" }];
-      const getStub = vi.spyOn(apiService, 'get'); getStub.mockResolvedValue({ users: mockUsers });
+      const getStub = vi.spyOn(apiService, "get");
+      getStub.mockResolvedValue({ users: mockUsers });
 
       const result = await userAdminAPI.list({ search: "john@example.com" });
 
@@ -146,7 +152,8 @@ describe("usersService (userAdminAPI)", () => {
         { id: 2, name: "Alice", email: "alice@example.com" },
         { id: 1, name: "Bob", email: "bob@example.com" },
       ];
-      const getStub = vi.spyOn(apiService, 'get'); getStub.mockResolvedValue({ users: mockUsers });
+      const getStub = vi.spyOn(apiService, "get");
+      getStub.mockResolvedValue({ users: mockUsers });
 
       const result = await userAdminAPI.list({ sort: "name", order: "asc" });
 
@@ -170,7 +177,8 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: 10, ...userData, companyId: 1 },
       };
-      const postStub = vi.spyOn(apiService, 'post'); postStub.mockResolvedValue(mockResponse);
+      const postStub = vi.spyOn(apiService, "post");
+      postStub.mockResolvedValue(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -190,7 +198,8 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: 11, ...userData, companyId: 1 },
       };
-      const postStub = vi.spyOn(apiService, 'post'); postStub.mockResolvedValue(mockResponse);
+      const postStub = vi.spyOn(apiService, "post");
+      postStub.mockResolvedValue(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -205,7 +214,8 @@ describe("usersService (userAdminAPI)", () => {
         password: "Pass123!",
         role: "USER",
       };
-      const postStub = vi.spyOn(apiService, 'post'); postStub.mockRejectedValue(new Error("Email already exists"));
+      const postStub = vi.spyOn(apiService, "post");
+      postStub.mockRejectedValue(new Error("Email already exists"));
 
       await expect(userAdminAPI.create(userData)).rejects.toThrow();
     });
@@ -217,7 +227,8 @@ describe("usersService (userAdminAPI)", () => {
         password: "123",
         role: "USER",
       };
-      const postStub = vi.spyOn(apiService, 'post'); postStub.mockRejectedValue(new Error("Password too weak"));
+      const postStub = vi.spyOn(apiService, "post");
+      postStub.mockRejectedValue(new Error("Password too weak"));
 
       await expect(userAdminAPI.create(userData)).rejects.toThrow();
     });
@@ -229,7 +240,8 @@ describe("usersService (userAdminAPI)", () => {
         password: "Pass123!",
         role: "USER",
       };
-      const postStub = vi.spyOn(apiService, 'post'); postStub.mockRejectedValue(new Error("Invalid email format"));
+      const postStub = vi.spyOn(apiService, "post");
+      postStub.mockRejectedValue(new Error("Invalid email format"));
 
       await expect(userAdminAPI.create(userData)).rejects.toThrow();
     });
@@ -241,7 +253,8 @@ describe("usersService (userAdminAPI)", () => {
         password: "Pass123!",
         role: "USER",
       };
-      const postStub = vi.spyOn(apiService, 'post'); postStub.mockRejectedValue(new Error("Network error"));
+      const postStub = vi.spyOn(apiService, "post");
+      postStub.mockRejectedValue(new Error("Network error"));
 
       await expect(userAdminAPI.create(userData)).rejects.toThrow();
     });
@@ -254,7 +267,8 @@ describe("usersService (userAdminAPI)", () => {
         role: "USER",
       };
       const mockResponse = { id: 12, name: "User" };
-      const postStub = vi.spyOn(apiService, 'post'); postStub.mockResolvedValue(mockResponse);
+      const postStub = vi.spyOn(apiService, "post");
+      postStub.mockResolvedValue(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -273,7 +287,8 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, name: "Updated Name", email: "user@example.com" },
       };
-      const patchStub = vi.spyOn(apiService, 'patch'); patchStub.mockResolvedValue(mockResponse);
+      const patchStub = vi.spyOn(apiService, "patch");
+      patchStub.mockResolvedValue(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -287,7 +302,8 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, role: "MANAGER", email: "user@example.com" },
       };
-      const patchStub = vi.spyOn(apiService, 'patch'); patchStub.mockResolvedValue(mockResponse);
+      const patchStub = vi.spyOn(apiService, "patch");
+      patchStub.mockResolvedValue(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -300,7 +316,8 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, ...payload, email: "user@example.com" },
       };
-      const patchStub = vi.spyOn(apiService, 'patch'); patchStub.mockResolvedValue(mockResponse);
+      const patchStub = vi.spyOn(apiService, "patch");
+      patchStub.mockResolvedValue(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -311,7 +328,8 @@ describe("usersService (userAdminAPI)", () => {
     it("should handle user not found error", async () => {
       const userId = 999;
       const payload = { name: "Updated" };
-      const patchStub = vi.spyOn(apiService, 'patch'); patchStub.mockRejectedValue(new Error("User not found"));
+      const patchStub = vi.spyOn(apiService, "patch");
+      patchStub.mockRejectedValue(new Error("User not found"));
 
       await expect(userAdminAPI.update(userId, payload)).rejects.toThrow();
     });
@@ -319,7 +337,8 @@ describe("usersService (userAdminAPI)", () => {
     it("should handle validation errors on update", async () => {
       const userId = 1;
       const payload = { email: "invalid-email" };
-      const patchStub = vi.spyOn(apiService, 'patch'); patchStub.mockRejectedValue(new Error("Invalid email"));
+      const patchStub = vi.spyOn(apiService, "patch");
+      patchStub.mockRejectedValue(new Error("Invalid email"));
 
       await expect(userAdminAPI.update(userId, payload)).rejects.toThrow();
     });
@@ -330,7 +349,8 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, name: "Updated", email: "user@example.com" },
       };
-      const patchStub = vi.spyOn(apiService, 'patch'); patchStub.mockResolvedValue(mockResponse);
+      const patchStub = vi.spyOn(apiService, "patch");
+      patchStub.mockResolvedValue(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -341,7 +361,8 @@ describe("usersService (userAdminAPI)", () => {
       const userId = 1;
       const payload = { name: "Updated" };
       const mockResponse = { id: userId, name: "Updated", email: "user@example.com" };
-      const patchStub = vi.spyOn(apiService, 'patch'); patchStub.mockResolvedValue(mockResponse);
+      const patchStub = vi.spyOn(apiService, "patch");
+      patchStub.mockResolvedValue(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 
@@ -358,7 +379,8 @@ describe("usersService (userAdminAPI)", () => {
       const userId = 1;
       const payload = { currentPassword: "OldPass123!", newPassword: "NewPass456!" };
       const mockResponse = { success: true, message: "Password changed" };
-      const putStub = vi.spyOn(apiService, 'put'); putStub.mockResolvedValue(mockResponse);
+      const putStub = vi.spyOn(apiService, "put");
+      putStub.mockResolvedValue(mockResponse);
 
       const result = await userAdminAPI.changePassword(userId, payload);
 
@@ -369,7 +391,8 @@ describe("usersService (userAdminAPI)", () => {
     it("should reject incorrect current password", async () => {
       const userId = 1;
       const payload = { currentPassword: "WrongPass", newPassword: "NewPass456!" };
-      const putStub = vi.spyOn(apiService, 'put'); putStub.mockRejectedValue(new Error("Current password incorrect"));
+      const putStub = vi.spyOn(apiService, "put");
+      putStub.mockRejectedValue(new Error("Current password incorrect"));
 
       await expect(userAdminAPI.changePassword(userId, payload)).rejects.toThrow();
     });
@@ -377,7 +400,8 @@ describe("usersService (userAdminAPI)", () => {
     it("should enforce password strength on new password", async () => {
       const userId = 1;
       const payload = { currentPassword: "OldPass123!", newPassword: "123" };
-      const putStub = vi.spyOn(apiService, 'put'); putStub.mockRejectedValue(new Error("New password too weak"));
+      const putStub = vi.spyOn(apiService, "put");
+      putStub.mockRejectedValue(new Error("New password too weak"));
 
       await expect(userAdminAPI.changePassword(userId, payload)).rejects.toThrow();
     });
@@ -385,7 +409,8 @@ describe("usersService (userAdminAPI)", () => {
     it("should prevent reusing old password", async () => {
       const userId = 1;
       const payload = { currentPassword: "OldPass123!", newPassword: "OldPass123!" };
-      const putStub = vi.spyOn(apiService, 'put'); putStub.mockRejectedValue(new Error("Cannot reuse previous password"));
+      const putStub = vi.spyOn(apiService, "put");
+      putStub.mockRejectedValue(new Error("Cannot reuse previous password"));
 
       await expect(userAdminAPI.changePassword(userId, payload)).rejects.toThrow();
     });
@@ -393,7 +418,8 @@ describe("usersService (userAdminAPI)", () => {
     it("should handle network error during password change", async () => {
       const userId = 1;
       const payload = { currentPassword: "OldPass123!", newPassword: "NewPass456!" };
-      const putStub = vi.spyOn(apiService, 'put'); putStub.mockRejectedValue(new Error("Network error"));
+      const putStub = vi.spyOn(apiService, "put");
+      putStub.mockRejectedValue(new Error("Network error"));
 
       await expect(userAdminAPI.changePassword(userId, payload)).rejects.toThrow();
     });
@@ -407,7 +433,8 @@ describe("usersService (userAdminAPI)", () => {
     it("should delete user by ID", async () => {
       const userId = 5;
       const mockResponse = { success: true, message: "User deleted" };
-      const deleteStub = vi.spyOn(apiService, 'delete'); deleteStub.mockResolvedValue(mockResponse);
+      const deleteStub = vi.spyOn(apiService, "delete");
+      deleteStub.mockResolvedValue(mockResponse);
 
       const result = await userAdminAPI.remove(userId);
 
@@ -417,28 +444,32 @@ describe("usersService (userAdminAPI)", () => {
 
     it("should handle deletion of non-existent user", async () => {
       const userId = 999;
-      const deleteStub = vi.spyOn(apiService, 'delete'); deleteStub.mockRejectedValue(new Error("User not found"));
+      const deleteStub = vi.spyOn(apiService, "delete");
+      deleteStub.mockRejectedValue(new Error("User not found"));
 
       await expect(userAdminAPI.remove(userId)).rejects.toThrow();
     });
 
     it("should prevent deletion of last admin user", async () => {
       const userId = 1;
-      const deleteStub = vi.spyOn(apiService, 'delete'); deleteStub.mockRejectedValue(new Error("Cannot delete last admin"));
+      const deleteStub = vi.spyOn(apiService, "delete");
+      deleteStub.mockRejectedValue(new Error("Cannot delete last admin"));
 
       await expect(userAdminAPI.remove(userId)).rejects.toThrow();
     });
 
     it("should handle authorization error on deletion", async () => {
       const userId = 10;
-      const deleteStub = vi.spyOn(apiService, 'delete'); deleteStub.mockRejectedValue(new Error("Insufficient permissions"));
+      const deleteStub = vi.spyOn(apiService, "delete");
+      deleteStub.mockRejectedValue(new Error("Insufficient permissions"));
 
       await expect(userAdminAPI.remove(userId)).rejects.toThrow();
     });
 
     it("should handle network error on deletion", async () => {
       const userId = 5;
-      const deleteStub = vi.spyOn(apiService, 'delete'); deleteStub.mockRejectedValue(new Error("Network error"));
+      const deleteStub = vi.spyOn(apiService, "delete");
+      deleteStub.mockRejectedValue(new Error("Network error"));
 
       await expect(userAdminAPI.remove(userId)).rejects.toThrow();
     });
@@ -451,7 +482,8 @@ describe("usersService (userAdminAPI)", () => {
   describe("Multi-Tenancy Enforcement", () => {
     it("should filter users by company context", async () => {
       const mockUsers = [{ id: 1, name: "User", email: "user@example.com", companyId: 1 }];
-      const getStub = vi.spyOn(apiService, 'get'); getStub.mockResolvedValue({ users: mockUsers });
+      const getStub = vi.spyOn(apiService, "get");
+      getStub.mockResolvedValue({ users: mockUsers });
 
       const result = await userAdminAPI.list({ companyId: 1 });
 
@@ -461,7 +493,8 @@ describe("usersService (userAdminAPI)", () => {
     it("should not allow cross-company user access", async () => {
       // API should enforce this, client just sends request
       const mockUsers = [{ id: 1, name: "User", email: "user@example.com", companyId: 2 }];
-      const getStub = vi.spyOn(apiService, 'get'); getStub.mockResolvedValue({ users: mockUsers });
+      const getStub = vi.spyOn(apiService, "get");
+      getStub.mockResolvedValue({ users: mockUsers });
 
       const result = await userAdminAPI.list({ companyId: 1 });
 
@@ -479,7 +512,8 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: 10, ...userData, companyId: 1 },
       };
-      const postStub = vi.spyOn(apiService, 'post'); postStub.mockResolvedValue(mockResponse);
+      const postStub = vi.spyOn(apiService, "post");
+      postStub.mockResolvedValue(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -493,19 +527,22 @@ describe("usersService (userAdminAPI)", () => {
 
   describe("Error Handling", () => {
     it("should handle API timeout", async () => {
-      const getStub = vi.spyOn(apiService, 'get'); getStub.mockRejectedValue(new Error("Request timeout"));
+      const getStub = vi.spyOn(apiService, "get");
+      getStub.mockRejectedValue(new Error("Request timeout"));
 
       await expect(userAdminAPI.list()).rejects.toThrow();
     });
 
     it("should handle server error responses", async () => {
-      const getStub = vi.spyOn(apiService, 'get'); getStub.mockRejectedValue(new Error("Server error: 500"));
+      const getStub = vi.spyOn(apiService, "get");
+      getStub.mockRejectedValue(new Error("Server error: 500"));
 
       await expect(userAdminAPI.list()).rejects.toThrow();
     });
 
     it("should handle malformed response", async () => {
-      const getStub = vi.spyOn(apiService, 'get'); getStub.mockResolvedValue(null);
+      const getStub = vi.spyOn(apiService, "get");
+      getStub.mockResolvedValue(null);
 
       const result = await userAdminAPI.list();
 
@@ -516,7 +553,7 @@ describe("usersService (userAdminAPI)", () => {
       const mockUsers1 = { users: [{ id: 1, name: "User 1", email: "user1@example.com" }] };
       const mockUsers2 = { users: [{ id: 2, name: "User 2", email: "user2@example.com" }] };
 
-      const getStub = vi.spyOn(apiService, 'get');
+      const getStub = vi.spyOn(apiService, "get");
       getStub.mockResolvedValueOnce(mockUsers1);
       getStub.mockResolvedValueOnce(mockUsers2);
 
@@ -540,7 +577,8 @@ describe("usersService (userAdminAPI)", () => {
         role: "ADMIN",
       };
       const mockResponse = { user: { id: 20, ...userData } };
-      const postStub = vi.spyOn(apiService, 'post'); postStub.mockResolvedValue(mockResponse);
+      const postStub = vi.spyOn(apiService, "post");
+      postStub.mockResolvedValue(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -556,7 +594,8 @@ describe("usersService (userAdminAPI)", () => {
         permissions: ["READ_INVOICE", "CREATE_PO", "APPROVE_PAYMENT"],
       };
       const mockResponse = { user: { id: 21, ...userData } };
-      const postStub = vi.spyOn(apiService, 'post'); postStub.mockResolvedValue(mockResponse);
+      const postStub = vi.spyOn(apiService, "post");
+      postStub.mockResolvedValue(mockResponse);
 
       const result = await userAdminAPI.create(userData);
 
@@ -570,7 +609,8 @@ describe("usersService (userAdminAPI)", () => {
       const mockResponse = {
         user: { id: userId, ...payload, email: "user@example.com" },
       };
-      const patchStub = vi.spyOn(apiService, 'patch'); patchStub.mockResolvedValue(mockResponse);
+      const patchStub = vi.spyOn(apiService, "patch");
+      patchStub.mockResolvedValue(mockResponse);
 
       const result = await userAdminAPI.update(userId, payload);
 

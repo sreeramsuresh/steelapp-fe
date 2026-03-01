@@ -4,7 +4,6 @@
  */
 
 import { waitFor } from "@testing-library/react";
-import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, setupUser } from "../../test/component-setup";
 
@@ -197,8 +196,8 @@ describe("TwoFactorVerification", () => {
         <TwoFactorVerification {...defaultProps} onVerified={mockOnVerified} onCancel={mockOnCancel} />
       );
 
-      const emailBtn = Array.from(container.querySelectorAll("button")).find(
-        (b) => b.textContent.includes("Send code via email")
+      const emailBtn = Array.from(container.querySelectorAll("button")).find((b) =>
+        b.textContent.includes("Send code via email")
       );
       await user.click(emailBtn);
 
@@ -213,8 +212,8 @@ describe("TwoFactorVerification", () => {
         <TwoFactorVerification {...defaultProps} onVerified={mockOnVerified} onCancel={mockOnCancel} />
       );
 
-      const recoveryBtn = Array.from(container.querySelectorAll("button")).find(
-        (b) => b.textContent.includes("Use a recovery code")
+      const recoveryBtn = Array.from(container.querySelectorAll("button")).find((b) =>
+        b.textContent.includes("Use a recovery code")
       );
       await user.click(recoveryBtn);
 
@@ -231,8 +230,8 @@ describe("TwoFactorVerification", () => {
         <TwoFactorVerification {...defaultProps} onVerified={mockOnVerified} onCancel={mockOnCancel} />
       );
 
-      const cancelBtn = Array.from(container.querySelectorAll("button")).find(
-        (b) => b.textContent.includes("Use a different account")
+      const cancelBtn = Array.from(container.querySelectorAll("button")).find((b) =>
+        b.textContent.includes("Use a different account")
       );
       await user.click(cancelBtn);
       expect(mockOnCancel).toHaveBeenCalled();

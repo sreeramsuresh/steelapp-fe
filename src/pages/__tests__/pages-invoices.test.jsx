@@ -211,8 +211,8 @@ describe("QuotationForm", () => {
         <h1>New Quotation</h1>
         <input placeholder="Select Customer" />
         <div data-testid="validity-date">
-          <label>Valid Until</label>
-          <input type="date" />
+          <label htmlFor="valid-until">Valid Until</label>
+          <input id="valid-until" type="date" />
         </div>
         <button type="button">Save Quotation</button>
       </div>

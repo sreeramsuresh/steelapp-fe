@@ -4,8 +4,6 @@
  */
 
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import React from "react";
 import { describe, expect, it, vi } from "vitest";
 
 describe("CreditNotePreview", () => {
@@ -16,9 +14,21 @@ describe("CreditNotePreview", () => {
         <div>Customer: ABC Corp</div>
         <div>Original Invoice: INV-001</div>
         <table>
-          <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Amount</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>SS-304-Sheet</td><td>10</td><td>100</td><td>1,000</td></tr>
+            <tr>
+              <td>SS-304-Sheet</td>
+              <td>10</td>
+              <td>100</td>
+              <td>1,000</td>
+            </tr>
           </tbody>
         </table>
         <div>Subtotal: 1,000</div>
@@ -47,7 +57,9 @@ describe("CreditNoteStatusActions", () => {
         <div data-testid="status-actions">
           <span>Status: {status}</span>
           {(actions[status] || []).map((action) => (
-            <button key={action} type="button">{action}</button>
+            <button key={action} type="button">
+              {action}
+            </button>
           ))}
         </div>
       );
@@ -64,7 +76,11 @@ describe("CreditNoteStatusActions", () => {
       const actions = { SUBMITTED: ["Approve", "Reject"] };
       return (
         <div>
-          {(actions[status] || []).map((a) => <button key={a} type="button">{a}</button>)}
+          {(actions[status] || []).map((a) => (
+            <button key={a} type="button">
+              {a}
+            </button>
+          ))}
         </div>
       );
     };
@@ -89,7 +105,9 @@ describe("QCInspectionModal", () => {
             <option>Partial</option>
           </select>
           <textarea placeholder="Inspection Notes" />
-          <button type="button" onClick={onClose}>Close</button>
+          <button type="button" onClick={onClose}>
+            Close
+          </button>
           <button type="button">Submit Inspection</button>
         </div>
       );
@@ -108,10 +126,24 @@ describe("ScrapItemsList", () => {
       <div data-testid="scrap-items">
         <h3>Scrap Items</h3>
         <table>
-          <thead><tr><th>Product</th><th>Qty</th><th>Reason</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>SS-304-Sheet</td><td>5</td><td>Damaged</td></tr>
-            <tr><td>SS-316-Bar</td><td>3</td><td>Wrong spec</td></tr>
+            <tr>
+              <td>SS-304-Sheet</td>
+              <td>5</td>
+              <td>Damaged</td>
+            </tr>
+            <tr>
+              <td>SS-316-Bar</td>
+              <td>3</td>
+              <td>Wrong spec</td>
+            </tr>
           </tbody>
         </table>
       </div>

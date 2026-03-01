@@ -272,9 +272,7 @@ describe("ContextMenu Component", () => {
   describe("Disabled Items", () => {
     it("should render disabled items", async () => {
       const itemsWithDisabled = [{ label: "Option 1" }, { label: "Option 2", disabled: true }, { label: "Option 3" }];
-      const { getByTestId } = renderWithProviders(
-        <ContextMenu {...defaultProps} items={itemsWithDisabled} />
-      );
+      const { getByTestId } = renderWithProviders(<ContextMenu {...defaultProps} items={itemsWithDisabled} />);
 
       const trigger = getByTestId("context-menu-trigger");
       fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });
@@ -286,9 +284,7 @@ describe("ContextMenu Component", () => {
     it("should not trigger selection for disabled items", async () => {
       const user = setupUser();
       const itemsWithDisabled = [{ label: "Option 1" }, { label: "Option 2", disabled: true }];
-      const { getByTestId } = renderWithProviders(
-        <ContextMenu {...defaultProps} items={itemsWithDisabled} />
-      );
+      const { getByTestId } = renderWithProviders(<ContextMenu {...defaultProps} items={itemsWithDisabled} />);
 
       const trigger = getByTestId("context-menu-trigger");
       fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100 });

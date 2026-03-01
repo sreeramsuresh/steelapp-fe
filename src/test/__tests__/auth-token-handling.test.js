@@ -5,7 +5,7 @@
  * in the frontend authentication layer.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("Auth Token Handling", () => {
   beforeEach(() => {

@@ -2,7 +2,7 @@
  * Credit Note Service Unit Tests
  * ✅ Tests CRUD operations (list, create, get, update, delete)
  * ✅ Tests financial document handling (UAE VAT, totals calculation)
-* ✅ Tests data transformation (camelCase ↔ snake_case)
+ * ✅ Tests data transformation (camelCase ↔ snake_case)
  * ✅ Tests pagination and search filtering
  * ✅ Tests validation error cases
  * ✅ Tests multi-currency handling and calculations
@@ -11,10 +11,9 @@
 
 // Mock API client
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import { creditNoteService } from "../creditNoteService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
+import { creditNoteService } from "../creditNoteService.js";
 
 describe("creditNoteService", () => {
   let getStub;
@@ -23,10 +22,10 @@ describe("creditNoteService", () => {
   let deleteStub;
   beforeEach(() => {
     vi.restoreAllMocks();
-    getStub = vi.spyOn(apiClient, 'get');
-    postStub = vi.spyOn(apiClient, 'post');
-    putStub = vi.spyOn(apiClient, 'put');
-    deleteStub = vi.spyOn(apiClient, 'delete');
+    getStub = vi.spyOn(apiClient, "get");
+    postStub = vi.spyOn(apiClient, "post");
+    putStub = vi.spyOn(apiClient, "put");
+    deleteStub = vi.spyOn(apiClient, "delete");
   });
 
   // ============================================================================

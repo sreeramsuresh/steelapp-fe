@@ -1,9 +1,8 @@
-import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
-import Breadcrumb from "../Breadcrumb";
-import { ThemeProvider } from "../../../contexts/ThemeContext";
 import { MemoryRouter } from "react-router-dom";
+import { describe, expect, it } from "vitest";
+import { ThemeProvider } from "../../../contexts/ThemeContext";
+import Breadcrumb from "../Breadcrumb";
 
 function renderWithProviders(ui) {
   return render(
@@ -33,31 +32,18 @@ describe("Breadcrumb", () => {
   });
 
   it("marks current item with aria-current", () => {
-    renderWithProviders(
-      <Breadcrumb
-        items={[{ label: "Current Page", current: true }]}
-      />
-    );
-    expect(screen.getByText("Current Page")).toHaveAttribute(
-      "aria-current",
-      "page"
-    );
+    renderWithProviders(<Breadcrumb items={[{ label: "Current Page", current: true }]} />);
+    expect(screen.getByText("Current Page")).toHaveAttribute("aria-current", "page");
   });
 
   it("renders links for non-current items", () => {
-    renderWithProviders(
-      <Breadcrumb
-        items={[{ label: "Invoices", href: "/invoices" }]}
-      />
-    );
+    renderWithProviders(<Breadcrumb items={[{ label: "Invoices", href: "/invoices" }]} />);
     const link = screen.getByText("Invoices");
     expect(link.tagName).toBe("A");
   });
 
   it("has aria-label for navigation", () => {
-    renderWithProviders(
-      <Breadcrumb items={[{ label: "Page", current: true }]} />
-    );
+    renderWithProviders(<Breadcrumb items={[{ label: "Page", current: true }]} />);
     expect(screen.getByLabelText("Breadcrumb")).toBeInTheDocument();
   });
 });

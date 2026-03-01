@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../api.js", () => ({
   apiClient: {
@@ -10,11 +10,7 @@ vi.mock("../api.js", () => ({
 }));
 
 import { apiClient } from "../api.js";
-import vatAmendmentService, {
-  AMENDMENT_TYPES,
-  ERROR_CATEGORIES,
-  AMENDMENT_STATUSES,
-} from "../vatAmendmentService.js";
+import vatAmendmentService, { AMENDMENT_STATUSES, AMENDMENT_TYPES, ERROR_CATEGORIES } from "../vatAmendmentService.js";
 
 describe("vatAmendmentService", () => {
   beforeEach(() => {
@@ -54,9 +50,7 @@ describe("vatAmendmentService", () => {
     });
 
     it("handles array response", async () => {
-      apiClient.get.mockResolvedValue([
-        { id: 1, status: "draft" },
-      ]);
+      apiClient.get.mockResolvedValue([{ id: 1, status: "draft" }]);
 
       const result = await vatAmendmentService.getAll();
 

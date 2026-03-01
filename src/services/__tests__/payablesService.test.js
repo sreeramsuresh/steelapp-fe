@@ -2,10 +2,9 @@
  * Payables Service Unit Tests
  * Tests invoice and PO payment tracking, status management
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import { payablesService } from "../payablesService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
+import { payablesService } from "../payablesService.js";
 
 // Mock localStorage - define mock object
 const localStorageMock = (() => {
@@ -29,8 +28,8 @@ describe("payablesService", () => {
   let postStub;
   beforeEach(() => {
     vi.restoreAllMocks();
-    getStub = vi.spyOn(apiClient, 'get');
-    postStub = vi.spyOn(apiClient, 'post');
+    getStub = vi.spyOn(apiClient, "get");
+    postStub = vi.spyOn(apiClient, "post");
     localStorageMock.clear();
   });
 
@@ -372,7 +371,7 @@ describe("payablesService", () => {
       };
       getStub.mockResolvedValue(mockResponse);
 
-      const result = await payablesService.getInvoice(1);
+      const _result = await payablesService.getInvoice(1);
 
       expect(["unpaid", "partial", "paid"]).toBeTruthy();
     });
@@ -386,7 +385,7 @@ describe("payablesService", () => {
       };
       getStub.mockResolvedValue(mockResponse);
 
-      const result = await payablesService.getInvoice(1);
+      const _result = await payablesService.getInvoice(1);
 
       expect(["unpaid", "partial", "paid"]).toBeTruthy();
     });

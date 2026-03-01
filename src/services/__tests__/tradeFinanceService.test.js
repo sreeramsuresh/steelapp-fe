@@ -1,9 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import { tradeFinanceService } from "../tradeFinanceService.js";
-
-
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { api } from "../api.js";
+import { tradeFinanceService } from "../tradeFinanceService.js";
 
 describe("tradeFinanceService", () => {
   beforeEach(() => {
@@ -29,7 +26,7 @@ describe("tradeFinanceService", () => {
         },
       ];
 
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await tradeFinanceService.getTradeFinanceRecords();
 
@@ -50,7 +47,7 @@ describe("tradeFinanceService", () => {
         status: "active",
       };
 
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await tradeFinanceService.getTradeFinanceRecord(1);
 
@@ -69,7 +66,7 @@ describe("tradeFinanceService", () => {
         status: "pending",
       };
 
-      vi.spyOn(api, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "post").mockResolvedValue(mockResponse);
 
       const payload = {
         type: "letter_of_credit",
@@ -92,7 +89,7 @@ describe("tradeFinanceService", () => {
         status: "approved",
       };
 
-      vi.spyOn(api, 'put').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "put").mockResolvedValue(mockResponse);
 
       const payload = { status: "approved" };
 
@@ -105,7 +102,7 @@ describe("tradeFinanceService", () => {
 
   describe("deleteTradeFinanceRecord", () => {
     it("should delete trade finance record", async () => {
-      vi.spyOn(api, 'delete').mockResolvedValue({ success: true });
+      vi.spyOn(api, "delete").mockResolvedValue({ success: true });
 
       const result = await tradeFinanceService.deleteTradeFinanceRecord(1);
 

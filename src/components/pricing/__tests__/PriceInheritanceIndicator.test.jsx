@@ -1,6 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
+import { describe, expect, it } from "vitest";
 import PriceInheritanceIndicator from "../PriceInheritanceIndicator";
 
 describe("PriceInheritanceIndicator", () => {
@@ -17,16 +16,12 @@ describe("PriceInheritanceIndicator", () => {
   });
 
   it("renders with dark mode styles", () => {
-    const { container } = render(
-      <PriceInheritanceIndicator isOverride={true} isDarkMode={true} />
-    );
+    const { container } = render(<PriceInheritanceIndicator isOverride={true} isDarkMode={true} />);
     expect(container.querySelector(".bg-green-900")).toBeInTheDocument();
   });
 
   it("renders with light mode styles", () => {
-    const { container } = render(
-      <PriceInheritanceIndicator isOverride={true} isDarkMode={false} />
-    );
+    const { container } = render(<PriceInheritanceIndicator isOverride={true} isDarkMode={false} />);
     expect(container.querySelector(".bg-green-100")).toBeInTheDocument();
   });
 });

@@ -5,9 +5,9 @@
  * Validates the ProtectedRoute component pattern and routing configuration.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, Navigate } from "react-router-dom";
+import { MemoryRouter, Navigate, Route, Routes } from "react-router-dom";
+import { describe, expect, it } from "vitest";
 
 // Minimal ProtectedRoute mock that mirrors the app's pattern
 function MockProtectedRoute({ user, children }) {

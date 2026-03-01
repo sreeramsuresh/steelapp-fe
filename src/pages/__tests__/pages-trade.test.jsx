@@ -4,7 +4,6 @@
  */
 
 import { render, screen } from "@testing-library/react";
-import React from "react";
 import { describe, expect, it } from "vitest";
 
 describe("ImportOrderList", () => {
@@ -14,9 +13,21 @@ describe("ImportOrderList", () => {
         <h1>Import Orders</h1>
         <button type="button">New Import Order</button>
         <table>
-          <thead><tr><th>IO #</th><th>Supplier</th><th>Country</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>IO #</th>
+              <th>Supplier</th>
+              <th>Country</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>IO-001</td><td>China Mills</td><td>China</td><td>In Transit</td></tr>
+            <tr>
+              <td>IO-001</td>
+              <td>China Mills</td>
+              <td>China</td>
+              <td>In Transit</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -75,9 +86,21 @@ describe("ExportOrderList", () => {
       <div>
         <h1>Export Orders</h1>
         <table>
-          <thead><tr><th>EO #</th><th>Customer</th><th>Destination</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>EO #</th>
+              <th>Customer</th>
+              <th>Destination</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>EO-001</td><td>Global Steel</td><td>Saudi Arabia</td><td>Processing</td></tr>
+            <tr>
+              <td>EO-001</td>
+              <td>Global Steel</td>
+              <td>Saudi Arabia</td>
+              <td>Processing</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -130,9 +153,21 @@ describe("TradeFinanceList", () => {
       <div>
         <h1>Trade Finance</h1>
         <table>
-          <thead><tr><th>LC #</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>LC #</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>LC-001</td><td>Letter of Credit</td><td>100,000</td><td>Active</td></tr>
+            <tr>
+              <td>LC-001</td>
+              <td>Letter of Credit</td>
+              <td>100,000</td>
+              <td>Active</td>
+            </tr>
           </tbody>
         </table>
       </div>

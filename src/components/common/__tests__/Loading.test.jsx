@@ -21,18 +21,14 @@ describe("ErrorState", () => {
   });
 
   it("should render custom title and message", () => {
-    const { container } = renderWithProviders(
-      <ErrorState title="Server Error" message="Could not connect" />
-    );
+    const { container } = renderWithProviders(<ErrorState title="Server Error" message="Could not connect" />);
     expect(container.textContent).toContain("Server Error");
     expect(container.textContent).toContain("Could not connect");
   });
 
   it("should show retry button when onRetry is provided", () => {
     const onRetry = vi.fn();
-    const { container } = renderWithProviders(
-      <ErrorState onRetry={onRetry} canRetry={true} />
-    );
+    const { container } = renderWithProviders(<ErrorState onRetry={onRetry} canRetry={true} />);
     expect(container.textContent).toContain("Try Again");
   });
 

@@ -1,8 +1,7 @@
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
-import React from "react";
-import BasePriceRow from "../BasePriceRow";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import BasePriceRow from "../BasePriceRow";
 
 function renderWithTheme(ui) {
   return render(

@@ -6,7 +6,7 @@
  * ✅ 100% coverage target for customerService.js
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { apiClient } from "../api.js";
 import { customerService, transformCustomerFromServer } from "../customerService.js";
@@ -28,7 +28,7 @@ describe("customerService", () => {
           { id: 2, name: "XYZ Ltd", status: "ACTIVE", creditLimit: 5000 },
         ];
 
-        vi.spyOn(apiClient, 'get').mockResolvedValue({
+        vi.spyOn(apiClient, "get").mockResolvedValue({
           customers: mockCustomers,
           pagination: { page: 1, totalPages: 1, total: 2 },
         });
@@ -46,7 +46,7 @@ describe("customerService", () => {
       });
 
       it("should apply search and filter parameters", async () => {
-        vi.spyOn(apiClient, 'get').mockResolvedValue({ customers: [] });
+        vi.spyOn(apiClient, "get").mockResolvedValue({ customers: [] });
 
         await customerService.getCustomers({
           search: "Acme",
@@ -62,7 +62,7 @@ describe("customerService", () => {
       });
 
       it("should handle empty customer list", async () => {
-        vi.spyOn(apiClient, 'get').mockResolvedValue({ customers: [] });
+        vi.spyOn(apiClient, "get").mockResolvedValue({ customers: [] });
 
         const result = await customerService.getCustomers();
 
@@ -81,7 +81,7 @@ describe("customerService", () => {
           currentBalance: 2500,
         };
 
-        vi.spyOn(apiClient, 'get').mockResolvedValue(mockCustomer);
+        vi.spyOn(apiClient, "get").mockResolvedValue(mockCustomer);
 
         const result = await customerService.getCustomer(1);
 
@@ -90,7 +90,7 @@ describe("customerService", () => {
       });
 
       it("should handle 404 for non-existent customer", async () => {
-        vi.spyOn(apiClient, 'get').mockRejectedValue(new Error("Customer not found"));
+        vi.spyOn(apiClient, "get").mockRejectedValue(new Error("Customer not found"));
 
         await expect(customerService.getCustomer(999)).rejects.toThrow(/Customer not found/);
       });
@@ -121,7 +121,7 @@ describe("customerService", () => {
           createdAt: "2026-02-01T00:00:00Z",
         };
 
-        vi.spyOn(apiClient, 'post').mockResolvedValue(createdCustomer);
+        vi.spyOn(apiClient, "post").mockResolvedValue(createdCustomer);
 
         const result = await customerService.createCustomer(customerData);
 
@@ -130,7 +130,7 @@ describe("customerService", () => {
       });
 
       it("should handle validation errors on creation", async () => {
-        vi.spyOn(apiClient, 'post').mockRejectedValue(new Error("Email is required"));
+        vi.spyOn(apiClient, "post").mockRejectedValue(new Error("Email is required"));
 
         await expect(customerService.createCustomer({ name: "Test" })).rejects.toThrow(/Email is required/);
       });
@@ -141,7 +141,7 @@ describe("customerService", () => {
           email: "contact@simple.com",
         };
 
-        vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 5, ...minimalData });
+        vi.spyOn(apiClient, "post").mockResolvedValue({ id: 5, ...minimalData });
 
         const result = await customerService.createCustomer(minimalData);
 
@@ -162,7 +162,7 @@ describe("customerService", () => {
           ...updates,
         };
 
-        vi.spyOn(apiClient, 'put').mockResolvedValue(updatedCustomer);
+        vi.spyOn(apiClient, "put").mockResolvedValue(updatedCustomer);
 
         const result = await customerService.updateCustomer(1, updates);
 
@@ -172,7 +172,7 @@ describe("customerService", () => {
       });
 
       it("should handle update conflicts", async () => {
-        vi.spyOn(apiClient, 'put').mockRejectedValue(new Error("Customer was modified by another user"));
+        vi.spyOn(apiClient, "put").mockRejectedValue(new Error("Customer was modified by another user"));
 
         await expect(customerService.updateCustomer(1, { name: "Updated" })).rejects.toThrow(/Customer was modified/);
       });
@@ -182,7 +182,7 @@ describe("customerService", () => {
       it("should delete customer with config options", async () => {
         const config = { reason: "Inactive account" };
 
-        vi.spyOn(apiClient, 'delete').mockResolvedValue({ success: true });
+        vi.spyOn(apiClient, "delete").mockResolvedValue({ success: true });
 
         const result = await customerService.deleteCustomer(1, config);
 
@@ -191,7 +191,7 @@ describe("customerService", () => {
       });
 
       it("should handle deletion of customer with outstanding balance", async () => {
-        vi.spyOn(apiClient, 'delete').mockRejectedValue(new Error("Cannot delete customer with outstanding balance"));
+        vi.spyOn(apiClient, "delete").mockRejectedValue(new Error("Cannot delete customer with outstanding balance"));
 
         await expect(customerService.deleteCustomer(1)).rejects.toThrow(/outstanding balance/);
       });
@@ -201,7 +201,7 @@ describe("customerService", () => {
       it("should try PATCH /customers/:id/status first (preferred)", async () => {
         const archivedCustomer = { id: 1, status: "archived" };
 
-        vi.spyOn(apiClient, 'patch').mockResolvedValue(archivedCustomer);
+        vi.spyOn(apiClient, "patch").mockResolvedValue(archivedCustomer);
 
         const result = await customerService.archiveCustomer(1);
 
@@ -212,9 +212,9 @@ describe("customerService", () => {
       });
 
       it("should fallback to PATCH /customers/:id if status endpoint not found", async () => {
-        vi.spyOn(apiClient, 'patch')
-      .mockRejectedValueOnce({ response: { status: 404 } })
-      .mockResolvedValueOnce({ id: 1, status: "archived" });
+        vi.spyOn(apiClient, "patch")
+          .mockRejectedValueOnce({ response: { status: 404 } })
+          .mockResolvedValueOnce({ id: 1, status: "archived" });
 
         await customerService.archiveCustomer(1);
 
@@ -225,11 +225,11 @@ describe("customerService", () => {
 
       it("should fallback to PUT if PATCH not available", async () => {
         // Both PATCH calls fail with 404
-        vi.spyOn(apiClient, 'patch')
-      .mockRejectedValueOnce({ response: { status: 404 } })
-      .mockRejectedValueOnce({ response: { status: 404 } });
+        vi.spyOn(apiClient, "patch")
+          .mockRejectedValueOnce({ response: { status: 404 } })
+          .mockRejectedValueOnce({ response: { status: 404 } });
 
-        vi.spyOn(apiClient, 'put').mockResolvedValue({ id: 1, status: "archived" });
+        vi.spyOn(apiClient, "put").mockResolvedValue({ id: 1, status: "archived" });
 
         await customerService.archiveCustomer(1);
 
@@ -424,7 +424,7 @@ describe("customerService", () => {
 
   describe("Multi-Tenancy Compliance", () => {
     it("should filter customers by company_id in API call", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({ customers: [] });
+      vi.spyOn(apiClient, "get").mockResolvedValue({ customers: [] });
 
       await customerService.getCustomers({ companyId: 5 });
 
@@ -439,7 +439,7 @@ describe("customerService", () => {
         { id: 2, companyId: 5, name: "Customer B" },
       ];
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue({ customers: mockCustomers });
+      vi.spyOn(apiClient, "get").mockResolvedValue({ customers: mockCustomers });
 
       const result = await customerService.getCustomers({ companyId: 5 });
 
@@ -447,7 +447,7 @@ describe("customerService", () => {
     });
 
     it("should not allow cross-tenant customer access", async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValue(new Error("Not authorized to access this customer"));
+      vi.spyOn(apiClient, "get").mockRejectedValue(new Error("Not authorized to access this customer"));
 
       await expect(customerService.getCustomer(999)).rejects.toThrow(/Not authorized/);
     });
@@ -459,24 +459,26 @@ describe("customerService", () => {
 
   describe("Edge Cases & Error Handling", () => {
     it("should handle network timeout gracefully", async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValue(new Error("Network timeout"));
+      vi.spyOn(apiClient, "get").mockRejectedValue(new Error("Network timeout"));
 
       await expect(customerService.getCustomers()).rejects.toThrow(/Network timeout/);
     });
 
     it("should handle invalid email format validation", async () => {
-      vi.spyOn(apiClient, 'post').mockRejectedValue(new Error("Invalid email format"));
+      vi.spyOn(apiClient, "post").mockRejectedValue(new Error("Invalid email format"));
 
-      await expect(customerService.createCustomer({
+      await expect(
+        customerService.createCustomer({
           name: "Test",
           email: "invalid-email",
-        })).rejects.toThrow(/Invalid email format/)
+        })
+      ).rejects.toThrow(/Invalid email format/);
     });
 
     it("should handle very long customer names", async () => {
       const longName = "A".repeat(255);
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 1, name: longName });
+      vi.spyOn(apiClient, "post").mockResolvedValue({ id: 1, name: longName });
 
       const result = await customerService.createCustomer({ name: longName });
 
@@ -489,7 +491,7 @@ describe("customerService", () => {
         email: "contact+test@example.com",
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 1, ...specialData });
+      vi.spyOn(apiClient, "post").mockResolvedValue({ id: 1, ...specialData });
 
       const result = await customerService.createCustomer(specialData);
 

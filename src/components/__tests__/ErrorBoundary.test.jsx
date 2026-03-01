@@ -3,7 +3,6 @@
  * Phase 3C: Core error handling component
  */
 
-import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../test/component-setup";
 
@@ -118,7 +117,7 @@ describe("ErrorBoundary", () => {
       const user = (await import("@testing-library/user-event")).default.setup();
 
       // Render with error first
-      const { container, rerender } = renderWithProviders(
+      const { container } = renderWithProviders(
         <ErrorBoundary>
           <ThrowError shouldThrow={true} />
         </ErrorBoundary>

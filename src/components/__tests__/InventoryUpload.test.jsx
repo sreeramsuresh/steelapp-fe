@@ -212,7 +212,11 @@ describe("InventoryUpload", () => {
                   data: {
                     success: true,
                     message: "Upload successful",
-                    results: { successful: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }], failed: [], total: 5 },
+                    results: {
+                      successful: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }],
+                      failed: [],
+                      total: 5,
+                    },
                   },
                 }),
               200
@@ -447,7 +451,11 @@ describe("InventoryUpload", () => {
         data: {
           success: true,
           message: "Upload completed",
-          results: { successful: [{ id: 1 }, { id: 2 }, { id: 3 }], failed: [{ row: 4, data: { description: "Bad Item" }, error: "Invalid data" }], total: 4 },
+          results: {
+            successful: [{ id: 1 }, { id: 2 }, { id: 3 }],
+            failed: [{ row: 4, data: { description: "Bad Item" }, error: "Invalid data" }],
+            total: 4,
+          },
         },
       });
 

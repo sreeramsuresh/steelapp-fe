@@ -1,7 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
-import { PermissibleWidget, withWidgetPermission, useWidgetPermissions } from "../PermissibleWidget";
+import { describe, expect, it, vi } from "vitest";
+import { PermissibleWidget, withWidgetPermission } from "../PermissibleWidget";
 
 vi.mock("../../../hooks/useDashboardPermissions", () => ({
   useDashboardPermissions: vi.fn(),

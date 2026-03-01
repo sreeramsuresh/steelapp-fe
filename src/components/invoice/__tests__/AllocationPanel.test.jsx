@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../../contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false }),
@@ -58,19 +58,13 @@ describe("AllocationPanel", () => {
   });
 
   it("returns null for new invoice with no allocations", () => {
-    const { container } = render(
-      <AllocationPanel {...baseProps} isNewInvoice={true} />
-    );
+    const { container } = render(<AllocationPanel {...baseProps} isNewInvoice={true} />);
     expect(container.firstChild).toBeNull();
   });
 
   it("shows empty message for existing invoice with no allocations", () => {
     render(<AllocationPanel {...baseProps} isNewInvoice={false} />);
-    expect(
-      screen.getByText(
-        "No batch allocations found. Contact warehouse team if this is unexpected."
-      )
-    ).toBeTruthy();
+    expect(screen.getByText("No batch allocations found. Contact warehouse team if this is unexpected.")).toBeTruthy();
   });
 
   it("renders allocation table with data", () => {
@@ -99,43 +93,26 @@ describe("AllocationPanel", () => {
   });
 
   it("shows Fully Allocated when total matches required", () => {
-    const allocations = [
-      { batchId: 1, batchNumber: "B-001", quantity: 100, unitCost: 10 },
-    ];
+    const allocations = [{ batchId: 1, batchNumber: "B-001", quantity: 100, unitCost: 10 }];
     render(<AllocationPanel {...baseProps} allocations={allocations} />);
     expect(screen.getByText("Fully Allocated")).toBeTruthy();
   });
 
   it("shows shortfall warning when allocation is insufficient", () => {
-    const allocations = [
-      { batchId: 1, batchNumber: "B-001", quantity: 60, unitCost: 10 },
-    ];
+    const allocations = [{ batchId: 1, batchNumber: "B-001", quantity: 60, unitCost: 10 }];
     render(<AllocationPanel {...baseProps} allocations={allocations} />);
     expect(screen.getByText("Insufficient Stock")).toBeTruthy();
   });
 
   it("shows lock banner when isLocked is true", () => {
-    const allocations = [
-      { batchId: 1, batchNumber: "B-001", quantity: 100, unitCost: 10 },
-    ];
-    render(
-      <AllocationPanel
-        {...baseProps}
-        allocations={allocations}
-        isLocked={true}
-        deliveryNoteNumber="DN-001"
-      />
-    );
+    const allocations = [{ batchId: 1, batchNumber: "B-001", quantity: 100, unitCost: 10 }];
+    render(<AllocationPanel {...baseProps} allocations={allocations} isLocked={true} deliveryNoteNumber="DN-001" />);
     expect(screen.getByText("DN-001")).toBeTruthy();
   });
 
   it("shows FIFO info note", () => {
-    const allocations = [
-      { batchId: 1, batchNumber: "B-001", quantity: 100, unitCost: 10 },
-    ];
+    const allocations = [{ batchId: 1, batchNumber: "B-001", quantity: 100, unitCost: 10 }];
     render(<AllocationPanel {...baseProps} allocations={allocations} />);
-    expect(
-      screen.getByText(/Allocations are computed automatically using FIFO/)
-    ).toBeTruthy();
+    expect(screen.getByText(/Allocations are computed automatically using FIFO/)).toBeTruthy();
   });
 });

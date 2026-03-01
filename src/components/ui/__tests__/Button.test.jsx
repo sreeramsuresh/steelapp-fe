@@ -1,6 +1,5 @@
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
-import React from "react";
 import { Button } from "../Button";
 
 describe("Button", () => {
@@ -25,7 +24,11 @@ describe("Button", () => {
 
   it("should disable when disabled", () => {
     const onClick = vi.fn();
-    render(<Button disabled onClick={onClick}>Disabled</Button>);
+    render(
+      <Button disabled onClick={onClick}>
+        Disabled
+      </Button>
+    );
     const button = screen.getByRole("button");
     expect(button).toBeDisabled();
     fireEvent.click(button);

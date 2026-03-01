@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useApiHealth } from "../useApiHealth";
 
 describe("useApiHealth", () => {
@@ -33,9 +33,7 @@ describe("useApiHealth", () => {
   it("checks health after initial delay when enabled", async () => {
     global.fetch.mockResolvedValue({ ok: true });
 
-    const { result } = renderHook(() =>
-      useApiHealth({ enabled: true, pollingInterval: 30000 })
-    );
+    const { result } = renderHook(() => useApiHealth({ enabled: true, pollingInterval: 30000 }));
 
     // Initial check fires after 1s delay
     await act(async () => {
@@ -50,9 +48,7 @@ describe("useApiHealth", () => {
   it("sets unhealthy on non-ok response", async () => {
     global.fetch.mockResolvedValue({ ok: false, status: 503 });
 
-    const { result } = renderHook(() =>
-      useApiHealth({ enabled: true })
-    );
+    const { result } = renderHook(() => useApiHealth({ enabled: true }));
 
     await act(async () => {
       vi.advanceTimersByTime(1000);
@@ -65,9 +61,7 @@ describe("useApiHealth", () => {
   it("sets unhealthy on fetch failure", async () => {
     global.fetch.mockRejectedValue(new Error("Failed to fetch"));
 
-    const { result } = renderHook(() =>
-      useApiHealth({ enabled: true })
-    );
+    const { result } = renderHook(() => useApiHealth({ enabled: true }));
 
     await act(async () => {
       vi.advanceTimersByTime(1000);
@@ -82,9 +76,7 @@ describe("useApiHealth", () => {
     abortError.name = "AbortError";
     global.fetch.mockRejectedValue(abortError);
 
-    const { result } = renderHook(() =>
-      useApiHealth({ enabled: true })
-    );
+    const { result } = renderHook(() => useApiHealth({ enabled: true }));
 
     await act(async () => {
       vi.advanceTimersByTime(1000);
@@ -97,9 +89,7 @@ describe("useApiHealth", () => {
   it("allows manual health check via checkNow", async () => {
     global.fetch.mockResolvedValue({ ok: true });
 
-    const { result } = renderHook(() =>
-      useApiHealth({ enabled: true })
-    );
+    const { result } = renderHook(() => useApiHealth({ enabled: true }));
 
     await act(async () => {
       await result.current.checkNow();
@@ -112,9 +102,7 @@ describe("useApiHealth", () => {
   it("polls at configured interval", async () => {
     global.fetch.mockResolvedValue({ ok: true });
 
-    renderHook(() =>
-      useApiHealth({ enabled: true, pollingInterval: 5000 })
-    );
+    renderHook(() => useApiHealth({ enabled: true, pollingInterval: 5000 }));
 
     // Initial check
     await act(async () => {
@@ -138,9 +126,7 @@ describe("useApiHealth", () => {
   it("cleans up intervals on unmount", async () => {
     global.fetch.mockResolvedValue({ ok: true });
 
-    const { unmount } = renderHook(() =>
-      useApiHealth({ enabled: true, pollingInterval: 5000 })
-    );
+    const { unmount } = renderHook(() => useApiHealth({ enabled: true, pollingInterval: 5000 }));
 
     await act(async () => {
       vi.advanceTimersByTime(1000);

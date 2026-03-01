@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { userAdminAPI } from "../userAdminApi.js";
 import { userPreferencesService } from "../userPreferencesService.js";
@@ -37,7 +37,7 @@ describe("userPreferencesService", () => {
         id: 1,
         permissions: { ui: { homeSectionOrder: ["a", "b", "c"] } },
       };
-      vi.spyOn(userAdminAPI, 'update').mockResolvedValue(mockUpdatedUser);
+      vi.spyOn(userAdminAPI, "update").mockResolvedValue(mockUpdatedUser);
 
       const result = await userPreferencesService.updatePermissions(1, {
         ui: { homeSectionOrder: ["a", "b", "c"] },
@@ -65,7 +65,7 @@ describe("userPreferencesService", () => {
         email: "test@example.com",
         permissions: newPermissions,
       };
-      vi.spyOn(userAdminAPI, 'update').mockResolvedValue(mockUpdatedUser);
+      vi.spyOn(userAdminAPI, "update").mockResolvedValue(mockUpdatedUser);
 
       await userPreferencesService.updatePermissions(1, newPermissions);
 
@@ -87,7 +87,7 @@ describe("userPreferencesService", () => {
         id: 1,
         permissions: newPermissions,
       };
-      vi.spyOn(userAdminAPI, 'update').mockResolvedValue(mockUpdatedUser);
+      vi.spyOn(userAdminAPI, "update").mockResolvedValue(mockUpdatedUser);
 
       await userPreferencesService.updatePermissions(1, newPermissions);
 
@@ -165,7 +165,7 @@ describe("userPreferencesService", () => {
         id: 1,
         permissions: { ui: { homeSectionOrder: order } },
       };
-      vi.spyOn(userAdminAPI, 'update').mockResolvedValue(mockUpdatedUser);
+      vi.spyOn(userAdminAPI, "update").mockResolvedValue(mockUpdatedUser);
 
       const result = await userPreferencesService.updatePermissions(1, {
         ui: { homeSectionOrder: order },

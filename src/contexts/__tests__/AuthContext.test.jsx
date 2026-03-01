@@ -1,6 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
+import { describe, expect, it } from "vitest";
 import { AuthProvider, useAuth } from "../AuthContext";
 
 function TestConsumer() {
@@ -84,9 +83,7 @@ describe("AuthContext", () => {
     // Suppress React error boundary console output
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    expect(() => render(<TestConsumer />)).toThrow(
-      "useAuth must be used within AuthProvider"
-    );
+    expect(() => render(<TestConsumer />)).toThrow("useAuth must be used within AuthProvider");
 
     spy.mockRestore();
   });

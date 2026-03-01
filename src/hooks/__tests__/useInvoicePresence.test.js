@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../services/api", () => ({
   apiClient: {
@@ -55,10 +55,10 @@ describe("useInvoicePresence", () => {
       // Wait for promises to resolve
     });
 
-    expect(mockApiClient.post).toHaveBeenCalledWith(
-      "/invoices/123/edit-sessions/start",
-      { mode: "edit", session_id: mockUUID }
-    );
+    expect(mockApiClient.post).toHaveBeenCalledWith("/invoices/123/edit-sessions/start", {
+      mode: "edit",
+      session_id: mockUUID,
+    });
   });
 
   it("fetches active sessions on mount", async () => {
@@ -97,10 +97,7 @@ describe("useInvoicePresence", () => {
 
     unmount();
 
-    expect(mockApiClient.post).toHaveBeenCalledWith(
-      "/invoices/123/edit-sessions/end",
-      { session_id: mockUUID }
-    );
+    expect(mockApiClient.post).toHaveBeenCalledWith("/invoices/123/edit-sessions/end", { session_id: mockUUID });
   });
 
   it("updateMode sends mode change", async () => {
@@ -110,10 +107,10 @@ describe("useInvoicePresence", () => {
       await result.current.updateMode("edit");
     });
 
-    expect(mockApiClient.post).toHaveBeenCalledWith(
-      "/invoices/123/edit-sessions/start",
-      { mode: "edit", session_id: mockUUID }
-    );
+    expect(mockApiClient.post).toHaveBeenCalledWith("/invoices/123/edit-sessions/start", {
+      mode: "edit",
+      session_id: mockUUID,
+    });
   });
 
   it("handles API errors gracefully", async () => {
@@ -136,7 +133,7 @@ describe("useInvoicePresence", () => {
     unmount();
 
     // After unmount, advancing timers should not cause additional API calls
-    const callCount = mockApiClient.post.mock.calls.length;
+    const _callCount = mockApiClient.post.mock.calls.length;
     vi.advanceTimersByTime(90000);
     // The call count might increase by the end session call, but no heartbeat
   });

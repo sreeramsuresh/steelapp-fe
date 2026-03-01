@@ -7,7 +7,7 @@ vi.mock("lucide-react", () => ({
 
 vi.mock("../invoiceStyles", () => ({
   DRAWER_OVERLAY_CLASSES: (isOpen) => (isOpen ? "overlay-open" : "overlay-closed"),
-  DRAWER_PANEL_CLASSES: (isDark, isOpen) => (isOpen ? "panel-open" : "panel-closed"),
+  DRAWER_PANEL_CLASSES: (_isDark, isOpen) => (isOpen ? "panel-open" : "panel-closed"),
 }));
 
 import NotesDrawer from "../NotesDrawer";
@@ -23,7 +23,7 @@ describe("NotesDrawer", () => {
     />
   );
 
-  const MockVatHelpIcon = ({ content }) => <span data-testid="vat-help-icon">help</span>;
+  const MockVatHelpIcon = ({ content: _content }) => <span data-testid="vat-help-icon">help</span>;
 
   const defaultProps = {
     isOpen: true,

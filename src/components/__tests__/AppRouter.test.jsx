@@ -6,7 +6,7 @@
  * We test that it renders without crash and contains expected route structure.
  */
 
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../test/component-setup";
 

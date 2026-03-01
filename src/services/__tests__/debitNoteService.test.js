@@ -9,7 +9,7 @@
  * ✅ 100% coverage target for debitNoteService.js
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { apiClient } from "../api.js";
 import debitNoteService from "../debitNoteService.js";
@@ -43,7 +43,7 @@ describe("debitNoteService", () => {
         ],
         pagination: { page: 1, limit: 50, total: 1, totalPages: 1 },
       };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await debitNoteService.getAll({ page: 1, pageSize: 50 }, null);
 
@@ -55,7 +55,7 @@ describe("debitNoteService", () => {
 
     it("should support pagination parameters", async () => {
       const mockResponse = { data: [], pagination: { page: 3, pageSize: 25, total: 75 } };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       await debitNoteService.getAll({ page: 3, pageSize: 25 }, null);
 
@@ -64,7 +64,7 @@ describe("debitNoteService", () => {
 
     it("should filter debit notes by status", async () => {
       const mockResponse = { data: [], pagination: null };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       await debitNoteService.getAll({ status: "draft" }, null);
 
@@ -73,7 +73,7 @@ describe("debitNoteService", () => {
 
     it("should filter debit notes by supplier", async () => {
       const mockResponse = { data: [], pagination: null };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       await debitNoteService.getAll({ supplierId: 5 }, null);
 
@@ -82,7 +82,7 @@ describe("debitNoteService", () => {
 
     it("should filter debit notes by supplier bill", async () => {
       const mockResponse = { data: [], pagination: null };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       await debitNoteService.getAll({ supplierBillId: 100 }, null);
 
@@ -91,7 +91,7 @@ describe("debitNoteService", () => {
 
     it("should support date range filtering", async () => {
       const mockResponse = { data: [], pagination: null };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       await debitNoteService.getAll(
         {
@@ -106,7 +106,7 @@ describe("debitNoteService", () => {
 
     it("should support search parameter", async () => {
       const mockResponse = { data: [], pagination: null };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       await debitNoteService.search("XYZ Supplies", {});
 
@@ -116,7 +116,7 @@ describe("debitNoteService", () => {
     it("should handle abort signal for cancellation", async () => {
       const abortSignal = new AbortController().signal;
       const mockResponse = { data: [], pagination: null };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       await debitNoteService.getAll({}, abortSignal);
 
@@ -137,7 +137,7 @@ describe("debitNoteService", () => {
         ],
         pagination: null,
       };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await debitNoteService.getAll({}, null);
 
@@ -173,7 +173,7 @@ describe("debitNoteService", () => {
           },
         ],
       };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await debitNoteService.getById(1);
 
@@ -184,7 +184,7 @@ describe("debitNoteService", () => {
     });
 
     it("should return null for non-existent debit note", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue(null);
+      vi.spyOn(apiClient, "get").mockResolvedValue(null);
 
       const result = await debitNoteService.getById(999);
 
@@ -207,7 +207,7 @@ describe("debitNoteService", () => {
           },
         ],
       };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await debitNoteService.getById(1);
 
@@ -247,7 +247,7 @@ describe("debitNoteService", () => {
         debitNoteNumber: "DN-001",
         ...debitNoteData,
       };
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await debitNoteService.create(debitNoteData);
 
@@ -267,7 +267,7 @@ describe("debitNoteService", () => {
         items: [],
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 1 });
+      vi.spyOn(apiClient, "post").mockResolvedValue({ id: 1 });
 
       await debitNoteService.create(debitNoteData);
 
@@ -281,7 +281,7 @@ describe("debitNoteService", () => {
         items: [],
       };
 
-      vi.spyOn(apiClient, 'post').mockRejectedValue(new Error("Supplier ID is required"));
+      vi.spyOn(apiClient, "post").mockRejectedValue(new Error("Supplier ID is required"));
 
       await expect(debitNoteService.create(invalidData)).rejects.toThrow("Supplier ID is required");
     });
@@ -295,7 +295,7 @@ describe("debitNoteService", () => {
         items: [],
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 1 });
+      vi.spyOn(apiClient, "post").mockResolvedValue({ id: 1 });
 
       await debitNoteService.create(debitNoteData);
 
@@ -324,7 +324,7 @@ describe("debitNoteService", () => {
         ],
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 1 });
+      vi.spyOn(apiClient, "post").mockResolvedValue({ id: 1 });
 
       await debitNoteService.create(debitNoteData);
 
@@ -350,7 +350,7 @@ describe("debitNoteService", () => {
         status: "approved",
         notes: "Updated notes",
       };
-      vi.spyOn(apiClient, 'put').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "put").mockResolvedValue(mockResponse);
 
       const result = await debitNoteService.update(1, updateData);
 
@@ -360,7 +360,7 @@ describe("debitNoteService", () => {
     });
 
     it("should prevent update of issued debit notes", async () => {
-      vi.spyOn(apiClient, 'put').mockRejectedValue(new Error("Cannot update issued debit note"));
+      vi.spyOn(apiClient, "put").mockRejectedValue(new Error("Cannot update issued debit note"));
 
       await expect(debitNoteService.update(1, { status: "draft" })).rejects.toThrow("Cannot update issued debit note");
     });
@@ -372,7 +372,7 @@ describe("debitNoteService", () => {
 
   describe("delete", () => {
     it("should delete debit note", async () => {
-      vi.spyOn(apiClient, 'delete').mockResolvedValue({ success: true });
+      vi.spyOn(apiClient, "delete").mockResolvedValue({ success: true });
 
       const result = await debitNoteService.delete(1);
 
@@ -381,7 +381,7 @@ describe("debitNoteService", () => {
     });
 
     it("should handle deletion of non-existent debit note", async () => {
-      vi.spyOn(apiClient, 'delete').mockRejectedValue(new Error("Debit note not found"));
+      vi.spyOn(apiClient, "delete").mockRejectedValue(new Error("Debit note not found"));
 
       await expect(debitNoteService.delete(999)).rejects.toThrow("Debit note not found");
     });
@@ -409,7 +409,7 @@ describe("debitNoteService", () => {
         ],
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 1 });
+      vi.spyOn(apiClient, "post").mockResolvedValue({ id: 1 });
 
       await debitNoteService.create(debitNoteData);
 
@@ -434,7 +434,7 @@ describe("debitNoteService", () => {
         ],
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 1 });
+      vi.spyOn(apiClient, "post").mockResolvedValue({ id: 1 });
 
       await debitNoteService.create(debitNoteData);
 
@@ -464,7 +464,7 @@ describe("debitNoteService", () => {
         ],
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 1 });
+      vi.spyOn(apiClient, "post").mockResolvedValue({ id: 1 });
 
       await debitNoteService.create(debitNoteData);
 
@@ -486,7 +486,7 @@ describe("debitNoteService", () => {
         items: [],
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 1 });
+      vi.spyOn(apiClient, "post").mockResolvedValue({ id: 1 });
 
       await debitNoteService.create(debitNoteData);
 
@@ -500,7 +500,7 @@ describe("debitNoteService", () => {
         items: [],
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 1 });
+      vi.spyOn(apiClient, "post").mockResolvedValue({ id: 1 });
 
       await debitNoteService.create(debitNoteData);
 
@@ -514,7 +514,7 @@ describe("debitNoteService", () => {
         items: [],
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 1 });
+      vi.spyOn(apiClient, "post").mockResolvedValue({ id: 1 });
 
       await debitNoteService.create(debitNoteData);
 
@@ -528,19 +528,19 @@ describe("debitNoteService", () => {
 
   describe("Error Handling", () => {
     it("should handle network errors gracefully", async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValue(new Error("Network timeout"));
+      vi.spyOn(apiClient, "get").mockRejectedValue(new Error("Network timeout"));
 
       await expect(debitNoteService.getAll({}, null)).rejects.toThrow("Network timeout");
     });
 
     it("should handle server validation errors", async () => {
-      vi.spyOn(apiClient, 'post').mockRejectedValue(new Error("Validation: VAT amount mismatch"));
+      vi.spyOn(apiClient, "post").mockRejectedValue(new Error("Validation: VAT amount mismatch"));
 
       await expect(debitNoteService.create({})).rejects.toThrow("Validation");
     });
 
     it("should handle authorization errors", async () => {
-      vi.spyOn(apiClient, 'delete').mockRejectedValue(new Error("Forbidden"));
+      vi.spyOn(apiClient, "delete").mockRejectedValue(new Error("Forbidden"));
 
       await expect(debitNoteService.delete(1)).rejects.toThrow("Forbidden");
     });
@@ -553,7 +553,7 @@ describe("debitNoteService", () => {
   describe("Edge Cases", () => {
     it("should handle empty debit note list", async () => {
       const mockResponse = { data: [], pagination: { total: 0 } };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await debitNoteService.getAll({}, null);
 
@@ -567,7 +567,7 @@ describe("debitNoteService", () => {
         supplierId: null,
         notes: undefined,
       };
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await debitNoteService.getById(1);
 
@@ -583,7 +583,7 @@ describe("debitNoteService", () => {
         items: [],
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 1 });
+      vi.spyOn(apiClient, "post").mockResolvedValue({ id: 1 });
 
       await debitNoteService.create(debitNoteData);
 
@@ -602,7 +602,7 @@ describe("debitNoteService", () => {
         ],
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 1 });
+      vi.spyOn(apiClient, "post").mockResolvedValue({ id: 1 });
 
       await debitNoteService.create(debitNoteData);
 
@@ -618,7 +618,7 @@ describe("debitNoteService", () => {
         items: [],
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue({ id: 1 });
+      vi.spyOn(apiClient, "post").mockResolvedValue({ id: 1 });
 
       await debitNoteService.create(debitNoteData);
 

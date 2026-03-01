@@ -1,6 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
+import { describe, expect, it } from "vitest";
 import InvoiceFooterNotes from "../InvoiceFooterNotes";
 
 describe("InvoiceFooterNotes", () => {
@@ -16,11 +15,7 @@ describe("InvoiceFooterNotes", () => {
   });
 
   it("renders warehouse info", () => {
-    render(
-      <InvoiceFooterNotes
-        invoice={{ warehouseName: "Main Warehouse", warehouseCode: "WH-01" }}
-      />
-    );
+    render(<InvoiceFooterNotes invoice={{ warehouseName: "Main Warehouse", warehouseCode: "WH-01" }} />);
     expect(screen.getByText(/Main Warehouse/)).toBeInTheDocument();
     expect(screen.getByText(/WH-01/)).toBeInTheDocument();
   });
@@ -32,9 +27,7 @@ describe("InvoiceFooterNotes", () => {
   });
 
   it("renders payment history table", () => {
-    const payments = [
-      { date: "2025-01-01", method: "Bank", reference: "REF-1", amount: 500 },
-    ];
+    const payments = [{ date: "2025-01-01", method: "Bank", reference: "REF-1", amount: 500 }];
     render(<InvoiceFooterNotes invoice={{ payments }} />);
     expect(screen.getByText("Payment History")).toBeInTheDocument();
     expect(screen.getByText("Bank")).toBeInTheDocument();

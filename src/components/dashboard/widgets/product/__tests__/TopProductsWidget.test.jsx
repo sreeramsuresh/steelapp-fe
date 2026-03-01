@@ -14,11 +14,47 @@ import TopProductsWidget from "../TopProductsWidget";
 describe("TopProductsWidget", () => {
   const sampleData = {
     byRevenue: [
-      { id: 1, name: "SS 304 Sheet", revenue: 2500000, margin: 18.5, volume: 120, percentOfTotal: 58.1, category: "Sheets" },
-      { id: 2, name: "SS 316 Coil", revenue: 1800000, margin: 22.3, volume: 85, percentOfTotal: 41.9, category: "Coils" },
+      {
+        id: 1,
+        name: "SS 304 Sheet",
+        revenue: 2500000,
+        margin: 18.5,
+        volume: 120,
+        percentOfTotal: 58.1,
+        category: "Sheets",
+      },
+      {
+        id: 2,
+        name: "SS 316 Coil",
+        revenue: 1800000,
+        margin: 22.3,
+        volume: 85,
+        percentOfTotal: 41.9,
+        category: "Coils",
+      },
     ],
-    byMargin: [{ id: 2, name: "SS 316 Coil", revenue: 1800000, margin: 22.3, volume: 85, percentOfTotal: 100, category: "Coils" }],
-    byVolume: [{ id: 1, name: "SS 304 Sheet", revenue: 2500000, margin: 18.5, volume: 120, percentOfTotal: 100, category: "Sheets" }],
+    byMargin: [
+      {
+        id: 2,
+        name: "SS 316 Coil",
+        revenue: 1800000,
+        margin: 22.3,
+        volume: 85,
+        percentOfTotal: 100,
+        category: "Coils",
+      },
+    ],
+    byVolume: [
+      {
+        id: 1,
+        name: "SS 304 Sheet",
+        revenue: 2500000,
+        margin: 18.5,
+        volume: 120,
+        percentOfTotal: 100,
+        category: "Sheets",
+      },
+    ],
   };
 
   it("renders without crashing", () => {

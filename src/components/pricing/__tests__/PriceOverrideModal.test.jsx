@@ -1,6 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
+import { describe, expect, it, vi } from "vitest";
 import PriceOverrideModal from "../PriceOverrideModal";
 
 describe("PriceOverrideModal", () => {
@@ -15,9 +14,7 @@ describe("PriceOverrideModal", () => {
   };
 
   it("returns null when not open", () => {
-    const { container } = render(
-      <PriceOverrideModal {...defaultProps} isOpen={false} />
-    );
+    const { container } = render(<PriceOverrideModal {...defaultProps} isOpen={false} />);
     expect(container.innerHTML).toBe("");
   });
 

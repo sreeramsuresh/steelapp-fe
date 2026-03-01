@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("../../../../../contexts/ThemeContext", () => ({
@@ -28,10 +28,25 @@ describe("DesignatedZoneWidget", () => {
       },
       zoneBreakdown: [
         { zone: "JAFZA", zoneName: "Jebel Ali Free Zone", transactions: 8, value: 450000, compliant: 7, pending: 1 },
-        { zone: "DAFZA", zoneName: "Dubai Airport Free Zone", transactions: 7, value: 350000, compliant: 6, pending: 1 },
+        {
+          zone: "DAFZA",
+          zoneName: "Dubai Airport Free Zone",
+          transactions: 7,
+          value: 350000,
+          compliant: 6,
+          pending: 1,
+        },
       ],
       recentTransactions: [
-        { id: 1, zone: "JAFZA", type: "Sale", value: 50000, date: "2024-01-15", status: "compliant", documents: { delivery: true, zoneEntry: true, customs: true } },
+        {
+          id: 1,
+          zone: "JAFZA",
+          type: "Sale",
+          value: 50000,
+          date: "2024-01-15",
+          status: "compliant",
+          documents: { delivery: true, zoneEntry: true, customs: true },
+        },
       ],
       documentChecklist: [
         { name: "Delivery Note", required: true },

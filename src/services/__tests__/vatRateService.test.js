@@ -3,7 +3,7 @@
  * Tests VAT rate management operations
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { api } from "../api.js";
 import vatRateService from "../vatRateService.js";
@@ -13,11 +13,11 @@ describe("vatRateService", () => {
 
   beforeEach(() => {
     vi.restoreAllMocks();
-    getStub = vi.spyOn(api, 'get');
-    postStub = vi.spyOn(api, 'post');
-    putStub = vi.spyOn(api, 'put');
-    patchStub = vi.spyOn(api, 'patch');
-    deleteStub = vi.spyOn(api, 'delete');
+    getStub = vi.spyOn(api, "get");
+    postStub = vi.spyOn(api, "post");
+    putStub = vi.spyOn(api, "put");
+    patchStub = vi.spyOn(api, "patch");
+    deleteStub = vi.spyOn(api, "delete");
   });
 
   afterEach(() => {

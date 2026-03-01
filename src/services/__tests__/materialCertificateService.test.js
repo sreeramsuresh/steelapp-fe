@@ -1,9 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import { materialCertificateService } from "../materialCertificateService.js";
-
-
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { api } from "../api.js";
+import { materialCertificateService } from "../materialCertificateService.js";
 
 describe("materialCertificateService", () => {
   beforeEach(() => {
@@ -27,7 +24,7 @@ describe("materialCertificateService", () => {
         },
       ];
 
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await materialCertificateService.getMaterialCertificates();
 
@@ -37,16 +34,18 @@ describe("materialCertificateService", () => {
     });
 
     it("should filter by material type", async () => {
-      vi.spyOn(api, 'get').mockResolvedValue([]);
+      vi.spyOn(api, "get").mockResolvedValue([]);
 
       await materialCertificateService.getMaterialCertificates({
         material: "SS304",
       });
 
-      expect(api.get).toHaveBeenCalledWith("/material-certificates",
+      expect(api.get).toHaveBeenCalledWith(
+        "/material-certificates",
         expect.objectContaining({
           params: { material: "SS304" },
-        }));
+        })
+      );
     });
   });
 
@@ -64,7 +63,7 @@ describe("materialCertificateService", () => {
         },
       };
 
-      vi.spyOn(api, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "get").mockResolvedValue(mockResponse);
 
       const result = await materialCertificateService.getMaterialCertificate(1);
 
@@ -83,7 +82,7 @@ describe("materialCertificateService", () => {
         status: "pending",
       };
 
-      vi.spyOn(api, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "post").mockResolvedValue(mockResponse);
 
       const payload = {
         material: "SS304",
@@ -106,7 +105,7 @@ describe("materialCertificateService", () => {
         status: "verified",
       };
 
-      vi.spyOn(api, 'put').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "put").mockResolvedValue(mockResponse);
 
       const payload = { status: "verified" };
 
@@ -119,7 +118,7 @@ describe("materialCertificateService", () => {
 
   describe("deleteMaterialCertificate", () => {
     it("should delete certificate", async () => {
-      vi.spyOn(api, 'delete').mockResolvedValue({ success: true });
+      vi.spyOn(api, "delete").mockResolvedValue({ success: true });
 
       const result = await materialCertificateService.deleteMaterialCertificate(1);
 
@@ -135,7 +134,7 @@ describe("materialCertificateService", () => {
         verification_status: "verified",
       };
 
-      vi.spyOn(api, 'patch').mockResolvedValue(mockResponse);
+      vi.spyOn(api, "patch").mockResolvedValue(mockResponse);
 
       const result = await materialCertificateService.updateVerification(1, "verified", "All checks passed");
 

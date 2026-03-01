@@ -9,7 +9,7 @@
  * are not present in critical paths.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 // XSS payloads for testing
 const XSS_PAYLOADS = [

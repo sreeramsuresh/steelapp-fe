@@ -1,13 +1,6 @@
+import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
-import React from "react";
-import {
-  Skeleton,
-  TableSkeleton,
-  CardSkeleton,
-  ListSkeleton,
-  FormSkeleton,
-} from "../Skeleton";
+import { CardSkeleton, FormSkeleton, ListSkeleton, Skeleton, TableSkeleton } from "../Skeleton";
 
 describe("Skeleton components", () => {
   describe("Skeleton", () => {
@@ -17,9 +10,7 @@ describe("Skeleton components", () => {
     });
 
     it("applies custom width and height", () => {
-      const { container } = render(
-        <Skeleton width="w-1/2" height="h-8" />
-      );
+      const { container } = render(<Skeleton width="w-1/2" height="h-8" />);
       expect(container.firstChild).toHaveClass("w-1/2");
       expect(container.firstChild).toHaveClass("h-8");
     });
@@ -56,9 +47,7 @@ describe("Skeleton components", () => {
   describe("FormSkeleton", () => {
     it("renders form skeleton with input placeholders", () => {
       const { container } = render(<FormSkeleton />);
-      expect(
-        container.querySelectorAll(".animate-pulse").length
-      ).toBeGreaterThan(0);
+      expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
     });
   });
 });

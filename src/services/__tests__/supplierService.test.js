@@ -7,10 +7,9 @@
  * ✅ 100% coverage target for supplierService.js
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import supplierService, { transformSupplierFromServer } from "../supplierService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
+import supplierService, { transformSupplierFromServer } from "../supplierService.js";
 
 describe("supplierService", () => {
   let getStub;
@@ -19,10 +18,10 @@ describe("supplierService", () => {
   let deleteStub;
   beforeEach(() => {
     vi.restoreAllMocks();
-    getStub = vi.spyOn(apiClient, 'get');
-    postStub = vi.spyOn(apiClient, 'post');
-    putStub = vi.spyOn(apiClient, 'put');
-    deleteStub = vi.spyOn(apiClient, 'delete');
+    getStub = vi.spyOn(apiClient, "get");
+    postStub = vi.spyOn(apiClient, "post");
+    putStub = vi.spyOn(apiClient, "put");
+    deleteStub = vi.spyOn(apiClient, "delete");
   });
 
   describe("getSuppliers", () => {

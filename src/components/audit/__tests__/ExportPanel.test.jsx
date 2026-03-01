@@ -1,6 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
+import { describe, expect, it, vi } from "vitest";
 import ExportPanel from "../ExportPanel";
 
 // Mock dependencies
@@ -46,22 +45,12 @@ describe("ExportPanel", () => {
   });
 
   it("shows deterministic verified when export status is deterministic", () => {
-    render(
-      <ExportPanel
-        {...defaultProps}
-        exportStatus={{ EXCEL: { is_deterministic: true } }}
-      />
-    );
+    render(<ExportPanel {...defaultProps} exportStatus={{ EXCEL: { is_deterministic: true } }} />);
     expect(screen.getByText("Deterministic verified")).toBeInTheDocument();
   });
 
   it("shows hash mismatch when export status is not deterministic", () => {
-    render(
-      <ExportPanel
-        {...defaultProps}
-        exportStatus={{ PDF: { is_deterministic: false } }}
-      />
-    );
+    render(<ExportPanel {...defaultProps} exportStatus={{ PDF: { is_deterministic: false } }} />);
     expect(screen.getByText("Hash mismatch!")).toBeInTheDocument();
   });
 

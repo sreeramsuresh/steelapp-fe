@@ -1,13 +1,12 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import useAccessibility, {
-  useReducedMotion,
-  useAnnounce,
-  useFocusTrap,
-  useArrowNavigation,
-  animations,
   a11yClasses,
+  animations,
   generateId,
+  useAnnounce,
+  useArrowNavigation,
+  useReducedMotion,
 } from "../useAccessibility";
 
 describe("useReducedMotion", () => {
@@ -80,9 +79,7 @@ describe("useAnnounce", () => {
 describe("useArrowNavigation", () => {
   it("handles ArrowDown to increment index", () => {
     const onIndexChange = vi.fn();
-    const { result } = renderHook(() =>
-      useArrowNavigation({ itemCount: 5, currentIndex: 0, onIndexChange })
-    );
+    const { result } = renderHook(() => useArrowNavigation({ itemCount: 5, currentIndex: 0, onIndexChange }));
 
     const event = { key: "ArrowDown", preventDefault: vi.fn() };
     result.current.onKeyDown(event);
@@ -93,9 +90,7 @@ describe("useArrowNavigation", () => {
 
   it("handles ArrowUp to decrement index", () => {
     const onIndexChange = vi.fn();
-    const { result } = renderHook(() =>
-      useArrowNavigation({ itemCount: 5, currentIndex: 2, onIndexChange })
-    );
+    const { result } = renderHook(() => useArrowNavigation({ itemCount: 5, currentIndex: 2, onIndexChange }));
 
     const event = { key: "ArrowUp", preventDefault: vi.fn() };
     result.current.onKeyDown(event);
@@ -141,9 +136,7 @@ describe("useArrowNavigation", () => {
 
   it("handles Home key", () => {
     const onIndexChange = vi.fn();
-    const { result } = renderHook(() =>
-      useArrowNavigation({ itemCount: 5, currentIndex: 3, onIndexChange })
-    );
+    const { result } = renderHook(() => useArrowNavigation({ itemCount: 5, currentIndex: 3, onIndexChange }));
 
     const event = { key: "Home", preventDefault: vi.fn() };
     result.current.onKeyDown(event);
@@ -153,9 +146,7 @@ describe("useArrowNavigation", () => {
 
   it("handles End key", () => {
     const onIndexChange = vi.fn();
-    const { result } = renderHook(() =>
-      useArrowNavigation({ itemCount: 5, currentIndex: 1, onIndexChange })
-    );
+    const { result } = renderHook(() => useArrowNavigation({ itemCount: 5, currentIndex: 1, onIndexChange }));
 
     const event = { key: "End", preventDefault: vi.fn() };
     result.current.onKeyDown(event);

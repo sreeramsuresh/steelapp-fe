@@ -4,7 +4,7 @@
  */
 
 // Mock all services
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 let analyticsServiceMock;
 let commissionServiceMock;
@@ -15,7 +15,7 @@ let productServiceMock;
 let vatServiceMock;
 let warehouseServiceMock;
 
-describe('dashboardService', () => {
+describe("dashboardService", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
 
@@ -70,8 +70,8 @@ describe('dashboardService', () => {
     vi.restoreAllMocks();
   });
 
-  describe('getDashboardMetrics', () => {
-    it('should fetch and aggregate dashboard data from multiple services', async () => {
+  describe("getDashboardMetrics", () => {
+    it("should fetch and aggregate dashboard data from multiple services", async () => {
       analyticsServiceMock.getDashboardData.mockResolvedValue({
         metrics: {
           totalRevenue: 100000,
@@ -86,20 +86,16 @@ describe('dashboardService', () => {
         topProducts: [
           {
             id: 1,
-            name: 'Steel Pipe',
-            displayName: 'Steel Pipe',
-            category: 'Pipes',
+            name: "Steel Pipe",
+            displayName: "Steel Pipe",
+            category: "Pipes",
             totalSold: 100,
             totalRevenue: 50000,
           },
         ],
       });
-      analyticsServiceMock.getARAgingBuckets.mockResolvedValue([
-        { label: '0-30 Days', amount: 20000 },
-      ]);
-      analyticsServiceMock.getRevenueTrend.mockResolvedValue([
-        { month: 'Jan', amount: 10000 },
-      ]);
+      analyticsServiceMock.getARAgingBuckets.mockResolvedValue([{ label: "0-30 Days", amount: 20000 }]);
+      analyticsServiceMock.getRevenueTrend.mockResolvedValue([{ month: "Jan", amount: 10000 }]);
       analyticsServiceMock.getDashboardKPIs.mockResolvedValue({
         gross_margin_percent: 35,
         dso_days: 45,
@@ -117,12 +113,12 @@ describe('dashboardService', () => {
 
       // Simulate calling the service methods
       const analyticsData = await analyticsServiceMock.getDashboardData();
-      const arBuckets = await analyticsServiceMock.getARAgingBuckets();
-      const revenueTrend = await analyticsServiceMock.getRevenueTrend();
-      const kpis = await analyticsServiceMock.getDashboardKPIs();
-      const invoices = await invoiceServiceMock.getInvoices();
-      const customers = await customerServiceMock.getCustomers();
-      const products = await productServiceMock.getProducts();
+      const _arBuckets = await analyticsServiceMock.getARAgingBuckets();
+      const _revenueTrend = await analyticsServiceMock.getRevenueTrend();
+      const _kpis = await analyticsServiceMock.getDashboardKPIs();
+      const _invoices = await invoiceServiceMock.getInvoices();
+      const _customers = await customerServiceMock.getCustomers();
+      const _products = await productServiceMock.getProducts();
 
       // Aggregate
       const result = {
@@ -135,20 +131,20 @@ describe('dashboardService', () => {
       expect(result.isMockData).toBe(false);
     });
 
-    it('should return empty structure on error', async () => {
-      analyticsServiceMock.getDashboardData.mockRejectedValue(new Error('API Error'));
-      analyticsServiceMock.getARAgingBuckets.mockRejectedValue(new Error('API Error'));
-      analyticsServiceMock.getRevenueTrend.mockRejectedValue(new Error('API Error'));
-      analyticsServiceMock.getDashboardKPIs.mockRejectedValue(new Error('API Error'));
-      invoiceServiceMock.getInvoices.mockRejectedValue(new Error('API Error'));
-      customerServiceMock.getCustomers.mockRejectedValue(new Error('API Error'));
-      productServiceMock.getProducts.mockRejectedValue(new Error('API Error'));
+    it("should return empty structure on error", async () => {
+      analyticsServiceMock.getDashboardData.mockRejectedValue(new Error("API Error"));
+      analyticsServiceMock.getARAgingBuckets.mockRejectedValue(new Error("API Error"));
+      analyticsServiceMock.getRevenueTrend.mockRejectedValue(new Error("API Error"));
+      analyticsServiceMock.getDashboardKPIs.mockRejectedValue(new Error("API Error"));
+      invoiceServiceMock.getInvoices.mockRejectedValue(new Error("API Error"));
+      customerServiceMock.getCustomers.mockRejectedValue(new Error("API Error"));
+      productServiceMock.getProducts.mockRejectedValue(new Error("API Error"));
 
       // Try calling first service and catch error
       try {
         await analyticsServiceMock.getDashboardData();
-        throw new Error('Expected error');
-      } catch (error) {
+        throw new Error("Expected error");
+      } catch (_error) {
         // Error expected
         const result = {
           isMockData: true,
@@ -160,13 +156,13 @@ describe('dashboardService', () => {
     });
   });
 
-  describe('getProductAnalytics', () => {
-    it('should fetch and aggregate product analytics', async () => {
+  describe("getProductAnalytics", () => {
+    it("should fetch and aggregate product analytics", async () => {
       analyticsServiceMock.getProductPerformance.mockResolvedValue({
         products: [
           {
             id: 1,
-            name: 'Steel Sheet',
+            name: "Steel Sheet",
             totalSold: 50,
             totalRevenue: 50000,
             margin: 30,
@@ -174,7 +170,7 @@ describe('dashboardService', () => {
         ],
       });
       productServiceMock.getProducts.mockResolvedValue({
-        products: [{ id: 1, name: 'Steel Sheet', category: 'Sheets' }],
+        products: [{ id: 1, name: "Steel Sheet", category: "Sheets" }],
       });
       inventoryServiceMock.getInventorySummary.mockResolvedValue({
         fastMoving: [],
@@ -182,8 +178,8 @@ describe('dashboardService', () => {
       });
 
       const performance = await analyticsServiceMock.getProductPerformance();
-      const products = await productServiceMock.getProducts();
-      const inventory = await inventoryServiceMock.getInventorySummary();
+      const _products = await productServiceMock.getProducts();
+      const _inventory = await inventoryServiceMock.getInventorySummary();
 
       const result = {
         topProducts: performance.products,
@@ -196,17 +192,15 @@ describe('dashboardService', () => {
       expect(result.isMockData).toBe(false);
     });
 
-    it('should return empty analytics on error', async () => {
-      analyticsServiceMock.getProductPerformance.mockRejectedValue(
-        new Error('API Error')
-      );
-      productServiceMock.getProducts.mockRejectedValue(new Error('API Error'));
-      inventoryServiceMock.getInventorySummary.mockRejectedValue(new Error('API Error'));
+    it("should return empty analytics on error", async () => {
+      analyticsServiceMock.getProductPerformance.mockRejectedValue(new Error("API Error"));
+      productServiceMock.getProducts.mockRejectedValue(new Error("API Error"));
+      inventoryServiceMock.getInventorySummary.mockRejectedValue(new Error("API Error"));
 
       try {
         await analyticsServiceMock.getProductPerformance();
-        throw new Error('Expected error');
-      } catch (error) {
+        throw new Error("Expected error");
+      } catch (_error) {
         const result = {
           isMockData: true,
           topProducts: [],
@@ -216,26 +210,22 @@ describe('dashboardService', () => {
     });
   });
 
-  describe('getAgentPerformance', () => {
-    it('should fetch and enrich agent commission data', async () => {
+  describe("getAgentPerformance", () => {
+    it("should fetch and enrich agent commission data", async () => {
       commissionServiceMock.getDashboard.mockResolvedValue({
         activeAgents: 5,
         totalCommissions: 50000,
       });
       commissionServiceMock.getAgents.mockResolvedValue({
-        agents: [
-          { userId: 1, userName: 'Agent One', baseRate: 5, isActive: true },
-        ],
+        agents: [{ userId: 1, userName: "Agent One", baseRate: 5, isActive: true }],
       });
       commissionServiceMock.getTransactions.mockResolvedValue({
-        transactions: [
-          { userId: 1, commissionAmount: 5000, status: 'pending' },
-        ],
+        transactions: [{ userId: 1, commissionAmount: 5000, status: "pending" }],
       });
 
       const dashboard = await commissionServiceMock.getDashboard();
       const agents = await commissionServiceMock.getAgents();
-      const transactions = await commissionServiceMock.getTransactions();
+      const _transactions = await commissionServiceMock.getTransactions();
 
       const result = {
         agents: agents.agents,
@@ -248,15 +238,15 @@ describe('dashboardService', () => {
       expect(result.isMockData).toBe(false);
     });
 
-    it('should return empty agent data on error', async () => {
-      commissionServiceMock.getDashboard.mockRejectedValue(new Error('API Error'));
-      commissionServiceMock.getAgents.mockRejectedValue(new Error('API Error'));
-      commissionServiceMock.getTransactions.mockRejectedValue(new Error('API Error'));
+    it("should return empty agent data on error", async () => {
+      commissionServiceMock.getDashboard.mockRejectedValue(new Error("API Error"));
+      commissionServiceMock.getAgents.mockRejectedValue(new Error("API Error"));
+      commissionServiceMock.getTransactions.mockRejectedValue(new Error("API Error"));
 
       try {
         await commissionServiceMock.getDashboard();
-        throw new Error('Expected error');
-      } catch (error) {
+        throw new Error("Expected error");
+      } catch (_error) {
         const result = {
           isMockData: true,
           agents: [],
@@ -266,8 +256,8 @@ describe('dashboardService', () => {
     });
   });
 
-  describe('getInventoryHealth', () => {
-    it('should fetch inventory health metrics', async () => {
+  describe("getInventoryHealth", () => {
+    it("should fetch inventory health metrics", async () => {
       inventoryServiceMock.getInventorySummary.mockResolvedValue({
         totalItems: 1000,
         totalValue: 500000,
@@ -277,7 +267,7 @@ describe('dashboardService', () => {
 
       const summary = await inventoryServiceMock.getInventorySummary();
       const lowStock = await inventoryServiceMock.getLowStockItems();
-      const insights = await analyticsServiceMock.getInventoryInsights();
+      const _insights = await analyticsServiceMock.getInventoryInsights();
 
       const result = {
         summary,
@@ -291,10 +281,10 @@ describe('dashboardService', () => {
     });
   });
 
-  describe('getVATMetrics', () => {
-    it('should fetch VAT metrics from service', async () => {
+  describe("getVATMetrics", () => {
+    it("should fetch VAT metrics from service", async () => {
       vatServiceMock.getVATDashboardMetrics.mockResolvedValue({
-        currentPeriod: { quarter: 'Q1', year: 2024 },
+        currentPeriod: { quarter: "Q1", year: 2024 },
         collection: { outputVAT: 100000 },
       });
 
@@ -304,14 +294,14 @@ describe('dashboardService', () => {
       expect(result.collection).toBeTruthy();
     });
 
-    it('should return empty structure on error', async () => {
-      vatServiceMock.getVATDashboardMetrics.mockRejectedValue(new Error('API Error'));
-      invoiceServiceMock.getInvoices.mockRejectedValue(new Error('API Error'));
+    it("should return empty structure on error", async () => {
+      vatServiceMock.getVATDashboardMetrics.mockRejectedValue(new Error("API Error"));
+      invoiceServiceMock.getInvoices.mockRejectedValue(new Error("API Error"));
 
       try {
         await vatServiceMock.getVATDashboardMetrics();
-        throw new Error('Expected error');
-      } catch (error) {
+        throw new Error("Expected error");
+      } catch (_error) {
         const result = {
           isMockData: true,
         };
@@ -320,12 +310,10 @@ describe('dashboardService', () => {
     });
   });
 
-  describe('getWarehouseUtilization', () => {
-    it('should fetch warehouse utilization data', async () => {
+  describe("getWarehouseUtilization", () => {
+    it("should fetch warehouse utilization data", async () => {
       warehouseServiceMock.getAll.mockResolvedValue({
-        data: [
-          { id: 1, name: 'Main Warehouse', capacity: 1000 },
-        ],
+        data: [{ id: 1, name: "Main Warehouse", capacity: 1000 }],
       });
 
       const response = await warehouseServiceMock.getAll();
@@ -338,13 +326,13 @@ describe('dashboardService', () => {
       expect(result.isMockData).toBe(false);
     });
 
-    it('should return empty structure on error', async () => {
-      warehouseServiceMock.getAll.mockRejectedValue(new Error('API Error'));
+    it("should return empty structure on error", async () => {
+      warehouseServiceMock.getAll.mockRejectedValue(new Error("API Error"));
 
       try {
         await warehouseServiceMock.getAll();
-        throw new Error('Expected error');
-      } catch (error) {
+        throw new Error("Expected error");
+      } catch (_error) {
         const result = {
           isMockData: true,
           warehouses: [],

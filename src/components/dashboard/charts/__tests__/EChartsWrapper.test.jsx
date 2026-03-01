@@ -35,15 +35,7 @@ vi.mock("echarts-for-react/lib/core", () => ({
   default: (props) => <div data-testid="echarts-core" style={props.style} />,
 }));
 
-import {
-  EChartsWrapper,
-  FunnelChartWrapper,
-  GaugeChartWrapper,
-  getThemeColors,
-  HeatmapChartWrapper,
-  TreemapChartWrapper,
-  WaterfallChartWrapper,
-} from "../EChartsWrapper";
+import { EChartsWrapper, FunnelChartWrapper, GaugeChartWrapper, getThemeColors } from "../EChartsWrapper";
 
 describe("EChartsWrapper", () => {
   it("renders without crashing", () => {

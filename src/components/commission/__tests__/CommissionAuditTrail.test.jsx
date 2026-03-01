@@ -1,8 +1,7 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
-import React from "react";
-import CommissionAuditTrail from "../CommissionAuditTrail";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import CommissionAuditTrail from "../CommissionAuditTrail";
 
 // Mock dependencies
 vi.mock("../../../services/commissionService", () => ({
@@ -40,9 +39,7 @@ describe("CommissionAuditTrail", () => {
     commissionService.getCommissionAuditTrail.mockResolvedValue({
       auditEntries: [],
     });
-    renderWithTheme(
-      <CommissionAuditTrail invoiceId={1} isExpanded={true} />
-    );
+    renderWithTheme(<CommissionAuditTrail invoiceId={1} isExpanded={true} />);
     await waitFor(() => {
       expect(screen.getByText("No audit history available")).toBeInTheDocument();
     });
@@ -52,13 +49,7 @@ describe("CommissionAuditTrail", () => {
     commissionService.getCommissionAuditTrail.mockResolvedValue({
       auditEntries: [],
     });
-    renderWithTheme(
-      <CommissionAuditTrail
-        invoiceId={1}
-        asModal={true}
-        onClose={vi.fn()}
-      />
-    );
+    renderWithTheme(<CommissionAuditTrail invoiceId={1} asModal={true} onClose={vi.fn()} />);
     expect(screen.getByText("Commission Audit Trail")).toBeInTheDocument();
   });
 
@@ -74,9 +65,7 @@ describe("CommissionAuditTrail", () => {
         },
       ],
     });
-    renderWithTheme(
-      <CommissionAuditTrail invoiceId={1} isExpanded={true} />
-    );
+    renderWithTheme(<CommissionAuditTrail invoiceId={1} isExpanded={true} />);
     await waitFor(() => {
       expect(screen.getByText("Commission Created")).toBeInTheDocument();
       expect(screen.getByText("Admin")).toBeInTheDocument();
@@ -84,12 +73,8 @@ describe("CommissionAuditTrail", () => {
   });
 
   it("shows error state on fetch failure", async () => {
-    commissionService.getCommissionAuditTrail.mockRejectedValue(
-      new Error("Network error")
-    );
-    renderWithTheme(
-      <CommissionAuditTrail invoiceId={1} isExpanded={true} />
-    );
+    commissionService.getCommissionAuditTrail.mockRejectedValue(new Error("Network error"));
+    renderWithTheme(<CommissionAuditTrail invoiceId={1} isExpanded={true} />);
     await waitFor(() => {
       expect(screen.getByText("Network error")).toBeInTheDocument();
     });

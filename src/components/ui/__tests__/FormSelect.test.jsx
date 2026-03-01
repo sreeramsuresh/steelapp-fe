@@ -18,7 +18,7 @@ vi.mock("@/components/ui/select", () => ({
   Select: ({ children }) => <div data-testid="select-root">{children}</div>,
   SelectContent: ({ children }) => <div>{children}</div>,
   SelectTrigger: ({ children, ...props }) => (
-    <button data-testid={props["data-testid"] || "select-trigger"} id={props.id}>
+    <button type="button" data-testid={props["data-testid"] || "select-trigger"} id={props.id}>
       {children}
     </button>
   ),

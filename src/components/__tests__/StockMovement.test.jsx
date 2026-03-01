@@ -18,7 +18,12 @@ vi.mock("../../contexts/ThemeContext", () => ({
   useTheme: vi.fn(() => ({ isDarkMode: false, themeMode: "light", toggleTheme: vi.fn() })),
 }));
 vi.mock("../../services/stockMovementService", () => ({
-  stockMovementService: { getAllMovements: vi.fn(), getMovements: vi.fn(), createMovement: vi.fn(), deleteMovement: vi.fn() },
+  stockMovementService: {
+    getAllMovements: vi.fn(),
+    getMovements: vi.fn(),
+    createMovement: vi.fn(),
+    deleteMovement: vi.fn(),
+  },
 }));
 vi.mock("../../services/purchaseOrderService", () => ({
   purchaseOrderService: { getAll: vi.fn() },

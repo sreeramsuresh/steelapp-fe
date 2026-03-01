@@ -70,9 +70,7 @@ describe("StockDeductionPreview", () => {
 
   describe("Empty State", () => {
     it("should show empty message when no inventory items", () => {
-      const { container } = renderWithProviders(
-        <StockDeductionPreview {...defaultProps} items={[]} />
-      );
+      const { container } = renderWithProviders(<StockDeductionPreview {...defaultProps} items={[]} />);
       expect(container.textContent).toContain("No inventory-tracked items");
     });
 
@@ -109,9 +107,7 @@ describe("StockDeductionPreview", () => {
     });
 
     it("should not render confirm button when onConfirm not provided", async () => {
-      const { container } = renderWithProviders(
-        <StockDeductionPreview {...defaultProps} onConfirm={undefined} />
-      );
+      const { container } = renderWithProviders(<StockDeductionPreview {...defaultProps} onConfirm={undefined} />);
       // Should not have the footer action buttons
       expect(container.textContent).not.toContain("Confirm & Issue");
     });

@@ -1,8 +1,7 @@
-import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
-import ScenarioCards from "../ScenarioCards";
+import { describe, expect, it } from "vitest";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import ScenarioCards from "../ScenarioCards";
 
 function renderWithTheme(ui) {
   return render(<ThemeProvider>{ui}</ThemeProvider>);

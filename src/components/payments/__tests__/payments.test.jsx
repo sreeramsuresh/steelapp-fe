@@ -35,7 +35,7 @@ describe("AddPaymentForm", () => {
   });
 
   it("validates required fields", async () => {
-    const onSubmit = vi.fn();
+    const _onSubmit = vi.fn();
     const MockPaymentForm = () => {
       const [error, setError] = React.useState("");
 
@@ -46,7 +46,9 @@ describe("AddPaymentForm", () => {
       return (
         <div>
           <input placeholder="Amount" />
-          <button type="button" onClick={handleSubmit}>Save Payment</button>
+          <button type="button" onClick={handleSubmit}>
+            Save Payment
+          </button>
           {error && <div role="alert">{error}</div>}
         </div>
       );
@@ -63,7 +65,7 @@ describe("PaymentDrawer", () => {
     const MockDrawer = ({ isOpen }) => {
       if (!isOpen) return null;
       return (
-        <div data-testid="payment-drawer" role="complementary">
+        <aside data-testid="payment-drawer">
           <h2>Payment for INV-001</h2>
           <div>Invoice Total: 5,250 AED</div>
           <div>Amount Paid: 2,000 AED</div>
@@ -72,7 +74,7 @@ describe("PaymentDrawer", () => {
             <h3>Payment History</h3>
             <div>2026-01-15 — 2,000 AED via Bank Transfer</div>
           </div>
-        </div>
+        </aside>
       );
     };
 

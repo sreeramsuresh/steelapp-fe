@@ -1,11 +1,6 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, act, waitFor } from "@testing-library/react";
-import React from "react";
-import {
-  NotificationCenterProvider,
-  useNotifications,
-  useNotificationCenter,
-} from "../NotificationCenterContext";
+import { act, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { NotificationCenterProvider, useNotificationCenter, useNotifications } from "../NotificationCenterContext";
 
 // Mock dependencies
 vi.mock("../../services/api", () => ({
@@ -32,13 +27,12 @@ function TestConsumer() {
   const ctx = useNotifications();
   return (
     <div>
-      <span data-testid="notifications">
-        {JSON.stringify(ctx.notifications)}
-      </span>
+      <span data-testid="notifications">{JSON.stringify(ctx.notifications)}</span>
       <span data-testid="unreadCount">{ctx.unreadCount}</span>
       <span data-testid="loading">{String(ctx.loading)}</span>
       <span data-testid="error">{ctx.error}</span>
       <button
+        type="button"
         data-testid="addNotification"
         onClick={() =>
           ctx.addNotification({
@@ -50,19 +44,13 @@ function TestConsumer() {
       >
         Add
       </button>
-      <button
-        data-testid="removeNotification"
-        onClick={() => ctx.removeNotification("notif-1")}
-      >
+      <button type="button" data-testid="removeNotification" onClick={() => ctx.removeNotification("notif-1")}>
         Remove
       </button>
-      <button
-        data-testid="markAsRead"
-        onClick={() => ctx.markAsRead("notif-1")}
-      >
+      <button type="button" data-testid="markAsRead" onClick={() => ctx.markAsRead("notif-1")}>
         Read
       </button>
-      <button data-testid="markAllAsRead" onClick={ctx.markAllAsRead}>
+      <button type="button" data-testid="markAllAsRead" onClick={ctx.markAllAsRead}>
         Read All
       </button>
     </div>
@@ -90,9 +78,7 @@ describe("NotificationCenterContext", () => {
   });
 
   it("loads initial notifications from localStorage", () => {
-    const stored = [
-      { id: "a", title: "Stored", message: "From storage", unread: true },
-    ];
+    const stored = [{ id: "a", title: "Stored", message: "From storage", unread: true }];
     localStorage.setItem("steelapp.notifications", JSON.stringify(stored));
 
     render(
@@ -101,9 +87,7 @@ describe("NotificationCenterContext", () => {
       </NotificationCenterProvider>
     );
 
-    const parsed = JSON.parse(
-      screen.getByTestId("notifications").textContent
-    );
+    const parsed = JSON.parse(screen.getByTestId("notifications").textContent);
     expect(parsed).toHaveLength(1);
     expect(parsed[0].id).toBe("a");
   });
@@ -121,10 +105,7 @@ describe("NotificationCenterContext", () => {
   });
 
   it("handles non-array localStorage data gracefully", () => {
-    localStorage.setItem(
-      "steelapp.notifications",
-      JSON.stringify({ not: "array" })
-    );
+    localStorage.setItem("steelapp.notifications", JSON.stringify({ not: "array" }));
 
     render(
       <NotificationCenterProvider>
@@ -146,17 +127,13 @@ describe("NotificationCenterContext", () => {
       screen.getByTestId("addNotification").click();
     });
 
-    const parsed = JSON.parse(
-      screen.getByTestId("notifications").textContent
-    );
+    const parsed = JSON.parse(screen.getByTestId("notifications").textContent);
     expect(parsed).toHaveLength(1);
     expect(parsed[0].title).toBe("Test");
     expect(parsed[0].message).toBe("Hello");
 
     // Verify persistence
-    const stored = JSON.parse(
-      localStorage.getItem("steelapp.notifications")
-    );
+    const stored = JSON.parse(localStorage.getItem("steelapp.notifications"));
     expect(stored).toHaveLength(1);
   });
 
@@ -172,9 +149,7 @@ describe("NotificationCenterContext", () => {
       screen.getByTestId("addNotification").click();
     });
 
-    expect(
-      JSON.parse(screen.getByTestId("notifications").textContent)
-    ).toHaveLength(1);
+    expect(JSON.parse(screen.getByTestId("notifications").textContent)).toHaveLength(1);
 
     // Remove
     act(() => {
@@ -291,9 +266,7 @@ describe("NotificationCenterContext", () => {
     authService.hasPermission.mockReturnValue(true);
     api.get.mockResolvedValue({
       data: {
-        notifications: [
-          { id: "remote-1", title: "Remote", message: "From API" },
-        ],
+        notifications: [{ id: "remote-1", title: "Remote", message: "From API" }],
       },
     });
 
@@ -304,17 +277,12 @@ describe("NotificationCenterContext", () => {
     );
 
     await waitFor(() => {
-      const parsed = JSON.parse(
-        screen.getByTestId("notifications").textContent
-      );
+      const parsed = JSON.parse(screen.getByTestId("notifications").textContent);
       expect(parsed).toHaveLength(1);
       expect(parsed[0].title).toBe("Remote");
     });
 
-    expect(api.get).toHaveBeenCalledWith(
-      "/notifications",
-      expect.any(Object)
-    );
+    expect(api.get).toHaveBeenCalledWith("/notifications", expect.any(Object));
   });
 
   it("useNotificationCenter is an alias for useNotifications", () => {
@@ -324,9 +292,7 @@ describe("NotificationCenterContext", () => {
   it("throws error when useNotifications is used outside provider", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    expect(() => render(<TestConsumer />)).toThrow(
-      "useNotifications must be used within NotificationCenterProvider"
-    );
+    expect(() => render(<TestConsumer />)).toThrow("useNotifications must be used within NotificationCenterProvider");
 
     spy.mockRestore();
   });

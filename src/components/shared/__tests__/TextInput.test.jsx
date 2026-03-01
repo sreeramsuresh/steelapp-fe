@@ -38,9 +38,7 @@ describe("TextInput", () => {
   });
 
   it("should not display required indicator when required is false", () => {
-    render(
-      <TextInput id="phone" label="Phone" value="" onChange={mockOnChange} required={false} />
-    );
+    render(<TextInput id="phone" label="Phone" value="" onChange={mockOnChange} required={false} />);
 
     // No asterisk should be present
     expect(screen.queryByText("*")).not.toBeInTheDocument();
@@ -69,7 +67,15 @@ describe("TextInput", () => {
   });
 
   it("should display help text when provided", () => {
-    render(<TextInput id="password" label="Password" value="" onChange={mockOnChange} helpText="Minimum 8 characters required" />);
+    render(
+      <TextInput
+        id="password"
+        label="Password"
+        value=""
+        onChange={mockOnChange}
+        helpText="Minimum 8 characters required"
+      />
+    );
 
     expect(screen.getByText("Minimum 8 characters required")).toBeInTheDocument();
   });
@@ -96,7 +102,9 @@ describe("TextInput", () => {
   });
 
   it("should handle different input types", () => {
-    const { rerender } = render(<TextInput type="password" id="password-field" label="Password" value="" onChange={mockOnChange} />);
+    const { rerender } = render(
+      <TextInput type="password" id="password-field" label="Password" value="" onChange={mockOnChange} />
+    );
 
     const passwordInput = document.getElementById("password-field");
     expect(passwordInput).toHaveAttribute("type", "password");
@@ -126,9 +134,7 @@ describe("TextInput", () => {
   });
 
   it("should apply custom className", () => {
-    render(
-      <TextInput id="email" label="Email" value="" onChange={mockOnChange} className="custom-input" />
-    );
+    render(<TextInput id="email" label="Email" value="" onChange={mockOnChange} className="custom-input" />);
 
     const input = screen.getByRole("textbox");
     expect(input).toHaveClass("custom-input");
@@ -147,18 +153,14 @@ describe("TextInput", () => {
   });
 
   it("should apply error styling when error is present", () => {
-    render(
-      <TextInput id="email" label="Email" value="invalid" onChange={mockOnChange} error="Invalid email" />
-    );
+    render(<TextInput id="email" label="Email" value="invalid" onChange={mockOnChange} error="Invalid email" />);
 
     const input = screen.getByRole("textbox");
     expect(input.className).toContain("border-red-500");
   });
 
   it("should apply correct styling when disabled", () => {
-    render(
-      <TextInput id="email" label="Email" value="" onChange={mockOnChange} disabled={true} />
-    );
+    render(<TextInput id="email" label="Email" value="" onChange={mockOnChange} disabled={true} />);
 
     const input = screen.getByRole("textbox");
     expect(input.className).toContain("cursor-not-allowed");

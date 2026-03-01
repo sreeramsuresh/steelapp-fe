@@ -4,7 +4,6 @@
  */
 
 import { render, screen } from "@testing-library/react";
-import React from "react";
 import { describe, expect, it } from "vitest";
 
 describe("BasePricesPage", () => {
@@ -13,9 +12,21 @@ describe("BasePricesPage", () => {
       <div>
         <h1>Base Prices</h1>
         <table>
-          <thead><tr><th>Product</th><th>Unit</th><th>Base Price</th><th>Last Updated</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Unit</th>
+              <th>Base Price</th>
+              <th>Last Updated</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>SS-304-Sheet</td><td>KG</td><td>100 AED</td><td>2026-01-15</td></tr>
+            <tr>
+              <td>SS-304-Sheet</td>
+              <td>KG</td>
+              <td>100 AED</td>
+              <td>2026-01-15</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -34,9 +45,21 @@ describe("PriceListList", () => {
         <h1>Price Lists</h1>
         <button type="button">Create Price List</button>
         <table>
-          <thead><tr><th>Name</th><th>Type</th><th>Valid From</th><th>Valid To</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Valid From</th>
+              <th>Valid To</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>Q1 2026 Prices</td><td>Standard</td><td>2026-01-01</td><td>2026-03-31</td></tr>
+            <tr>
+              <td>Q1 2026 Prices</td>
+              <td>Standard</td>
+              <td>2026-01-01</td>
+              <td>2026-03-31</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -60,9 +83,19 @@ describe("PriceListForm", () => {
         </div>
         <div data-testid="product-prices">
           <table>
-            <thead><tr><th>Product</th><th>Price</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>SS-304-Sheet</td><td><input defaultValue="100" /></td></tr>
+              <tr>
+                <td>SS-304-Sheet</td>
+                <td>
+                  <input defaultValue="100" />
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -84,9 +117,21 @@ describe("PriceHistoryReport", () => {
         <input placeholder="Select Product" />
         <div data-testid="price-chart">Price Trend Chart</div>
         <table>
-          <thead><tr><th>Date</th><th>Old Price</th><th>New Price</th><th>Change</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Old Price</th>
+              <th>New Price</th>
+              <th>Change</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>2026-01-15</td><td>95</td><td>100</td><td>+5.3%</td></tr>
+            <tr>
+              <td>2026-01-15</td>
+              <td>95</td>
+              <td>100</td>
+              <td>+5.3%</td>
+            </tr>
           </tbody>
         </table>
       </div>

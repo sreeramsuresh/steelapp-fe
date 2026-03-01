@@ -1,6 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
+import { describe, expect, it } from "vitest";
 import InvoiceFooter from "../InvoiceFooter";
 
 vi.mock("../../../constants/defaultTemplateSettings", () => ({
@@ -36,9 +35,7 @@ describe("InvoiceFooter", () => {
 
   it("applies template colors when provided", () => {
     const template = { colors: { secondary: "#ff0000" }, fonts: { body: "Arial" } };
-    const { container } = render(
-      <InvoiceFooter company={company} pageNumber={1} totalPages={1} template={template} />
-    );
+    const { container } = render(<InvoiceFooter company={company} pageNumber={1} totalPages={1} template={template} />);
     expect(container.innerHTML).toContain("Arial");
   });
 });

@@ -8,8 +8,9 @@ vi.mock("../../../contexts/ThemeContext", () => ({
 vi.mock("../InvoiceInput", () => ({
   default: ({ label, value, onChange, onFocus, onBlur, onKeyDown, placeholder, disabled, ...props }) => (
     <div>
-      {label && <label>{label}</label>}
+      {label && <label htmlFor={`autocomplete-${label}`}>{label}</label>}
       <input
+        id={`autocomplete-${label}`}
         value={value}
         onChange={onChange}
         onFocus={onFocus}

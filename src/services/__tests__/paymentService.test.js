@@ -5,7 +5,7 @@
  * ✅ 100% coverage target for paymentService.js
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, expect, it } from "vitest";
 
 import {
   createPaymentPayload,
@@ -580,7 +580,7 @@ describe("paymentService", () => {
 
   describe("PAYMENT_METHOD_OPTIONS", () => {
     it("should have payment method options", () => {
-      expect(PAYMENT_METHOD_OPTIONS instanceof Array).toBeTruthy();
+      expect(Array.isArray(PAYMENT_METHOD_OPTIONS)).toBeTruthy();
       expect(PAYMENT_METHOD_OPTIONS.length > 0).toBeTruthy();
     });
 
@@ -596,8 +596,8 @@ describe("paymentService", () => {
 
     it("should have proper structure", () => {
       PAYMENT_METHOD_OPTIONS.forEach((option) => {
-        expect(option["value"] !== undefined).toBeTruthy();
-        expect(option["label"] !== undefined).toBeTruthy();
+        expect(option.value !== undefined).toBeTruthy();
+        expect(option.label !== undefined).toBeTruthy();
         expect(typeof option.value).toBe("string");
         expect(typeof option.label).toBe("string");
       });

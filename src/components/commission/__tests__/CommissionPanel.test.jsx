@@ -1,8 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
-import CommissionPanel from "../CommissionPanel";
+import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import CommissionPanel from "../CommissionPanel";
 
 // Mock dependencies
 vi.mock("../../../services/notificationService", () => ({
@@ -19,21 +18,29 @@ vi.mock("../../ConfirmDialog", () => ({
   default: ({ title, onConfirm, onCancel }) => (
     <div data-testid="confirm-dialog">
       <span>{title}</span>
-      <button onClick={onConfirm}>Confirm</button>
-      <button onClick={onCancel}>Cancel Confirm</button>
+      <button type="button" onClick={onConfirm}>
+        Confirm
+      </button>
+      <button type="button" onClick={onCancel}>
+        Cancel Confirm
+      </button>
     </div>
   ),
 }));
 
 vi.mock("../../ui/badge", () => ({
   Badge: ({ children, className }) => (
-    <span data-testid="badge" className={className}>{children}</span>
+    <span data-testid="badge" className={className}>
+      {children}
+    </span>
   ),
 }));
 
 vi.mock("../../ui/button", () => ({
   Button: ({ children, onClick, disabled, ...rest }) => (
-    <button onClick={onClick} disabled={disabled} {...rest}>{children}</button>
+    <button onClick={onClick} disabled={disabled} {...rest}>
+      {children}
+    </button>
   ),
 }));
 
@@ -110,9 +117,7 @@ describe("CommissionPanel", () => {
 
   it("calls onViewAuditTrail when View History clicked", () => {
     const onView = vi.fn();
-    renderWithTheme(
-      <CommissionPanel invoice={baseInvoice} onViewAuditTrail={onView} />
-    );
+    renderWithTheme(<CommissionPanel invoice={baseInvoice} onViewAuditTrail={onView} />);
     screen.getByText("View History").click();
     expect(onView).toHaveBeenCalledTimes(1);
   });

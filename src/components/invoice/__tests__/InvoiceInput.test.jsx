@@ -1,8 +1,7 @@
-import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
-import Input from "../InvoiceInput";
+import { describe, expect, it } from "vitest";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import Input from "../InvoiceInput";
 
 vi.mock("../../forms/ValidatedInput", () => ({
   getValidationClasses: () => "",

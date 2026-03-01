@@ -1,8 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-import vatReturnService, { FORM_201_BOXES, VAT_RETURN_STATUSES } from "../vatReturnService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
-
+import vatReturnService, { FORM_201_BOXES, VAT_RETURN_STATUSES } from "../vatReturnService.js";
 
 describe("vatReturnService", () => {
   beforeEach(() => {
@@ -74,7 +72,7 @@ describe("vatReturnService", () => {
         pagination: { total: 1, page: 1 },
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.getAll();
 
@@ -84,7 +82,7 @@ describe("vatReturnService", () => {
     });
 
     it("should filter by status", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [] });
+      vi.spyOn(apiClient, "get").mockResolvedValue({ data: [] });
 
       await vatReturnService.getAll({ status: "filed" });
 
@@ -92,7 +90,7 @@ describe("vatReturnService", () => {
     });
 
     it("should filter by period", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [] });
+      vi.spyOn(apiClient, "get").mockResolvedValue({ data: [] });
 
       await vatReturnService.getAll({
         periodStart: "2024-01-01",
@@ -127,7 +125,7 @@ describe("vatReturnService", () => {
         netVatDue: 4750,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await vatReturnService.getById(1);
 
@@ -146,7 +144,7 @@ describe("vatReturnService", () => {
         box7Vat: 8250,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await vatReturnService.getById(1);
 
@@ -161,7 +159,7 @@ describe("vatReturnService", () => {
         box10Vat: 4500,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await vatReturnService.getById(1);
 
@@ -176,7 +174,7 @@ describe("vatReturnService", () => {
         box11Vat: 4750,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await vatReturnService.getById(1);
 
@@ -202,7 +200,7 @@ describe("vatReturnService", () => {
         box11Vat: 10000,
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.generateReturn({
         periodStart: "2024-01-01",
@@ -222,7 +220,7 @@ describe("vatReturnService", () => {
         box8Amount: 300000,
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.generateReturn({
         periodStart: "2024-01-01",
@@ -242,7 +240,7 @@ describe("vatReturnService", () => {
         acknowledgmentNumber: "ACK-2024-001",
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.submitReturn(1);
 
@@ -252,7 +250,7 @@ describe("vatReturnService", () => {
     });
 
     it("should validate return before submission", async () => {
-      vi.spyOn(apiClient, 'post').mockRejectedValue(new Error("Box 1 VAT exceeds expected threshold"));
+      vi.spyOn(apiClient, "post").mockRejectedValue(new Error("Box 1 VAT exceeds expected threshold"));
 
       await expect(vatReturnService.submitReturn(1)).rejects.toThrow();
     });
@@ -265,7 +263,7 @@ describe("vatReturnService", () => {
         { year: 2024, quarter: 2, startDate: "2024-04-01", endDate: "2024-06-30" },
       ];
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.getPeriods();
 
@@ -283,7 +281,7 @@ describe("vatReturnService", () => {
         box1Amount: 500000,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.generateReport("2024-01-01", "2024-03-31");
 
@@ -300,7 +298,7 @@ describe("vatReturnService", () => {
         box1Amount: 500000,
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.saveReport("2024-01-01", "2024-03-31");
 
@@ -316,7 +314,7 @@ describe("vatReturnService", () => {
         { code: "AE-DU", name: "Dubai" },
       ];
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.getEmirates();
 
@@ -333,7 +331,7 @@ describe("vatReturnService", () => {
         documents: [],
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.getPreview(1);
 
@@ -350,7 +348,7 @@ describe("vatReturnService", () => {
         ftaReferenceNumber: "FTA-12345",
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.markAsFiled(1, {
         ftaReferenceNumber: "FTA-12345",
@@ -369,7 +367,7 @@ describe("vatReturnService", () => {
         box7Vat: 25000,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.getForm201Data(1);
 
@@ -382,7 +380,7 @@ describe("vatReturnService", () => {
     it("should get audit trail for VAT return", async () => {
       const mockResponse = [{ action: "created", timestamp: "2024-01-15T10:00:00Z", user: "admin" }];
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.getAuditTrail(1);
 
@@ -398,7 +396,7 @@ describe("vatReturnService", () => {
         box8: { amount: 300000, vat: 15000 },
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.getReconciliation(1);
 
@@ -414,7 +412,7 @@ describe("vatReturnService", () => {
         purchases: [],
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.getSupportingDocuments(1);
 
@@ -427,7 +425,7 @@ describe("vatReturnService", () => {
     it("should get blocked VAT categories", async () => {
       const mockResponse = [{ code: "FUEL", description: "Fuel expenses" }];
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.getBlockedVATCategories();
 
@@ -440,7 +438,7 @@ describe("vatReturnService", () => {
     it("should get blocked VAT log for a period", async () => {
       const mockResponse = { items: [] };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.getBlockedVATLog({
         startDate: "2024-01-01",
@@ -458,7 +456,7 @@ describe("vatReturnService", () => {
         status: "review",
       };
 
-      vi.spyOn(apiClient, 'patch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "patch").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.updateStatus(1, "review");
 
@@ -474,7 +472,7 @@ describe("vatReturnService", () => {
         notes: "Updated notes",
       };
 
-      vi.spyOn(apiClient, 'patch').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "patch").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.addNotes(1, "Updated notes");
 
@@ -487,7 +485,7 @@ describe("vatReturnService", () => {
     it("should delete VAT return (draft only)", async () => {
       const mockResponse = { success: true };
 
-      vi.spyOn(apiClient, 'delete').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "delete").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.delete(1);
 
@@ -502,7 +500,7 @@ describe("vatReturnService", () => {
       const mocks = mockBrowserDownload();
 
       const mockBlob = new Blob(["PDF content"], { type: "application/pdf" });
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockBlob);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockBlob);
 
       const result = await vatReturnService.downloadPDF(1, "VAT-2024-Q1");
 
@@ -523,7 +521,7 @@ describe("vatReturnService", () => {
       const mockBlob = new Blob(["Excel content"], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockBlob);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockBlob);
 
       const result = await vatReturnService.exportExcel(1);
 
@@ -543,7 +541,7 @@ describe("vatReturnService", () => {
         averageVat: 15000,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.getAnalytics({ year: 2024 });
 
@@ -560,7 +558,7 @@ describe("vatReturnService", () => {
         warnings: [],
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.validate(1);
 
@@ -578,7 +576,7 @@ describe("vatReturnService", () => {
         box11Vat: 10000,
       };
 
-      vi.spyOn(apiClient, 'post').mockResolvedValue(mockResponse);
+      vi.spyOn(apiClient, "post").mockResolvedValue(mockResponse);
 
       const result = await vatReturnService.recalculate(1);
 
@@ -589,7 +587,7 @@ describe("vatReturnService", () => {
 
   describe("Multi-tenancy", () => {
     it("should maintain company context", async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValue({
+      vi.spyOn(apiClient, "get").mockResolvedValue({
         data: [{ id: 1, companyId: 1 }],
       });
 
@@ -607,7 +605,7 @@ describe("vatReturnService", () => {
         box3Vat: 0,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await vatReturnService.getById(1);
 
@@ -621,7 +619,7 @@ describe("vatReturnService", () => {
         box9Vat: 5000,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await vatReturnService.getById(1);
 
@@ -637,7 +635,7 @@ describe("vatReturnService", () => {
         box6Vat: -2500,
       };
 
-      vi.spyOn(apiClient, 'get').mockResolvedValue(mockData);
+      vi.spyOn(apiClient, "get").mockResolvedValue(mockData);
 
       const result = await vatReturnService.getById(1);
 
@@ -647,13 +645,13 @@ describe("vatReturnService", () => {
 
   describe("Error Handling", () => {
     it("should handle API errors", async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValue(new Error("API Error"));
+      vi.spyOn(apiClient, "get").mockRejectedValue(new Error("API Error"));
 
       await expect(vatReturnService.getAll()).rejects.toThrow();
     });
 
     it("should validate return data before submission", async () => {
-      vi.spyOn(apiClient, 'post').mockRejectedValue(new Error("Invalid return data"));
+      vi.spyOn(apiClient, "post").mockRejectedValue(new Error("Invalid return data"));
 
       await expect(vatReturnService.submitReturn(1)).rejects.toThrow();
     });

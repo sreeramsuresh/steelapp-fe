@@ -2,16 +2,15 @@
  * Quotation Service Unit Tests
  * ✅ Tests CRUD operations for sales quotations
  * ✅ Tests status transitions (draft → approved → expired)
-* ✅ Tests conversion to invoice workflow
+ * ✅ Tests conversion to invoice workflow
  * ✅ Tests PDF generation
  * ✅ 100% coverage target for quotationService.js
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { apiClient } from "../api.js";
 import { apiService } from "../axiosApi.js";
 import { quotationService } from "../quotationService.js";
-import { apiClient } from "../api.js";
 
 describe("quotationService", () => {
   let getStub;
@@ -21,11 +20,11 @@ describe("quotationService", () => {
   let patchStub;
   beforeEach(() => {
     vi.restoreAllMocks();
-    getStub = vi.spyOn(apiClient, 'get');
-    postStub = vi.spyOn(apiClient, 'post');
-    putStub = vi.spyOn(apiClient, 'put');
-    deleteStub = vi.spyOn(apiClient, 'delete');
-    patchStub = vi.spyOn(apiClient, 'patch');
+    getStub = vi.spyOn(apiClient, "get");
+    postStub = vi.spyOn(apiClient, "post");
+    putStub = vi.spyOn(apiClient, "put");
+    deleteStub = vi.spyOn(apiClient, "delete");
+    patchStub = vi.spyOn(apiClient, "patch");
   });
 
   describe("getAll", () => {
@@ -245,7 +244,7 @@ describe("quotationService", () => {
       document.body.appendChild = vi.fn();
       document.body.removeChild = vi.fn();
 
-      vi.spyOn(apiService, 'request').mockResolvedValue(mockBlob);
+      vi.spyOn(apiService, "request").mockResolvedValue(mockBlob);
 
       await quotationService.downloadPDF(1);
 
@@ -257,7 +256,7 @@ describe("quotationService", () => {
     });
 
     it("should handle PDF download errors", async () => {
-      vi.spyOn(apiService, 'request').mockRejectedValue(new Error("PDF generation failed"));
+      vi.spyOn(apiService, "request").mockRejectedValue(new Error("PDF generation failed"));
 
       await expect(quotationService.downloadPDF(999)).rejects.toThrow();
     });

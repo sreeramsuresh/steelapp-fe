@@ -1,19 +1,12 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
+import { describe, expect, it, vi } from "vitest";
 import DatasetTabs from "../DatasetTabs";
 
 describe("DatasetTabs", () => {
   const modules = ["SALES", "PURCHASES", "INVENTORY"];
 
   it("renders all module tabs", () => {
-    render(
-      <DatasetTabs
-        modules={modules}
-        activeModule="SALES"
-        onModuleChange={vi.fn()}
-      />
-    );
+    render(<DatasetTabs modules={modules} activeModule="SALES" onModuleChange={vi.fn()} />);
     expect(screen.getByText("Sales")).toBeInTheDocument();
     expect(screen.getByText("Purchases")).toBeInTheDocument();
     expect(screen.getByText("Inventory")).toBeInTheDocument();
@@ -21,13 +14,7 @@ describe("DatasetTabs", () => {
 
   it("calls onModuleChange when tab is clicked", () => {
     const onChange = vi.fn();
-    render(
-      <DatasetTabs
-        modules={modules}
-        activeModule="SALES"
-        onModuleChange={onChange}
-      />
-    );
+    render(<DatasetTabs modules={modules} activeModule="SALES" onModuleChange={onChange} />);
     screen.getByText("Purchases").click();
     expect(onChange).toHaveBeenCalledWith("PURCHASES");
   });
@@ -47,24 +34,13 @@ describe("DatasetTabs", () => {
 
   it("does not show badge for zero count", () => {
     render(
-      <DatasetTabs
-        modules={["SALES"]}
-        activeModule="SALES"
-        onModuleChange={vi.fn()}
-        recordCounts={{ SALES: 0 }}
-      />
+      <DatasetTabs modules={["SALES"]} activeModule="SALES" onModuleChange={vi.fn()} recordCounts={{ SALES: 0 }} />
     );
     expect(screen.queryByText("0")).not.toBeInTheDocument();
   });
 
   it("renders VAT and BANK modules", () => {
-    render(
-      <DatasetTabs
-        modules={["VAT", "BANK"]}
-        activeModule="VAT"
-        onModuleChange={vi.fn()}
-      />
-    );
+    render(<DatasetTabs modules={["VAT", "BANK"]} activeModule="VAT" onModuleChange={vi.fn()} />);
     expect(screen.getByText("VAT")).toBeInTheDocument();
     expect(screen.getByText("Bank")).toBeInTheDocument();
   });

@@ -1,8 +1,7 @@
-import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import React from "react";
-import WidgetSkeleton from "../WidgetSkeleton";
+import { describe, expect, it } from "vitest";
 import { ThemeProvider } from "../../../contexts/ThemeContext";
+import WidgetSkeleton from "../WidgetSkeleton";
 
 function renderWithTheme(ui) {
   return render(<ThemeProvider>{ui}</ThemeProvider>);

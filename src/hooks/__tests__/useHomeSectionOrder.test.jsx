@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../services/userPreferencesService", () => ({
   userPreferencesService: {
@@ -36,15 +36,11 @@ describe("useHomeSectionOrder", () => {
   });
 
   it("loads saved order from preferences on mount", () => {
-    mockService.getHomeSectionOrder.mockReturnValue(
-      ["recentItems", "quickAccess", "createNew", "integritySummary"]
-    );
+    mockService.getHomeSectionOrder.mockReturnValue(["recentItems", "quickAccess", "createNew", "integritySummary"]);
 
     const { result } = renderHook(() => useHomeSectionOrder());
 
-    expect(result.current.sectionOrder).toEqual(
-      ["recentItems", "quickAccess", "createNew", "integritySummary"]
-    );
+    expect(result.current.sectionOrder).toEqual(["recentItems", "quickAccess", "createNew", "integritySummary"]);
   });
 
   it("validates and fills missing sections", () => {
@@ -52,15 +48,11 @@ describe("useHomeSectionOrder", () => {
 
     const { result } = renderHook(() => useHomeSectionOrder());
 
-    expect(result.current.sectionOrder).toEqual(
-      ["quickAccess", "createNew", "recentItems", "integritySummary"]
-    );
+    expect(result.current.sectionOrder).toEqual(["quickAccess", "createNew", "recentItems", "integritySummary"]);
   });
 
   it("filters invalid sections", () => {
-    mockService.getHomeSectionOrder.mockReturnValue(
-      ["quickAccess", "invalidSection", "createNew"]
-    );
+    mockService.getHomeSectionOrder.mockReturnValue(["quickAccess", "invalidSection", "createNew"]);
 
     const { result } = renderHook(() => useHomeSectionOrder());
 

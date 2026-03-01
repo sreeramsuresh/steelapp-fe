@@ -36,7 +36,14 @@ vi.mock("../../contexts/NotificationCenterContext", () => ({
 }));
 vi.mock("../../services/axiosApi", () => ({
   default: { post: vi.fn(), get: vi.fn() },
-  apiService: { get: vi.fn().mockResolvedValue({ warehouses: [] }), post: vi.fn(), put: vi.fn(), delete: vi.fn(), setAuthToken: vi.fn(), removeAuthToken: vi.fn() },
+  apiService: {
+    get: vi.fn().mockResolvedValue({ warehouses: [] }),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+    setAuthToken: vi.fn(),
+    removeAuthToken: vi.fn(),
+  },
 }));
 
 describe("InventoryList", () => {
