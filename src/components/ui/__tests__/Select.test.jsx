@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 // The Select component is a Radix UI primitive (SelectPrimitive.Root).
 // Test the named exports: Select, SelectTrigger, SelectContent, SelectItem, SelectValue
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../Select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../select";
 
 describe("Select", () => {
   it("should render select", () => {
