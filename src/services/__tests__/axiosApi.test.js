@@ -54,29 +54,20 @@ describe("axiosApi", () => {
 
   describe("tokenUtils", () => {
     beforeEach(() => {
-      // Clear cookies and sessionStorage
-      Object.defineProperty(document, "cookie", {
-        writable: true,
-        value: "",
-      });
+      sessionStorage.clear();
     });
 
-    it("should set and get token", () => {
-      tokenUtils.setToken("access-token-123");
-      // Token is stored in cookies via document.cookie
-      expect(document.cookie).toContain("accessToken");
+    it("should have setToken as a no-op (cookies set by server)", () => {
+      // setToken is a no-op — HttpOnly cookies are set by the server via Set-Cookie headers
+      expect(() => tokenUtils.setToken("access-token-123")).not.toThrow();
     });
 
-    it("should set refresh token", () => {
-      tokenUtils.setRefreshToken("refresh-token-456");
-      expect(document.cookie).toContain("refreshToken");
+    it("should have setRefreshToken as a no-op (cookies set by server)", () => {
+      expect(() => tokenUtils.setRefreshToken("refresh-token-456")).not.toThrow();
     });
 
-    it("should not set token when falsy", () => {
-      const before = document.cookie;
-      tokenUtils.setToken(null);
-      // No new cookie should be set
-      expect(document.cookie).toBe(before);
+    it("should not throw when setting falsy token", () => {
+      expect(() => tokenUtils.setToken(null)).not.toThrow();
     });
 
     it("should store user data in sessionStorage", () => {
