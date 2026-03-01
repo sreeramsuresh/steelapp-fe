@@ -323,17 +323,12 @@ describe("Multi-Tenancy Security - Data Isolation", () => {
         const [currentCompanyId] = React.useState("COMPANY-A");
         const [auditLog, setAuditLog] = React.useState([]);
 
-        const handleAccessAttempt = (requestedCompanyId) => {
-          if (requestedCompanyId !== currentCompanyId) {
-            const violation = `SECURITY VIOLATION: User from ${currentCompanyId} attempted to access ${requestedCompanyId} data`;
-            setAuditLog([...auditLog, violation]);
-          }
-        };
-
         React.useEffect(() => {
-          handleAccessAttempt("COMPANY-B");
-          // biome-ignore lint/correctness/useExhaustiveDependencies: Test fixture - handleAccessAttempt is stable
-        }, [handleAccessAttempt]);
+          setAuditLog((prev) => [
+            ...prev,
+            `SECURITY VIOLATION: User from ${currentCompanyId} attempted to access COMPANY-B data`,
+          ]);
+        }, [currentCompanyId]);
 
         return (
           <div className="alert-error">

@@ -14,8 +14,9 @@ describe("Database Integrity & Data Consistency", () => {
         // Simulating database constraint check
         const [validationErrors, setValidationErrors] = React.useState([]);
 
-        const checkReferentialIntegrity = (invoice) => {
+        React.useEffect(() => {
           const errors = [];
+          const invoice = { id: 1, customerId: null, companyId: "COMPANY-A" };
           if (!invoice.customerId) {
             errors.push("FK Constraint: Invoice must have valid customer_id");
           }
@@ -23,17 +24,7 @@ describe("Database Integrity & Data Consistency", () => {
             errors.push("FK Constraint: Invoice must have valid company_id");
           }
           setValidationErrors(errors);
-        };
-
-        React.useEffect(() => {
-          // Try to save orphaned invoice
-          checkReferentialIntegrity({
-            id: 1,
-            customerId: null,
-            companyId: "COMPANY-A",
-          });
-          // biome-ignore lint/correctness/useExhaustiveDependencies: Test fixture - checkReferentialIntegrity is stable
-        }, [checkReferentialIntegrity]);
+        }, []);
 
         return (
           <>

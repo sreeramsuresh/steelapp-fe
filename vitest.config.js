@@ -16,6 +16,11 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     pool: "forks",
+    poolOptions: {
+      forks: {
+        memoryLimit: "2048MB",
+      },
+    },
     fileParallelism: false,
     testTimeout: 30000,
     hookTimeout: 30000,
