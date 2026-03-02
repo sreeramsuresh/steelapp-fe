@@ -184,69 +184,6 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
       ],
     },
 
-    // 4b. HR
-    {
-      section: "HR",
-      items: [
-        {
-          name: "Employees",
-          path: "/app/employees-hub",
-          icon: Users,
-          description: "Employees, departments & designations",
-          requiredPermission: "employees.read",
-        },
-        {
-          name: "Cost Centers",
-          path: "/app/cost-centers-hub",
-          icon: Landmark,
-          description: "Cost centers & budgets",
-          requiredPermission: "cost_centers.read",
-        },
-      ],
-    },
-
-    // 4c. PAYROLL
-    {
-      section: "Payroll",
-      items: [
-        {
-          name: "Payroll",
-          path: "/app/payroll-hub",
-          icon: Calculator,
-          description: "Payroll runs, structures & components",
-          requiredPermission: "payroll.read",
-        },
-        {
-          name: "Employee Finance",
-          path: "/app/employee-finance",
-          icon: HandCoins,
-          description: "Advances & loans",
-          requiredPermission: "employee_advances.read",
-        },
-      ],
-    },
-
-    // 4d. EXPENSES
-    {
-      section: "Expenses",
-      items: [
-        {
-          name: "Expenses",
-          path: "/app/expenses-hub",
-          icon: Receipt,
-          description: "Operating, recurring & categories",
-          requiredPermission: "expenses.read",
-        },
-        {
-          name: "Expense Config",
-          path: "/app/expense-config",
-          icon: Settings,
-          description: "Policies & approval chains",
-          requiredRoles: ["admin", "manager"],
-        },
-      ],
-    },
-
     // 5. INVENTORY (operational only - removed Batch Analytics)
     {
       section: "Inventory",
@@ -292,6 +229,69 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           icon: Container,
           description: "Manage import containers and landed costs",
           requiredPermission: "import_containers.read",
+        },
+      ],
+    },
+
+    // 6b. HR
+    {
+      section: "HR",
+      items: [
+        {
+          name: "Employees",
+          path: "/app/employees-hub",
+          icon: Users,
+          description: "Employees, departments & designations",
+          requiredPermission: "employees.read",
+        },
+        {
+          name: "Cost Centers",
+          path: "/app/cost-centers-hub",
+          icon: Landmark,
+          description: "Cost centers & budgets",
+          requiredPermission: "cost_centers.read",
+        },
+      ],
+    },
+
+    // 6c. PAYROLL
+    {
+      section: "Payroll",
+      items: [
+        {
+          name: "Payroll",
+          path: "/app/payroll-hub",
+          icon: Calculator,
+          description: "Payroll runs, structures & components",
+          requiredPermission: "payroll.read",
+        },
+        {
+          name: "Employee Finance",
+          path: "/app/employee-finance",
+          icon: HandCoins,
+          description: "Advances & loans",
+          requiredPermission: "employee_advances.read",
+        },
+      ],
+    },
+
+    // 6d. EXPENSES
+    {
+      section: "Expenses",
+      items: [
+        {
+          name: "Expenses",
+          path: "/app/expenses-hub",
+          icon: Receipt,
+          description: "Operating, recurring & categories",
+          requiredPermission: "expenses.read",
+        },
+        {
+          name: "Expense Config",
+          path: "/app/expense-config",
+          icon: Settings,
+          description: "Policies & approval chains",
+          requiredRoles: ["admin", "manager"],
         },
       ],
     },
