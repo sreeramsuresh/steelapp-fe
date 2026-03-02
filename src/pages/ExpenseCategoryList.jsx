@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { expenseCategoryService } from "../services/expenseCategoryService";
+import { financialreportsService } from "../services/financialReportsService";
 
 const EXPENSE_GROUPS = ["TRAVEL", "OFFICE", "UTILITIES", "PROFESSIONAL", "MARKETING", "OTHER"];
 const VAT_TREATMENTS = ["STANDARD", "ZERO_RATED", "EXEMPT", "OUT_OF_SCOPE"];
@@ -12,6 +13,7 @@ const ExpenseCategoryList = () => {
   const [editingId, setEditingId] = useState(null);
   const [filterGroup, setFilterGroup] = useState("");
   const [filterVat, setFilterVat] = useState("");
+  const [glAccounts, setGlAccounts] = useState([]);
   const [form, setForm] = useState({
     code: "",
     name: "",
@@ -41,11 +43,28 @@ const ExpenseCategoryList = () => {
     fetchCategories();
   }, [fetchCategories]);
 
+  useEffect(() => {
+    const fetchGlAccounts = async () => {
+      try {
+        const res = await financialreportsService.getChartOfAccounts({ type: "expense" });
+        const data = res?.data || res || {};
+        const accounts = (data.accounts || []).map((a) => ({
+          code: a.accountCode || a.code,
+          name: a.accountName || a.name,
+        }));
+        setGlAccounts(accounts);
+      } catch (_err) {
+        // GL accounts are optional — fail silently
+      }
+    };
+    fetchGlAccounts();
+  }, []);
+
   const resetForm = () => {
     setForm({
       code: "",
       name: "",
-      glAccountCode: "",
+      glAccountCode: glAccounts.length === 1 ? glAccounts[0].code : "",
       expenseGroup: "",
       vatTreatment: "STANDARD",
       receiptThreshold: "",
@@ -189,12 +208,18 @@ const ExpenseCategoryList = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 GL Account
-                <input
-                  type="text"
+                <select
                   value={form.glAccountCode}
                   onChange={(e) => setForm({ ...form, glAccountCode: e.target.value })}
                   className="w-full px-3 py-2 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                />
+                >
+                  <option value="">Select GL Account...</option>
+                  {glAccounts.map((a) => (
+                    <option key={a.code} value={a.code}>
+                      {a.code} - {a.name}
+                    </option>
+                  ))}
+                </select>
               </label>
             </div>
             <div>
@@ -304,7 +329,13 @@ const ExpenseCategoryList = () => {
                 <tr key={cat.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{cat.code}</td>
                   <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{cat.name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{cat.glAccountCode || "-"}</td>
+                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                    {cat.glAccountCode
+                      ? glAccounts.find((a) => a.code === cat.glAccountCode)
+                        ? `${cat.glAccountCode} - ${glAccounts.find((a) => a.code === cat.glAccountCode).name}`
+                        : cat.glAccountCode
+                      : "-"}
+                  </td>
                   <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{cat.expenseGroup || "-"}</td>
                   <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                     {(cat.vatTreatment || "-").replace(/_/g, " ")}

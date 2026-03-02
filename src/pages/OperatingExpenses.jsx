@@ -77,7 +77,7 @@ const StatusPill = ({ status }) => {
 const INITIAL_FORM = {
   expense_date: toUAEDateForInput(new Date()),
   expense_type: "RENT",
-  category_code: "",
+  categoryCode: "",
   amount: "",
   currency: "AED",
   narration: "",
@@ -129,10 +129,18 @@ const OperatingExpenses = () => {
     const fetchCategories = async () => {
       try {
         const result = await financialreportsService.getChartOfAccounts({ type: "expense" });
-        setCategories(result?.accounts || result || []);
+        const accounts = (result?.accounts || result || []).map((a) => ({
+          code: a.accountCode || a.code,
+          name: a.accountName || a.name,
+          ...a,
+        }));
+        setCategories(accounts);
+        // Auto-set categoryCode when there's only one expense account
+        if (accounts.length === 1) {
+          setFormData((prev) => (prev.categoryCode ? prev : { ...prev, categoryCode: accounts[0].code }));
+        }
       } catch (err) {
         console.warn("Failed to load chart of accounts for categories:", err);
-        // Set some default categories if API fails
         setCategories([]);
       }
     };
@@ -177,7 +185,11 @@ const OperatingExpenses = () => {
 
   // Form handlers
   const openCreateModal = () => {
-    setFormData({ ...INITIAL_FORM });
+    setFormData({
+      ...INITIAL_FORM,
+      // Auto-set category when there's only one GL account
+      categoryCode: categories.length === 1 ? categories[0].code : "",
+    });
     setEditingId(null);
     setModalMode("create");
     setFormErrors({});
@@ -188,7 +200,7 @@ const OperatingExpenses = () => {
     setFormData({
       expense_date: expense.expenseDate ? expense.expenseDate.slice(0, 10) : "",
       expense_type: expense.expenseType || "RENT",
-      category_code: expense.categoryCode || "",
+      categoryCode: expense.categoryCode || "",
       amount: expense.amount || "",
       currency: expense.currency || "AED",
       narration: expense.narration || "",
@@ -206,7 +218,7 @@ const OperatingExpenses = () => {
     setFormData({
       expense_date: expense.expenseDate ? expense.expenseDate.slice(0, 10) : "",
       expense_type: expense.expenseType || "RENT",
-      category_code: expense.categoryCode || "",
+      categoryCode: expense.categoryCode || "",
       amount: expense.amount || "",
       currency: expense.currency || "AED",
       narration: expense.narration || "",
@@ -230,7 +242,7 @@ const OperatingExpenses = () => {
     const errors = {};
     if (!formData.expense_date) errors.expense_date = "Expense date is required";
     if (!formData.expense_type) errors.expense_type = "Expense type is required";
-    if (!formData.category_code) errors.category_code = "Category is required";
+    if (!formData.categoryCode) errors.categoryCode = "Category is required";
     if (!formData.amount || Number(formData.amount) <= 0) errors.amount = "Amount must be greater than 0";
     return errors;
   };
@@ -695,7 +707,14 @@ const OperatingExpenses = () => {
                 ) : (
                   <FormSelect
                     value={formData.expense_type}
-                    onValueChange={(value) => setFormData((prev) => ({ ...prev, expense_type: value }))}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        expense_type: value,
+                        // Auto-set category when there's only one GL account
+                        categoryCode: categories.length === 1 ? categories[0].code : prev.categoryCode,
+                      }))
+                    }
                     showValidation={false}
                   >
                     {EXPENSE_TYPES.map((t) => (
@@ -714,14 +733,14 @@ const OperatingExpenses = () => {
                 </label>
                 {modalMode === "view" ? (
                   <div className="px-3 py-2 rounded border dark:border-gray-600 dark:bg-gray-800 opacity-70">
-                    {formData.category_code || "-"}
+                    {formData.categoryCode || "-"}
                   </div>
                 ) : categories.length > 0 ? (
                   <>
                     <FormSelect
-                      value={formData.category_code || "__NONE__"}
+                      value={formData.categoryCode || "__NONE__"}
                       onValueChange={(value) =>
-                        setFormData((prev) => ({ ...prev, category_code: value === "__NONE__" ? "" : value }))
+                        setFormData((prev) => ({ ...prev, categoryCode: value === "__NONE__" ? "" : value }))
                       }
                       showValidation={false}
                       placeholder="Select Category..."
@@ -733,25 +752,21 @@ const OperatingExpenses = () => {
                         </SelectItem>
                       ))}
                     </FormSelect>
-                    {formErrors.category_code && (
-                      <p className="text-xs text-red-500 mt-1">{formErrors.category_code}</p>
-                    )}
+                    {formErrors.categoryCode && <p className="text-xs text-red-500 mt-1">{formErrors.categoryCode}</p>}
                   </>
                 ) : (
                   <>
                     <input
                       type="text"
                       id="opex-category-code"
-                      value={formData.category_code}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, category_code: e.target.value }))}
+                      value={formData.categoryCode}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, categoryCode: e.target.value }))}
                       placeholder="e.g., 5010"
                       className={`w-full px-3 py-2 rounded border ${
-                        formErrors.category_code ? "border-red-500" : "dark:border-gray-600"
+                        formErrors.categoryCode ? "border-red-500" : "dark:border-gray-600"
                       } dark:bg-gray-800 dark:text-gray-200`}
                     />
-                    {formErrors.category_code && (
-                      <p className="text-xs text-red-500 mt-1">{formErrors.category_code}</p>
-                    )}
+                    {formErrors.categoryCode && <p className="text-xs text-red-500 mt-1">{formErrors.categoryCode}</p>}
                   </>
                 )}
               </div>

@@ -1,5 +1,6 @@
 import { Pencil, Plus, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { financialreportsService } from "../services/financialReportsService";
 import { salaryComponentService } from "../services/salaryComponentService";
 
 const COMPONENT_TYPES = ["EARNING", "DEDUCTION", "EMPLOYER_CONTRIBUTION"];
@@ -25,6 +26,7 @@ const SalaryComponentList = () => {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ ...emptyForm });
   const [filterType, setFilterType] = useState("");
+  const [glAccounts, setGlAccounts] = useState([]);
 
   const fetchComponents = useCallback(async () => {
     try {
@@ -43,8 +45,29 @@ const SalaryComponentList = () => {
     fetchComponents();
   }, [fetchComponents]);
 
+  useEffect(() => {
+    const fetchGlAccounts = async () => {
+      try {
+        const res = await financialreportsService.getChartOfAccounts({});
+        const data = res?.data || res || {};
+        const accounts = (data.accounts || []).map((a) => ({
+          id: a.id || a.accountId,
+          code: a.accountCode || a.code,
+          name: a.accountName || a.name,
+        }));
+        setGlAccounts(accounts);
+      } catch (_err) {
+        // GL accounts are optional — fail silently
+      }
+    };
+    fetchGlAccounts();
+  }, []);
+
   const openCreate = () => {
-    setForm({ ...emptyForm });
+    setForm({
+      ...emptyForm,
+      glAccountId: glAccounts.length === 1 ? String(glAccounts[0].id) : "",
+    });
     setEditingId(null);
     setModalOpen(true);
   };
@@ -192,7 +215,13 @@ const SalaryComponentList = () => {
                   <td className="px-4 py-3 text-sm text-center">{c.isTaxable ? "Yes" : "No"}</td>
                   <td className="px-4 py-3 text-sm text-center">{c.isFixed ? "Fixed" : "Variable"}</td>
                   <td className="px-4 py-3 text-sm text-gray-600">{c.calculationType}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{c.glAccountId || "-"}</td>
+                  <td className="px-4 py-3 text-sm text-gray-600">
+                    {c.glAccountId
+                      ? glAccounts.find((a) => String(a.id) === String(c.glAccountId))
+                        ? `${glAccounts.find((a) => String(a.id) === String(c.glAccountId)).code} - ${glAccounts.find((a) => String(a.id) === String(c.glAccountId)).name}`
+                        : c.glAccountId
+                      : "-"}
+                  </td>
                   <td className="px-4 py-3 text-sm text-center">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${c.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`}
@@ -297,13 +326,19 @@ const SalaryComponentList = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  GL Account ID
-                  <input
-                    type="number"
+                  GL Account
+                  <select
                     value={form.glAccountId}
                     onChange={(e) => setForm((f) => ({ ...f, glAccountId: e.target.value }))}
                     className="w-full border rounded-lg px-3 py-2 text-sm"
-                  />
+                  >
+                    <option value="">Select GL Account...</option>
+                    {glAccounts.map((a) => (
+                      <option key={a.id || a.code} value={a.id || a.code}>
+                        {a.code} - {a.name}
+                      </option>
+                    ))}
+                  </select>
                 </label>
               </div>
               <div>
