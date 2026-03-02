@@ -72,6 +72,35 @@ const Receivables = lazy(() => import("../pages/Receivables"));
 const Payables = lazy(() => import("../pages/Payables"));
 const OperatingExpenses = lazy(() => import("../pages/OperatingExpenses"));
 
+// HR & Payroll Components
+const DepartmentList = lazy(() => import("../pages/DepartmentList"));
+const CostCenterList = lazy(() => import("../pages/CostCenterList"));
+const DesignationList = lazy(() => import("../pages/DesignationList"));
+const EmployeeList = lazy(() => import("../pages/EmployeeList"));
+const EmployeeForm = lazy(() => import("../pages/EmployeeForm"));
+const ExpenseCategoryList = lazy(() => import("../pages/ExpenseCategoryList"));
+const ExpenseApprovalChainList = lazy(() => import("../pages/ExpenseApprovalChainList"));
+const ExpensePolicyList = lazy(() => import("../pages/ExpensePolicyList"));
+const RecurringExpenseList = lazy(() => import("../pages/RecurringExpenseList"));
+const ExpenseReports = lazy(() => import("../pages/ExpenseReports"));
+const SalaryComponentList = lazy(() => import("../pages/SalaryComponentList"));
+const SalaryStructureList = lazy(() => import("../pages/SalaryStructureList"));
+const SalaryStructureForm = lazy(() => import("../pages/SalaryStructureForm"));
+const PayrollRunList = lazy(() => import("../pages/PayrollRunList"));
+const PayrollRunDetail = lazy(() => import("../pages/PayrollRunDetail"));
+const PayslipView = lazy(() => import("../pages/PayslipView"));
+const EmployeeAdvanceList = lazy(() => import("../pages/EmployeeAdvanceList"));
+const EmployeeAdvanceForm = lazy(() => import("../pages/EmployeeAdvanceForm"));
+const PayrollRegister = lazy(() => import("../pages/PayrollRegister"));
+
+// Phase 4: Reports & Analytics
+const CostCenterPnL = lazy(() => import("../pages/CostCenterPnL"));
+const BudgetVsActual = lazy(() => import("../pages/BudgetVsActual"));
+const ExpenseTrendReport = lazy(() => import("../pages/ExpenseTrendReport"));
+const PayrollRegisterReport = lazy(() => import("../pages/PayrollRegisterReport"));
+const SalaryVsRevenueReport = lazy(() => import("../pages/SalaryVsRevenueReport"));
+const CostCenterBudgetList = lazy(() => import("../pages/CostCenterBudgetList"));
+
 // Purchases Dashboard
 const PurchasesDashboard = lazy(() => import("../pages/PurchasesDashboard"));
 
@@ -677,6 +706,224 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredPermission="payables.read">
                   <OperatingExpenses />
+                </ProtectedRoute>
+              }
+            />
+            {/* HR & Payroll Routes */}
+            <Route
+              path="departments"
+              element={
+                <ProtectedRoute user={user} requiredPermission="departments.read">
+                  <DepartmentList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="cost-centers"
+              element={
+                <ProtectedRoute user={user} requiredPermission="cost_centers.read">
+                  <CostCenterList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="designations"
+              element={
+                <ProtectedRoute user={user} requiredPermission="designations.read">
+                  <DesignationList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="employees"
+              element={
+                <ProtectedRoute user={user} requiredPermission="employees.read">
+                  <EmployeeList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="employees/new"
+              element={
+                <ProtectedRoute user={user} requiredPermission="employees.create">
+                  <EmployeeForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="employees/:id/edit"
+              element={
+                <ProtectedRoute user={user} requiredPermission="employees.update">
+                  <EmployeeForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="expense-categories"
+              element={
+                <ProtectedRoute user={user} requiredPermission="expense_categories.read">
+                  <ExpenseCategoryList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="expense-approval-chains"
+              element={
+                <ProtectedRoute user={user} requiredRoles={["admin"]}>
+                  <ExpenseApprovalChainList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="expense-policies"
+              element={
+                <ProtectedRoute user={user} requiredRoles={["admin"]}>
+                  <ExpensePolicyList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="recurring-expenses"
+              element={
+                <ProtectedRoute user={user} requiredPermission="expenses.read">
+                  <RecurringExpenseList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="expense-reports"
+              element={
+                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
+                  <ExpenseReports />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="salary-components"
+              element={
+                <ProtectedRoute user={user} requiredPermission="salary_components.read">
+                  <SalaryComponentList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="salary-structures"
+              element={
+                <ProtectedRoute user={user} requiredPermission="salary_structures.read">
+                  <SalaryStructureList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="salary-structures/new"
+              element={
+                <ProtectedRoute user={user} requiredPermission="salary_structures.create">
+                  <SalaryStructureForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="salary-structures/:id"
+              element={
+                <ProtectedRoute user={user} requiredPermission="salary_structures.read">
+                  <SalaryStructureForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="payroll-runs"
+              element={
+                <ProtectedRoute user={user} requiredPermission="payroll.read">
+                  <PayrollRunList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="payroll-runs/:id"
+              element={
+                <ProtectedRoute user={user} requiredPermission="payroll.read">
+                  <PayrollRunDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="payroll-runs/:id/payslip/:entryId"
+              element={
+                <ProtectedRoute user={user} requiredPermission="payroll.read">
+                  <PayslipView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="employee-advances"
+              element={
+                <ProtectedRoute user={user} requiredPermission="employee_advances.read">
+                  <EmployeeAdvanceList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="employee-advances/new"
+              element={
+                <ProtectedRoute user={user} requiredPermission="employee_advances.create">
+                  <EmployeeAdvanceForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="payroll-register"
+              element={
+                <ProtectedRoute user={user} requiredPermission="payroll_reports.read">
+                  <PayrollRegister />
+                </ProtectedRoute>
+              }
+            />
+            {/* Phase 4: Reports & Analytics Routes */}
+            <Route
+              path="reports/cost-center-pnl"
+              element={
+                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
+                  <CostCenterPnL />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="reports/budget-vs-actual"
+              element={
+                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
+                  <BudgetVsActual />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="reports/expense-trends"
+              element={
+                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
+                  <ExpenseTrendReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="reports/payroll-register"
+              element={
+                <ProtectedRoute user={user} requiredPermission="payroll_reports.read">
+                  <PayrollRegisterReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="reports/salary-vs-revenue"
+              element={
+                <ProtectedRoute user={user} requiredPermission="payroll_reports.read">
+                  <SalaryVsRevenueReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="cost-center-budgets"
+              element={
+                <ProtectedRoute user={user} requiredPermission="cost_centers.read">
+                  <CostCenterBudgetList />
                 </ProtectedRoute>
               }
             />
