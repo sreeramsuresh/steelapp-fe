@@ -135,9 +135,9 @@ const SalesAgentsManagement = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredAgents.map((agent) => (
+          {filteredAgents.map((agent, index) => (
             <div
-              key={agent.id}
+              key={agent.id || agent.userId || index}
               className={`rounded-lg p-6 border ${
                 isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
               } hover:shadow-lg transition-shadow`}

@@ -540,7 +540,7 @@ const CommissionDashboard = () => {
                   ) : (
                     dashboardData.topAgents.slice(0, 5).map((agent, index) => (
                       <div
-                        key={agent.id}
+                        key={agent.id || agent.userId || index}
                         className={`flex items-center justify-between p-4 rounded-lg ${
                           isDarkMode ? "bg-gray-700" : "bg-gray-50"
                         }`}
@@ -651,8 +651,11 @@ const CommissionDashboard = () => {
                         </td>
                       </tr>
                     ) : (
-                      dashboardData.recentTransactions.map((transaction) => (
-                        <tr key={transaction.id} className={isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
+                      dashboardData.recentTransactions.map((transaction, index) => (
+                        <tr
+                          key={transaction.id || index}
+                          className={isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}
+                        >
                           <td
                             className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}
                           >

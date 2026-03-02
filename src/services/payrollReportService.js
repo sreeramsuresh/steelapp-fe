@@ -6,5 +6,6 @@ export const payrollReportService = {
     await apiClient.get("/reports/payroll/department-summary", {
       params: { month, year },
     }),
+  getSalaryVsRevenue: async (params) => await apiClient.get("/reports/payroll/salary-vs-revenue", { params }),
   getCostTrend: async () => await apiClient.get("/reports/payroll/cost-trend"),
 };
