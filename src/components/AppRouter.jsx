@@ -72,6 +72,14 @@ const Receivables = lazy(() => import("../pages/Receivables"));
 const Payables = lazy(() => import("../pages/Payables"));
 const OperatingExpenses = lazy(() => import("../pages/OperatingExpenses"));
 
+// HR & Payroll Hub Pages
+const EmployeesHub = lazy(() => import("../pages/EmployeesHub"));
+const CostCentersHub = lazy(() => import("../pages/CostCentersHub"));
+const PayrollHub = lazy(() => import("../pages/PayrollHub"));
+const EmployeeFinanceHub = lazy(() => import("../pages/EmployeeFinanceHub"));
+const ExpensesHub = lazy(() => import("../pages/ExpensesHub"));
+const ExpenseConfigHub = lazy(() => import("../pages/ExpenseConfigHub"));
+
 // HR & Payroll Components
 const DepartmentList = lazy(() => import("../pages/DepartmentList"));
 const CostCenterList = lazy(() => import("../pages/CostCenterList"));
@@ -710,6 +718,56 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
                 </ProtectedRoute>
               }
             />
+            {/* ===== HR, PAYROLL & EXPENSE HUBS ===== */}
+            <Route
+              path="employees-hub"
+              element={
+                <ProtectedRoute user={user} requiredPermission="employees.read">
+                  <EmployeesHub />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="cost-centers-hub"
+              element={
+                <ProtectedRoute user={user} requiredPermission="cost_centers.read">
+                  <CostCentersHub />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="payroll-hub"
+              element={
+                <ProtectedRoute user={user} requiredPermission="payroll.read">
+                  <PayrollHub />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="employee-finance"
+              element={
+                <ProtectedRoute user={user} requiredPermission="employee_advances.read">
+                  <EmployeeFinanceHub />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="expenses-hub"
+              element={
+                <ProtectedRoute user={user} requiredPermission="expenses.read">
+                  <ExpensesHub />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="expense-config"
+              element={
+                <ProtectedRoute user={user} requiredRoles={["admin", "manager"]}>
+                  <ExpenseConfigHub />
+                </ProtectedRoute>
+              }
+            />
+
             {/* HR & Payroll Routes */}
             <Route
               path="departments"
@@ -791,14 +849,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="expense-reports"
-              element={
-                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
-                  <ExpenseReports />
-                </ProtectedRoute>
-              }
-            />
+            {/* expense-reports moved to analytics — redirect added below */}
             <Route
               path="salary-components"
               element={
@@ -887,47 +938,13 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
                 </ProtectedRoute>
               }
             />
-            {/* Phase 4: Reports & Analytics Routes */}
-            <Route
-              path="reports/cost-center-pnl"
-              element={
-                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
-                  <CostCenterPnL />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="reports/budget-vs-actual"
-              element={
-                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
-                  <BudgetVsActual />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="reports/expense-trends"
-              element={
-                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
-                  <ExpenseTrendReport />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="reports/payroll-register"
-              element={
-                <ProtectedRoute user={user} requiredPermission="payroll_reports.read">
-                  <PayrollRegisterReport />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="reports/salary-vs-revenue"
-              element={
-                <ProtectedRoute user={user} requiredPermission="payroll_reports.read">
-                  <SalaryVsRevenueReport />
-                </ProtectedRoute>
-              }
-            />
+            {/* Phase 4: Report redirects → Analytics Hub */}
+            <Route path="reports/cost-center-pnl" element={<Navigate to="/analytics/cost-center-pnl" replace />} />
+            <Route path="reports/budget-vs-actual" element={<Navigate to="/analytics/budget-vs-actual" replace />} />
+            <Route path="reports/expense-trends" element={<Navigate to="/analytics/expense-trends" replace />} />
+            <Route path="reports/payroll-register" element={<Navigate to="/analytics/payroll-register" replace />} />
+            <Route path="reports/salary-vs-revenue" element={<Navigate to="/analytics/salary-vs-revenue" replace />} />
+            <Route path="expense-reports" element={<Navigate to="/analytics/expense-reports" replace />} />
             <Route
               path="cost-center-budgets"
               element={
@@ -1521,6 +1538,56 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredPermission="analytics.read">
                   <CertificateAuditReport />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Payroll & Expense Analytics */}
+            <Route
+              path="payroll-register"
+              element={
+                <ProtectedRoute user={user} requiredPermission="payroll_reports.read">
+                  <PayrollRegisterReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="salary-vs-revenue"
+              element={
+                <ProtectedRoute user={user} requiredPermission="payroll_reports.read">
+                  <SalaryVsRevenueReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="cost-center-pnl"
+              element={
+                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
+                  <CostCenterPnL />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="budget-vs-actual"
+              element={
+                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
+                  <BudgetVsActual />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="expense-trends"
+              element={
+                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
+                  <ExpenseTrendReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="expense-reports"
+              element={
+                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
+                  <ExpenseReports />
                 </ProtectedRoute>
               }
             />

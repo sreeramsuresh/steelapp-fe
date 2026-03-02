@@ -11,6 +11,7 @@ import {
   Building2,
   ChevronDown,
   ChevronUp,
+  ClipboardList,
   Clock,
   Coins,
   DollarSign,
@@ -275,6 +276,48 @@ const AnalyticsSidebar = ({ isOpen, onToggle }) => {
           icon: BarChart3,
           description: "Per-KG normalized sell, cost, and margin analysis",
           requiredPermission: "analytics.read",
+        },
+      ],
+    },
+
+    // 7b. PAYROLL & EXPENSES
+    {
+      section: "Payroll & Expenses",
+      items: [
+        {
+          name: "Payroll Register",
+          path: "/analytics/payroll-register",
+          icon: ClipboardList,
+          description: "Detailed payroll register report",
+          requiredPermission: "payroll_reports.read",
+        },
+        {
+          name: "Salary vs Revenue",
+          path: "/analytics/salary-vs-revenue",
+          icon: TrendingUp,
+          description: "Salary cost trends and department summary",
+          requiredPermission: "payroll_reports.read",
+        },
+        {
+          name: "Cost Center P&L",
+          path: "/analytics/cost-center-pnl",
+          icon: PieChart,
+          description: "Profit & loss by cost center",
+          requiredPermission: "expense_reports.read",
+        },
+        {
+          name: "Budget vs Actual",
+          path: "/analytics/budget-vs-actual",
+          icon: BarChart3,
+          description: "Compare budgets against actual spending",
+          requiredPermission: "expense_reports.read",
+        },
+        {
+          name: "Expense Trends",
+          path: "/analytics/expense-trends",
+          icon: LineChart,
+          description: "Expense trend analysis and breakdowns",
+          requiredPermission: "expense_reports.read",
         },
       ],
     },
