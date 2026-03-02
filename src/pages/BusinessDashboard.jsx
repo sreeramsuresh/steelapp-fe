@@ -1,6 +1,7 @@
-import { Building, Calculator, Package, Users } from "lucide-react";
+import { Banknote, Building, Calculator, Package, Users } from "lucide-react";
 import { useState } from "react";
 import CustomerManagement from "../components/CustomerManagement";
+import PayrollExpenseWidgets from "../components/dashboard/PayrollExpenseWidgets";
 import PriceCalculator from "../components/PriceCalculator";
 import SteelProducts from "../components/SteelProducts";
 import { useTheme } from "../contexts/ThemeContext";
@@ -27,6 +28,12 @@ const BusinessDashboard = () => {
       label: "Price Calculator",
       icon: Calculator,
       component: PriceCalculator,
+    },
+    {
+      id: "payroll",
+      label: "Payroll & Expenses",
+      icon: Banknote,
+      component: PayrollExpenseWidgets,
     },
   ];
 

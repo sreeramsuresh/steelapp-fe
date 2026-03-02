@@ -300,7 +300,7 @@ const CommissionDashboard = () => {
                 </div>
                 <div className="p-4" style={{ height: 300 }}>
                   {(dashboardData?.trendData || []).length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="99%" height={268}>
                       <LineChart data={dashboardData.trendData}>
                         <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "#374151" : "#E5E7EB"} />
                         <XAxis
@@ -367,7 +367,7 @@ const CommissionDashboard = () => {
                 </div>
                 <div className="p-4" style={{ height: 300 }}>
                   {summary.pendingAmount || summary.approvedAmount || summary.paidAmount ? (
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="99%" height={268}>
                       <PieChart>
                         <Pie
                           data={[
@@ -457,7 +457,7 @@ const CommissionDashboard = () => {
               </div>
               <div className="p-4" style={{ height: 300 }}>
                 {(dashboardData?.topAgents || []).length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="99%" height={268}>
                     <BarChart
                       data={dashboardData.topAgents.slice(0, 8).map((a) => ({
                         name: a.fullName?.split(" ")[0] || "Agent",

@@ -91,6 +91,7 @@ const PayrollRunDetail = lazy(() => import("../pages/PayrollRunDetail"));
 const PayslipView = lazy(() => import("../pages/PayslipView"));
 const EmployeeAdvanceList = lazy(() => import("../pages/EmployeeAdvanceList"));
 const EmployeeAdvanceForm = lazy(() => import("../pages/EmployeeAdvanceForm"));
+const EmployeeLoanList = lazy(() => import("../pages/EmployeeLoanList"));
 const PayrollRegister = lazy(() => import("../pages/PayrollRegister"));
 
 // Phase 4: Reports & Analytics
@@ -867,6 +868,14 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user} requiredPermission="employee_advances.create">
                   <EmployeeAdvanceForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="employee-loans"
+              element={
+                <ProtectedRoute user={user} requiredPermission="employee_loans.read">
+                  <EmployeeLoanList />
                 </ProtectedRoute>
               }
             />
