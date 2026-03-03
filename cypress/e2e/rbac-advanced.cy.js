@@ -8,7 +8,7 @@
  * - Data-level access control
  * - Delegation workflows
  *
- * Run: npm run test:e2e -- --spec "**/rbac-advanced.cy.js"
+ * Run: npm run test:e2e -- --spec '**/rbac-advanced.cy.js'
  */
 
 describe("Role-Based Access Control Advanced - E2E Tests", () => {

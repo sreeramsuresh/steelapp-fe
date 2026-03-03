@@ -8,7 +8,7 @@
  * - Quantity adjustments
  * - Recipient signature
  *
- * Run: npm run test:e2e -- --spec "**/delivery-notes.cy.js"
+ * Run: npm run test:e2e -- --spec '**/delivery-notes.cy.js'
  */
 
 describe("Delivery Notes - E2E Tests", () => {

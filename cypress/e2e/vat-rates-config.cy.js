@@ -8,7 +8,7 @@
  * - Regional tax settings
  * - Tax exemptions and overrides
  *
- * Run: npm run test:e2e -- --spec "**/vat-rates-config.cy.js"
+ * Run: npm run test:e2e -- --spec '**/vat-rates-config.cy.js'
  */
 
 describe("VAT Rates Configuration - E2E Tests", () => {

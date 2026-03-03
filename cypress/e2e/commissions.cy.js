@@ -8,7 +8,7 @@
  * - Payment processing
  * - Commission reports
  *
- * Run: npm run test:e2e -- --spec "**/commissions.cy.js"
+ * Run: npm run test:e2e -- --spec '**/commissions.cy.js'
  */
 
 describe("Commissions Management - E2E Tests", () => {

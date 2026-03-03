@@ -8,7 +8,7 @@
  * - Weight and volume tracking
  * - Port and customs clearance
  *
- * Run: npm run test:e2e -- --spec "**/import-containers.cy.js"
+ * Run: npm run test:e2e -- --spec '**/import-containers.cy.js'
  */
 
 describe("Import Containers - E2E Tests", () => {

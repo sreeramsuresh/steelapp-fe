@@ -8,7 +8,7 @@
  * - Packing lists and manifests
  * - Customs clearance and compliance
  *
- * Run: npm run test:e2e -- --spec "**/customs-documents.cy.js"
+ * Run: npm run test:e2e -- --spec '**/customs-documents.cy.js'
  */
 
 describe("Customs Documents - E2E Tests", () => {

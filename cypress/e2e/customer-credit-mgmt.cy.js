@@ -8,7 +8,7 @@
  * - Credit suspension and restoration
  * - Credit history and aging
  *
- * Run: npm run test:e2e -- --spec "**/customer-credit-mgmt.cy.js"
+ * Run: npm run test:e2e -- --spec '**/customer-credit-mgmt.cy.js'
  */
 
 describe("Customer Credit Management - E2E Tests", () => {

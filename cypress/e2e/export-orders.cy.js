@@ -8,7 +8,7 @@
  * - Zero-rating validation
  * - Shipment tracking
  *
- * Run: npm run test:e2e -- --spec "**/export-orders.cy.js"
+ * Run: npm run test:e2e -- --spec '**/export-orders.cy.js'
  */
 
 describe("Export Orders - E2E Tests", () => {

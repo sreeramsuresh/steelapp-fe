@@ -7,7 +7,7 @@
  * - Warehouse consolidation
  * - Distributed order fulfillment
  *
- * Run: npm run test:e2e -- --spec "**/multi-warehouse-operations.cy.js"
+ * Run: npm run test:e2e -- --spec '**/multi-warehouse-operations.cy.js'
  */
 
 describe("Multi-Warehouse Operations - E2E Tests", () => {

@@ -8,7 +8,7 @@
  * - Trade agreement documentation
  * - Document validation and submission
  *
- * Run: npm run test:e2e -- --spec "**/trade-documentation.cy.js"
+ * Run: npm run test:e2e -- --spec '**/trade-documentation.cy.js'
  */
 
 describe("Trade Documentation - E2E Tests", () => {

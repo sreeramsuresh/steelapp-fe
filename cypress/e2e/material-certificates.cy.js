@@ -8,7 +8,7 @@
  * - Compliance tracking
  * - Certificate archival
  *
- * Run: npm run test:e2e -- --spec "**/material-certificates.cy.js"
+ * Run: npm run test:e2e -- --spec '**/material-certificates.cy.js'
  */
 
 describe("Material Certificates - E2E Tests", () => {

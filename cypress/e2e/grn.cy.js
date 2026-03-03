@@ -8,7 +8,7 @@
  * - Batch creation
  * - Stock updates
  *
- * Run: npm run test:e2e -- --spec "**/grn.cy.js"
+ * Run: npm run test:e2e -- --spec '**/grn.cy.js'
  */
 
 describe("Goods Receipt Notes (GRN) - E2E Tests", () => {

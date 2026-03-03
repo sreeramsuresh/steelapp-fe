@@ -8,7 +8,7 @@
  * - Volume-based pricing
  * - Currency-specific pricing
  *
- * Run: npm run test:e2e -- --spec "**/price-lists.cy.js"
+ * Run: npm run test:e2e -- --spec '**/price-lists.cy.js'
  */
 
 describe("Price Lists - E2E Tests", () => {

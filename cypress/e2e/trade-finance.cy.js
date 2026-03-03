@@ -8,7 +8,7 @@
  * - Financing document tracking
  * - LC amendment and extension
  *
- * Run: npm run test:e2e -- --spec "**/trade-finance.cy.js"
+ * Run: npm run test:e2e -- --spec '**/trade-finance.cy.js'
  */
 
 describe("Trade Finance - E2E Tests", () => {

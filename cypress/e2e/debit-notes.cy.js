@@ -8,7 +8,7 @@
  * - Customer balance adjustment
  * - GL entry creation
  *
- * Run: npm run test:e2e -- --spec "**/debit-notes.cy.js"
+ * Run: npm run test:e2e -- --spec '**/debit-notes.cy.js'
  */
 
 describe("Debit Notes - E2E Tests", () => {

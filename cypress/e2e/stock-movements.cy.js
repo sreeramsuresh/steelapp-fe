@@ -8,7 +8,7 @@
  * - Goods-in-transit tracking
  * - Movement reconciliation
  *
- * Run: npm run test:e2e -- --spec "**/stock-movements.cy.js"
+ * Run: npm run test:e2e -- --spec '**/stock-movements.cy.js'
  */
 
 describe("Stock Movements - E2E Tests", () => {

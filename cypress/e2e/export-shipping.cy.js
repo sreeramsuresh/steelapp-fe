@@ -8,7 +8,7 @@
  * - Shipment tracking and delivery
  * - Customs clearance at origin
  *
- * Run: npm run test:e2e -- --spec "**/export-shipping.cy.js"
+ * Run: npm run test:e2e -- --spec '**/export-shipping.cy.js'
  */
 
 describe("Export Shipping - E2E Tests", () => {

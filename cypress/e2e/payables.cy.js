@@ -8,7 +8,7 @@
  * - Payment scheduling
  * - Supplier disputes
  *
- * Run: npm run test:e2e -- --spec "**/payables.cy.js"
+ * Run: npm run test:e2e -- --spec '**/payables.cy.js'
  */
 
 describe("Payables Management - E2E Tests", () => {

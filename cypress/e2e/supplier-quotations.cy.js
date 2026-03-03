@@ -10,7 +10,7 @@
  * 6. Convert to Purchase Order
  * 7. Delete quotation
  *
- * Run: npm run test:e2e -- --spec "cypress/e2e/supplier-quotations.cy.js"
+ * Run: npm run test:e2e -- --spec "cypress/e2e/supplier-quotations.cy.js'
  */
 
 describe('Supplier Quotations - Critical Flows', () => {

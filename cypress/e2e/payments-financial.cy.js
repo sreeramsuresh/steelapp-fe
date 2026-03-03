@@ -8,7 +8,7 @@
  * - Payment holds and disputes
  * - Multi-currency handling
  *
- * Run: npm run test:e2e -- --spec "**/payments-financial.cy.js"
+ * Run: npm run test:e2e -- --spec '**/payments-financial.cy.js'
  */
 
 describe("Payments & Financial Operations - E2E Tests", () => {

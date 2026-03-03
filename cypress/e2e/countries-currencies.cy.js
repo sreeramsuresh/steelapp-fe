@@ -8,7 +8,7 @@
  * - Regional settings
  * - Currency conversion
  *
- * Run: npm run test:e2e -- --spec "**/countries-currencies.cy.js"
+ * Run: npm run test:e2e -- --spec '**/countries-currencies.cy.js'
  */
 
 describe("Countries & Currencies - E2E Tests", () => {

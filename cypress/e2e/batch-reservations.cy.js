@@ -8,7 +8,7 @@
  * - Reservation expiry
  * - Batch hold management
  *
- * Run: npm run test:e2e -- --spec "**/batch-reservations.cy.js"
+ * Run: npm run test:e2e -- --spec '**/batch-reservations.cy.js'
  */
 
 describe("Batch Reservations - E2E Tests", () => {

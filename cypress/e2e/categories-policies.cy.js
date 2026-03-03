@@ -8,7 +8,7 @@
  * - Pricing policies
  * - Return and warranty policies
  *
- * Run: npm run test:e2e -- --spec "**/categories-policies.cy.js"
+ * Run: npm run test:e2e -- --spec '**/categories-policies.cy.js'
  */
 
 describe("Categories & Policies - E2E Tests", () => {

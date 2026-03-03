@@ -8,7 +8,7 @@
  * - Credit limits
  * - Supplier performance
  *
- * Run: npm run test:e2e -- --spec "**/supplier-management.cy.js"
+ * Run: npm run test:e2e -- --spec '**/supplier-management.cy.js'
  */
 
 describe("Supplier Management - E2E Tests", () => {

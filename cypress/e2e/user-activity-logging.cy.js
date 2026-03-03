@@ -8,7 +8,7 @@
  * - Login/logout tracking
  * - Access logs
  *
- * Run: npm run test:e2e -- --spec "**/user-activity-logging.cy.js"
+ * Run: npm run test:e2e -- --spec '**/user-activity-logging.cy.js'
  */
 
 describe("User Activity Logging - E2E Tests", () => {

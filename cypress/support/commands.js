@@ -3,10 +3,60 @@
 // ***********************************************
 
 /**
- * Login command
- * Usage: cy.login()
+ * Login via API (fast, no UI interaction)
+ * Sets cookies, localStorage, and sessionStorage to match what the app expects.
+ * Usage: cy.login() or cy.login('user@example.com', 'password')
  */
 Cypress.Commands.add("login", (email, password) => {
+  const userEmail = email || Cypress.env("testUserEmail");
+  const userPassword = password || Cypress.env("testUserPassword");
+
+  cy.request({
+    method: "POST",
+    url: "/api/auth/login",
+    body: { email: userEmail, password: userPassword },
+    failOnStatusCode: false,
+  }).then((response) => {
+    if (response.status !== 200) {
+      cy.log(`API login failed (${response.status}), falling back to UI login`);
+      cy.loginViaUI(userEmail, userPassword);
+      return;
+    }
+
+    const { token, refreshToken, user } = response.body;
+
+    // Set cookies (NOT httpOnly — app uses document.cookie)
+    cy.setCookie("accessToken", token);
+    cy.setCookie("refreshToken", refreshToken);
+
+    // Set localStorage (matches authService.js)
+    window.localStorage.setItem("steel-app-token", token);
+    window.localStorage.setItem("token", token);
+    window.localStorage.setItem("steel-app-refresh-token", refreshToken);
+
+    // Set sessionStorage (matches axiosApi.js response interceptor)
+    window.sessionStorage.setItem("userId", String(user.id));
+    window.sessionStorage.setItem("userEmail", user.email);
+    window.sessionStorage.setItem("userRole", user.role);
+    window.sessionStorage.setItem("userName", user.name);
+    window.sessionStorage.setItem("userCompanyId", String(user.companyId));
+    if (user.permissions) {
+      window.sessionStorage.setItem("userPermissions", JSON.stringify(user.permissions));
+    }
+    if (user.roleNames) {
+      window.sessionStorage.setItem("userRoleNames", JSON.stringify(user.roleNames));
+    }
+
+    cy.visit("/");
+    cy.log("Logged in via API");
+  });
+});
+
+/**
+ * Login via UI (fallback — uses form interaction)
+ * Usage: cy.loginViaUI() or cy.loginViaUI('user@example.com', 'password')
+ */
+Cypress.Commands.add("loginViaUI", (email, password) => {
   const userEmail = email || Cypress.env("testUserEmail");
   const userPassword = password || Cypress.env("testUserPassword");
 
@@ -337,7 +387,7 @@ Cypress.Commands.add('createSupplierQuotation', (quotationData) => {
   return cy
     .request({
       method: 'POST',
-      url: `${Cypress.env('apiUrl')}/api/supplier-quotations`,
+      url: `/api/supplier-quotations`,
       body: defaultData,
       headers: {
         Authorization: `Bearer ${Cypress.env('authToken')}`,
@@ -356,7 +406,7 @@ Cypress.Commands.add('createSupplierQuotation', (quotationData) => {
 Cypress.Commands.add('deleteSupplierQuotation', (quotationId) => {
   return cy.request({
     method: 'DELETE',
-    url: `${Cypress.env('apiUrl')}/api/supplier-quotations/${quotationId}`,
+    url: `/api/supplier-quotations/${quotationId}`,
     headers: {
       Authorization: `Bearer ${Cypress.env('authToken')}`,
     },
