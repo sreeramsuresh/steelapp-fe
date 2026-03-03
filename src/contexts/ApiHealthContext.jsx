@@ -44,7 +44,7 @@ export const ApiHealthProvider = ({ children }) => {
 
   const isMountedRef = useRef(true);
   const intervalRef = useRef(null);
-  const healthUrl = "http://localhost:3000/health";
+  const healthUrl = `${import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:5000"}/health`;
   const pollingInterval = 30000;
 
   /**
