@@ -19,11 +19,22 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "20.10.0"
           cache: "npm"
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Create .env
+        run: |
+          cat <<EOF > .env
+          VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}
+          VITE_REFRESH_ENDPOINT=${{ vars.VITE_REFRESH_ENDPOINT }}
+          VITE_ENABLE_AUDIT_LOGS=${{ vars.VITE_ENABLE_AUDIT_LOGS }}
+          VITE_ENABLE_SUPPLIERS=${{ vars.VITE_ENABLE_SUPPLIERS }}
+          VITE_AUTO_LOGIN=${{ vars.VITE_AUTO_LOGIN }}
+          VITE_CONTRACT_STRICT=${{ vars.VITE_CONTRACT_STRICT }}
+          EOF
 
       - name: Build Vite React app
         run: npm run build:ci
