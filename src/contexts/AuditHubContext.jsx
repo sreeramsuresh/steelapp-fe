@@ -33,7 +33,7 @@ export function AuditHubProvider({ children }) {
   // Load periods
   const loadPeriods = useCallback(
     async (options = {}) => {
-      if (!user?.companyId) return;
+      if (!user?.id) return;
       // Skip if user doesn't have accounting_periods permission
       if (!authService.hasPermission("accounting_periods", "read")) return;
 
@@ -56,22 +56,14 @@ export function AuditHubProvider({ children }) {
         }
       }
     },
-    [user?.companyId, filters]
+    [user?.id, user?.companyId, filters]
   );
 
-  // Guard: Redirect if no company context
-  useEffect(() => {
-    if (!user?.companyId) {
-      setError("No company context available");
-      setPeriods([]);
-      setDatasets([]);
-      return;
-    }
-  }, [user?.companyId]);
+  // Company context is enforced server-side via JWT company_id
 
-  // Load periods whenever company context or filters change
+  // Load periods whenever user context or filters change
   useEffect(() => {
-    if (!user?.companyId) return;
+    if (!user?.id) return;
 
     // Skip StrictMode duplicate mount for initial load
     if (!initialLoadDone.current) {
@@ -83,7 +75,7 @@ export function AuditHubProvider({ children }) {
     return () => {
       options.cancelled = true;
     };
-  }, [user?.companyId, loadPeriods]);
+  }, [user?.id, loadPeriods]);
 
   // Select period and load its datasets
   const selectPeriod = useCallback(

@@ -1,5 +1,5 @@
 import { Calendar, CheckCircle, Lock, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import CreatePeriodModal from "../../components/audit/CreatePeriodModal";
@@ -23,13 +23,8 @@ export default function AuditHubDashboard() {
   const [closingPeriodId, setClosingPeriodId] = useState(null);
   const [lockingPeriodId, setLockingPeriodId] = useState(null);
 
-  // Guard: Redirect if no company context
-  useEffect(() => {
-    if (!user?.companyId) {
-      navigate("/select-company");
-      return;
-    }
-  }, [user?.companyId, navigate]);
+  // Company context is enforced server-side via JWT company_id
+  // No client-side companyId guard needed
 
   // Handle create period
   const handleCreatePeriod = async (periodType, year, month) => {
@@ -67,10 +62,6 @@ export default function AuditHubDashboard() {
       setLockingPeriodId(null);
     }
   };
-
-  if (!user?.companyId) {
-    return null; // Guard handled by useEffect
-  }
 
   // Count periods by status
   const statusCounts = {

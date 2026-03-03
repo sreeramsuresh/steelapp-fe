@@ -6,7 +6,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import EmptyState from "../components/shared/EmptyState";
 import LoadingSpinner from "../components/shared/LoadingSpinner";
 import api from "../services/api";
-import { tokenUtils } from "../services/axiosApi";
 import { toUAEDateForInput } from "../utils/timezone";
 
 export default function ProfitAnalysisReport() {
@@ -35,13 +34,8 @@ export default function ProfitAnalysisReport() {
       setLoading(true);
       hasErrorRef.current = false;
 
-      // Get company_id from user context
-      const user = tokenUtils.getUser();
-      const companyId = user?.companyId;
-
-      if (!companyId) {
-        throw new Error("Company context not found");
-      }
+      // Company context is enforced server-side via JWT company_id
+      // No client-side companyId check needed
 
       // Use the analytics/profit-by-product endpoint instead of raw query
       const response = await api.get("/analytics/profit-by-product", {

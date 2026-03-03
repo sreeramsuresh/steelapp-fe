@@ -1488,6 +1488,14 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
 
             {/* Finance Dashboards */}
             <Route
+              path="commission-dashboard"
+              element={
+                <ProtectedRoute user={user} requiredPermission="commissions.read">
+                  <CommissionDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="ar-aging"
               element={
                 <ProtectedRoute user={user} requiredPermission="customers.read">
