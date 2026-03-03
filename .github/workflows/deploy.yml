@@ -27,7 +27,7 @@ jobs:
 
       - name: Create .env
         run: |
-          cat <<EOF > .env
+          cat > .env <<EOF
           VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}
           VITE_REFRESH_ENDPOINT=${{ vars.VITE_REFRESH_ENDPOINT }}
           VITE_ENABLE_AUDIT_LOGS=${{ vars.VITE_ENABLE_AUDIT_LOGS }}
