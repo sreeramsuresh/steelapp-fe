@@ -46,7 +46,7 @@ class BankReconciliationService {
       params: {
         startDate,
         endDate,
-        cashAccountCode: options.cashAccountCode || "1100",
+        cashAccountCode: options.cashAccountCode,
         page: options.page || 1,
         limit: options.limit || 100,
       },
@@ -57,7 +57,7 @@ class BankReconciliationService {
   /**
    * Get Cash Book Daily Summary
    */
-  async getCashBookSummary(startDate, endDate, cashAccountCode = "1100") {
+  async getCashBookSummary(startDate, endDate, cashAccountCode) {
     const response = await apiClient.get("/bank-reconciliation/cash-book-summary", {
       params: { startDate, endDate, cashAccountCode },
     });

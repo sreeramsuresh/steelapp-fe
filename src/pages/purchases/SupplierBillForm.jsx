@@ -38,6 +38,7 @@ import QuickAddChips from "../../components/shared/QuickAddChips";
 import { FormSelect } from "../../components/ui/form-select";
 import { SelectItem } from "../../components/ui/select";
 import { useTheme } from "../../contexts/ThemeContext";
+import { financialreportsService } from "../../services/financialReportsService";
 import { grnService } from "../../services/grnService";
 import { importContainerService } from "../../services/importContainerService";
 import { notificationService } from "../../services/notificationService";
@@ -457,6 +458,7 @@ const SupplierBillForm = () => {
   });
   const [searchInputs, setSearchInputs] = useState({});
   const searchTimerRef = useRef(null);
+  const [expenseAccounts, setExpenseAccounts] = useState([]);
 
   // Drawer states
   const [chargesDrawerOpen, setChargesDrawerOpen] = useState(false);
@@ -590,6 +592,21 @@ const SupplierBillForm = () => {
     }
   }, []);
 
+  const loadExpenseAccounts = useCallback(async () => {
+    try {
+      const res = await financialreportsService.getChartOfAccounts({ type: "expense" });
+      const data = res?.data || res || {};
+      setExpenseAccounts(
+        (data.accounts || []).map((a) => ({
+          code: a.accountCode || a.code,
+          name: a.accountName || a.name,
+        }))
+      );
+    } catch (err) {
+      console.error("Failed to load expense accounts:", err);
+    }
+  }, []);
+
   const loadBill = useCallback(async () => {
     try {
       setLoading(true);
@@ -623,13 +640,14 @@ const SupplierBillForm = () => {
   useEffect(() => {
     loadVendors();
     loadProducts();
+    loadExpenseAccounts();
     if (isEditMode) {
       loadBill();
     } else {
       loadNextBillNumber();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditMode, loadBill, loadNextBillNumber, loadProducts, loadVendors]); // loadSupplierBill and loadNextBillNumber are stable
+  }, [isEditMode, loadBill, loadNextBillNumber, loadProducts, loadVendors, loadExpenseAccounts]);
 
   // Auto-populate from PO when navigated with ?poId= query param
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally runs only on mount/URL change to avoid re-fetch loops
@@ -1983,6 +2001,25 @@ const SupplierBillForm = () => {
                                   <SelectItem value="LOCAL">Local</SelectItem>
                                   <SelectItem value="IMPORTED">Import</SelectItem>
                                 </FormSelect>
+                              </div>
+                              <div className="w-36">
+                                <span
+                                  className={`block text-[10.5px] font-semibold uppercase tracking-[0.05em] mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                                >
+                                  GL Account
+                                </span>
+                                <select
+                                  value={item.expenseCategory || ""}
+                                  onChange={(e) => handleItemChange(index, "expenseCategory", e.target.value)}
+                                  className={`w-full px-2 py-1.5 text-sm border rounded-md ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                                >
+                                  <option value="">-- None --</option>
+                                  {expenseAccounts.map((acc) => (
+                                    <option key={acc.code} value={acc.code}>
+                                      {acc.code} - {acc.name}
+                                    </option>
+                                  ))}
+                                </select>
                               </div>
                               <div className="flex items-end gap-1.5">
                                 <span

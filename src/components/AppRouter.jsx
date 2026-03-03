@@ -30,6 +30,8 @@ const CustomerManagement = lazy(() => import("./CustomerManagement"));
 const CustomerForm = lazy(() => import("../pages/CustomerForm"));
 const SteelProducts = lazy(() => import("./SteelProducts"));
 const CompanySettings = lazy(() => import("./CompanySettings"));
+const FinancialSettings = lazy(() => import("../pages/settings/FinancialSettings"));
+const GLMappingRules = lazy(() => import("../pages/settings/GLMappingRules"));
 const SearchResults = lazy(() => import("./SearchResults"));
 const InventoryList = lazy(() => import("../pages/inventory/StockLevelsDashboard"));
 const DeliveryNoteList = lazy(() => import("../pages/DeliveryNoteList"));
@@ -1318,6 +1320,25 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
                   ]}
                 >
                   <CompanySettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="settings/financial"
+              element={
+                <ProtectedRoute
+                  user={user}
+                  requiredRoles={["admin", "managing_director", "finance_manager", "finance_manager_predefined"]}
+                >
+                  <FinancialSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="settings/gl-mapping"
+              element={
+                <ProtectedRoute user={user} requiredRoles={["admin"]}>
+                  <GLMappingRules />
                 </ProtectedRoute>
               }
             />

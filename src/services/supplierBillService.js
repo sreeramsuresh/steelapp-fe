@@ -68,7 +68,7 @@ const transformSupplierBillForServer = (billData) => {
       isBlockedVat: item.isBlockedVat || false,
       blockedReason: item.blockedReason || "",
       costCenter: item.costCenter || "",
-      glAccount: item.glAccount || "",
+      glAccount: item.glAccount || item.expenseCategory || "",
     })),
   };
 };
@@ -174,6 +174,7 @@ const transformSupplierBillFromServer = (serverData) => {
       blockedReason: item.blockedReason || item.blocked_reason || "",
       costCenter: item.costCenter || item.cost_center || "",
       glAccount: item.glAccount || item.gl_account || "",
+      expenseCategory: item.glAccount || item.gl_account || "",
     })),
     // Payments
     payments: serverData.payments || [],

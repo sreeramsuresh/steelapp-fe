@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import bankReconciliationService from "../../services/bankReconciliationService";
+import { financialreportsService } from "../../services/financialReportsService";
 
 export default function CashBookReport() {
   const { user: _user } = useAuth();
@@ -11,13 +12,36 @@ export default function CashBookReport() {
   const [filters, setFilters] = useState({
     startDate: "",
     endDate: "",
-    cashAccountCode: "1100",
+    cashAccountCode: "",
     page: 1,
     limit: 50,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [bankAccounts, setBankAccounts] = useState([]);
   const hasFetched = useRef(false);
+
+  // Fetch BANK-type accounts from COA
+  const loadBankAccounts = useCallback(async () => {
+    try {
+      const res = await financialreportsService.getChartOfAccounts({ type: "bank" });
+      const coaData = res?.data || res || {};
+      const accounts = (coaData.accounts || []).map((a) => ({
+        code: a.accountCode || a.code,
+        name: a.accountName || a.name,
+      }));
+      setBankAccounts(accounts);
+      if (accounts.length > 0) {
+        setFilters((prev) => (prev.cashAccountCode ? prev : { ...prev, cashAccountCode: accounts[0].code }));
+      }
+    } catch (err) {
+      console.error("Failed to load bank accounts:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadBankAccounts();
+  }, [loadBankAccounts]);
 
   // Theme classes
   const cardBg = isDarkMode ? "bg-gray-800" : "bg-white";
@@ -86,8 +110,12 @@ export default function CashBookReport() {
               onChange={(e) => setFilters({ ...filters, cashAccountCode: e.target.value })}
               className={`w-full border rounded px-3 py-2 text-sm ${inputCls}`}
             >
-              <option value="1100">1100 - Cash on Hand</option>
-              <option value="1110">1110 - Cash in Transit</option>
+              {bankAccounts.length === 0 && <option value="">Loading...</option>}
+              {bankAccounts.map((acc) => (
+                <option key={acc.code} value={acc.code}>
+                  {acc.code} - {acc.name}
+                </option>
+              ))}
             </select>
           </div>
           <div>

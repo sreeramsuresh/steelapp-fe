@@ -25,7 +25,7 @@ import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useState } from "react";
 import ConfirmDialog from "../components/ConfirmDialog";
-import { chartOfAccountsService } from "../services/chartOfAccountsService";
+import { financialreportsService } from "../services/financialReportsService";
 import { operatingExpenseService } from "../services/operatingExpenseService";
 
 const EXPENSE_TYPES = [
@@ -70,7 +70,13 @@ export default function OperatingExpenseForm() {
 
   const loadExpenseAccounts = useCallback(async () => {
     try {
-      const accounts = await chartOfAccountsService.getByCategory("EXPENSE");
+      const res = await financialreportsService.getChartOfAccounts({ type: "expense" });
+      const data = res?.data || res || {};
+      const accounts = (data.accounts || []).map((a) => ({
+        code: a.accountCode || a.code,
+        name: a.accountName || a.name,
+        type: a.accountType || a.type,
+      }));
       setExpenseAccounts(accounts.filter((acc) => acc.type !== "HEADER"));
     } catch (err) {
       console.error("Failed to load expense accounts:", err);
