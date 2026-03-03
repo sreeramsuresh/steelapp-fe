@@ -74,6 +74,10 @@ import { PAYMENT_MODES } from "../utils/paymentUtils";
 import { getDefaultBasis } from "../utils/pricingBasisRules";
 import { toUAEDateForInput } from "../utils/timezone";
 
+// Centralized definition of "non-blank item" — used for validation, save payload, and UI display
+const getNonBlankItems = (items) =>
+  (items || []).filter((item) => item.productId || (item.name && item.name.trim() !== ""));
+
 const InvoiceForm = ({ onSave }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -96,6 +100,10 @@ const InvoiceForm = ({ onSave }) => {
   const paymentModeRef = useRef(null);
   const addItemButtonRef = useRef(null);
   const saveButtonRef = useRef(null);
+
+  // Synchronous re-entrancy guards (state-based guards are async and can be bypassed)
+  const isSavingRef = useRef(false);
+  const isGeneratingPDFRef = useRef(false);
 
   // Scroll to field function - maps error field names to refs
   const scrollToField = useCallback((fieldName) => {
@@ -144,11 +152,7 @@ const InvoiceForm = ({ onSave }) => {
   }, []);
 
   const [showPreview, setShowPreview] = useState(false);
-  const [_isFormValidForSave, setIsFormValidForSave] = useState(true);
-  const [_isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const [_pdfButtonHighlight, setPdfButtonHighlight] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [, setIsValidating] = useState(false);
   // Removed unused state: selectedProductForRow, setSelectedProductForRow
   const [customerSearchInput, setCustomerSearchInput] = useState("");
   const [tradeLicenseStatus, setTradeLicenseStatus] = useState(null);
@@ -355,106 +359,32 @@ const InvoiceForm = ({ onSave }) => {
   // Phase 4: Store saved batch consumptions separately from draft allocations
   // This prevents overwriting user edits when loading existing invoice data
   const [savedConsumptionsByItemId, setSavedConsumptionsByItemId] = useState({});
-  const [_consumptionsFetched, setConsumptionsFetched] = useState(false);
-
-  const initialLoadDoneRef = useRef(false);
-  useEffect(() => {
-    // Allow 2 renders for initial hydration (data fetch + state setup)
-    const timer = setTimeout(() => {
-      initialLoadDoneRef.current = true;
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
+  const consumptionsFetchedRef = useRef(false);
 
   // Note: beforeunload warning intentionally removed — form auto-saves as draft.
 
-  // Keyboard shortcuts for common actions
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      // Don't trigger shortcuts when typing in inputs/textareas
-      const tag = e.target.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
-        // Allow Ctrl+S even in inputs
-        if (!(e.ctrlKey && e.key === "s")) return;
-      }
+  // Keyboard shortcuts moved to useKeyboardShortcuts below (single system)
 
-      // Ctrl+S / Cmd+S: Save invoice
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
-        e.preventDefault();
-        saveButtonRef.current?.click();
-      }
-      // Ctrl+Shift+A / Cmd+Shift+A: Add item
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "A") {
-        e.preventDefault();
-        addItemButtonRef.current?.click();
-      }
-      // Escape: Close drawers (handled by drawer components) or go back
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  // Shared computation: hours since invoice was issued (null if not applicable)
+  const hoursSinceIssued = useMemo(() => {
+    if (!id || originalSavedStatus !== "issued" || !invoice?.issuedAt) return null;
+    return (Date.now() - new Date(invoice.issuedAt)) / (1000 * 60 * 60);
+  }, [id, originalSavedStatus, invoice?.issuedAt]);
 
-  // UAE VAT COMPLIANCE: Check if invoice is locked
-  // Issued invoices can be edited within 24 hours of issuance (creates revision)
-  // After 24 hours, invoice is permanently locked
-  // IMPORTANT: New invoices (no id) are NEVER locked, even if status is 'issued'
-  // IMPORTANT: Use originalSavedStatus (not current form status) to prevent
-  //            the locked banner from showing when user changes status dropdown
+  // UAE VAT COMPLIANCE: Check if invoice is locked (24h+ since issued, or legacy without issuedAt)
   const isLocked = useMemo(() => {
-    // NEW INVOICES ARE NEVER LOCKED - they haven't been saved yet
-    // The 'id' parameter from useParams() is only present when editing an existing invoice
-    if (!id) return false;
+    if (!id || originalSavedStatus !== "issued") return false;
+    if (!invoice?.issuedAt) return true; // Legacy invoice — locked
+    return hoursSinceIssued >= 24;
+  }, [id, originalSavedStatus, invoice?.issuedAt, hoursSinceIssued]);
 
-    // Use the ORIGINAL saved status, not the current form state
-    // This prevents locked banner from appearing when converting draft to final
-    // The banner should only show for invoices that were ALREADY saved as 'issued'
-    if (originalSavedStatus !== "issued") return false;
+  // Revision mode: editing issued invoice within 24h window
+  const isRevisionMode = hoursSinceIssued !== null && hoursSinceIssued < 24;
 
-    // Check 24-hour edit window
-    const issuedAt = invoice?.issuedAt;
-    if (!issuedAt) {
-      // No issuedAt means this is a legacy invoice that was issued before edit window feature
-      // These are considered locked (cannot edit without credit note)
-      return true;
-    }
-
-    const issuedDate = new Date(issuedAt);
-    const now = new Date();
-    const hoursSinceIssued = (now - issuedDate) / (1000 * 60 * 60);
-
-    return hoursSinceIssued >= 24; // Locked if 24+ hours since issued
-  }, [id, originalSavedStatus, invoice?.issuedAt]);
-
-  // Calculate if we're in revision mode (editing issued invoice within 24h)
-  // Use originalSavedStatus to ensure this only applies to invoices that were
-  // ALREADY saved as 'issued', not invoices being converted to 'issued'
-  const isRevisionMode = useMemo(() => {
-    // Must be editing an existing invoice
-    if (!id) return false;
-
-    // Use original saved status - only in revision mode if invoice was SAVED as issued
-    if (originalSavedStatus !== "issued") return false;
-
-    const issuedAt = invoice?.issuedAt;
-    if (!issuedAt) return false;
-
-    const issuedDate = new Date(issuedAt);
-    const now = new Date();
-    const hoursSinceIssued = (now - issuedDate) / (1000 * 60 * 60);
-
-    return hoursSinceIssued < 24; // In revision mode if within 24 hours
-  }, [id, originalSavedStatus, invoice?.issuedAt]);
-
-  // Calculate hours remaining in edit window
   const hoursRemainingInEditWindow = useMemo(() => {
-    if (!isRevisionMode || !invoice?.issuedAt) return 0;
-
-    const issuedDate = new Date(invoice.issuedAt);
-    const now = new Date();
-    const hoursSinceIssued = (now - issuedDate) / (1000 * 60 * 60);
-
+    if (!isRevisionMode || hoursSinceIssued === null) return 0;
     return Math.max(0, Math.ceil(24 - hoursSinceIssued));
-  }, [isRevisionMode, invoice?.issuedAt]);
+  }, [isRevisionMode, hoursSinceIssued]);
 
   // Auto-focus to next mandatory field
   const focusNextMandatoryField = useCallback(() => {
@@ -539,28 +469,20 @@ const InvoiceForm = ({ onSave }) => {
   // Invoice templates - read from company settings (edit in Company Settings page)
   const { currentTemplate } = useInvoiceTemplates("standard", company);
 
-  // Refetch products when form loads to ensure fresh data (updated names, latest sales data)
+  // Refetch products + company on window focus (user returns from other tabs)
+  // Uses ref to avoid re-subscribing when refetch functions change identity
+  const refetchFnsRef = useRef({ refetchProducts, refetchCompany });
   useEffect(() => {
-    refetchProducts();
-  }, [refetchProducts]);
-
-  // Also refetch when window regains focus (user returns from product management)
+    refetchFnsRef.current = { refetchProducts, refetchCompany };
+  });
   useEffect(() => {
     const handleFocus = () => {
-      refetchProducts();
+      refetchFnsRef.current.refetchProducts();
+      refetchFnsRef.current.refetchCompany();
     };
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
-  }, [refetchProducts]);
-
-  // Refetch company data when window regains focus (user returns from company settings)
-  useEffect(() => {
-    const handleFocus = () => {
-      refetchCompany();
-    };
-    window.addEventListener("focus", handleFocus);
-    return () => window.removeEventListener("focus", handleFocus);
-  }, [refetchCompany]);
+  }, []);
 
   // Date helpers for constraints
   const invoiceDateObj = useMemo(() => {
@@ -580,8 +502,10 @@ const InvoiceForm = ({ onSave }) => {
 
   // Warehouses state
   const [warehouses, setWarehouses] = useState([]);
+  const hasSetDefaultWarehouseRef = useRef(false);
 
-  // Fetch warehouses once (active only)
+  // Fetch warehouses once on mount. Default warehouse for new invoices is set via ref gate.
+  // Edit-mode warehouse is populated by the existingInvoice load effect (line ~697).
   useEffect(() => {
     const fetchWarehouses = async () => {
       try {
@@ -590,29 +514,21 @@ const InvoiceForm = ({ onSave }) => {
         const active = list.filter((w) => w.isActive !== false);
         setWarehouses(active);
 
-        if (active.length > 0) {
-          if (!id && !invoice.warehouseId) {
-            // New invoice: default to the warehouse marked isDefault (or first)
-            const defaultWarehouse = active.find((w) => w.isDefault) || active[0];
-            setInvoice((prev) => ({
+        // New invoice: apply default warehouse once
+        if (!id && !hasSetDefaultWarehouseRef.current && active.length > 0) {
+          hasSetDefaultWarehouseRef.current = true;
+          const defaultWarehouse = active.find((w) => w.isDefault) || active[0];
+          setInvoice((prev) => {
+            // Don't override if already set (e.g. from duplication)
+            if (prev.warehouseId) return prev;
+            return {
               ...prev,
               warehouseId: defaultWarehouse.id.toString(),
               warehouseName: defaultWarehouse.name || "",
               warehouseCode: defaultWarehouse.code || "",
               warehouseCity: defaultWarehouse.city || "",
-            }));
-          } else if (id && invoice.warehouseId) {
-            // Edit invoice: warehouseId was derived from line items — populate the name/code fields
-            const matched = active.find((w) => w.id.toString() === String(invoice.warehouseId));
-            if (matched && !invoice.warehouseName) {
-              setInvoice((prev) => ({
-                ...prev,
-                warehouseName: matched.name || "",
-                warehouseCode: matched.code || "",
-                warehouseCity: matched.city || "",
-              }));
-            }
-          }
+            };
+          });
         }
       } catch (err) {
         console.warn("Failed to fetch warehouses:", err);
@@ -620,8 +536,24 @@ const InvoiceForm = ({ onSave }) => {
       }
     };
     fetchWarehouses();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, invoice.warehouseId, invoice.warehouseName]); // Load warehouses on mount; re-run if warehouseId changes
+  }, [id]);
+
+  // Resolve warehouse name/code for edit mode once warehouses are loaded
+  useEffect(() => {
+    if (id && warehouses.length > 0) {
+      setInvoice((prev) => {
+        if (!prev.warehouseId || prev.warehouseName) return prev;
+        const matched = warehouses.find((w) => w.id.toString() === String(prev.warehouseId));
+        if (!matched) return prev;
+        return {
+          ...prev,
+          warehouseName: matched.name || "",
+          warehouseCode: matched.code || "",
+          warehouseCity: matched.city || "",
+        };
+      });
+    }
+  }, [id, warehouses]);
 
   // Heavily optimized calculations with minimal dependencies
   const computedSubtotal = useMemo(() => calculateSubtotal(invoice.items), [invoice.items]);
@@ -647,19 +579,9 @@ const InvoiceForm = ({ onSave }) => {
 
   // Parse charges only when calculating final total to avoid blocking on every keystroke
   const computedTotal = useMemo(() => {
-    const discountAmount = parseFloat(invoice.discountAmount) || 0;
-    const discountPercentage = parseFloat(invoice.discountPercentage) || 0;
-
-    let totalDiscount = 0;
-    if (invoice.discountType === "percentage") {
-      totalDiscount = (computedSubtotal * discountPercentage) / 100;
-    } else {
-      totalDiscount = discountAmount;
-    }
-
-    const subtotalAfterDiscount = Math.max(0, computedSubtotal - totalDiscount);
+    const subtotalAfterDiscount = Math.max(0, computedSubtotal - computedDiscountAmount);
     return calculateTotal(subtotalAfterDiscount, computedVatAmount);
-  }, [computedSubtotal, computedVatAmount, invoice.discountAmount, invoice.discountPercentage, invoice.discountType]);
+  }, [computedSubtotal, computedVatAmount, computedDiscountAmount]);
 
   // No longer needed - invoice numbers are generated by database on save
   // useEffect(() => {
@@ -763,7 +685,7 @@ const InvoiceForm = ({ onSave }) => {
       const status = (existingInvoice.status || "").toLowerCase().replace("status_", "");
       // Only fetch consumptions for invoices that have been through finalization
       if (status !== "issued" && status !== "proforma") {
-        setConsumptionsFetched(true);
+        consumptionsFetchedRef.current = true;
         return;
       }
 
@@ -782,11 +704,11 @@ const InvoiceForm = ({ onSave }) => {
           });
           setSavedConsumptionsByItemId(byItemId);
         }
-        setConsumptionsFetched(true);
+        consumptionsFetchedRef.current = true;
       } catch (err) {
         console.error("Failed to fetch batch consumptions:", err);
         // Don't block the form if consumption fetch fails
-        setConsumptionsFetched(true);
+        consumptionsFetchedRef.current = true;
       }
     };
 
@@ -794,7 +716,7 @@ const InvoiceForm = ({ onSave }) => {
   }, [id, existingInvoice]);
 
   // Validate fields on load and when invoice changes
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Dependencies tracked for granular validation updates
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Granular deps avoid re-validating on every unrelated invoice field change
   useEffect(() => {
     if (invoice) {
       validateField("customer", invoice.customer);
@@ -807,7 +729,6 @@ const InvoiceForm = ({ onSave }) => {
       validateField("supplyDate", invoice.supplyDate);
       validateField("items", invoice.items);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     invoice.customer.id,
     invoice.dueDate,
@@ -815,14 +736,11 @@ const InvoiceForm = ({ onSave }) => {
     invoice.modeOfPayment,
     invoice.warehouseId,
     invoice.currency,
-    invoice.items.length,
-    validateField,
     invoice.placeOfSupply,
     invoice.supplyDate,
     invoice.items,
-    invoice,
+    validateField,
   ]);
-  // Note: Using granular dependencies (invoice.customer.id, invoice.items.length, etc.) instead of entire invoice object to avoid unnecessary re-validations
 
   const checkTradeLicenseStatus = useCallback(async (customerId) => {
     try {
@@ -982,7 +900,7 @@ const InvoiceForm = ({ onSave }) => {
 
     setInvoice((prev) => {
       // Remove empty placeholder items (items without productId)
-      const existingValidItems = prev.items.filter((item) => item.productId || item.name);
+      const existingValidItems = getNonBlankItems(prev.items);
 
       // Create the new line item with all data from drawer
       const newItem = {
@@ -1148,7 +1066,8 @@ const InvoiceForm = ({ onSave }) => {
   };
 
   // Function to check if form has all required fields
-  const validateRequiredFields = () => {
+  const validateRequiredFields = (statusOverride = null) => {
+    const effectiveStatus = statusOverride || invoice.status;
     const errors = [];
     const invalidFieldsSet = new Set();
 
@@ -1161,15 +1080,13 @@ const InvoiceForm = ({ onSave }) => {
       invalidFieldsSet.add("customer.name");
     }
 
-    // Check if there are any items (filter out empty placeholder items)
-    // Placeholder items have no productId and no name - same logic as UI display
-    const realItems = (invoice.items || []).filter((item) => item.productId || (item.name && item.name.trim() !== ""));
+    // Filter out empty placeholder items
+    const nonBlankItems = getNonBlankItems(invoice.items);
 
-    if (realItems.length === 0) {
+    if (nonBlankItems.length === 0) {
       errors.push("At least one item is required");
     } else {
-      // Validate each real item
-      realItems.forEach((item, index) => {
+      nonBlankItems.forEach((item, index) => {
         if (!item.name || item.name.trim() === "") {
           errors.push(`Item ${index + 1}: Product name is required`);
           invalidFieldsSet.add(`item.${index}.name`);
@@ -1182,8 +1099,6 @@ const InvoiceForm = ({ onSave }) => {
           errors.push(`Item ${index + 1}: Rate must be greater than 0`);
           invalidFieldsSet.add(`item.${index}.rate`);
         }
-        // CRITICAL: Block save when unit weight is missing for weight-based pricing
-        // This prevents incorrect pricing calculations (e.g., 30x overcharge)
         if (item.missingWeightWarning) {
           errors.push(
             `Item ${index + 1}: Unit weight is missing for "${item.name}". Unit weight is required for price calculation. Please contact admin to add unit weight to the product master.`
@@ -1204,15 +1119,31 @@ const InvoiceForm = ({ onSave }) => {
     }
 
     // Check status (required field)
-    if (!invoice.status || !["draft", "proforma", "issued"].includes(invoice.status)) {
+    if (!effectiveStatus || !["draft", "proforma", "issued"].includes(effectiveStatus)) {
       errors.push("Invoice status is required");
       invalidFieldsSet.add("status");
+    }
+
+    // Required fields for non-draft invoices
+    if (effectiveStatus !== "draft") {
+      if (!invoice.modeOfPayment || String(invoice.modeOfPayment).trim() === "") {
+        errors.push("Payment Terms is required for Final Tax Invoice");
+        invalidFieldsSet.add("paymentTerms");
+      }
+      const hasWarehouseItems = (invoice.items || []).some(
+        (item) => !item.sourceType || item.sourceType === "WAREHOUSE"
+      );
+      if (hasWarehouseItems && (!invoice.warehouseId || String(invoice.warehouseId).trim() === "")) {
+        errors.push("Warehouse is required when invoice contains warehouse-sourced items");
+        invalidFieldsSet.add("warehouse");
+      }
     }
 
     return {
       isValid: errors.length === 0,
       errors,
       invalidFields: invalidFieldsSet,
+      nonBlankItems,
     };
   };
 
@@ -1264,8 +1195,6 @@ const InvoiceForm = ({ onSave }) => {
 
     // Phase 13: Validate pricing before finalization
     try {
-      setIsValidating(true);
-
       const validationResult = await apiService.post("/invoices/validate-pricing", {
         customerId: invoice.customer?.id,
         lineItems: (invoice.items || []).map((item) => ({
@@ -1291,8 +1220,6 @@ const InvoiceForm = ({ onSave }) => {
       console.error("Pricing validation error:", error);
       notificationService.warning("Could not validate pricing. Proceeding with caution.");
       setIssueConfirm({ open: true });
-    } finally {
-      setIsValidating(false);
     }
   };
 
@@ -1353,105 +1280,28 @@ const InvoiceForm = ({ onSave }) => {
       // Continue with cached data rather than blocking preview
     }
 
-    // Validate required fields silently (don&apos;t show errors, just set flag)
-    const validation = validateRequiredFields();
-    setIsFormValidForSave(validation.isValid);
+    // Validate required fields silently
+    validateRequiredFields();
 
     // Always open preview - save button will be disabled if invalid
     setShowPreview(true);
   };
 
   const performSave = async (statusOverride = null) => {
-    // Prevent double-saves
-    if (isSaving) {
-      return;
-    }
+    // Synchronous ref guard prevents double-saves even within the same tick
+    if (isSavingRef.current) return;
+    isSavingRef.current = true;
+    setIsSaving(true);
 
-    // Use statusOverride if provided (for Final Tax Invoice confirmation flow)
-    // This ensures the status is correct regardless of React state timing issues
     const effectiveStatus = statusOverride || invoice.status;
 
-    // DEBUG: Log status at start of performSave
+    // Unified validation — includes non-draft checks when status requires them
+    const validation = validateRequiredFields(effectiveStatus);
 
-    // Filter out empty placeholder items before validation
-    // Placeholder items have no productId and no name - same logic as UI display
-    // Note: Can't rely on quantity/rate since defaults are quantity=1, rate=0
-    const nonBlankItems = (invoice.items || []).filter(
-      (item) => item.productId || (item.name && item.name.trim() !== "")
-    );
+    if (!validation.isValid) {
+      setValidationErrors(validation.errors);
+      setInvalidFields(validation.invalidFields);
 
-    // Validate required fields before saving
-    const errors = [];
-    const invalidFieldsSet = new Set();
-
-    // Check customer information (both ID and name required)
-    if (!invoice.customer?.id) {
-      errors.push("Customer is required. Please select a customer from the dropdown.");
-      invalidFieldsSet.add("customer.name");
-    } else if (!invoice.customer?.name || invoice.customer.name.trim() === "") {
-      errors.push("Customer name is required");
-      invalidFieldsSet.add("customer.name");
-    }
-
-    // Check if there are any items after filtering blanks
-    if (!nonBlankItems || nonBlankItems.length === 0) {
-      errors.push("At least one item is required");
-    } else {
-      // Validate each non-blank item
-      nonBlankItems.forEach((item, index) => {
-        if (!item.name || item.name.trim() === "") {
-          errors.push(`Item ${index + 1}: Product name is required`);
-          invalidFieldsSet.add(`item.${index}.name`);
-        }
-        if (!item.quantity || item.quantity <= 0) {
-          errors.push(`Item ${index + 1}: Quantity must be greater than 0`);
-          invalidFieldsSet.add(`item.${index}.quantity`);
-        }
-        if (!item.rate || item.rate <= 0) {
-          errors.push(`Item ${index + 1}: Rate must be greater than 0`);
-          invalidFieldsSet.add(`item.${index}.rate`);
-        }
-      });
-    }
-
-    // Check dates
-    if (!invoice.date) {
-      errors.push("Invoice date is required");
-      invalidFieldsSet.add("date");
-    }
-    if (!invoice.dueDate) {
-      errors.push("Due date is required");
-      invalidFieldsSet.add("dueDate");
-    }
-
-    // Check status (required field) - use effectiveStatus for Final Tax Invoice flow
-    if (!effectiveStatus || !["draft", "proforma", "issued"].includes(effectiveStatus)) {
-      errors.push("Invoice status is required");
-      invalidFieldsSet.add("status");
-    }
-
-    // Required fields for non-draft invoices
-    if (effectiveStatus !== "draft") {
-      if (!invoice.modeOfPayment || String(invoice.modeOfPayment).trim() === "") {
-        errors.push("Payment Terms is required for Final Tax Invoice");
-        invalidFieldsSet.add("paymentTerms");
-      }
-      // Warehouse only required if invoice has warehouse-sourced items
-      const hasWarehouseItems = (invoice.items || []).some(
-        (item) => !item.sourceType || item.sourceType === "WAREHOUSE"
-      );
-      if (hasWarehouseItems && (!invoice.warehouseId || String(invoice.warehouseId).trim() === "")) {
-        errors.push("Warehouse is required when invoice contains warehouse-sourced items");
-        invalidFieldsSet.add("warehouse");
-      }
-    }
-
-    // If there are validation errors, show them and stop
-    if (errors.length > 0) {
-      setValidationErrors(errors);
-      setInvalidFields(invalidFieldsSet);
-
-      // Scroll to the first error (save button area) - instant to prevent layout shift
       setTimeout(() => {
         const errorAlert = document.getElementById("validation-errors-alert");
         if (errorAlert) {
@@ -1459,7 +1309,8 @@ const InvoiceForm = ({ onSave }) => {
         }
       }, 100);
 
-      setIsSaving(false); // Reset saving state on validation error
+      isSavingRef.current = false;
+      setIsSaving(false);
       return;
     }
 
@@ -1467,7 +1318,8 @@ const InvoiceForm = ({ onSave }) => {
     setValidationErrors([]);
     setInvalidFields(new Set());
 
-    setIsSaving(true);
+    const { nonBlankItems } = validation;
+
     try {
       // Convert empty string values to numbers before saving
       // IMPORTANT: Use effectiveStatus to ensure correct status for Final Tax Invoice flow
@@ -1616,10 +1468,6 @@ const InvoiceForm = ({ onSave }) => {
         // Show success modal with options
         setShowSuccessModal(true);
 
-        // Trigger PDF button highlight animation for 3 seconds
-        setPdfButtonHighlight(true);
-        setTimeout(() => setPdfButtonHighlight(false), 3000);
-
         // OLD AUTO-NAVIGATION CODE (commented for easy revert):
         // notificationService.success("Invoice created successfully!");
         // setTimeout(() => {
@@ -1697,6 +1545,7 @@ const InvoiceForm = ({ onSave }) => {
 
       notificationService.error(errorMessage);
     } finally {
+      isSavingRef.current = false;
       setIsSaving(false);
     }
   };
@@ -1748,6 +1597,9 @@ const InvoiceForm = ({ onSave }) => {
   };
 
   const handleSuccessModalClose = useCallback(() => {
+    // FTI guard: Final Tax Invoices cannot be dismissed — user must pick an action
+    if (invoice.status === "issued") return;
+
     setShowSuccessModal(false);
 
     // Navigate to edit mode to prevent duplicate creation
@@ -1759,7 +1611,7 @@ const InvoiceForm = ({ onSave }) => {
       console.error("Navigation failed: createdInvoiceId is undefined");
       navigate(INVOICE_ROUTES.list());
     }
-  }, [createdInvoiceId, navigate]);
+  }, [createdInvoiceId, navigate, invoice.status]);
 
   // Phase 4: Removed drop-ship popup handlers - now using inline SourceTypeSelector dropdown
 
@@ -1818,27 +1670,10 @@ const InvoiceForm = ({ onSave }) => {
     }
   }, [dropshipPOModal, invoice.items, dropshipSelectedSupplier, id]);
 
-  // Handle ESC key to close success modal (only for Draft/Proforma, not Final Tax Invoice)
-  useEffect(() => {
-    const handleEscKey = (event) => {
-      if (event.key === "Escape" && showSuccessModal) {
-        // Only allow ESC to close for Draft and Proforma invoices
-        const isFinalTaxInvoice = invoice.status === "issued";
-        if (!isFinalTaxInvoice) {
-          handleSuccessModalClose();
-        }
-      }
-    };
-
-    if (showSuccessModal) {
-      document.addEventListener("keydown", handleEscKey);
-      return () => {
-        document.removeEventListener("keydown", handleEscKey);
-      };
-    }
-  }, [showSuccessModal, invoice.status, handleSuccessModalClose]);
-
   const handleDownloadPDF = useCallback(async () => {
+    // Synchronous ref guard prevents duplicate PDF generation
+    if (isGeneratingPDFRef.current) return;
+
     // Use either the route ID or the newly created invoice ID
     const invoiceId = id || createdInvoiceId;
 
@@ -1855,7 +1690,7 @@ const InvoiceForm = ({ onSave }) => {
       return;
     }
 
-    setIsGeneratingPDF(true);
+    isGeneratingPDFRef.current = true;
 
     try {
       // Use backend API to generate searchable text PDF with proper fonts and margins
@@ -1865,7 +1700,7 @@ const InvoiceForm = ({ onSave }) => {
       console.error("PDF generation error:", error);
       notificationService.error(`PDF generation failed: ${error.message}`);
     } finally {
-      setIsGeneratingPDF(false);
+      isGeneratingPDFRef.current = false;
     }
   }, [id, createdInvoiceId, loadingCompany]);
 
@@ -1909,7 +1744,7 @@ const InvoiceForm = ({ onSave }) => {
     },
     {
       enabled: !showPreview, // Disable when preview is open (it has its own handlers)
-      allowInInputs: ["escape"], // Allow Escape in inputs to close modals
+      allowInInputs: ["escape", "ctrl+s"], // Allow Escape and Ctrl+S in inputs
     }
   );
 
@@ -2772,7 +2607,7 @@ const InvoiceForm = ({ onSave }) => {
                 {/* Line Items Display */}
                 <div className="overflow-x-auto">
                   {/* Empty state when no items */}
-                  {invoice.items.filter((item) => item.productId || item.name).length === 0 ? (
+                  {getNonBlankItems(invoice.items).length === 0 ? (
                     <div
                       className={`text-center py-8 px-4 border-2 border-dashed rounded-lg ${
                         isDarkMode ? "border-gray-600 text-gray-400" : "border-gray-300 text-gray-500"
@@ -2813,7 +2648,9 @@ const InvoiceForm = ({ onSave }) => {
                           <th className="px-2 py-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-16">
                             Status
                           </th>
-                          <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10"></th>
+                          <th className="py-2 px-2 text-center text-[11px] font-bold uppercase tracking-wide text-white w-10">
+                            <span className="sr-only">Actions</span>
+                          </th>
                         </tr>
                       </thead>
                       <tbody
@@ -2821,149 +2658,142 @@ const InvoiceForm = ({ onSave }) => {
                           isDarkMode ? "bg-gray-800 divide-gray-600" : "bg-white divide-gray-200"
                         }`}
                       >
-                        {invoice.items
-                          .filter((item) => item.productId || item.name)
-                          .map((item, index) => {
-                            const statusInfo = getLineItemStatusIcon(item);
-                            return (
-                              <tr
-                                key={item.lineItemTempId || item.id || `item-${index}`}
-                                className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
-                              >
-                                {/* # */}
-                                <td className="py-2 px-2 text-center text-sm">{index + 1}</td>
-                                {/* Product */}
-                                <td className="pl-3 pr-2 py-2">
-                                  <div>
-                                    <div
-                                      className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                                    >
-                                      {item.name || "Unnamed Product"}
-                                    </div>
-                                    {/* Phase 4: Display batch allocations from saved consumptions or draft allocations */}
-                                    {item.sourceType === "WAREHOUSE" &&
-                                      (() => {
-                                        // Use saved consumptions for finalized invoices, draft allocations otherwise
-                                        const savedConsumption = savedConsumptionsByItemId[item.id];
-                                        const displayAllocations =
-                                          savedConsumption?.consumptions?.length > 0
-                                            ? savedConsumption.consumptions
-                                            : item.allocations || [];
-
-                                        if (displayAllocations.length === 0) return null;
-
-                                        return (
-                                          <div className="text-xs text-gray-500 mt-0.5">
-                                            {displayAllocations.slice(0, 2).map((alloc, i) => (
-                                              <span key={alloc.id || alloc.name || `alloc-${i}`}>
-                                                {alloc.batchNumber || `Batch ${alloc.batchId}`}:{" "}
-                                                {parseFloat(alloc.quantity || alloc.quantityConsumed || 0).toFixed(0)}{" "}
-                                                kg
-                                                {alloc.binLabel && alloc.binLabel !== "UNASSIGNED" && (
-                                                  <span className="ml-1 font-mono text-teal-500">{alloc.binLabel}</span>
-                                                )}
-                                                {(alloc.binUnassigned === true || alloc.binLabel === "UNASSIGNED") && (
-                                                  <span className="ml-1 px-1 py-0.5 rounded text-[10px] font-medium bg-orange-500/20 text-orange-400">
-                                                    Not put away
-                                                  </span>
-                                                )}
-                                                {i < Math.min(displayAllocations.length - 1, 1) && ", "}
-                                              </span>
-                                            ))}
-                                            {displayAllocations.length > 2 && (
-                                              <span className="text-teal-600">
-                                                {" "}
-                                                +{displayAllocations.length - 2} more
-                                              </span>
-                                            )}
-                                            {savedConsumption && (
-                                              <span className="ml-1 text-green-600" title="Saved to database">
-                                                ✓
-                                              </span>
-                                            )}
-                                          </div>
-                                        );
-                                      })()}
-                                    {(item.sourceType === "LOCAL_DROP_SHIP" ||
-                                      item.sourceType === "IMPORT_DROP_SHIP") && (
-                                      <div className="text-xs text-blue-500 mt-0.5 flex items-center gap-1.5">
-                                        <span>
-                                          {item.sourceType === "LOCAL_DROP_SHIP"
-                                            ? "Local Drop-Ship"
-                                            : "Import Drop-Ship"}
-                                        </span>
-                                        {item.linkedPoItemId || item._linkedPONumber ? (
-                                          <span className="text-green-600 font-medium" title="Linked to supplier PO">
-                                            PO Linked
-                                          </span>
-                                        ) : id ? (
-                                          <button
-                                            type="button"
-                                            className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-600 text-white rounded text-[10px] font-medium hover:bg-orange-500"
-                                            onClick={() => handleOpenDropshipPOModal(index)}
-                                          >
-                                            Create Dropship PO
-                                          </button>
-                                        ) : null}
-                                      </div>
-                                    )}
+                        {getNonBlankItems(invoice.items).map((item, index) => {
+                          const statusInfo = getLineItemStatusIcon(item);
+                          return (
+                            <tr
+                              key={item.lineItemTempId || item.id || `item-${index}`}
+                              className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
+                            >
+                              {/* # */}
+                              <td className="py-2 px-2 text-center text-sm">{index + 1}</td>
+                              {/* Product */}
+                              <td className="pl-3 pr-2 py-2">
+                                <div>
+                                  <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                    {item.name || "Unnamed Product"}
                                   </div>
-                                </td>
-                                {/* Qty */}
-                                <td className="px-2 py-2 text-center text-sm">
-                                  {item.quantity || 0} {item.quantityUom || "KG"}
-                                  {item.stockQty != null && (
-                                    <div className="text-xs text-gray-500 mt-1">
-                                      ≈ {Number(item.stockQty).toFixed(3)} {item.primaryUom || "KG"} in stock basis
+                                  {/* Phase 4: Display batch allocations from saved consumptions or draft allocations */}
+                                  {item.sourceType === "WAREHOUSE" &&
+                                    (() => {
+                                      // Use saved consumptions for finalized invoices, draft allocations otherwise
+                                      const savedConsumption = savedConsumptionsByItemId[item.id];
+                                      const displayAllocations =
+                                        savedConsumption?.consumptions?.length > 0
+                                          ? savedConsumption.consumptions
+                                          : item.allocations || [];
+
+                                      if (displayAllocations.length === 0) return null;
+
+                                      return (
+                                        <div className="text-xs text-gray-500 mt-0.5">
+                                          {displayAllocations.slice(0, 2).map((alloc, i) => (
+                                            <span key={alloc.id || alloc.name || `alloc-${i}`}>
+                                              {alloc.batchNumber || `Batch ${alloc.batchId}`}:{" "}
+                                              {parseFloat(alloc.quantity || alloc.quantityConsumed || 0).toFixed(0)} kg
+                                              {alloc.binLabel && alloc.binLabel !== "UNASSIGNED" && (
+                                                <span className="ml-1 font-mono text-teal-500">{alloc.binLabel}</span>
+                                              )}
+                                              {(alloc.binUnassigned === true || alloc.binLabel === "UNASSIGNED") && (
+                                                <span className="ml-1 px-1 py-0.5 rounded text-[10px] font-medium bg-orange-500/20 text-orange-400">
+                                                  Not put away
+                                                </span>
+                                              )}
+                                              {i < Math.min(displayAllocations.length - 1, 1) && ", "}
+                                            </span>
+                                          ))}
+                                          {displayAllocations.length > 2 && (
+                                            <span className="text-teal-600">
+                                              {" "}
+                                              +{displayAllocations.length - 2} more
+                                            </span>
+                                          )}
+                                          {savedConsumption && (
+                                            <span className="ml-1 text-green-600" title="Saved to database">
+                                              ✓
+                                            </span>
+                                          )}
+                                        </div>
+                                      );
+                                    })()}
+                                  {(item.sourceType === "LOCAL_DROP_SHIP" ||
+                                    item.sourceType === "IMPORT_DROP_SHIP") && (
+                                    <div className="text-xs text-blue-500 mt-0.5 flex items-center gap-1.5">
+                                      <span>
+                                        {item.sourceType === "LOCAL_DROP_SHIP" ? "Local Drop-Ship" : "Import Drop-Ship"}
+                                      </span>
+                                      {item.linkedPoItemId || item._linkedPONumber ? (
+                                        <span className="text-green-600 font-medium" title="Linked to supplier PO">
+                                          PO Linked
+                                        </span>
+                                      ) : id ? (
+                                        <button
+                                          type="button"
+                                          className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-600 text-white rounded text-[10px] font-medium hover:bg-orange-500"
+                                          onClick={() => handleOpenDropshipPOModal(index)}
+                                        >
+                                          Create Dropship PO
+                                        </button>
+                                      ) : null}
                                     </div>
                                   )}
-                                </td>
-                                {/* Rate */}
-                                <td className="px-2 py-2 text-right text-sm">{formatCurrency(item.rate || 0)}</td>
-                                {/* Amount */}
-                                <td className="px-2 py-2 text-right text-sm font-medium">
-                                  <div>{formatCurrency(item.amount || item.quantity * item.rate || 0)}</div>
-                                  {/* Phase 7: Line item cost/margin display for confirmed invoices */}
-                                  {item.costPrice > 0 && (
-                                    <div
-                                      className={`text-[10px] mt-0.5 ${item.marginPercent >= 15 ? "text-green-500" : item.marginPercent >= 0 ? "text-yellow-500" : "text-red-500"}`}
-                                    >
-                                      Cost: {formatCurrency(item.costPrice)} | {item.marginPercent?.toFixed(1) || 0}%
-                                    </div>
-                                  )}
-                                </td>
-                                {/* Status Icon */}
-                                <td className="px-2 py-2 text-center">
-                                  <span className={statusInfo.className} title={statusInfo.title}>
-                                    {statusInfo.icon === "check" && <CheckCircle className="w-5 h-5 inline" />}
-                                    {statusInfo.icon === "partial" && <AlertTriangle className="w-5 h-5 inline" />}
-                                    {statusInfo.icon === "empty" && (
-                                      <span className="inline-block w-5 h-5 rounded-full border-2 border-current"></span>
-                                    )}
-                                    {statusInfo.icon === "ship" && <span className="text-lg">🚢</span>}
-                                  </span>
-                                </td>
-                                {/* Delete */}
-                                <td className="py-2 px-2 text-center">
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setDeleteLineItemConfirm({
-                                        open: true,
-                                        itemId: item.id,
-                                        itemName: item.name,
-                                        tempId: item.lineItemTempId,
-                                      });
-                                    }}
-                                    className="text-gray-400 hover:text-red-500 p-1 transition-colors"
-                                    title="Delete item"
+                                </div>
+                              </td>
+                              {/* Qty */}
+                              <td className="px-2 py-2 text-center text-sm">
+                                {item.quantity || 0} {item.quantityUom || "KG"}
+                                {item.stockQty != null && (
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    ≈ {Number(item.stockQty).toFixed(3)} {item.primaryUom || "KG"} in stock basis
+                                  </div>
+                                )}
+                              </td>
+                              {/* Rate */}
+                              <td className="px-2 py-2 text-right text-sm">{formatCurrency(item.rate || 0)}</td>
+                              {/* Amount */}
+                              <td className="px-2 py-2 text-right text-sm font-medium">
+                                <div>{formatCurrency(item.amount || item.quantity * item.rate || 0)}</div>
+                                {/* Phase 7: Line item cost/margin display for confirmed invoices */}
+                                {item.costPrice > 0 && (
+                                  <div
+                                    className={`text-[10px] mt-0.5 ${item.marginPercent >= 15 ? "text-green-500" : item.marginPercent >= 0 ? "text-yellow-500" : "text-red-500"}`}
                                   >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </td>
-                              </tr>
-                            );
-                          })}
+                                    Cost: {formatCurrency(item.costPrice)} | {item.marginPercent?.toFixed(1) || 0}%
+                                  </div>
+                                )}
+                              </td>
+                              {/* Status Icon */}
+                              <td className="px-2 py-2 text-center">
+                                <span className={statusInfo.className} title={statusInfo.title}>
+                                  {statusInfo.icon === "check" && <CheckCircle className="w-5 h-5 inline" />}
+                                  {statusInfo.icon === "partial" && <AlertTriangle className="w-5 h-5 inline" />}
+                                  {statusInfo.icon === "empty" && (
+                                    <span className="inline-block w-5 h-5 rounded-full border-2 border-current"></span>
+                                  )}
+                                  {statusInfo.icon === "ship" && <span className="text-lg">🚢</span>}
+                                </span>
+                              </td>
+                              {/* Delete */}
+                              <td className="py-2 px-2 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setDeleteLineItemConfirm({
+                                      open: true,
+                                      itemId: item.id,
+                                      itemName: item.name,
+                                      tempId: item.lineItemTempId,
+                                    });
+                                  }}
+                                  className="text-gray-400 hover:text-red-500 p-1 transition-colors"
+                                  title="Delete item"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   )}
@@ -3172,7 +3002,12 @@ const InvoiceForm = ({ onSave }) => {
 
       {/* Save Confirmation Dialog (for Final Tax Invoice) */}
       {showSaveConfirmDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="save-confirm-title"
+        >
           <div
             className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl ${
               isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
@@ -3181,7 +3016,9 @@ const InvoiceForm = ({ onSave }) => {
             <div className="flex items-start mb-4">
               <AlertTriangle className="text-yellow-500 mr-3 flex-shrink-0" size={24} />
               <div>
-                <h3 className="text-lg font-semibold mb-2">Confirm Final Tax Invoice Creation</h3>
+                <h3 id="save-confirm-title" className="text-lg font-semibold mb-2">
+                  Confirm Final Tax Invoice Creation
+                </h3>
                 <p className="text-sm mb-4">
                   You are about to create and save a <strong>Final Tax Invoice</strong>.
                 </p>
@@ -3231,22 +3068,21 @@ const InvoiceForm = ({ onSave }) => {
           const canContinueEditing = !isFinalTaxInvoice; // Draft and Proforma can be edited
 
           return (
-            <button
-              type="button"
+            <div
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
               onClick={canContinueEditing ? handleSuccessModalClose : undefined}
-              tabIndex={canContinueEditing ? 0 : -1}
-              onKeyDown={(e) => canContinueEditing && e.key === "Escape" && handleSuccessModalClose()}
+              onKeyDown={(e) => e.key === "Escape" && handleSuccessModalClose()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="success-modal-title"
             >
-              {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
+              {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation prevents backdrop click-to-close */}
               <div
                 className={`max-w-md w-full mx-4 rounded-2xl shadow-2xl relative overflow-hidden ${
                   isDarkMode ? "bg-gray-900" : "bg-white"
                 }`}
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={(e) => e.stopPropagation()}
-                role="dialog"
-                aria-modal="true"
               >
                 {/* Success Header with Gradient */}
                 <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-5">
@@ -3264,7 +3100,9 @@ const InvoiceForm = ({ onSave }) => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-white">Invoice Created!</h3>
+                      <h3 id="success-modal-title" className="text-xl font-bold text-white">
+                        Invoice Created!
+                      </h3>
                       <p className="text-emerald-100 text-sm mt-0.5">
                         {isFinalTaxInvoice
                           ? `Final Tax Invoice ${invoice.invoiceNumber || ""}`
@@ -3355,7 +3193,7 @@ const InvoiceForm = ({ onSave }) => {
                   </div>
                 )}
               </div>
-            </button>
+            </div>
           );
         })()}
 
@@ -3363,14 +3201,21 @@ const InvoiceForm = ({ onSave }) => {
 
       {/* Dropship PO Creation Modal */}
       {dropshipPOModal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="dropship-po-title"
+        >
           <div
             className={`max-w-md w-full mx-4 p-6 rounded-lg shadow-xl ${
               isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
             }`}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold">Create Dropship PO</h3>
+              <h3 id="dropship-po-title" className="text-lg font-bold">
+                Create Dropship PO
+              </h3>
               <button
                 type="button"
                 onClick={() => setDropshipPOModal({ open: false, itemIndex: null })}
