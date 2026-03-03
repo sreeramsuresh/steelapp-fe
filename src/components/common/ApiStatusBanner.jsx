@@ -44,7 +44,7 @@ const ApiStatusBanner = () => {
               Backend server is unavailable
             </p>
             <p className={`text-xs mt-0.5 ${isDarkMode ? "text-amber-300" : "text-amber-600"}`}>
-              Some features may not work. Please ensure the API Gateway is running on port 3000.
+              Some features may not work. Please ensure the API Gateway is running on port 5000.
               {error && ` (${error})`}
             </p>
           </div>

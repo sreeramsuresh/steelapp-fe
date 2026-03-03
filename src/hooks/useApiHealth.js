@@ -21,7 +21,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export const useApiHealth = (options = {}) => {
   const {
     pollingInterval = 30000, // 30 seconds
-    healthUrl = "http://localhost:3000/health",
+    healthUrl = `${import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:5000"}/health`,
     enabled = true,
   } = options;
 
