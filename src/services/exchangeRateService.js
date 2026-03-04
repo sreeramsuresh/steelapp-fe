@@ -120,7 +120,7 @@ export const exchangeRateService = {
       currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(amount);
+    }).format(Number(amount) || 0);
   },
 
   // Get exchange rate display with symbol
