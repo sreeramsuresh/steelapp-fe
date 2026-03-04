@@ -28,9 +28,9 @@ const InvoiceStatusColumn = React.memo(({ invoice, isDarkMode, onPromiseClick })
       {/* Invoice status + Payment status side by side, width driven by content below */}
       {statusBadges.length > 0 && (
         <div className="grid grid-cols-2 gap-1">
-          {statusBadges.map((badge, index) => (
+          {statusBadges.map((badge) => (
             <StatusBadge
-              key={`${badge.type}-${index}`}
+              key={badge.type}
               label={badge.label}
               icon={badge.icon}
               config={badge.config}
@@ -42,9 +42,9 @@ const InvoiceStatusColumn = React.memo(({ invoice, isDarkMode, onPromiseClick })
         </div>
       )}
       {/* Reminder and promise badges below - these determine the width */}
-      {otherBadges.map((badge, index) => (
+      {otherBadges.map((badge) => (
         <StatusBadge
-          key={`${badge.type}-${index}`}
+          key={badge.type}
           label={badge.label}
           icon={badge.icon}
           config={badge.config}

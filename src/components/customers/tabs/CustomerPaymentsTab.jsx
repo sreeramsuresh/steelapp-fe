@@ -407,8 +407,11 @@ export default function CustomerPaymentsTab({ customerId }) {
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {payment.allocations.map((allocation, idx) => (
-                                    <tr key={`${payment.id}-alloc-${idx}`} className={`border-b ${borderColor}`}>
+                                  {payment.allocations.map((allocation) => (
+                                    <tr
+                                      key={`${payment.id}-alloc-${allocation.invoiceNumber}`}
+                                      className={`border-b ${borderColor}`}
+                                    >
                                       <td className={`py-2 ${primaryText}`}>{allocation.invoiceNumber}</td>
                                       <td className={`py-2 text-right ${primaryText}`}>
                                         {formatCurrency(allocation.amount)}

@@ -2473,11 +2473,11 @@ const SteelProducts = () => {
             </tr>
           </thead>
           <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
-            {sortedProducts.map((product, index) => {
+            {sortedProducts.map((product) => {
               const stockData = getCellValue(product, "stock");
               return (
                 <tr
-                  key={`${product.id}-${index}`}
+                  key={product.id}
                   className={`transition-colors ${
                     isDarkMode ? "bg-gray-900 hover:bg-gray-800" : "bg-white hover:bg-gray-50"
                   }`}
@@ -4276,9 +4276,9 @@ const SteelProducts = () => {
                     These products match your specifications. You might want to review them before adding a new product.
                   </p>
                   <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto">
-                    {similarProducts.map((product, index) => (
+                    {similarProducts.map((product) => (
                       <div
-                        key={`similar-${product.id}-${index}`}
+                        key={`similar-${product.id}`}
                         className={`p-3 rounded-lg border ${
                           isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
                         }`}
@@ -4843,9 +4843,9 @@ const SteelProducts = () => {
                       (p.category || "").toLowerCase().includes(term)
                     );
                   })
-                  .map((product, index) => (
+                  .map((product) => (
                     <div
-                      key={`copy-${product.id}-${index}`}
+                      key={`copy-${product.id}`}
                       className={`p-3 rounded-lg mb-2 border transition-colors ${
                         isDarkMode ? "border-gray-700 hover:bg-gray-800" : "border-gray-200 hover:bg-gray-50"
                       }`}
@@ -4991,10 +4991,10 @@ const SteelProducts = () => {
                         (p.finish || "").toLowerCase().includes(search)
                       );
                     })
-                    .map((product, index) => (
+                    .map((product) => (
                       <button
                         type="button"
-                        key={`select-${product.id}-${index}`}
+                        key={`select-${product.id}`}
                         onClick={() => handleCopyFromProduct(product)}
                         className={`p-4 rounded-lg border-2 text-left transition-all hover:shadow-lg ${
                           isDarkMode

@@ -45,7 +45,7 @@ const ScenarioCards = ({ scenarios = [] }) => {
                 const tagClass = isDarkMode ? tagColors.dark : tagColors.light;
 
                 return (
-                  <div key={`${step.label}-${idx}`} className="flex items-center gap-1">
+                  <div key={step.label} className="flex items-center gap-1">
                     <span className={`text-[10px] px-2 py-0.5 rounded-md font-medium ${tagClass}`}>{step.label}</span>
                     {!isLast && (
                       <ChevronRight className={`h-3 w-3 ${isDarkMode ? "text-gray-600" : "text-gray-300"}`} />

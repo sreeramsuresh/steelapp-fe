@@ -98,8 +98,7 @@ const Home = () => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, 6000);
     return () => clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // heroSlides.length is stable (constant array) - uses functional setState to avoid dependency
+  }, [heroSlides.length]);
 
   // Intersection Observer for scroll animations
   useEffect(() => {
