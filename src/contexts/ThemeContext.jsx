@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 export const ThemeContext = createContext();
 
@@ -21,17 +21,19 @@ export const ThemeProvider = ({ children }) => {
   const isDarkMode = themeMode === "dark";
 
   // Cycle through theme modes: light -> dark -> light...
-  const toggleTheme = () => {
-    const newMode = themeMode === "light" ? "dark" : "light";
-    setThemeMode(newMode);
-    localStorage.setItem("themeMode", newMode);
-  };
+  const toggleTheme = useCallback(() => {
+    setThemeMode((prev) => {
+      const newMode = prev === "light" ? "dark" : "light";
+      localStorage.setItem("themeMode", newMode);
+      return newMode;
+    });
+  }, []);
 
   // Set specific theme mode
-  const setTheme = (mode) => {
+  const setTheme = useCallback((mode) => {
     setThemeMode(mode);
     localStorage.setItem("themeMode", mode);
-  };
+  }, []);
 
   useEffect(() => {
     // Update CSS custom properties for the current theme
@@ -70,12 +72,15 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [isDarkMode]);
 
-  const value = {
-    isDarkMode,
-    themeMode,
-    toggleTheme,
-    setTheme,
-  };
+  const value = useMemo(
+    () => ({
+      isDarkMode,
+      themeMode,
+      toggleTheme,
+      setTheme,
+    }),
+    [isDarkMode, themeMode, toggleTheme, setTheme]
+  );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };

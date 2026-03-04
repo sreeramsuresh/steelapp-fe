@@ -29,18 +29,12 @@ const AnalyticsLayout = () => {
     }
   }, []);
 
-  // Handle window resize for responsive sidebar
+  // Handle window resize for responsive sidebar (using matchMedia for efficiency)
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth <= 768) {
-        setSidebarOpen(false);
-      } else {
-        setSidebarOpen(true);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const mql = window.matchMedia("(max-width: 768px)");
+    const handleChange = (e) => setSidebarOpen(!e.matches);
+    mql.addEventListener("change", handleChange);
+    return () => mql.removeEventListener("change", handleChange);
   }, []);
 
   // Set overflow styles for app layout

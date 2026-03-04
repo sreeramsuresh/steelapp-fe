@@ -1,4 +1,3 @@
-import { jsPDF } from "jspdf";
 import { formatCurrency, formatDateDMY, normalizeLLC, titleCase } from "./invoiceUtils.js";
 import { calculateBalanceDue, calculatePaymentStatus } from "./paymentUtils.js";
 import { TIMEZONE_CONFIG } from "./timezone.js";
@@ -456,6 +455,7 @@ export const generatePaymentReminder = async (invoice, company) => {
       return { success: false, error: "No reminder needed for this invoice" };
     }
 
+    const { jsPDF } = await import("jspdf");
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const margin = 20;

@@ -176,7 +176,9 @@ const PurchaseOrderList = () => {
   }, [page, debouncedSearch, statusFilter]);
 
   useEffect(() => {
+    const controller = new AbortController();
     fetchPurchaseOrders();
+    return () => controller.abort();
   }, [fetchPurchaseOrders]);
 
   const { data: company } = useApiData(companyService.getCompany, [], true);

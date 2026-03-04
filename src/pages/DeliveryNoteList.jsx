@@ -186,7 +186,9 @@ const DeliveryNoteList = () => {
   }, [page, rowsPerPage, search, statusFilter, dateFilter, invoiceIdFromUrl]);
 
   useEffect(() => {
+    const controller = new AbortController();
     fetchDeliveryNotes();
+    return () => controller.abort();
   }, [fetchDeliveryNotes]);
 
   // Fetch company data for preview modal

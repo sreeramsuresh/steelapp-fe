@@ -175,17 +175,30 @@ export const NotificationCenterProvider = ({ children }) => {
     };
   }, []); // singleton effect — empty deps intentional
 
-  const value = {
-    notifications,
-    unreadCount,
-    loading,
-    error,
-    fetchNotifications,
-    markAsRead,
-    markAllAsRead,
-    addNotification,
-    removeNotification,
-  };
+  const value = useMemo(
+    () => ({
+      notifications,
+      unreadCount,
+      loading,
+      error,
+      fetchNotifications,
+      markAsRead,
+      markAllAsRead,
+      addNotification,
+      removeNotification,
+    }),
+    [
+      notifications,
+      unreadCount,
+      loading,
+      error,
+      fetchNotifications,
+      markAsRead,
+      markAllAsRead,
+      addNotification,
+      removeNotification,
+    ]
+  );
 
   return <NotificationCenterContext.Provider value={value}>{children}</NotificationCenterContext.Provider>;
 };

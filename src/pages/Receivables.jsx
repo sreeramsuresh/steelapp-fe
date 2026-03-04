@@ -301,7 +301,9 @@ const Receivables = () => {
   );
 
   useEffect(() => {
+    const controller = new AbortController();
     fetchData();
+    return () => controller.abort();
   }, [fetchData]);
 
   // Helper to get invoice amount - handles both old and new API field names

@@ -144,7 +144,9 @@ const QuotationList = () => {
   }, [page, pageSize, debouncedSearch, statusFilter]);
 
   useEffect(() => {
+    const controller = new AbortController();
     fetchQuotations();
+    return () => controller.abort();
   }, [fetchQuotations]);
 
   // Bug #3 fix: Refresh list when page becomes visible (e.g., when returning from edit)

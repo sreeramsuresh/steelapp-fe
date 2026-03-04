@@ -1,12 +1,16 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
 import { readFileSync } from "node:fs";
 const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    visualizer({ filename: "stats.html", gzipSize: true }),
+  ],
   // Strip console.log/info/debug from production builds (keep error/warn)
   esbuild: {
     pure: ["console.log", "console.info", "console.debug"],

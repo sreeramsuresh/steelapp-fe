@@ -58,6 +58,7 @@ puppeteer-modes-guide.md
 UX_UI_BUG_FIX_PLAN_PHASE2.md
 lint-output.txt
 coverage/
+stats.html
 cypress-run-output*.txt
 scripts/fix-remaining-assert*.cjs
 scripts/fix-sinon-chains.cjs

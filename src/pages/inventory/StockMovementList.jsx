@@ -170,7 +170,9 @@ const StockMovementList = ({ embedded = false }) => {
   }, [page, searchTerm, movementTypeFilter, dateFrom, dateTo]);
 
   useEffect(() => {
+    const controller = new AbortController();
     fetchMovements();
+    return () => controller.abort();
   }, [fetchMovements]);
 
   // Reset filters

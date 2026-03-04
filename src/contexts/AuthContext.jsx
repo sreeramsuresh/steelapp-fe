@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useMemo } from "react";
 
 export const AuthContext = createContext();
 
@@ -7,14 +7,17 @@ export const AuthContext = createContext();
  * Provides user information from App.jsx to child components
  */
 export function AuthProvider({ children, user }) {
-  const value = {
-    user,
-    isAuthenticated: !!user,
-    userId: user?.id,
-    companyId: user?.companyId,
-    companyName: user?.companyName,
-    role: user?.role,
-  };
+  const value = useMemo(
+    () => ({
+      user,
+      isAuthenticated: !!user,
+      userId: user?.id,
+      companyId: user?.companyId,
+      companyName: user?.companyName,
+      role: user?.role,
+    }),
+    [user]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

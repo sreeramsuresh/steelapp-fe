@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 /**
  * ApiHealthContext - Global API health state
@@ -87,15 +87,20 @@ export const ApiHealthProvider = ({ children }) => {
       clearTimeout(timeoutId);
 
       if (isMountedRef.current) {
-        if (response.ok) {
-          setIsHealthy(true);
+        const nowHealthy = response.ok;
+        setIsHealthy((prev) => {
+          if (prev !== nowHealthy) {
+            setLastChecked(new Date());
+          }
+          return nowHealthy;
+        });
+        if (nowHealthy) {
           setError(null);
         } else {
-          setIsHealthy(false);
           setError(`Server returned status ${response.status}`);
           setIsDismissed(false);
+          setLastChecked(new Date());
         }
-        setLastChecked(new Date());
       }
     } catch (err) {
       if (isMountedRef.current) {
@@ -109,7 +114,6 @@ export const ApiHealthProvider = ({ children }) => {
         } else {
           setError(err.message || "Health check failed");
         }
-        setLastChecked(new Date());
       }
     } finally {
       if (isMountedRef.current) {
@@ -145,21 +149,20 @@ export const ApiHealthProvider = ({ children }) => {
     };
   }, []);
 
-  return (
-    <ApiHealthContext.Provider
-      value={{
-        isHealthy,
-        isChecking,
-        lastChecked,
-        error,
-        isDismissed,
-        checkNow: checkHealth,
-        dismiss,
-      }}
-    >
-      {children}
-    </ApiHealthContext.Provider>
+  const value = useMemo(
+    () => ({
+      isHealthy,
+      isChecking,
+      lastChecked,
+      error,
+      isDismissed,
+      checkNow: checkHealth,
+      dismiss,
+    }),
+    [isHealthy, isChecking, lastChecked, error, isDismissed, checkHealth, dismiss]
   );
+
+  return <ApiHealthContext.Provider value={value}>{children}</ApiHealthContext.Provider>;
 };
 
 ApiHealthProvider.propTypes = {
