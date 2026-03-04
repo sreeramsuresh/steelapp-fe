@@ -14,13 +14,95 @@ import {
   Warehouse,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
 import { authService } from "../../services/axiosAuthService";
 import { notificationService } from "../../services/notificationService";
 import { MOVEMENT_TYPES, REFERENCE_TYPES, stockMovementService } from "../../services/stockMovementService";
 import { formatDate } from "../../utils/invoiceUtils";
+
+// ── Pure helpers (no component state dependency) ──
+
+const isDropshipAuditType = (type) => type === "DROP_SHIP_LOCAL" || type === "DROP_SHIP_IMPORT";
+
+const formatQuantityWithSignFn = (movement) => {
+  if (isDropshipAuditType(movement.movementType)) return "0 (audit)";
+  const qty = parseFloat(movement.quantity) || 0;
+  const isInbound = ["IN", "TRANSFER_IN", "RELEASE"].includes(movement.movementType);
+  const isAdjustment = movement.movementType === "ADJUSTMENT";
+  if (isAdjustment) return qty >= 0 ? `+${qty.toFixed(2)}` : qty.toFixed(2);
+  return isInbound ? `+${qty.toFixed(2)}` : `-${qty.toFixed(2)}`;
+};
+
+// ── Memoized row component ──
+
+const StockMovementRow = memo(function StockMovementRow({
+  movement,
+  isDarkMode,
+  onViewDetails,
+  getMovementTypeBadge,
+  getQuantityColorClass,
+}) {
+  return (
+    <tr className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}>
+      <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+        <div className="flex items-center gap-2">
+          <Calendar size={14} className="opacity-50" />
+          {formatDate(movement.movementDate)}
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+          {movement.productName || "-"}
+        </div>
+        <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{movement.productSku || ""}</div>
+      </td>
+      <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+        <div className="flex items-center gap-2">
+          <Warehouse size={14} className="opacity-50" />
+          {isDropshipAuditType(movement.movementType) ? (
+            <span className={isDarkMode ? "text-gray-500 italic" : "text-gray-400 italic"}>N/A (Dropship)</span>
+          ) : (
+            movement.warehouseName || "-"
+          )}
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">{getMovementTypeBadge(movement.movementType)}</td>
+      <td className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${getQuantityColorClass(movement)}`}>
+        {formatQuantityWithSignFn(movement)} {movement.unit}
+      </td>
+      <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+        {movement.referenceNumber || "-"}
+        {movement.referenceType && (
+          <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+            {REFERENCE_TYPES[movement.referenceType]?.label || movement.referenceType}
+          </div>
+        )}
+      </td>
+      <td
+        className={`px-6 py-4 whitespace-nowrap text-sm text-right ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+      >
+        {(movement.balanceAfter || 0).toFixed(2)} {movement.unit}
+      </td>
+      <td className={`px-6 py-4 text-sm max-w-[200px] truncate ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+        {movement.notes || "-"}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-right">
+        <button
+          type="button"
+          onClick={() => onViewDetails(movement.id)}
+          className={`p-2 rounded-lg transition-colors ${
+            isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
+          }`}
+          title="View Details"
+        >
+          <Eye size={18} />
+        </button>
+      </td>
+    </tr>
+  );
+});
 
 /**
  * Stock Movement List Page
@@ -31,6 +113,7 @@ import { formatDate } from "../../utils/invoiceUtils";
 const StockMovementList = ({ embedded = false }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  const handleViewMovementDetails = useCallback((id) => navigate(`/app/inventory/stock-movements/${id}`), [navigate]);
 
   // State
   const [movements, setMovements] = useState([]);
@@ -91,24 +174,6 @@ const StockMovementList = ({ embedded = false }) => {
         )}
       </span>
     );
-  };
-
-  // Format quantity with sign
-  const formatQuantityWithSign = (movement) => {
-    // Dropship audit movements have qty=0 — show the noted quantity from notes if available
-    if (isDropshipAudit(movement.movementType)) {
-      return "0 (audit)";
-    }
-
-    const qty = parseFloat(movement.quantity) || 0;
-    const isInbound = ["IN", "TRANSFER_IN", "RELEASE"].includes(movement.movementType);
-    const isAdjustment = movement.movementType === "ADJUSTMENT";
-
-    if (isAdjustment) {
-      return qty >= 0 ? `+${qty.toFixed(2)}` : qty.toFixed(2);
-    }
-
-    return isInbound ? `+${qty.toFixed(2)}` : `-${qty.toFixed(2)}`;
   };
 
   // Get quantity color class
@@ -469,73 +534,14 @@ const StockMovementList = ({ embedded = false }) => {
           </thead>
           <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
             {movements.map((movement) => (
-              <tr
+              <StockMovementRow
                 key={movement.id}
-                className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors`}
-              >
-                <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                  <div className="flex items-center gap-2">
-                    <Calendar size={14} className="opacity-50" />
-                    {formatDate(movement.movementDate)}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    {movement.productName || "-"}
-                  </div>
-                  <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                    {movement.productSku || ""}
-                  </div>
-                </td>
-                <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                  <div className="flex items-center gap-2">
-                    <Warehouse size={14} className="opacity-50" />
-                    {isDropshipAudit(movement.movementType) ? (
-                      <span className={isDarkMode ? "text-gray-500 italic" : "text-gray-400 italic"}>
-                        N/A (Dropship)
-                      </span>
-                    ) : (
-                      movement.warehouseName || "-"
-                    )}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">{getMovementTypeBadge(movement.movementType)}</td>
-                <td
-                  className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${getQuantityColorClass(movement)}`}
-                >
-                  {formatQuantityWithSign(movement)} {movement.unit}
-                </td>
-                <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                  {movement.referenceNumber || "-"}
-                  {movement.referenceType && (
-                    <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                      {REFERENCE_TYPES[movement.referenceType]?.label || movement.referenceType}
-                    </div>
-                  )}
-                </td>
-                <td
-                  className={`px-6 py-4 whitespace-nowrap text-sm text-right ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
-                >
-                  {(movement.balanceAfter || 0).toFixed(2)} {movement.unit}
-                </td>
-                <td
-                  className={`px-6 py-4 text-sm max-w-[200px] truncate ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-                >
-                  {movement.notes || "-"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/app/inventory/stock-movements/${movement.id}`)}
-                    className={`p-2 rounded-lg transition-colors ${
-                      isDarkMode ? "hover:bg-gray-700 text-blue-400" : "hover:bg-gray-100 text-blue-600"
-                    }`}
-                    title="View Details"
-                  >
-                    <Eye size={18} />
-                  </button>
-                </td>
-              </tr>
+                movement={movement}
+                isDarkMode={isDarkMode}
+                onViewDetails={handleViewMovementDetails}
+                getMovementTypeBadge={getMovementTypeBadge}
+                getQuantityColorClass={getQuantityColorClass}
+              />
             ))}
           </tbody>
         </table>

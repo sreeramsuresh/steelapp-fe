@@ -23,7 +23,7 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import DeleteInvoiceModal from "../components/DeleteInvoiceModal";
@@ -273,6 +273,426 @@ const assertPaymentConsistency = (invoice) => {
     }
   }
 };
+
+/**
+ * Memoized invoice table row — prevents re-render unless the invoice's own
+ * data or its selection / loading / dropdown state changes.
+ */
+const InvoiceTableRow = memo(function InvoiceTableRow({
+  invoice,
+  isDarkMode,
+  isSelected,
+  isDownloading,
+  isSendingReminder,
+  isDropdownOpen,
+  onSelectInvoice,
+  onViewInvoice,
+  onDownloadPDF,
+  onDeliveryNoteClick,
+  onRecordPayment,
+  onDeleteInvoice,
+  onRestoreInvoice,
+  onSendReminder,
+  onOpenPaymentReminder,
+  onSetDropdownId,
+  onNavigateTo,
+  getActionButtonConfig,
+  renderDropshipPOChip,
+  getMissingFieldsList,
+}) {
+  const isDeleted = invoice.deletedAt;
+  const actions = getActionButtonConfig(invoice);
+
+  return (
+    <tr
+      className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors ${
+        isDeleted
+          ? isDarkMode
+            ? "bg-red-900/10 opacity-60"
+            : "bg-red-50/50 opacity-70"
+          : isSelected
+            ? isDarkMode
+              ? "bg-teal-900/20"
+              : "bg-teal-50"
+            : ""
+      }`}
+    >
+      <td className="px-4 py-4 whitespace-nowrap">
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => onSelectInvoice(invoice.id)}
+          className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 cursor-pointer"
+          onClick={(e) => e.stopPropagation()}
+        />
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="flex items-center gap-3">
+          <span
+            className={`inline-flex items-center min-w-[145px] text-sm font-semibold ${isDeleted ? "line-through" : ""} text-teal-600`}
+          >
+            {invoice.invoiceNumber}
+            {isNewRecord(invoice.createdAt, 2) && (
+              <span className="text-yellow-500 text-[9px] -mt-2 ml-0.5" title="Recently created">
+                ★
+              </span>
+            )}
+            {(invoice.creditNotesCount > 0 || invoice.hasCreditNotes) && (
+              <span
+                className={`ml-1.5 px-1.5 py-0.5 text-xs font-medium rounded ${
+                  isDarkMode ? "bg-purple-900/50 text-purple-300" : "bg-purple-100 text-purple-700"
+                }`}
+                title={`${invoice.creditNotesCount || 1} Credit Note(s)`}
+              >
+                CN
+              </span>
+            )}
+          </span>
+          {renderDropshipPOChip(invoice)}
+        </div>
+        {isDeleted && (
+          <div
+            className={`text-xs mt-1 ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+            title={`Deleted: ${invoice.deletionReason || "No reason provided"}`}
+          >
+            🗑️ DELETED
+          </div>
+        )}
+        {invoice.recreatedFrom && (
+          <div className={`text-xs mt-1 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}>
+            🔄 Recreated from {invoice.recreatedFrom}
+          </div>
+        )}
+        {invoice.status === "cancelled" && (
+          <div className={`text-xs mt-1 ${isDarkMode ? "text-red-400" : "text-red-600"}`}>❌ Cancelled & Recreated</div>
+        )}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+          {invoice.customerDetails?.name || invoice.customer?.name}
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+          {formatDate(invoice.invoiceDate)}
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>{formatDate(invoice.dueDate)}</div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div
+          className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+          title={formatCurrency(invoice.total)}
+        >
+          {formatCurrency(invoice.total)}
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <InvoiceStatusColumn invoice={invoice} isDarkMode={isDarkMode} />
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-right">
+        <div className="flex gap-0.5 justify-end">
+          {/* Edit/Lock Action */}
+          {actions.editOrLock.enabled ? (
+            <Link
+              to={actions.editOrLock.link}
+              className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                isDarkMode
+                  ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
+                  : "hover:bg-blue-50 text-blue-600 bg-white"
+              }`}
+              title={actions.editOrLock.tooltip}
+            >
+              <Edit size={18} />
+            </Link>
+          ) : (
+            <span
+              className={`p-2 rounded shadow-sm ${
+                isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+              }`}
+            >
+              <Lock size={18} />
+            </span>
+          )}
+
+          {/* View button */}
+          <button
+            type="button"
+            className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+              isDarkMode
+                ? "text-cyan-400 hover:text-cyan-300 bg-gray-800/30 hover:bg-gray-700/50"
+                : "hover:bg-cyan-50 text-cyan-600 bg-white"
+            }`}
+            title={actions.view.tooltip}
+            onClick={() => onViewInvoice(invoice)}
+          >
+            <Eye size={18} />
+          </button>
+
+          {/* Download button */}
+          {actions.download.enabled ? (
+            <div className="relative">
+              <button
+                type="button"
+                className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                  isDownloading
+                    ? "bg-transparent"
+                    : !actions.download.isValid
+                      ? isDarkMode
+                        ? "text-orange-400 hover:text-orange-300 bg-gray-800/30 hover:bg-gray-700/50"
+                        : "hover:bg-orange-50 text-orange-600 bg-white"
+                      : isDarkMode
+                        ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
+                        : "hover:bg-green-50 text-green-600 bg-white"
+                }`}
+                title={actions.download.tooltip}
+                onClick={() => onDownloadPDF(invoice)}
+                disabled={isDownloading}
+              >
+                {isDownloading ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                ) : (
+                  <Download size={18} />
+                )}
+              </button>
+              {!actions.download.isValid && (
+                <Link
+                  to={`/invoices/${invoice.id}`}
+                  className={`absolute -top-1 -right-1 w-3 h-3 rounded-full flex items-center justify-center hover:scale-125 transition-transform cursor-pointer ${
+                    isDarkMode ? "bg-orange-400 hover:bg-orange-300" : "bg-orange-500 hover:bg-orange-600"
+                  }`}
+                  title={`${getMissingFieldsList(invoice)} - Click to edit`}
+                >
+                  <span className="text-xs font-bold text-white">!</span>
+                </Link>
+              )}
+            </div>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+              }`}
+              title={actions.download.tooltip}
+            >
+              <Download size={18} />
+            </button>
+          )}
+
+          {/* Delivery Note */}
+          {actions.deliveryNote.enabled ? (
+            <button
+              type="button"
+              onClick={() => onDeliveryNoteClick(invoice, actions)}
+              className={`relative p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                actions.deliveryNote.hasNotes
+                  ? isDarkMode
+                    ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
+                    : "hover:bg-blue-50 text-blue-600 bg-white"
+                  : isDarkMode
+                    ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
+                    : "hover:bg-green-50 text-green-600 bg-white"
+              }`}
+              title={
+                !actions.deliveryNote.hasNotes
+                  ? "Create Delivery Note"
+                  : actions.deliveryNote.count === 1
+                    ? "View Delivery Note"
+                    : `View ${actions.deliveryNote.count} Delivery Notes`
+              }
+            >
+              <Truck size={18} />
+              {actions.deliveryNote.hasNotes && (
+                <span
+                  className={`absolute -top-1 -right-1 min-w-[16px] h-[16px] flex items-center justify-center text-[10px] font-bold rounded-full ${
+                    actions.deliveryNote.isFullyDelivered ? "bg-green-500 text-white" : "bg-yellow-500 text-gray-900"
+                  }`}
+                >
+                  {actions.deliveryNote.count}
+                </span>
+              )}
+            </button>
+          ) : ["issued", "sent"].includes(invoice.status) ? null : (
+            <span
+              className={`p-2 rounded shadow-sm opacity-30 ${
+                isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+              }`}
+              title={actions.deliveryNote.tooltip}
+            >
+              <Truck size={18} />
+            </span>
+          )}
+
+          {/* Separator */}
+          <div className={`w-px h-5 mx-1 ${isDarkMode ? "bg-gray-600" : "bg-gray-300"}`} />
+
+          {/* Record Payment */}
+          {actions.recordPayment.enabled ? (
+            <button
+              type="button"
+              className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                actions.recordPayment.isPaid
+                  ? isDarkMode
+                    ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
+                    : "hover:bg-blue-50 text-blue-600 bg-white"
+                  : isDarkMode
+                    ? "text-emerald-400 hover:text-emerald-300 bg-gray-800/30 hover:bg-gray-700/50"
+                    : "hover:bg-emerald-50 text-emerald-600 bg-white"
+              }`}
+              title={actions.recordPayment.tooltip}
+              onClick={() => onRecordPayment(invoice)}
+            >
+              <CircleDollarSign size={18} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+                isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
+              }`}
+              title={actions.recordPayment.tooltip}
+            >
+              <CircleDollarSign size={18} />
+            </button>
+          )}
+
+          {/* More Actions Dropdown */}
+          {(actions.creditNote.enabled ||
+            actions.reminder.enabled ||
+            actions.phone.enabled ||
+            actions.delete.enabled ||
+            actions.restore.enabled) && (
+            <div className="relative actions-dropdown">
+              <button
+                type="button"
+                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                  isDarkMode
+                    ? "text-gray-400 hover:text-gray-300 bg-gray-800/30 hover:bg-gray-700/50"
+                    : "hover:bg-gray-100 text-gray-600 bg-white"
+                }`}
+                title="More actions"
+                onClick={() => onSetDropdownId(isDropdownOpen ? null : invoice.id)}
+              >
+                <MoreVertical size={18} />
+              </button>
+
+              {isDropdownOpen && (
+                <div
+                  className={`absolute right-0 top-full mt-1 z-50 min-w-[180px] rounded-lg shadow-lg border ${
+                    isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+                  }`}
+                >
+                  {actions.creditNote.enabled && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSetDropdownId(null);
+                        onNavigateTo(actions.creditNote.link);
+                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
+                        isDarkMode ? "text-teal-400 hover:bg-gray-700" : "text-teal-600 hover:bg-teal-50"
+                      }`}
+                    >
+                      <ReceiptText size={16} />
+                      <span>Credit Note</span>
+                    </button>
+                  )}
+
+                  {actions.reminder.enabled && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSetDropdownId(null);
+                        onSendReminder(invoice);
+                      }}
+                      disabled={isSendingReminder}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
+                        isDarkMode ? "text-yellow-400 hover:bg-gray-700" : "text-yellow-600 hover:bg-yellow-50"
+                      } ${isSendingReminder ? "opacity-50" : ""}`}
+                    >
+                      <Bell size={16} />
+                      <span>Send Reminder</span>
+                    </button>
+                  )}
+
+                  {actions.phone.enabled && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSetDropdownId(null);
+                        onOpenPaymentReminder(invoice);
+                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
+                        isDarkMode ? "text-orange-400 hover:bg-gray-700" : "text-orange-600 hover:bg-orange-50"
+                      }`}
+                    >
+                      <Phone size={16} />
+                      <span>Phone Notes</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSetDropdownId(null);
+                      onNavigateTo(`/app/invoices/new?duplicateFrom=${invoice.id}`);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
+                      isDarkMode ? "text-blue-400 hover:bg-gray-700" : "text-blue-600 hover:bg-blue-50"
+                    }`}
+                  >
+                    <Copy size={16} />
+                    <span>Duplicate</span>
+                  </button>
+
+                  {(actions.delete.enabled || actions.restore.enabled) &&
+                    (actions.creditNote.enabled || actions.reminder.enabled || actions.phone.enabled) && (
+                      <div className={`my-1 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`} />
+                    )}
+
+                  {actions.delete.enabled && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSetDropdownId(null);
+                        onDeleteInvoice(invoice);
+                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
+                        isDarkMode ? "text-red-400 hover:bg-gray-700" : "text-red-600 hover:bg-red-50"
+                      }`}
+                    >
+                      <Trash2 size={16} />
+                      <span>Delete</span>
+                    </button>
+                  )}
+
+                  {actions.restore.enabled && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSetDropdownId(null);
+                        onRestoreInvoice(invoice);
+                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
+                        isDarkMode ? "text-green-400 hover:bg-gray-700" : "text-green-600 hover:bg-green-50"
+                      }`}
+                    >
+                      <RotateCcw size={16} />
+                      <span>Restore</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+});
 
 const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   const navigate = useNavigate();
@@ -2414,450 +2834,31 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
                   </td>
                 </tr>
               ) : (
-                filteredInvoices.map((invoice, _index) => {
-                  const isDeleted = invoice.deletedAt;
-                  const isSelected = selectedInvoiceIds.has(invoice.id);
-                  return (
-                    <tr
-                      key={invoice.id}
-                      className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} transition-colors ${
-                        isDeleted
-                          ? isDarkMode
-                            ? "bg-red-900/10 opacity-60"
-                            : "bg-red-50/50 opacity-70"
-                          : isSelected
-                            ? isDarkMode
-                              ? "bg-teal-900/20"
-                              : "bg-teal-50"
-                            : ""
-                      }`}
-                    >
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => handleSelectInvoice(invoice.id)}
-                          className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 cursor-pointer"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          {/* Invoice number + star + CN badge — fixed width for PO chip alignment */}
-                          <span
-                            className={`inline-flex items-center min-w-[145px] text-sm font-semibold ${isDeleted ? "line-through" : ""} text-teal-600`}
-                          >
-                            {invoice.invoiceNumber}
-                            {isNewRecord(invoice.createdAt, 2) && (
-                              <span className="text-yellow-500 text-[9px] -mt-2 ml-0.5" title="Recently created">
-                                ★
-                              </span>
-                            )}
-                            {/* Credit Note Badge */}
-                            {(invoice.creditNotesCount > 0 || invoice.hasCreditNotes) && (
-                              <span
-                                className={`ml-1.5 px-1.5 py-0.5 text-xs font-medium rounded ${
-                                  isDarkMode ? "bg-purple-900/50 text-purple-300" : "bg-purple-100 text-purple-700"
-                                }`}
-                                title={`${invoice.creditNotesCount || 1} Credit Note(s)`}
-                              >
-                                CN
-                              </span>
-                            )}
-                          </span>
-                          {/* Dropship PO Chip — fixed position after invoice number */}
-                          {renderDropshipPOChip(invoice)}
-                        </div>
-                        {isDeleted && (
-                          <div
-                            className={`text-xs mt-1 ${isDarkMode ? "text-red-400" : "text-red-600"}`}
-                            title={`Deleted: ${invoice.deletionReason || "No reason provided"}`}
-                          >
-                            🗑️ DELETED
-                          </div>
-                        )}
-                        {invoice.recreatedFrom && (
-                          <div className={`text-xs mt-1 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}>
-                            🔄 Recreated from {invoice.recreatedFrom}
-                          </div>
-                        )}
-                        {invoice.status === "cancelled" && (
-                          <div className={`text-xs mt-1 ${isDarkMode ? "text-red-400" : "text-red-600"}`}>
-                            ❌ Cancelled & Recreated
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                          {invoice.customerDetails?.name || invoice.customer?.name}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                          {formatDate(invoice.invoiceDate)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                          {formatDate(invoice.dueDate)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div
-                          className={`text-sm font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                          title={formatCurrency(invoice.total)}
-                        >
-                          {formatCurrency(invoice.total)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <InvoiceStatusColumn invoice={invoice} isDarkMode={isDarkMode} />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="flex gap-0.5 justify-end">
-                          {(() => {
-                            const actions = getActionButtonConfig(invoice);
-
-                            return (
-                              <>
-                                {/* Edit/Lock Action: Edit (within 24h) or Lock (after 24h) */}
-                                {actions.editOrLock.enabled ? (
-                                  <Link
-                                    to={actions.editOrLock.link}
-                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                      isDarkMode
-                                        ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                        : "hover:bg-blue-50 text-blue-600 bg-white"
-                                    }`}
-                                    title={actions.editOrLock.tooltip}
-                                  >
-                                    <Edit size={18} />
-                                  </Link>
-                                ) : (
-                                  <span
-                                    className={`p-2 rounded shadow-sm ${
-                                      isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                    }`}
-                                  >
-                                    <Lock size={18} />
-                                  </span>
-                                )}
-
-                                {/* Credit Note moved to More dropdown */}
-
-                                {/* View button - Always enabled */}
-                                <button
-                                  type="button"
-                                  className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                    isDarkMode
-                                      ? "text-cyan-400 hover:text-cyan-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                      : "hover:bg-cyan-50 text-cyan-600 bg-white"
-                                  }`}
-                                  title={actions.view.tooltip}
-                                  onClick={() => handleViewInvoice(invoice)}
-                                >
-                                  <Eye size={18} />
-                                </button>
-
-                                {/* Download button - Always visible */}
-                                {actions.download.enabled ? (
-                                  <div className="relative">
-                                    <button
-                                      type="button"
-                                      className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-                                        downloadingIds.has(invoice.id)
-                                          ? "bg-transparent"
-                                          : !actions.download.isValid
-                                            ? isDarkMode
-                                              ? "text-orange-400 hover:text-orange-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                              : "hover:bg-orange-50 text-orange-600 bg-white"
-                                            : isDarkMode
-                                              ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                              : "hover:bg-green-50 text-green-600 bg-white"
-                                      }`}
-                                      title={actions.download.tooltip}
-                                      onClick={() => handleDownloadPDF(invoice)}
-                                      disabled={downloadingIds.has(invoice.id)}
-                                    >
-                                      {downloadingIds.has(invoice.id) ? (
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                                      ) : (
-                                        <Download size={18} />
-                                      )}
-                                    </button>
-                                    {!actions.download.isValid && (
-                                      <Link
-                                        to={`/invoices/${invoice.id}`}
-                                        className={`absolute -top-1 -right-1 w-3 h-3 rounded-full flex items-center justify-center hover:scale-125 transition-transform cursor-pointer ${
-                                          isDarkMode
-                                            ? "bg-orange-400 hover:bg-orange-300"
-                                            : "bg-orange-500 hover:bg-orange-600"
-                                        }`}
-                                        title={`${getMissingFieldsList(invoice)} - Click to edit`}
-                                      >
-                                        <span className="text-xs font-bold text-white">!</span>
-                                      </Link>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    disabled
-                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                      isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                    }`}
-                                    title={actions.download.tooltip}
-                                  >
-                                    <Download size={18} />
-                                  </button>
-                                )}
-
-                                {/* Delivery Note Direct Action - Smart Navigation with Badge */}
-                                {/* Icon colors: Green truck = no DN (create mode), Blue truck = has DN (view mode) */}
-                                {actions.deliveryNote.enabled ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeliveryNoteClick(invoice, actions)}
-                                    className={`relative p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                      actions.deliveryNote.hasNotes
-                                        ? isDarkMode
-                                          ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                          : "hover:bg-blue-50 text-blue-600 bg-white"
-                                        : isDarkMode
-                                          ? "text-green-400 hover:text-green-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                          : "hover:bg-green-50 text-green-600 bg-white"
-                                    }`}
-                                    title={
-                                      !actions.deliveryNote.hasNotes
-                                        ? "Create Delivery Note"
-                                        : actions.deliveryNote.count === 1
-                                          ? "View Delivery Note"
-                                          : `View ${actions.deliveryNote.count} Delivery Notes`
-                                    }
-                                  >
-                                    <Truck size={18} />
-                                    {/* Badge with count and color */}
-                                    {actions.deliveryNote.hasNotes && (
-                                      <span
-                                        className={`absolute -top-1 -right-1 min-w-[16px] h-[16px] flex items-center justify-center text-[10px] font-bold rounded-full ${
-                                          actions.deliveryNote.isFullyDelivered
-                                            ? "bg-green-500 text-white"
-                                            : "bg-yellow-500 text-gray-900"
-                                        }`}
-                                      >
-                                        {actions.deliveryNote.count}
-                                      </span>
-                                    )}
-                                  </button>
-                                ) : ["issued", "sent"].includes(invoice.status) ? null : (
-                                  <span
-                                    className={`p-2 rounded shadow-sm opacity-30 ${
-                                      isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                    }`}
-                                    title={actions.deliveryNote.tooltip}
-                                  >
-                                    <Truck size={18} />
-                                  </span>
-                                )}
-
-                                {/* Separator: Core Actions | Payment Group */}
-                                <div className={`w-px h-5 mx-1 ${isDarkMode ? "bg-gray-600" : "bg-gray-300"}`} />
-
-                                {/* Record Payment button - Always visible (green for unpaid, blue for paid/view-only) */}
-                                {actions.recordPayment.enabled ? (
-                                  <button
-                                    type="button"
-                                    className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                      actions.recordPayment.isPaid
-                                        ? isDarkMode
-                                          ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                          : "hover:bg-blue-50 text-blue-600 bg-white"
-                                        : isDarkMode
-                                          ? "text-emerald-400 hover:text-emerald-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                          : "hover:bg-emerald-50 text-emerald-600 bg-white"
-                                    }`}
-                                    title={actions.recordPayment.tooltip}
-                                    onClick={() => handleRecordPayment(invoice)}
-                                  >
-                                    <CircleDollarSign size={18} />
-                                  </button>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    disabled
-                                    className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
-                                      isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
-                                    }`}
-                                    title={actions.recordPayment.tooltip}
-                                  >
-                                    <CircleDollarSign size={18} />
-                                  </button>
-                                )}
-
-                                {/* More Actions Dropdown - Delivery Note removed (now direct action) */}
-                                {(actions.creditNote.enabled ||
-                                  actions.reminder.enabled ||
-                                  actions.phone.enabled ||
-                                  actions.delete.enabled ||
-                                  actions.restore.enabled) && (
-                                  <div className="relative actions-dropdown">
-                                    <button
-                                      type="button"
-                                      className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
-                                        isDarkMode
-                                          ? "text-gray-400 hover:text-gray-300 bg-gray-800/30 hover:bg-gray-700/50"
-                                          : "hover:bg-gray-100 text-gray-600 bg-white"
-                                      }`}
-                                      title="More actions"
-                                      onClick={() =>
-                                        setOpenDropdownId(openDropdownId === invoice.id ? null : invoice.id)
-                                      }
-                                    >
-                                      <MoreVertical size={18} />
-                                    </button>
-
-                                    {openDropdownId === invoice.id && (
-                                      <div
-                                        className={`absolute right-0 top-full mt-1 z-50 min-w-[180px] rounded-lg shadow-lg border ${
-                                          isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-                                        }`}
-                                      >
-                                        {/* Credit Note */}
-                                        {actions.creditNote.enabled && (
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              setOpenDropdownId(null);
-                                              navigate(actions.creditNote.link);
-                                            }}
-                                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
-                                              isDarkMode
-                                                ? "text-teal-400 hover:bg-gray-700"
-                                                : "text-teal-600 hover:bg-teal-50"
-                                            }`}
-                                          >
-                                            <ReceiptText size={16} />
-                                            <span>Credit Note</span>
-                                          </button>
-                                        )}
-
-                                        {/* Payment Reminder */}
-                                        {actions.reminder.enabled && (
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              setOpenDropdownId(null);
-                                              handleSendReminder(invoice);
-                                            }}
-                                            disabled={sendingReminderIds.has(invoice.id)}
-                                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
-                                              isDarkMode
-                                                ? "text-yellow-400 hover:bg-gray-700"
-                                                : "text-yellow-600 hover:bg-yellow-50"
-                                            } ${sendingReminderIds.has(invoice.id) ? "opacity-50" : ""}`}
-                                          >
-                                            <Bell size={16} />
-                                            <span>Send Reminder</span>
-                                          </button>
-                                        )}
-
-                                        {/* Phone Notes */}
-                                        {actions.phone.enabled && (
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              setOpenDropdownId(null);
-                                              handleOpenPaymentReminder(invoice);
-                                            }}
-                                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
-                                              isDarkMode
-                                                ? "text-orange-400 hover:bg-gray-700"
-                                                : "text-orange-600 hover:bg-orange-50"
-                                            }`}
-                                          >
-                                            <Phone size={16} />
-                                            <span>Phone Notes</span>
-                                          </button>
-                                        )}
-
-                                        {/* Duplicate Invoice */}
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            setOpenDropdownId(null);
-                                            navigate(`/app/invoices/new?duplicateFrom=${invoice.id}`);
-                                          }}
-                                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
-                                            isDarkMode
-                                              ? "text-blue-400 hover:bg-gray-700"
-                                              : "text-blue-600 hover:bg-blue-50"
-                                          }`}
-                                        >
-                                          <Copy size={16} />
-                                          <span>Duplicate</span>
-                                        </button>
-
-                                        {/* Delivery Note moved to direct action button - no longer in dropdown */}
-
-                                        {/* Divider before danger zone */}
-                                        {(actions.delete.enabled || actions.restore.enabled) &&
-                                          (actions.creditNote.enabled ||
-                                            actions.reminder.enabled ||
-                                            actions.phone.enabled) && (
-                                            <div
-                                              className={`my-1 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
-                                            />
-                                          )}
-
-                                        {/* Delete */}
-                                        {actions.delete.enabled && (
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              setOpenDropdownId(null);
-                                              handleDeleteInvoice(invoice);
-                                            }}
-                                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
-                                              isDarkMode
-                                                ? "text-red-400 hover:bg-gray-700"
-                                                : "text-red-600 hover:bg-red-50"
-                                            }`}
-                                          >
-                                            <Trash2 size={16} />
-                                            <span>Delete</span>
-                                          </button>
-                                        )}
-
-                                        {/* Restore */}
-                                        {actions.restore.enabled && (
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              setOpenDropdownId(null);
-                                              handleRestoreInvoice(invoice);
-                                            }}
-                                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
-                                              isDarkMode
-                                                ? "text-green-400 hover:bg-gray-700"
-                                                : "text-green-600 hover:bg-green-50"
-                                            }`}
-                                          >
-                                            <RotateCcw size={16} />
-                                            <span>Restore</span>
-                                          </button>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-                              </>
-                            );
-                          })()}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
+                filteredInvoices.map((invoice) => (
+                  <InvoiceTableRow
+                    key={invoice.id}
+                    invoice={invoice}
+                    isDarkMode={isDarkMode}
+                    isSelected={selectedInvoiceIds.has(invoice.id)}
+                    isDownloading={downloadingIds.has(invoice.id)}
+                    isSendingReminder={sendingReminderIds.has(invoice.id)}
+                    isDropdownOpen={openDropdownId === invoice.id}
+                    onSelectInvoice={handleSelectInvoice}
+                    onViewInvoice={handleViewInvoice}
+                    onDownloadPDF={handleDownloadPDF}
+                    onDeliveryNoteClick={handleDeliveryNoteClick}
+                    onRecordPayment={handleRecordPayment}
+                    onDeleteInvoice={handleDeleteInvoice}
+                    onRestoreInvoice={handleRestoreInvoice}
+                    onSendReminder={handleSendReminder}
+                    onOpenPaymentReminder={handleOpenPaymentReminder}
+                    onSetDropdownId={setOpenDropdownId}
+                    onNavigateTo={navigate}
+                    getActionButtonConfig={getActionButtonConfig}
+                    renderDropshipPOChip={renderDropshipPOChip}
+                    getMissingFieldsList={getMissingFieldsList}
+                  />
+                ))
               )}
             </tbody>
           </table>

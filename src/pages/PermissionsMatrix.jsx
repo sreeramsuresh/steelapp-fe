@@ -1,3 +1,4 @@
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { Check, Loader2, Search, Shield, TableProperties, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
@@ -182,6 +183,13 @@ export default function PermissionsMatrix() {
     if (!activeModules) return data.permissions;
     return data.permissions.filter((p) => activeModules.includes(p.module));
   }, [data, activeModules]);
+
+  const rowVirtualizer = useVirtualizer({
+    count: filteredUsers.length,
+    getScrollElement: () => tableRef.current,
+    estimateSize: () => 44,
+    overscan: 10,
+  });
 
   const moduleList = useMemo(() => {
     if (!data) return [];
@@ -494,8 +502,12 @@ export default function PermissionsMatrix() {
         </span>
       </div>
 
-      {/* Matrix table */}
-      <div className={`rounded-lg border ${borderColor} overflow-x-auto`} ref={tableRef}>
+      {/* Matrix table — virtualized rows, scrollable container */}
+      <div
+        className={`rounded-lg border ${borderColor} overflow-auto`}
+        ref={tableRef}
+        style={{ maxHeight: "calc(100vh - 280px)" }}
+      >
         <table className={`perm-matrix-table text-[13px] ${bgMain}`}>
           <thead className={`${bgHeader} sticky top-0 z-20`}>
             {/* Module group header row — placed ABOVE action labels */}
@@ -578,16 +590,24 @@ export default function PermissionsMatrix() {
             </tr>
           </thead>
           <tbody>
-            {filteredUsers.map((user) => {
+            {/* Top spacer for virtual scroll */}
+            {rowVirtualizer.getVirtualItems().length > 0 && (
+              <tr>
+                <td style={{ height: rowVirtualizer.getVirtualItems()[0]?.start ?? 0, padding: 0, border: 0 }} />
+              </tr>
+            )}
+            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              const user = filteredUsers[virtualRow.index];
               const counts = userPermCount(user);
               const isSelected = selectedRow === user.id;
               const rowBg = isSelected ? (isDarkMode ? "bg-amber-900/20" : "bg-amber-50") : "";
-              // Sticky columns need OPAQUE backgrounds so scrolling cells don't show through
               const stickyBg = isSelected ? (isDarkMode ? "#2a2310" : "#fffbeb") : isDarkMode ? "#1a1d21" : "#ffffff";
 
               return (
                 <tr
                   key={user.id}
+                  data-index={virtualRow.index}
+                  ref={rowVirtualizer.measureElement}
                   className={`${rowBg} hover:${isDarkMode ? "bg-gray-800/50" : "bg-gray-50"} transition-colors`}
                   onClick={() => setSelectedRow(isSelected ? null : user.id)}
                 >
@@ -686,6 +706,18 @@ export default function PermissionsMatrix() {
                 </tr>
               );
             })}
+            {/* Bottom spacer for virtual scroll */}
+            {rowVirtualizer.getVirtualItems().length > 0 && (
+              <tr>
+                <td
+                  style={{
+                    height: rowVirtualizer.getTotalSize() - (rowVirtualizer.getVirtualItems().at(-1)?.end ?? 0),
+                    padding: 0,
+                    border: 0,
+                  }}
+                />
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

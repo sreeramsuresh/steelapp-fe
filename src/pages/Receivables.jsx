@@ -1,5 +1,5 @@
 import { Banknote, ChevronDown, Download, Filter, RefreshCw } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import PaymentDrawer from "../components/payments/PaymentDrawer";
 import { FormSelect } from "../components/ui/form-select";
@@ -128,6 +128,85 @@ const downloadBlob = (blob, filename) => {
     console.error("Download failed", e);
   }
 };
+
+// ── Memoized row component ──
+
+const ReceivableRow = memo(function ReceivableRow({
+  row,
+  isSelected,
+  isDarkMode,
+  canManage,
+  onToggle,
+  onOpenDrawer,
+  onNavigateCustomer,
+  getCustomerName,
+  getInvoiceAmount,
+  getReceived,
+  getOutstanding,
+}) {
+  return (
+    <tr
+      className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} cursor-pointer`}
+      onClick={() => onOpenDrawer(row)}
+    >
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation cell in clickable row */}
+      <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => onToggle(row.id)}
+          aria-label={`Select invoice ${row.invoiceNumber || row.id}`}
+        />
+      </td>
+      <td className="px-3 py-2 text-teal-600 font-semibold whitespace-nowrap">{row.invoiceNo || row.invoiceNumber}</td>
+      <td className="px-3 py-2">
+        {getCustomerName(row) ? (
+          <button
+            type="button"
+            className="text-teal-600 hover:underline text-left"
+            onClick={(e) => {
+              e.stopPropagation();
+              onNavigateCustomer(row);
+            }}
+          >
+            {getCustomerName(row)}
+          </button>
+        ) : (
+          <span className="text-gray-400">No Customer</span>
+        )}
+      </td>
+      <td className="px-3 py-2 whitespace-nowrap text-sm">{formatDateDMY(row.invoiceDate || row.date)}</td>
+      <td className="px-3 py-2 whitespace-nowrap text-sm">
+        <div className="flex items-center gap-1.5">
+          <span>{formatDateDMY(row.dueDate)}</span>
+          {row.status === "overdue" && <Pill color="red">Overdue</Pill>}
+        </div>
+      </td>
+      <td className="px-3 py-2 text-right whitespace-nowrap">
+        <div>{formatCurrency(getInvoiceAmount(row))}</div>
+        {getReceived(row) > 0 && (
+          <div className="text-[10px] text-green-600 opacity-80">Rcvd: {formatCurrency(getReceived(row))}</div>
+        )}
+      </td>
+      <td className="px-3 py-2 text-right font-semibold whitespace-nowrap">{formatCurrency(getOutstanding(row))}</td>
+      <td className="px-3 py-2 text-center">
+        <StatusPill status={row.status} />
+      </td>
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation cell in clickable row */}
+      <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          className={`px-2 py-1 text-xs rounded ${canManage ? "text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30" : "text-gray-400 cursor-not-allowed"}`}
+          onClick={() => canManage && onOpenDrawer(row)}
+          disabled={!canManage}
+          data-testid="record-payment-button"
+        >
+          Pay
+        </button>
+      </td>
+    </tr>
+  );
+});
 
 const Receivables = () => {
   const { isDarkMode } = useTheme();
@@ -351,8 +430,17 @@ const Receivables = () => {
       return n;
     });
 
-  const openDrawer = (item) => setDrawer({ open: true, item });
+  const openDrawer = useCallback((item) => setDrawer({ open: true, item }), []);
   const closeDrawer = () => setDrawer({ open: false, item: null });
+  const handleNavigateCustomer = useCallback(
+    (row) => {
+      const cid = getCustomerId(row);
+      const name = getCustomerName(row);
+      if (cid) navigate(`/app/payables/customer/${cid}?name=${encodeURIComponent(name)}`);
+      else navigate(`/app/payables/customer/${encodeURIComponent(name)}?name=${encodeURIComponent(name)}`);
+    },
+    [getCustomerId, getCustomerName, navigate]
+  );
 
   const handleAddPayment = async ({ amount, method, referenceNo, notes, paymentDate }) => {
     // Guard against double-submit
@@ -912,81 +1000,20 @@ const Receivables = () => {
                 </tr>
               ) : (
                 items.map((row) => (
-                  <tr
+                  <ReceivableRow
                     key={row.id}
-                    className={`${isDarkMode ? "hover:bg-[#2E3B4E]" : "hover:bg-gray-50"} cursor-pointer`}
-                    onClick={() => openDrawer(row)}
-                  >
-                    {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation cell in clickable row */}
-                    <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        checked={selected.has(row.id)}
-                        onChange={() => toggleOne(row.id)}
-                        aria-label={`Select invoice ${row.invoiceNumber || row.id}`}
-                      />
-                    </td>
-                    <td className="px-3 py-2 text-teal-600 font-semibold whitespace-nowrap">
-                      {row.invoiceNo || row.invoiceNumber}
-                    </td>
-                    <td className="px-3 py-2">
-                      {getCustomerName(row) ? (
-                        <button
-                          type="button"
-                          className="text-teal-600 hover:underline text-left"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const cid = getCustomerId(row);
-                            const name = getCustomerName(row);
-                            if (cid) navigate(`/app/payables/customer/${cid}?name=${encodeURIComponent(name)}`);
-                            else
-                              navigate(
-                                `/app/payables/customer/${encodeURIComponent(name)}?name=${encodeURIComponent(name)}`
-                              );
-                          }}
-                        >
-                          {getCustomerName(row)}
-                        </button>
-                      ) : (
-                        <span className="text-gray-400">No Customer</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap text-sm">
-                      {formatDateDMY(row.invoiceDate || row.date)}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap text-sm">
-                      <div className="flex items-center gap-1.5">
-                        <span>{formatDateDMY(row.dueDate)}</span>
-                        {row.status === "overdue" && <Pill color="red">Overdue</Pill>}
-                      </div>
-                    </td>
-                    <td className="px-3 py-2 text-right whitespace-nowrap">
-                      <div>{formatCurrency(getInvoiceAmount(row))}</div>
-                      {getReceived(row) > 0 && (
-                        <div className="text-[10px] text-green-600 opacity-80">
-                          Rcvd: {formatCurrency(getReceived(row))}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-3 py-2 text-right font-semibold whitespace-nowrap">
-                      {formatCurrency(getOutstanding(row))}
-                    </td>
-                    <td className="px-3 py-2 text-center">
-                      <StatusPill status={row.status} />
-                    </td>
-                    {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation cell in clickable row */}
-                    <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        type="button"
-                        className={`px-2 py-1 text-xs rounded ${canManage ? "text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30" : "text-gray-400 cursor-not-allowed"}`}
-                        onClick={() => canManage && openDrawer(row)}
-                        disabled={!canManage}
-                        data-testid="record-payment-button"
-                      >
-                        Pay
-                      </button>
-                    </td>
-                  </tr>
+                    row={row}
+                    isSelected={selected.has(row.id)}
+                    isDarkMode={isDarkMode}
+                    canManage={canManage}
+                    onToggle={toggleOne}
+                    onOpenDrawer={openDrawer}
+                    onNavigateCustomer={handleNavigateCustomer}
+                    getCustomerName={getCustomerName}
+                    getInvoiceAmount={getInvoiceAmount}
+                    getReceived={getReceived}
+                    getOutstanding={getOutstanding}
+                  />
                 ))
               )}
             </tbody>

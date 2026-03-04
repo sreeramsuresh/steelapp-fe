@@ -50,6 +50,7 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@simplewebauthn/browser": "^13.2.2",
     "@steelapp/contracts": "file:../steelapp-contracts",
+    "@tanstack/react-virtual": "^3.13.19",
     "axios": "^1.10.0",
     "baseline-browser-mapping": "^2.8.32",
     "class-variance-authority": "^0.7.1",
