@@ -88,18 +88,13 @@ export const ApiHealthProvider = ({ children }) => {
 
       if (isMountedRef.current) {
         const nowHealthy = response.ok;
-        setIsHealthy((prev) => {
-          if (prev !== nowHealthy) {
-            setLastChecked(new Date());
-          }
-          return nowHealthy;
-        });
+        setIsHealthy(nowHealthy);
+        setLastChecked(new Date());
         if (nowHealthy) {
           setError(null);
         } else {
           setError(`Server returned status ${response.status}`);
           setIsDismissed(false);
-          setLastChecked(new Date());
         }
       }
     } catch (err) {

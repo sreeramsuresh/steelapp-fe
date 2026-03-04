@@ -34,6 +34,10 @@ export function AuditHubProvider({ children }) {
   const loadPeriods = useCallback(
     async (options = {}) => {
       if (!user?.id) return;
+      if (!user?.companyId) {
+        setError("No company context available");
+        return;
+      }
       // Skip if user doesn't have accounting_periods permission
       if (!authService.hasPermission("accounting_periods", "read")) return;
 
