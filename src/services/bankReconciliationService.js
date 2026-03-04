@@ -80,7 +80,7 @@ class BankReconciliationService {
       style: "currency",
       currency: "AED",
       minimumFractionDigits: 2,
-    }).format(amount);
+    }).format(Number(amount) || 0);
   }
 
   /**
