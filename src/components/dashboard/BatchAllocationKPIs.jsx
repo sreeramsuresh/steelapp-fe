@@ -46,10 +46,13 @@ const BatchAllocationKPIs = ({ _refreshTrigger = 0 }) => {
       const healthData = healthResponse || {};
 
       setMetrics({
-        batchIssues: (healthData.negativeStockCount || 0) + (healthData.mismatchCount || 0),
-        allocatedValue: metricsData.totalAllocatedValue || 0,
-        pendingAllocations: metricsData.unallocatedLinesCount || 0,
-        costVariance: metricsData.totalCostVariance || 0,
+        batchIssues:
+          (healthData.underAllocatedCount || 0) +
+          (healthData.overAllocatedCount || 0) +
+          (healthData.inconsistentBatches || 0),
+        allocatedValue: parseFloat(metricsData.totalAllocatedQuantity) || 0,
+        pendingAllocations: healthData.underAllocatedCount || 0,
+        costVariance: parseFloat(healthData.healthScore) || 0,
       });
     } catch (err) {
       console.error("Failed to fetch batch allocation metrics:", err);
@@ -90,18 +93,18 @@ const BatchAllocationKPIs = ({ _refreshTrigger = 0 }) => {
       tooltip: "Negative stock and batch mismatches",
     },
     {
-      id: "allocated-value",
-      title: "Allocated Value",
+      id: "allocated-qty",
+      title: "Allocated Qty",
       value: metrics.allocatedValue,
       icon: DollarSign,
-      format: "currency",
+      format: "number",
       tab: "allocations",
       getColor: () => "blue",
-      tooltip: "Total AED value of allocated batches",
+      tooltip: "Total allocated quantity across batches",
     },
     {
-      id: "pending-allocations",
-      title: "Pending Allocations",
+      id: "under-allocated",
+      title: "Under-Allocated",
       value: metrics.pendingAllocations,
       icon: Clock,
       format: "number",
@@ -110,20 +113,21 @@ const BatchAllocationKPIs = ({ _refreshTrigger = 0 }) => {
         if (value > 10) return "yellow";
         return "gray";
       },
-      tooltip: "Unallocated invoice lines",
+      tooltip: "Items with insufficient batch allocation",
     },
     {
-      id: "cost-variance",
-      title: "Cost Variance",
+      id: "health-score",
+      title: "Health Score",
       value: metrics.costVariance,
       icon: TrendingDown,
-      format: "currency",
+      format: "percent",
       tab: "variance",
       getColor: (value) => {
-        if (value < 0) return "red";
+        if (value < 50) return "red";
+        if (value < 80) return "yellow";
         return "green";
       },
-      tooltip: "Sum of reallocation cost impact",
+      tooltip: "Overall batch allocation health score",
     },
   ];
 
@@ -170,6 +174,10 @@ const BatchAllocationKPIs = ({ _refreshTrigger = 0 }) => {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       }).format(value || 0);
+    }
+
+    if (format === "percent") {
+      return `${parseFloat(value || 0).toFixed(1)}%`;
     }
 
     return (value || 0).toLocaleString();

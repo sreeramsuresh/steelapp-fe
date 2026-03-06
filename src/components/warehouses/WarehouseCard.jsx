@@ -75,11 +75,11 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete, onSetDefault }) =>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {/* Default Badge */}
             {isDefault && (
               <span
-                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
                   isDarkMode ? "bg-amber-900/30 text-amber-400" : "bg-amber-100 text-amber-700"
                 }`}
               >
@@ -90,7 +90,7 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete, onSetDefault }) =>
 
             {/* Status Badge */}
             <span
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
                 isActive
                   ? isDarkMode
                     ? "bg-green-900/30 text-green-400"

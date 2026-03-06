@@ -58,7 +58,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
     const loadWarehouses = async () => {
       try {
         setLoadingWarehouses(true);
-        const result = await warehouseService.getAll({ isActive: true });
+        const result = await warehouseService.getAll({});
         setWarehouses(result.data || []);
       } catch (err) {
         console.error("Error loading warehouses:", err);
@@ -292,6 +292,35 @@ const TransferForm = ({ onCancel, onSuccess }) => {
           Back to List
         </button>
       </div>
+
+      {/* Inactive warehouse warning */}
+      {(() => {
+        const srcWh = sourceWarehouseId ? warehouses.find((w) => String(w.id) === String(sourceWarehouseId)) : null;
+        const dstWh = destinationWarehouseId
+          ? warehouses.find((w) => String(w.id) === String(destinationWarehouseId))
+          : null;
+        const inactiveNames = [srcWh && !srcWh.isActive && srcWh.name, dstWh && !dstWh.isActive && dstWh.name].filter(
+          Boolean
+        );
+        return inactiveNames.length > 0 ? (
+          <div
+            className={`mb-4 p-3 rounded-lg flex items-start gap-2 ${
+              isDarkMode ? "bg-amber-900/20 border border-amber-700" : "bg-amber-50 border border-amber-200"
+            }`}
+          >
+            <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className={`text-sm font-medium ${isDarkMode ? "text-amber-100" : "text-amber-900"}`}>
+                Inactive warehouse involved
+              </p>
+              <p className={`text-xs ${isDarkMode ? "text-amber-200/70" : "text-amber-700"}`}>
+                {inactiveNames.join(" and ")} {inactiveNames.length > 1 ? "are" : "is"} inactive. Transfer is allowed
+                but not recommended.
+              </p>
+            </div>
+          </div>
+        ) : null;
+      })()}
 
       {/* Validation Errors Alert */}
       {validationErrors.length > 0 && (

@@ -54,7 +54,7 @@ const StockMovementRow = memo(function StockMovementRow({
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-          {movement.productName || "-"}
+          {movement.productDisplayName || movement.productName || "-"}
         </div>
         <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{movement.productSku || ""}</div>
       </td>

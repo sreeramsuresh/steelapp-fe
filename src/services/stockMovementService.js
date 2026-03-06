@@ -842,23 +842,26 @@ class StockMovementService {
       warehouseName: response.warehouseName || response.warehouse_name || "",
       asOfDate: response.asOfDate || response.as_of_date || "",
       items: (response.items || []).map((item) => {
-        const systemQuantity = Number(
-          item.quantityOnHand ?? item.quantityAvailable ?? item.systemQuantity ?? item.system_quantity ?? 0
-        );
-        const lastPhysicalCount = 0; // Not yet tracked — backend doesn't return physical count data
-        const discrepancy = systemQuantity - lastPhysicalCount;
+        const systemQuantity = Number(item.quantityOnHand ?? item.quantityAvailable ?? item.systemQuantity ?? 0);
+        const lastCountDate = item.lastCountDate || "";
+        const hasBeenCounted = !!lastCountDate;
+        const lastPhysicalCount = hasBeenCounted ? Number(item.lastPhysicalCount ?? 0) : null;
+        const discrepancy = hasBeenCounted ? systemQuantity - lastPhysicalCount : null;
         return {
-          productId: item.productId || item.product_id,
-          productName: item.productName || item.product_name || "",
-          productSku: item.productSku || item.product_sku || "",
+          productId: item.productId,
+          productName: item.productName || "",
+          productSku: item.productSku || "",
           systemQuantity,
-          lastPhysicalCount,
+          lastPhysicalCount: hasBeenCounted ? lastPhysicalCount : null,
           discrepancy,
-          lastCountDate: item.lastCountDate || item.last_count_date || "",
+          lastCountDate,
+          neverCounted: !hasBeenCounted,
         };
       }),
       totalSystemValue: (response.items || []).reduce((sum, item) => sum + Number(item.quantityOnHand ?? 0), 0),
-      discrepancyCount: 0, // Physical counts not yet implemented in backend
+      get discrepancyCount() {
+        return this.items.filter((i) => !i.neverCounted && i.discrepancy !== 0).length;
+      },
     };
   }
 

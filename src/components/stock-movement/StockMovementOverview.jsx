@@ -41,8 +41,8 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
   const loadDashboardData = useCallback(async () => {
     setLoading(true);
     try {
-      // Load transfers, reservations, and stock movements
-      const [transfersResult, reservationsResult, movementsResult] = await Promise.all([
+      // Load transfers, reservations, and stock movements (today + all-time count)
+      const [transfersResult, reservationsResult, movementsResult, allTimeResult] = await Promise.all([
         stockMovementService.listTransfers({ limit: 100 }),
         stockMovementService.listReservations({ limit: 50 }),
         stockMovementService.getAll({
@@ -50,6 +50,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           dateFrom: new Date().toLocaleDateString("en-CA"),
           dateTo: new Date().toLocaleDateString("en-CA"),
         }),
+        stockMovementService.getAll({ limit: 1 }),
       ]);
 
       const transfers = transfersResult.data || [];
@@ -87,7 +88,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
         .filter((m) => m.movementType === "OUT")
         .reduce((sum, m) => sum + parseFloat(m.quantity || 0), 0);
 
-      const totalMovements = movementsResult.pagination?.totalItems || allMovements.length;
+      const totalMovements = allTimeResult.pagination?.totalItems || allMovements.length;
 
       const newStats = {
         pendingTransfers,
@@ -141,7 +142,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
           description = `Reservation ${r.reservationNumber} fulfilled`;
         } else if (r.status === "ACTIVE") {
           color = "purple";
-          description = `Stock reserved for ${r.productName}`;
+          description = `Stock reserved for ${r.productName || r.reservationNumber || "unknown product"}`;
         } else if (r.status === "PARTIALLY_FULFILLED") {
           color = "yellow";
           description = `Reservation ${r.reservationNumber} partially fulfilled`;

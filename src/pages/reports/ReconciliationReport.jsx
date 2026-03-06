@@ -87,8 +87,9 @@ export default function ReconciliationReport() {
     let items = (apiResult.items || []).map((item) => {
       // Backend provides system quantity and discrepancy (difference from batch quantity)
       const systemStock = parseFloat(item.systemQuantity) || 0;
-      const variance = parseFloat(item.discrepancy) || 0;
-      const variancePercent = systemStock !== 0 ? (variance / systemStock) * 100 : 0;
+      const neverCounted = item.neverCounted === true;
+      const variance = neverCounted ? 0 : parseFloat(item.discrepancy) || 0;
+      const variancePercent = systemStock !== 0 && !neverCounted ? (variance / systemStock) * 100 : 0;
 
       return {
         productId: item.productId,
@@ -96,14 +97,15 @@ export default function ReconciliationReport() {
         productSku: item.productSku,
         warehouseId: apiResult.warehouseId,
         warehouseName: apiResult.warehouseName,
-        openingStock: systemStock - variance,
+        openingStock: neverCounted ? systemStock : systemStock - variance,
         received: 0,
         consumed: 0,
         adjustments: variance,
-        expectedClosing: systemStock - variance,
+        expectedClosing: neverCounted ? systemStock : systemStock - variance,
         systemStock,
         variance,
         variancePercent,
+        neverCounted,
       };
     });
 
@@ -543,15 +545,19 @@ export default function ReconciliationReport() {
                       <tr
                         key={item.id || item.productName || `item-${index}`}
                         className={`${
-                          Math.abs(item.variancePercent) > 1
+                          item.neverCounted
                             ? isDarkMode
-                              ? "bg-red-900/20"
-                              : "bg-red-50"
-                            : Math.abs(item.variancePercent) > 0.5
+                              ? "bg-gray-800/30"
+                              : "bg-gray-50"
+                            : Math.abs(item.variancePercent) > 1
                               ? isDarkMode
-                                ? "bg-yellow-900/20"
-                                : "bg-yellow-50"
-                              : ""
+                                ? "bg-red-900/20"
+                                : "bg-red-50"
+                              : Math.abs(item.variancePercent) > 0.5
+                                ? isDarkMode
+                                  ? "bg-yellow-900/20"
+                                  : "bg-yellow-50"
+                                : ""
                         }`}
                       >
                         <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -594,42 +600,53 @@ export default function ReconciliationReport() {
                         </td>
                         <td
                           className={`px-4 py-3 text-sm text-right font-medium ${
-                            varianceColor === "error"
-                              ? "text-red-600"
-                              : varianceColor === "warning"
-                                ? "text-yellow-600"
-                                : "text-green-600"
+                            item.neverCounted
+                              ? "text-gray-400"
+                              : varianceColor === "error"
+                                ? "text-red-600"
+                                : varianceColor === "warning"
+                                  ? "text-yellow-600"
+                                  : "text-green-600"
                           }`}
                         >
-                          {item.variance >= 0 ? "+" : ""}
-                          {formatNumber(item.variance)}
+                          {item.neverCounted ? "—" : `${item.variance >= 0 ? "+" : ""}${formatNumber(item.variance)}`}
                         </td>
                         <td className="px-4 py-3 text-sm text-right">
-                          <div className="flex items-center justify-end space-x-1">
+                          {item.neverCounted ? (
                             <span
-                              className={`font-medium ${
-                                varianceColor === "error"
-                                  ? "text-red-600"
-                                  : varianceColor === "warning"
-                                    ? "text-yellow-600"
-                                    : "text-green-600"
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                                isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-500"
                               }`}
                             >
-                              {item.variancePercent >= 0 ? "+" : ""}
-                              {item.variancePercent.toFixed(2)}%
+                              Never Counted
                             </span>
-                            <span
-                              className={
-                                varianceColor === "error"
-                                  ? "text-red-600"
-                                  : varianceColor === "warning"
-                                    ? "text-yellow-600"
-                                    : "text-green-600"
-                              }
-                            >
-                              {varianceIcon}
-                            </span>
-                          </div>
+                          ) : (
+                            <div className="flex items-center justify-end space-x-1">
+                              <span
+                                className={`font-medium ${
+                                  varianceColor === "error"
+                                    ? "text-red-600"
+                                    : varianceColor === "warning"
+                                      ? "text-yellow-600"
+                                      : "text-green-600"
+                                }`}
+                              >
+                                {item.variancePercent >= 0 ? "+" : ""}
+                                {item.variancePercent.toFixed(2)}%
+                              </span>
+                              <span
+                                className={
+                                  varianceColor === "error"
+                                    ? "text-red-600"
+                                    : varianceColor === "warning"
+                                      ? "text-yellow-600"
+                                      : "text-green-600"
+                                }
+                              >
+                                {varianceIcon}
+                              </span>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     );

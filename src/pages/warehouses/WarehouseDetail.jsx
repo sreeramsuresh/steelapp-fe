@@ -509,6 +509,25 @@ const WarehouseDetail = () => {
 
       {/* Content */}
       <div className="px-6 py-6">
+        {/* Inactive warehouse warning banner */}
+        {warehouse && !warehouse.isActive && (
+          <div
+            className={`flex items-start gap-3 p-3 rounded-lg border mb-4 ${
+              isDarkMode ? "bg-amber-900/20 border-amber-700" : "bg-amber-50 border-amber-300"
+            }`}
+          >
+            <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className={`text-sm font-medium ${isDarkMode ? "text-amber-100" : "text-amber-900"}`}>
+                This warehouse is inactive
+              </p>
+              <p className={`text-xs ${isDarkMode ? "text-amber-200/70" : "text-amber-700"}`}>
+                Operations are still allowed but not recommended. Consider reactivating this warehouse if it is in
+                regular use.
+              </p>
+            </div>
+          </div>
+        )}
         {activeTab === "overview" && (
           <div className="space-y-6">
             {/* KPI Cards */}

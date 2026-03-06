@@ -372,13 +372,24 @@ const ReconciliationDashboard = () => {
                       </tr>
                     ) : (
                       reconciliationData.items.map((item, idx) => {
-                        const discrepancy = parseFloat(item.discrepancy) || 0;
-                        const hasDiscrepancy = Math.abs(discrepancy) > 0.01;
+                        const neverCounted = item.neverCounted === true;
+                        const discrepancy = neverCounted ? 0 : parseFloat(item.discrepancy) || 0;
+                        const hasDiscrepancy = !neverCounted && Math.abs(discrepancy) > 0.01;
 
                         return (
                           <tr
                             key={item.id || item.name || `item-${idx}`}
-                            className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} ${hasDiscrepancy ? (isDarkMode ? "bg-yellow-900/20" : "bg-yellow-50") : ""}`}
+                            className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} ${
+                              neverCounted
+                                ? isDarkMode
+                                  ? "bg-gray-800/30"
+                                  : "bg-gray-50"
+                                : hasDiscrepancy
+                                  ? isDarkMode
+                                    ? "bg-yellow-900/20"
+                                    : "bg-yellow-50"
+                                  : ""
+                            }`}
                           >
                             <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                               {item.productName}
@@ -394,24 +405,35 @@ const ReconciliationDashboard = () => {
                             <td
                               className={`px-4 py-3 text-sm text-right ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                             >
-                              {formatQuantity(item.lastPhysicalCount)}
+                              {neverCounted ? (
+                                <span className="text-gray-400 italic">—</span>
+                              ) : (
+                                formatQuantity(item.lastPhysicalCount)
+                              )}
                             </td>
                             <td className="px-4 py-3 text-sm text-right">
-                              <span className={`${hasDiscrepancy ? "text-red-600 font-bold" : "text-green-600"}`}>
-                                {formatQuantity(discrepancy)}
-                              </span>
+                              {neverCounted ? (
+                                <span className="text-gray-400">—</span>
+                              ) : (
+                                <span className={`${hasDiscrepancy ? "text-red-600 font-bold" : "text-green-600"}`}>
+                                  {formatQuantity(discrepancy)}
+                                </span>
+                              )}
                             </td>
                             <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                               {formatDate(item.lastCountDate)}
                             </td>
                             <td className="px-4 py-3 text-sm">
                               <span
-                                className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClasses(
-                                  hasDiscrepancy ? "warning" : "success",
-                                  isDarkMode
-                                )}`}
+                                className={`px-2 py-1 rounded-full text-xs font-medium border ${
+                                  neverCounted
+                                    ? isDarkMode
+                                      ? "bg-gray-700 text-gray-300 border-gray-600"
+                                      : "bg-gray-100 text-gray-500 border-gray-300"
+                                    : getStatusBadgeClasses(hasDiscrepancy ? "warning" : "success", isDarkMode)
+                                }`}
                               >
-                                {hasDiscrepancy ? "Discrepancy" : "OK"}
+                                {neverCounted ? "Never Counted" : hasDiscrepancy ? "Discrepancy" : "OK"}
                               </span>
                             </td>
                           </tr>
@@ -570,7 +592,8 @@ const ReconciliationDashboard = () => {
                 ) : (
                   auditEntries.map((entry) => {
                     const change = parseFloat(entry.quantityChange) || 0;
-                    const isIncrease = change > 0 || ["IN", "TRANSFER_IN", "RELEASE"].includes(entry.action);
+                    const isIncrease = change > 0;
+                    const entryUnit = entry.unit || "KG";
 
                     return (
                       <tr key={entry.id} className={isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
@@ -589,15 +612,15 @@ const ReconciliationDashboard = () => {
                         <td className="px-4 py-3 text-sm text-gray-600">{entry.warehouseName || "-"}</td>
                         <td className="px-4 py-3 text-sm text-right font-medium">
                           <span className={isIncrease ? "text-green-600" : "text-red-600"}>
-                            {isIncrease ? "+" : "-"}
-                            {formatQuantity(Math.abs(change))}
+                            {change >= 0 ? "+" : ""}
+                            {formatQuantity(change, entryUnit)}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600 text-right">
-                          {formatQuantity(entry.balanceBefore)}
+                          {formatQuantity(entry.balanceBefore, entryUnit)}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600 text-right">
-                          {formatQuantity(entry.balanceAfter)}
+                          {formatQuantity(entry.balanceAfter, entryUnit)}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
                           {entry.referenceNumber || entry.referenceType || "-"}

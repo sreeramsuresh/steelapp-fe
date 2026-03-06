@@ -71,7 +71,7 @@ class WarehouseService {
       page: filters.page || 1,
       limit: filters.limit || 100,
       search: filters.search,
-      is_active: filters.isActive,
+      active_only: filters.isActive,
     };
 
     // Remove undefined params

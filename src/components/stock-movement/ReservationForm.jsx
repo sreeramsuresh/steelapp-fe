@@ -82,7 +82,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
     const loadWarehouses = async () => {
       try {
         setLoadingWarehouses(true);
-        const result = await warehouseService.getAll({ isActive: true });
+        const result = await warehouseService.getAll({});
         setWarehouses(result.data || []);
         if (result.data?.length > 0) {
           const defaultWh = result.data.find((w) => w.isDefault) || result.data[0];
@@ -362,6 +362,23 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
             </button>
           </div>
         )}
+
+        {/* Inactive warehouse warning */}
+        {(() => {
+          const selWh = warehouseId ? warehouses.find((w) => String(w.id) === String(warehouseId)) : null;
+          return selWh && !selWh.isActive ? (
+            <div
+              className={`mb-4 p-3 rounded-lg flex items-start gap-2 ${
+                isDarkMode ? "bg-amber-900/20 border border-amber-700" : "bg-amber-50 border border-amber-200"
+              }`}
+            >
+              <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              <p className={`text-sm ${isDarkMode ? "text-amber-100" : "text-amber-900"}`}>
+                This warehouse is inactive. Reservations are allowed but not recommended.
+              </p>
+            </div>
+          ) : null;
+        })()}
 
         {/* Form Fields */}
         <div className="space-y-4 mb-6">

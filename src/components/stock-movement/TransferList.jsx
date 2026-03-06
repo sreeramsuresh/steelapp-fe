@@ -443,7 +443,7 @@ const TransferList = ({ onCreateNew, onViewTransfer }) => {
                         {transfer.destinationWarehouseName || "-"}
                       </td>
                       <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                        {transfer.items?.length || 0} items
+                        {transfer.itemCount || transfer.items?.length || 0} items
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <span

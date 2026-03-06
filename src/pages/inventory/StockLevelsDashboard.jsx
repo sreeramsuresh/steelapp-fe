@@ -542,11 +542,11 @@ const StockLevelsDashboard = () => {
               <div className={`p-2 rounded-lg ${isDarkMode ? "bg-green-900/30" : "bg-green-100"}`}>
                 <DollarSign size={20} className={isDarkMode ? "text-green-400" : "text-green-600"} />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                   {summary.hasImportedBatches ? "Total Value (Landed)" : "Total Value (Cost)"}
                 </p>
-                <p className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                <p className={`text-lg font-semibold truncate ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   {formatCurrency(summary.totalValue || 0)}
                 </p>
               </div>
