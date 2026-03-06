@@ -403,7 +403,7 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
         </button>
 
         {/* Scrollable content */}
-        <div ref={scrollContainerRef} className="absolute inset-0 overflow-y-auto py-2 no-scrollbar">
+        <div ref={scrollContainerRef} className="absolute inset-0 overflow-y-auto pt-2 pb-8 no-scrollbar">
           {navigationItems.map((section, sectionIndex) => {
             const visibleItems = section.items.filter((item) => {
               if (item.requiredRoles) {

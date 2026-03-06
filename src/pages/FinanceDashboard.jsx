@@ -1,10 +1,9 @@
-import { Banknote, BookOpen, ClipboardCheck, DollarSign, FileText, RotateCcw, ShieldCheck } from "lucide-react";
+import { Banknote, BookOpen, ClipboardCheck, FileText, RotateCcw, ShieldCheck } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
 import AccountStatementList from "./AccountStatementList";
-import CommissionApprovalWorkflow from "./CommissionApprovalWorkflow";
 import CreditNoteList from "./CreditNoteList";
 import CustomerCreditManagement from "./CustomerCreditManagement";
 
@@ -22,7 +21,6 @@ const LazyJournalCorrectionGuide = lazy(() =>
 const ALL_TAB_IDS = [
   "credit-notes",
   "statements",
-  "commission-approvals",
   "credit-management",
   "document-workflow",
   "journal-correction-guide",
@@ -64,13 +62,6 @@ const FinanceDashboard = () => {
       icon: FileText,
       component: AccountStatementList,
       permission: ["account_statements", "read"],
-    },
-    {
-      id: "commission-approvals",
-      label: "Commission Approvals",
-      icon: DollarSign,
-      component: CommissionApprovalWorkflow,
-      permission: ["commissions", "read"],
     },
     {
       id: "credit-management",
@@ -115,7 +106,7 @@ const FinanceDashboard = () => {
                 💵 Finance Dashboard
               </h1>
               <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                Credit notes, statements, commission approvals, and credit management
+                Credit notes, statements, and credit management
               </p>
             </div>
           </div>

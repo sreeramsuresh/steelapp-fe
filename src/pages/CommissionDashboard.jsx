@@ -4,6 +4,7 @@ import {
   Calculator,
   Calendar,
   CheckCircle,
+  ClipboardCheck,
   Clock,
   DollarSign,
   FileText,
@@ -33,9 +34,11 @@ import CommissionTransactions from "../components/CommissionTransactions";
 import { CommissionForecastWidget } from "../components/dashboard/widgets";
 import SalesAgentsManagement from "../components/SalesAgentsManagement";
 import { useTheme } from "../contexts/ThemeContext";
+import { authService } from "../services/axiosAuthService";
 import { commissionService } from "../services/commissionService";
 import { notificationService } from "../services/notificationService";
 import { formatCurrency } from "../utils/invoiceUtils";
+import CommissionApprovalWorkflow from "./CommissionApprovalWorkflow";
 
 // Chart color palette
 const STATUS_COLORS = {
@@ -165,27 +168,30 @@ const CommissionDashboard = () => {
               { id: "overview", label: "Overview", icon: TrendingUp },
               { id: "agents", label: "Sales Agents", icon: Users },
               { id: "transactions", label: "Transactions", icon: FileText },
+              { id: "approvals", label: "Approvals", icon: ClipboardCheck, permission: ["commissions", "approve"] },
               { id: "settings", label: "Settings", icon: Settings },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
+            ]
+              .filter((tab) => !tab.permission || authService.hasPermission(...tab.permission))
+              .map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
 
-              return (
-                <button
-                  type="button"
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-4 py-3 rounded-t-lg border-b-2 transition-colors ${
-                    isActive
-                      ? `border-green-600 ${isDarkMode ? "bg-gray-700 text-green-400" : "bg-gray-50 text-green-600"}`
-                      : `border-transparent ${isDarkMode ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"}`
-                  }`}
-                >
-                  <Icon size={18} />
-                  <span className="text-sm font-medium">{tab.label}</span>
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    type="button"
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center space-x-2 px-4 py-3 rounded-t-lg border-b-2 transition-colors ${
+                      isActive
+                        ? `border-green-600 ${isDarkMode ? "bg-gray-700 text-green-400" : "bg-gray-50 text-green-600"}`
+                        : `border-transparent ${isDarkMode ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"}`
+                    }`}
+                  >
+                    <Icon size={18} />
+                    <span className="text-sm font-medium">{tab.label}</span>
+                  </button>
+                );
+              })}
           </div>
         </div>
       </div>
@@ -705,6 +711,8 @@ const CommissionDashboard = () => {
         {activeTab === "agents" && <SalesAgentsManagement />}
 
         {activeTab === "transactions" && <CommissionTransactions />}
+
+        {activeTab === "approvals" && <CommissionApprovalWorkflow />}
 
         {activeTab === "settings" && <CommissionPlans />}
       </div>

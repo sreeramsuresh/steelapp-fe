@@ -34,9 +34,9 @@ export const REDIRECTS = {
   // Finance (operational → /app)
   "/operating-expenses": "/app/operating-expenses",
   "/finance": "/app/finance",
-  "/dashboards/commission-approvals": "/app/finance", // Now a tab in Finance
+  "/dashboards/commission-approvals": "/app/commission-dashboard", // Now a tab in Commissions
   "/dashboards/customer-credit": "/app/finance", // Now a tab in Finance
-  "/commission-approvals": "/app/finance", // Now a tab in Finance
+  "/commission-approvals": "/app/commission-dashboard", // Now a tab in Commissions
   "/credit-management": "/app/finance", // Now a tab in Finance
   "/receivables": "/app/receivables",
   "/payables": "/app/payables",
