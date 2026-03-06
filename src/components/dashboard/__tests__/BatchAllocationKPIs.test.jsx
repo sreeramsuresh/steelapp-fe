@@ -41,9 +41,9 @@ describe("BatchAllocationKPIs", () => {
     render(<BatchAllocationKPIs />);
     await waitFor(() => {
       expect(screen.getByText("Batch Issues")).toBeInTheDocument();
-      expect(screen.getByText("Allocated Value")).toBeInTheDocument();
-      expect(screen.getByText("Pending Allocations")).toBeInTheDocument();
-      expect(screen.getByText("Cost Variance")).toBeInTheDocument();
+      expect(screen.getByText("Allocated Qty")).toBeInTheDocument();
+      expect(screen.getByText("Under-Allocated")).toBeInTheDocument();
+      expect(screen.getByText("Health Score")).toBeInTheDocument();
     });
   });
 
