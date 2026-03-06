@@ -2300,7 +2300,7 @@ const CompanySettings = () => {
       <div className="mb-4">
         <button
           type="button"
-          onClick={() => navigate("/app/dashboard")}
+          onClick={() => navigate("/app")}
           className={`p-2 rounded-lg transition-colors ${isDarkMode ? "hover:bg-gray-800 text-gray-300" : "hover:bg-gray-100 text-gray-600"}`}
           aria-label="Back to dashboard"
           title="Back to dashboard"

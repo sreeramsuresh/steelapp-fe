@@ -104,22 +104,33 @@ describe("CoreSidebar", () => {
   });
 
   describe("Navigation Sections", () => {
-    it("should render Analytics Hub link", () => {
-      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
-      expect(container.textContent).toContain("Analytics Hub");
-    });
-
-    it("should render Settings section", () => {
-      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
-      expect(container.textContent).toContain("Company Settings");
-      expect(container.textContent).toContain("User Management");
-      expect(container.textContent).toContain("Audit Trail");
-    });
-
     it("should render Trade section", () => {
       const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
       expect(container.textContent).toContain("Import / Export");
       expect(container.textContent).toContain("Containers");
+    });
+
+    it("should not render Settings section in main nav", () => {
+      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
+      // Settings items moved to SettingsSidebar — should not be in main nav sections
+      expect(container.textContent).not.toContain("User Management");
+      expect(container.textContent).not.toContain("Audit Trail");
+    });
+  });
+
+  describe("Bottom-pinned area switchers", () => {
+    it("should render Company Settings pinned link", () => {
+      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
+      const settingsLink = container.querySelector('a[href="/app/settings"]');
+      expect(settingsLink).toBeInTheDocument();
+      expect(container.textContent).toContain("Company Settings");
+    });
+
+    it("should render Analytics Hub pinned link", () => {
+      const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
+      const analyticsLink = container.querySelector('a[href="/analytics/dashboard"]');
+      expect(analyticsLink).toBeInTheDocument();
+      expect(container.textContent).toContain("Analytics Hub");
     });
   });
 

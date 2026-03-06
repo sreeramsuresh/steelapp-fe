@@ -9,7 +9,6 @@ import {
   AlertCircle,
   Banknote,
   BarChart3,
-  BookOpen,
   Calculator,
   CheckCircle,
   ChevronDown,
@@ -18,16 +17,13 @@ import {
   FileText,
   HandCoins,
   Landmark,
-  Layers,
   MapPin,
-  MessageSquare,
   Move,
   Package,
   Quote,
   Receipt,
   Scroll,
   Settings,
-  Shield,
   Ship,
   ShoppingCart,
   Truck,
@@ -38,6 +34,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
+import { isSettingsArea } from "../utils/isSettingsArea";
 
 const CoreSidebar = ({ isOpen, onToggle }) => {
   const location = useLocation();
@@ -89,20 +86,6 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
 
   // Core ERP navigation items (operational only - no analytics/dashboards)
   const navigationItems = [
-    // 0. ANALYTICS HUB (top position, same styling as other items)
-    {
-      section: null, // No section header
-      items: [
-        {
-          name: "Analytics Hub",
-          path: "/analytics/dashboard",
-          icon: BarChart3,
-          description: "Analytics and reporting dashboards",
-          requiredRoles: ["admin", "managing_director", "financial_analyst"],
-        },
-      ],
-    },
-
     // 1. SALES (operational)
     {
       section: "Sales",
@@ -325,67 +308,11 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
         },
       ],
     },
-
-    // 8. SETTINGS
-    {
-      section: "Settings",
-      items: [
-        {
-          name: "Company Settings",
-          path: "/app/settings",
-          icon: Settings,
-          description: "Configure company details and integrations",
-          requiredRoles: [
-            "admin",
-            "managing_director",
-            "operations_manager",
-            "finance_manager",
-            "finance_manager_predefined",
-          ],
-        },
-        {
-          name: "Financial Settings",
-          path: "/app/settings/financial",
-          icon: BookOpen,
-          description: "GL account defaults and base currency",
-          requiredRoles: ["admin", "managing_director", "finance_manager", "finance_manager_predefined"],
-        },
-        {
-          name: "GL Mapping Rules",
-          path: "/app/settings/gl-mapping",
-          icon: Layers,
-          description: "Configure journal entry generation rules",
-          requiredRoles: ["admin"],
-        },
-        {
-          name: "User Management",
-          path: "/app/users",
-          icon: Users,
-          description: "Manage users, roles and permissions",
-          requiredPermission: "users.read",
-        },
-        {
-          name: "Audit Trail",
-          path: "/app/audit-logs",
-          icon: Shield,
-          description: "View all system activity and change history",
-          requiredPermission: "audit_logs.read",
-        },
-        {
-          name: "User Feedback",
-          path: "/app/feedback",
-          icon: MessageSquare,
-          description: "View and manage user-reported issues",
-          requiredRoles: ["admin", "managing_director"],
-        },
-      ],
-    },
   ];
 
   const isActiveRoute = (path) => {
     if (path === "/app" && location.pathname === "/app") return true;
-    if (path === "/app/settings" && location.pathname === "/app/settings") return true;
-    if (path !== "/app" && path !== "/app/settings" && location.pathname.startsWith(path)) return true;
+    if (path !== "/app" && location.pathname.startsWith(path)) return true;
     return false;
   };
 
@@ -543,6 +470,48 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
             />
           </div>
         </button>
+      </div>
+
+      {/* Bottom-pinned area switchers */}
+      <div
+        className={`flex-shrink-0 border-t px-2 py-2 space-y-1 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
+      >
+        <Link
+          to="/app/settings"
+          onClick={() => window.innerWidth <= 768 && onToggle()}
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 no-underline group ${
+            isSettingsArea(location.pathname)
+              ? isDarkMode
+                ? "bg-slate-700/50 text-slate-200"
+                : "bg-slate-100 text-slate-700"
+              : isDarkMode
+                ? "text-gray-400 hover:bg-slate-800/40 hover:text-gray-300"
+                : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+          }`}
+        >
+          <Settings size={18} className="flex-shrink-0" />
+          <span className="text-sm font-medium">Company Settings</span>
+        </Link>
+        {authService.hasRole("admin") ||
+        authService.hasRole("managing_director") ||
+        authService.hasRole("financial_analyst") ? (
+          <Link
+            to="/analytics/dashboard"
+            onClick={() => window.innerWidth <= 768 && onToggle()}
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 no-underline group ${
+              location.pathname.startsWith("/analytics")
+                ? isDarkMode
+                  ? "bg-indigo-900/40 text-indigo-300"
+                  : "bg-indigo-50 text-indigo-700"
+                : isDarkMode
+                  ? "text-gray-400 hover:bg-indigo-900/20 hover:text-gray-300"
+                  : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            }`}
+          >
+            <BarChart3 size={18} className="flex-shrink-0" />
+            <span className="text-sm font-medium">Analytics Hub</span>
+          </Link>
+        ) : null}
       </div>
     </div>
   );

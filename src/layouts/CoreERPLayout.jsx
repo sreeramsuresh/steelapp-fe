@@ -7,9 +7,11 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import CoreSidebar from "../components/CoreSidebar";
 import FeedbackWidget from "../components/FeedbackWidget";
+import SettingsSidebar from "../components/SettingsSidebar";
 import TopNavbar from "../components/TopNavbar";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
+import { isSettingsArea } from "../utils/isSettingsArea";
 import { getRouteLabel } from "../utils/routeLabels";
 
 const CoreERPLayout = () => {
@@ -87,7 +89,11 @@ const CoreERPLayout = () => {
         aria-label="Close sidebar"
       />
 
-      <CoreSidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
+      {isSettingsArea(location.pathname) ? (
+        <SettingsSidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
+      ) : (
+        <CoreSidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
+      )}
 
       <div
         className={`${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"} h-screen transition-all duration-300 ease-in-out z-[1] overflow-auto flex flex-col ${
