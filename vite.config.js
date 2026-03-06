@@ -5,6 +5,24 @@ import path from "path";
 import { readFileSync } from "node:fs";
 const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
 
+function createProxy() {
+  const target = "http://localhost:3000";
+  const onProxyError = (err, _req, res) => {
+    const msg = `[Proxy] Backend at ${target} is not reachable. Start it with: npm run gateway:dev`;
+    console.error(`\x1b[31m${msg}\x1b[0m`);
+    if (res && !res.headersSent) {
+      res.writeHead(502, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Backend unavailable", message: msg }));
+    }
+  };
+  const shared = { target, changeOrigin: true, secure: false };
+  return {
+    "/api": { ...shared, on: { error: onProxyError } },
+    "/health": { ...shared, on: { error: onProxyError } },
+    "/uploads": { ...shared, on: { error: onProxyError } },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -33,26 +51,7 @@ export default defineConfig({
     },
     port: 5173,
     host: "0.0.0.0",
-    proxy: {
-      // Proxy API calls to backend to avoid CORS/CORB and HTML responses
-      "/api": {
-        target: "http://localhost:3000",
-        changeOrigin: true,
-        secure: false,
-      },
-      // Proxy health check endpoint
-      "/health": {
-        target: "http://localhost:3000",
-        changeOrigin: true,
-        secure: false,
-      },
-      // Also proxy static uploads to serve images from same origin
-      "/uploads": {
-        target: "http://localhost:3000",
-        changeOrigin: true,
-        secure: false,
-      },
-    },
+    proxy: createProxy(),
     // Warmup critical files on server start (Vite >= 5.1)
     warmup: {
       clientFiles: [

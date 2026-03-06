@@ -437,7 +437,7 @@ const HomePage = () => {
   const [recentActivity, setRecentActivity] = useState([]);
   const [integritySummary, setIntegritySummary] = useState(undefined);
   const [integrityRefreshing, setIntegrityRefreshing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [_isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
   const { sectionOrder, reorderSections } = useHomeSectionOrder();
   const { getDragItemProps, getDragHandleProps, isDropTarget, isDragSource } = useDragReorder({
