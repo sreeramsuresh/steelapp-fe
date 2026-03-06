@@ -276,6 +276,10 @@ export const invoiceService = {
     return apiClient.get("/invoices/number/next");
   },
 
+  async getInvoiceSummary(params = {}) {
+    return apiClient.get("/invoices/summary", { params });
+  },
+
   async getInvoiceAnalytics(params = {}) {
     return apiClient.get("/invoices/analytics", params);
   },

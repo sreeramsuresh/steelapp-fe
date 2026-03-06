@@ -453,9 +453,12 @@ export const calculateVAT = (amount, vatRate) => {
   return calculateTRN(amount, vatRate);
 };
 
+/** Resolve line amount with qty*rate fallback when amount is 0/missing */
+const resolveLineAmount = (item) => parseFloat(item.amount) || parseFloat(item.quantity) * parseFloat(item.rate) || 0;
+
 export const calculateSubtotal = (items) => {
   return items.reduce((sum, item) => {
-    const amount = parseFloat(item.amount) || 0;
+    const amount = resolveLineAmount(item);
     return sum + amount;
   }, 0);
 };
@@ -467,7 +470,7 @@ export const calculateSubtotal = (items) => {
  */
 export const calculateTotalTRN = (items) => {
   const totalVat = items.reduce((sum, item) => {
-    const amount = parseFloat(item.amount) || 0;
+    const amount = resolveLineAmount(item);
     const rate = parseFloat(item.vatRate) || 0;
     return sum + calculateTRN(amount, rate);
   }, 0);
@@ -487,7 +490,7 @@ export const calculateTotalTRN = (items) => {
  */
 export const calculateDiscountedTRN = (items, discountType, discountPercent, discountAmount) => {
   if (!Array.isArray(items) || items.length === 0) return 0;
-  const total = items.reduce((s, it) => s + (parseFloat(it.amount) || 0), 0);
+  const total = items.reduce((s, it) => s + resolveLineAmount(it), 0);
   if (total <= 0) return 0;
 
   const pct = parseFloat(discountPercent) || 0;
@@ -497,7 +500,7 @@ export const calculateDiscountedTRN = (items, discountType, discountPercent, dis
   if (discountType === "percentage" && pct > 0) {
     const factor = Math.max(0, 1 - pct / 100);
     for (const it of items) {
-      const lineAmt = parseFloat(((parseFloat(it.amount) || 0) * factor).toFixed(2));
+      const lineAmt = parseFloat((resolveLineAmount(it) * factor).toFixed(2));
       const rate = parseFloat(it.vatRate) || 0;
       vatSum += calculateTRN(lineAmt, rate);
     }
@@ -510,7 +513,7 @@ export const calculateDiscountedTRN = (items, discountType, discountPercent, dis
   if (cap === 0) return calculateTotalTRN(items);
 
   for (const it of items) {
-    const base = parseFloat(it.amount) || 0;
+    const base = resolveLineAmount(it);
     const share = base / total;
     const allocated = parseFloat((cap * share).toFixed(2));
     const net = parseFloat(Math.max(0, base - allocated).toFixed(2));

@@ -162,6 +162,7 @@ export const transformQuotationToServer = (data) => {
       quantity: item.quantity,
       unit: item.unit || "KG",
       unitPrice: item.unitPrice,
+      amount: item.amount,
       vatRate: item.vatRate || 5,
       userCorrected: item.userCorrected,
       correctionNotes: item.correctionNotes,

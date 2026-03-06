@@ -129,7 +129,7 @@ const QuotationList = () => {
 
       if (response?.quotations) {
         setQuotations(response.quotations);
-        setTotalPages(response.pagination?.totalPages || 1);
+        setTotalPages(response.pageInfo?.totalPages || 1);
       } else {
         setQuotations([]);
         setTotalPages(1);

@@ -323,6 +323,7 @@ const QuotationForm = () => {
     priceValidityCondition: "",
     volumeDiscountTiers: [],
   });
+  const isReadOnly = ["converted", "accepted", "rejected"].includes(formData.status);
 
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
@@ -1409,7 +1410,7 @@ const QuotationForm = () => {
 
       // Transform to backend format (snake_case)
       const dataToSubmit = {
-        quotation_number: formData.quotationNumber,
+        quotation_number: formData.quotationNumber === "QT-DRAFT" ? "" : formData.quotationNumber,
         customer_id: formData.customerId ? Number(formData.customerId) : null,
         customer_details: formData.customerDetails,
         quotation_date: formData.quotationDate,
@@ -1894,6 +1895,11 @@ const QuotationForm = () => {
               >
                 {(formData.status || "draft").toUpperCase()}
               </span>
+              {isReadOnly && (
+                <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400">
+                  Read-Only
+                </span>
+              )}
 
               <div className="relative">
                 <button
@@ -1955,7 +1961,7 @@ const QuotationForm = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
+          <form onSubmit={isReadOnly ? (e) => e.preventDefault() : handleSubmit} className="grid grid-cols-12 gap-4">
             {/* Main Content - 8 columns */}
             <div className="col-span-12 lg:col-span-8 space-y-4">
               {/* Compact Header Card — All key fields in one card */}
@@ -2794,26 +2800,28 @@ const QuotationForm = () => {
                     <Eye size={16} />
                     Preview
                   </button>
-                  <button
-                    type="submit"
-                    disabled={isSaving}
-                    className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg text-sm transition-all duration-300 shadow-sm hover:shadow-md ${
-                      isSaving ? "opacity-60 cursor-not-allowed" : ""
-                    }`}
-                    data-testid="save-quotation"
-                  >
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save size={16} />
-                        {isEdit ? "Update Quotation" : "Create Quotation"}
-                      </>
-                    )}
-                  </button>
+                  {!isReadOnly && (
+                    <button
+                      type="submit"
+                      disabled={isSaving}
+                      className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg text-sm transition-all duration-300 shadow-sm hover:shadow-md ${
+                        isSaving ? "opacity-60 cursor-not-allowed" : ""
+                      }`}
+                      data-testid="save-quotation"
+                    >
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save size={16} />
+                          {isEdit ? "Update Quotation" : "Create Quotation"}
+                        </>
+                      )}
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={handleBackClick}

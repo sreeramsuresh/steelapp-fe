@@ -214,7 +214,7 @@ const InvoiceItemsTable = ({ items, startingIndex = 0, isFirstPage, isContinued,
         </thead>
         <tbody>
           {(items || []).map((item, index) => {
-            const amountNum = parseFloat(item.amount) || 0;
+            const amountNum = parseFloat(item.amount) || parseFloat(item.quantity) * parseFloat(item.rate) || 0;
             const vatRate = parseFloat(item.vatRate) || 0;
             const vatAmount = calculateTRN(amountNum, vatRate);
             const totalWithVAT = amountNum + vatAmount;

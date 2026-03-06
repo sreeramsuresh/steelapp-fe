@@ -613,6 +613,8 @@ const SupplierBillForm = () => {
       const data = await supplierBillService.getById(id);
       setBill({
         ...data,
+        billDate: data.billDate ? formatDateForInput(new Date(data.billDate)) : "",
+        dueDate: data.dueDate ? formatDateForInput(new Date(data.dueDate)) : "",
         items: data.items?.length > 0 ? data.items : [createEmptyItem()],
       });
     } catch (error) {
@@ -961,14 +963,22 @@ const SupplierBillForm = () => {
     }
   };
 
-  // Handle VAT category change — sets default for NEW items only
+  // Handle VAT category change — cascade to all existing items
   const handleVatCategoryChange = (category) => {
     const isReverseCharge = category === "REVERSE_CHARGE";
+    const vatConfig = VAT_CATEGORIES.find((c) => c.value === category);
+    const newVatRate = vatConfig?.rate ?? 5;
     setBill((prev) => ({
       ...prev,
       vatCategory: category,
       isReverseCharge,
       blockedVatReason: category === "BLOCKED" ? prev.blockedVatReason : "",
+      items: prev.items.map((item) => ({
+        ...item,
+        vatCategory: category,
+        vatRate: newVatRate,
+        vatAmount: parseFloat((((parseFloat(item.amount) || 0) * newVatRate) / 100).toFixed(2)),
+      })),
     }));
   };
 
@@ -1043,8 +1053,16 @@ const SupplierBillForm = () => {
     } else if (field === "procurementChannel") {
       item.procurementChannel = value;
       const isImported = value === "IMPORTED";
-      item.vatCategory = isImported ? "REVERSE_CHARGE" : "STANDARD";
-      item.vatRate = 5; // 5% for both; category determines VAT return treatment
+      if (isImported) {
+        item.vatCategory = "REVERSE_CHARGE";
+        const rcConfig = VAT_CATEGORIES.find((c) => c.value === "REVERSE_CHARGE");
+        item.vatRate = rcConfig?.rate ?? 5;
+      } else {
+        // Restore bill-level VAT category
+        const billVatConfig = VAT_CATEGORIES.find((c) => c.value === bill.vatCategory);
+        item.vatCategory = bill.vatCategory || "STANDARD";
+        item.vatRate = billVatConfig?.rate ?? 5;
+      }
     } else {
       item[field] = value;
     }
@@ -1129,7 +1147,8 @@ const SupplierBillForm = () => {
     (product) => {
       const procChannel = bill.procurementChannel === "IMPORTED" ? "IMPORTED" : "LOCAL";
       const vatCat = procChannel === "IMPORTED" ? "REVERSE_CHARGE" : bill.vatCategory || "STANDARD";
-      const vatRate = 5; // UAE standard
+      const vatConfig = VAT_CATEGORIES.find((c) => c.value === vatCat);
+      const vatRate = vatConfig?.rate ?? 5;
 
       const newItem = {
         ...createEmptyItem(),
@@ -1293,7 +1312,7 @@ const SupplierBillForm = () => {
   };
 
   // Validate form
-  const validateForm = () => {
+  const validateForm = (mode = "draft") => {
     const errors = [];
 
     if (!bill.supplierId) {
@@ -1307,6 +1326,14 @@ const SupplierBillForm = () => {
     }
     if (!bill.procurementChannel) {
       errors.push("Procurement channel is required — please select Local, Import, or Dropship");
+    }
+    if (mode === "approved") {
+      if (!bill.vatCategory) {
+        errors.push("VAT category is required before approving");
+      }
+      if (!bill.supplierInvoiceNumber?.trim()) {
+        errors.push("Supplier invoice number is required before approving");
+      }
     }
     if (bill.vatCategory === "BLOCKED" && !bill.blockedVatReason) {
       errors.push("Blocked VAT reason is required");
@@ -1336,7 +1363,7 @@ const SupplierBillForm = () => {
   // Handle save
   const handleSave = async (status = "draft") => {
     setHasAttemptedSave(true);
-    if (!validateForm()) {
+    if (!validateForm(status)) {
       notificationService.error("Please fix the validation errors");
       return;
     }

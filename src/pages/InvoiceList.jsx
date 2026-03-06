@@ -1115,102 +1115,40 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     sessionStorage.setItem("invoiceListPageSize", validSize.toString());
   };
 
-  // Dashboard metric calculations
-  // GOLD STANDARD: Use backend-provided payment data (no client-side calculation)
-  // Helper to normalize status/paymentStatus from API format variations
-  const normalizeStatus = React.useCallback((status) => (status || "").toLowerCase().replace("status_", ""), []);
-  const normalizePaymentStatus = React.useCallback(
-    (ps) => (ps || "unpaid").toLowerCase().replace("payment_status_", ""),
-    []
-  );
-
   // ============================================================================
-  // STALE-WHILE-REVALIDATE: Compute and cache summary data
+  // SUMMARY CARDS: Fetch from dedicated endpoint
   // ============================================================================
 
-  // Compute summary metrics from invoices
-  const computedSummary = React.useMemo(() => {
-    if (invoices.length === 0) return null;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const futureDate = new Date(today);
-    futureDate.setDate(today.getDate() + 7);
-
-    let outstandingAmount = 0;
-    let outstandingCount = 0;
-    let overdueCount = 0;
-    let overdueAmount = 0;
-    let dueSoonCount = 0;
-    let dueSoonAmount = 0;
-    let paidAmount = 0;
-    let paidCount = 0;
-
-    invoices.forEach((invoice) => {
-      const status = normalizeStatus(invoice.status);
-      if (status !== "issued") return;
-
-      const paymentStatus = normalizePaymentStatus(invoice.paymentStatus);
-      const outstanding = Number(invoice.outstanding || 0);
-      const total = Number(invoice.total || 0);
-      const dueDate = new Date(invoice.dueDate);
-
-      // Paid invoices
-      if (paymentStatus === "paid") {
-        paidAmount += total;
-        paidCount++;
-        return;
-      }
-
-      // Outstanding (unpaid or partially paid)
-      if (paymentStatus === "unpaid" || paymentStatus === "partially_paid") {
-        outstandingAmount += outstanding;
-        outstandingCount++;
-
-        // Overdue
-        if (dueDate < today) {
-          overdueCount++;
-          overdueAmount += outstanding;
-        }
-        // Due soon (next 7 days)
-        else if (dueDate >= today && dueDate <= futureDate) {
-          dueSoonCount++;
-          dueSoonAmount += outstanding;
-        }
-      }
-    });
-
-    return {
-      outstandingAmount,
-      outstandingCount,
-      overdueCount,
-      overdueAmount,
-      dueSoonCount,
-      dueSoonAmount,
-      paidAmount,
-      paidCount,
-    };
-  }, [invoices, normalizePaymentStatus, normalizeStatus]);
-
-  // Update summary data when computed
   React.useEffect(() => {
-    if (computedSummary) {
-      setSummaryData(computedSummary);
-    }
-  }, [computedSummary]);
+    let cancelled = false;
+    const params = {};
+    if (statusFilter && statusFilter !== "all") params.status = statusFilter;
+    if (searchTerm) params.search = searchTerm;
+
+    invoiceService
+      .getInvoiceSummary(params)
+      .then((data) => {
+        if (!cancelled) setSummaryData(data);
+      })
+      .catch(() => {
+        // Keep stale data on error
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [statusFilter, searchTerm]);
 
   // Get effective summary data (fresh or cached)
-  const effectiveSummary = computedSummary ||
-    summaryData || {
-      outstandingAmount: 0,
-      outstandingCount: 0,
-      overdueCount: 0,
-      overdueAmount: 0,
-      dueSoonCount: 0,
-      dueSoonAmount: 0,
-      paidAmount: 0,
-      paidCount: 0,
-    };
+  const effectiveSummary = summaryData || {
+    outstandingAmount: 0,
+    outstandingCount: 0,
+    overdueCount: 0,
+    overdueAmount: 0,
+    dueSoonCount: 0,
+    dueSoonAmount: 0,
+    paidAmount: 0,
+    paidCount: 0,
+  };
 
   // Legacy functions now delegate to effectiveSummary for backward compatibility
   const getOutstandingAmount = () => effectiveSummary.outstandingAmount;
@@ -1241,9 +1179,8 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           setPaymentStatusFilter("all"); // Will be filtered client-side to show unpaid + partially_paid
           break;
         case "overdue":
-          // Overdue requires custom logic, we'll handle via paymentStatusFilter
-          setStatusFilter("issued");
-          setPaymentStatusFilter("all"); // Custom filter needed
+          setStatusFilter("overdue");
+          setPaymentStatusFilter("all");
           break;
         case "paid":
           setStatusFilter("issued");
