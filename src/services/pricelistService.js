@@ -142,11 +142,8 @@ const pricelistService = {
     return data;
   },
   async getDefaultPricelistId() {
-    const { data } = await api.get("/pricelists", {
-      params: { is_default: true, limit: 1 },
-    });
-    const list = data?.pricelists || data?.data || [];
-    return list.length > 0 ? list[0].id : null;
+    const result = await this.resolveDefault();
+    return result?.pricelistId ?? null;
   },
 };
 
