@@ -34,7 +34,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
-import { isSettingsArea } from "../utils/isSettingsArea";
 
 const CoreSidebar = ({ isOpen, onToggle }) => {
   const location = useLocation();
@@ -308,6 +307,33 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
         },
       ],
     },
+
+    // 8. AREA SWITCHERS
+    {
+      section: null,
+      items: [
+        {
+          name: "Company Settings",
+          path: "/app/settings",
+          icon: Settings,
+          description: "Configure company details and integrations",
+          requiredRoles: [
+            "admin",
+            "managing_director",
+            "operations_manager",
+            "finance_manager",
+            "finance_manager_predefined",
+          ],
+        },
+        {
+          name: "Analytics Hub",
+          path: "/analytics/dashboard",
+          icon: BarChart3,
+          description: "Analytics and reporting dashboards",
+          requiredRoles: ["admin", "managing_director", "financial_analyst"],
+        },
+      ],
+    },
   ];
 
   const isActiveRoute = (path) => {
@@ -470,48 +496,6 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
             />
           </div>
         </button>
-      </div>
-
-      {/* Bottom-pinned area switchers */}
-      <div
-        className={`flex-shrink-0 border-t px-2 py-2 space-y-1 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}
-      >
-        <Link
-          to="/app/settings"
-          onClick={() => window.innerWidth <= 768 && onToggle()}
-          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 no-underline group ${
-            isSettingsArea(location.pathname)
-              ? isDarkMode
-                ? "bg-slate-700/50 text-slate-200"
-                : "bg-slate-100 text-slate-700"
-              : isDarkMode
-                ? "text-gray-400 hover:bg-slate-800/40 hover:text-gray-300"
-                : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-          }`}
-        >
-          <Settings size={18} className="flex-shrink-0" />
-          <span className="text-sm font-medium">Company Settings</span>
-        </Link>
-        {authService.hasRole("admin") ||
-        authService.hasRole("managing_director") ||
-        authService.hasRole("financial_analyst") ? (
-          <Link
-            to="/analytics/dashboard"
-            onClick={() => window.innerWidth <= 768 && onToggle()}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 no-underline group ${
-              location.pathname.startsWith("/analytics")
-                ? isDarkMode
-                  ? "bg-indigo-900/40 text-indigo-300"
-                  : "bg-indigo-50 text-indigo-700"
-                : isDarkMode
-                  ? "text-gray-400 hover:bg-indigo-900/20 hover:text-gray-300"
-                  : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-            }`}
-          >
-            <BarChart3 size={18} className="flex-shrink-0" />
-            <span className="text-sm font-medium">Analytics Hub</span>
-          </Link>
-        ) : null}
       </div>
     </div>
   );

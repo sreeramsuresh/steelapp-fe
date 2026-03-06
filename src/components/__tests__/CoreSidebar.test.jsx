@@ -118,15 +118,15 @@ describe("CoreSidebar", () => {
     });
   });
 
-  describe("Bottom-pinned area switchers", () => {
-    it("should render Company Settings pinned link", () => {
+  describe("Area switcher links", () => {
+    it("should render Company Settings link", () => {
       const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
       const settingsLink = container.querySelector('a[href="/app/settings"]');
       expect(settingsLink).toBeInTheDocument();
       expect(container.textContent).toContain("Company Settings");
     });
 
-    it("should render Analytics Hub pinned link", () => {
+    it("should render Analytics Hub link", () => {
       const { container } = renderWithProviders(<CoreSidebar isOpen={true} onToggle={mockOnToggle} />);
       const analyticsLink = container.querySelector('a[href="/analytics/dashboard"]');
       expect(analyticsLink).toBeInTheDocument();
