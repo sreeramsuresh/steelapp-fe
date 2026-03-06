@@ -67,10 +67,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // manualChunks removed — Rollup's default splitting avoids
-        // circular init dependencies (e.g. vendor ↔ vendor-react cycle
-        // that caused "Cannot read properties of undefined (reading 'memo')"
-        // at runtime). React.lazy() already code-splits route components.
+        // Only split echarts + zrender (self-contained, no React cycle risk).
+        // Generic vendor splitting removed due to circular init deps
+        // (vendor ↔ vendor-react "Cannot read properties of undefined").
+        manualChunks(id) {
+          if (id.includes("node_modules/echarts")) return "vendor-echarts";
+          if (id.includes("node_modules/zrender")) return "vendor-zrender";
+        },
       },
     },
     // Target modern browsers for smaller bundles
@@ -78,7 +81,7 @@ export default defineConfig({
     // Enable minification
     minify: "esbuild",
     // Keep chunk size warning at reasonable level
-    chunkSizeWarningLimit: 500,
+    chunkSizeWarningLimit: 550,
     // Enable source maps for debugging (can disable in production)
     sourcemap: false,
   },

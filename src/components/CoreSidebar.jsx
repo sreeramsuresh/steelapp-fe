@@ -384,7 +384,8 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
 
   const isActiveRoute = (path) => {
     if (path === "/app" && location.pathname === "/app") return true;
-    if (path !== "/app" && location.pathname.startsWith(path)) return true;
+    if (path === "/app/settings" && location.pathname === "/app/settings") return true;
+    if (path !== "/app" && path !== "/app/settings" && location.pathname.startsWith(path)) return true;
     return false;
   };
 

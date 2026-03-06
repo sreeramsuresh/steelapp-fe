@@ -592,21 +592,27 @@ const WarehouseDetail = () => {
                 </h3>
                 <div className="space-y-2">
                   {[
-                    { label: "Create Transfer", to: `/stock-movements?tab=transfers&source=${warehouse.id}` },
+                    {
+                      label: "Create Transfer",
+                      to: `/stock-movements?tab=transfers&source=${warehouse.id}`,
+                      requiresActive: true,
+                    },
                     { label: "View All Movements", to: `/stock-movements?warehouse_id=${warehouse.id}` },
                     { label: "View Inventory", to: `/inventory?warehouse_id=${warehouse.id}` },
-                  ].map((action) => (
-                    <Link
-                      key={action.label}
-                      to={action.to}
-                      className={`flex items-center justify-between p-3 rounded-lg ${isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"}`}
-                    >
-                      <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                        {action.label}
-                      </span>
-                      <ArrowRight className={`w-4 h-4 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
-                    </Link>
-                  ))}
+                  ]
+                    .filter((action) => !action.requiresActive || warehouse.isActive)
+                    .map((action) => (
+                      <Link
+                        key={action.label}
+                        to={action.to}
+                        className={`flex items-center justify-between p-3 rounded-lg ${isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"}`}
+                      >
+                        <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                          {action.label}
+                        </span>
+                        <ArrowRight className={`w-4 h-4 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
+                      </Link>
+                    ))}
                 </div>
               </div>
 
@@ -2118,7 +2124,8 @@ const WarehouseDetail = () => {
                     <div className="flex-1">
                       <p className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>{activity.product}</p>
                       <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                        {activity.type} / {activity.quantity} / Ref: {activity.reference}
+                        {activity.type} / {activity.quantity}
+                        {activity.reference ? ` / Ref: ${activity.reference}` : ""}
                       </p>
                     </div>
                     <div className="text-right">

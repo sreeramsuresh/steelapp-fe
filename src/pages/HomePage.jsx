@@ -724,16 +724,6 @@ const HomePage = () => {
           </div>
         )}
 
-        {/* Loading Skeleton */}
-        {isLoading && (
-          <div className="mb-8 flex items-center justify-center py-12">
-            <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-500" />
-              <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Loading dashboard...</span>
-            </div>
-          </div>
-        )}
-
         {/* Dynamic Draggable Sections */}
         {sectionOrder.map((sectionId, index) => {
           const section = SECTION_CONFIG[sectionId];

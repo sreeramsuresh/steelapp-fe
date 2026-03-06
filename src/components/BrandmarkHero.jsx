@@ -38,10 +38,10 @@ const BrandmarkHero = () => {
 
           @keyframes glowPulse {
             0%, 100% {
-              filter: drop-shadow(0 4px 24px rgba(20, 184, 166, 0.15));
+              filter: drop-shadow(0 2px 12px rgba(20, 184, 166, 0.3));
             }
             50% {
-              filter: drop-shadow(0 8px 40px rgba(20, 184, 166, 0.5));
+              filter: drop-shadow(0 4px 20px rgba(20, 184, 166, 1));
             }
           }
 
@@ -50,7 +50,7 @@ const BrandmarkHero = () => {
           }
 
           .brandmark-logo {
-            animation: breathingPulse 3s ease-in-out infinite, glowPulse 2s ease-in-out infinite;
+            animation: breathingPulse 4s ease-in-out infinite, glowPulse 4s ease-in-out infinite;
             transition: all 0.3s ease;
           }
 

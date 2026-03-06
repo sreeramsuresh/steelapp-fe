@@ -714,6 +714,7 @@ class StockMovementService {
       shippedByName: transfer.shippedByName || "",
       receivedBy: transfer.receivedBy,
       receivedByName: transfer.receivedByName || "",
+      itemCount: transfer.itemCount ?? (transfer.items || []).length,
       createdAt: transfer.createdAt,
       updatedAt: transfer.updatedAt,
     };
