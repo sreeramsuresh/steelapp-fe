@@ -11,10 +11,12 @@ import {
   ClipboardList,
   Clock,
   Crown,
+  Dices,
   DollarSign,
   Download,
   Edit,
   Eye,
+  EyeOff,
   FilePlus,
   History,
   Key,
@@ -31,6 +33,7 @@ import {
   TrendingUp,
   Truck,
   UserCheck,
+  UserPlus,
   Users,
   Warehouse,
   X,
@@ -219,6 +222,7 @@ const UserManagementTab = () => {
   const [userPageSize] = useState(20);
   const [userTotalPages, setUserTotalPages] = useState(1);
   const [userLoadingError, setUserLoadingError] = useState(null);
+  const [userRefreshKey, setUserRefreshKey] = useState(0);
   const [userValidationErrors, setUserValidationErrors] = useState({});
   const [isSubmittingUser, setIsSubmittingUser] = useState(false);
   const [invitations, setInvitations] = useState([]);
@@ -227,6 +231,11 @@ const UserManagementTab = () => {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [editUserModal, setEditUserModal] = useState({ open: false, user: null });
   const [newUser, setNewUser] = useState({ name: "", email: "", password: "", role_ids: [] });
+  const [directCreateFields, setDirectCreateFields] = useState({ username: "", email: "", password: "" });
+  const [showDirectPassword, setShowDirectPassword] = useState(false);
+  const [directCreateError, setDirectCreateError] = useState("");
+  const [isCreatingDirect, setIsCreatingDirect] = useState(false);
+  const [createMode, setCreateMode] = useState("direct"); // "direct" | "invite"
   const [showManageRolesModal, setShowManageRolesModal] = useState(false);
   const [showRoleDialog, setShowRoleDialog] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
@@ -368,13 +377,14 @@ const UserManagementTab = () => {
     })();
   }, []);
 
-  // Load users
+  // Load users (userRefreshKey triggers re-fetch after create/invite)
   useEffect(() => {
+    void userRefreshKey; // intentional dep — bumped to trigger re-fetch
     (async () => {
       try {
         // Fire users list, roles lookup, and invitations in parallel
         const [response, roles, invites] = await Promise.allSettled([
-          userAdminAPI.list({ page: userCurrentPage, limit: userPageSize, status: "all" }),
+          userAdminAPI.list({ page: userCurrentPage, limit: userPageSize }),
           roleService.getRoles(),
           userAdminAPI.listInvitations(),
         ]);
@@ -416,7 +426,7 @@ const UserManagementTab = () => {
         notificationService.error(`User Management: ${errorMsg}`);
       }
     })();
-  }, [userCurrentPage, userPageSize]);
+  }, [userCurrentPage, userPageSize, userRefreshKey]);
 
   const loadRoles = useCallback(async () => {
     try {
@@ -583,6 +593,51 @@ const UserManagementTab = () => {
     }
   };
 
+  const generateRandomPassword = () => {
+    const chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%&*";
+    let pw = "";
+    for (let i = 0; i < 12; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+    return pw;
+  };
+
+  const handleDirectCreate = async () => {
+    const { username, email, password } = directCreateFields;
+    if (!username.trim() || !email.trim() || !password) {
+      setDirectCreateError("All fields are required");
+      return;
+    }
+    if (password.length < 8) {
+      setDirectCreateError("Password must be at least 8 characters");
+      return;
+    }
+    if (selectedUserRoles.length === 0) {
+      setUserValidationErrors({ roles: "Please assign at least one role" });
+      setDirectCreateError("Please assign at least one role before creating");
+      return;
+    }
+    try {
+      setIsCreatingDirect(true);
+      setDirectCreateError("");
+      await userAdminAPI.create({
+        username: username.trim(),
+        email: email.trim(),
+        password,
+        name: username.trim(),
+        role: "user",
+      });
+      notificationService.success("User created successfully");
+      setShowAddUserModal(false);
+      setDirectCreateFields({ username: "", email: "", password: "" });
+      setShowDirectPassword(false);
+      setSelectedUserRoles([]);
+      setUserRefreshKey((k) => k + 1);
+    } catch (error) {
+      setDirectCreateError(error.response?.data?.error || "Failed to create user");
+    } finally {
+      setIsCreatingDirect(false);
+    }
+  };
+
   const handleUpdateUser = async () => {
     const errors = validateUserForm(editUserModal.user, true);
     if (Object.keys(errors).length > 0) {
@@ -682,14 +737,18 @@ const UserManagementTab = () => {
                 {authService.hasPermission("users", "create") && (
                   <Button
                     variant="primary"
-                    startIcon={<Mail size={16} />}
+                    startIcon={<UserPlus size={16} />}
                     onClick={() => {
                       setNewUser({ name: "", email: "", password: "", role_ids: [] });
                       setSelectedUserRoles([]);
+                      setDirectCreateFields({ username: "", email: "", password: "" });
+                      setDirectCreateError("");
+                      setShowDirectPassword(false);
+                      setCreateMode("direct");
                       setShowAddUserModal(true);
                     }}
                   >
-                    Invite User
+                    Create User
                   </Button>
                 )}
               </div>
@@ -1323,7 +1382,7 @@ const UserManagementTab = () => {
         </div>
       )}
 
-      {/* Invite User Modal */}
+      {/* Create User Modal */}
       {showAddUserModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div
@@ -1331,9 +1390,7 @@ const UserManagementTab = () => {
           >
             <div className={`p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
               <div className="flex justify-between items-center">
-                <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  Invite New User
-                </h3>
+                <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Create User</h3>
                 <button
                   type="button"
                   onClick={() => setShowAddUserModal(false)}
@@ -1343,38 +1400,190 @@ const UserManagementTab = () => {
                 </button>
               </div>
             </div>
-            <form className="p-6" onSubmit={(e) => e.preventDefault()}>
+
+            <div className="p-6">
+              {/* Options Card */}
               <div
-                className={`mb-4 p-3 rounded-lg border text-sm flex items-center gap-2 ${isDarkMode ? "bg-teal-900/20 border-teal-700 text-teal-300" : "bg-teal-50 border-teal-200 text-teal-700"}`}
+                className={`rounded-xl border p-5 ${isDarkMode ? "bg-teal-900/10 border-teal-800" : "bg-teal-50/60 border-teal-200"}`}
               >
-                <Mail size={16} />
-                <span>An invitation email will be sent to this address. The user will set their own password.</span>
+                {/* Option 1: Quick Create */}
+                <button
+                  type="button"
+                  onClick={() => setCreateMode("direct")}
+                  className={`w-full flex items-center gap-3 mb-4 p-3 rounded-lg border-2 transition-all text-left ${createMode === "direct" ? (isDarkMode ? "border-teal-500 bg-teal-900/30" : "border-teal-500 bg-white") : isDarkMode ? "border-transparent bg-transparent opacity-50" : "border-transparent bg-transparent opacity-50"}`}
+                >
+                  <UserPlus
+                    size={18}
+                    className={
+                      createMode === "direct" ? "text-teal-600" : isDarkMode ? "text-gray-500" : "text-gray-600"
+                    }
+                  />
+                  <div>
+                    <span
+                      className={`text-sm font-semibold ${createMode === "direct" ? (isDarkMode ? "text-white" : "text-gray-900") : isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                    >
+                      Quick Create
+                    </span>
+                    <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-600"}`}>
+                      Set username, email and password directly
+                    </p>
+                  </div>
+                </button>
+
+                {createMode === "direct" && (
+                  <div className="mb-4 space-y-3 pl-2 pr-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label
+                          htmlFor="dc-username"
+                          className={`block text-xs font-medium mb-1.5 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                        >
+                          Username
+                        </label>
+                        <input
+                          id="dc-username"
+                          type="text"
+                          placeholder="Enter username"
+                          value={directCreateFields.username}
+                          onChange={(e) => {
+                            setDirectCreateFields({ ...directCreateFields, username: e.target.value });
+                            setDirectCreateError("");
+                          }}
+                          className={`w-full px-3 py-2 border rounded-lg text-sm ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-500" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"}`}
+                        />
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="dc-email"
+                          className={`block text-xs font-medium mb-1.5 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                        >
+                          Email
+                        </label>
+                        <input
+                          id="dc-email"
+                          type="email"
+                          placeholder="Enter email"
+                          value={directCreateFields.email}
+                          onChange={(e) => {
+                            setDirectCreateFields({ ...directCreateFields, email: e.target.value });
+                            setDirectCreateError("");
+                          }}
+                          className={`w-full px-3 py-2 border rounded-lg text-sm ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-500" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"}`}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="dc-password"
+                        className={`block text-xs font-medium mb-1.5 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                      >
+                        Password
+                      </label>
+                      <div className="flex gap-1.5">
+                        <div className="relative flex-1">
+                          <input
+                            id="dc-password"
+                            type={showDirectPassword ? "text" : "password"}
+                            placeholder="Enter password (min 8 characters)"
+                            value={directCreateFields.password}
+                            onChange={(e) => {
+                              setDirectCreateFields({ ...directCreateFields, password: e.target.value });
+                              setDirectCreateError("");
+                            }}
+                            className={`w-full px-3 py-2 pr-8 border rounded-lg text-sm ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-500" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"}`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowDirectPassword(!showDirectPassword)}
+                            className={`absolute right-2 top-1/2 -translate-y-1/2 ${isDarkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-600 hover:text-gray-800"}`}
+                          >
+                            {showDirectPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          title="Generate random password"
+                          onClick={() => {
+                            const pw = generateRandomPassword();
+                            setDirectCreateFields({ ...directCreateFields, password: pw });
+                            setShowDirectPassword(true);
+                            setDirectCreateError("");
+                          }}
+                          className={`px-2.5 py-2 border rounded-lg transition-colors ${isDarkMode ? "border-gray-600 text-gray-400 hover:bg-gray-700 hover:text-gray-300" : "border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-gray-800"}`}
+                        >
+                          <Dices size={16} />
+                        </button>
+                      </div>
+                    </div>
+                    {directCreateError && <p className="text-red-500 text-sm mt-1">{directCreateError}</p>}
+                  </div>
+                )}
+
+                {/* OR Divider */}
+                <div className="flex items-center gap-3 my-1">
+                  <div className={`flex-1 border-t ${isDarkMode ? "border-teal-800" : "border-teal-200"}`} />
+                  <span className={`text-xs font-bold ${isDarkMode ? "text-teal-600" : "text-teal-400"}`}>OR</span>
+                  <div className={`flex-1 border-t ${isDarkMode ? "border-teal-800" : "border-teal-200"}`} />
+                </div>
+
+                {/* Option 2: Email Invite */}
+                <button
+                  type="button"
+                  onClick={() => setCreateMode("invite")}
+                  className={`w-full flex items-center gap-3 mt-4 p-3 rounded-lg border-2 transition-all text-left ${createMode === "invite" ? (isDarkMode ? "border-teal-500 bg-teal-900/30" : "border-teal-500 bg-white") : isDarkMode ? "border-transparent bg-transparent opacity-50" : "border-transparent bg-transparent opacity-50"}`}
+                >
+                  <Mail
+                    size={18}
+                    className={
+                      createMode === "invite" ? "text-teal-600" : isDarkMode ? "text-gray-500" : "text-gray-600"
+                    }
+                  />
+                  <div>
+                    <span
+                      className={`text-sm font-semibold ${createMode === "invite" ? (isDarkMode ? "text-white" : "text-gray-900") : isDarkMode ? "text-gray-400" : "text-gray-700"}`}
+                    >
+                      Email Invitation
+                    </span>
+                    <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-600"}`}>
+                      Send an invite link — user sets their own password
+                    </p>
+                  </div>
+                </button>
+
+                {createMode === "invite" && (
+                  <div className="mt-4 space-y-3 pl-2 pr-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <TextField
+                        label="Full Name"
+                        value={newUser.name}
+                        onChange={(e) => {
+                          setNewUser({ ...newUser, name: e.target.value });
+                          if (userValidationErrors.name)
+                            setUserValidationErrors({ ...userValidationErrors, name: null });
+                        }}
+                        placeholder="Enter full name"
+                        error={userValidationErrors.name}
+                        helperText={userValidationErrors.name}
+                      />
+                      <TextField
+                        label="Email"
+                        type="email"
+                        value={newUser.email}
+                        onChange={(e) => {
+                          setNewUser({ ...newUser, email: e.target.value });
+                          if (userValidationErrors.email)
+                            setUserValidationErrors({ ...userValidationErrors, email: null });
+                        }}
+                        placeholder="Enter email address"
+                        error={userValidationErrors.email}
+                        helperText={userValidationErrors.email}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextField
-                  label="Full Name"
-                  value={newUser.name}
-                  onChange={(e) => {
-                    setNewUser({ ...newUser, name: e.target.value });
-                    if (userValidationErrors.name) setUserValidationErrors({ ...userValidationErrors, name: null });
-                  }}
-                  placeholder="Enter full name"
-                  error={userValidationErrors.name}
-                  helperText={userValidationErrors.name}
-                />
-                <TextField
-                  label="Email"
-                  type="email"
-                  value={newUser.email}
-                  onChange={(e) => {
-                    setNewUser({ ...newUser, email: e.target.value });
-                    if (userValidationErrors.email) setUserValidationErrors({ ...userValidationErrors, email: null });
-                  }}
-                  placeholder="Enter email address"
-                  error={userValidationErrors.email}
-                  helperText={userValidationErrors.email}
-                />
-              </div>
+
+              {/* Role Assignment */}
               <div className="mt-6">
                 <div className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
                   Assign Roles (select multiple) <span className="text-red-500">*</span>
@@ -1422,7 +1631,9 @@ const UserManagementTab = () => {
                   <p className="text-red-500 text-sm mt-2">{userValidationErrors.roles}</p>
                 )}
               </div>
-            </form>
+            </div>
+
+            {/* Footer */}
             <div
               className={`p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-gray-200"} flex gap-3 justify-end`}
             >
@@ -1432,17 +1643,27 @@ const UserManagementTab = () => {
                   setShowAddUserModal(false);
                   setUserValidationErrors({});
                 }}
-                disabled={isSubmittingUser}
+                disabled={isSubmittingUser || isCreatingDirect}
               >
                 Cancel
               </Button>
-              <Button
-                onClick={handleInviteUser}
-                disabled={isSubmittingUser}
-                startIcon={isSubmittingUser ? <CircularProgress size={16} /> : <Mail size={20} />}
-              >
-                Send Invitation
-              </Button>
+              {createMode === "direct" ? (
+                <Button
+                  onClick={handleDirectCreate}
+                  disabled={isCreatingDirect}
+                  startIcon={isCreatingDirect ? <CircularProgress size={16} /> : <UserPlus size={16} />}
+                >
+                  Create User
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleInviteUser}
+                  disabled={isSubmittingUser}
+                  startIcon={isSubmittingUser ? <CircularProgress size={16} /> : <Mail size={16} />}
+                >
+                  Send Invitation
+                </Button>
+              )}
             </div>
           </div>
         </div>

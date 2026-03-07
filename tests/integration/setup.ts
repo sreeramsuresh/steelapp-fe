@@ -1,10 +1,12 @@
 /**
  * Integration Test Setup
- * Connects to cloud PostgreSQL database for testing
- * Tests call API Gateway (HTTP) which internally uses PostgreSQL
+ * Connects to TEST PostgreSQL database for integration testing.
+ * Tests call API Gateway (HTTP) which internally uses PostgreSQL.
  *
- * CRITICAL REQUIREMENT: All "When" steps must call API Gateway endpoints
- * Direct database writes are ONLY for "Given" (setup) steps
+ * SAFETY: Defaults to steelapp_test on localhost. Blocks production hosts/DB names.
+ *
+ * CRITICAL REQUIREMENT: All "When" steps must call API Gateway endpoints.
+ * Direct database writes are ONLY for "Given" (setup) steps.
  */
 
 import pg from 'pg';
@@ -14,19 +16,38 @@ const { Pool } = pg;
 
 let pool: pg.Pool | null = null;
 
+// --- Production safety guards ---
+const BLOCKED_HOSTS = ['13.204.19.175', '51.112.180.29'];
+const BLOCKED_DB_NAMES = ['steelapp', 'steelapp_prod', 'ultimate_steel'];
+
+function assertNotProduction(host: string, dbName: string) {
+  if (BLOCKED_HOSTS.includes(host)) {
+    throw new Error(`FATAL: DB_HOST "${host}" is a production server — integration tests refused.`);
+  }
+  if (BLOCKED_DB_NAMES.includes(dbName)) {
+    throw new Error(`FATAL: DB_NAME "${dbName}" is a production database — integration tests refused.`);
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('FATAL: NODE_ENV is "production" — integration tests refused.');
+  }
+}
+
 /**
- * Initialize cloud database connection and API Gateway client
+ * Initialize test database connection and API Gateway client
  * CRITICAL: Call this in beforeAll() - not passing this check = entire suite is invalid
  */
 export async function setupDatabase() {
+  const host = process.env.DB_HOST || 'localhost';
+  const dbName = process.env.DB_NAME || 'steelapp_test';
+  assertNotProduction(host, dbName);
+
   try {
-    // Create connection pool to cloud PostgreSQL
     pool = new Pool({
-      host: process.env.DB_HOST || '13.204.19.175',
+      host,
       port: parseInt(process.env.DB_PORT || '5432'),
-      database: process.env.DB_NAME || 'steelapp',
+      database: dbName,
       user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'R8kPz@2vAq&9LmT4eX7wB%hQ',
+      password: process.env.DB_PASSWORD || 'postgres',
       ssl: process.env.DB_SSL === 'true' ? true : false,
     });
 

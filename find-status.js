@@ -1,16 +1,10 @@
+import "dotenv/config";
 import pg from 'pg';
 
 const { Pool } = pg;
 
 async function findStatus() {
-  const pool = new Pool({
-    host: process.env.DB_HOST || '13.204.19.175',
-    port: parseInt(process.env.DB_PORT || '5432'),
-    database: process.env.DB_NAME || 'steelapp',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || 'R8kPz@2vAq&9LmT4eX7wB%hQ',
-    ssl: process.env.DB_SSL === 'true' ? true : false,
-  });
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
   try {
     // Try to see what statuses exist

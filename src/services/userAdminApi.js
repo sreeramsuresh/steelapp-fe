@@ -5,8 +5,9 @@ export const userAdminAPI = {
     const res = await apiService.get("/users", { params });
     return Array.isArray(res?.users) ? res.users : Array.isArray(res) ? res : res || [];
   },
-  async create({ name, email, password, role, permissions }) {
-    const body = { name, email, password, role };
+  async create({ username, email, password, name, role, permissions }) {
+    const body = { username, email, password, role };
+    if (name) body.name = name;
     if (permissions) body.permissions = permissions;
     const res = await apiService.post("/users", body);
     return res?.user || res;
