@@ -223,6 +223,7 @@ const UserManagementTab = () => {
   const [userTotalPages, setUserTotalPages] = useState(1);
   const [userLoadingError, setUserLoadingError] = useState(null);
   const [userRefreshKey, setUserRefreshKey] = useState(0);
+  const [statusFilter, setStatusFilter] = useState("active");
   const [userValidationErrors, setUserValidationErrors] = useState({});
   const [isSubmittingUser, setIsSubmittingUser] = useState(false);
   const [invitations, setInvitations] = useState([]);
@@ -384,7 +385,7 @@ const UserManagementTab = () => {
       try {
         // Fire users list, roles lookup, and invitations in parallel
         const [response, roles, invites] = await Promise.allSettled([
-          userAdminAPI.list({ page: userCurrentPage, limit: userPageSize }),
+          userAdminAPI.list({ page: userCurrentPage, limit: userPageSize, status: statusFilter }),
           roleService.getRoles(),
           userAdminAPI.listInvitations(),
         ]);
@@ -426,7 +427,7 @@ const UserManagementTab = () => {
         notificationService.error(`User Management: ${errorMsg}`);
       }
     })();
-  }, [userCurrentPage, userPageSize, userRefreshKey]);
+  }, [userCurrentPage, userPageSize, userRefreshKey, statusFilter]);
 
   const loadRoles = useCallback(async () => {
     try {
@@ -656,7 +657,7 @@ const UserManagementTab = () => {
       setEditUserModal({ open: false, user: null });
       setUserValidationErrors({});
       // Refresh user list
-      const response = await userAdminAPI.list({ page: userCurrentPage, limit: userPageSize });
+      const response = await userAdminAPI.list({ page: userCurrentPage, limit: userPageSize, status: statusFilter });
       const remoteUsers = Array.isArray(response) ? response : response.data || [];
       const mapped = await Promise.all(
         remoteUsers.map(async (u) => {
@@ -754,13 +755,29 @@ const UserManagementTab = () => {
               </div>
             </div>
 
-            <Input
-              placeholder="Search users by name, email, or role..."
-              value={userSearchTerm}
-              onChange={(e) => setUserSearchTerm(e.target.value)}
-              startIcon={<Users size={16} />}
-              className="max-w-md mb-6"
-            />
+            <div className="flex items-center gap-3 mb-6">
+              <Input
+                placeholder="Search users by name, email, or role..."
+                value={userSearchTerm}
+                onChange={(e) => setUserSearchTerm(e.target.value)}
+                startIcon={<Users size={16} />}
+                className="max-w-md"
+              />
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setUserCurrentPage(1);
+                }}
+                className={`px-3 py-2 rounded-md border text-sm ${
+                  isDarkMode ? "bg-gray-700 border-gray-600 text-gray-200" : "bg-white border-gray-300 text-gray-700"
+                }`}
+              >
+                <option value="active">Active Users</option>
+                <option value="inactive">Inactive Users</option>
+                <option value="all">All Users</option>
+              </select>
+            </div>
 
             {filteredUsers.length > 0 && (
               <div className={`text-sm mb-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
