@@ -473,7 +473,7 @@ const UserManagementTab = () => {
       setUsers((prev) => prev.filter((x) => x.id !== userId));
       notificationService.success("User deleted successfully!");
     } catch (e) {
-      notificationService.error(e?.response?.data?.error || e?.message || "Failed to delete user");
+      notificationService.error(e?.response?.data?.message || e?.message || "Failed to delete user");
     }
   };
 
