@@ -17,7 +17,7 @@ const { Pool } = pg;
 let pool: pg.Pool | null = null;
 
 // --- Production safety guards ---
-const BLOCKED_HOSTS = ['13.204.19.175', '51.112.180.29'];
+const BLOCKED_HOSTS = ['13.204.19.175', '51.112.180.29', '158.252.233.114'];
 const BLOCKED_DB_NAMES = ['steelapp', 'steelapp_prod', 'ultimate_steel'];
 
 function assertNotProduction(host: string, dbName: string) {

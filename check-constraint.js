@@ -2,7 +2,7 @@ import "dotenv/config";
 import pg from "pg";
 
 // Production safety guard
-const BLOCKED_HOSTS = ["51.112.180.29", "13.204.19.175"];
+const BLOCKED_HOSTS = ["51.112.180.29", "13.204.19.175", "158.252.233.114"];
 const BLOCKED_DB_NAMES = ["steelapp", "steelapp_prod", "ultimate_steel"];
 if (process.env.DATABASE_URL) {
   try {
