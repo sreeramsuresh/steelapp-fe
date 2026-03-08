@@ -49,7 +49,7 @@ import supplierBillService from "../../services/supplierBillService";
 import { supplierService } from "../../services/supplierService";
 import { calculateItemAmount, formatCurrency, formatDateForInput } from "../../utils/invoiceUtils";
 import { getAllowedBases, getBasisLabel } from "../../utils/pricingBasisRules";
-import { deriveVatSummary, findVatMismatches } from "../../utils/vatConsistency";
+import { deriveGrnVatConsensus, deriveVatSummary, findVatMismatches } from "../../utils/vatConsistency";
 
 // UAE Emirates for place of supply
 const EMIRATES = [
@@ -867,9 +867,26 @@ const SupplierBillForm = () => {
       batchNumber: grnItem.batchNumber || "",
     }));
 
-    // Determine procurement channel and VAT category
+    // Set VAT on each GRN item based on its procurement channel
+    const grnItemsWithVat = grnItems.map((grnItem) => {
+      const isItemImported = grnItem.procurementChannel === "IMPORTED";
+      const itemVatCat = isItemImported ? "REVERSE_CHARGE" : "STANDARD";
+      const itemVatConfig = VAT_CATEGORIES.find((c) => c.value === itemVatCat);
+      const itemVatRate = itemVatConfig?.rate ?? 5;
+      const amount = parseFloat(grnItem.quantity || 0) * parseFloat(grnItem.unitPrice || 0);
+      return {
+        ...grnItem,
+        vatCategory: itemVatCat,
+        vatRate: itemVatRate,
+        amount,
+        vatAmount: (amount * itemVatRate) / 100,
+      };
+    });
+
+    // Derive bill-level VAT from consensus of non-imported items
+    const consensus = deriveGrnVatConsensus(grnItemsWithVat);
+    const billVatCategory = consensus.isConsensus ? consensus.vatCategory : bill.vatCategory;
     const isImported = grn.procurementChannel === "IMPORTED" || grn.importContainerId;
-    const vatCategory = isImported ? "REVERSE_CHARGE" : "STANDARD";
 
     setBill((prev) => ({
       ...prev,
@@ -880,14 +897,18 @@ const SupplierBillForm = () => {
       procurementChannel: grn.procurementChannel || "LOCAL",
       importContainerId: grn.importContainerId || null,
       importContainerNumber: grn.containerNumber || "",
-      vatCategory,
+      vatCategory: billVatCategory,
       isReverseCharge: isImported,
-      items: grnItems.length > 0 ? grnItems : prev.items,
+      items: grnItemsWithVat.length > 0 ? grnItemsWithVat : prev.items,
     }));
 
-    // Recalculate totals
-    if (grnItems.length > 0) {
-      recalculateTotals(grnItems);
+    if (grnItemsWithVat.length > 0) {
+      recalculateTotals(grnItemsWithVat);
+    }
+
+    // Warn if no consensus
+    if (!consensus.isConsensus && consensus.message) {
+      notificationService.warning(consensus.message);
     }
 
     setShowGRNMatchModal(false);
