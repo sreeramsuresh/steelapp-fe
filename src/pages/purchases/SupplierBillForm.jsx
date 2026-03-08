@@ -49,6 +49,7 @@ import supplierBillService from "../../services/supplierBillService";
 import { supplierService } from "../../services/supplierService";
 import { calculateItemAmount, formatCurrency, formatDateForInput } from "../../utils/invoiceUtils";
 import { getAllowedBases, getBasisLabel } from "../../utils/pricingBasisRules";
+import { deriveVatSummary, findVatMismatches } from "../../utils/vatConsistency";
 
 // UAE Emirates for place of supply
 const EMIRATES = [
@@ -1141,6 +1142,10 @@ const SupplierBillForm = () => {
       };
     });
   }, []);
+
+  const vatSummary = useMemo(() => deriveVatSummary(bill.items, VAT_CATEGORIES), [bill.items]);
+
+  const _vatMismatches = useMemo(() => findVatMismatches(bill.items, bill.vatCategory), [bill.items, bill.vatCategory]);
 
   // Quick add product handler — inherits bill-level defaults
   const handleQuickAddProduct = useCallback(
@@ -2304,10 +2309,7 @@ const SupplierBillForm = () => {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>
-                      VAT ({VAT_CATEGORIES.find((c) => c.value === bill.vatCategory)?.rate || 5}
-                      %):
-                    </span>
+                    <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>{vatSummary.label}:</span>
                     <span
                       data-testid="vat-amount"
                       className={`font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}
@@ -2315,6 +2317,18 @@ const SupplierBillForm = () => {
                       {formatCurrency(bill.vatAmount)}
                     </span>
                   </div>
+                  {vatSummary.isMixed && (
+                    <div className={`ml-2 space-y-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                      {vatSummary.groups.map((g) => (
+                        <div key={`${g.category}:${g.rate}`} className="flex justify-between">
+                          <span>
+                            {g.categoryLabel} ({g.rate}%) — {g.count} item{g.count !== 1 ? "s" : ""}
+                          </span>
+                          <span>{formatCurrency(g.vatTotal)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   {(bill.freightCharges > 0 ||
                     bill.customsDuty > 0 ||
                     bill.insuranceCharges > 0 ||
