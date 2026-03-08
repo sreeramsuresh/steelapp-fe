@@ -852,7 +852,8 @@ const MaterialCertificateList = () => {
                 {certificates.map((cert) => (
                   <tr
                     key={cert.id}
-                    className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors`}
+                    className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors cursor-pointer`}
+                    onClick={() => handleView(cert)}
                   >
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
@@ -879,7 +880,7 @@ const MaterialCertificateList = () => {
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className="text-sm">{formatDate(cert.issueDate)}</span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap min-w-[120px]">
                       <span
                         className={`text-sm ${
                           cert.expiryDate && new Date(cert.expiryDate) < new Date() ? "text-red-500 font-medium" : ""
@@ -891,7 +892,7 @@ const MaterialCertificateList = () => {
                     <td className="px-4 py-4 whitespace-nowrap">
                       <StatusBadge status={cert.verificationStatus} />
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-right">
+                    <td className="px-4 py-4 whitespace-nowrap text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1">
                         <button
                           type="button"
@@ -909,26 +910,32 @@ const MaterialCertificateList = () => {
                         >
                           <Edit size={16} />
                         </button>
-                        {cert.verificationStatus === "pending" && (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => openVerifyModal(cert, "verify")}
-                              className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-green-600"
-                              title="Verify"
-                            >
-                              <CheckCircle size={16} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => openVerifyModal(cert, "reject")}
-                              className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-orange-600"
-                              title="Reject"
-                            >
-                              <XCircle size={16} />
-                            </button>
-                          </>
-                        )}
+                        {cert.verificationStatus === "pending" &&
+                          !(cert.expiryDate && new Date(cert.expiryDate) < new Date()) && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => openVerifyModal(cert, "verify")}
+                                className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-green-600"
+                                title="Verify"
+                              >
+                                <CheckCircle size={16} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => openVerifyModal(cert, "reject")}
+                                className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-orange-600"
+                                title="Reject"
+                              >
+                                <XCircle size={16} />
+                              </button>
+                            </>
+                          )}
+                        {cert.expiryDate &&
+                          new Date(cert.expiryDate) < new Date() &&
+                          cert.verificationStatus === "pending" && (
+                            <span className="text-xs text-red-500 font-medium px-1">Expired</span>
+                          )}
                         <button
                           type="button"
                           onClick={() => handleDelete(cert)}

@@ -104,7 +104,9 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
         limit: 1000,
         search: customerSearchTerm,
       });
-      setCustomers(response.customers || response.data || []);
+      const raw = response.customers || response.data || [];
+      const unique = Array.from(new Map(raw.map((c) => [c.id, c])).values());
+      setCustomers(unique);
     } catch (err) {
       console.error("Error fetching customers:", err);
     }

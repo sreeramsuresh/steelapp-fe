@@ -980,7 +980,7 @@ const ImportOrderForm = () => {
     );
 
     if (!hasValidItem) {
-      newErrors.items = "At least one complete line item is required";
+      newErrors.items = "At least one line item with a product selected, quantity > 0, and unit price > 0 is required";
     }
 
     // Validate exchange rate
@@ -1910,7 +1910,7 @@ const ImportOrderForm = () => {
                       className={`font-mono text-sm ${calculations.isDesignatedZone ? "text-green-400" : ""}`}
                       data-testid="vat-amount"
                     >
-                      {calculations.isDesignatedZone ? formatAED(0) : `(${formatAED(calculations.vatAmount)})`}
+                      {calculations.isDesignatedZone ? formatAED(0) : formatAED(calculations.vatAmount)}
                     </span>
                   </div>
 

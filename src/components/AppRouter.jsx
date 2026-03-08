@@ -1051,7 +1051,9 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               path="import-orders/new"
               element={
                 <ProtectedRoute user={user} requiredPermission="import_orders.create">
-                  <ImportOrderForm />
+                  <ErrorBoundary>
+                    <ImportOrderForm />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               }
             />
@@ -1059,7 +1061,9 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               path="import-orders/:id"
               element={
                 <ProtectedRoute user={user} requiredPermission="import_orders.read">
-                  <ImportOrderDetails />
+                  <ErrorBoundary>
+                    <ImportOrderDetails />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               }
             />
@@ -1067,7 +1071,9 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               path="import-orders/:id/edit"
               element={
                 <ProtectedRoute user={user} requiredPermission="import_orders.update">
-                  <ImportOrderForm />
+                  <ErrorBoundary>
+                    <ImportOrderForm />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               }
             />
