@@ -2061,6 +2061,22 @@ const SupplierBillForm = () => {
                                 >
                                   VAT {item.vatRate}%
                                 </span>
+                                {bill.vatCategory &&
+                                  item.procurementChannel !== "IMPORTED" &&
+                                  item.procurementChannel !== "DROPSHIP" &&
+                                  (item.vatCategory || "STANDARD").toUpperCase() !== bill.vatCategory.toUpperCase() && (
+                                    <span
+                                      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                                        isDarkMode
+                                          ? "bg-amber-900/40 text-amber-400 border border-amber-700/50"
+                                          : "bg-amber-50 text-amber-700 border border-amber-200"
+                                      }`}
+                                      title={`Bill default is ${bill.vatCategory}. This item uses ${item.vatCategory || "STANDARD"}.`}
+                                    >
+                                      <AlertTriangle className="h-3 w-3" />
+                                      Differs from default
+                                    </span>
+                                  )}
                               </div>
                               {(item.unitWeightKg || totalWt > 0) && (
                                 <div className="flex items-end gap-1.5">
