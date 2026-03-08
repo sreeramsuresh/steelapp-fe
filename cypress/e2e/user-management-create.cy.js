@@ -3,7 +3,7 @@
  *
  * Tests user creation flow on the User Management page.
  * The actual UI uses card-based user list (not table rows),
- * "Invite User" button, and role badge selection.
+ * "Create User" button, and role badge selection.
  */
 
 describe("User Management - Create User", () => {
@@ -16,9 +16,9 @@ describe("User Management - Create User", () => {
     cy.contains("h1, h2, h3, h4", /User Management/i, { timeout: 15000 }).should("be.visible");
   });
 
-  it("should display Invite User button", () => {
+  it("should display Create User button", () => {
     cy.visit("/app/users");
-    cy.contains("Invite User", { timeout: 15000 }).should("be.visible");
+    cy.contains("Create User", { timeout: 15000 }).should("be.visible");
   });
 
   it("should display user search input", () => {

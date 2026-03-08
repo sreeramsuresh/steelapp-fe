@@ -25,9 +25,15 @@ Cypress.Commands.add("login", (email, password) => {
 
     const { token, refreshToken, user } = response.body;
 
-    // Set cookies (NOT httpOnly — app uses document.cookie)
-    cy.setCookie("accessToken", token);
-    cy.setCookie("refreshToken", refreshToken);
+    // Set cookies — if tokens are in body (RETURN_TOKENS_IN_BODY=true), set them explicitly.
+    // If not in body (HttpOnly cookie flow), the server already set them via Set-Cookie headers
+    // and cy.request() captured them automatically.
+    if (token) {
+      cy.setCookie("accessToken", token);
+    }
+    if (refreshToken) {
+      cy.setCookie("refreshToken", refreshToken);
+    }
 
     // Visit the app first to establish the AUT window
     cy.visit("/");
@@ -35,9 +41,13 @@ Cypress.Commands.add("login", (email, password) => {
     // Set localStorage and sessionStorage on the AUT window (not the spec runner)
     cy.window().then((win) => {
       // localStorage (matches authService.js)
-      win.localStorage.setItem("steel-app-token", token);
-      win.localStorage.setItem("token", token);
-      win.localStorage.setItem("steel-app-refresh-token", refreshToken);
+      if (token) {
+        win.localStorage.setItem("steel-app-token", token);
+        win.localStorage.setItem("token", token);
+      }
+      if (refreshToken) {
+        win.localStorage.setItem("steel-app-refresh-token", refreshToken);
+      }
 
       // sessionStorage (matches axiosApi.js response interceptor)
       win.sessionStorage.setItem("userId", String(user.id));

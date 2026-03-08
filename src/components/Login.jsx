@@ -374,6 +374,7 @@ const Login = ({ onLoginSuccess }) => {
         if (onLoginSuccess) {
           onLoginSuccess(response.user);
         }
+        // AppRouter's needsAppRedirect guard handles redirect to /app
       } catch (autoLoginError) {
         console.error("Auto-login failed:", autoLoginError.message);
       } finally {
@@ -403,6 +404,7 @@ const Login = ({ onLoginSuccess }) => {
       if (onLoginSuccess) {
         onLoginSuccess(response.user);
       }
+      // AppRouter's needsAppRedirect guard handles redirect to /app
     } catch (loginError) {
       if (loginError.code === "ACCOUNT_LOCKED") {
         setLockoutMinutes(loginError.remainingMinutes || 15);
@@ -429,6 +431,7 @@ const Login = ({ onLoginSuccess }) => {
     if (onLoginSuccess && response.user) {
       onLoginSuccess(response.user);
     }
+    // AppRouter's needsAppRedirect guard handles redirect to /app
   };
 
   // Cancel 2FA — return to login form

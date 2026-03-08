@@ -44,9 +44,9 @@ describe("Customers Master Data - E2E Tests", () => {
     it("should have Customer Profiles, Suppliers, and Analytics tabs", () => {
       cy.visit("/app/customers");
       cy.contains("Customer Management", { timeout: 15000 });
-      cy.contains("Customer Profiles").should("be.visible");
-      cy.contains("Suppliers").should("be.visible");
-      cy.contains("Analytics").should("be.visible");
+      cy.contains("button", "Customer Profiles").should("be.visible");
+      cy.contains("button", "Suppliers").should("be.visible");
+      cy.contains("button", "Analytics").should("be.visible");
     });
 
     it("should switch to Suppliers tab", () => {

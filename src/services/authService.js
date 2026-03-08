@@ -29,6 +29,9 @@ class AuthService {
       if (response.refreshToken) {
         this.setRefreshToken(response.refreshToken);
       }
+    }
+    // Always store user data — auth may be via HttpOnly cookies (no token in body)
+    if (response.user) {
       this.setUser(response.user);
     }
 

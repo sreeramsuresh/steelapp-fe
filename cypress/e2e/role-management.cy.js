@@ -26,9 +26,9 @@ describe("Role Management - E2E Tests", () => {
     cy.contains("Manage Roles", { timeout: 15000 }).should("be.visible");
   });
 
-  it("should display Invite User button", () => {
+  it("should display Create User button", () => {
     cy.visit("/app/users");
-    cy.contains("Invite User", { timeout: 15000 }).should("be.visible");
+    cy.contains("Create User", { timeout: 15000 }).should("be.visible");
   });
 
   it("should display user list with search", () => {
