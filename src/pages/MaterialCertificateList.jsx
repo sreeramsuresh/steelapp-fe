@@ -854,6 +854,7 @@ const MaterialCertificateList = () => {
                     key={cert.id}
                     className={`${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"} transition-colors cursor-pointer`}
                     onClick={() => handleView(cert)}
+                    onKeyDown={(e) => e.key === "Enter" && handleView(cert)}
                   >
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
@@ -892,7 +893,11 @@ const MaterialCertificateList = () => {
                     <td className="px-4 py-4 whitespace-nowrap">
                       <StatusBadge status={cert.verificationStatus} />
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-right" onClick={(e) => e.stopPropagation()}>
+                    <td
+                      className="px-4 py-4 whitespace-nowrap text-right"
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.stopPropagation()}
+                    >
                       <div className="flex items-center justify-end gap-1">
                         <button
                           type="button"
