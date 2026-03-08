@@ -18,7 +18,7 @@ const CommissionPlans = () => {
     name: "",
     description: "",
     is_active: true,
-    tiers: [{ min_amount: 0, max_amount: null, rate: 0 }],
+    tiers: [{ minAmount: 0, maxAmount: null, rate: 0 }],
   });
 
   // Assignment modal state
@@ -53,7 +53,7 @@ const CommissionPlans = () => {
       name: "",
       description: "",
       is_active: true,
-      tiers: [{ min_amount: 0, max_amount: null, rate: 0 }],
+      tiers: [{ minAmount: 0, maxAmount: null, rate: 0 }],
     });
     setShowModal(true);
   };
@@ -61,10 +61,14 @@ const CommissionPlans = () => {
   const handleEdit = (plan) => {
     setEditingPlan(plan);
     setFormData({
-      name: plan.name,
+      name: plan.planName || plan.name || "",
       description: plan.description || "",
-      is_active: plan.isActive,
-      tiers: plan.tiers || [{ min_amount: 0, max_amount: null, rate: 0 }],
+      is_active: plan.isActive ?? plan.is_active ?? true,
+      tiers: (plan.tiers || [{ minAmount: 0, maxAmount: null, rate: 0 }]).map((t) => ({
+        minAmount: t.minAmount ?? t.min_amount ?? 0,
+        maxAmount: t.maxAmount ?? t.max_amount ?? null,
+        rate: t.rate ?? 0,
+      })),
     });
     setShowModal(true);
   };
@@ -107,7 +111,7 @@ const CommissionPlans = () => {
         tiers: formData.tiers,
       };
       if (editingPlan) {
-        await commissionService.updatePlan(editingPlan.id, payload);
+        await commissionService.updatePlan(editingPlan.id || editingPlan.planId, payload);
         notificationService.success("Plan updated successfully");
       } else {
         await commissionService.createPlan(payload);
@@ -128,7 +132,7 @@ const CommissionPlans = () => {
     const newMinAmount = lastTier.maxAmount || 0;
     setFormData({
       ...formData,
-      tiers: [...formData.tiers, { min_amount: newMinAmount, max_amount: null, rate: 0 }],
+      tiers: [...formData.tiers, { minAmount: newMinAmount, maxAmount: null, rate: 0 }],
     });
   };
 
@@ -343,9 +347,9 @@ const CommissionPlans = () => {
                         <p className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                           {tier.minAmount !== null && tier.minAmount !== undefined ? (
                             <>
-                              ₹{tier.minAmount.toLocaleString()}
+                              AED {tier.minAmount.toLocaleString()}
                               {tier.maxAmount !== null && tier.maxAmount !== undefined
-                                ? ` - ₹${tier.maxAmount.toLocaleString()}`
+                                ? ` - AED ${tier.maxAmount.toLocaleString()}`
                                 : "+"}
                             </>
                           ) : (
@@ -447,7 +451,7 @@ const CommissionPlans = () => {
                   <input
                     type="checkbox"
                     id="is_active"
-                    checked={formData.isActive}
+                    checked={formData.is_active}
                     onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
@@ -516,7 +520,7 @@ const CommissionPlans = () => {
                             htmlFor={`tier-${index}-min`}
                             className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                           >
-                            Min Amount (₹)
+                            Min Amount (AED)
                           </label>
                           <input
                             id={`tier-${index}-min`}
@@ -524,7 +528,7 @@ const CommissionPlans = () => {
                             step="0.01"
                             min="0"
                             value={tier.minAmount || ""}
-                            onChange={(e) => updateTier(index, "min_amount", parseFloat(e.target.value) || 0)}
+                            onChange={(e) => updateTier(index, "minAmount", parseFloat(e.target.value) || 0)}
                             className={`w-full px-3 py-2 rounded-lg border ${
                               isDarkMode
                                 ? "bg-gray-600 border-gray-500 text-white"
@@ -537,7 +541,7 @@ const CommissionPlans = () => {
                             htmlFor={`tier-${index}-max`}
                             className={`block text-xs mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
                           >
-                            Max Amount (₹)
+                            Max Amount (AED)
                           </label>
                           <input
                             id={`tier-${index}-max`}
@@ -546,7 +550,7 @@ const CommissionPlans = () => {
                             min="0"
                             value={tier.maxAmount || ""}
                             onChange={(e) =>
-                              updateTier(index, "max_amount", e.target.value ? parseFloat(e.target.value) : null)
+                              updateTier(index, "maxAmount", e.target.value ? parseFloat(e.target.value) : null)
                             }
                             className={`w-full px-3 py-2 rounded-lg border ${
                               isDarkMode

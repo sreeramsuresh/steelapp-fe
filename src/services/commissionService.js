@@ -131,17 +131,24 @@ const commissionService = {
         api.get("/commissions/agents", { params: { limit: 10, active_only: true } }),
       ]);
 
-      const metrics = metricsResponse.status === "fulfilled" ? metricsResponse.value : {};
+      const metricsRaw = metricsResponse.status === "fulfilled" ? metricsResponse.value : {};
+      const metrics = metricsRaw?.data || metricsRaw || {};
       const txData = txResponse.status === "fulfilled" ? txResponse.value : {};
       const agentsData = agentsResponse.status === "fulfilled" ? agentsResponse.value : {};
 
       return {
         ...metrics,
         summary: {
-          totalAgents: metrics.activeAgents || 0,
-          pendingAmount: parseFloat(metrics.pendingCommissions || 0),
-          approvedAmount: parseFloat(metrics.approvedCommissions || 0),
-          paidAmount: parseFloat(metrics.paidThisPeriod || 0),
+          totalAgents: metrics.activeAgents ?? metrics.active_agents ?? 0,
+          pendingAmount: parseFloat(metrics.pendingCommissions ?? metrics.pending_commissions ?? 0),
+          approvedAmount: parseFloat(metrics.approvedCommissions ?? metrics.approved_commissions ?? 0),
+          paidAmount: parseFloat(
+            metrics.paidThisPeriod ??
+              metrics.paid_this_period ??
+              metrics.paidCommissions ??
+              metrics.paid_commissions ??
+              0
+          ),
         },
         recentTransactions: txData.transactions || [],
         topAgents: (agentsData.agents || []).map((a) => ({
