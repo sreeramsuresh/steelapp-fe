@@ -969,17 +969,36 @@ const SupplierBillForm = () => {
     const isReverseCharge = category === "REVERSE_CHARGE";
     const vatConfig = VAT_CATEGORIES.find((c) => c.value === category);
     const newVatRate = vatConfig?.rate ?? 5;
+
+    // Check if any non-imported items would be affected
+    const candidates = bill.items.filter(
+      (i) => i.procurementChannel !== "IMPORTED" && i.procurementChannel !== "DROPSHIP"
+    );
+    const hasDivergent = candidates.some((i) => (i.vatCategory || "STANDARD").toUpperCase() !== category.toUpperCase());
+
+    const applyToItems = (items, cascade) =>
+      items.map((item) => {
+        if (!cascade || item.procurementChannel === "IMPORTED" || item.procurementChannel === "DROPSHIP") {
+          return item;
+        }
+        const updatedVatAmount = parseFloat((((parseFloat(item.amount) || 0) * newVatRate) / 100).toFixed(2));
+        return { ...item, vatCategory: category, vatRate: newVatRate, vatAmount: updatedVatAmount };
+      });
+
+    // If divergent items exist, ask user whether to cascade
+    const shouldCascade =
+      !hasDivergent ||
+      candidates.length === 0 ||
+      window.confirm(
+        `Apply "${vatConfig?.label || category}" to all ${candidates.length} non-imported item(s)?\n\nOK = update all items\nCancel = only affects new items`
+      );
+
     setBill((prev) => ({
       ...prev,
       vatCategory: category,
       isReverseCharge,
       blockedVatReason: category === "BLOCKED" ? prev.blockedVatReason : "",
-      items: prev.items.map((item) => ({
-        ...item,
-        vatCategory: category,
-        vatRate: newVatRate,
-        vatAmount: parseFloat((((parseFloat(item.amount) || 0) * newVatRate) / 100).toFixed(2)),
-      })),
+      items: applyToItems(prev.items, shouldCascade),
     }));
   };
 
