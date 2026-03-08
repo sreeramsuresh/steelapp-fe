@@ -726,7 +726,7 @@ const ImportOrderForm = () => {
   ]);
 
   // Calculate landed cost allocation per item (Epic 6 - IMPO-006)
-  const itemsWithLandedCost = useMemo(() => {
+  const _itemsWithLandedCost = useMemo(() => {
     const subtotal = calculations.subtotal;
     if (subtotal === 0) return order.items;
 
@@ -789,11 +789,12 @@ const ImportOrderForm = () => {
     calculateItemTotal,
   ]);
 
-  // Update order with calculated values including Form 201 fields and landed costs
+  // Update order with calculated values including Form 201 fields
+  // NOTE: Do NOT write itemsWithLandedCost back to order.items — that causes an infinite render loop.
+  // Use itemsWithLandedCost directly in the render and in handleSubmit instead.
   useEffect(() => {
     setOrder((prev) => ({
       ...prev,
-      items: itemsWithLandedCost,
       subtotal: calculations.subtotal,
       cif_value: calculations.cifValue,
       customs_duty: calculations.customsDuty,
@@ -804,8 +805,7 @@ const ImportOrderForm = () => {
       reverse_charge_input: calculations.reverseChargeInput,
       goods_imported_value: calculations.goodsImportedValue,
     }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [calculations, itemsWithLandedCost.length, itemsWithLandedCost]);
+  }, [calculations]);
 
   // ============================================================
   // FORM HANDLERS
@@ -1191,7 +1191,7 @@ const ImportOrderForm = () => {
               >
                 <button
                   type="button"
-                  className={`text-xs font-medium cursor-pointer bg-transparent border-none p-0 ${
+                  className={`text-xs font-medium cursor-pointer bg-transparent border-none p-0 whitespace-nowrap ${
                     simpleMode
                       ? isDarkMode
                         ? "text-teal-300"
@@ -1220,7 +1220,7 @@ const ImportOrderForm = () => {
                 </button>
                 <button
                   type="button"
-                  className={`text-xs font-medium cursor-pointer bg-transparent border-none p-0 ${
+                  className={`text-xs font-medium cursor-pointer bg-transparent border-none p-0 whitespace-nowrap ${
                     !simpleMode
                       ? isDarkMode
                         ? "text-teal-300"

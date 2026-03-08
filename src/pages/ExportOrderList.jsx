@@ -240,6 +240,11 @@ const ExportOrderList = () => {
   // Handle export to Excel
   const handleExportToExcel = async () => {
     try {
+      if (orders.length === 0) {
+        setError("No data to export");
+        return;
+      }
+
       // Build query params for export
       const params = new URLSearchParams();
       if (selectedOrders.length > 0) {
@@ -250,7 +255,7 @@ const ExportOrderList = () => {
         });
       }
 
-      // Trigger download (this would call an export endpoint)
+      // Trigger download via export endpoint
       window.open(`/api/export-orders/export?${params.toString()}`, "_blank");
     } catch (_err) {
       setError("Failed to export to Excel");

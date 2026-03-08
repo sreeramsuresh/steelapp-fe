@@ -511,7 +511,7 @@ export function ContainerList() {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div
             className={`w-full max-w-md p-6 rounded-xl shadow-xl ${
               isDarkMode ? "bg-[#1E2328] text-white" : "bg-white text-gray-900"

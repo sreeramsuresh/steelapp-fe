@@ -388,7 +388,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
         <div className={`p-8 rounded-xl ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
@@ -397,10 +397,7 @@ export function ContainerForm({ container, companyId, onSave, onClose }) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
-      data-testid="container-modal"
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" data-testid="container-modal">
       <div
         className={`w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl shadow-xl ${
           isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"

@@ -92,6 +92,15 @@ const VERIFICATION_STATUS = {
     textDark: "text-red-300",
     icon: XCircle,
   },
+  expired: {
+    label: "Expired",
+    color: "red",
+    bgLight: "bg-red-100",
+    bgDark: "bg-red-900/30",
+    textLight: "text-red-600",
+    textDark: "text-red-400",
+    icon: AlertCircle,
+  },
 };
 
 // Common Steel Grades
@@ -873,10 +882,10 @@ const MaterialCertificateList = () => {
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="text-sm">{cert.millName || "-"}</div>
                       {cert.heatNumber && <div className="text-xs text-gray-500">Heat: {cert.heatNumber}</div>}
-                      {cert.coil_id && <div className="text-xs text-gray-500">Coil: {cert.coil_id}</div>}
+                      {cert.coilId && <div className="text-xs text-gray-500">Coil: {cert.coilId}</div>}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium">{getGradeLabel(cert.grade, cert.grade_other)}</span>
+                      <span className="text-sm font-medium">{getGradeLabel(cert.grade, cert.gradeOther)}</span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className="text-sm">{formatDate(cert.issueDate)}</span>
@@ -1729,7 +1738,7 @@ const MaterialCertificateList = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Coil ID:</span>
-                      <span className="font-medium">{selectedCertificate.coil_id || "-"}</span>
+                      <span className="font-medium">{selectedCertificate.coilId || "-"}</span>
                     </div>
                   </div>
                 </div>
@@ -1740,12 +1749,12 @@ const MaterialCertificateList = () => {
                     <div className="flex justify-between">
                       <span className="text-gray-500">Grade:</span>
                       <span className="font-medium">
-                        {getGradeLabel(selectedCertificate.grade, selectedCertificate.grade_other)}
+                        {getGradeLabel(selectedCertificate.grade, selectedCertificate.gradeOther)}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Country of Origin:</span>
-                      <span className="font-medium">{selectedCertificate.country_of_origin || "-"}</span>
+                      <span className="font-medium">{selectedCertificate.countryOfOrigin || "-"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Issuing Authority:</span>
