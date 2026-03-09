@@ -619,13 +619,16 @@ const UserManagementTab = () => {
     try {
       setIsCreatingDirect(true);
       setDirectCreateError("");
-      await userAdminAPI.create({
+      const createdUser = await userAdminAPI.create({
         username: username.trim(),
         email: email.trim(),
         password,
         name: username.trim(),
         role: "user",
       });
+      if (createdUser?.id && selectedUserRoles.length > 0) {
+        await roleService.replaceUserRoles(createdUser.id, selectedUserRoles);
+      }
       notificationService.success("User created successfully");
       setShowAddUserModal(false);
       setDirectCreateFields({ username: "", email: "", password: "" });
