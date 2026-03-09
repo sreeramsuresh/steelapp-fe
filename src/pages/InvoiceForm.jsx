@@ -46,6 +46,8 @@ import { useApi, useApiData } from "../hooks/useApi";
 // AutoSave removed - was causing status bug on new invoices
 import useInvoiceTemplates from "../hooks/useInvoiceTemplates";
 import useKeyboardShortcuts, { getShortcutDisplayString, INVOICE_SHORTCUTS } from "../hooks/useKeyboardShortcuts";
+import { useZodForm } from "../hooks/useZodForm";
+import { InvoiceFormSchema } from "../schemas/invoiceSchema";
 import { invoicesAPI } from "../services/api";
 import { apiService } from "../services/axiosApi";
 import { authService } from "../services/axiosAuthService";
@@ -221,6 +223,9 @@ const InvoiceForm = ({ onSave }) => {
   // Form validation state
   const [validationErrors, setValidationErrors] = useState([]);
   const [invalidFields, setInvalidFields] = useState(new Set());
+
+  // Zod-based form validation
+  const { validate: zodValidate, errors: zodErrors, clearErrors: clearZodErrors } = useZodForm(InvoiceFormSchema);
 
   // Real-time field validation states (null = untouched, 'valid' = valid, 'invalid' = invalid)
   const [fieldValidation, setFieldValidation] = useState({});
@@ -1295,6 +1300,45 @@ const InvoiceForm = ({ onSave }) => {
 
     const effectiveStatus = statusOverride || invoice.status;
 
+    // Zod schema validation — structural checks before business-rule validation
+    const nonBlankItemsForZod = getNonBlankItems(invoice.items);
+    const zodData = {
+      customer: {
+        id: invoice.customer?.id || "",
+        name: invoice.customer?.name || "",
+      },
+      date: invoice.date || "",
+      dueDate: invoice.dueDate || "",
+      status: effectiveStatus,
+      modeOfPayment: invoice.modeOfPayment || "",
+      items: nonBlankItemsForZod.map((item) => ({
+        productId: item.productId ? Number(item.productId) : null,
+        name: item.name || "",
+        quantity: Number(item.quantity) || 0,
+        rate: Number(item.rate) || 0,
+        discount: Number(item.discount) || 0,
+        vatRate: Number(item.vatRate) || 0,
+      })),
+      notes: invoice.notes || "",
+    };
+    const zodResult = zodValidate(zodData);
+    if (!zodResult.success) {
+      // Merge Zod errors into the existing validation display
+      const zodErrorMessages = Object.values(zodResult.fieldErrors);
+      setValidationErrors(zodErrorMessages);
+      setInvalidFields(new Set(Object.keys(zodResult.fieldErrors)));
+      setTimeout(() => {
+        const errorAlert = document.getElementById("validation-errors-alert");
+        if (errorAlert) {
+          errorAlert.scrollIntoView({ behavior: "instant", block: "center" });
+        }
+      }, 100);
+      isSavingRef.current = false;
+      setIsSaving(false);
+      return;
+    }
+    clearZodErrors();
+
     // Unified validation — includes non-draft checks when status requires them
     const validation = validateRequiredFields(effectiveStatus);
 
@@ -2092,9 +2136,11 @@ const InvoiceForm = ({ onSave }) => {
                         validationState={fieldValidation.customer}
                         showValidation={formPreferences.showValidationHighlighting}
                       />
-                      {invalidFields.has("customer.name") && (
+                      {(invalidFields.has("customer.name") ||
+                        zodErrors["customer.id"] ||
+                        zodErrors["customer.name"]) && (
                         <p className={`text-xs ${isDarkMode ? "text-red-400" : "text-red-600"}`}>
-                          Customer is required
+                          {zodErrors["customer.id"] || zodErrors["customer.name"] || "Customer is required"}
                         </p>
                       )}
                     </div>

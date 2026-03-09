@@ -22,6 +22,8 @@ import PhoneInput from "../components/shared/PhoneInput";
 import TRNInput from "../components/TRNInput";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { useTheme } from "../contexts/ThemeContext";
+import { useZodForm } from "../hooks/useZodForm";
+import { CustomerFormSchema } from "../schemas/invoiceSchema";
 import { customerService } from "../services/customerService";
 import { notificationService } from "../services/notificationService";
 import { formatDateDMY } from "../utils/invoiceUtils";
@@ -314,6 +316,9 @@ const CustomerForm = () => {
   // Form Errors
   const [errors, setErrors] = useState({});
 
+  // Zod-based form validation
+  const { validate: zodValidate, errors: zodErrors, clearErrors: clearZodErrors } = useZodForm(CustomerFormSchema);
+
   // Credit Management State
   const [creditData, setCreditData] = useState({
     creditUsed: 0,
@@ -438,6 +443,17 @@ const CustomerForm = () => {
     try {
       setSaving(true);
       setError("");
+
+      // Zod schema validation
+      const zodResult = zodValidate(formData);
+      if (!zodResult.success) {
+        const firstError = Object.values(zodResult.fieldErrors)[0];
+        setErrors(zodResult.fieldErrors);
+        setError(firstError);
+        return;
+      }
+      clearZodErrors();
+
       const newErrors = {};
 
       if (!formData.name.trim()) {
@@ -692,6 +708,9 @@ const CustomerForm = () => {
                       className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       data-testid="customer-name"
                     />
+                    {(zodErrors.name || errors.name) && (
+                      <p className="text-red-500 text-sm mt-1">{zodErrors.name || errors.name}</p>
+                    )}
                   </div>
 
                   {/* Company Name */}
@@ -728,6 +747,7 @@ const CustomerForm = () => {
                       className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       data-testid="customer-email"
                     />
+                    {zodErrors.email && <p className="text-red-500 text-sm mt-1">{zodErrors.email}</p>}
                   </div>
 
                   {/* Phone */}
@@ -740,6 +760,7 @@ const CustomerForm = () => {
                       onChange={(phone) => setFormData((prev) => ({ ...prev, phone }))}
                       disabled={!isEditMode}
                     />
+                    {zodErrors.phone && <p className="text-red-500 text-sm mt-1">{zodErrors.phone}</p>}
                   </div>
 
                   {/* Alternate Phone */}

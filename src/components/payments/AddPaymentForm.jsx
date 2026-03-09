@@ -1,6 +1,8 @@
 import { AlertTriangle, Banknote, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useZodForm } from "../../hooks/useZodForm";
+import { PaymentFormSchema } from "../../schemas/invoiceSchema";
 import { customerCreditService } from "../../services/customerCreditService";
 import { PAYMENT_MODES } from "../../services/dataService";
 import { formatCurrency } from "../../utils/invoiceUtils";
@@ -59,6 +61,9 @@ const AddPaymentForm = ({
   // Validation state for user feedback
   const [validationErrors, setValidationErrors] = useState([]);
   const [showValidationErrors, setShowValidationErrors] = useState(false);
+
+  // Zod-based form validation
+  const { validate: zodValidate, errors: zodErrors, clearErrors: clearZodErrors } = useZodForm(PaymentFormSchema);
 
   // Fetch customer credit summary when customerId is provided
   useEffect(() => {
@@ -153,6 +158,25 @@ const AddPaymentForm = ({
   };
 
   const handleSave = () => {
+    // Zod schema validation first
+    const zodResult = zodValidate({
+      amount: Number(amount) || 0,
+      method,
+      date,
+      reference,
+      notes,
+      currency,
+      exchangeRate: parseFloat(exchangeRate) || 1,
+    });
+    if (!zodResult.success) {
+      const zodErrorMessages = Object.values(zodResult.fieldErrors);
+      setValidationErrors(zodErrorMessages);
+      setShowValidationErrors(true);
+      return;
+    }
+    clearZodErrors();
+
+    // Existing business-rule validation (outstanding balance, reference requirements, etc.)
     const errors = validatePayment();
     if (errors.length > 0) {
       setValidationErrors(errors);
@@ -337,6 +361,7 @@ const AddPaymentForm = ({
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
+          {zodErrors.date && <div className="text-red-500 text-sm mt-1">{zodErrors.date}</div>}
         </div>
 
         {/* Currency Input (Phase 1 Multi-Currency) */}
@@ -370,6 +395,7 @@ const AddPaymentForm = ({
               </option>
             ))}
           </select>
+          {zodErrors.method && <div className="text-red-500 text-sm mt-1">{zodErrors.method}</div>}
         </div>
         <div>
           <div className="text-xs opacity-70 mb-1">
@@ -386,6 +412,7 @@ const AddPaymentForm = ({
           {modeConfig.requiresRef && (!reference || reference.trim() === "") && (
             <div className="text-xs text-red-600 mt-1">Reference is required for {modeConfig.label}</div>
           )}
+          {zodErrors.reference && <div className="text-red-500 text-sm mt-1">{zodErrors.reference}</div>}
         </div>
         <div className="sm:col-span-2">
           <div className="text-xs opacity-70 mb-1">Notes</div>
@@ -395,6 +422,7 @@ const AddPaymentForm = ({
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
+          {zodErrors.notes && <div className="text-red-500 text-sm mt-1">{zodErrors.notes}</div>}
         </div>
       </div>
 
