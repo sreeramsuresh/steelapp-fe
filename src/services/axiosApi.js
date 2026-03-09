@@ -83,12 +83,18 @@ const api = axios.create({
   },
 });
 
-// Request interceptor - handles FormData Content-Type
+// Request interceptor - handles FormData Content-Type and idempotency keys
 // Auth is handled via HttpOnly cookies (withCredentials: true) — no manual header needed
 api.interceptors.request.use((config) => {
   // For FormData, let the browser set the Content-Type with boundary
   if (config.data instanceof FormData) {
     delete config.headers["Content-Type"];
+  }
+
+  // Auto-attach Idempotency-Key for mutating requests (POST, PUT, PATCH)
+  const method = (config.method || "").toUpperCase();
+  if (["POST", "PUT", "PATCH"].includes(method) && !config.headers["Idempotency-Key"]) {
+    config.headers["Idempotency-Key"] = crypto.randomUUID();
   }
 
   return config;
