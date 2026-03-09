@@ -1,3 +1,4 @@
+// Owner: finance
 /**
  * Payments & Financial Operations E2E Tests
  *

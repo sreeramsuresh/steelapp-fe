@@ -1,3 +1,4 @@
+// Owner: finance
 /**
  * VAT Rates Configuration E2E Tests
  *

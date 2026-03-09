@@ -108,6 +108,16 @@ describe("Procurement Workflow - E2E Tests", () => {
     });
   });
 
+  describe("Sequential Procurement Flow", () => {
+    it("should navigate from purchases to supplier bills sequentially", () => {
+      cy.visit("/app/purchases");
+      cy.get("body", { timeout: 15000 }).should("be.visible");
+      cy.visit("/app/supplier-bills");
+      cy.get("body", { timeout: 15000 }).should("be.visible");
+      cy.url().should("include", "/app/supplier-bills");
+    });
+  });
+
   describe("GRN Access", () => {
     it("should be able to navigate to GRN from purchases", () => {
       cy.visit("/app/purchases");

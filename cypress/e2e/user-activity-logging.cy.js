@@ -1,3 +1,4 @@
+// Owner: auth
 /**
  * User Activity Logging E2E Tests
  *

@@ -1,3 +1,4 @@
+// Owner: procurement
 /**
  * Supplier Quotation E2E Tests
  *

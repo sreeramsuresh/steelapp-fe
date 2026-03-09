@@ -1,3 +1,4 @@
+// Owner: finance
 /**
  * VAT Operations E2E Tests
  *

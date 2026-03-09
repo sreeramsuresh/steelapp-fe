@@ -1,3 +1,4 @@
+// Owner: sales
 /**
  * Quotations E2E Tests - Complete Workflow
  *

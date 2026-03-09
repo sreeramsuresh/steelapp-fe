@@ -1,3 +1,4 @@
+// Owner: finance
 /**
  * Operating Expenses E2E Tests
  *

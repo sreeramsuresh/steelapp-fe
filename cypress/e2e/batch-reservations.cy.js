@@ -1,3 +1,4 @@
+// Owner: inventory
 /**
  * Batch Reservations E2E Tests
  *

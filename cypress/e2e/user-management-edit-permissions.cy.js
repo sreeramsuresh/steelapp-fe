@@ -1,3 +1,4 @@
+// Owner: auth
 /**
  * E2E Test: User Management - View Permissions
  *
@@ -31,7 +32,6 @@ describe("User Management - View Permissions", () => {
   it("should switch to Permissions Matrix tab", () => {
     cy.visit("/app/users");
     cy.contains("Permissions Matrix", { timeout: 15000 }).click();
-    cy.wait(2000);
     // Permissions Matrix may navigate to /app/permissions-matrix or stay on /app/users
     cy.url().should("match", /\/app\/(users|permissions-matrix)/);
   });

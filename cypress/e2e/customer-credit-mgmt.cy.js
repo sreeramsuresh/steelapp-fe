@@ -1,3 +1,4 @@
+// Owner: sales
 /**
  * Customer Credit Management E2E Tests
  *

@@ -1,3 +1,4 @@
+// Owner: admin
 /**
  * Homepage Integrity Summary - E2E Tests
  *
@@ -21,7 +22,7 @@ describe("Homepage — Data & Stock Integrity Summary Card", () => {
 
   it("should render homepage content without errors", () => {
     cy.visit("/app");
-    cy.wait(3000);
+    cy.get("body", { timeout: 15000 }).should("be.visible");
     // Verify no error state is shown
     cy.contains(/something went wrong|error/i).should("not.exist");
   });

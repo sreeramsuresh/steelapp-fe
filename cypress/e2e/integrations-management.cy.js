@@ -1,3 +1,4 @@
+// Owner: settings
 /**
  * Integrations Management E2E Tests
  *

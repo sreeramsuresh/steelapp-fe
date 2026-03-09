@@ -1,3 +1,4 @@
+// Owner: sales
 /**
  * Customers Master Data E2E Tests
  *
@@ -69,9 +70,8 @@ describe("Customers Master Data - E2E Tests", () => {
       cy.visit("/app/customers");
       cy.contains("Customer Management", { timeout: 15000 });
       cy.get('input[placeholder*="Search customers"]').type("test");
-      // Wait for debounce and verify table still renders
-      cy.wait(500);
-      cy.get("table").should("be.visible");
+      // Verify table still renders after debounce
+      cy.get("table", { timeout: 5000 }).should("be.visible");
     });
   });
 });

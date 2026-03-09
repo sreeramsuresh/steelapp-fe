@@ -1,3 +1,4 @@
+// Owner: finance
 /**
  * Countries & Currencies E2E Tests
  *

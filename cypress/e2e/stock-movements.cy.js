@@ -1,3 +1,4 @@
+// Owner: inventory
 /**
  * Stock Movements E2E Tests
  *

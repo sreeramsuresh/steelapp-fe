@@ -1,3 +1,4 @@
+// Owner: sales
 /**
  * Price Lists E2E Tests
  *

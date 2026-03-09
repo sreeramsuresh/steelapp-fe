@@ -1,3 +1,4 @@
+// Owner: settings
 /**
  * Policy Snapshots Management E2E Tests
  *

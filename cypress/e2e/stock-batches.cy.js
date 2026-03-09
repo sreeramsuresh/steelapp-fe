@@ -1,3 +1,4 @@
+// Owner: inventory
 /**
  * Stock Batches E2E Tests
  *

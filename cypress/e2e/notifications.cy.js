@@ -1,3 +1,4 @@
+// Owner: admin
 /**
  * Notifications E2E Tests
  *

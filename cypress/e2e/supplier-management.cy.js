@@ -1,3 +1,4 @@
+// Owner: procurement
 /**
  * Supplier Management E2E Tests
  *
@@ -21,14 +22,12 @@ describe("Supplier Management", () => {
 
   it("should switch to the Suppliers tab and show content", () => {
     cy.contains("Suppliers", { timeout: 15000 }).click();
-    cy.wait(500);
-    cy.get("table").should("exist");
+    cy.get("table", { timeout: 10000 }).should("exist");
   });
 
   it("should render supplier data in the table", () => {
     cy.contains("Suppliers", { timeout: 15000 }).click();
-    cy.wait(500);
-    cy.get("table tbody tr").should("have.length.greaterThan", 0);
+    cy.get("table tbody tr", { timeout: 10000 }).should("have.length.greaterThan", 0);
   });
 
   it("should have search or filter input", () => {

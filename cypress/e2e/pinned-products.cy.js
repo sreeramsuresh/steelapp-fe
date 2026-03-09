@@ -1,3 +1,4 @@
+// Owner: settings
 /**
  * Pinned Products E2E Tests
  *

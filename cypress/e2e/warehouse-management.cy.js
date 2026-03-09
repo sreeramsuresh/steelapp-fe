@@ -1,3 +1,4 @@
+// Owner: inventory
 /**
  * Warehouse Management E2E Tests
  *
