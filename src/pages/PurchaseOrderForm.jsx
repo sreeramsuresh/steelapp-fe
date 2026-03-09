@@ -2036,7 +2036,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                       <div className="flex-1">
                         <label
                           htmlFor="supplier-autocomplete"
-                          className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                          className={`block text-xs font-medium mb-0.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                         >
                           Supplier <span className="text-red-500">*</span>
                         </label>
@@ -2053,6 +2053,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                           }}
                           disabled={loadingSuppliers || isPriceLocked}
                           loading={loadingSuppliers}
+                          inputClassName="h-[38px]"
                           data-testid="supplier-select"
                         />
                         {formPreferences.showValidationHighlighting && fieldValidation.supplier === "error" && (
