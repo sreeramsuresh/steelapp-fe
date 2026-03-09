@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import PhoneInput from "../components/shared/PhoneInput";
 import { employeeService } from "../services/employeeService";
 
 const TABS = ["Personal", "Employment", "Bank Details"];
@@ -198,15 +199,12 @@ const EmployeeForm = () => {
               </label>
             </div>
             <div>
-              <label className={labelClass}>
-                Phone
-                <input
-                  type="text"
-                  value={form.phone}
-                  onChange={(e) => handleChange("phone", e.target.value)}
-                  className={inputClass}
-                />
-              </label>
+              <PhoneInput
+                label="Phone"
+                name="phone"
+                value={form.phone}
+                onChange={(phone) => handleChange("phone", phone)}
+              />
             </div>
           </div>
         )}

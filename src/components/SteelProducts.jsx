@@ -1401,10 +1401,10 @@ const SteelProducts = () => {
         case "margin": {
           const aCost = Number(a.costPrice ?? a.cost_price ?? 0);
           const aSell = Number(a.sellingPrice ?? a.selling_price ?? 0);
-          aVal = aCost > 0 ? ((aSell - aCost) / aCost) * 100 : 0;
+          aVal = aSell > 0 ? ((aSell - aCost) / aSell) * 100 : 0;
           const bCost = Number(b.costPrice ?? b.cost_price ?? 0);
           const bSell = Number(b.sellingPrice ?? b.selling_price ?? 0);
-          bVal = bCost > 0 ? ((bSell - bCost) / bCost) * 100 : 0;
+          bVal = bSell > 0 ? ((bSell - bCost) / bSell) * 100 : 0;
           break;
         }
         case "supplier":
@@ -1467,7 +1467,7 @@ const SteelProducts = () => {
       case "margin": {
         const cost = Number(product.costPrice ?? product.cost_price ?? 0);
         const sell = Number(product.sellingPrice ?? product.selling_price ?? 0);
-        return cost > 0 ? Math.round(((sell - cost) / cost) * 100) : 0;
+        return sell > 0 ? Math.round(((sell - cost) / sell) * 100) : 0;
       }
       case "supplier":
         return product.supplier || "-";
@@ -2199,27 +2199,26 @@ const SteelProducts = () => {
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
           <span className="text-sm font-medium text-gray-500">
-            {products.filter((p) => (Number(p.currentStock) || 0) <= 0).length}
+            {pageInfo.outOfStock ?? products.filter((p) => (Number(p.currentStock) || 0) <= 0).length}
           </span>
           <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>out of stock</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
           <span className="text-sm font-medium text-red-500">
-            {
+            {pageInfo.lowStock ??
               products.filter((p) => {
                 const currentStock = Number(p.currentStock) || 0;
                 const minStock = p.minStock > 0 ? p.minStock : 5;
                 return currentStock > 0 && currentStock <= minStock;
-              }).length
-            }
+              }).length}
           </span>
           <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>low stock</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
           <span className="text-sm font-medium text-green-500">
-            {products.filter((p) => (Number(p.currentStock) || 0) > (p.minStock || 0)).length}
+            {pageInfo.inStock ?? products.filter((p) => (Number(p.currentStock) || 0) > (p.minStock || 0)).length}
           </span>
           <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>in stock</span>
         </div>
@@ -4457,9 +4456,9 @@ const SteelProducts = () => {
 
             // Calculate margin
             const margin =
-              selectedProduct.costPrice > 0 && selectedProduct.sellingPrice > 0
+              selectedProduct.sellingPrice > 0 && selectedProduct.costPrice > 0
                 ? Math.round(
-                    ((selectedProduct.sellingPrice - selectedProduct.costPrice) / selectedProduct.costPrice) * 100
+                    ((selectedProduct.sellingPrice - selectedProduct.costPrice) / selectedProduct.sellingPrice) * 100
                   )
                 : null;
 
@@ -4645,7 +4644,7 @@ const SteelProducts = () => {
                               </td>
                             </tr>
                           )}
-                          {selectedProduct.thickness && (
+                          {selectedProduct.thickness != null && selectedProduct.thickness !== "" && (
                             <tr className={isDarkMode ? "border-b border-gray-700" : "border-b border-gray-100"}>
                               <td
                                 className={`px-3 py-1.5 font-semibold ${isDarkMode ? "text-gray-300 bg-[#252b32]" : "text-gray-700 bg-gray-100"}`}
@@ -4657,7 +4656,7 @@ const SteelProducts = () => {
                               </td>
                             </tr>
                           )}
-                          {selectedProduct.width && (
+                          {selectedProduct.width != null && selectedProduct.width !== "" && (
                             <tr className={isDarkMode ? "border-b border-gray-700" : "border-b border-gray-100"}>
                               <td
                                 className={`px-3 py-1.5 font-semibold ${isDarkMode ? "text-gray-300 bg-[#252b32]" : "text-gray-700 bg-gray-100"}`}

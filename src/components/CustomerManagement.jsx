@@ -33,6 +33,7 @@ import { supplierService } from "../services/supplierService";
 import { formatCurrency } from "../utils/invoiceUtils";
 import ConfirmDialog from "./ConfirmDialog";
 import CustomerUpload from "./CustomerUpload";
+import PhoneInput from "./shared/PhoneInput";
 
 // Column definitions for Customers table
 const CUSTOMER_COLUMNS = [
@@ -242,7 +243,7 @@ const CustomerManagement = () => {
       case "creditLimit":
         return Number(customer.creditLimit ?? customer.credit_limit) || 0;
       case "creditUsed":
-        return Number(customer.currentCredit ?? customer.current_credit) || 0;
+        return Number(customer.creditUsed ?? customer.credit_used) || 0;
       case "status":
         return customer.status || "active";
       default:
@@ -771,7 +772,7 @@ const CustomerManagement = () => {
     const totalCustomers = customers.length;
     const activeCustomers = customers.filter((c) => normalizeStatus(c.status) === "active").length;
     const totalCreditLimit = customers.reduce((sum, c) => sum + (Number(c.creditLimit ?? c.credit_limit) || 0), 0);
-    const totalCreditUsed = customers.reduce((sum, c) => sum + (Number(c.currentCredit ?? c.current_credit) || 0), 0);
+    const totalCreditUsed = customers.reduce((sum, c) => sum + (Number(c.creditUsed ?? c.credit_used) || 0), 0);
     const avgCreditUtilization = totalCreditLimit > 0 ? (totalCreditUsed / totalCreditLimit) * 100 : 0;
 
     return {
@@ -954,7 +955,7 @@ const CustomerManagement = () => {
         <span className="text-sm">
           Showing {Math.min(sortedCustomers.length, customers.length)} of {customers.length} customer
           {customers.length !== 1 ? "s" : ""}
-          {pageInfo.totalItems &&
+          {pageInfo.totalItems > 0 &&
             pageInfo.totalItems > customers.length &&
             ` (Page ${pageInfo.currentPage || 1} of ${pageInfo.totalPages || 1})`}
           {filterStatus !== "all" && ` (filtered by ${filterStatus})`}
@@ -1690,16 +1691,14 @@ const CustomerManagement = () => {
             customers
               .filter((c) => (c.creditLimit ?? c.credit_limit ?? 0) > 0)
               .sort((a, b) => {
-                const aUtil =
-                  ((a.currentCredit ?? a.current_credit ?? 0) / (a.creditLimit ?? a.credit_limit ?? 1)) * 100;
-                const bUtil =
-                  ((b.currentCredit ?? b.current_credit ?? 0) / (b.creditLimit ?? b.credit_limit ?? 1)) * 100;
+                const aUtil = ((a.creditUsed ?? a.credit_used ?? 0) / (a.creditLimit ?? a.credit_limit ?? 1)) * 100;
+                const bUtil = ((b.creditUsed ?? b.credit_used ?? 0) / (b.creditLimit ?? b.credit_limit ?? 1)) * 100;
                 return bUtil - aUtil; // Sort by utilization descending
               })
               .map((customer) => {
                 const creditLimit = customer.creditLimit ?? customer.credit_limit ?? 0;
-                const currentCredit = customer.currentCredit ?? customer.current_credit ?? 0;
-                const utilization = creditLimit > 0 ? (currentCredit / creditLimit) * 100 : 0;
+                const creditUsed = customer.creditUsed ?? customer.credit_used ?? 0;
+                const utilization = creditLimit > 0 ? (creditUsed / creditLimit) * 100 : 0;
                 return (
                   <div
                     key={customer.id}
@@ -1912,35 +1911,25 @@ const CustomerManagement = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="customerPhone" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                    Phone
-                  </label>
-                  <input
-                    type="tel"
-                    id="customerPhone"
+                  <PhoneInput
+                    label="Phone"
                     value={newCustomer.phone}
-                    onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
-                    placeholder="Enter phone number"
-                    className={inputClasses}
+                    onChange={(val) => setNewCustomer({ ...newCustomer, phone: val })}
+                    isDarkMode={isDarkMode}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="customerAlternatePhone" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                    Alternate Phone
-                  </label>
-                  <input
-                    type="tel"
-                    id="customerAlternatePhone"
+                  <PhoneInput
+                    label="Alternate Phone"
                     value={newCustomer.alternate_phone}
-                    onChange={(e) =>
+                    onChange={(val) =>
                       setNewCustomer({
                         ...newCustomer,
-                        alternate_phone: e.target.value,
+                        alternate_phone: val,
                       })
                     }
-                    placeholder="Enter alternate phone number"
-                    className={inputClasses}
+                    isDarkMode={isDarkMode}
                   />
                 </div>
 
@@ -2258,15 +2247,11 @@ const CustomerManagement = () => {
                 />
               </div>
               <div>
-                <label htmlFor="newSupplierPhone" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Phone
-                </label>
-                <input
-                  type="tel"
-                  id="newSupplierPhone"
+                <PhoneInput
+                  label="Phone"
                   value={newSupplier.phone}
-                  onChange={(e) => setNewSupplier({ ...newSupplier, phone: e.target.value })}
-                  className={inputClasses}
+                  onChange={(val) => setNewSupplier({ ...newSupplier, phone: val })}
+                  isDarkMode={isDarkMode}
                 />
               </div>
               <div className="md:col-span-2">
@@ -2402,23 +2387,16 @@ const CustomerManagement = () => {
                   />
                 </div>
                 <div>
-                  <label
-                    htmlFor="newSupplierContactPhone"
-                    className={`block text-sm font-medium mb-1 ${textSecondary}`}
-                  >
-                    Contact Phone
-                  </label>
-                  <input
-                    type="tel"
-                    id="newSupplierContactPhone"
+                  <PhoneInput
+                    label="Contact Phone"
                     value={newSupplier.contact_phone}
-                    onChange={(e) =>
+                    onChange={(val) =>
                       setNewSupplier({
                         ...newSupplier,
-                        contact_phone: e.target.value,
+                        contact_phone: val,
                       })
                     }
-                    className={inputClasses}
+                    isDarkMode={isDarkMode}
                   />
                 </div>
               </div>
@@ -2529,20 +2507,16 @@ const CustomerManagement = () => {
                 />
               </div>
               <div>
-                <label htmlFor="editSupplierPhone" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Phone
-                </label>
-                <input
-                  type="tel"
-                  id="editSupplierPhone"
+                <PhoneInput
+                  label="Phone"
                   value={selectedSupplier.phone || ""}
-                  onChange={(e) =>
+                  onChange={(val) =>
                     setSelectedSupplier({
                       ...selectedSupplier,
-                      phone: e.target.value,
+                      phone: val,
                     })
                   }
-                  className={inputClasses}
+                  isDarkMode={isDarkMode}
                 />
               </div>
               <div className="md:col-span-2">
@@ -2687,23 +2661,16 @@ const CustomerManagement = () => {
                   />
                 </div>
                 <div>
-                  <label
-                    htmlFor="editSupplierContactPhone"
-                    className={`block text-sm font-medium mb-1 ${textSecondary}`}
-                  >
-                    Contact Phone
-                  </label>
-                  <input
-                    type="tel"
-                    id="editSupplierContactPhone"
+                  <PhoneInput
+                    label="Contact Phone"
                     value={selectedSupplier.contactPhone || ""}
-                    onChange={(e) =>
+                    onChange={(val) =>
                       setSelectedSupplier({
                         ...selectedSupplier,
-                        contact_phone: e.target.value,
+                        contact_phone: val,
                       })
                     }
-                    className={inputClasses}
+                    isDarkMode={isDarkMode}
                   />
                 </div>
               </div>
@@ -2826,42 +2793,30 @@ const CustomerManagement = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="editCustomerPhone" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                    Phone
-                  </label>
-                  <input
-                    type="tel"
-                    id="editCustomerPhone"
+                  <PhoneInput
+                    label="Phone"
                     value={selectedCustomer.phone}
-                    onChange={(e) =>
+                    onChange={(val) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
-                        phone: e.target.value,
+                        phone: val,
                       })
                     }
-                    className={inputClasses}
+                    isDarkMode={isDarkMode}
                   />
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="editCustomerAlternatePhone"
-                    className={`block text-sm font-medium mb-1 ${textSecondary}`}
-                  >
-                    Alternate Phone
-                  </label>
-                  <input
-                    type="tel"
-                    id="editCustomerAlternatePhone"
+                  <PhoneInput
+                    label="Alternate Phone"
                     value={selectedCustomer.alternate_phone || ""}
-                    onChange={(e) =>
+                    onChange={(val) =>
                       setSelectedCustomer({
                         ...selectedCustomer,
-                        alternate_phone: e.target.value,
+                        alternate_phone: val,
                       })
                     }
-                    placeholder="Enter alternate phone number"
-                    className={inputClasses}
+                    isDarkMode={isDarkMode}
                   />
                 </div>
 

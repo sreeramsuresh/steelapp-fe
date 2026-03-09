@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import PhoneInput from "../components/shared/PhoneInput";
 import TRNInput from "../components/TRNInput";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
@@ -961,30 +962,22 @@ export function SupplierForm() {
               </div>
 
               <div>
-                <label htmlFor="supplier-phone" className={labelClasses}>
-                  Phone
-                </label>
-                <input
+                <PhoneInput
+                  label="Phone"
+                  name="phone"
                   id="supplier-phone"
-                  type="tel"
                   value={formData.phone}
-                  onChange={(e) => handleChange("phone", e.target.value)}
-                  className={inputClasses}
-                  placeholder="+971 50 123 4567"
+                  onChange={(phone) => handleChange("phone", phone)}
                 />
               </div>
 
               <div>
-                <label htmlFor="supplier-alternate-phone" className={labelClasses}>
-                  Alternate Phone
-                </label>
-                <input
+                <PhoneInput
+                  label="Alternate Phone"
+                  name="alternatePhone"
                   id="supplier-alternate-phone"
-                  type="tel"
                   value={formData.alternatePhone}
-                  onChange={(e) => handleChange("alternatePhone", e.target.value)}
-                  className={inputClasses}
-                  placeholder="Secondary contact number"
+                  onChange={(alternatePhone) => handleChange("alternatePhone", alternatePhone)}
                 />
               </div>
 
@@ -1136,16 +1129,12 @@ export function SupplierForm() {
                 </div>
 
                 <div>
-                  <label htmlFor="contact-phone" className={labelClasses}>
-                    Contact Phone
-                  </label>
-                  <input
+                  <PhoneInput
+                    label="Contact Phone"
+                    name="contactPhone"
                     id="contact-phone"
-                    type="tel"
                     value={formData.contactPhone}
-                    onChange={(e) => handleChange("contactPhone", e.target.value)}
-                    className={inputClasses}
-                    placeholder="+971 50 123 4567"
+                    onChange={(contactPhone) => handleChange("contactPhone", contactPhone)}
                   />
                 </div>
               </div>

@@ -6,6 +6,7 @@
 import { MapPin, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
+import PhoneInput from "../shared/PhoneInput";
 
 const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
   const { isDarkMode } = useTheme();
@@ -359,17 +360,12 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className={labelClass}>
-                    Phone
-                  </label>
-                  <input
-                    id="phone"
-                    type="text"
+                  <PhoneInput
+                    label="Phone"
                     name="phone"
+                    id="phone"
                     value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="e.g., +971-50-123-4567"
-                    className={inputClass(false)}
+                    onChange={(phone) => setFormData((prev) => ({ ...prev, phone }))}
                   />
                 </div>
 

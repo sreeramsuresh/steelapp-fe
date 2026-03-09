@@ -18,6 +18,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import DeliveryNotePreview from "../components/delivery-notes/DeliveryNotePreview";
 import AllocationPanel from "../components/invoice/AllocationPanel";
+import PhoneInput from "../components/shared/PhoneInput";
 import { useTheme } from "../contexts/ThemeContext";
 import { invoicesAPI } from "../services/api";
 import { deliveryNoteService } from "../services/deliveryNoteService";
@@ -1438,16 +1439,12 @@ const DeliveryNoteForm = () => {
               </datalist>
             </div>
             <div>
-              <label htmlFor="driver-phone" className={LABEL_CLASSES(isDarkMode)}>
-                Driver Phone
-              </label>
-              <input
+              <PhoneInput
+                label="Driver Phone"
+                name="driverPhone"
                 id="driver-phone"
-                type="tel"
                 value={formData.driverPhone}
-                onChange={(e) => handleInputChange("driverPhone", e.target.value)}
-                placeholder="e.g., +971 50 123 4567"
-                className={INPUT_CLASSES(isDarkMode)}
+                onChange={(driverPhone) => handleInputChange("driverPhone", driverPhone)}
               />
             </div>
           </div>

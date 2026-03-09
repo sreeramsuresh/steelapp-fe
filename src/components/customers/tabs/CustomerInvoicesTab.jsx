@@ -47,7 +47,7 @@ export default function CustomerInvoicesTab({ customerId }) {
   const [dateRangeFilter, setDateRangeFilter] = useState("all");
 
   // Sorting
-  const [sortField, setSortField] = useState("date");
+  const [sortField, setSortField] = useState("invoiceDate");
   const [sortDirection, setSortDirection] = useState("desc");
 
   // Pagination
@@ -117,22 +117,22 @@ export default function CustomerInvoicesTab({ customerId }) {
     if (dateRangeFilter !== "all") {
       const daysBack = parseInt(dateRangeFilter, 10);
       const cutoffDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
-      filtered = filtered.filter((inv) => new Date(inv.date) >= cutoffDate);
+      filtered = filtered.filter((inv) => new Date(inv.invoiceDate) >= cutoffDate);
     }
 
     // Sorting
     filtered.sort((a, b) => {
       let aVal, bVal;
 
-      if (sortField === "date") {
-        aVal = new Date(a.date);
-        bVal = new Date(b.date);
+      if (sortField === "invoiceDate") {
+        aVal = new Date(a.invoiceDate);
+        bVal = new Date(b.invoiceDate);
       } else if (sortField === "dueDate") {
         aVal = new Date(a.dueDate);
         bVal = new Date(b.dueDate);
-      } else if (sortField === "totalAmount") {
-        aVal = parseFloat(a.totalAmount) || 0;
-        bVal = parseFloat(b.totalAmount) || 0;
+      } else if (sortField === "total") {
+        aVal = parseFloat(a.total) || 0;
+        bVal = parseFloat(b.total) || 0;
       } else {
         return 0;
       }
@@ -151,8 +151,8 @@ export default function CustomerInvoicesTab({ customerId }) {
   // Calculate summary stats
   const summaryStats = {
     totalCount: filteredInvoices.length,
-    totalAmount: filteredInvoices.reduce((sum, inv) => sum + (parseFloat(inv.totalAmount) || 0), 0),
-    totalOutstanding: filteredInvoices.reduce((sum, inv) => sum + (parseFloat(inv.outstandingAmount) || 0), 0),
+    totalAmount: filteredInvoices.reduce((sum, inv) => sum + (parseFloat(inv.total) || 0), 0),
+    totalOutstanding: filteredInvoices.reduce((sum, inv) => sum + (parseFloat(inv.outstanding) || 0), 0),
     overdueCount: filteredInvoices.filter((inv) => {
       if (inv.status?.toLowerCase() === "paid") return false;
       const dueDate = new Date(inv.dueDate);
@@ -169,8 +169,8 @@ export default function CustomerInvoicesTab({ customerId }) {
     const status = invoice.status?.toLowerCase() || "open";
     if (status === "paid") return "paid";
 
-    const outstanding = parseFloat(invoice.outstandingAmount) || 0;
-    const total = parseFloat(invoice.totalAmount) || 0;
+    const outstanding = parseFloat(invoice.outstanding) || 0;
+    const total = parseFloat(invoice.total) || 0;
 
     if (outstanding === 0) return "paid";
     if (outstanding < total && outstanding > 0) return "partially-paid";
@@ -375,9 +375,9 @@ export default function CustomerInvoicesTab({ customerId }) {
                 </th>
                 <th
                   className={`px-4 py-3 text-left text-xs font-medium ${secondaryText} uppercase tracking-wider cursor-pointer ${hoverBg}`}
-                  onClick={() => handleSort("date")}
+                  onClick={() => handleSort("invoiceDate")}
                 >
-                  Date {sortField === "date" && (sortDirection === "asc" ? "↑" : "↓")}
+                  Date {sortField === "invoiceDate" && (sortDirection === "asc" ? "↑" : "↓")}
                 </th>
                 <th
                   className={`px-4 py-3 text-left text-xs font-medium ${secondaryText} uppercase tracking-wider cursor-pointer ${hoverBg}`}
@@ -387,9 +387,9 @@ export default function CustomerInvoicesTab({ customerId }) {
                 </th>
                 <th
                   className={`px-4 py-3 text-right text-xs font-medium ${secondaryText} uppercase tracking-wider cursor-pointer ${hoverBg}`}
-                  onClick={() => handleSort("totalAmount")}
+                  onClick={() => handleSort("total")}
                 >
-                  Total Amount {sortField === "totalAmount" && (sortDirection === "asc" ? "↑" : "↓")}
+                  Total Amount {sortField === "total" && (sortDirection === "asc" ? "↑" : "↓")}
                 </th>
                 <th className={`px-4 py-3 text-right text-xs font-medium ${secondaryText} uppercase tracking-wider`}>
                   Outstanding
@@ -414,13 +414,15 @@ export default function CustomerInvoicesTab({ customerId }) {
                       <td className={`px-4 py-3 whitespace-nowrap ${primaryText} font-medium`}>
                         {invoice.invoiceNumber}
                       </td>
-                      <td className={`px-4 py-3 whitespace-nowrap ${secondaryText}`}>{formatDate(invoice.date)}</td>
+                      <td className={`px-4 py-3 whitespace-nowrap ${secondaryText}`}>
+                        {formatDate(invoice.invoiceDate)}
+                      </td>
                       <td className={`px-4 py-3 whitespace-nowrap ${secondaryText}`}>{formatDate(invoice.dueDate)}</td>
                       <td className={`px-4 py-3 whitespace-nowrap text-right ${primaryText}`}>
-                        {formatCurrency(invoice.totalAmount)}
+                        {formatCurrency(invoice.total)}
                       </td>
                       <td className={`px-4 py-3 whitespace-nowrap text-right ${primaryText}`}>
-                        {formatCurrency(invoice.outstandingAmount)}
+                        {formatCurrency(invoice.outstanding)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <StatusBadge status={status} />

@@ -18,6 +18,7 @@ import { AlertCircle, ArrowLeft, Building2, ChevronDown, CreditCard, Info, Loade
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomerCreditPanel from "../components/credit/CustomerCreditPanel";
+import PhoneInput from "../components/shared/PhoneInput";
 import TRNInput from "../components/TRNInput";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { useTheme } from "../contexts/ThemeContext";
@@ -728,19 +729,13 @@ const CustomerForm = () => {
 
                   {/* Phone */}
                   <div className="col-span-12 md:col-span-6">
-                    <label htmlFor="customer-phone" className={`block text-xs ${textMuted} mb-1.5`}>
-                      Phone
-                    </label>
-                    <input
-                      id="customer-phone"
-                      type="tel"
+                    <PhoneInput
+                      label="Phone"
                       name="phone"
+                      id="customer-phone"
                       value={formData.phone}
-                      onChange={handleInputChange}
+                      onChange={(phone) => setFormData((prev) => ({ ...prev, phone }))}
                       disabled={!isEditMode}
-                      placeholder="+971 1 234 5678"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
-                      data-testid="customer-phone"
                     />
                   </div>
 

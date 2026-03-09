@@ -32,6 +32,7 @@ import StockReservationToggle from "../components/quotations/StockReservationTog
 import VolumeDiscountTiersModal from "../components/quotations/VolumeDiscountTiersModal";
 import LineItemCard from "../components/shared/LineItemCard";
 import LineItemEmptyState from "../components/shared/LineItemEmptyState";
+import PhoneInput from "../components/shared/PhoneInput";
 import QuickAddChips from "../components/shared/QuickAddChips";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
@@ -3194,28 +3195,19 @@ const QuotationForm = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="qt-customer-phone" className={LABEL_CLASSES(isDarkMode)}>
-                    Phone
-                  </label>
-                  <input
-                    id="qt-customer-phone"
-                    type="tel"
+                  <PhoneInput
+                    label="Phone"
                     value={formData.customerDetails.phone}
-                    onChange={(e) =>
+                    onChange={(val) =>
                       setFormData((prev) => ({
                         ...prev,
                         customerDetails: {
                           ...prev.customerDetails,
-                          phone: e.target.value,
+                          phone: val,
                         },
                       }))
                     }
-                    placeholder="+971 XX XXX XXXX"
-                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
-                      isDarkMode
-                        ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
-                        : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
-                    } focus:ring-2 focus:ring-teal-500/20`}
+                    isDarkMode={isDarkMode}
                   />
                 </div>
               </div>

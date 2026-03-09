@@ -267,7 +267,7 @@ const PhoneInput = ({
   const containerRef = useRef(null);
   const inputRef = useRef(null);
   const searchRef = useRef(null);
-  const initializedRef = useRef(false);
+  const lastParsedValueRef = useRef(null);
 
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -277,9 +277,8 @@ const PhoneInput = ({
 
   // Parse existing value on mount (or when API data arrives)
   useEffect(() => {
-    if (initializedRef.current) return;
-    if (!value) return;
-    initializedRef.current = true;
+    if (!value || value === lastParsedValueRef.current) return;
+    lastParsedValueRef.current = value;
     const { country, digits } = parseExistingValue(value);
     setSelectedCountry(country);
     const truncated = digits.slice(0, country.maxDigits);
