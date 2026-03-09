@@ -20,7 +20,7 @@ import {
   TrendingUp,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import PriceHistoryTab from "../components/pricelist/PriceHistoryTab";
 import { FormSelect } from "../components/ui/form-select";
@@ -726,6 +726,9 @@ export default function PriceListForm() {
     createdDate: null,
   });
 
+  // Baseline prices for accurate increased/decreased counters
+  const baselinePricesRef = useRef(new Map());
+
   const fetchProducts = useCallback(async () => {
     try {
       const response = await productService.getProducts({ limit: 500 });
@@ -742,6 +745,13 @@ export default function PriceListForm() {
       const response = await pricelistService.getById(id);
       const pricelist = response.pricelist;
       const items = response.items || [];
+
+      // Store baseline prices for accurate change tracking
+      const baseline = new Map();
+      items.forEach((item) => {
+        baseline.set(item.productId, item.sellingPrice);
+      });
+      baselinePricesRef.current = baseline;
 
       setFormData({
         name: pricelist.name,
@@ -769,6 +779,13 @@ export default function PriceListForm() {
       const response = await pricelistService.getById(sourceId);
       const source = response.pricelist;
       const items = response.items || [];
+
+      // Store baseline prices for accurate change tracking
+      const baseline = new Map();
+      items.forEach((item) => {
+        baseline.set(item.productId, item.sellingPrice);
+      });
+      baselinePricesRef.current = baseline;
 
       setFormData({
         name: `${source.name} (Copy)`,
@@ -800,6 +817,13 @@ export default function PriceListForm() {
         // Fetch the default pricelist's items
         const detailResponse = await pricelistService.getById(defaultPricelist.id);
         const items = detailResponse.items || [];
+
+        // Store baseline prices for accurate change tracking
+        const baseline = new Map();
+        items.forEach((item) => {
+          baseline.set(item.productId, item.sellingPrice);
+        });
+        baselinePricesRef.current = baseline;
 
         setFormData((prev) => ({
           ...prev,
@@ -1277,22 +1301,23 @@ export default function PriceListForm() {
     );
   }, [products, searchTerm]);
 
-  // Stats
+  // Stats — compare against baseline (loaded) prices, not product defaults
   const stats = useMemo(
     () => ({
       totalProducts: products.length,
       configuredProducts: formData.items.length,
       increasedPrices: formData.items.filter((item) => {
-        const currentPrice = getProductCurrentPrice(item.productId);
-        return item.sellingPrice > currentPrice;
+        const baselinePrice = baselinePricesRef.current.get(item.productId);
+        if (baselinePrice == null) return false;
+        return item.sellingPrice > baselinePrice;
       }).length,
       decreasedPrices: formData.items.filter((item) => {
-        const currentPrice = getProductCurrentPrice(item.productId);
-        return item.sellingPrice < currentPrice && item.sellingPrice > 0;
+        const baselinePrice = baselinePricesRef.current.get(item.productId);
+        if (baselinePrice == null) return false;
+        return item.sellingPrice < baselinePrice && item.sellingPrice > 0;
       }).length,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [formData.items, products, getProductCurrentPrice]
+    [formData.items, products]
   );
 
   if (loading) {

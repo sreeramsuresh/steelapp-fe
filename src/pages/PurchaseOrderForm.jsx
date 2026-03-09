@@ -64,6 +64,7 @@ import LineItemEmptyState from "../components/shared/LineItemEmptyState";
 import ProductAutocomplete from "../components/shared/ProductAutocomplete";
 import QuickAddChips from "../components/shared/QuickAddChips";
 import TRNInput from "../components/TRNInput";
+import AutocompleteInput from "../components/ui/AutocompleteInput";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
 import { useTheme } from "../contexts/ThemeContext";
@@ -1155,7 +1156,12 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
       supplierName: found.name || "",
       supplierEmail: found.email || "",
       supplierPhone: found.phone || "",
-      supplierAddress: found.address || found.company || "",
+      supplierAddress:
+        typeof found.address === "object" && found.address
+          ? [found.address.street, found.address.city, found.address.province, found.address.country]
+              .filter(Boolean)
+              .join(", ")
+          : found.address || found.company || "",
       terms: found.paymentTerms || prev.terms || "",
       currency: found.defaultCurrency || prev.currency || "AED",
       supplierContactName: found.contactName || "",
@@ -2028,27 +2034,30 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                   <div className="col-span-12 sm:col-span-6">
                     <div className="flex gap-2 items-end">
                       <div className="flex-1">
-                        <FormSelect
-                          label="Supplier"
-                          value={selectedSupplierId || "none"}
-                          onValueChange={(value) => {
-                            const supplierId = value === "none" ? "" : value;
-                            setSelectedSupplierId(supplierId);
-                            handleSupplierSelect(supplierId);
+                        <label
+                          htmlFor="supplier-autocomplete"
+                          className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+                        >
+                          Supplier <span className="text-red-500">*</span>
+                        </label>
+                        <AutocompleteInput
+                          id="supplier-autocomplete"
+                          value={suppliers.find((s) => String(s.id) === selectedSupplierId)?.name || ""}
+                          items={suppliers}
+                          placeholder="Search suppliers..."
+                          getItemKey={(item) => item.id}
+                          getItemLabel={(item) => item.name}
+                          onSelect={(item) => {
+                            setSelectedSupplierId(String(item.id));
+                            handleSupplierSelect(String(item.id));
                           }}
                           disabled={loadingSuppliers || isPriceLocked}
-                          required={true}
-                          validationState={fieldValidation.supplier ?? null}
-                          showValidation={formPreferences.showValidationHighlighting}
+                          loading={loadingSuppliers}
                           data-testid="supplier-select"
-                        >
-                          <SelectItem value="none">Select Supplier</SelectItem>
-                          {suppliers.map((supplier) => (
-                            <SelectItem key={supplier.id} value={supplier.id.toString()}>
-                              {supplier.name}
-                            </SelectItem>
-                          ))}
-                        </FormSelect>
+                        />
+                        {formPreferences.showValidationHighlighting && fieldValidation.supplier === "error" && (
+                          <p className="text-xs text-red-500 mt-1">Supplier is required</p>
+                        )}
                       </div>
                       {selectedSupplierId && (
                         <button

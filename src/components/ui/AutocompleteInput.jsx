@@ -53,6 +53,9 @@ const AutocompleteInput = ({
   className = "",
   inputClassName = "",
   dropdownClassName = "",
+
+  // HTML
+  id = undefined,
 }) => {
   const { isDarkMode } = useTheme();
 
@@ -268,6 +271,7 @@ const AutocompleteInput = ({
       <div className="relative">
         <input
           ref={inputRef}
+          id={id}
           type="text"
           value={searchTerm}
           onChange={handleInputChange}
