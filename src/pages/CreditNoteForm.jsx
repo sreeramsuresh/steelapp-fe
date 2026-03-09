@@ -985,6 +985,7 @@ const CreditNoteForm = () => {
         vatAmount,
         totalCredit,
         customerAddress,
+        customerPhone: creditNote.customer?.phone || "",
         // Set status based on user action
         status: issueImmediately ? "issued" : "draft",
       };

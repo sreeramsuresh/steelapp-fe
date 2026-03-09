@@ -294,6 +294,7 @@ const CustomerForm = () => {
     company: "",
     email: "",
     phone: "",
+    alternatePhone: "",
     // Address fields (structured - matches supplier pattern)
     street: "",
     city: "",
@@ -381,6 +382,7 @@ const CustomerForm = () => {
         company: customer.company || "",
         email: customer.email || "",
         phone: customer.phone || "",
+        alternatePhone: customer.alternatePhone || "",
         // Structured address fields
         street: addressParsed.street || "",
         city: customer.city || addressParsed.city || "", // Prioritize generated column
@@ -465,6 +467,7 @@ const CustomerForm = () => {
         company: formData.company,
         email: formData.email,
         phone: formData.phone,
+        alternatePhone: formData.alternatePhone,
         address: {
           street: formData.street || "",
           city: formData.city || "",
@@ -735,6 +738,18 @@ const CustomerForm = () => {
                       id="customer-phone"
                       value={formData.phone}
                       onChange={(phone) => setFormData((prev) => ({ ...prev, phone }))}
+                      disabled={!isEditMode}
+                    />
+                  </div>
+
+                  {/* Alternate Phone */}
+                  <div className="col-span-12 md:col-span-6">
+                    <PhoneInput
+                      label="Alternate Phone"
+                      name="alternatePhone"
+                      id="customer-alternate-phone"
+                      value={formData.alternatePhone}
+                      onChange={(alternatePhone) => setFormData((prev) => ({ ...prev, alternatePhone }))}
                       disabled={!isEditMode}
                     />
                   </div>

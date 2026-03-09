@@ -33,7 +33,7 @@ import { supplierService } from "../services/supplierService";
  * Common steel-exporting countries
  */
 const COUNTRY_OPTIONS = [
-  { value: "", label: "Select Country" },
+  { value: "none", label: "Select Country" },
   { value: "UAE", label: "United Arab Emirates" },
   { value: "CHN", label: "China" },
   { value: "KOR", label: "South Korea" },
@@ -67,7 +67,7 @@ const SUPPLIER_LOCATION_OPTIONS = [
  * Payment Terms options
  */
 const PAYMENT_TERMS_OPTIONS = [
-  { value: "", label: "Select Payment Terms" },
+  { value: "none", label: "Select Payment Terms" },
   { value: "NET_30", label: "Net 30" },
   { value: "NET_60", label: "Net 60" },
   { value: "NET_90", label: "Net 90" },
@@ -80,7 +80,7 @@ const PAYMENT_TERMS_OPTIONS = [
  * Currency options
  */
 const CURRENCY_OPTIONS = [
-  { value: "", label: "Select Currency" },
+  { value: "none", label: "Select Currency" },
   { value: "AED", label: "AED (UAE Dirham)" },
   { value: "USD", label: "USD (US Dollar)" },
   { value: "EUR", label: "EUR (Euro)" },
@@ -345,7 +345,7 @@ const VALID_ISO_COUNTRY_CODES = new Set([
  * Supplier Type options
  */
 const SUPPLIER_TYPE_OPTIONS = [
-  { value: "", label: "Select Type" },
+  { value: "none", label: "Select Type" },
   { value: "MILL", label: "Mill / Manufacturer" },
   { value: "TRADER", label: "Trader / Distributor" },
   { value: "STOCKIST", label: "Stockist" },
@@ -356,7 +356,7 @@ const SUPPLIER_TYPE_OPTIONS = [
  * Supplier Category options
  */
 const SUPPLIER_CATEGORY_OPTIONS = [
-  { value: "", label: "Select Category" },
+  { value: "none", label: "Select Category" },
   { value: "STAINLESS_STEEL", label: "Stainless Steel" },
   { value: "CARBON_STEEL", label: "Carbon Steel" },
   { value: "ALUMINUM", label: "Aluminum" },
@@ -1338,8 +1338,8 @@ export function SupplierForm() {
                   <div>
                     <FormSelect
                       label="Supplier Type"
-                      value={formData.supplierType}
-                      onValueChange={(value) => handleChange("supplierType", value)}
+                      value={formData.supplierType || "none"}
+                      onValueChange={(value) => handleChange("supplierType", value === "none" ? "" : value)}
                       required={false}
                       showValidation={false}
                     >
@@ -1355,8 +1355,8 @@ export function SupplierForm() {
                   <div>
                     <FormSelect
                       label="Category"
-                      value={formData.category}
-                      onValueChange={(value) => handleChange("category", value)}
+                      value={formData.category || "none"}
+                      onValueChange={(value) => handleChange("category", value === "none" ? "" : value)}
                       required={false}
                       showValidation={false}
                     >
@@ -1433,8 +1433,8 @@ export function SupplierForm() {
                           Primary Country
                         </>
                       }
-                      value={formData.primaryCountry}
-                      onValueChange={(value) => handleChange("primaryCountry", value)}
+                      value={formData.primaryCountry || "none"}
+                      onValueChange={(value) => handleChange("primaryCountry", value === "none" ? "" : value)}
                       required={formData.supplierLocation === "OVERSEAS"}
                       disabled={formData.supplierLocation === "UAE_LOCAL"}
                       validationState={errors.primaryCountry ? "invalid" : null}
@@ -1705,8 +1705,8 @@ export function SupplierForm() {
                   <div>
                     <FormSelect
                       label="Payment Terms"
-                      value={formData.paymentTerms}
-                      onValueChange={(value) => handleChange("paymentTerms", value)}
+                      value={formData.paymentTerms || "none"}
+                      onValueChange={(value) => handleChange("paymentTerms", value === "none" ? "" : value)}
                       required={false}
                       showValidation={false}
                     >
@@ -1722,8 +1722,8 @@ export function SupplierForm() {
                   <div>
                     <FormSelect
                       label="Default Currency"
-                      value={formData.defaultCurrency}
-                      onValueChange={(value) => handleChange("defaultCurrency", value)}
+                      value={formData.defaultCurrency || "none"}
+                      onValueChange={(value) => handleChange("defaultCurrency", value === "none" ? "" : value)}
                       required={false}
                       showValidation={false}
                     >
