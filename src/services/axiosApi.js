@@ -43,8 +43,9 @@ if (IS_DEV && !DISABLE_VALIDATION) {
     });
 }
 
-// Helper function to get contract guard dynamically
+// Helper function to get contract guard dynamically (DEV only)
 async function getContractGuard() {
+  if (!IS_DEV) return null;
   if (_contractGuard) {
     return _contractGuard;
   }

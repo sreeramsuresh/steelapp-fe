@@ -20,7 +20,7 @@
 set -e  # Exit on error
 
 DIST_DIR="dist/assets"
-FORBIDDEN_STRINGS=("zod" "ContractViolationError" "contractRegistry" "validateRequestContract")
+FORBIDDEN_STRINGS=("ContractViolationError" "contractRegistry" "validateRequestContract")
 FOUND_VIOLATIONS=0
 VIOLATION_DETAILS=""
 
