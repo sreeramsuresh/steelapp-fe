@@ -60,10 +60,10 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
         notes: `Generated on ${formatDate(new Date())}`,
       };
 
-      // Always generate and save statement (best practice)
+      // Generate and download the PDF
       await accountStatementService.generateOnTheFly(statementData);
-      onGenerated?.();
 
+      onGenerated?.();
       onClose();
     } catch (err) {
       console.error("Error generating statement:", err);

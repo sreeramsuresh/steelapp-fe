@@ -45,20 +45,22 @@ export const accountStatementService = {
     document.body.removeChild(a);
   },
 
-  // Generate statement on-the-fly without saving
+  // Generate statement on-the-fly and download PDF
   generateOnTheFly: async (data) => {
     const blob = await apiService.request({
       method: "POST",
       url: "/account-statements/generate",
-      data,
+      data: { ...data, format: "pdf" },
       responseType: "blob",
     });
     const blobUrl = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.style.display = "none";
     a.href = blobUrl;
-    const fileName = `Statement-${data.customerId || "Customer"}-${data.startDate}-to-${data.endDate}.pdf`;
-    a.download = fileName;
+    const custId = data.customer_id || data.customerId || "Customer"; // snake-ok
+    const start = data.from_date || data.startDate || "start"; // snake-ok
+    const end = data.to_date || data.endDate || "end"; // snake-ok
+    a.download = `Statement-${custId}-${start}-to-${end}.pdf`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(blobUrl);
