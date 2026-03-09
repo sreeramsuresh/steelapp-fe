@@ -167,18 +167,25 @@ export default function CustomerInvoicesTab({ customerId }) {
   // Determine invoice status with overdue logic
   const getInvoiceStatus = (invoice) => {
     const status = invoice.status?.toLowerCase() || "open";
+
+    // Draft invoices should always show as draft, regardless of outstanding
+    if (status === "draft" || status === "dft") return "draft";
+
     if (status === "paid") return "paid";
 
     const outstanding = parseFloat(invoice.outstanding) || 0;
     const total = parseFloat(invoice.total) || 0;
 
-    if (outstanding === 0) return "paid";
+    // Only treat as "paid" if total > 0 and outstanding is 0 (not for zero-value invoices)
+    if (total > 0 && outstanding === 0) return "paid";
     if (outstanding < total && outstanding > 0) return "partially-paid";
 
     // Check if overdue
-    const dueDate = new Date(invoice.dueDate);
-    const now = new Date();
-    if (dueDate < now) return "overdue";
+    if (invoice.dueDate) {
+      const dueDate = new Date(invoice.dueDate);
+      const now = new Date();
+      if (dueDate < now) return "overdue";
+    }
 
     return "open";
   };
@@ -205,6 +212,11 @@ export default function CustomerInvoicesTab({ customerId }) {
         bg: isDarkMode ? "bg-red-900/30" : "bg-red-100",
         text: isDarkMode ? "text-red-400" : "text-red-700",
         label: "Overdue",
+      },
+      draft: {
+        bg: isDarkMode ? "bg-gray-900/30" : "bg-gray-100",
+        text: isDarkMode ? "text-gray-400" : "text-gray-600",
+        label: "Draft",
       },
     };
 

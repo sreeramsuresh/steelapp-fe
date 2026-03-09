@@ -53,11 +53,20 @@ const FeedbackManagement = () => {
   }, [fetchFeedback]);
 
   const handleStatusChange = async (id, newStatus) => {
+    // Optimistic update — avoid full-page spinner flicker
+    setData((prev) => prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item)));
     try {
       await api.patch(`/feedback/${id}/status`, { status: newStatus });
       toast.success(`Status updated to ${newStatus}`);
-      fetchFeedback();
+      // Silent background refresh (no setLoading(true)) to sync counts & server state
+      const params = new URLSearchParams({ page, limit: 20 });
+      if (activeFilter) params.set("status", activeFilter);
+      const res = await api.get(`/feedback?${params}`);
+      setData(res.data.data);
+      setCounts(res.data.counts);
+      setTotal(res.data.total);
     } catch (err) {
+      fetchFeedback(); // Full reload on error to restore correct state
       toast.error(err.response?.data?.message || "Failed to update status");
     }
   };

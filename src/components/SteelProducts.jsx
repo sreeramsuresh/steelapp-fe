@@ -4644,18 +4644,34 @@ const SteelProducts = () => {
                               </td>
                             </tr>
                           )}
-                          {selectedProduct.thickness != null && selectedProduct.thickness !== "" && (
-                            <tr className={isDarkMode ? "border-b border-gray-700" : "border-b border-gray-100"}>
-                              <td
-                                className={`px-3 py-1.5 font-semibold ${isDarkMode ? "text-gray-300 bg-[#252b32]" : "text-gray-700 bg-gray-100"}`}
-                              >
-                                Thickness
-                              </td>
-                              <td className={`px-3 py-1.5 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                                {selectedProduct.thickness}
-                              </td>
-                            </tr>
-                          )}
+                          {selectedProduct.thickness != null &&
+                            selectedProduct.thickness !== "" &&
+                            Number(selectedProduct.thickness) !== 0 && (
+                              <tr className={isDarkMode ? "border-b border-gray-700" : "border-b border-gray-100"}>
+                                <td
+                                  className={`px-3 py-1.5 font-semibold ${isDarkMode ? "text-gray-300 bg-[#252b32]" : "text-gray-700 bg-gray-100"}`}
+                                >
+                                  Thickness
+                                </td>
+                                <td className={`px-3 py-1.5 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                  {selectedProduct.thickness}
+                                </td>
+                              </tr>
+                            )}
+                          {selectedProduct.height != null &&
+                            selectedProduct.height !== "" &&
+                            Number(selectedProduct.height) !== 0 && (
+                              <tr className={isDarkMode ? "border-b border-gray-700" : "border-b border-gray-100"}>
+                                <td
+                                  className={`px-3 py-1.5 font-semibold ${isDarkMode ? "text-gray-300 bg-[#252b32]" : "text-gray-700 bg-gray-100"}`}
+                                >
+                                  Height
+                                </td>
+                                <td className={`px-3 py-1.5 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                  {selectedProduct.height}
+                                </td>
+                              </tr>
+                            )}
                           {selectedProduct.width != null && selectedProduct.width !== "" && (
                             <tr className={isDarkMode ? "border-b border-gray-700" : "border-b border-gray-100"}>
                               <td

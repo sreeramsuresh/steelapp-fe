@@ -805,6 +805,7 @@ export default function PriceListForm() {
     }
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: id needed to reset state when navigating between pricelists
   useEffect(() => {
     fetchProducts();
     if (isEdit) {
@@ -812,10 +813,23 @@ export default function PriceListForm() {
     } else if (copyFromId) {
       copyPricelist(copyFromId);
     } else {
-      // New pricelist - start with empty items (no state bleed from default)
+      // New pricelist - explicitly reset all state to prevent bleed from previous list
+      setFormData({
+        name: "",
+        description: "",
+        currency: "AED",
+        isActive: true,
+        effectiveFrom: "",
+        effectiveTo: "",
+        pricingUnit: "PIECE_BASED",
+        items: [],
+        createdBy: null,
+        createdDate: null,
+      });
+      baselinePricesRef.current.clear();
       setLoading(false);
     }
-  }, [copyFromId, copyPricelist, fetchPricelist, fetchProducts, isEdit]);
+  }, [copyFromId, copyPricelist, fetchPricelist, fetchProducts, isEdit, id]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -1122,6 +1136,11 @@ export default function PriceListForm() {
 
     if (!formData.effectiveFrom) {
       notificationService.error("Effective From date is required");
+      return;
+    }
+
+    if (!formData.effectiveTo) {
+      notificationService.error("Effective To date is required");
       return;
     }
 

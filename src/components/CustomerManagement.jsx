@@ -953,8 +953,8 @@ const CustomerManagement = () => {
       {/* Record Count Header */}
       <div className={`flex items-center justify-between mb-3 px-1 ${textSecondary}`}>
         <span className="text-sm">
-          Showing {Math.min(sortedCustomers.length, customers.length)} of {customers.length} customer
-          {customers.length !== 1 ? "s" : ""}
+          Showing {Math.min(sortedCustomers.length, customers.length)} of {pageInfo.totalItems || customers.length}{" "}
+          customer{customers.length !== 1 ? "s" : ""}
           {pageInfo.totalItems > 0 &&
             pageInfo.totalItems > customers.length &&
             ` (Page ${pageInfo.currentPage || 1} of ${pageInfo.totalPages || 1})`}
