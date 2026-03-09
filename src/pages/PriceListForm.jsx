@@ -805,39 +805,6 @@ export default function PriceListForm() {
     }
   }, []);
 
-  const loadDefaultPrices = useCallback(async () => {
-    try {
-      setLoading(true);
-      // Get all pricelists to find the default one
-      const response = await pricelistService.getAll();
-      const pricelists = response.pricelists || [];
-      const defaultPricelist = pricelists.find((p) => p.isActive);
-
-      if (defaultPricelist) {
-        // Fetch the default pricelist's items
-        const detailResponse = await pricelistService.getById(defaultPricelist.id);
-        const items = detailResponse.items || [];
-
-        // Store baseline prices for accurate change tracking
-        const baseline = new Map();
-        items.forEach((item) => {
-          baseline.set(item.productId, item.sellingPrice);
-        });
-        baselinePricesRef.current = baseline;
-
-        setFormData((prev) => ({
-          ...prev,
-          items,
-        }));
-      }
-    } catch (error) {
-      console.error("Error loading default prices:", error);
-      // Non-critical - don't show error, just start with empty prices
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     fetchProducts();
     if (isEdit) {
@@ -845,10 +812,10 @@ export default function PriceListForm() {
     } else if (copyFromId) {
       copyPricelist(copyFromId);
     } else {
-      // New pricelist - load default prices as starting point
-      loadDefaultPrices();
+      // New pricelist - start with empty items (no state bleed from default)
+      setLoading(false);
     }
-  }, [copyFromId, copyPricelist, fetchPricelist, fetchProducts, isEdit, loadDefaultPrices]);
+  }, [copyFromId, copyPricelist, fetchPricelist, fetchProducts, isEdit]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -1153,6 +1120,16 @@ export default function PriceListForm() {
       return;
     }
 
+    if (!formData.effectiveFrom) {
+      notificationService.error("Effective From date is required");
+      return;
+    }
+
+    if (dateValidationError) {
+      notificationService.error(dateValidationError);
+      return;
+    }
+
     try {
       setSaving(true);
 
@@ -1233,9 +1210,8 @@ export default function PriceListForm() {
   };
 
   const calculateMargin = (sellingPrice, costPrice) => {
-    if (!sellingPrice || !costPrice || costPrice === 0) return null;
-    // Industry standard: markup on cost = ((selling - cost) / cost) × 100
-    return (((sellingPrice - costPrice) / costPrice) * 100).toFixed(1);
+    if (!sellingPrice || !costPrice || sellingPrice === 0) return null;
+    return (((sellingPrice - costPrice) / sellingPrice) * 100).toFixed(1);
   };
 
   // Epic 8 - PRICE-005: Channel-specific margin color coding

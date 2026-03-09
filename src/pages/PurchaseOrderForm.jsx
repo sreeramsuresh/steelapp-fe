@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import PhoneInput from "../components/shared/PhoneInput";
 
 // ==================== DESIGN TOKENS (Matched to Invoice Form) ====================
 
@@ -26,7 +27,7 @@ const INPUT_CLASSES = (isDarkMode) =>
   `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-md py-2 px-3 text-sm outline-none shadow-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-[38px]`;
 
 const LABEL_CLASSES = (isDarkMode) =>
-  `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
+  `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"} mb-0.5`;
 
 const BTN_CLASSES = (isDarkMode) =>
   `${isDarkMode ? "bg-gray-900 border-gray-700 text-white hover:border-teal-500" : "bg-white border-gray-300 text-gray-900 hover:border-teal-500"} border rounded-lg py-2 px-3 text-sm cursor-pointer transition-colors`;
@@ -2034,10 +2035,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                   <div className="col-span-12 sm:col-span-6">
                     <div className="flex gap-2 items-end">
                       <div className="flex-1">
-                        <label
-                          htmlFor="supplier-autocomplete"
-                          className={`block text-xs font-medium mb-0.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                        >
+                        <label htmlFor="supplier-autocomplete" className={LABEL_CLASSES(isDarkMode)}>
                           Supplier <span className="text-red-500">*</span>
                         </label>
                         <AutocompleteInput
@@ -3108,16 +3106,11 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                 />
               </div>
               <div>
-                <label htmlFor="buyerPhone" className={LABEL_CLASSES(isDarkMode)}>
-                  Buyer Phone
-                </label>
-                <input
-                  id="buyerPhone"
-                  type="tel"
+                <PhoneInput
+                  label="Buyer Phone"
                   value={purchaseOrder.buyerPhone}
-                  onChange={(e) => handleInputChange("buyerPhone", e.target.value)}
-                  placeholder="+971 50 123 4567"
-                  className={INPUT_CLASSES(isDarkMode)}
+                  onChange={(val) => handleInputChange("buyerPhone", val)}
+                  isDarkMode={isDarkMode}
                 />
               </div>
             </div>
