@@ -28,4 +28,24 @@ describe("Batch Aging Scenarios - E2E Tests", () => {
     cy.contains("Something went wrong").should("not.exist");
     cy.contains("Error").should("not.exist");
   });
+
+  it("should have action buttons", () => {
+    cy.visit("/app/inventory");
+    cy.get("h1, h2, h3", { timeout: 15000 }).should("exist");
+    cy.get("button", { timeout: 10000 }).should("have.length.greaterThan", 0);
+  });
+
+  it("should have search or filter input", () => {
+    cy.visit("/app/inventory");
+    cy.get("h1, h2, h3", { timeout: 15000 }).should("exist");
+    cy.get('input[placeholder*="Search" i], input[type="search"], [data-testid*="search"], select, [data-testid*="filter"]')
+      .should("have.length.greaterThan", 0);
+  });
+
+  it("should display page content beyond heading", () => {
+    cy.visit("/app/inventory");
+    cy.get("body", { timeout: 15000 }).should(($body) => {
+      expect($body.text().length).to.be.greaterThan(100);
+    });
+  });
 });

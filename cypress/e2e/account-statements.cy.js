@@ -1,31 +1,61 @@
-/**
- * Account Statements E2E Tests
- *
- * Tests receivables page which provides account statement context:
- * - Page load and heading
- * - Basic page rendering
- *
- */
+// Owner: finance
+// Tests: account statement management
+// Route: /app/account-statements
 
 describe("Account Statements - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
+    cy.interceptAPI("GET", "/api/account-statements*", "getStatements");
+    cy.visit("/app/account-statements");
+    cy.wait("@getStatements");
   });
 
-  describe("Receivables Page Load", () => {
-    it("should load the receivables page", () => {
-      cy.visit("/app/receivables");
-      cy.url().should("include", "/app/receivables");
-      // Wait for the page to render with some content
-      cy.get("body", { timeout: 15000 }).should("not.be.empty");
-    });
+  it("should load the account statements page with heading", () => {
+    cy.verifyPageLoads("Statement", "/app/account-statements");
+  });
 
-    it("should display page content after loading", () => {
-      cy.visit("/app/receivables");
-      // The page should have some heading or content visible
-      cy.get("h1, h2, h3, [role='heading']", { timeout: 15000 })
-        .first()
-        .should("be.visible");
+  it("should render statements table or list", () => {
+    cy.get("table, [class*='list'], [class*='card']", { timeout: 10000 }).should("be.visible");
+    cy.get("body").then(($body) => {
+      const hasContent =
+        $body.find("table tbody tr").length > 0 || $body.text().length > 100;
+      expect(hasContent, "Page should render statement content").to.be.true;
+    });
+  });
+
+  it("should have a create or generate statement button", () => {
+    cy.contains("button, a", /create|generate|new|add/i, { timeout: 10000 }).should("be.visible");
+  });
+
+  it("should have a search or filter input", () => {
+    cy.get(
+      'input[placeholder*="Search" i], input[placeholder*="Filter" i], input[placeholder*="Customer" i]',
+      { timeout: 10000 },
+    )
+      .first()
+      .should("be.visible");
+  });
+
+  it("should display expected columns in the table", () => {
+    cy.get("table thead th, table thead td", { timeout: 10000 }).should("have.length.greaterThan", 2);
+    cy.get("table thead").then(($thead) => {
+      const text = $thead.text().toLowerCase();
+      const hasRelevantColumns =
+        text.includes("customer") ||
+        text.includes("period") ||
+        text.includes("balance") ||
+        text.includes("date") ||
+        text.includes("amount");
+      expect(hasRelevantColumns, "Table should have relevant columns").to.be.true;
+    });
+  });
+
+  it("should show status indicators on rows", () => {
+    cy.get("table tbody tr", { timeout: 10000 }).first().then(($row) => {
+      const hasStatus =
+        $row.find("[class*='badge'], [class*='chip'], [class*='status']").length > 0 ||
+        $row.text().toLowerCase().match(/generated|sent|draft|pending|active/);
+      expect(hasStatus, "Row should display a status indicator").to.be.true;
     });
   });
 });

@@ -39,4 +39,16 @@ describe("Feedback", () => {
     cy.get("body", { timeout: 15000 }).should("be.visible");
     cy.url().should("include", "/app/feedback");
   });
+
+  it("should have action buttons", () => {
+    cy.visit("/app/feedback");
+    cy.contains("h1, h2, h3, h4", /feedback/i, { timeout: 15000 });
+    cy.get("button", { timeout: 10000 }).should("have.length.greaterThan", 0);
+  });
+
+  it("should render without errors", () => {
+    cy.visit("/app/feedback");
+    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.get("[class*='error' i], [data-testid*='error']").should("have.length", 0);
+  });
 });

@@ -32,4 +32,23 @@ describe("Notifications", () => {
     cy.get("body", { timeout: 15000 }).should("be.visible");
     cy.url().should("match", /\/(app|analytics)/);
   });
+
+  it("should have action buttons", () => {
+    cy.visit("/app");
+    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.get("button", { timeout: 10000 }).should("have.length.greaterThan", 0);
+  });
+
+  it("should display page content beyond heading", () => {
+    cy.visit("/app");
+    cy.get("body", { timeout: 15000 }).should(($body) => {
+      expect($body.text().length).to.be.greaterThan(100);
+    });
+  });
+
+  it("should render without errors", () => {
+    cy.visit("/app");
+    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.get("[class*='error' i], [data-testid*='error']").should("have.length", 0);
+  });
 });

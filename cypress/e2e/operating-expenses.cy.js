@@ -39,4 +39,16 @@ describe("Operating Expenses", () => {
     cy.get("body", { timeout: 15000 }).should("be.visible");
     cy.url().should("include", "/operating-expenses");
   });
+
+  it("should have action buttons", () => {
+    cy.visit("/app/operating-expenses");
+    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.get("button", { timeout: 10000 }).should("have.length.greaterThan", 0);
+  });
+
+  it("should render without errors", () => {
+    cy.visit("/app/operating-expenses");
+    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.get("[class*='error' i], [data-testid*='error']").should("have.length", 0);
+  });
 });

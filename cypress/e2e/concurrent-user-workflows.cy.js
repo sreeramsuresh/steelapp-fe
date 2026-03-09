@@ -34,4 +34,17 @@ describe("Concurrent User Workflows", () => {
     cy.visit("/app/products", { timeout: 15000 });
     cy.get("h1, h2, h3", { timeout: 15000 }).should("exist");
   });
+
+  it("should display page content beyond heading on each module", () => {
+    cy.visit("/app/invoices", { timeout: 15000 });
+    cy.get("body", { timeout: 15000 }).should(($body) => {
+      expect($body.text().length).to.be.greaterThan(100);
+    });
+  });
+
+  it("should render without errors across modules", () => {
+    cy.visit("/app/customers", { timeout: 15000 });
+    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.get("[class*='error' i], [data-testid*='error']").should("have.length", 0);
+  });
 });

@@ -30,4 +30,26 @@ describe("Advanced Error Recovery", () => {
     cy.get("table", { timeout: 15000 }).should("exist");
     cy.get("tbody tr").should("have.length.greaterThan", 0);
   });
+
+  it("should have interactive controls on a valid page", () => {
+    cy.login();
+    cy.visit("/app/customers", { timeout: 15000 });
+    cy.get("button, a, input, select").should("have.length.greaterThan", 0);
+  });
+
+  it("should display content beyond heading after recovery", () => {
+    cy.login();
+    cy.visit("/app/no-such-page", { timeout: 15000, failOnStatusCode: false });
+    cy.visit("/app/invoices", { timeout: 15000 });
+    cy.get("body").should(($body) => {
+      expect($body.text().length).to.be.greaterThan(100);
+    });
+  });
+
+  it("should render without error elements on valid page", () => {
+    cy.login();
+    cy.visit("/app/products", { timeout: 15000 });
+    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.get("[class*='error' i], [data-testid*='error']").should("have.length", 0);
+  });
 });

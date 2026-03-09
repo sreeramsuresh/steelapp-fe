@@ -32,4 +32,14 @@ describe("Products Master Data", () => {
   it("should remain on the products route", () => {
     cy.url().should("include", "/app/products");
   });
+
+  it("should have action buttons", () => {
+    cy.contains("h1, h2, h3, h4", /product/i, { timeout: 15000 });
+    cy.get("button", { timeout: 10000 }).should("have.length.greaterThan", 0);
+  });
+
+  it("should render without errors", () => {
+    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.get("[class*='error' i], [data-testid*='error']").should("have.length", 0);
+  });
 });

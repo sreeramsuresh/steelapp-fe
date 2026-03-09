@@ -39,4 +39,10 @@ describe("Homepage — Data & Stock Integrity Summary Card", () => {
     // The integrity summary might be in a scrollable area
     cy.contains(/integrity|data.*stock/i, { timeout: 15000 }).should("exist");
   });
+
+  it("should have action buttons on the homepage", () => {
+    cy.visit("/app");
+    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.get("button", { timeout: 10000 }).should("have.length.greaterThan", 0);
+  });
 });

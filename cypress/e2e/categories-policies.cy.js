@@ -19,4 +19,27 @@ describe("Categories & Policies", () => {
     cy.get("body").should("not.be.empty");
     cy.url().should("include", "/app/settings");
   });
+
+  it("should have page content beyond the heading", () => {
+    cy.visit("/app/settings", { timeout: 15000 });
+    cy.get("body").then(($body) => {
+      expect($body.text().length).to.be.greaterThan(50);
+    });
+  });
+
+  it("should have action buttons", () => {
+    cy.visit("/app/settings", { timeout: 15000 });
+    cy.get("button", { timeout: 10000 }).should("have.length.greaterThan", 0);
+  });
+
+  it("should have clickable navigation or tab elements", () => {
+    cy.visit("/app/settings", { timeout: 15000 });
+    cy.get("a, button, [role='tab']", { timeout: 10000 }).should("have.length.greaterThan", 1);
+  });
+
+  it("should not display an error state", () => {
+    cy.visit("/app/settings", { timeout: 15000 });
+    cy.get("body", { timeout: 10000 }).should("be.visible");
+    cy.contains("Something went wrong").should("not.exist");
+  });
 });

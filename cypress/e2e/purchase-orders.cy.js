@@ -27,4 +27,20 @@ describe("Purchase Orders", () => {
     cy.contains(/purchase/i, { timeout: 15000 }).should("be.visible");
     cy.url().should("include", "/app/purchases");
   });
+
+  it("should have action buttons", () => {
+    cy.contains(/purchase/i, { timeout: 15000 });
+    cy.get("button", { timeout: 10000 }).should("have.length.greaterThan", 0);
+  });
+
+  it("should have search or filter controls", () => {
+    cy.contains(/purchase/i, { timeout: 15000 });
+    cy.get('input[placeholder*="Search" i], input[type="search"], select, [role="combobox"], [data-testid*="search"], [data-testid*="filter"]', { timeout: 10000 })
+      .should("have.length.greaterThan", 0);
+  });
+
+  it("should not display an error state", () => {
+    cy.contains(/purchase/i, { timeout: 15000 });
+    cy.contains("Something went wrong").should("not.exist");
+  });
 });

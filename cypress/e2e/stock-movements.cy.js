@@ -30,4 +30,23 @@ describe("Stock Movements - E2E Tests", () => {
     cy.contains("h1, h2, h3, h4", /stock.?movement/i, { timeout: 15000 }).should("be.visible");
     cy.url().should("include", "/app/stock-movements");
   });
+
+  it("should have action buttons", () => {
+    cy.visit("/app/stock-movements");
+    cy.contains("h1, h2, h3, h4", /stock.?movement/i, { timeout: 15000 });
+    cy.get("button", { timeout: 10000 }).should("have.length.greaterThan", 0);
+  });
+
+  it("should have search or filter controls", () => {
+    cy.visit("/app/stock-movements");
+    cy.contains("h1, h2, h3, h4", /stock.?movement/i, { timeout: 15000 });
+    cy.get('input[placeholder*="Search" i], input[type="search"], select, [role="combobox"], [data-testid*="search"], [data-testid*="filter"]', { timeout: 10000 })
+      .should("have.length.greaterThan", 0);
+  });
+
+  it("should not display an error state", () => {
+    cy.visit("/app/stock-movements");
+    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.contains("Something went wrong").should("not.exist");
+  });
 });

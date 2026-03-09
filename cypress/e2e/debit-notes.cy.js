@@ -1,28 +1,44 @@
-/**
- * Debit Notes E2E Tests
- *
- * Debit notes are accessed through the invoices page.
- * Tests that the invoices page loads correctly.
- *
- */
+// Owner: procurement
+// Tests: debit note management
+// Route: /app/debit-notes
 
 describe("Debit Notes - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
+    cy.interceptAPI("GET", "/api/debit-notes*", "getDebitNotes");
+    cy.visit("/app/debit-notes");
+    cy.wait("@getDebitNotes");
   });
 
-  describe("Invoices Page (Debit Notes Context)", () => {
-    it("should load the invoices page", () => {
-      cy.visit("/app/invoices");
-      cy.contains(/invoices/i, { timeout: 15000 }).should("be.visible");
-    });
+  it("should load the debit notes page with heading", () => {
+    cy.verifyPageLoads("Debit", "/app/debit-notes");
+  });
 
-    it("should display invoices content with action buttons", () => {
-      cy.visit("/app/invoices");
-      cy.contains(/invoices/i, { timeout: 15000 });
-      cy.get("body").then(($body) => {
-        expect($body.text().length).to.be.greaterThan(50);
-      });
+  it("should render debit notes table", () => {
+    cy.get("table", { timeout: 10000 }).should("be.visible");
+    cy.get("table tbody tr").should("have.length.greaterThan", 0);
+  });
+
+  it("should have a create debit note button", () => {
+    cy.contains("button, a", /create|new|add/i, { timeout: 10000 }).should("be.visible");
+  });
+
+  it("should have a search input", () => {
+    cy.get('input[placeholder*="Search" i]', { timeout: 10000 })
+      .first()
+      .should("be.visible");
+  });
+
+  it("should display expected columns in the table", () => {
+    cy.get("table thead th, table thead td").should("have.length.greaterThan", 2);
+  });
+
+  it("should show status indicators on rows", () => {
+    cy.get("table tbody tr", { timeout: 10000 }).first().then(($row) => {
+      const hasStatus =
+        $row.find("[class*='badge'], [class*='chip'], [class*='status']").length > 0 ||
+        $row.text().toLowerCase().match(/draft|confirmed|issued|cancelled|applied/);
+      expect(hasStatus, "Row should display a status indicator").to.be.true;
     });
   });
 });

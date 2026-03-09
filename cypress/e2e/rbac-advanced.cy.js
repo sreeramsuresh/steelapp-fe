@@ -31,4 +31,21 @@ describe("RBAC - User Management", () => {
       expect(hasSearch || hasButtons).to.be.true;
     });
   });
+
+  it("should have action buttons", () => {
+    cy.visit("/app/users");
+    cy.contains("h1, h2, h3, h4", /User/i, { timeout: 15000 });
+    cy.get("button", { timeout: 10000 }).should("have.length.greaterThan", 0);
+  });
+
+  it("should stay on correct route", () => {
+    cy.visit("/app/users");
+    cy.url().should("include", "/app/users");
+  });
+
+  it("should render without errors", () => {
+    cy.visit("/app/users");
+    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.get("[class*='error' i], [data-testid*='error']").should("have.length", 0);
+  });
 });
