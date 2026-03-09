@@ -1,5 +1,5 @@
 import { AlertCircle, ArrowLeft, CheckCircle, Download, Edit, Package, Plus, Truck, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApiData } from "../hooks/useApi";
@@ -462,102 +462,143 @@ const DeliveryNoteDetails = () => {
                 </thead>
                 <tbody className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
                   {deliveryNote.items?.map((item, index) => (
-                    <tr key={item.id || item.name || `item-${index}`}>
-                      <td className="px-4 py-3">
-                        <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                          {item.name}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                          {item.specification || "-"}
-                        </div>
-                      </td>
-                      <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                        {item.unit}
-                      </td>
-                      <td className={`px-4 py-3 text-right text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                        {item.orderedQuantity}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <div
-                          className={`text-sm font-medium ${
-                            item.deliveredQuantity > 0
-                              ? isDarkMode
-                                ? "text-green-400"
-                                : "text-green-600"
-                              : isDarkMode
-                                ? "text-white"
-                                : "text-gray-900"
-                          }`}
-                        >
-                          {item.deliveredQuantity}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <div
-                          className={`text-sm font-medium ${
-                            item.remainingQuantity === 0
-                              ? isDarkMode
-                                ? "text-green-400"
-                                : "text-green-600"
-                              : isDarkMode
-                                ? "text-yellow-400"
-                                : "text-yellow-600"
-                          }`}
-                        >
-                          {item.remainingQuantity}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            item.isFullyDelivered
-                              ? isDarkMode
-                                ? "bg-green-900/30 text-green-300"
-                                : "bg-green-100 text-green-800"
-                              : isDarkMode
-                                ? "bg-yellow-900/30 text-yellow-300"
-                                : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {item.isFullyDelivered ? "Complete" : "Partial"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        {renderStockStatusBadge(item)}
-                        {item.stockDeductedBy && (
-                          <div className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                            by {item.stockDeductedBy}
+                    <React.Fragment key={item.id || item.name || `item-${index}`}>
+                      <tr>
+                        <td className="px-4 py-3">
+                          <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                            {item.name}
                           </div>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        {authService.hasPermission("delivery_notes", "update") &&
-                          !item.isFullyDelivered &&
-                          deliveryNote.status !== "completed" &&
-                          deliveryNote.status !== "cancelled" && (
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setPartialDialog({
-                                  open: true,
-                                  item,
-                                  quantity: "",
-                                })
-                              }
-                              className={`flex items-center gap-1 px-3 py-1 text-sm border rounded-lg transition-colors ${
-                                isDarkMode
-                                  ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
-                                  : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                            {item.specification || "-"}
+                          </div>
+                        </td>
+                        <td className={`px-4 py-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                          {item.unit}
+                        </td>
+                        <td
+                          className={`px-4 py-3 text-right text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                        >
+                          {item.orderedQuantity}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <div
+                            className={`text-sm font-medium ${
+                              item.deliveredQuantity > 0
+                                ? isDarkMode
+                                  ? "text-green-400"
+                                  : "text-green-600"
+                                : isDarkMode
+                                  ? "text-white"
+                                  : "text-gray-900"
+                            }`}
+                          >
+                            {item.deliveredQuantity}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <div
+                            className={`text-sm font-medium ${
+                              item.remainingQuantity === 0
+                                ? isDarkMode
+                                  ? "text-green-400"
+                                  : "text-green-600"
+                                : isDarkMode
+                                  ? "text-yellow-400"
+                                  : "text-yellow-600"
+                            }`}
+                          >
+                            {item.remainingQuantity}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              item.isFullyDelivered
+                                ? isDarkMode
+                                  ? "bg-green-900/30 text-green-300"
+                                  : "bg-green-100 text-green-800"
+                                : isDarkMode
+                                  ? "bg-yellow-900/30 text-yellow-300"
+                                  : "bg-yellow-100 text-yellow-800"
+                            }`}
+                          >
+                            {item.isFullyDelivered ? "Complete" : "Partial"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          {renderStockStatusBadge(item)}
+                          {item.stockDeductedBy && (
+                            <div className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                              by {item.stockDeductedBy}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {authService.hasPermission("delivery_notes", "update") &&
+                            !item.isFullyDelivered &&
+                            deliveryNote.status !== "completed" &&
+                            deliveryNote.status !== "cancelled" && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setPartialDialog({
+                                    open: true,
+                                    item,
+                                    quantity: "",
+                                  })
+                                }
+                                className={`flex items-center gap-1 px-3 py-1 text-sm border rounded-lg transition-colors ${
+                                  isDarkMode
+                                    ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+                                    : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
+                                }`}
+                              >
+                                <Plus size={14} />
+                                Add Delivery
+                              </button>
+                            )}
+                        </td>
+                      </tr>
+                      {/* Batch details sub-row */}
+                      {item.batchRows?.length > 0 && (
+                        <tr key={`${item.id || index}-batches`}>
+                          <td colSpan={9} className="px-4 py-2">
+                            <div
+                              className={`rounded-lg border p-3 ${
+                                isDarkMode ? "bg-[#1a2332] border-gray-700" : "bg-gray-50 border-gray-200"
                               }`}
                             >
-                              <Plus size={14} />
-                              Add Delivery
-                            </button>
-                          )}
-                      </td>
-                    </tr>
+                              <div
+                                className={`text-xs font-medium uppercase mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                              >
+                                Batch & Bin Details
+                              </div>
+                              <div className="grid gap-1">
+                                {item.batchRows.map((batch, bIdx) => (
+                                  <div
+                                    key={batch.batchId || bIdx}
+                                    className={`flex items-center gap-4 text-xs py-1 ${
+                                      isDarkMode ? "text-gray-300" : "text-gray-600"
+                                    }`}
+                                  >
+                                    <span className={`font-medium ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}>
+                                      Batch: {batch.batchNumber || "-"}
+                                    </span>
+                                    <span>
+                                      Qty: {batch.quantity} {batch.unit}
+                                    </span>
+                                    {batch.warehouseName && <span>Warehouse: {batch.warehouseName}</span>}
+                                    {batch.locationLabel && <span>Bin: {batch.locationLabel}</span>}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>
