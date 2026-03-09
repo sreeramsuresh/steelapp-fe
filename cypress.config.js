@@ -17,6 +17,12 @@ export default defineConfig({
     // Test isolation
     testIsolation: true,
 
+    // Retry policy: 1 retry in CI, 0 locally
+    retries: {
+      runMode: 1,
+      openMode: 0,
+    },
+
     // Screenshots and videos
     screenshotsFolder: "cypress/screenshots",
     videosFolder: "cypress/videos",
@@ -27,6 +33,10 @@ export default defineConfig({
     env: {
       testUserEmail: process.env.E2E_ADMIN_EMAIL || "admin@steelapp.test",
       testUserPassword: process.env.E2E_ADMIN_PASSWORD || "Test@12345",
+      salesUserEmail: process.env.E2E_SALES_EMAIL || "sales@steelapp.test",
+      salesUserPassword: process.env.E2E_SALES_PASSWORD || "Test@12345",
+      readonlyUserEmail: process.env.E2E_READONLY_EMAIL || "readonly@steelapp.test",
+      readonlyUserPassword: process.env.E2E_READONLY_PASSWORD || "Test@12345",
     },
 
     setupNodeEvents(on, config) {

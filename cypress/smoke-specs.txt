@@ -5,3 +5,4 @@ cypress/e2e/products.cy.js
 cypress/e2e/warehouse-management.cy.js
 cypress/e2e/user-management-create.cy.js
 cypress/e2e/role-management.cy.js
+cypress/e2e/financial-reports.cy.js

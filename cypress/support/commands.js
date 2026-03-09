@@ -2,6 +2,102 @@
 // Custom Cypress Commands
 // ***********************************************
 
+// ==============================================
+// ROLE-BASED LOGIN COMMANDS
+// ==============================================
+
+/**
+ * Login as a specific role (admin, sales, readonly)
+ * Uses seeded E2E users with pre-assigned roles/permissions.
+ * Usage: cy.loginAsRole('admin') | cy.loginAsRole('sales') | cy.loginAsRole('readonly')
+ */
+Cypress.Commands.add("loginAsRole", (role) => {
+  const credentials = {
+    admin: {
+      email: Cypress.env("testUserEmail"),
+      password: Cypress.env("testUserPassword"),
+    },
+    sales: {
+      email: Cypress.env("salesUserEmail"),
+      password: Cypress.env("salesUserPassword"),
+    },
+    readonly: {
+      email: Cypress.env("readonlyUserEmail"),
+      password: Cypress.env("readonlyUserPassword"),
+    },
+  };
+
+  const cred = credentials[role];
+  if (!cred) {
+    throw new Error(`Unknown role "${role}". Use: admin, sales, readonly`);
+  }
+
+  cy.login(cred.email, cred.password);
+});
+
+// ==============================================
+// SHARED VERIFICATION COMMANDS
+// ==============================================
+
+/**
+ * Verify a page loads with the expected heading text.
+ * Checks: URL correct, heading visible, body has content.
+ * Usage: cy.verifyPageLoads('Invoices', '/app/invoices')
+ */
+Cypress.Commands.add("verifyPageLoads", (heading, expectedUrl) => {
+  if (expectedUrl) {
+    cy.url().should("include", expectedUrl);
+  }
+  cy.contains("h1, h2, h3, h4, [data-testid$='-heading']", new RegExp(heading, "i"), {
+    timeout: 15000,
+  }).should("be.visible");
+  cy.get("body").should(($body) => {
+    expect($body.text().length).to.be.greaterThan(50);
+  });
+});
+
+/**
+ * Verify table columns match expected headers.
+ * Usage: cy.verifyTableColumns(['Invoice #', 'Customer', 'Amount', 'Status'])
+ */
+Cypress.Commands.add("verifyTableColumns", (columns, tableSelector) => {
+  const selector = tableSelector || "table";
+  cy.get(selector, { timeout: 10000 }).should("be.visible");
+  cy.get(`${selector} thead th, ${selector} thead td`).then(($headers) => {
+    const headerTexts = [...$headers].map((el) => el.textContent.trim().toLowerCase());
+    for (const col of columns) {
+      const found = headerTexts.some((h) => h.includes(col.toLowerCase()));
+      expect(found, `Column "${col}" should exist in table headers`).to.be.true;
+    }
+  });
+});
+
+/**
+ * Verify empty state is shown when no data exists.
+ * Usage: cy.verifyEmptyState()
+ */
+Cypress.Commands.add("verifyEmptyState", () => {
+  cy.get("body").should(($body) => {
+    const text = $body.text().toLowerCase();
+    const hasEmptyState =
+      text.includes("no data") ||
+      text.includes("no records") ||
+      text.includes("no results") ||
+      text.includes("nothing to show") ||
+      text.includes("empty") ||
+      text.includes("get started");
+    expect(hasEmptyState, "Should display an empty state message").to.be.true;
+  });
+});
+
+/**
+ * Shorthand for cy.intercept + alias.
+ * Usage: cy.interceptAPI('GET', '/api/invoices*', 'getInvoices')
+ */
+Cypress.Commands.add("interceptAPI", (method, path, alias) => {
+  cy.intercept(method, path).as(alias);
+});
+
 /**
  * Login via API (fast, no UI interaction)
  * Sets cookies, localStorage, and sessionStorage to match what the app expects.
@@ -75,13 +171,11 @@ Cypress.Commands.add("loginAsAdmin", () => {
 });
 
 /**
- * Login as a regular (non-admin) user
- * In test environment, falls back to the same test user credentials
+ * Login as a regular (non-admin) user.
+ * Delegates to loginAsRole for proper role-based credentials.
  */
 Cypress.Commands.add("loginAsUser", (role) => {
-  // In E2E test environment, we use the same test user
-  // A proper multi-user setup would use different credentials per role
-  cy.login(Cypress.env("testUserEmail"), Cypress.env("testUserPassword"));
+  cy.loginAsRole(role || "sales");
 });
 
 /**
