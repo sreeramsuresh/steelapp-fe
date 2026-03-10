@@ -314,17 +314,18 @@ const Login = ({ onLoginSuccess }) => {
       const available = await window.PublicKeyCredential.isConditionalMediationAvailable?.();
       if (!available) return;
 
-      const options = await authService.passkeyLoginStart();
+      const startResponse = await authService.passkeyLoginStart();
+      const { ceremonyId, ...optionsJSON } = startResponse;
       const { startAuthentication } = await import("@simplewebauthn/browser");
 
       passkeyAbortRef.current = new AbortController();
       const credential = await startAuthentication({
-        optionsJSON: options,
+        optionsJSON,
         useBrowserAutofill: true,
         signal: passkeyAbortRef.current.signal,
       });
 
-      const response = await authService.passkeyLoginFinish(credential);
+      const response = await authService.passkeyLoginFinish(credential, ceremonyId);
       if (onLoginSuccess && response.user) {
         onLoginSuccess(response.user);
       }
@@ -535,10 +536,11 @@ const Login = ({ onLoginSuccess }) => {
     setPasskeyLoading(true);
     setError("");
     try {
-      const options = await authService.passkeyLoginStart();
+      const loginOptions = await authService.passkeyLoginStart();
+      const { ceremonyId: loginCeremonyId, ...loginOptionsJSON } = loginOptions;
       const { startAuthentication } = await import("@simplewebauthn/browser");
-      const credential = await startAuthentication({ optionsJSON: options });
-      const response = await authService.passkeyLoginFinish(credential);
+      const credential = await startAuthentication({ optionsJSON: loginOptionsJSON });
+      const response = await authService.passkeyLoginFinish(credential, loginCeremonyId);
       if (onLoginSuccess && response.user) {
         onLoginSuccess(response.user);
       }

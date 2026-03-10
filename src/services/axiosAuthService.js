@@ -283,9 +283,9 @@ class AuthService {
     }
   }
 
-  async passkeyRegisterFinish(credential) {
+  async passkeyRegisterFinish(credential, ceremonyId) {
     try {
-      const response = await apiService.post("/auth/passkey/register/finish", { credential });
+      const response = await apiService.post("/auth/passkey/register/finish", { credential, ceremonyId });
       return response;
     } catch (error) {
       throw new Error(error.response?.data?.message || "Failed to complete passkey registration");
@@ -301,9 +301,9 @@ class AuthService {
     }
   }
 
-  async passkeyLoginFinish(credential) {
+  async passkeyLoginFinish(credential, ceremonyId) {
     try {
-      const response = await apiService.post("/auth/passkey/login/finish", { credential });
+      const response = await apiService.post("/auth/passkey/login/finish", { credential, ceremonyId });
 
       // Server sets HttpOnly cookies — store user data for UI
       const user = response.user;

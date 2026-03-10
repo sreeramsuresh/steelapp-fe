@@ -43,15 +43,16 @@ export default function PasskeyManagement() {
   const handleRegister = async () => {
     setRegistering(true);
     try {
-      // Step 1: Get registration options from server
-      const options = await authService.passkeyRegisterStart();
+      // Step 1: Get registration options + ceremonyId from server
+      const startResponse = await authService.passkeyRegisterStart();
+      const { ceremonyId, ...optionsJSON } = startResponse;
 
       // Step 2: Create credential via browser
       const { startRegistration } = await import("@simplewebauthn/browser");
-      const credential = await startRegistration({ optionsJSON: options });
+      const credential = await startRegistration({ optionsJSON });
 
-      // Step 3: Send to server for verification
-      await authService.passkeyRegisterFinish(credential);
+      // Step 3: Send to server for verification with ceremonyId
+      await authService.passkeyRegisterFinish(credential, ceremonyId);
       notificationService.success("Passkey registered successfully");
       await loadCredentials();
     } catch (err) {
