@@ -5,7 +5,6 @@ import {
   Camera,
   ChevronDown,
   ChevronUp,
-  Code,
   Edit,
   FileText,
   Globe,
@@ -23,7 +22,7 @@ import {
   X,
 } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApi, useApiData } from "../hooks/useApi";
 import FTAIntegrationSettings from "../pages/FTAIntegrationSettings";
@@ -38,7 +37,6 @@ import VATRulesHelpPanel from "./VATRulesHelpPanel";
 // Lazy-loaded heavy tab components (code-split into separate chunks)
 const DocumentTemplatesTab = lazy(() => import("./settings/DocumentTemplatesTab"));
 const PrintingSettingsTab = lazy(() => import("./settings/PrintingSettingsTab"));
-const DependabotDashboardTab = lazy(() => import("./settings/DependabotDashboardTab"));
 
 // Tab loading skeleton
 const TabSkeleton = () => {
@@ -324,9 +322,8 @@ const TextField = ({
 
 const CompanySettings = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { isDarkMode } = useTheme();
-  const [activeTab, setActiveTab] = useState(() => searchParams.get("tab") || "profile");
+  const [activeTab, setActiveTab] = useState("profile");
 
   // Delete confirmation state
   const [deleteConfirm, setDeleteConfirm] = useState({
@@ -2290,8 +2287,6 @@ const CompanySettings = () => {
     { id: "tax", label: "VAT Rates", icon: Calculator },
     { id: "fta", label: "FTA Integration", icon: Key },
     { id: "product-naming", label: "Product Naming System", icon: Tag },
-    { id: "divider", divider: true, label: "Dev Only" },
-    { id: "dependabot", label: "Dependabot", icon: Code },
   ];
 
   // Debug logging
@@ -2392,11 +2387,6 @@ const CompanySettings = () => {
         {activeTab === "tax" && renderVatSettings()}
         {activeTab === "fta" && <FTAIntegrationSettings embedded />}
         {activeTab === "product-naming" && renderProductNamingSystem()}
-        {activeTab === "dependabot" && (
-          <Suspense fallback={<TabSkeleton />}>
-            <DependabotDashboardTab />
-          </Suspense>
-        )}
       </div>
 
       {/* Delete Confirmation Dialog */}

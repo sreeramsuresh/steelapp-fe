@@ -2,6 +2,7 @@ import {
   ArrowLeft,
   BookOpen,
   Building2,
+  Code,
   Grid3X3,
   Layers,
   MessageSquare,
@@ -89,6 +90,18 @@ export const SETTINGS_NAV_ITEMS = [
         icon: MessageSquare,
         description: "View and manage user-reported issues",
         requiredRoles: ["admin", "managing_director"],
+      },
+    ],
+  },
+  {
+    section: "Dev Only",
+    items: [
+      {
+        name: "Dependabot",
+        path: "/app/settings/dependabot",
+        icon: Code,
+        description: "View and manage Dependabot pull requests",
+        requiredRoles: ["admin"],
       },
     ],
   },
