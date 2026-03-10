@@ -121,12 +121,18 @@ function subscribeToRefresh() {
 api.interceptors.response.use(
   (response) => {
     if (import.meta.env.DEV || import.meta.env.MODE === "test") {
-      const hits = findSnakeCaseKeys(response.data);
-      if (hits.length > 0) {
-        throw new Error(
-          `[camelCase contract violation] Response from ${response.config.url} ` +
-            `contains snake_case keys: ${hits.slice(0, 5).join(", ")}`
-        );
+      // Skip camelCase enforcement for passkey endpoints — WebAuthn payloads
+      // use browser-defined field names and case conversion is intentionally
+      // skipped on the backend for /passkey/ routes.
+      const url = response.config?.url || "";
+      if (!url.includes("/passkey/")) {
+        const hits = findSnakeCaseKeys(response.data);
+        if (hits.length > 0) {
+          throw new Error(
+            `[camelCase contract violation] Response from ${url} ` +
+              `contains snake_case keys: ${hits.slice(0, 5).join(", ")}`
+          );
+        }
       }
     }
     return response;

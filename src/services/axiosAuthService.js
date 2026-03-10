@@ -324,7 +324,20 @@ class AuthService {
   async listPasskeys() {
     try {
       const response = await apiService.get("/auth/passkey/credentials");
-      return response.credentials || response;
+      const rows = response.credentials || response;
+      // Passkey endpoints skip case conversion middleware, so normalize
+      // snake_case DB columns to camelCase for the frontend component.
+      return Array.isArray(rows)
+        ? rows.map((r) => ({
+            id: r.id,
+            credentialId: r.credential_id ?? r.credentialId, // snake-ok
+            deviceLabel: r.device_label ?? r.deviceLabel, // snake-ok
+            createdAt: r.created_at ?? r.createdAt, // snake-ok
+            lastUsedAt: r.last_used_at ?? r.lastUsedAt, // snake-ok
+            deviceType: r.device_type ?? r.deviceType, // snake-ok
+            backedUp: r.backed_up ?? r.backedUp, // snake-ok
+          }))
+        : rows;
     } catch (error) {
       throw new Error(error.response?.data?.message || "Failed to list passkeys");
     }
