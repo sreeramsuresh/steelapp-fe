@@ -546,7 +546,12 @@ const Login = ({ onLoginSuccess }) => {
       if (err.name === "NotAllowedError" || err.name === "AbortError") {
         // User cancelled or aborted — don't show error
       } else {
-        setError(err.message || "Passkey authentication failed");
+        // Use server's user-friendly message if available, otherwise generic fallback
+        const serverMessage = err.response?.data?.message;
+        setError(
+          serverMessage ||
+            "Passkey authentication failed. Please sign in with your password and re-register your passkey in Settings."
+        );
       }
     } finally {
       setPasskeyLoading(false);
