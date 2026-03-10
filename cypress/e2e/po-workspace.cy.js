@@ -15,7 +15,6 @@
 describe("PO Workspace - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
-    cy.interceptAPI("GET", "/api/purchase-orders*", "getPurchaseOrders");
   });
 
   describe("Purchases Dashboard Entry", () => {
@@ -44,7 +43,7 @@ describe("PO Workspace - E2E Tests", () => {
         ($rows) => {
           if ($rows.length > 0) {
             cy.wrap($rows.first()).find("a, td").first().click();
-            cy.url({ timeout: 10000 }).should("match", /purchases\/po\/\d+/);
+            cy.url({ timeout: 10000 }).should("match", /\/app\/purchases\/po\/\d+/);
           } else {
             cy.log("No POs available to click");
           }

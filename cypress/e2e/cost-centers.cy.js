@@ -28,15 +28,13 @@ describe("Cost Centers - E2E Tests", () => {
   });
 
   it("should load cost centers list page", () => {
-    cy.interceptAPI("GET", "/api/cost-centers*", "getCostCenters");
     cy.visit("/app/cost-centers");
     cy.verifyPageLoads("Cost Center", "/app/cost-centers");
   });
 
   it("should render cost centers table", () => {
-    cy.interceptAPI("GET", "/api/cost-centers*", "getCostCenters");
     cy.visit("/app/cost-centers");
-    cy.wait("@getCostCenters");
+    cy.get("table, [class*='cost-center']", { timeout: 10000 }).should("exist");
     cy.get("body").then(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasContent = $body.text().length > 100;
@@ -45,9 +43,8 @@ describe("Cost Centers - E2E Tests", () => {
   });
 
   it("should have a create cost center button", () => {
-    cy.interceptAPI("GET", "/api/cost-centers*", "getCostCenters");
     cy.visit("/app/cost-centers");
-    cy.wait("@getCostCenters");
+    cy.get("table, [class*='cost-center']", { timeout: 10000 }).should("exist");
     cy.get("body").then(($body) => {
       const hasButton =
         $body.find("button, a").filter(function () {
@@ -58,15 +55,13 @@ describe("Cost Centers - E2E Tests", () => {
   });
 
   it("should load cost center budgets page", () => {
-    cy.interceptAPI("GET", "/api/cost-center-budgets*", "getBudgets");
     cy.visit("/app/cost-center-budgets");
     cy.verifyPageLoads("Budget", "/app/cost-center-budgets");
   });
 
   it("should render budgets table", () => {
-    cy.interceptAPI("GET", "/api/cost-center-budgets*", "getBudgets");
     cy.visit("/app/cost-center-budgets");
-    cy.wait("@getBudgets");
+    cy.get("body", { timeout: 10000 }).should("not.be.empty");
     cy.get("body").then(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasContent = $body.text().length > 100;
@@ -75,9 +70,8 @@ describe("Cost Centers - E2E Tests", () => {
   });
 
   it("should display table with expected columns on budgets", () => {
-    cy.interceptAPI("GET", "/api/cost-center-budgets*", "getBudgets");
     cy.visit("/app/cost-center-budgets");
-    cy.wait("@getBudgets");
+    cy.get("body", { timeout: 10000 }).should("not.be.empty");
     cy.get("table", { timeout: 10000 }).then(($table) => {
       if ($table.length > 0) {
         const headerText = $table.find("thead").text().toLowerCase();

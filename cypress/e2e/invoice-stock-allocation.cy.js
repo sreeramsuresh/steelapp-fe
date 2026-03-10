@@ -5,14 +5,11 @@
 describe("Invoice Stock Allocation - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
-    cy.interceptAPI("GET", "/api/invoices*", "getInvoices");
-    cy.interceptAPI("GET", "/api/customers*", "getCustomers");
-    cy.interceptAPI("GET", "/api/products*", "getProducts");
   });
 
   it("should load the invoices page as baseline", () => {
     cy.visit("/app/invoices");
-    cy.wait("@getInvoices");
+    cy.get("table", { timeout: 10000 }).should("exist");
     cy.verifyPageLoads("Invoices", "/app/invoices");
   });
 
@@ -25,7 +22,7 @@ describe("Invoice Stock Allocation - E2E Tests", () => {
   it("should have a product autocomplete on line items", () => {
     cy.visit("/app/invoices/new");
     cy.get(
-      '[data-testid*="product-autocomplete"], input[placeholder*="product" i], input[placeholder*="item" i], [class*="autocomplete" i]',
+      '[data-testid*="product-autocomplete"], input[placeholder*="product"], input[placeholder*="item"], [class*="autocomplete"]',
       { timeout: 15000 },
     )
       .first()
@@ -36,9 +33,9 @@ describe("Invoice Stock Allocation - E2E Tests", () => {
     cy.visit("/app/invoices/new");
     cy.get("body", { timeout: 15000 }).then(($body) => {
       const hasQuantity =
-        $body.find('input[name*="quantity" i], input[name*="qty" i], input[placeholder*="qty" i], input[placeholder*="quantity" i]').length > 0;
+        $body.find('input[name*="quantity"], input[name*="qty"], input[placeholder*="qty"], input[placeholder*="quantity"]').length > 0;
       const hasRate =
-        $body.find('input[name*="rate" i], input[name*="price" i], input[placeholder*="rate" i], input[placeholder*="price" i]').length > 0;
+        $body.find('input[name*="rate"], input[name*="price"], input[placeholder*="rate"], input[placeholder*="price"]').length > 0;
       expect(hasQuantity, "Quantity field should exist").to.be.true;
       expect(hasRate, "Rate field should exist").to.be.true;
     });
@@ -87,7 +84,7 @@ describe("Invoice Stock Allocation - E2E Tests", () => {
   it("should have an invoice date field", () => {
     cy.visit("/app/invoices/new");
     cy.get(
-      'input[type="date"], input[name*="date" i], input[placeholder*="date" i], [data-testid*="date"]',
+      'input[type="date"], input[name*="date"], input[placeholder*="date"], [data-testid*="date"]',
       { timeout: 15000 },
     )
       .first()

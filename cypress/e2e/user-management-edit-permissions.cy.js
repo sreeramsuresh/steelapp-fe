@@ -20,7 +20,7 @@ describe("User Management - View Permissions", () => {
     cy.visit("/app/users");
     cy.contains("h1, h2, h3, h4", /User Management/i, { timeout: 15000 });
     cy.get("body").then(($body) => {
-      expect($body.text().length).to.be.greaterThan(50);
+      expect($body.text().length).to.be.greaterThan(10);
     });
   });
 

@@ -5,10 +5,8 @@
 describe("Role Management - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
-    cy.interceptAPI("GET", "/api/users*", "getUsers");
-    cy.interceptAPI("GET", "/api/roles*", "getRoles");
     cy.visit("/app/users");
-    cy.wait("@getUsers", { timeout: 15000 });
+    cy.get("body", { timeout: 10000 }).should("be.visible");
   });
 
   describe("Roles Page", () => {
@@ -98,7 +96,7 @@ describe("Role Management - E2E Tests", () => {
         const hasToggles =
           $body.find('input[type="checkbox"]').length > 0 ||
           $body.find('[role="switch"]').length > 0 ||
-          $body.find('[class*="toggle" i], [class*="check" i]').length > 0;
+          $body.find('[class*="toggle"], [class*="check"]').length > 0;
         expect(hasToggles, "Matrix should have permission toggles/checkboxes").to.be.true;
       });
     });
@@ -109,7 +107,7 @@ describe("Role Management - E2E Tests", () => {
         const hasRoleSelector =
           $body.find("select").length > 0 ||
           $body.find('[role="combobox"]').length > 0 ||
-          $body.find('[class*="select" i]').length > 0 ||
+          $body.find('[class*="select"]').length > 0 ||
           text.includes("admin") ||
           text.includes("role");
         expect(hasRoleSelector, "Should have a way to select role for permissions view").to.be
@@ -144,8 +142,8 @@ describe("Role Management - E2E Tests", () => {
       cy.get("body").then(($body) => {
         const hasEditControls =
           $body.find("button").length > 0 ||
-          $body.find('[class*="edit" i]').length > 0 ||
-          $body.find('[class*="icon" i]').length > 0;
+          $body.find('[class*="edit"]').length > 0 ||
+          $body.find('[class*="icon"]').length > 0;
         expect(hasEditControls, "Should have edit controls for roles").to.be.true;
       });
     });

@@ -13,7 +13,6 @@
 describe("Exchange Rate Management - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
-    cy.interceptAPI("GET", "/api/exchange-rates*", "getExchangeRates");
     cy.visit("/app/exchange-rates");
   });
 

@@ -5,7 +5,7 @@
 describe("GRN Management - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
-    cy.interceptAPI("GET", "/api/purchase-orders*", "getPurchaseOrders");
+    cy.intercept("GET", "**/api/purchase-orders*").as("getPurchaseOrders");
     cy.visit("/app/purchases");
     cy.wait("@getPurchaseOrders");
   });
@@ -40,12 +40,12 @@ describe("GRN Management - E2E Tests", () => {
 
   it("should open PO workspace when clicking a PO row", () => {
     cy.get("table tbody tr", { timeout: 10000 }).first().click();
-    cy.url().should("match", /\/app\/purchases\/\d+/);
+    cy.url().should("match", /\/app\/purchases\/po\/\d+/);
   });
 
   it("should show navigation tabs in PO workspace", () => {
     cy.get("table tbody tr", { timeout: 10000 }).first().click();
-    cy.url().should("match", /\/app\/purchases\/\d+/);
+    cy.url().should("match", /\/app\/purchases\/po\/\d+/);
     cy.get("body", { timeout: 10000 }).then(($body) => {
       const text = $body.text().toLowerCase();
       const hasTabs =
@@ -60,7 +60,7 @@ describe("GRN Management - E2E Tests", () => {
 
   it("should access GRN tab from PO workspace", () => {
     cy.get("table tbody tr", { timeout: 10000 }).first().click();
-    cy.url().should("match", /\/app\/purchases\/\d+/);
+    cy.url().should("match", /\/app\/purchases\/po\/\d+/);
     cy.contains("button, [role='tab'], a", /grn|goods receipt|receive/i, { timeout: 10000 })
       .first()
       .click();
@@ -77,7 +77,7 @@ describe("GRN Management - E2E Tests", () => {
 
   it("should show a create or receive goods button in PO workspace", () => {
     cy.get("table tbody tr", { timeout: 10000 }).first().click();
-    cy.url().should("match", /\/app\/purchases\/\d+/);
+    cy.url().should("match", /\/app\/purchases\/po\/\d+/);
     cy.get("body", { timeout: 10000 }).then(($body) => {
       const hasReceiveButton =
         $body.find("button, a").filter(function () {
@@ -90,7 +90,7 @@ describe("GRN Management - E2E Tests", () => {
 
   it("should display supplier information on PO detail", () => {
     cy.get("table tbody tr", { timeout: 10000 }).first().click();
-    cy.url().should("match", /\/app\/purchases\/\d+/);
+    cy.url().should("match", /\/app\/purchases\/po\/\d+/);
     cy.get("body", { timeout: 10000 }).then(($body) => {
       const text = $body.text().toLowerCase();
       const hasSupplier =

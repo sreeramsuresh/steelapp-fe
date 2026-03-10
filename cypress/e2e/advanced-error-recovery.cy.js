@@ -51,6 +51,6 @@ describe("Advanced Error Recovery", () => {
     cy.login();
     cy.visit("/app/products", { timeout: 15000 });
     cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("[class*='error' i], [data-testid*='error']").should("have.length", 0);
+    cy.get("[class*='error'], [data-testid*='error']").should("have.length", 0);
   });
 });

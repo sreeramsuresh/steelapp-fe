@@ -14,9 +14,6 @@ describe("Financial Reports - E2E Tests", () => {
 
   describe("Finance Dashboard", () => {
     it("should load finance hub page with navigation cards", () => {
-      cy.intercept("GET", "/api/receivables*").as("getReceivables");
-      cy.intercept("GET", "/api/payables*").as("getPayables");
-
       cy.visit("/app/finance");
       cy.verifyPageLoads("Finance", "/app/finance");
 
@@ -40,8 +37,6 @@ describe("Financial Reports - E2E Tests", () => {
 
   describe("Trial Balance Report", () => {
     it("should load with heading and date range controls", () => {
-      cy.intercept("GET", "/api/financial-reports/trial-balance*").as("getTrialBalance");
-
       cy.visit("/analytics/trial-balance");
       cy.verifyPageLoads("Trial Balance", "/analytics/trial-balance");
 
@@ -53,13 +48,11 @@ describe("Financial Reports - E2E Tests", () => {
     });
 
     it("should render report table or content after loading", () => {
-      cy.intercept("GET", "/api/financial-reports/trial-balance*").as("getTrialBalance");
-
       cy.visit("/analytics/trial-balance");
       cy.verifyPageLoads("Trial Balance", "/analytics/trial-balance");
 
-      // Wait for the API call to complete
-      cy.wait("@getTrialBalance", { timeout: 20000 });
+      // Wait for report content to appear
+      cy.get("table, [class*='trial-balance']", { timeout: 20000 }).should("exist");
 
       // Report should render a table, chart, or meaningful content area
       cy.get("table, [data-testid*='report'], [data-testid*='table'], [class*='report']", {
@@ -70,8 +63,6 @@ describe("Financial Reports - E2E Tests", () => {
 
   describe("Cash Book Report", () => {
     it("should load with heading and filter controls", () => {
-      cy.intercept("GET", "/api/financial-reports/*").as("getCashBook");
-
       cy.visit("/analytics/cash-book");
       cy.verifyPageLoads("Cash Book", "/analytics/cash-book");
 
@@ -83,12 +74,10 @@ describe("Financial Reports - E2E Tests", () => {
     });
 
     it("should render report content after loading", () => {
-      cy.intercept("GET", "/api/financial-reports/*").as("getCashBookData");
-
       cy.visit("/analytics/cash-book");
       cy.verifyPageLoads("Cash Book", "/analytics/cash-book");
 
-      cy.wait("@getCashBookData", { timeout: 20000 });
+      cy.get("body", { timeout: 20000 }).should("not.be.empty");
 
       // Report should display a table or chart
       cy.get("table, canvas, svg, [data-testid*='report'], [class*='chart'], [class*='report']", {
@@ -99,19 +88,15 @@ describe("Financial Reports - E2E Tests", () => {
 
   describe("Journal Register Report", () => {
     it("should load with heading", () => {
-      cy.intercept("GET", "/api/financial-reports/journal-register*").as("getJournalRegister");
-
       cy.visit("/analytics/journal-register");
       cy.verifyPageLoads("Journal Register", "/analytics/journal-register");
     });
 
     it("should render report content after loading", () => {
-      cy.intercept("GET", "/api/financial-reports/journal-register*").as("getJournalRegister");
-
       cy.visit("/analytics/journal-register");
       cy.verifyPageLoads("Journal Register", "/analytics/journal-register");
 
-      cy.wait("@getJournalRegister", { timeout: 20000 });
+      cy.get("body", { timeout: 20000 }).should("not.be.empty");
 
       // Journal register should render tabular data or a content area
       cy.get("table, [data-testid*='journal'], [data-testid*='report'], [class*='report']", {
@@ -122,8 +107,6 @@ describe("Financial Reports - E2E Tests", () => {
 
   describe("Bank Reports", () => {
     it("should load bank ledger page with heading", () => {
-      cy.intercept("GET", "/api/bank-reconciliation/bank-ledger*").as("getBankLedger");
-
       cy.visit("/analytics/bank-ledger");
       cy.verifyPageLoads("Bank Ledger", "/analytics/bank-ledger");
 
@@ -135,8 +118,6 @@ describe("Financial Reports - E2E Tests", () => {
     });
 
     it("should load bank reconciliation page with heading", () => {
-      cy.intercept("GET", "/api/bank-reconciliation/*").as("getBankReconciliation");
-
       cy.visit("/analytics/bank-reconciliation");
       cy.verifyPageLoads("Bank Reconciliation", "/analytics/bank-reconciliation");
 

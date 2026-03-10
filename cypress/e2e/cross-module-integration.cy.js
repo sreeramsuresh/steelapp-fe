@@ -47,6 +47,6 @@ describe("Cross-Module Integration", () => {
   it("should render without errors on any module", () => {
     cy.visit("/app/invoices", { timeout: 15000 });
     cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("[class*='error' i], [data-testid*='error']").should("have.length", 0);
+    cy.get("[class*='error'], [data-testid*='error']").should("have.length", 0);
   });
 });

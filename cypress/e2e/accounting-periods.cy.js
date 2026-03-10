@@ -13,8 +13,6 @@
 describe("Accounting Periods - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
-    cy.interceptAPI("GET", "/api/accounting-periods*", "getAccountingPeriods");
-    cy.interceptAPI("GET", "/api/financial-settings*", "getFinancialSettings");
   });
 
   describe("Financial Settings Page", () => {

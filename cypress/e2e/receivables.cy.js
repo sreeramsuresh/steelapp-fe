@@ -2,10 +2,8 @@
 describe('Receivables Management - E2E Tests', () => {
   beforeEach(() => {
     cy.login();
-    cy.interceptAPI('GET', '/api/receivables*', 'getReceivables');
-    cy.interceptAPI('GET', '/api/invoices*', 'getInvoices');
     cy.visit('/app/receivables');
-    cy.wait('@getReceivables');
+    cy.contains("h1, h2, h3, h4", /receivable/i, { timeout: 15000 }).should("be.visible");
   });
 
   it('should load the receivables page with heading and summary stats', () => {

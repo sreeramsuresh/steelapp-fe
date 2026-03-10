@@ -41,7 +41,7 @@ describe("Stock Movements - E2E Tests", () => {
   it("should have search or filter controls", () => {
     cy.visit("/app/stock-movements");
     cy.contains("h1, h2, h3, h4", /stock.?movement/i, { timeout: 15000 });
-    cy.get('input[placeholder*="Search" i], input[type="search"], select, [role="combobox"], [data-testid*="search"], [data-testid*="filter"]', { timeout: 10000 })
+    cy.get('input[placeholder*="Search"], input[type="search"], select, [role="combobox"], [data-testid*="search"], [data-testid*="filter"]', { timeout: 10000 })
       .should("have.length.greaterThan", 0);
   });
 

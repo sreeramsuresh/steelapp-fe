@@ -29,7 +29,7 @@ describe("User Activity Logging", () => {
   it("should have search or filter input", () => {
     cy.visit("/app/audit-logs", { timeout: 15000 });
     cy.contains("h1, h2, h3, h4", /Audit/i, { timeout: 15000 });
-    cy.get('input[placeholder*="Search" i], input[type="search"], [data-testid*="search"], select, [data-testid*="filter"]')
+    cy.get('input[placeholder*="Search"], input[type="search"], [data-testid*="search"], select, [data-testid*="filter"]')
       .should("have.length.greaterThan", 0);
   });
 

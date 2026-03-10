@@ -50,6 +50,6 @@ describe("Notifications", () => {
   it("should render without errors", () => {
     cy.visit("/app");
     cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("[class*='error' i], [data-testid*='error']").should("have.length", 0);
+    cy.get("[class*='error'], [data-testid*='error']").should("have.length", 0);
   });
 });

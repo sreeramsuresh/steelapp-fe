@@ -5,9 +5,10 @@
 describe("User Management - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
-    cy.interceptAPI("GET", "/api/users*", "getUsers");
+    cy.intercept("GET", "**/api/users*").as("getUsers");
     cy.visit("/app/users");
-    cy.wait("@getUsers", { timeout: 15000 });
+    cy.wait("@getUsers");
+    cy.get("body", { timeout: 10000 }).should("be.visible");
   });
 
   it("should load page with User Management heading", () => {
@@ -102,14 +103,14 @@ describe("User Management - E2E Tests", () => {
 
   it("should show name field in user form", () => {
     cy.contains("Create User", { timeout: 10000 }).click();
-    cy.get('input[name*="name"], input[placeholder*="name" i]', { timeout: 10000 })
+    cy.get('input[name*="name"], input[placeholder*="name"]', { timeout: 10000 })
       .first()
       .should("exist");
   });
 
   it("should show email field in user form", () => {
     cy.contains("Create User", { timeout: 10000 }).click();
-    cy.get('input[name*="email"], input[type="email"], input[placeholder*="email" i]', {
+    cy.get('input[name*="email"], input[type="email"], input[placeholder*="email"]', {
       timeout: 10000,
     })
       .first()
@@ -121,7 +122,7 @@ describe("User Management - E2E Tests", () => {
     cy.get("body").then(($body) => {
       const hasRoleSelect =
         $body.find('select[name*="role"]').length > 0 ||
-        $body.find('[class*="role" i]').length > 0 ||
+        $body.find('[class*="role"]').length > 0 ||
         $body.text().toLowerCase().includes("role");
       expect(hasRoleSelect, "Should have role selection in user form").to.be.true;
     });

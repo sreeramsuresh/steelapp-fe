@@ -32,12 +32,12 @@ describe("Supplier Management", () => {
 
   it("should have search or filter input", () => {
     cy.contains("h1, h2, h3, h4", /customer/i, { timeout: 15000 });
-    cy.get('input[placeholder*="Search" i], input[type="search"], [data-testid*="search"], select, [data-testid*="filter"]')
+    cy.get('input[placeholder*="Search"], input[type="search"], [data-testid*="search"], select, [data-testid*="filter"]')
       .should("have.length.greaterThan", 0);
   });
 
   it("should render without errors", () => {
     cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("[class*='error' i], [data-testid*='error']").should("have.length", 0);
+    cy.get("[class*='error'], [data-testid*='error']").should("have.length", 0);
   });
 });

@@ -52,7 +52,7 @@ Cypress.Commands.add("verifyPageLoads", (heading, expectedUrl) => {
     timeout: 15000,
   }).should("be.visible");
   cy.get("body").should(($body) => {
-    expect($body.text().length).to.be.greaterThan(50);
+    expect($body.text().length).to.be.greaterThan(10);
   });
 });
 

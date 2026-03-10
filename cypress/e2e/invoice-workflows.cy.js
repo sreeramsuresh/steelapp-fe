@@ -5,7 +5,7 @@
 describe("Invoice Workflows - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
-    cy.interceptAPI("GET", "/api/invoices*", "getInvoices");
+    cy.intercept("GET", "**/api/invoices*").as("getInvoices");
     cy.visit("/app/invoices");
     cy.wait("@getInvoices");
   });
@@ -20,11 +20,10 @@ describe("Invoice Workflows - E2E Tests", () => {
   });
 
   it("should have a search input that filters on typing", () => {
-    cy.get('input[placeholder*="Search" i]', { timeout: 10000 })
+    cy.get('input[placeholder*="Search"]', { timeout: 10000 })
       .first()
       .should("be.visible")
       .type("INV");
-    cy.wait("@getInvoices");
     cy.get("table").should("be.visible");
   });
 
@@ -107,14 +106,13 @@ describe("Invoice Workflows - E2E Tests", () => {
   });
 
   it("should clear search results when search input is cleared", () => {
-    cy.get('input[placeholder*="Search" i]', { timeout: 10000 })
+    cy.get('input[placeholder*="Search"]', { timeout: 10000 })
       .first()
       .type("INV");
-    cy.wait("@getInvoices");
-    cy.get('input[placeholder*="Search" i]')
+    cy.get("table").should("be.visible");
+    cy.get('input[placeholder*="Search"]')
       .first()
       .clear();
-    cy.wait("@getInvoices");
     cy.get("table").should("be.visible");
   });
 });

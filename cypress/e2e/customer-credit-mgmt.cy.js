@@ -40,7 +40,7 @@ describe("Customer Credit Management - E2E Tests", () => {
     it("should have search or filter input", () => {
       cy.visit("/app/customers");
       cy.contains("Customer Management", { timeout: 15000 });
-      cy.get('input[placeholder*="Search" i], input[type="search"], [data-testid*="search"], select, [data-testid*="filter"]')
+      cy.get('input[placeholder*="Search"], input[type="search"], [data-testid*="search"], select, [data-testid*="filter"]')
         .should("have.length.greaterThan", 0);
     });
 
@@ -53,7 +53,7 @@ describe("Customer Credit Management - E2E Tests", () => {
     it("should render without errors", () => {
       cy.visit("/app/customers");
       cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("[class*='error' i], [data-testid*='error']").should("have.length", 0);
+      cy.get("[class*='error'], [data-testid*='error']").should("have.length", 0);
     });
   });
 });

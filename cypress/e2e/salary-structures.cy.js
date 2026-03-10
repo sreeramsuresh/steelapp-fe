@@ -9,18 +9,20 @@
 describe("Salary Structures - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
+    cy.intercept("GET", "**/api/salary-components*").as("getSalaryComponents");
+    cy.intercept("GET", "**/api/salary-structures*").as("getSalaryStructures");
   });
 
   it("should load salary components page", () => {
-    cy.interceptAPI("GET", "/api/salary-components*", "getSalaryComponents");
     cy.visit("/app/salary-components");
+    cy.wait("@getSalaryComponents");
     cy.verifyPageLoads("Salary Component", "/app/salary-components");
   });
 
   it("should render components table", () => {
-    cy.interceptAPI("GET", "/api/salary-components*", "getSalaryComponents");
     cy.visit("/app/salary-components");
     cy.wait("@getSalaryComponents");
+    cy.get("body", { timeout: 10000 }).should("be.visible");
     cy.get("body").then(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasContent = $body.text().length > 100;
@@ -29,9 +31,9 @@ describe("Salary Structures - E2E Tests", () => {
   });
 
   it("should have an add component button", () => {
-    cy.interceptAPI("GET", "/api/salary-components*", "getSalaryComponents");
     cy.visit("/app/salary-components");
     cy.wait("@getSalaryComponents");
+    cy.get("body", { timeout: 10000 }).should("be.visible");
     cy.get("body").then(($body) => {
       const hasButton =
         $body.find("button, a").filter(function () {
@@ -42,15 +44,15 @@ describe("Salary Structures - E2E Tests", () => {
   });
 
   it("should load salary structures list page", () => {
-    cy.interceptAPI("GET", "/api/salary-structures*", "getSalaryStructures");
     cy.visit("/app/salary-structures");
+    cy.wait("@getSalaryStructures");
     cy.verifyPageLoads("Salary Structure", "/app/salary-structures");
   });
 
   it("should render structures table", () => {
-    cy.interceptAPI("GET", "/api/salary-structures*", "getSalaryStructures");
     cy.visit("/app/salary-structures");
     cy.wait("@getSalaryStructures");
+    cy.get("body", { timeout: 10000 }).should("be.visible");
     cy.get("body").then(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasContent = $body.text().length > 100;
@@ -59,9 +61,9 @@ describe("Salary Structures - E2E Tests", () => {
   });
 
   it("should have a create structure button", () => {
-    cy.interceptAPI("GET", "/api/salary-structures*", "getSalaryStructures");
     cy.visit("/app/salary-structures");
     cy.wait("@getSalaryStructures");
+    cy.get("body", { timeout: 10000 }).should("be.visible");
     cy.get("body").then(($body) => {
       const hasButton =
         $body.find("button, a").filter(function () {

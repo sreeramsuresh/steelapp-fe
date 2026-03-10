@@ -36,7 +36,7 @@ describe("Purchase Orders", () => {
 
   it("should have search or filter controls", () => {
     cy.contains(/purchase/i, { timeout: 15000 });
-    cy.get('input[placeholder*="Search" i], input[type="search"], select, [role="combobox"], [data-testid*="search"], [data-testid*="filter"]', { timeout: 10000 })
+    cy.get('input[placeholder*="Search"], input[type="search"], select, [role="combobox"], [data-testid*="search"], [data-testid*="filter"]', { timeout: 10000 })
       .should("have.length.greaterThan", 0);
   });
 

@@ -2,9 +2,8 @@
 describe("Payables Management - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
-    cy.interceptAPI("GET", "/api/payables*", "getPayables");
     cy.visit("/app/payables");
-    cy.wait("@getPayables");
+    cy.contains("h1, h2, h3, h4", /payable/i, { timeout: 15000 }).should("be.visible");
   });
 
   it("loads with payables heading and summary stats", () => {
@@ -85,13 +84,11 @@ describe("Payables Management - E2E Tests", () => {
         );
 
         if ($select.length > 0) {
-          cy.interceptAPI("GET", "/api/payables*", "getFilteredPayables");
           cy.wrap($select.first()).select(1);
-          cy.wait("@getFilteredPayables");
+          cy.contains("h1, h2, h3, h4", /payable/i, { timeout: 15000 }).should("be.visible");
         } else if ($tabs.length > 0) {
-          cy.interceptAPI("GET", "/api/payables*", "getFilteredPayables");
           cy.wrap($tabs.first()).click();
-          cy.wait("@getFilteredPayables");
+          cy.contains("h1, h2, h3, h4", /payable/i, { timeout: 15000 }).should("be.visible");
         }
       });
 
@@ -103,7 +100,6 @@ describe("Payables Management - E2E Tests", () => {
   it("sort functionality works via column header click", () => {
     // Click a sortable column header and verify the table responds
     cy.get("table thead th").first().then(($th) => {
-      cy.interceptAPI("GET", "/api/payables*", "getSortedPayables");
       cy.wrap($th).click();
       // Either the API is called for server-side sort, or the table re-renders client-side
       cy.get("table tbody tr").should("have.length.gte", 0);

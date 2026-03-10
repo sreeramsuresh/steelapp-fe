@@ -12,15 +12,13 @@ describe("HR Master Data - E2E Tests", () => {
   });
 
   it("should load departments page with heading", () => {
-    cy.interceptAPI("GET", "/api/departments*", "getDepartments");
     cy.visit("/app/departments");
     cy.verifyPageLoads("Department", "/app/departments");
   });
 
   it("should render departments table or list", () => {
-    cy.interceptAPI("GET", "/api/departments*", "getDepartments");
     cy.visit("/app/departments");
-    cy.wait("@getDepartments");
+    cy.get("table tbody tr, [class*='department']", { timeout: 10000 }).should("exist");
     cy.get("body").then(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasCards = $body.find("[class*='card'], [class*='list']").length > 0;
@@ -30,9 +28,8 @@ describe("HR Master Data - E2E Tests", () => {
   });
 
   it("should have an add department button", () => {
-    cy.interceptAPI("GET", "/api/departments*", "getDepartments");
     cy.visit("/app/departments");
-    cy.wait("@getDepartments");
+    cy.get("table tbody tr, [class*='department']", { timeout: 10000 }).should("exist");
     cy.get("body").then(($body) => {
       const hasButton =
         $body.find("button, a").filter(function () {
@@ -43,15 +40,13 @@ describe("HR Master Data - E2E Tests", () => {
   });
 
   it("should load designations page with heading", () => {
-    cy.interceptAPI("GET", "/api/designations*", "getDesignations");
     cy.visit("/app/designations");
     cy.verifyPageLoads("Designation", "/app/designations");
   });
 
   it("should render designations table or list", () => {
-    cy.interceptAPI("GET", "/api/designations*", "getDesignations");
     cy.visit("/app/designations");
-    cy.wait("@getDesignations");
+    cy.get("table tbody tr, [class*='designation']", { timeout: 10000 }).should("exist");
     cy.get("body").then(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasCards = $body.find("[class*='card'], [class*='list']").length > 0;
@@ -61,9 +56,8 @@ describe("HR Master Data - E2E Tests", () => {
   });
 
   it("should have an add designation button", () => {
-    cy.interceptAPI("GET", "/api/designations*", "getDesignations");
     cy.visit("/app/designations");
-    cy.wait("@getDesignations");
+    cy.get("table tbody tr, [class*='designation']", { timeout: 10000 }).should("exist");
     cy.get("body").then(($body) => {
       const hasButton =
         $body.find("button, a").filter(function () {

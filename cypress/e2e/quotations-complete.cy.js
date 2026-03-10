@@ -50,7 +50,7 @@ describe("Quotations - Complete E2E Tests", () => {
     it("should have search or filter input", () => {
       cy.visit("/app/quotations");
       cy.contains("h1, h2, h3, h4", /Quotation/i, { timeout: 15000 });
-      cy.get('input[placeholder*="Search" i], input[type="search"], [data-testid*="search"], select, [data-testid*="filter"]')
+      cy.get('input[placeholder*="Search"], input[type="search"], [data-testid*="search"], select, [data-testid*="filter"]')
         .should("have.length.greaterThan", 0);
     });
 

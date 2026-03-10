@@ -39,7 +39,7 @@ describe("Material Certificates - E2E Tests", () => {
   it("should have search or filter controls", () => {
     cy.visit("/app/inventory");
     cy.get("h1, h2, h3", { timeout: 15000 }).should("exist");
-    cy.get('input[placeholder*="Search" i], input[type="search"], select, [role="combobox"], [data-testid*="search"], [data-testid*="filter"]', { timeout: 10000 })
+    cy.get('input[placeholder*="Search"], input[type="search"], select, [role="combobox"], [data-testid*="search"], [data-testid*="filter"]', { timeout: 10000 })
       .should("have.length.greaterThan", 0);
   });
 

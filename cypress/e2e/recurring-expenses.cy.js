@@ -9,6 +9,8 @@
 describe("Recurring Expenses - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
+    cy.intercept("GET", "**/api/recurring-expenses*").as("getRecurringExpenses");
+    cy.intercept("GET", "**/api/expense-categories*").as("getExpenseCategories");
   });
 
   it("should load expenses hub", () => {
@@ -28,15 +30,15 @@ describe("Recurring Expenses - E2E Tests", () => {
   });
 
   it("should load recurring expenses page", () => {
-    cy.interceptAPI("GET", "/api/recurring-expenses*", "getRecurringExpenses");
     cy.visit("/app/recurring-expenses");
+    cy.wait("@getRecurringExpenses");
     cy.verifyPageLoads("Recurring", "/app/recurring-expenses");
   });
 
   it("should render recurring expenses table", () => {
-    cy.interceptAPI("GET", "/api/recurring-expenses*", "getRecurringExpenses");
     cy.visit("/app/recurring-expenses");
     cy.wait("@getRecurringExpenses");
+    cy.get("body", { timeout: 10000 }).should("be.visible");
     cy.get("body").then(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasContent = $body.text().length > 100;
@@ -45,9 +47,9 @@ describe("Recurring Expenses - E2E Tests", () => {
   });
 
   it("should have a create recurring expense button", () => {
-    cy.interceptAPI("GET", "/api/recurring-expenses*", "getRecurringExpenses");
     cy.visit("/app/recurring-expenses");
     cy.wait("@getRecurringExpenses");
+    cy.get("body", { timeout: 10000 }).should("be.visible");
     cy.get("body").then(($body) => {
       const hasButton =
         $body.find("button, a").filter(function () {
@@ -58,9 +60,9 @@ describe("Recurring Expenses - E2E Tests", () => {
   });
 
   it("should display table with expected columns", () => {
-    cy.interceptAPI("GET", "/api/recurring-expenses*", "getRecurringExpenses");
     cy.visit("/app/recurring-expenses");
     cy.wait("@getRecurringExpenses");
+    cy.get("body", { timeout: 10000 }).should("be.visible");
     cy.get("table", { timeout: 10000 }).then(($table) => {
       if ($table.length > 0) {
         const headerText = $table.find("thead").text().toLowerCase();
