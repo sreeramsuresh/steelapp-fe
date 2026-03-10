@@ -34,7 +34,7 @@ import { clearInventoryCache } from "../../utils/inventorySyncUtils";
 /**
  * Format quantity with unit
  */
-const formatQuantity = (quantity, unit = "KG") => {
+const formatQuantity = (quantity, unit = "PCS") => {
   const num = parseFloat(quantity) || 0;
   return `${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
@@ -334,12 +334,23 @@ const StockReceiptForm = ({
     }));
   };
 
+  // Check if an item uses weight-based pricing (PER_MT or PER_KG)
+  const isWeightBased = (item) => {
+    const basis = item?.pricingBasis || item?.pricing_basis || "";
+    return basis === "PER_MT" || basis === "PER_KG";
+  };
+
   // Calculate weight per piece (derived from PCS and actual weight)
-  const calculateWeightPerPiece = (itemId) => {
+  const calculateWeightPerPiece = (itemId, item) => {
     const pcs = parseInt(pcsReceived[itemId], 10) || 0;
     const weight = parseFloat(actualWeights[itemId]) || 0;
     if (pcs > 0 && weight > 0) {
       return (weight / pcs).toFixed(3);
+    }
+    // Fallback to product's unit_weight_kg if available
+    const unitWeight = item?.unitWeightKg || item?.unit_weight_kg || 0;
+    if (unitWeight > 0) {
+      return parseFloat(unitWeight).toFixed(3);
     }
     return "0.000";
   };
@@ -350,7 +361,9 @@ const StockReceiptForm = ({
   };
 
   // Calculate weight variance for an item (Epic 3 - RECV-002)
-  const calculateWeightVariance = (itemId) => {
+  // Skip for PER_PCS products — weight variance is only relevant for weight-based pricing
+  const calculateWeightVariance = (itemId, item) => {
+    if (!isWeightBased(item)) return { variance: 0, percentage: 0 };
     const expected = parseFloat(expectedWeights[itemId]) || 0;
     const actual = parseFloat(actualWeights[itemId]) || 0;
     if (expected === 0) return { variance: 0, percentage: 0 };
@@ -395,7 +408,7 @@ const StockReceiptForm = ({
           if (qty > 0) {
             const item = receivableItems.find((i) => i.id === parseInt(itemId, 10));
             if (item) {
-              const { variance, percentage } = calculateWeightVariance(parseInt(itemId, 10));
+              const { variance, percentage } = calculateWeightVariance(parseInt(itemId, 10), item);
               // PCS-Centric Tracking (Phase 5)
               const itemPcs = parseInt(pcsReceived[itemId], 10) || 1;
               const itemWeightKg = parseFloat(actualWeights[itemId]) || qty;
@@ -898,7 +911,7 @@ const StockReceiptForm = ({
                               <td className={`p-3 border-b ${tableBorder} text-right font-mono ${textMuted}`}>
                                 {!isComplete && isSelected ? (
                                   <span title={isSinglePiece(item.id) ? "Single piece (coil)" : "Weight per piece"}>
-                                    {calculateWeightPerPiece(item.id)}
+                                    {calculateWeightPerPiece(item.id, item)}
                                     {isSinglePiece(item.id) && <span className="ml-1 text-xs text-yellow-400">🔶</span>}
                                   </span>
                                 ) : (
@@ -925,7 +938,7 @@ const StockReceiptForm = ({
                               <td className={`p-3 border-b ${tableBorder} text-center`}>
                                 {!isComplete && isSelected ? (
                                   (() => {
-                                    const { percentage } = calculateWeightVariance(item.id);
+                                    const { percentage } = calculateWeightVariance(item.id, item);
                                     const isHighVariance = Math.abs(percentage) > 5;
                                     return (
                                       <span

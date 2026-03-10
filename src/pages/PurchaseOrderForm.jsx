@@ -532,7 +532,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
       hsnCode: product.hsnCode || "",
       unit: product.unit || "kg",
       quantity: 0,
-      rate: product.sellingPrice || product.purchasePrice || 0,
+      rate: product.lastPurchaseCost || product.purchasePrice || product.costPrice || 0,
       discountType: "amount",
       discount: 0,
       vatRate: 5,
@@ -1243,7 +1243,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
         (pricingBasis === "PER_MT" || pricingBasis === "PER_KG") && quantityUom === "PCS" && !unitWeightKg;
 
       const quantity = updatedItems[index].quantity || 0;
-      const rate = product.sellingPrice || product.purchasePrice || product.price || 0;
+      const rate = product.lastPurchaseCost || product.purchasePrice || product.costPrice || product.price || 0;
 
       // Calculate theoretical weight
       let theoreticalWeightKg = null;
@@ -1384,7 +1384,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
       const discount = field === "discount" ? parseFloat(value) || 0 : item.discount || 0;
       const discountType = field === "discountType" ? value : item.discountType || "amount";
       const unitWeightKg = field === "unitWeightKg" ? parseFloat(value) || null : item.unitWeightKg;
-      const pricingBasis = field === "pricingBasis" ? value : item.pricingBasis || "PER_MT";
+      const pricingBasis = field === "pricingBasis" ? value : item.pricingBasis || "PER_PCS";
       const quantityUom = item.quantityUom || "PCS";
 
       // Calculate gross amount using pricing-aware function
@@ -1484,7 +1484,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
           procurementChannel: "LOCAL",
           importContainerId: null,
           // Pricing & Commercial Fields
-          pricingBasis: "PER_MT",
+          pricingBasis: "PER_PCS",
           unitWeightKg: null,
           quantityUom: "PCS",
           theoreticalWeightKg: null,
@@ -1635,7 +1635,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
         // Buyer fields
         buyer_name: poData.buyerName || null,
         buyer_email: poData.buyerEmail || null,
-        buyer_phone: poData.buyerPhone || null,
+        ...(poData.buyerPhone ? { buyer_phone: poData.buyerPhone } : {}),
         buyer_department: poData.buyerDepartment || null,
         // Trade terms
         incoterms: poData.incoterms || null,
@@ -1680,7 +1680,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
           product_type: item.productType || item.name || "",
           name: item.name || item.productType || "",
           grade: item.grade || null,
-          thickness: item.thickness || null,
+          thickness: item.thickness ? String(item.thickness) : null,
           size: item.size || null,
           finish: item.finish || null,
           specification: item.specifications || null,
@@ -1688,9 +1688,10 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
           rate: parseFloat(item.rate) || 0,
           amount: parseFloat(item.amount) || 0,
           vat_rate: parseFloat(item.vatRate) || 5,
+          vat_amount: parseFloat(((item.amount || 0) * (item.vatRate || 0)) / 100) || 0,
           unit: item.unit || "kg",
           // Pricing & Commercial Fields
-          pricing_basis: item.pricingBasis || "PER_MT",
+          pricing_basis: item.pricingBasis || "PER_PCS",
           unit_weight_kg: item.unitWeightKg ? parseFloat(item.unitWeightKg) : null,
           quantity_uom: item.quantityUom || "PCS",
           theoretical_weight_kg: item.theoreticalWeightKg ? parseFloat(item.theoreticalWeightKg) : null,
@@ -2157,7 +2158,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                         amountDisplay={formatCurrency(item.amount)}
                         amountBreakdown={
                           item.quantity && item.rate
-                            ? `${item.quantity} ${item.quantityUom || "pcs"} × ${item.rate}/${getBasisLabel(item.pricingBasis || "PER_MT").replace("per ", "")}`
+                            ? `${item.quantity} ${item.quantityUom || "pcs"} × ${item.rate}/${getBasisLabel(item.pricingBasis || "PER_PCS").replace("per ", "")}`
                             : null
                         }
                         row1Content={
@@ -2312,7 +2313,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                                   placeholder="0.00"
                                 />
                                 <select
-                                  value={item.pricingBasis || "PER_MT"}
+                                  value={item.pricingBasis || "PER_PCS"}
                                   onChange={(e) => handleItemChange(index, "pricingBasis", e.target.value)}
                                   disabled={isPriceLocked}
                                   className={`h-[38px] px-2 text-[11px] font-bold uppercase tracking-[0.03em] border-l cursor-pointer outline-none ${

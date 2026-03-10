@@ -558,12 +558,9 @@ export const generateInvoiceNumber = () => {
 };
 
 export const generatePONumber = () => {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const yearMonth = `${year}${month}`;
-  // Placeholder counter - real number comes from backend API
-  return `PO-${yearMonth}-0001`;
+  // Return empty string — real PO number is assigned by the backend on save
+  // Placeholder numbers caused confusion and contract validation issues
+  return "";
 };
 
 export const generateQuotationNumber = () => {

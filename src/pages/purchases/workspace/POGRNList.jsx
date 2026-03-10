@@ -31,7 +31,7 @@ export default function POGRNList() {
     setLoading(true);
     try {
       const data = await grnService.getByPurchaseOrder(poId);
-      setGrns(Array.isArray(data) ? data : data?.grns || data?.goods_received_notes || []);
+      setGrns(Array.isArray(data) ? data : data?.data || data?.grns || data?.goods_received_notes || []);
     } catch {
       setGrns(summary?.grns?.preview || []);
     } finally {

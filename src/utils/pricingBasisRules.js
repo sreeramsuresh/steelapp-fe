@@ -54,8 +54,8 @@ export function getAllowedBases(category) {
  * Falls back to PER_MT if category is unknown/null.
  */
 export function getDefaultBasis(category) {
-  if (!category) return "PER_MT";
-  return DEFAULT_PRICING_BASIS[category.toUpperCase()] || "PER_MT";
+  if (!category) return "PER_PCS";
+  return DEFAULT_PRICING_BASIS[category.toUpperCase()] || "PER_PCS";
 }
 
 /**
