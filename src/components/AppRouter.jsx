@@ -959,7 +959,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="my-commissions"
               element={
-                <ProtectedRoute user={user}>
+                <ProtectedRoute user={user} requiredPermission="commissions.read">
                   <AgentCommissionDashboard />
                 </ProtectedRoute>
               }
@@ -967,7 +967,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="commission-dashboard"
               element={
-                <ProtectedRoute user={user}>
+                <ProtectedRoute user={user} requiredPermission="commissions.read">
                   <CommissionDashboard />
                 </ProtectedRoute>
               }
@@ -1298,7 +1298,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="countries"
               element={
-                <ProtectedRoute user={user}>
+                <ProtectedRoute user={user} requiredPermission="country.read">
                   <CountriesList />
                 </ProtectedRoute>
               }
@@ -1306,7 +1306,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="exchange-rates"
               element={
-                <ProtectedRoute user={user}>
+                <ProtectedRoute user={user} requiredPermission="exchange_rates.read">
                   <ExchangeRateList />
                 </ProtectedRoute>
               }
@@ -1661,20 +1661,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="batch-analytics"
               element={
-                <ProtectedRoute
-                  user={user}
-                  requiredRoles={[
-                    "warehouse_manager",
-                    "inventory_controller",
-                    "supervisor",
-                    "manager",
-                    "admin",
-                    "super_admin",
-                    "finance_manager",
-                    "accountant",
-                    "director",
-                  ]}
-                >
+                <ProtectedRoute user={user} requiredPermission="inventory.read">
                   <BatchAnalyticsPage />
                 </ProtectedRoute>
               }
