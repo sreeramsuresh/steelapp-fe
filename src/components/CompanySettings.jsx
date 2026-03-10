@@ -5,6 +5,7 @@ import {
   Camera,
   ChevronDown,
   ChevronUp,
+  Code,
   Edit,
   FileText,
   Globe,
@@ -22,7 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useApi, useApiData } from "../hooks/useApi";
 import FTAIntegrationSettings from "../pages/FTAIntegrationSettings";
@@ -37,6 +38,7 @@ import VATRulesHelpPanel from "./VATRulesHelpPanel";
 // Lazy-loaded heavy tab components (code-split into separate chunks)
 const DocumentTemplatesTab = lazy(() => import("./settings/DocumentTemplatesTab"));
 const PrintingSettingsTab = lazy(() => import("./settings/PrintingSettingsTab"));
+const DependabotDashboardTab = lazy(() => import("./settings/DependabotDashboardTab"));
 
 // Tab loading skeleton
 const TabSkeleton = () => {
@@ -322,8 +324,9 @@ const TextField = ({
 
 const CompanySettings = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isDarkMode } = useTheme();
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState(() => searchParams.get("tab") || "profile");
 
   // Delete confirmation state
   const [deleteConfirm, setDeleteConfirm] = useState({
@@ -2287,6 +2290,8 @@ const CompanySettings = () => {
     { id: "tax", label: "VAT Rates", icon: Calculator },
     { id: "fta", label: "FTA Integration", icon: Key },
     { id: "product-naming", label: "Product Naming System", icon: Tag },
+    { id: "divider", divider: true, label: "Dev Only" },
+    { id: "dependabot", label: "Dependabot", icon: Code },
   ];
 
   // Debug logging
@@ -2331,8 +2336,18 @@ const CompanySettings = () => {
         <div
           className={`${isDarkMode ? "bg-gray-800 border-y border-[#37474F]" : "bg-white border-y border-gray-200"}`}
         >
-          <div className={`flex flex-wrap gap-2 p-2 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`flex flex-wrap gap-2 p-2 items-center ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             {tabs.map((tab) => {
+              if (tab.divider) {
+                return (
+                  <span
+                    key={tab.id}
+                    className={`text-[10px] uppercase tracking-widest font-semibold ml-2 mr-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+                  >
+                    | {tab.label}
+                  </span>
+                );
+              }
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
               return (
@@ -2377,6 +2392,11 @@ const CompanySettings = () => {
         {activeTab === "tax" && renderVatSettings()}
         {activeTab === "fta" && <FTAIntegrationSettings embedded />}
         {activeTab === "product-naming" && renderProductNamingSystem()}
+        {activeTab === "dependabot" && (
+          <Suspense fallback={<TabSkeleton />}>
+            <DependabotDashboardTab />
+          </Suspense>
+        )}
       </div>
 
       {/* Delete Confirmation Dialog */}

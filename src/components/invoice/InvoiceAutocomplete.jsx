@@ -208,6 +208,7 @@ const Autocomplete = ({
           value={inputValue || ""}
           onChange={handleInputChange}
           onFocus={() => setIsOpen(true)}
+          autoComplete="off"
           onBlur={() =>
             setTimeout(() => {
               if (!isSelectingRef.current) setIsOpen(false);
