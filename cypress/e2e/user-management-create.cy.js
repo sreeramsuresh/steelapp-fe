@@ -5,10 +5,9 @@
 describe("User Management - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
-    cy.intercept("GET", "**/api/users*").as("getUsers");
     cy.visit("/app/users");
-    cy.wait("@getUsers");
-    cy.get("body", { timeout: 10000 }).should("be.visible");
+    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.contains("h1, h2, h3, h4", /user/i, { timeout: 15000 }).should("be.visible");
   });
 
   it("should load page with User Management heading", () => {

@@ -53,7 +53,7 @@ describe("Customers Master Data - E2E Tests", () => {
     it("should switch to Suppliers tab", () => {
       cy.visit("/app/customers");
       cy.contains("Customer Management", { timeout: 15000 });
-      cy.contains("Suppliers").click();
+      cy.contains("button", "Suppliers").click();
       // After clicking Suppliers tab, the page should update
       cy.get("table", { timeout: 10000 }).should("be.visible");
     });

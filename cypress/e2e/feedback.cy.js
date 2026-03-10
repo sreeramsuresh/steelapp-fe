@@ -26,12 +26,16 @@ describe("Feedback", () => {
   });
 
   it("should have a feedback submission mechanism", () => {
-    cy.visit("/app/dashboard");
+    cy.visit("/app/feedback");
     cy.get("body", { timeout: 15000 }).should("be.visible");
 
-    // Verify page loads correctly
+    // Verify feedback page has submission controls (form, button, or input)
     cy.get("body").then(($body) => {
-      expect($body.text().length).to.be.greaterThan(10);
+      const hasSubmitControl =
+        $body.find("form").length > 0 ||
+        $body.find("textarea").length > 0 ||
+        $body.find("button:contains('Submit'), button:contains('Send')").length > 0;
+      expect(hasSubmitControl || $body.find("button").length > 0, "Should have feedback submission controls").to.be.true;
     });
   });
 

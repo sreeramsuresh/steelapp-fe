@@ -6,10 +6,11 @@
  */
 
 describe("Error Recovery Scenarios", () => {
-  it("should redirect non-existent route to login or app", () => {
+  it("should redirect non-existent route to app when authenticated", () => {
+    cy.login();
     cy.visit("/app/this-page-does-not-exist", { timeout: 15000, failOnStatusCode: false });
-    // Should redirect to /app or show a not-found state
-    cy.url({ timeout: 15000 }).should("match", /\/(app|login)/);
+    // Should redirect to /app (catch-all route) when authenticated
+    cy.url({ timeout: 15000 }).should("include", "/app");
     cy.get("body").should("be.visible");
   });
 

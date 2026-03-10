@@ -18,7 +18,7 @@ describe("User Activity Logging", () => {
   it("should display activity data in the table", () => {
     cy.visit("/app/audit-logs", { timeout: 15000 });
     cy.get("table", { timeout: 15000 }).should("exist");
-    cy.get("tbody tr").should("have.length.greaterThan", 0);
+    cy.get("tbody tr", { timeout: 15000 }).should("have.length.greaterThan", 0);
   });
 
   it("should have clickable table rows", () => {

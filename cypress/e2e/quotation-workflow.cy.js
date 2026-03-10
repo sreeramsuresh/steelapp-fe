@@ -32,7 +32,7 @@ describe("Quotation Workflow - E2E Tests", () => {
       cy.wait("@getQuotations");
       cy.get("body", { timeout: 10000 }).should("be.visible");
       cy.get("table", { timeout: 10000 }).should("exist");
-      cy.get("table", { timeout: 10000 }).should("exist");
+      cy.get("table thead th").should("have.length.greaterThan", 2);
     });
 
     it("should have search input for filtering quotations", () => {

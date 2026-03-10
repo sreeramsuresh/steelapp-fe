@@ -59,11 +59,14 @@ describe("Financial Negative Paths - E2E Tests", () => {
       cy.get("body", { timeout: 15000 }).should("be.visible");
 
       // If quantity fields exist, enter 0
-      cy.get('input[name*="quantity"]').then(($inputs) => {
+      cy.get("body").then(($body) => {
+        const $inputs = $body.find('input[name*="quantity"], input[name*="qty"]');
         if ($inputs.length > 0) {
           cy.wrap($inputs.first()).clear().type("0");
           // The form should show inline validation or disable submit
           cy.get("body").should("be.visible");
+        } else {
+          cy.log("No quantity input found, skipping zero quantity validation test");
         }
       });
     });

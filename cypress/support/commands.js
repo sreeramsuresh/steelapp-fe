@@ -188,8 +188,8 @@ Cypress.Commands.add("loginViaUI", (email, password) => {
 
   cy.visit("/login");
 
-  // Wait for page to fully load
-  cy.wait(2000);
+  // Wait for login form to be ready
+  cy.get('input[type="email"], input[name="email"]', { timeout: 10000 }).should("be.visible");
 
   // Check current URL - if already logged in (auto-login), we're done
   cy.url().then((currentUrl) => {
@@ -293,14 +293,8 @@ Cypress.Commands.add("selectCustomer", (customerName) => {
   // Wait for customers to load first
   cy.wait("@getCustomers", { timeout: 10000 });
 
-  // Additional wait to ensure data is processed
-  cy.wait(500);
-
   // Click input to focus and open dropdown
   cy.get('[data-testid="customer-autocomplete"]').click().should("be.focused");
-
-  // Wait for dropdown to potentially appear
-  cy.wait(300);
 
   // Type to filter (don't clear - let autocomplete filter)
   // Use {selectall} first to select existing text without blur
@@ -314,19 +308,14 @@ Cypress.Commands.add("selectCustomer", (customerName) => {
     .should("exist")
     .should("be.visible");
 
-  // Wait a moment for options to filter
-  cy.wait(300);
-
   // Click the option that contains the customer name
-  // Note: Autocomplete uses onMouseDown, we need to click directly (not trigger)
-  // Using click() instead of trigger() to properly simulate user interaction
   cy.get('[data-testid="customer-autocomplete-listbox"]')
     .find('[role="option"]')
     .contains(customerName, { matchCase: false })
     .click();
 
-  // Wait for dropdown to close and selection to complete
-  cy.wait(500);
+  // Verify selection completed (dropdown closed)
+  cy.get('[data-testid="customer-autocomplete-listbox"]').should("not.exist");
 
   cy.log(`✓ Customer "${customerName}" selected`);
 });
@@ -344,14 +333,8 @@ Cypress.Commands.add("selectProduct", (lineIndex, productName) => {
   // Get the product autocomplete input for this specific line
   const testId = `product-autocomplete-${lineIndex}`;
 
-  // Wait for products to load (assume intercept is already set up)
-  cy.wait(500);
-
   // Focus the autocomplete input
   cy.get(`[data-testid="${testId}"]`).focus().should("be.focused");
-
-  // Wait for dropdown to open after focus
-  cy.wait(200);
 
   // Clear and type the product name slowly
   cy.get(`[data-testid="${testId}"]`).clear().type(productName, { delay: 100 });
@@ -361,17 +344,14 @@ Cypress.Commands.add("selectProduct", (lineIndex, productName) => {
     "be.visible",
   );
 
-  // Wait for options to filter
-  cy.wait(500);
-
   // Click the option containing the product name
   cy.get(`[data-testid="${testId}-listbox"]`)
     .find('[role="option"]')
     .contains(productName, { matchCase: false })
     .click();
 
-  // Wait for dropdown to close and product selection to complete
-  cy.wait(500);
+  // Verify selection completed (dropdown closed)
+  cy.get(`[data-testid="${testId}-listbox"]`).should("not.exist");
 
   cy.log(`✓ Product "${productName}" added at line ${lineIndex}`);
 });
