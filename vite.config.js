@@ -7,7 +7,9 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const __vite_dirname = dirname(fileURLToPath(import.meta.url));
-const appVersion = readFileSync(resolve(__vite_dirname, "../VERSION"), "utf-8").trim();
+// Read version from backend package.json (bumped by semantic-release)
+const backendPkg = JSON.parse(readFileSync(resolve(__vite_dirname, "../steelapprnp/package.json"), "utf-8"));
+const appVersion = backendPkg.version;
 
 function createProxy() {
   const target = "http://localhost:3000";
