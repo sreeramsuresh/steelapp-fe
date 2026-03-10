@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { costCenterService } from "../services/costCenterService";
 
 const COST_CENTER_TYPES = ["WAREHOUSE", "DEPARTMENT", "PROJECT", "OVERHEAD"];
@@ -9,6 +9,8 @@ const CostCenterList = () => {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [showHelper, setShowHelper] = useState(false);
+  const helperRef = useRef(null);
   const [form, setForm] = useState({
     code: "",
     name: "",
@@ -32,6 +34,16 @@ const CostCenterList = () => {
   useEffect(() => {
     fetchCostCenters();
   }, [fetchCostCenters]);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (helperRef.current && !helperRef.current.contains(e.target)) {
+        setShowHelper(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   const resetForm = () => {
     setForm({ code: "", name: "", type: "DEPARTMENT", warehouseId: "", departmentId: "" });
@@ -87,7 +99,46 @@ const CostCenterList = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Cost Centers</h1>
+        <div className="flex items-center gap-2 relative" ref={helperRef}>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Cost Centers</h1>
+          <button
+            type="button"
+            onClick={() => setShowHelper((v) => !v)}
+            className="text-gray-400 hover:text-blue-500 focus:outline-none"
+            title="What is a Cost Center?"
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-label="Help">
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+          {showHelper && (
+            <div className="absolute left-0 top-full mt-2 w-80 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 text-sm text-gray-700 dark:text-gray-300">
+              <p className="font-semibold text-gray-900 dark:text-white mb-2">What is a Cost Center?</p>
+              <p className="mb-2">
+                A cost center is an organizational unit that incurs costs but does not directly generate revenue. It
+                helps track where money is being spent.
+              </p>
+              <ul className="space-y-1 ml-4 list-disc text-xs">
+                <li>
+                  <strong>Warehouse</strong> — Tracks expenses for a physical storage location
+                </li>
+                <li>
+                  <strong>Department</strong> — Groups costs by team (e.g. Sales, HR, Admin)
+                </li>
+                <li>
+                  <strong>Project</strong> — Time-bound initiative with its own spending limit
+                </li>
+                <li>
+                  <strong>Overhead</strong> — Shared costs not tied to one area (e.g. rent, utilities)
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
         <button
           type="button"
           onClick={() => {

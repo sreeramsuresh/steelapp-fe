@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { costCenterBudgetService } from "../services/costCenterBudgetService";
 import { costCenterService } from "../services/costCenterService";
 
@@ -11,6 +11,8 @@ export default function CostCenterBudgetList() {
     fiscalYear: new Date().getFullYear(),
     costCenterId: "",
   });
+  const [showHelper, setShowHelper] = useState(false);
+  const helperRef = useRef(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     costCenterId: "",
@@ -45,6 +47,16 @@ export default function CostCenterBudgetList() {
     fetchBudgets();
     fetchCostCenters();
   }, [fetchBudgets, fetchCostCenters]);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (helperRef.current && !helperRef.current.contains(e.target)) {
+        setShowHelper(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -81,7 +93,43 @@ export default function CostCenterBudgetList() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Cost Center Budgets</h1>
+        <div className="flex items-center gap-2 relative" ref={helperRef}>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Cost Center Budgets</h1>
+          <button
+            type="button"
+            onClick={() => setShowHelper((v) => !v)}
+            className="text-gray-400 hover:text-blue-500 focus:outline-none"
+            title="What is a Budget?"
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-label="Help">
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+          {showHelper && (
+            <div className="absolute left-0 top-full mt-2 w-80 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 text-sm text-gray-700 dark:text-gray-300">
+              <p className="font-semibold text-gray-900 dark:text-white mb-2">What is a Budget?</p>
+              <p className="mb-2">
+                A budget sets the maximum planned spend (in AED) for a cost center over a period. Actual expenses are
+                compared against it in reports.
+              </p>
+              <ul className="space-y-1 ml-4 list-disc text-xs">
+                <li>
+                  <strong>Annual</strong> — Covers the full fiscal year when no month is selected
+                </li>
+                <li>
+                  <strong>Monthly</strong> — Targets a specific month for finer tracking
+                </li>
+                <li>
+                  <strong>Category</strong> — Optionally limit to an expense type (e.g. Salaries, Rent)
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
         <button
           type="button"
           onClick={() => setShowForm(!showForm)}
