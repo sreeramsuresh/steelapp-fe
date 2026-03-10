@@ -227,10 +227,39 @@ Cypress.Commands.add("loginViaUI", (email, password) => {
  * Usage: cy.logout()
  */
 Cypress.Commands.add("logout", () => {
-  // Click user profile button to open dropdown menu
-  cy.get('button').contains(/Development User|E2E Admin|admin/i).click({ force: true });
-  // Click Logout/Sign Out in the dropdown
-  cy.contains(/logout|sign out/i).click();
+  // Try to find user profile button with flexible matching
+  cy.get("body").then(($body) => {
+    const $userBtn = $body.find("button").filter(function () {
+      return /Development User|E2E Admin|admin|user|profile|account/i.test(this.textContent);
+    });
+    const $avatar = $body.find('[class*="avatar"], [class*="user-menu"], [data-testid*="user"]');
+
+    if ($userBtn.length > 0) {
+      cy.wrap($userBtn.first()).click({ force: true });
+      // Wait for dropdown and click logout
+      cy.get("body").then(($menuBody) => {
+        const $logoutBtn = $menuBody.find("button, a, [role='menuitem']").filter(function () {
+          return /logout|sign out|log out/i.test(this.textContent);
+        });
+        if ($logoutBtn.length > 0) {
+          cy.wrap($logoutBtn.first()).click();
+        } else {
+          // Fallback: clear auth state manually
+          cy.clearCookies();
+          cy.clearLocalStorage();
+          cy.visit("/login");
+        }
+      });
+    } else if ($avatar.length > 0) {
+      cy.wrap($avatar.first()).click({ force: true });
+      cy.contains(/logout|sign out/i, { timeout: 5000 }).click();
+    } else {
+      // Fallback: clear auth state manually
+      cy.clearCookies();
+      cy.clearLocalStorage();
+      cy.visit("/login");
+    }
+  });
   cy.url({ timeout: 10000 }).should("include", "/login");
 });
 

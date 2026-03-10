@@ -41,6 +41,10 @@ describe("Policy Snapshots Management", () => {
   it("should not display an error state", () => {
     cy.visit("/app/settings", { timeout: 15000 });
     cy.get("body", { timeout: 10000 }).should("be.visible");
-    cy.contains("Something went wrong").should("not.exist");
+    cy.get("body").then(($body) => {
+      const text = $body.text().toLowerCase();
+      const hasError = text.includes("something went wrong") || text.includes("error occurred");
+      expect(hasError, "Page should not display an error state").to.be.false;
+    });
   });
 });
