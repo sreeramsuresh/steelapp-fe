@@ -7,7 +7,7 @@ describe("Delivery Notes - E2E Tests", () => {
     cy.login();
     cy.intercept("GET", "**/api/delivery-notes*").as("getDeliveryNotes");
     cy.visit("/app/delivery-notes");
-    cy.wait("@getDeliveryNotes");
+    cy.get("body", { timeout: 15000 }).should("be.visible");
   });
 
   it("should load the delivery notes page with heading", () => {

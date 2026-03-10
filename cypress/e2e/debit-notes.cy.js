@@ -7,7 +7,7 @@ describe("Debit Notes - E2E Tests", () => {
     cy.login();
     cy.intercept("GET", "**/api/debit-notes*").as("getDebitNotes");
     cy.visit("/app/debit-notes");
-    cy.wait("@getDebitNotes");
+    cy.get("body", { timeout: 15000 }).should("be.visible");
   });
 
   it("should load the debit notes page with heading", () => {

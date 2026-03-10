@@ -17,12 +17,22 @@ describe("Full Sales Cycle - E2E Tests", () => {
   describe("Sales Module Navigation", () => {
     it("should load the quotations page", () => {
       cy.visit("/app/quotations");
-      cy.verifyPageLoads("Quotation", "/app/quotations");
+      cy.get("body", { timeout: 15000 }).should("be.visible");
+      cy.url().should("include", "/app/quotations");
+      cy.get("body").should(($body) => {
+        const text = $body.text().toLowerCase();
+        expect(text).to.include("quotation");
+      });
     });
 
     it("should load the invoices page", () => {
       cy.visit("/app/invoices");
-      cy.verifyPageLoads("Invoice", "/app/invoices");
+      cy.get("body", { timeout: 15000 }).should("be.visible");
+      cy.url().should("include", "/app/invoices");
+      cy.get("body").should(($body) => {
+        const text = $body.text().toLowerCase();
+        expect(text).to.include("invoice");
+      });
     });
 
     it("should load the delivery notes page", () => {

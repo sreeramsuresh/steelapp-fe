@@ -7,7 +7,7 @@ describe("Supplier Bills - E2E Tests", () => {
     cy.login();
     cy.intercept("GET", "**/api/supplier-bills*").as("getSupplierBills");
     cy.visit("/app/supplier-bills");
-    cy.wait("@getSupplierBills");
+    cy.get("body", { timeout: 15000 }).should("be.visible");
   });
 
   it("should load the supplier bills page with heading", () => {

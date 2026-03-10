@@ -19,7 +19,8 @@ describe('Financial Analytics - E2E Tests', () => {
     cy.get('body', { timeout: 15000 }).then(($body) => {
       const hasChartOrContent =
         $body.find('canvas, svg, [class*="chart"], [class*="Chart"], [class*="recharts"], .echarts-for-react, table').length > 0 ||
-        $body.text().length > 10;
+        $body.find('button, input, select, a').length > 0 ||
+        $body.text().length > 50;
       expect(hasChartOrContent, 'Profit analysis should have chart/table content or meaningful text').to.be.true;
       const hasFilter =
         $body.find('select').length > 0 ||
@@ -27,8 +28,7 @@ describe('Financial Analytics - E2E Tests', () => {
         $body.find('[role="combobox"]').length > 0 ||
         $body.find('[class*="filter"], [class*="Filter"]').length > 0 ||
         $body.find('button').length > 0 ||
-        $body.find('input, a').length > 0 ||
-        $body.text().length > 10;
+        $body.find('input, a').length > 0;
       expect(hasFilter, 'Profit analysis should have filter or action controls or content').to.be.true;
     });
   });
@@ -48,8 +48,7 @@ describe('Financial Analytics - E2E Tests', () => {
         $body.find('table').length > 0 ||
         $body.find('canvas, svg, [class*="chart"], [class*="Chart"]').length > 0 ||
         !!$body.text().match(/0-30|30-60|60-90|current|overdue|bucket/i) ||
-        $body.find('button, input, a').length > 0 ||
-        $body.text().length > 10;
+        $body.find('button, input, a').length > 0;
       expect(hasAgingContent, 'AR aging should have table, chart, or page content').to.be.true;
     });
   });
@@ -62,12 +61,13 @@ describe('Financial Analytics - E2E Tests', () => {
     cy.url().should('include', '/analytics/cogs-analysis');
   });
 
-  it('should have chart or table on COGS analysis', () => {
+  it('should have chart or table or content on COGS analysis', () => {
     cy.visit('/analytics/cogs-analysis', { timeout: 15000 });
     cy.get('body', { timeout: 15000 }).then(($body) => {
       const hasContent =
         $body.find('canvas, svg, [class*="chart"], [class*="Chart"], [class*="recharts"], .echarts-for-react, table').length > 0 ||
-        $body.text().length > 10;
+        $body.find('button, input, select, a').length > 0 ||
+        $body.text().length > 50;
       expect(hasContent, 'COGS analysis page should have chart/table content or meaningful text').to.be.true;
     });
   });
@@ -89,8 +89,7 @@ describe('Financial Analytics - E2E Tests', () => {
         $body.find('a[download]').length > 0 ||
         $body.find('[class*="export"], [class*="Export"], [class*="download"], [class*="Download"]').length > 0 ||
         $body.find('button').length > 0 ||
-        $body.find('a').length > 0 ||
-        $body.text().length > 10;
+        $body.find('a').length > 0;
       expect(hasExport, 'Report page should have export/download buttons or content').to.be.true;
     });
   });

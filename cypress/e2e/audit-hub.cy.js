@@ -26,8 +26,7 @@ describe("Audit Hub - E2E Tests", () => {
         text.includes("period") ||
         text.includes("total") ||
         text.includes("status") ||
-        $body.find("button, a, input, select").length > 0 ||
-        text.length > 10;
+        $body.find("button, a, input, select").length > 0;
       expect(hasSummary, "Dashboard should show summary content or page elements").to.be.true;
     });
   });
@@ -39,8 +38,7 @@ describe("Audit Hub - E2E Tests", () => {
       const text = $body.text().toLowerCase();
       const hasDatasetNav =
         text.includes("dataset") || text.includes("explore") || text.includes("data") ||
-        $body.find("a, button, [role='tab']").length > 0 ||
-        text.length > 10;
+        $body.find("a, button, [role='tab']").length > 0;
       expect(hasDatasetNav, "Should have dataset navigation or content").to.be.true;
     });
   });
@@ -55,8 +53,7 @@ describe("Audit Hub - E2E Tests", () => {
         text.includes("journal") ||
         text.includes("customer") ||
         text.includes("financial") ||
-        $body.find("button, a, [role='tab'], table, ul, ol").length > 0 ||
-        text.length > 10;
+        $body.find("button, a, [role='tab'], table, ul, ol").length > 0;
       expect(hasCategories, "Should show data categories or page content").to.be.true;
     });
   });
@@ -70,8 +67,7 @@ describe("Audit Hub - E2E Tests", () => {
         text.includes("approval") ||
         text.includes("review") ||
         text.includes("period") ||
-        $body.find("button, a, input, select").length > 0 ||
-        text.length > 10;
+        $body.find("button, a, input, select").length > 0;
       expect(hasSignOff, "Should have sign-off related content or page elements").to.be.true;
     });
   });
@@ -86,8 +82,7 @@ describe("Audit Hub - E2E Tests", () => {
         $body.find("[class*='grid'], [class*='Grid']").length > 0 ||
         $body.find("ul, ol").length > 0 ||
         $body.find("button").length > 0 ||
-        $body.find("a, input, select").length > 0 ||
-        $body.text().length > 10;
+        $body.find("a, input, select").length > 0;
       expect(hasList, "Should render data as list, table, cards, or page content").to.be.true;
     });
   });
@@ -98,8 +93,7 @@ describe("Audit Hub - E2E Tests", () => {
     cy.get("body").then(($body) => {
       const hasActions =
         $body.find("button").length > 0 ||
-        $body.find("a, input, select, [role='tab']").length > 0 ||
-        $body.text().length > 10;
+        $body.find("a, input, select, [role='tab']").length > 0;
       expect(hasActions, "Should have action buttons or interactive elements").to.be.true;
     });
   });

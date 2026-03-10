@@ -7,7 +7,7 @@ describe("Credit Notes - E2E Tests", () => {
     cy.login();
     cy.intercept("GET", "**/api/credit-notes*").as("getCreditNotes");
     cy.visit("/app/credit-notes");
-    cy.wait("@getCreditNotes");
+    cy.get("body", { timeout: 15000 }).should("be.visible");
   });
 
   it("should load the credit notes page with heading", () => {

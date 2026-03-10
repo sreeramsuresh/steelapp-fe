@@ -24,34 +24,32 @@ describe("Financial Negative Paths - E2E Tests", () => {
 
       // Try to save without selecting a customer
       cy.get("body").then(($body) => {
-        const saveBtn =
-          $body.find("button:contains('Save')")[0] ||
-          $body.find("button:contains('Create')")[0] ||
-          $body.find("[data-testid*='save']")[0];
-        if (saveBtn) {
-          cy.wrap(saveBtn).click();
-          // Should show validation error or remain on the form
-          cy.url().should("include", "/invoices");
+        const $saveBtn = $body.find("button").filter(function () {
+          return /Save|Create/i.test(this.textContent);
+        });
+        if ($saveBtn.length > 0) {
+          cy.wrap($saveBtn.first()).click();
         }
       });
+      // Should show validation error or remain on the form
+      cy.url().should("include", "/invoices");
     });
 
     it("should not submit invoice without line items", () => {
       cy.visit("/app/invoices/new");
-      cy.get("body", { timeout: 10000 }).should("be.visible");
       cy.get("body", { timeout: 15000 }).should("be.visible");
 
       // Try to submit with no line items added
       cy.get("body").then(($body) => {
-        const submitBtn =
-          $body.find("button:contains('Save')")[0] ||
-          $body.find("button:contains('Confirm')")[0];
-        if (submitBtn) {
-          cy.wrap(submitBtn).click();
-          // Should show validation error — stay on form
-          cy.url().should("include", "/invoices");
+        const $saveBtn = $body.find("button").filter(function () {
+          return /Save|Confirm/i.test(this.textContent);
+        });
+        if ($saveBtn.length > 0) {
+          cy.wrap($saveBtn.first()).click();
         }
       });
+      // Should show validation error — stay on form
+      cy.url().should("include", "/invoices");
     });
 
     it("should show validation error for zero quantity", () => {
@@ -106,34 +104,34 @@ describe("Financial Negative Paths - E2E Tests", () => {
 
       // Try to save empty form
       cy.get("body").then(($body) => {
-        const saveBtn =
-          $body.find("button:contains('Save')")[0] ||
-          $body.find("button:contains('Create')")[0];
-        if (saveBtn) {
-          cy.wrap(saveBtn).click();
-          // Should show validation or stay on form
-          cy.url().should("include", "/quotations");
+        const $saveBtn = $body.find("button").filter(function () {
+          return /Save|Create/i.test(this.textContent);
+        });
+        if ($saveBtn.length > 0) {
+          cy.wrap($saveBtn.first()).click();
         }
       });
+      // Should show validation or stay on form
+      cy.url().should("include", "/quotations");
     });
   });
 
   describe("Purchase Order Validation", () => {
     it("should not create PO without supplier selection", () => {
-      cy.visit("/app/purchase-orders/new");
+      cy.visit("/app/purchases/po/new");
       cy.get("body", { timeout: 15000 }).should("be.visible");
 
       // Try to save without supplier
       cy.get("body").then(($body) => {
-        const saveBtn =
-          $body.find("button:contains('Save')")[0] ||
-          $body.find("button:contains('Create')")[0];
-        if (saveBtn) {
-          cy.wrap(saveBtn).click();
-          // Should show validation error
-          cy.url().should("match", /purchase-orders|purchases/);
+        const $saveBtn = $body.find("button").filter(function () {
+          return /Save|Create/i.test(this.textContent);
+        });
+        if ($saveBtn.length > 0) {
+          cy.wrap($saveBtn.first()).click();
         }
       });
+      // Should show validation error
+      cy.url().should("match", /purchase-orders|purchases/);
     });
 
     it("should handle non-existent purchase order gracefully", () => {
