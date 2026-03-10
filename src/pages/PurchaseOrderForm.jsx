@@ -1677,6 +1677,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
         payment_status: paymentStatus,
         // Transform items array
         items: poData.items.map((item) => ({
+          product_id: item.productId || null,
           product_type: item.productType || item.name || "",
           name: item.name || item.productType || "",
           grade: item.grade || null,
