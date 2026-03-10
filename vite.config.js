@@ -3,7 +3,11 @@ import react from "@vitejs/plugin-react";
 import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
 import { readFileSync } from "node:fs";
-const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+
+const __vite_dirname = dirname(fileURLToPath(import.meta.url));
+const appVersion = readFileSync(resolve(__vite_dirname, "../VERSION"), "utf-8").trim();
 
 function createProxy() {
   const target = "http://localhost:3000";
@@ -34,7 +38,7 @@ export default defineConfig({
     pure: ["console.log", "console.info", "console.debug"],
   },
   define: {
-    __APP_VERSION__: JSON.stringify(pkg.version),
+    __APP_VERSION__: JSON.stringify(appVersion),
   },
   resolve: {
     alias: {

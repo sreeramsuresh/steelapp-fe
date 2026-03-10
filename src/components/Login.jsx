@@ -1,5 +1,5 @@
 import { Eye, EyeOff, Fingerprint, Lock, LogIn, Mail, Shield, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService, tokenUtils } from "../services/axiosAuthService";
@@ -305,6 +305,38 @@ const Login = ({ onLoginSuccess }) => {
   // Passkey state
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const isPasskeySupported = typeof window !== "undefined" && window.PublicKeyCredential !== undefined;
+  const passkeyAbortRef = useRef(null);
+
+  // Conditional UI: start passkey autofill on mount (Google-recommended pattern)
+  const startConditionalUI = useCallback(async () => {
+    if (!isPasskeySupported) return;
+    try {
+      const available = await window.PublicKeyCredential.isConditionalMediationAvailable?.();
+      if (!available) return;
+
+      const options = await authService.passkeyLoginStart();
+      const { startAuthentication } = await import("@simplewebauthn/browser");
+
+      passkeyAbortRef.current = new AbortController();
+      const credential = await startAuthentication({
+        optionsJSON: options,
+        useBrowserAutofill: true,
+        signal: passkeyAbortRef.current.signal,
+      });
+
+      const response = await authService.passkeyLoginFinish(credential);
+      if (onLoginSuccess && response.user) {
+        onLoginSuccess(response.user);
+      }
+    } catch {
+      // Conditional UI errors are silently ignored (user picked password instead, etc.)
+    }
+  }, [isPasskeySupported, onLoginSuccess]);
+
+  useEffect(() => {
+    startConditionalUI();
+    return () => passkeyAbortRef.current?.abort();
+  }, [startConditionalUI]);
 
   // Lockout countdown
   useEffect(() => {
@@ -496,8 +528,10 @@ const Login = ({ onLoginSuccess }) => {
     setLockoutOtpError("");
   };
 
-  // Handle passkey login
+  // Handle explicit passkey login (button click)
   const handlePasskeyLogin = async () => {
+    // Abort any pending conditional UI ceremony before starting a modal one
+    passkeyAbortRef.current?.abort();
     setPasskeyLoading(true);
     setError("");
     try {
@@ -509,8 +543,8 @@ const Login = ({ onLoginSuccess }) => {
         onLoginSuccess(response.user);
       }
     } catch (err) {
-      if (err.name === "NotAllowedError") {
-        // User cancelled — don't show error
+      if (err.name === "NotAllowedError" || err.name === "AbortError") {
+        // User cancelled or aborted — don't show error
       } else {
         setError(err.message || "Passkey authentication failed");
       }
@@ -568,7 +602,7 @@ const Login = ({ onLoginSuccess }) => {
                     id="email-input"
                     type="email"
                     name="email"
-                    autoComplete="email"
+                    autoComplete="username webauthn"
                     maxLength={254}
                     value={formData.email}
                     onChange={handleInputChange}
