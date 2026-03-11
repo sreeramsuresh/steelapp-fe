@@ -53,6 +53,7 @@ const transformSupplierBillForServer = (billData) => {
     importOrderId: billData.importOrderId || null,
     purchaseOrderId: billData.purchaseOrderId || null,
     purchaseOrderNumber: billData.purchaseOrderNumber || "",
+    linkedGrnId: billData.linkedGrnId || billData.grnId || null,
     // Company ID for multi-tenancy
     companyId: billData.companyId || null,
     // Items
