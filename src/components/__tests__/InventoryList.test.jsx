@@ -543,7 +543,7 @@ describe("InventoryList", () => {
 
       const { container } = render(<InventoryList />);
 
-      expect(container.querySelector(".bg-\\[\\#121418\\]")).toBeInTheDocument();
+      expect(container.querySelector(".bg-gray-900")).toBeInTheDocument();
     });
   });
 

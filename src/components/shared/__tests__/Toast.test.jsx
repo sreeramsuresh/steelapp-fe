@@ -177,7 +177,7 @@ describe("Toast Component", () => {
 
       // Error type icon is same as close button text, so check by position
       const { container } = renderWithProviders(<Toast {...defaultProps} type="error" message="msg" />);
-      const iconSpan = container.querySelector("span.flex-shrink-0.text-lg");
+      const iconSpan = container.querySelector("span.shrink-0.text-lg");
       expect(iconSpan.textContent).toBe("✕");
     });
   });

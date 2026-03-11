@@ -60,6 +60,7 @@ vi.mock("../LegacyRedirect", () => ({
 // Mock loading fallbacks
 vi.mock("../LoadingFallback", () => ({
   InvoiceFormLoadingFallback: () => <div>Loading invoice...</div>,
+  PageLoadingFallback: ({ label }) => <div>{label || "Loading..."}</div>,
 }));
 
 vi.mock("../AnalyticsLoadingScreen", () => ({
