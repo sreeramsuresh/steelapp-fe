@@ -83,18 +83,14 @@ describe("Invoice Workflows - E2E Tests", () => {
     });
   });
 
-  it("should navigate to invoice detail when clicking a table row", () => {
-    cy.get("body", { timeout: 15000 }).should(($body) => {
-      expect($body.text().toLowerCase()).to.include("invoice");
-    });
-    cy.get("body").then(($body) => {
-      if ($body.find("table tbody tr").length === 0) {
-        cy.log("No invoice rows available, skipping navigation test");
-        return;
-      }
-      cy.get("table tbody tr").first().click();
-      cy.url({ timeout: 10000 }).should("match", /\/app\/invoices\/\d+/);
-    });
+  it("should navigate to invoice detail when clicking edit in a table row", () => {
+    cy.get('[data-testid="invoice-list"]', { timeout: 15000 }).should("be.visible");
+    cy.get("table tbody tr", { timeout: 10000 }).should("have.length.at.least", 1);
+    cy.get("table tbody tr")
+      .first()
+      .find('[data-testid="invoice-row-edit"]')
+      .click();
+    cy.url({ timeout: 10000 }).should("match", /\/app\/invoices\/\d+/);
   });
 
   it("should have a create invoice button or link", () => {

@@ -397,6 +397,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
           {actions.editOrLock.enabled ? (
             <Link
               to={actions.editOrLock.link}
+              data-testid="invoice-row-edit"
               className={`p-2 rounded transition-all shadow-xs hover:shadow-md ${
                 isDarkMode
                   ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
