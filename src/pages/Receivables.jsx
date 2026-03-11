@@ -5,12 +5,12 @@ import PaymentDrawer from "../components/payments/PaymentDrawer";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
 import { useTheme } from "../contexts/ThemeContext";
+import { paymentsAPI } from "../services/api";
 import { authService } from "../services/axiosAuthService";
 import { invoiceService, payablesService } from "../services/dataService";
 import { notificationService } from "../services/notificationService";
 import { createPaymentPayload } from "../services/paymentService";
 import { formatCurrency, formatDateDMY } from "../utils/invoiceUtils";
-import { generatePaymentReceipt, printPaymentReceipt } from "../utils/paymentReceiptGenerator";
 import { PAYMENT_MODES } from "../utils/paymentUtils";
 import { uuid } from "../utils/uuid";
 
@@ -603,31 +603,11 @@ const Receivables = () => {
     }
   };
 
-  const handleDownloadReceipt = async (payment, paymentIndex) => {
-    const inv = drawer.item;
-    if (!inv) {
-      notificationService.error("Unable to generate receipt. Missing invoice information.");
-      return;
-    }
-
-    // Get company info from localStorage or API
-    const companyInfo = JSON.parse(localStorage.getItem("companySettings") || "{}");
-
+  const handleDownloadReceipt = async (payment) => {
     setDownloadingReceiptId(payment.id);
     try {
-      const invoiceData = {
-        invoiceNumber: inv.invoiceNo || inv.invoiceNumber,
-        total: getInvoiceAmount(inv),
-        payments: inv.payments || [],
-        customer: inv.customer || {
-          name: getCustomerName(inv),
-          id: getCustomerId(inv),
-        },
-      };
-      const result = await generatePaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
-      if (!result.success) {
-        notificationService.error(`Error generating receipt: ${result.error}`);
-      }
+      await paymentsAPI.downloadReceipt(payment.id);
+      notificationService.success("Receipt downloaded successfully");
     } catch (error) {
       console.error("Error downloading receipt:", error);
       notificationService.error("Failed to generate receipt. Please try again.");
@@ -636,31 +616,10 @@ const Receivables = () => {
     }
   };
 
-  const handlePrintReceipt = async (payment, paymentIndex) => {
-    const inv = drawer.item;
-    if (!inv) {
-      notificationService.error("Unable to print receipt. Missing invoice information.");
-      return;
-    }
-
-    // Get company info from localStorage or API
-    const companyInfo = JSON.parse(localStorage.getItem("companySettings") || "{}");
-
+  const handlePrintReceipt = async (payment) => {
     setPrintingReceiptId(payment.id);
     try {
-      const invoiceData = {
-        invoiceNumber: inv.invoiceNo || inv.invoiceNumber,
-        total: getInvoiceAmount(inv),
-        payments: inv.payments || [],
-        customer: inv.customer || {
-          name: getCustomerName(inv),
-          id: getCustomerId(inv),
-        },
-      };
-      const result = await printPaymentReceipt(payment, invoiceData, companyInfo, paymentIndex);
-      if (!result.success) {
-        notificationService.error(`Error printing receipt: ${result.error}`);
-      }
+      await paymentsAPI.printReceipt(payment.id);
     } catch (error) {
       console.error("Error printing receipt:", error);
       notificationService.error("Failed to print receipt. Please try again.");

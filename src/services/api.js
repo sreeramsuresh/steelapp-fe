@@ -391,6 +391,40 @@ export const paymentsAPI = {
   restore: (id) => {
     return apiClient.post(`/payments/${id}/restore`);
   },
+
+  // Download payment receipt PDF
+  downloadReceipt: async (paymentId) => {
+    const blob = await apiService.request({
+      method: "GET",
+      url: `/payments/${paymentId}/receipt`,
+      responseType: "blob",
+    });
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = blobUrl;
+    a.download = `receipt-${paymentId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(blobUrl);
+    document.body.removeChild(a);
+  },
+
+  // Print payment receipt PDF (opens in new window)
+  printReceipt: async (paymentId) => {
+    const blob = await apiService.request({
+      method: "GET",
+      url: `/payments/${paymentId}/receipt`,
+      responseType: "blob",
+    });
+    const blobUrl = window.URL.createObjectURL(blob);
+    const printWindow = window.open(blobUrl);
+    if (printWindow) {
+      printWindow.addEventListener("load", () => {
+        printWindow.print();
+      });
+    }
+  },
 };
 
 // Export apiClient as default for backward compatibility

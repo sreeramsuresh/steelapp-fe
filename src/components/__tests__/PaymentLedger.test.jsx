@@ -19,9 +19,11 @@ vi.mock("../../utils/invoiceUtils", () => ({
   formatDate: (val) => val,
 }));
 
-vi.mock("../../utils/paymentReceiptGenerator", () => ({
-  generatePaymentReceipt: vi.fn(),
-  printPaymentReceipt: vi.fn(),
+vi.mock("../../services/api", () => ({
+  paymentsAPI: {
+    downloadReceipt: vi.fn().mockResolvedValue(),
+    printReceipt: vi.fn().mockResolvedValue(),
+  },
 }));
 
 vi.mock("../../utils/paymentUtils", () => ({

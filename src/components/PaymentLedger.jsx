@@ -1,8 +1,8 @@
 import { CheckCircle, Download, Edit2, Plus, Printer, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
+import { paymentsAPI } from "../services/api";
 import { formatCurrency } from "../utils/invoiceUtils";
-import { generatePaymentReceipt, printPaymentReceipt } from "../utils/paymentReceiptGenerator";
 import {
   calculateBalanceDue,
   calculateTotalPaid,
@@ -55,20 +55,10 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
     setSelectedForDelete(new Set());
   };
 
-  const handleDownloadReceipt = async (payment, paymentIndex) => {
-    if (!invoice || !company) {
-      alert("Unable to generate receipt. Missing invoice or company information.");
-      return;
-    }
-
+  const handleDownloadReceipt = async (payment) => {
     setDownloadingReceiptId(payment.id);
     try {
-      const result = await generatePaymentReceipt(payment, invoice, company, paymentIndex);
-      if (result.success) {
-        // Success - PDF will be automatically downloaded
-      } else {
-        alert(`Error generating receipt: ${result.error}`);
-      }
+      await paymentsAPI.downloadReceipt(payment.id);
     } catch (error) {
       console.error("Error downloading receipt:", error);
       alert("Failed to generate receipt. Please try again.");
@@ -77,20 +67,10 @@ const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPa
     }
   };
 
-  const handlePrintReceipt = async (payment, paymentIndex) => {
-    if (!invoice || !company) {
-      alert("Unable to print receipt. Missing invoice or company information.");
-      return;
-    }
-
+  const handlePrintReceipt = async (payment) => {
     setPrintingReceiptId(payment.id);
     try {
-      const result = await printPaymentReceipt(payment, invoice, company, paymentIndex);
-      if (result.success) {
-        // Success - PDF will be opened in new tab with print dialog
-      } else {
-        alert(`Error printing receipt: ${result.error}`);
-      }
+      await paymentsAPI.printReceipt(payment.id);
     } catch (error) {
       console.error("Error printing receipt:", error);
       alert("Failed to print receipt. Please try again.");

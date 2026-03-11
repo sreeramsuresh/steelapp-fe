@@ -12,7 +12,6 @@ import { payablesService } from "../services/dataService";
 import { notificationService } from "../services/notificationService";
 import { createPaymentPayload } from "../services/paymentService";
 import { formatCurrency, formatDate as formatDateUtil } from "../utils/invoiceUtils";
-import { generatePaymentReceipt, printPaymentReceipt } from "../utils/paymentReceiptGenerator";
 import { toUAEDateForInput } from "../utils/timezone";
 import { uuid } from "../utils/uuid";
 
@@ -371,25 +370,25 @@ const POTab = ({ canManage }) => {
     });
   };
 
-  const handleDownloadReceipt = async (payment, paymentIndex) => {
+  const handleDownloadReceipt = async (payment) => {
     const po = drawer.item;
     if (!po) {
       notificationService.error("Unable to generate receipt. Missing PO information.");
       return;
     }
-    const companyInfo = JSON.parse(localStorage.getItem("companySettings") || "{}");
     setDownloadingReceiptId(payment.id);
     try {
-      const poData = {
-        invoiceNumber: po.poNo || po.poNumber,
-        total: po.poValue || 0,
-        payments: po.payments || [],
-        customer: po.vendor || {},
-      };
-      const result = await generatePaymentReceipt(payment, poData, companyInfo, paymentIndex);
-      if (!result.success) {
-        notificationService.error(`Error generating receipt: ${result.error}`);
-      }
+      const blob = await payablesService.downloadPOVoucher(po.id, payment.id);
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = blobUrl;
+      a.download = `voucher-${payment.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+      notificationService.success("Voucher downloaded successfully");
     } catch (error) {
       console.error("Error downloading receipt:", error);
       notificationService.error("Failed to generate receipt.");
@@ -398,24 +397,21 @@ const POTab = ({ canManage }) => {
     }
   };
 
-  const handlePrintReceipt = async (payment, paymentIndex) => {
+  const handlePrintReceipt = async (payment) => {
     const po = drawer.item;
     if (!po) {
       notificationService.error("Unable to print receipt. Missing PO information.");
       return;
     }
-    const companyInfo = JSON.parse(localStorage.getItem("companySettings") || "{}");
     setPrintingReceiptId(payment.id);
     try {
-      const poData = {
-        invoiceNumber: po.poNo || po.poNumber,
-        total: po.poValue || 0,
-        payments: po.payments || [],
-        customer: po.vendor || {},
-      };
-      const result = await printPaymentReceipt(payment, poData, companyInfo, paymentIndex);
-      if (!result.success) {
-        notificationService.error(`Error printing receipt: ${result.error}`);
+      const blob = await payablesService.downloadPOVoucher(po.id, payment.id);
+      const blobUrl = window.URL.createObjectURL(blob);
+      const printWindow = window.open(blobUrl);
+      if (printWindow) {
+        printWindow.addEventListener("load", () => {
+          printWindow.print();
+        });
       }
     } catch (error) {
       console.error("Error printing receipt:", error);
