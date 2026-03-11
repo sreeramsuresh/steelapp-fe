@@ -82,7 +82,6 @@ export default function RolesPage() {
     try {
       const payload = {
         name: formData.name,
-        display_name: formData.displayName,
         description: formData.description,
         is_director: formData.isDirector,
       };
@@ -352,6 +351,7 @@ export default function RolesPage() {
       {/* Delete Confirmation Dialog */}
       {deleteConfirm.open && (
         <ConfirmDialog
+          open={true}
           title="Delete Role?"
           message={`Are you sure you want to delete the role "${deleteConfirm.roleName}"? This action cannot be undone.`}
           variant="danger"

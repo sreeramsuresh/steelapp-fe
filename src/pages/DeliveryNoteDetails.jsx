@@ -27,6 +27,9 @@ const DeliveryNoteDetails = () => {
     quantity: "",
   });
 
+  // Cancel confirmation dialog
+  const [cancelConfirm, setCancelConfirm] = useState(false);
+
   const statusLabels = {
     pending: "Pending",
     partial: "Partial Delivery",
@@ -646,7 +649,7 @@ const DeliveryNoteDetails = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleStatusUpdate("cancelled")}
+                    onClick={() => setCancelConfirm(true)}
                     className={`flex items-center justify-center gap-2 w-full px-4 py-3 border rounded-lg transition-colors ${
                       isDarkMode
                         ? "border-red-600 text-red-400 hover:bg-red-900/20"
@@ -884,6 +887,55 @@ const DeliveryNoteDetails = () => {
               <span>{success}</span>
               <button type="button" onClick={() => setSuccess("")} className="ml-2">
                 <X size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Cancel Delivery Confirmation Dialog */}
+      {cancelConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cancel-dn-title"
+        >
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setCancelConfirm(false)}
+            aria-label="Close"
+          />
+          <div
+            className={`relative w-full max-w-md p-6 rounded-xl shadow-xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"}`}
+          >
+            <h3
+              id="cancel-dn-title"
+              className={`text-lg font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            >
+              Cancel Delivery Note?
+            </h3>
+            <p className={`text-sm mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+              Are you sure you want to cancel delivery note {deliveryNote?.deliveryNoteNumber || `DN-${id}`}? This
+              action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setCancelConfirm(false)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${isDarkMode ? "bg-gray-700 text-gray-300 hover:bg-gray-600" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
+              >
+                Keep Delivery
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCancelConfirm(false);
+                  handleStatusUpdate("cancelled");
+                }}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700"
+              >
+                Cancel Delivery
               </button>
             </div>
           </div>

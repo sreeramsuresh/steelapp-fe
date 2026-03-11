@@ -91,9 +91,9 @@ api.interceptors.request.use((config) => {
     delete config.headers["Content-Type"];
   }
 
-  // Auto-attach Idempotency-Key for mutating requests (POST, PUT, PATCH)
+  // Auto-attach Idempotency-Key for mutating requests (POST, PUT, PATCH, DELETE)
   const method = (config.method || "").toUpperCase();
-  if (["POST", "PUT", "PATCH"].includes(method) && !config.headers["Idempotency-Key"]) {
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(method) && !config.headers["Idempotency-Key"]) {
     config.headers["Idempotency-Key"] = crypto.randomUUID();
   }
 
