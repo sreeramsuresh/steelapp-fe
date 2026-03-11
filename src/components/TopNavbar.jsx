@@ -246,7 +246,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                 placeholder="Search everything…"
                 autoComplete="off"
                 style={{ color: isDarkMode ? "#ffffff" : "#111827", backgroundColor: "transparent" }}
-                className="w-full pl-2 pr-3 py-2.5 border-none outline-none text-sm placeholder-gray-400"
+                className="w-full pl-2 pr-3 py-2.5 border-none outline-none focus:outline-none focus:ring-0 text-sm placeholder-gray-400"
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);

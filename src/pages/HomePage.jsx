@@ -34,7 +34,7 @@ import { apiService } from "../services/axiosApi";
 import { customerService } from "../services/customerService";
 import { invoiceService } from "../services/invoiceService";
 import { quotationService } from "../services/quotationService";
-import { toUAETime } from "../utils/timezone";
+import { formatRelativeTime, toUAETime } from "../utils/timezone";
 
 /**
  * Quick Access Section - Displays navigation shortcuts
@@ -132,7 +132,7 @@ const RecentItemsSection = ({ recentItems, handleNavigate, isDarkMode }) => (
             </div>
             <div className="flex items-center gap-3">
               <span className={`text-xs whitespace-nowrap ${isDarkMode ? "text-gray-500" : "text-gray-600"}`}>
-                {item.timestamp}
+                {formatRelativeTime(item.timestamp)}
               </span>
               <ArrowRight className={`w-4 h-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />
             </div>
@@ -141,7 +141,7 @@ const RecentItemsSection = ({ recentItems, handleNavigate, isDarkMode }) => (
       })
     ) : (
       <div className={`p-6 text-center ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-        <p>No recent items yet</p>
+        <p>No items created in the last 24 hours</p>
       </div>
     )}
   </div>
@@ -557,12 +557,14 @@ const HomePage = () => {
     { icon: Package, name: "New Product", path: "/app/products/new", color: "indigo", perm: ["products", "create"] },
   ].filter((item) => authService.hasPermission(item.perm[0], item.perm[1]));
 
-  // Fetch recent items from multiple modules (max 9 items)
+  // Fetch recent items created in the last 24 hours
   useEffect(() => {
     const fetchRecentItems = async () => {
       setIsLoading(true);
       setFetchError(null);
       try {
+        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
         // Fetch from services the user has permission to access
         const canReadQuotations = authService.hasPermission("quotations", "read");
         const canReadInvoices = authService.hasPermission("invoices", "read");
@@ -570,13 +572,13 @@ const HomePage = () => {
 
         const [quotationsRes, invoicesRes, customersRes] = await Promise.all([
           canReadQuotations
-            ? quotationService.getAll({ limit: 3 }).catch(() => ({ data: [] }))
+            ? quotationService.getAll({ limit: 20, created_after: oneDayAgo }).catch(() => ({ data: [] }))
             : Promise.resolve({ data: [] }),
           canReadInvoices
-            ? invoiceService.getInvoices({ limit: 3 }).catch(() => ({ invoices: [] }))
+            ? invoiceService.getInvoices({ limit: 20, created_after: oneDayAgo }).catch(() => ({ invoices: [] }))
             : Promise.resolve({ invoices: [] }),
           canReadCustomers
-            ? customerService.getCustomers({ limit: 3 }).catch(() => ({ data: [] }))
+            ? customerService.getCustomers({ limit: 20, created_after: oneDayAgo }).catch(() => ({ data: [] }))
             : Promise.resolve({ data: [] }),
         ]);
 
@@ -592,7 +594,7 @@ const HomePage = () => {
               icon: Quote,
               name: `Quotation ${q.quotation_number || q.quotationNumber || "N/A"}`,
               detail: q.customer_details?.name || q.customerDetails?.name || "No customer",
-              timestamp: "Recently created",
+              timestamp: q.createdAt,
               link: `/app/quotations/${q.id}`,
             });
           });
@@ -608,7 +610,7 @@ const HomePage = () => {
               icon: FileText,
               name: `Invoice ${inv.invoice_number || inv.invoiceNumber || "N/A"}`,
               detail: `${inv.status || "N/A"} • ${inv.currency || "AED"} ${inv.total || "0"}`,
-              timestamp: "Recently created",
+              timestamp: inv.createdAt,
               link: `/app/invoices/${inv.id}`,
             });
           });
@@ -624,14 +626,15 @@ const HomePage = () => {
               icon: Users,
               name: c.name || "N/A",
               detail: `${c.address?.city || "N/A"}, ${c.address?.country || "N/A"} • ${c.tier || "Standard"}`,
-              timestamp: "Recently created",
+              timestamp: c.createdAt,
               link: `/app/customers/${c.id}`,
             });
           });
         }
 
-        // Limit to 9 items and set
-        setRecentItems(allItems.slice(0, 9));
+        // Sort by newest first, cap at 50
+        allItems.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        setRecentItems(allItems.slice(0, 50));
       } catch (error) {
         console.warn("Error fetching recent items:", error);
         setFetchError("Failed to load recent items. Please try refreshing.");
