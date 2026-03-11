@@ -2,11 +2,9 @@ import { ArrowLeft, Download, FileSpreadsheet, Filter } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
-import { useApiData } from "../hooks/useApi";
-import { companyService } from "../services/companyService";
+import { accountStatementService } from "../services/accountStatementService";
 import { payablesService } from "../services/payablesService";
 import { formatCurrency, formatDateDMY } from "../utils/invoiceUtils";
-import { generateStatementPDF } from "../utils/statementPdfGenerator";
 
 const formatDate = (d) => {
   if (!d) return "";
@@ -195,15 +193,11 @@ const CustomerPerspective = () => {
     }
   };
 
-  const { data: company } = useApiData(companyService.getCompany, [], true);
-
   const downloadPDF = async () => {
-    await generateStatementPDF({
-      customerName: customerName || customerId,
-      periodStart: start,
-      periodEnd: end,
-      items,
-      company: company || {},
+    await accountStatementService.generateOnTheFly({
+      customerId,
+      startDate: start || undefined,
+      endDate: end || undefined,
     });
   };
 

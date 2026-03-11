@@ -429,27 +429,8 @@ const debitNoteService = {
    * @param {string} debitNoteNumber - For filename
    * @returns {Promise<boolean>}
    */
-  async downloadPDF(id, debitNoteNumber = null) {
-    try {
-      const response = await apiClient.get(`/debit-notes/${id}/pdf`, {
-        responseType: "blob",
-      });
-
-      const blob = new Blob([response], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `debit-note-${debitNoteNumber || id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      return true;
-    } catch (error) {
-      console.error("[DebitNoteService] downloadPDF failed:", error);
-      throw error;
-    }
+  async downloadPDF(_id, _debitNoteNumber = null) {
+    throw new Error("Debit note PDF is not yet available. This feature is under development.");
   },
 
   /**
@@ -457,22 +438,8 @@ const debitNoteService = {
    * @param {number|string} id - Debit note ID
    * @returns {Promise<boolean>}
    */
-  async previewPDF(id) {
-    try {
-      const response = await apiClient.get(`/debit-notes/${id}/pdf`, {
-        responseType: "blob",
-      });
-
-      const blob = new Blob([response], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, "_blank");
-      setTimeout(() => window.URL.revokeObjectURL(url), 30000);
-
-      return true;
-    } catch (error) {
-      console.error("[DebitNoteService] previewPDF failed:", error);
-      throw error;
-    }
+  async previewPDF(_id) {
+    throw new Error("Debit note PDF preview is not yet available. This feature is under development.");
   },
 
   /**

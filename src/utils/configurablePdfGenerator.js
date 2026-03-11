@@ -1,3 +1,8 @@
+/**
+ * DECISION (PDF Hardening Phase 4): KEPT — actively used by InvoiceTemplateSettings.jsx
+ * for invoice template preview (isPreview: true). Not migrated to backend because
+ * preview is a client-only feature. Zero component imports outside of template settings.
+ */
 import { mergeTemplateSettings } from "../constants/defaultTemplateSettings.js";
 import {
   calculateDiscountedTRN,
@@ -132,6 +137,7 @@ export function buildConfigurableDocumentStructure(invoice, company) {
  * Uses pre-built document structure for rendering
  */
 export const generateConfigurablePDF = async (invoice, company, options = {}) => {
+  console.warn("[PDF-USAGE-AUDIT] configurablePdfGenerator.generateConfigurablePDF called");
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF("p", "mm", "a4");
   const { isPreview = false } = options;

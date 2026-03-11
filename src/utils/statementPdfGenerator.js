@@ -2,6 +2,7 @@ import { getDocumentTemplateColor } from "../constants/defaultTemplateSettings.j
 import { formatCurrency, formatDate, getCompanyImages } from "./invoiceUtils.js";
 
 export const generateStatementPDF = async ({ customerName, periodStart, periodEnd, items, company }) => {
+  console.warn("[PDF-USAGE-AUDIT] statementPdfGenerator.generateStatementPDF called");
   try {
     const { jsPDF } = await import("jspdf");
 

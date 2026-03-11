@@ -563,27 +563,8 @@ const supplierBillService = {
    * @param {string} billNumber - Bill number for filename
    * @returns {Promise<boolean>}
    */
-  async downloadPDF(id, billNumber = null) {
-    try {
-      const response = await apiClient.get(`/supplier-bills/${id}/pdf`, {
-        responseType: "blob",
-      });
-
-      const blob = new Blob([response], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `supplier-bill-${billNumber || id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      return true;
-    } catch (error) {
-      console.error("[SupplierBillService] downloadPDF failed:", error);
-      throw error;
-    }
+  async downloadPDF(_id, _billNumber = null) {
+    throw new Error("Supplier bill PDF is not yet available. This feature is under development.");
   },
 
   /**

@@ -30,22 +30,6 @@ describe('PDF Generators - Structural Sanity (Node.js)', () => {
   // All generators must be importable and export functions
   // ==========================================
 
-  describe('quotationPdfGenerator', () => {
-    test('should be importable and export generateQuotationPDF function', async () => {
-      const module = await import('../quotationPdfGenerator.js');
-      assert.ok(module.generateQuotationPDF !== undefined);
-      assert.strictEqual(typeof module.generateQuotationPDF, 'function');
-    });
-  });
-
-  describe('deliveryNotePdfGenerator', () => {
-    test('should be importable and export generateDeliveryNotePDF function', async () => {
-      const module = await import('../deliveryNotePdfGenerator.js');
-      assert.ok(module.generateDeliveryNotePDF !== undefined);
-      assert.strictEqual(typeof module.generateDeliveryNotePDF, 'function');
-    });
-  });
-
   describe('paymentReceiptGenerator', () => {
     test('should be importable and export receipt generation functions', async () => {
       const module = await import('../paymentReceiptGenerator.js');
@@ -53,14 +37,6 @@ describe('PDF Generators - Structural Sanity (Node.js)', () => {
       assert.strictEqual(typeof module.generatePaymentReceipt, 'function');
       assert.ok(module.generateAllPaymentReceipts !== undefined);
       assert.ok(module.generateReceiptNumber !== undefined);
-    });
-  });
-
-  describe('poPdfGenerator', () => {
-    test('should be importable and export generatePurchaseOrderPDF function', async () => {
-      const module = await import('../poPdfGenerator.js');
-      assert.ok(module.generatePurchaseOrderPDF !== undefined);
-      assert.strictEqual(typeof module.generatePurchaseOrderPDF, 'function');
     });
   });
 
@@ -90,13 +66,7 @@ describe('PDF Generators - Structural Sanity (Node.js)', () => {
     });
   });
 
-  describe('pdfGenerator (DEPRECATED)', () => {
-    test('should be importable (marked deprecated, kept for backwards compatibility)', async () => {
-      const module = await import('../pdfGenerator.js');
-      assert.ok(module.generateInvoicePDF !== undefined);
-      // Note: This file is marked @deprecated - backend PDF generation should be used instead
-    });
-  });
+  // pdfGenerator.js (DEPRECATED) — deleted, migrated to backend SSR pipeline
 });
 
 describe('PDF Generators - Expected Behavior (Node.js Limitations)', () => {

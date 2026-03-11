@@ -1,3 +1,18 @@
+/**
+ * MIGRATION STATUS (PDF Hardening Phase 4): NOT YET MIGRATED
+ *
+ * This client-side jsPDF receipt generator is used by 4 components:
+ * - InvoiceList.jsx, Payables.jsx, Receivables.jsx, PaymentLedger.jsx
+ *
+ * BLOCKER: Backend only has supplier-side receipt endpoints
+ * (GET /api/payables/invoices/:id/payments/:paymentId/receipt). No customer-side
+ * payment receipt endpoint exists. Migration requires creating:
+ *   GET /api/receivables/invoices/:id/payments/:paymentId/receipt
+ * following the same hardened pipeline pattern.
+ *
+ * Instrumentation (console.warn '[PDF-USAGE-AUDIT]') is active to track usage.
+ * Once the backend endpoint is created, migrate all 4 components to use it.
+ */
 // jsPDF is loaded dynamically to enable proper code splitting
 // This avoids the Vite warning about mixed static/dynamic imports
 import { formatCurrency, formatDateDMY, normalizeLLC, titleCase } from "./invoiceUtils.js";
@@ -202,6 +217,7 @@ const addStatusBadge = (pdf, balanceDue, yPos, margin, pageWidth) => {
  * @param {number} paymentIndex - The index of this payment (for receipt numbering)
  */
 export const generatePaymentReceipt = async (payment, invoice, company, paymentIndex = 1) => {
+  console.warn("[PDF-USAGE-AUDIT] paymentReceiptGenerator.generatePaymentReceipt called");
   try {
     // Lazy load jsPDF for code splitting
     const jsPDF = await getJsPDF();
@@ -517,6 +533,7 @@ export const generatePaymentReceipt = async (payment, invoice, company, paymentI
  * @param {number} paymentIndex - The index of this payment (for receipt numbering)
  */
 export const printPaymentReceipt = async (payment, invoice, company, paymentIndex = 1) => {
+  console.warn("[PDF-USAGE-AUDIT] paymentReceiptGenerator.printPaymentReceipt called");
   try {
     // Lazy load jsPDF for code splitting
     const jsPDF = await getJsPDF();
