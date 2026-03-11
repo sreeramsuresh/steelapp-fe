@@ -495,42 +495,40 @@ describe("vatReturnService", () => {
   });
 
   describe("downloadPDF", () => {
-    test("should download VAT return as PDF", async () => {
-      const { mockBrowserDownload } = await import("../../test/downloadMocks.js");
-      const mocks = mockBrowserDownload();
+    test("should download VAT return as PDF via fileDownloadService", async () => {
+      const mockDownloadFile = vi.fn().mockResolvedValue(undefined);
+      vi.doMock("../fileDownloadService.js", () => ({
+        downloadFile: mockDownloadFile,
+      }));
 
-      const mockBlob = new Blob(["PDF content"], { type: "application/pdf" });
-      vi.spyOn(apiClient, "get").mockResolvedValue(mockBlob);
+      vi.resetModules();
+      const { default: freshService } = await import("../vatReturnService.js");
 
-      const result = await vatReturnService.downloadPDF(1, "VAT-2024-Q1");
+      const result = await freshService.downloadPDF(1, "VAT-2024-Q1");
 
       expect(result).toBe(true);
-      expect(apiClient.get).toHaveBeenCalledWith("/vat-returns/1/pdf", { responseType: "blob" });
-      expect(mocks.createObjectURL).toHaveBeenCalled();
-      expect(mocks.click).toHaveBeenCalled();
-      expect(mocks.revokeObjectURL).toHaveBeenCalled();
-      expect(mocks.anchor.download).toBe("vat-return-VAT-2024-Q1.pdf");
+      expect(mockDownloadFile).toHaveBeenCalledWith(
+        "/vat-returns/1/pdf",
+        "vat-return-VAT-2024-Q1.pdf",
+        expect.objectContaining({ expectedType: "application/pdf" })
+      );
     });
   });
 
   describe("exportExcel", () => {
-    test("should export VAT return as Excel", async () => {
-      const { mockBrowserDownload } = await import("../../test/downloadMocks.js");
-      const mocks = mockBrowserDownload();
+    test("should export VAT return as Excel via fileDownloadService", async () => {
+      const mockDownloadFile = vi.fn().mockResolvedValue(undefined);
+      vi.doMock("../fileDownloadService.js", () => ({
+        downloadFile: mockDownloadFile,
+      }));
 
-      const mockBlob = new Blob(["Excel content"], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-      vi.spyOn(apiClient, "get").mockResolvedValue(mockBlob);
+      vi.resetModules();
+      const { default: freshService } = await import("../vatReturnService.js");
 
-      const result = await vatReturnService.exportExcel(1);
+      const result = await freshService.exportExcel(1);
 
       expect(result).toBe(true);
-      expect(apiClient.get).toHaveBeenCalledWith("/vat-returns/1/export/excel", { responseType: "blob" });
-      expect(mocks.createObjectURL).toHaveBeenCalled();
-      expect(mocks.click).toHaveBeenCalled();
-      expect(mocks.revokeObjectURL).toHaveBeenCalled();
-      expect(mocks.anchor.download).toBe("vat-return-1.xlsx");
+      expect(mockDownloadFile).toHaveBeenCalledWith("/vat-returns/1/export/excel", "vat-return-1.xlsx");
     });
   });
 

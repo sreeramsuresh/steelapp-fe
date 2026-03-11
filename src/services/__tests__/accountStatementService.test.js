@@ -1,5 +1,5 @@
 /**
- * Account Statement Service Unit Tests (Node Native Test Runner)
+ * Account Statement Service Unit Tests
  * ✅ Tests account statement CRUD operations
  * ✅ Tests PDF generation and downloads
  */
@@ -7,56 +7,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { apiClient } from "../api.js";
-
-// Mock services
-const accountStatementService = {
-  async getAll(filters = {}) {
-    const response = await apiClient.get("/account-statements", filters);
-    return response.data || response;
-  },
-
-  async getById(id) {
-    const response = await apiClient.get(`/account-statements/${id}`);
-    return response.data || response;
-  },
-
-  async create(data) {
-    const response = await apiClient.post("/account-statements", data);
-    return response.data || response;
-  },
-
-  async update(id, data) {
-    const response = await apiClient.put(`/account-statements/${id}`, data);
-    return response.data || response;
-  },
-
-  async delete(id) {
-    const response = await apiClient.delete(`/account-statements/${id}`);
-    return response.data || response;
-  },
-
-  async downloadPDF(id) {
-    const response = await apiClient.get(`/account-statements/${id}/pdf`, { responseType: "blob" });
-    const blob = response.data || response;
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `AccountStatement-${id}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    // Note: not removing link so tests can query it
-  },
-
-  async generateOnTheFly(params) {
-    const response = await apiClient.post("/account-statements/generate", params, { responseType: "blob" });
-    const blob = response.data || response;
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `Statement-${params.customerId || "Customer"}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    // Note: not removing link so tests can query it
-  },
-};
+import { accountStatementService } from "../accountStatementService.js";
 
 describe("accountStatementService", () => {
   afterEach(() => {
@@ -148,41 +99,46 @@ describe("accountStatementService", () => {
   });
 
   describe("downloadPDF", () => {
-    it("should download PDF", async () => {
-      const mockBlob = new Blob(["pdf content"], { type: "application/pdf" });
-      vi.spyOn(apiClient, "get").mockResolvedValue(mockBlob);
+    it("should download PDF via fileDownloadService", async () => {
+      const mockDownloadFile = vi.fn().mockResolvedValue(undefined);
+      vi.doMock("../fileDownloadService.js", () => ({
+        downloadFile: mockDownloadFile,
+      }));
 
-      await accountStatementService.downloadPDF(1);
+      vi.resetModules();
+      const { accountStatementService: freshService } = await import("../accountStatementService.js");
 
-      expect(apiClient.get.mock.calls.length > 0).toBeTruthy();
-      const link = document.querySelector("a");
-      expect(link).toBeTruthy();
-      expect(link.download).toContain("AccountStatement-1.pdf");
+      await freshService.downloadPDF(1);
+
+      expect(mockDownloadFile).toHaveBeenCalledWith(
+        "/account-statements/1/pdf",
+        "AccountStatement-1.pdf",
+        expect.objectContaining({ expectedType: "application/pdf" })
+      );
     });
   });
 
   describe("generateOnTheFly", () => {
-    it("should generate statement on-the-fly", async () => {
-      const params = { customerId: 101, startDate: "2024-02-01", endDate: "2024-02-29" };
-      const mockBlob = new Blob(["pdf"], { type: "application/pdf" });
-      vi.spyOn(apiClient, "post").mockResolvedValue(mockBlob);
+    it("should generate statement on-the-fly via fileDownloadService", async () => {
+      const mockDownloadFile = vi.fn().mockResolvedValue(undefined);
+      vi.doMock("../fileDownloadService.js", () => ({
+        downloadFile: mockDownloadFile,
+      }));
 
-      await accountStatementService.generateOnTheFly(params);
+      vi.resetModules();
+      const { accountStatementService: freshService } = await import("../accountStatementService.js");
 
-      expect(apiClient.post.mock.calls.length > 0).toBeTruthy();
-      const link = document.querySelector("a");
-      expect(link.download).toContain("Statement-101");
-    });
+      const data = { customerId: 101, startDate: "2024-02-01", endDate: "2024-02-29" };
+      await freshService.generateOnTheFly(data);
 
-    it("should use generic filename without customerId", async () => {
-      const params = { startDate: "2024-02-01", endDate: "2024-02-29" };
-      const mockBlob = new Blob(["pdf"], { type: "application/pdf" });
-      vi.spyOn(apiClient, "post").mockResolvedValue(mockBlob);
-
-      await accountStatementService.generateOnTheFly(params);
-
-      const link = document.querySelector("a");
-      expect(link.download).toContain("Statement-Customer");
+      expect(mockDownloadFile).toHaveBeenCalledWith(
+        "/account-statements/generate",
+        expect.stringContaining("Statement-101"),
+        expect.objectContaining({
+          method: "POST",
+          expectedType: "application/pdf",
+        })
+      );
     });
   });
 
@@ -190,23 +146,19 @@ describe("accountStatementService", () => {
     it("should handle network errors", async () => {
       vi.spyOn(apiClient, "get").mockRejectedValue(new Error("Network error"));
 
-      try {
-        await accountStatementService.getAll();
-        throw new Error("Expected error");
-      } catch (error) {
-        expect(error.message).toBe("Network error");
-      }
+      await expect(accountStatementService.getAll()).rejects.toThrow("Network error");
     });
 
     it("should handle PDF generation errors", async () => {
-      vi.spyOn(apiClient, "post").mockRejectedValue(new Error("PDF failed"));
+      const mockDownloadFile = vi.fn().mockRejectedValue(new Error("PDF failed"));
+      vi.doMock("../fileDownloadService.js", () => ({
+        downloadFile: mockDownloadFile,
+      }));
 
-      try {
-        await accountStatementService.generateOnTheFly({ startDate: "2024-01-01" });
-        throw new Error("Expected error");
-      } catch (error) {
-        expect(error.message).toBe("PDF failed");
-      }
+      vi.resetModules();
+      const { accountStatementService: freshService } = await import("../accountStatementService.js");
+
+      await expect(freshService.generateOnTheFly({ startDate: "2024-01-01" })).rejects.toThrow("PDF failed");
     });
   });
 });

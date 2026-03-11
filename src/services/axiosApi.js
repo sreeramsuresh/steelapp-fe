@@ -199,13 +199,15 @@ export const apiService = {
     // no-op; clearing cookies/session is handled via tokenUtils.clearSession
   },
 
-  get: async (url, config = {}) => {
-    // If config has params property, use it as-is (it may also have signal, etc.)
-    // Otherwise, treat the config object itself as params and wrap it
+  get: async (url, params = {}) => {
+    // Second arg is ALWAYS query params (never axios config).
+    // For binary downloads, use fileDownloadService instead.
     const axiosConfig =
-      config && !("params" in config) && !("signal" in config) && typeof config === "object"
-        ? { params: apiService.cleanParams(config) }
-        : config;
+      params && ("params" in params || "signal" in params)
+        ? params
+        : params && typeof params === "object"
+          ? { params: apiService.cleanParams(params) }
+          : params;
     const response = await api.get(url, axiosConfig);
     const data = response.data;
 

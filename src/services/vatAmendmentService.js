@@ -503,20 +503,10 @@ const vatAmendmentService = {
    */
   async downloadDisclosureForm(id) {
     try {
-      const response = await apiClient.get(`/vat-amendments/${id}/disclosure-form`, {
-        responseType: "blob",
+      const { downloadFile } = await import("./fileDownloadService.js");
+      await downloadFile(`/vat-amendments/${id}/disclosure-form`, `voluntary-disclosure-${id}.pdf`, {
+        expectedType: "application/pdf",
       });
-
-      const blob = new Blob([response], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `voluntary-disclosure-${id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
       return true;
     } catch (error) {
       console.error("[VATAmendmentService] downloadDisclosureForm failed:", error);

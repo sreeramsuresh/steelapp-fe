@@ -9,7 +9,6 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
-import { apiService } from "../axiosApi.js";
 import { purchaseOrderService } from "../purchaseOrderService.js";
 
 describe("purchaseOrderService", () => {
@@ -333,32 +332,35 @@ describe("purchaseOrderService", () => {
   });
 
   describe("downloadPDF", () => {
-    it("should download PO as PDF", async () => {
-      const mockBlob = new Blob(["test"], { type: "application/pdf" });
+    it("should download PO as PDF via fileDownloadService", async () => {
+      const mockDownloadFile = vi.fn().mockResolvedValue(undefined);
+      vi.doMock("../fileDownloadService.js", () => ({
+        downloadFile: mockDownloadFile,
+      }));
 
-      // Mock URL creation
-      // Skipped: global.URL.createObjectURL = vi.fn(() => "blob:test-url");
-      global.URL.revokeObjectURL = vi.fn();
+      // Re-import to pick up the mock
+      vi.resetModules();
+      const { purchaseOrderService: freshService } = await import("../purchaseOrderService.js");
 
-      // Mock document methods
-      document.body.appendChild = vi.fn();
-      document.body.removeChild = vi.fn();
+      await freshService.downloadPDF(1);
 
-      vi.spyOn(apiService, "request").mockResolvedValue(mockBlob);
-
-      await purchaseOrderService.downloadPDF(1);
-
-      expect(apiService.request).toHaveBeenCalledWith({
-        method: "GET",
-        url: "/purchase-orders/1/pdf",
-        responseType: "blob",
-      });
+      expect(mockDownloadFile).toHaveBeenCalledWith(
+        "/purchase-orders/1/pdf",
+        "PurchaseOrder-1.pdf",
+        expect.objectContaining({ expectedType: "application/pdf" })
+      );
     });
 
     it("should handle PDF download errors", async () => {
-      vi.spyOn(apiService, "request").mockRejectedValue(new Error("PDF generation failed"));
+      const mockDownloadFile = vi.fn().mockRejectedValue(new Error("PDF generation failed"));
+      vi.doMock("../fileDownloadService.js", () => ({
+        downloadFile: mockDownloadFile,
+      }));
 
-      await expect(purchaseOrderService.downloadPDF(999)).rejects.toThrow();
+      vi.resetModules();
+      const { purchaseOrderService: freshService } = await import("../purchaseOrderService.js");
+
+      await expect(freshService.downloadPDF(999)).rejects.toThrow();
     });
   });
 

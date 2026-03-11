@@ -29,41 +29,22 @@ export const accountStatementService = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const blob = await apiService.request({
-      method: "GET",
-      url: `/account-statements/${id}/pdf`,
-      responseType: "blob",
+    const { downloadFile } = await import("./fileDownloadService.js");
+    await downloadFile(`/account-statements/${id}/pdf`, `AccountStatement-${id}.pdf`, {
+      expectedType: "application/pdf",
     });
-    const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
-    a.href = blobUrl;
-    a.download = `AccountStatement-${id}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(blobUrl);
-    document.body.removeChild(a);
   },
 
   // Generate statement on-the-fly and download PDF
   generateOnTheFly: async (data) => {
-    const blob = await apiService.request({
-      method: "POST",
-      url: "/account-statements/generate",
-      data: { ...data, format: "pdf" },
-      responseType: "blob",
-    });
-    const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
-    a.href = blobUrl;
+    const { downloadFile } = await import("./fileDownloadService.js");
     const custId = data.customer_id || data.customerId || "Customer"; // snake-ok
     const start = data.from_date || data.startDate || "start"; // snake-ok
     const end = data.to_date || data.endDate || "end"; // snake-ok
-    a.download = `Statement-${custId}-${start}-to-${end}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(blobUrl);
-    document.body.removeChild(a);
+    await downloadFile("/account-statements/generate", `Statement-${custId}-${start}-to-${end}.pdf`, {
+      method: "POST",
+      data: { ...data, format: "pdf" },
+      expectedType: "application/pdf",
+    });
   },
 };

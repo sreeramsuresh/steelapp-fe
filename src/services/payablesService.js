@@ -221,28 +221,30 @@ export const payablesService = {
 
   // Export and download as blob (csv or xlsx)
   async exportDownload(scope = "invoices", params = {}, format = "csv") {
+    const { fetchBlob } = await import("./fileDownloadService.js");
     const query = apiService.cleanParams({ scope, format, ...params });
-    const qs = new URLSearchParams(query).toString();
-    const blob = await apiService.request({
-      method: "GET",
-      url: `/payables/exports?${qs}`,
-      responseType: "blob",
-    });
+    const { blob } = await fetchBlob("/payables/exports", { params: query });
     return blob; // Caller handles filename
   },
 
   // Receipts/Vouchers: download/email
   async downloadInvoiceReceipt(invoiceId, paymentId) {
-    const url = `/payables/invoices/${invoiceId}/payments/${paymentId}/receipt`;
-    return apiService.request({ method: "GET", url, responseType: "blob" });
+    const { fetchBlob } = await import("./fileDownloadService.js");
+    const { blob } = await fetchBlob(`/payables/invoices/${invoiceId}/payments/${paymentId}/receipt`, {
+      expectedType: "application/pdf",
+    });
+    return blob;
   },
   async emailInvoiceReceipt(invoiceId, paymentId) {
     const url = `/payables/invoices/${invoiceId}/payments/${paymentId}/email`;
     return apiClient.post(url, {});
   },
   async downloadPOVoucher(poId, paymentId) {
-    const url = `/payables/pos/${poId}/payments/${paymentId}/voucher`;
-    return apiService.request({ method: "GET", url, responseType: "blob" });
+    const { fetchBlob } = await import("./fileDownloadService.js");
+    const { blob } = await fetchBlob(`/payables/pos/${poId}/payments/${paymentId}/voucher`, {
+      expectedType: "application/pdf",
+    });
+    return blob;
   },
   async emailPOVoucher(poId, paymentId) {
     const url = `/payables/pos/${poId}/payments/${paymentId}/email`;

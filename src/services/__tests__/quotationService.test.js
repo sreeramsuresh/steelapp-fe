@@ -9,7 +9,6 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "../api.js";
-import { apiService } from "../axiosApi.js";
 import { quotationService } from "../quotationService.js";
 
 describe("quotationService", () => {
@@ -233,32 +232,34 @@ describe("quotationService", () => {
   });
 
   describe("downloadPDF", () => {
-    it("should download quotation as PDF", async () => {
-      const mockBlob = new Blob(["test"], { type: "application/pdf" });
+    it("should download quotation as PDF via fileDownloadService", async () => {
+      const mockDownloadFile = vi.fn().mockResolvedValue(undefined);
+      vi.doMock("../fileDownloadService.js", () => ({
+        downloadFile: mockDownloadFile,
+      }));
 
-      // Mock URL creation
-      // Skipped: global.URL.createObjectURL = vi.fn(() => "blob:test-url");
-      global.URL.revokeObjectURL = vi.fn();
+      vi.resetModules();
+      const { quotationService: freshService } = await import("../quotationService.js");
 
-      // Mock document methods
-      document.body.appendChild = vi.fn();
-      document.body.removeChild = vi.fn();
+      await freshService.downloadPDF(1);
 
-      vi.spyOn(apiService, "request").mockResolvedValue(mockBlob);
-
-      await quotationService.downloadPDF(1);
-
-      expect(apiService.request).toHaveBeenCalledWith({
-        method: "GET",
-        url: "/quotations/1/pdf",
-        responseType: "blob",
-      });
+      expect(mockDownloadFile).toHaveBeenCalledWith(
+        "/quotations/1/pdf",
+        "Quotation-1.pdf",
+        expect.objectContaining({ expectedType: "application/pdf" })
+      );
     });
 
     it("should handle PDF download errors", async () => {
-      vi.spyOn(apiService, "request").mockRejectedValue(new Error("PDF generation failed"));
+      const mockDownloadFile = vi.fn().mockRejectedValue(new Error("PDF generation failed"));
+      vi.doMock("../fileDownloadService.js", () => ({
+        downloadFile: mockDownloadFile,
+      }));
 
-      await expect(quotationService.downloadPDF(999)).rejects.toThrow();
+      vi.resetModules();
+      const { quotationService: freshService } = await import("../quotationService.js");
+
+      await expect(freshService.downloadPDF(999)).rejects.toThrow();
     });
   });
 

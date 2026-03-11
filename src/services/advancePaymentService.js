@@ -486,20 +486,10 @@ const advancePaymentService = {
    */
   async downloadReceipt(id, receiptNumber = null) {
     try {
-      const response = await apiClient.get(`/advance-payments/${id}/receipt`, {
-        responseType: "blob",
+      const { downloadFile } = await import("./fileDownloadService.js");
+      await downloadFile(`/advance-payments/${id}/receipt`, `advance-receipt-${receiptNumber || id}.pdf`, {
+        expectedType: "application/pdf",
       });
-
-      const blob = new Blob([response], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `advance-receipt-${receiptNumber || id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
       return true;
     } catch (error) {
       console.error("[AdvancePaymentService] downloadReceipt failed:", error);

@@ -488,20 +488,10 @@ const vatReturnService = {
    */
   async downloadPDF(id, returnNumber = null) {
     try {
-      const response = await apiClient.get(`/vat-returns/${id}/pdf`, {
-        responseType: "blob",
+      const { downloadFile } = await import("./fileDownloadService.js");
+      await downloadFile(`/vat-returns/${id}/pdf`, `vat-return-${returnNumber || id}.pdf`, {
+        expectedType: "application/pdf",
       });
-
-      const blob = new Blob([response], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `vat-return-${returnNumber || id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
       return true;
     } catch (error) {
       console.error("[VATReturnService] downloadPDF failed:", error);
@@ -516,22 +506,8 @@ const vatReturnService = {
    */
   async exportExcel(id) {
     try {
-      const response = await apiClient.get(`/vat-returns/${id}/export/excel`, {
-        responseType: "blob",
-      });
-
-      const blob = new Blob([response], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `vat-return-${id}.xlsx`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
+      const { downloadFile } = await import("./fileDownloadService.js");
+      await downloadFile(`/vat-returns/${id}/export/excel`, `vat-return-${id}.xlsx`);
       return true;
     } catch (error) {
       console.error("[VATReturnService] exportExcel failed:", error);

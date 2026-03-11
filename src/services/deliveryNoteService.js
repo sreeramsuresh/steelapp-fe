@@ -112,46 +112,20 @@ export const deliveryNoteService = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    // Use axios-based service to leverage interceptors and auth headers
-    const blob = await apiService.request({
-      method: "GET",
-      url: `/delivery-notes/${id}/pdf`,
-      responseType: "blob",
-    });
-    const downloadUrl = window.URL.createObjectURL(blob);
-
-    // Get delivery note number for filename — number already contains "DN-" prefix
+    const { downloadFile } = await import("./fileDownloadService.js");
     const deliveryNote = await deliveryNoteService.getById(id);
     const dnNumber = deliveryNote.deliveryNoteNumber || deliveryNote.delivery_note_number || id;
     const filename = String(dnNumber).startsWith("DN-") ? `${dnNumber}.pdf` : `DN-${dnNumber}.pdf`;
-
-    // Create download link
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // Clean up
-    window.URL.revokeObjectURL(downloadUrl);
+    await downloadFile(`/delivery-notes/${id}/pdf`, filename, { expectedType: "application/pdf" });
   },
 
   downloadLoadingSlip: async (id) => {
-    const blob = await apiService.request({
-      method: "GET",
-      url: `/delivery-notes/${id}/pdf?type=internal`,
-      responseType: "blob",
-    });
-    const downloadUrl = window.URL.createObjectURL(blob);
+    const { downloadFile } = await import("./fileDownloadService.js");
     const deliveryNote = await deliveryNoteService.getById(id);
     const dnNum = deliveryNote.deliveryNoteNumber || deliveryNote.delivery_note_number || id;
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.download = `PICK-${dnNum}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(downloadUrl);
+    await downloadFile(`/delivery-notes/${id}/pdf`, `PICK-${dnNum}.pdf`, {
+      params: { type: "internal" },
+      expectedType: "application/pdf",
+    });
   },
 };

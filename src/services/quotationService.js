@@ -177,19 +177,7 @@ export const quotationService = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const blob = await apiService.request({
-      method: "GET",
-      url: `/quotations/${id}/pdf`,
-      responseType: "blob",
-    });
-    const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
-    a.href = blobUrl;
-    a.download = `Quotation-${id}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(blobUrl);
-    document.body.removeChild(a);
+    const { downloadFile } = await import("./fileDownloadService.js");
+    await downloadFile(`/quotations/${id}/pdf`, `Quotation-${id}.pdf`, { expectedType: "application/pdf" });
   },
 };

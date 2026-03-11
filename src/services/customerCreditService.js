@@ -339,18 +339,14 @@ const customerCreditService = {
    */
   exportCustomerCreditData: async (filters = {}) => {
     try {
-      const response = await api.get("/customers/credit-metrics/export", {
-        params: filters,
-        responseType: "blob",
-      });
-      // Create download link
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `customer-credit-metrics-${new Date().toISOString()}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentElement.removeChild(link);
+      const { downloadFile } = await import("./fileDownloadService.js");
+      await downloadFile(
+        "/customers/credit-metrics/export",
+        `customer-credit-metrics-${new Date().toISOString()}.csv`,
+        {
+          params: filters,
+        }
+      );
       return true;
     } catch (error) {
       console.error("Error exporting customer credit data:", error);

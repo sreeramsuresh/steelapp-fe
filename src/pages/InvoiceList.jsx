@@ -1261,21 +1261,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     setDownloadingIds((prev) => new Set(prev).add(invoice.id));
 
     try {
-      // Use the backend PDF endpoint instead of regenerating
-      const { apiClient: pdfClient } = await import("../services/api");
-      const response = await pdfClient.get(`/invoices/${invoice.id}/pdf`, {
-        responseType: "blob",
+      const { downloadFile } = await import("../services/fileDownloadService.js");
+      await downloadFile(`/invoices/${invoice.id}/pdf`, `${invoice.invoiceNumber}.pdf`, {
+        expectedType: "application/pdf",
       });
-
-      // Create download link
-      const url = window.URL.createObjectURL(new Blob([response]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `${invoice.invoiceNumber}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
 
       notificationService.success("PDF downloaded successfully!");
     } catch (error) {
@@ -1665,25 +1654,13 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
     let successCount = 0;
     let failCount = 0;
 
-    // Import apiClient for PDF downloads
-    const { apiClient: bulkPdfClient } = await import("../services/api");
+    const { downloadFile } = await import("../services/fileDownloadService.js");
 
     for (const invoice of validInvoices) {
       try {
-        // Use backend PDF endpoint
-        const response = await bulkPdfClient.get(`/invoices/${invoice.id}/pdf`, {
-          responseType: "blob",
+        await downloadFile(`/invoices/${invoice.id}/pdf`, `${invoice.invoiceNumber}.pdf`, {
+          expectedType: "application/pdf",
         });
-
-        // Create download link
-        const url = window.URL.createObjectURL(new Blob([response]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `${invoice.invoiceNumber}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
 
         successCount++;
         // Add a small delay between downloads

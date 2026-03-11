@@ -73,20 +73,16 @@ const FeedbackManagement = () => {
 
   const handleExport = async () => {
     try {
-      const params = new URLSearchParams();
+      const filterParams = {};
       if (selectedIds.size > 0) {
-        params.set("ids", [...selectedIds].join(","));
+        filterParams.ids = [...selectedIds].join(",");
       } else if (activeFilter) {
-        params.set("status", activeFilter);
+        filterParams.status = activeFilter;
       }
-      const qs = params.toString() ? `?${params}` : "";
-      const res = await api.get(`/feedback/export${qs}`, { responseType: "blob" });
-      const url = URL.createObjectURL(new Blob([res.data]));
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `feedback-export-${new Date().toISOString().split("T")[0]}.md`;
-      a.click();
-      URL.revokeObjectURL(url);
+      const { downloadFile } = await import("../services/fileDownloadService.js");
+      await downloadFile("/feedback/export", `feedback-export-${new Date().toISOString().split("T")[0]}.md`, {
+        params: filterParams,
+      });
       toast.success(`Exported ${selectedIds.size > 0 ? `${selectedIds.size} selected` : "all"} items`);
     } catch {
       toast.error("Failed to export feedback");

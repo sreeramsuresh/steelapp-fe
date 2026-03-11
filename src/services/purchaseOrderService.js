@@ -88,19 +88,7 @@ export const purchaseOrderService = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    const blob = await apiService.request({
-      method: "GET",
-      url: `/purchase-orders/${id}/pdf`,
-      responseType: "blob",
-    });
-    const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
-    a.href = blobUrl;
-    a.download = `PurchaseOrder-${id}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(blobUrl);
-    document.body.removeChild(a);
+    const { downloadFile } = await import("./fileDownloadService.js");
+    await downloadFile(`/purchase-orders/${id}/pdf`, `PurchaseOrder-${id}.pdf`, { expectedType: "application/pdf" });
   },
 };

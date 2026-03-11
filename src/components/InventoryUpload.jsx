@@ -80,18 +80,8 @@ const InventoryUpload = ({ isOpen, onClose, onUploadComplete }) => {
 
   const downloadTemplate = async () => {
     try {
-      const response = await api.get("/inventory/upload/template", {
-        responseType: "blob",
-      });
-
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "inventory_upload_template.csv");
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+      const { downloadFile } = await import("../services/fileDownloadService.js");
+      await downloadFile("/inventory/upload/template", "inventory_upload_template.csv");
 
       addNotification({
         title: "Template Downloaded",

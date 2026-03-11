@@ -116,65 +116,12 @@ export const invoicesAPI = {
 
   // Generate and download PDF
   downloadPDF: async (id) => {
-    // eslint-disable-next-line no-console
-    console.log("[invoicesAPI.downloadPDF] Starting PDF download for id:", id);
-
-    const blob = await apiService.request({
-      method: "GET",
-      url: `/invoices/${id}/pdf`,
-      responseType: "blob",
-      timeout: 60000, // 60 seconds for PDF generation
-    });
-
-    // eslint-disable-next-line no-console
-    console.log("[invoicesAPI.downloadPDF] Received blob:", {
-      type: blob?.type,
-      size: blob?.size,
-      isBlob: blob instanceof Blob,
-    });
-
-    // Check if the response is actually a PDF or an error
-    if (!blob || !(blob instanceof Blob)) {
-      console.error("[invoicesAPI.downloadPDF] Response is not a blob:", blob);
-      throw new Error("Invalid response from server - expected PDF blob");
-    }
-
-    // If the blob is JSON (error response), parse and throw
-    if (blob.type === "application/json") {
-      const errorText = await blob.text();
-
-      console.error("[invoicesAPI.downloadPDF] Server returned error JSON:", errorText);
-      const errorData = JSON.parse(errorText);
-      throw new Error(errorData.message || errorData.error || "PDF generation failed");
-    }
-
-    // Verify it's a PDF
-    if (blob.type !== "application/pdf" && blob.size < 1000) {
-      console.warn("[invoicesAPI.downloadPDF] Unexpected blob type:", blob.type);
-    }
-
-    const downloadUrl = window.URL.createObjectURL(blob);
-    // eslint-disable-next-line no-console
-    console.log("[invoicesAPI.downloadPDF] Created download URL:", downloadUrl);
-
-    // Get invoice number for filename
+    const { downloadFile } = await import("./fileDownloadService.js");
     const invoice = await invoicesAPI.getById(id);
-    const filename = `invoice-${invoice.invoiceNumber}.pdf`;
-    // eslint-disable-next-line no-console
-    console.log("[invoicesAPI.downloadPDF] Downloading as:", filename);
-
-    // Create download link
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // Clean up
-    window.URL.revokeObjectURL(downloadUrl);
-    // eslint-disable-next-line no-console
-    console.log("[invoicesAPI.downloadPDF] Download complete");
+    await downloadFile(`/invoices/${id}/pdf`, `invoice-${invoice.invoiceNumber}.pdf`, {
+      expectedType: "application/pdf",
+      timeout: 60000,
+    });
   },
 };
 
@@ -353,10 +300,9 @@ export const suppliersAPI = {
   },
 
   // Download upload template
-  downloadTemplate: () => {
-    return apiClient.get("/suppliers/upload/template", {
-      responseType: "blob",
-    });
+  downloadTemplate: async () => {
+    const { downloadFile } = await import("./fileDownloadService.js");
+    await downloadFile("/suppliers/upload/template", "supplier_upload_template.csv");
   },
 };
 
@@ -394,36 +340,16 @@ export const paymentsAPI = {
 
   // Download payment receipt PDF
   downloadReceipt: async (paymentId) => {
-    const blob = await apiService.request({
-      method: "GET",
-      url: `/payments/${paymentId}/receipt`,
-      responseType: "blob",
+    const { downloadFile } = await import("./fileDownloadService.js");
+    await downloadFile(`/payments/${paymentId}/receipt`, `receipt-${paymentId}.pdf`, {
+      expectedType: "application/pdf",
     });
-    const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
-    a.href = blobUrl;
-    a.download = `receipt-${paymentId}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(blobUrl);
-    document.body.removeChild(a);
   },
 
   // Print payment receipt PDF (opens in new window)
   printReceipt: async (paymentId) => {
-    const blob = await apiService.request({
-      method: "GET",
-      url: `/payments/${paymentId}/receipt`,
-      responseType: "blob",
-    });
-    const blobUrl = window.URL.createObjectURL(blob);
-    const printWindow = window.open(blobUrl);
-    if (printWindow) {
-      printWindow.addEventListener("load", () => {
-        printWindow.print();
-      });
-    }
+    const { previewFile } = await import("./fileDownloadService.js");
+    await previewFile(`/payments/${paymentId}/receipt`, { expectedType: "application/pdf" });
   },
 };
 

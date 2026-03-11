@@ -356,20 +356,8 @@ export const downloadPDF = async ({ url, filename, onStart, onSuccess, onError, 
   try {
     if (onStart) onStart();
 
-    const { apiClient } = await import("../services/api");
-    const response = await apiClient.get(url, {
-      responseType: "blob",
-    });
-
-    const blob = new Blob([response], { type: "application/pdf" });
-    const downloadUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(downloadUrl);
+    const { downloadFile } = await import("../services/fileDownloadService.js");
+    await downloadFile(url, filename, { expectedType: "application/pdf" });
 
     if (onSuccess) onSuccess();
     return true;

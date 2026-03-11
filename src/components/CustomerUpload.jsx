@@ -80,18 +80,8 @@ const CustomerUpload = ({ isOpen, onClose, onUploadComplete }) => {
 
   const downloadTemplate = async () => {
     try {
-      const response = await api.get("/customers/upload/template", {
-        responseType: "blob",
-      });
-
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "customer_upload_template.csv");
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+      const { downloadFile } = await import("../services/fileDownloadService.js");
+      await downloadFile("/customers/upload/template", "customer_upload_template.csv");
 
       addNotification({
         title: "Template Downloaded",

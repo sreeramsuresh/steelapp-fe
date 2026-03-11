@@ -364,21 +364,10 @@ class CreditNoteService {
    */
   async downloadPDF(id, creditNoteNumber = null) {
     try {
-      const response = await apiClient.get(`${this.endpoint}/${id}/pdf`, {
-        responseType: "blob",
+      const { downloadFile } = await import("./fileDownloadService.js");
+      await downloadFile(`${this.endpoint}/${id}/pdf`, `credit-note-${creditNoteNumber || id}.pdf`, {
+        expectedType: "application/pdf",
       });
-
-      // Create download link
-      const blob = new Blob([response], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `credit-note-${creditNoteNumber || id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
       return true;
     } catch (error) {
       console.error("[CreditNoteService] PDF download failed:", error);
@@ -391,18 +380,8 @@ class CreditNoteService {
    */
   async previewPDF(id) {
     try {
-      const response = await apiClient.get(`${this.endpoint}/${id}/pdf`, {
-        responseType: "blob",
-      });
-
-      // Open in new tab
-      const blob = new Blob([response], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, "_blank");
-
-      // Clean up after delay
-      setTimeout(() => window.URL.revokeObjectURL(url), 30000);
-
+      const { previewFile } = await import("./fileDownloadService.js");
+      await previewFile(`${this.endpoint}/${id}/pdf`, { expectedType: "application/pdf" });
       return true;
     } catch (error) {
       console.error("[CreditNoteService] PDF preview failed:", error);
