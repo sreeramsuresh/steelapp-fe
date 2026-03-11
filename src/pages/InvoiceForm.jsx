@@ -1898,7 +1898,12 @@ const InvoiceForm = ({ onSave }) => {
                   }}
                 />
 
-                <Button variant="outline" onClick={handlePreviewClick} disabled={loadingCompany}>
+                <Button
+                  variant="outline"
+                  onClick={handlePreviewClick}
+                  disabled={loadingCompany}
+                  data-testid="preview-invoice-button"
+                >
                   <Eye className="h-4 w-4" />
                   Preview
                 </Button>
@@ -1945,6 +1950,7 @@ const InvoiceForm = ({ onSave }) => {
                       disabled={savingInvoice || updatingInvoice || isSaving}
                       title="Issue as Final Tax Invoice (locks invoice permanently)"
                       className="bg-gradient-to-br from-green-600 to-green-700 text-white hover:from-green-500 hover:to-green-600"
+                      data-testid="issue-final-invoice"
                     >
                       <Download className="h-4 w-4" />
                       Issue Final Invoice

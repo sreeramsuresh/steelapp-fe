@@ -230,10 +230,9 @@ export const dashboardService = {
         // KPIs from dedicated endpoint
         kpis: dashboardKPIs
           ? {
-              grossMargin: parseFloat(dashboardKPIs.gross_margin_percent || dashboardKPIs.grossMarginPercent) || 0,
-              dso: parseFloat(dashboardKPIs.dso_days || dashboardKPIs.dsoDays) || 0,
-              creditUtilization:
-                parseFloat(dashboardKPIs.credit_utilization_percent || dashboardKPIs.creditUtilizationPercent) || 0,
+              grossMargin: parseFloat(dashboardKPIs.grossMarginPercent) || 0,
+              dso: parseFloat(dashboardKPIs.dsoDays) || 0,
+              creditUtilization: parseFloat(dashboardKPIs.creditUtilizationPercent) || 0,
             }
           : {
               grossMargin: 0,

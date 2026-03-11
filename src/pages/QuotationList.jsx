@@ -747,6 +747,7 @@ const QuotationList = () => {
                     ? "border-gray-600 text-gray-300 hover:bg-gray-700"
                     : "border-gray-300 text-gray-700 hover:bg-gray-50"
                 }`}
+                data-testid="cancel-delete-quotation"
               >
                 Cancel
               </button>
@@ -754,6 +755,7 @@ const QuotationList = () => {
                 type="button"
                 onClick={() => handleDelete(deleteConfirm)}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                data-testid="confirm-delete-quotation"
               >
                 Delete
               </button>

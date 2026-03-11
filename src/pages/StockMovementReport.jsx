@@ -470,6 +470,7 @@ export default function StockMovementReport() {
               disabled={movements.length === 0}
               className="gap-2"
               title={movements.length === 0 ? "Search for data first to export" : "Export to CSV"}
+              data-testid="export-movements-csv"
             >
               <Download className="w-4 h-4" />
               CSV
@@ -480,6 +481,7 @@ export default function StockMovementReport() {
               disabled={movements.length === 0}
               className="gap-2"
               title={movements.length === 0 ? "Search for data first to export" : "Export to PDF"}
+              data-testid="export-movements-pdf"
             >
               <FileText className="w-4 h-4" />
               PDF

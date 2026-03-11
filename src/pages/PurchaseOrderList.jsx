@@ -501,6 +501,7 @@ const PurchaseOrderList = () => {
                             }`}
                             onClick={() => handleDelete(po.id)}
                             title="Delete"
+                            data-testid="delete-po-button"
                           >
                             <Trash2 size={18} />
                           </button>

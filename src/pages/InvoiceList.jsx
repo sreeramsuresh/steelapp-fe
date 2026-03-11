@@ -449,6 +449,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
                 title={actions.download.tooltip}
                 onClick={() => onDownloadPDF(invoice)}
                 disabled={isDownloading}
+                data-testid="download-invoice-pdf"
               >
                 {isDownloading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
@@ -543,6 +544,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
               }`}
               title={actions.recordPayment.tooltip}
               onClick={() => onRecordPayment(invoice)}
+              data-testid="record-payment-button"
             >
               <CircleDollarSign size={18} />
             </button>
@@ -663,6 +665,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
                       className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
                         isDarkMode ? "text-red-400 hover:bg-gray-700" : "text-red-600 hover:bg-red-50"
                       }`}
+                      data-testid="delete-invoice-action"
                     >
                       <Trash2 size={16} />
                       <span>Delete</span>
@@ -679,6 +682,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
                       className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${
                         isDarkMode ? "text-green-400 hover:bg-gray-700" : "text-green-600 hover:bg-green-50"
                       }`}
+                      data-testid="restore-invoice-action"
                     >
                       <RotateCcw size={16} />
                       <span>Restore</span>

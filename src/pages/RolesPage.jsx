@@ -259,6 +259,7 @@ export default function RolesPage() {
                         onClick={() => handleDelete(role.id)}
                         className="p-1 text-red-600 hover:text-red-900 hover:bg-red-50 dark:hover:bg-red-900/30 dark:hover:text-red-400 rounded transition-colors"
                         title="Delete role"
+                        data-testid="delete-role-button"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

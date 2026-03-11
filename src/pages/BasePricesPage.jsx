@@ -575,6 +575,7 @@ export default function BasePricesPage() {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
               isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-900"
             }`}
+            data-testid="export-base-prices-csv"
           >
             <Download className="w-4 h-4" />
             Export to CSV
