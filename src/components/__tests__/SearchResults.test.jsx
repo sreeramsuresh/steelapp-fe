@@ -16,25 +16,11 @@ vi.mock("../../contexts/ThemeContext", () => ({
   ThemeProvider: ({ children }) => <div>{children}</div>,
 }));
 
-vi.mock("../../services/axiosAuthService", () => ({
-  authService: {
-    hasRole: vi.fn().mockReturnValue(true),
-    hasPermission: vi.fn().mockReturnValue(true),
+vi.mock("../../services/globalSearchService", () => ({
+  default: {
+    search: vi.fn().mockResolvedValue({ grouped: {}, results: [], total: 0 }),
+    refreshIndex: vi.fn().mockResolvedValue({ refreshed: true }),
   },
-}));
-
-vi.mock("../../services/dataService", () => ({
-  customerService: {
-    search: vi.fn().mockResolvedValue({ customers: [] }),
-  },
-  invoiceService: {
-    search: vi.fn().mockResolvedValue({ invoices: [] }),
-  },
-}));
-
-vi.mock("../../utils/invoiceUtils", () => ({
-  formatCurrency: (val) => `$${val}`,
-  formatDate: (val) => val,
 }));
 
 import SearchResults from "../SearchResults";

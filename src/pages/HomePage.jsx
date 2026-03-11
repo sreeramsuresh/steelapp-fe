@@ -8,6 +8,7 @@
 import {
   Activity,
   ArrowRight,
+  CheckCircle2,
   Edit,
   FileText,
   Package,
@@ -254,6 +255,7 @@ const INTEGRITY_GROUPS = [
       { key: "stockReservedOverflow", label: "Reserved exceeds remaining", critical: true },
       { key: "stockBalanceMismatch", label: "Batch balance mismatch", critical: true },
       { key: "stockZeroCost", label: "Active batches with zero cost", critical: false },
+      { key: "stockBatchesNoBin", label: "Stock in warehouse without bin location", critical: false },
       { key: "productsMissingStockBasis", label: "Products missing stock basis", critical: true },
     ],
   },
@@ -269,6 +271,7 @@ const INTEGRITY_GROUPS = [
   {
     label: "Documents",
     keys: [
+      { key: "grnsNotApproved", label: "GRNs pending approval", critical: true },
       { key: "purchaseOrdersIncomplete", label: "Purchase Orders pending GRN", critical: false },
       { key: "invoicesIncomplete", label: "Invoices pending Delivery Note", critical: false },
       { key: "importOrdersPendingGrn", label: "Import Orders pending GRN", critical: false },
@@ -336,6 +339,9 @@ const IntegritySummarySection = ({ integritySummary, isDarkMode, onRefresh, refr
   }
 
   const metrics = integritySummary.metrics || {};
+  const hasAnyIssues = INTEGRITY_GROUPS.some((group) =>
+    group.keys.some(({ key }) => (metrics[key] || { incomplete: 0 }).incomplete > 0)
+  );
 
   return (
     <div className="space-y-4">
@@ -355,46 +361,56 @@ const IntegritySummarySection = ({ integritySummary, isDarkMode, onRefresh, refr
           Refresh
         </button>
       </div>
-      {INTEGRITY_GROUPS.map((group) => (
+      {!hasAnyIssues && (
         <div
-          key={group.label}
-          className={`rounded-lg border overflow-hidden ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
+          className={`flex items-center gap-2 rounded-lg px-4 py-3 text-sm ${isDarkMode ? "bg-green-900/20 text-green-400" : "bg-green-50 text-green-700"}`}
         >
-          <div
-            className={`px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider ${isDarkMode ? "bg-[#252D38] text-gray-400" : "bg-gray-50 text-gray-500"}`}
-          >
-            {group.label}
-          </div>
-          <div className={`divide-y ${isDarkMode ? "divide-[#37474F]" : "divide-[#E0E0E0]"}`}>
-            {group.keys.map(({ key, label, critical }) => {
-              const metric = metrics[key] || { incomplete: 0, total: null };
-              const { incomplete, total } = metric;
-              const badge = getIntegrityBadge(incomplete, total, critical, isDarkMode);
-              const countText =
-                (total === null || total === 0) && incomplete === 0
-                  ? "—"
-                  : total === null
-                    ? `${incomplete}`
-                    : `${incomplete} / ${total}`;
-              return (
-                <div key={key} className="flex items-center justify-between px-4 py-2.5 gap-4">
-                  <span className={`text-sm flex-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{label}</span>
-                  <span
-                    className={`text-sm font-mono font-semibold w-16 text-right tabular-nums ${incomplete > 0 ? (isDarkMode ? "text-white" : "text-gray-900") : isDarkMode ? "text-gray-500" : "text-gray-400"}`}
-                  >
-                    {countText}
-                  </span>
-                  <span
-                    className={`text-[11px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap w-28 text-center ${badge.className}`}
-                  >
-                    {badge.label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+          <CheckCircle2 className="w-4 h-4" />
+          All clear — no integrity issues found
         </div>
-      ))}
+      )}
+      {INTEGRITY_GROUPS.map((group) => {
+        const activeKeys = group.keys.filter(({ key }) => {
+          const metric = metrics[key] || { incomplete: 0, total: null };
+          return metric.incomplete > 0;
+        });
+        if (activeKeys.length === 0) return null;
+        return (
+          <div
+            key={group.label}
+            className={`rounded-lg border overflow-hidden ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
+          >
+            <div
+              className={`px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider ${isDarkMode ? "bg-[#252D38] text-gray-400" : "bg-gray-50 text-gray-500"}`}
+            >
+              {group.label}
+            </div>
+            <div className={`divide-y ${isDarkMode ? "divide-[#37474F]" : "divide-[#E0E0E0]"}`}>
+              {activeKeys.map(({ key, label, critical }) => {
+                const metric = metrics[key] || { incomplete: 0, total: null };
+                const { incomplete, total } = metric;
+                const badge = getIntegrityBadge(incomplete, total, critical, isDarkMode);
+                const countText = total === null ? `${incomplete}` : `${incomplete} / ${total}`;
+                return (
+                  <div key={key} className="flex items-center justify-between px-4 py-2.5 gap-4">
+                    <span className={`text-sm flex-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{label}</span>
+                    <span
+                      className={`text-sm font-mono font-semibold w-16 text-right tabular-nums ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    >
+                      {countText}
+                    </span>
+                    <span
+                      className={`text-[11px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap w-28 text-center ${badge.className}`}
+                    >
+                      {badge.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };

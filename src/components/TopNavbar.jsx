@@ -3,25 +3,22 @@ import {
   Bell,
   Check,
   ChevronDown,
-  FileText,
   HelpCircle,
   Loader2,
   LogOut,
   Menu,
   Moon,
-  Package,
   Search,
   Settings,
   Sun,
   User,
-  Users,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import SEARCH_GROUPS from "../config/searchGroups";
 import { useNotifications } from "../contexts/NotificationCenterContext";
 import { useTheme } from "../contexts/ThemeContext";
-import { customerService, invoiceService } from "../services/dataService";
-import { productService } from "../services/productService";
+import globalSearchService from "../services/globalSearchService";
 import HomeButton from "./HomeButton";
 
 // Bug #29 fix: Format notification timestamp consistently using relative time format
@@ -56,33 +53,6 @@ const formatNotificationTime = (time) => {
   }
 };
 
-const SEARCH_GROUPS = [
-  {
-    key: "invoices",
-    label: "Invoices",
-    icon: FileText,
-    path: (item) => `/app/invoices/${item.id}`,
-    display: (item) => item.invoiceNumber,
-    sub: (item) => item.customer?.name || "—",
-  },
-  {
-    key: "customers",
-    label: "Customers",
-    icon: Users,
-    path: (item) => `/app/customers/${item.id}`,
-    display: (item) => item.name,
-    sub: (item) => item.email || item.city || "—",
-  },
-  {
-    key: "products",
-    label: "Products",
-    icon: Package,
-    path: (item) => `/app/products/${item.id}`,
-    display: (item) => item.name,
-    sub: (item) => item.category || item.form || "—",
-  },
-];
-
 const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage = "Dashboard" }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
@@ -96,31 +66,28 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [searchResults, setSearchResults] = useState({ invoices: [], customers: [], products: [] });
+  const [searchResults, setSearchResults] = useState({ grouped: {}, results: [] });
   const [activeIndex, setActiveIndex] = useState(-1);
   const searchRef = useRef(null);
   const debounceRef = useRef(null);
 
-  // Flatten results for keyboard nav
-  const flatResults = SEARCH_GROUPS.flatMap((g) => searchResults[g.key].map((item) => ({ group: g, item })));
+  // Flatten grouped results for keyboard nav
+  const flatResults = SEARCH_GROUPS.flatMap((g) =>
+    (searchResults.grouped[g.key] || []).map((item) => ({ group: g, item }))
+  );
 
   const runSearch = useCallback(async (q) => {
     if (q.length < 2) {
-      setSearchResults({ invoices: [], customers: [], products: [] });
+      setSearchResults({ grouped: {}, results: [] });
       setSearchLoading(false);
       return;
     }
     setSearchLoading(true);
     try {
-      const [inv, cust, prod] = await Promise.all([
-        invoiceService.searchInvoices(q).catch(() => ({})),
-        customerService.searchCustomers(q).catch(() => ({})),
-        productService.searchProducts(q).catch(() => ({})),
-      ]);
+      const data = await globalSearchService.search(q, { limit: 30 });
       setSearchResults({
-        invoices: (Array.isArray(inv?.invoices) ? inv.invoices : []).slice(0, 4),
-        customers: (Array.isArray(cust?.customers) ? cust.customers : []).slice(0, 4),
-        products: (Array.isArray(prod?.products) ? prod.products : []).slice(0, 4),
+        grouped: data?.grouped || {},
+        results: data?.results || [],
       });
     } catch {
       // silently ignore
@@ -135,7 +102,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
     if (searchQuery.trim().length >= 2) {
       debounceRef.current = setTimeout(() => runSearch(searchQuery.trim()), 300);
     } else {
-      setSearchResults({ invoices: [], customers: [], products: [] });
+      setSearchResults({ grouped: {}, results: [] });
     }
     return () => clearTimeout(debounceRef.current);
   }, [searchQuery, runSearch]);
@@ -276,7 +243,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
               <input
                 id="global-search"
                 type="text"
-                placeholder="Search invoices, customers, products…"
+                placeholder="Search everything…"
                 autoComplete="off"
                 style={{ color: isDarkMode ? "#ffffff" : "#111827", backgroundColor: "transparent" }}
                 className="w-full pl-2 pr-3 py-2.5 border-none outline-none text-sm placeholder-gray-400"
@@ -295,7 +262,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                   onClick={() => {
                     setSearchQuery("");
                     setSearchOpen(false);
-                    setSearchResults({ invoices: [], customers: [], products: [] });
+                    setSearchResults({ grouped: {}, results: [] });
                   }}
                   style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }}
                   className="pr-3 hover:opacity-75 text-lg leading-none flex-shrink-0"
@@ -331,8 +298,9 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                 ) : (
                   <div className="py-1 max-h-[480px] overflow-y-auto">
                     {SEARCH_GROUPS.map((group) => {
-                      const items = searchResults[group.key];
-                      if (items.length === 0) return null;
+                      const items = searchResults.grouped[group.key];
+                      if (!items || items.length === 0) return null;
+                      const Icon = group.icon;
                       return (
                         <div key={group.key}>
                           {/* Group header */}
@@ -340,7 +308,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                             style={{ color: isDarkMode ? "#6b7280" : "#9ca3af" }}
                             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider"
                           >
-                            <group.icon size={11} />
+                            <Icon size={11} />
                             {group.label}
                           </div>
                           {items.map((item) => {
@@ -360,14 +328,14 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                                 }}
                                 className="w-full flex items-center gap-3 px-3 py-2 text-left transition-colors duration-100"
                               >
-                                <group.icon size={14} className="flex-shrink-0 text-teal-600" />
+                                <Icon size={14} className="flex-shrink-0 text-teal-600" />
                                 <div className="min-w-0">
-                                  <div className="text-sm font-medium truncate">{group.display(item)}</div>
+                                  <div className="text-sm font-medium truncate">{item.primaryText}</div>
                                   <div
                                     style={{ color: isDarkMode ? "#6b7280" : "#9ca3af" }}
                                     className="text-xs truncate"
                                   >
-                                    {group.sub(item)}
+                                    {item.secondaryText}
                                   </div>
                                 </div>
                               </button>

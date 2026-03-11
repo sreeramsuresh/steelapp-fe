@@ -1,12 +1,11 @@
-import { AlertCircle, ArrowRight, FileText, Search, Users } from "lucide-react";
+import { AlertCircle, ArrowRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import SEARCH_GROUPS from "../config/searchGroups";
 import { useTheme } from "../contexts/ThemeContext";
-import { authService } from "../services/axiosAuthService";
-import { customerService, invoiceService } from "../services/dataService";
-import { formatCurrency, formatDate } from "../utils/invoiceUtils";
+import globalSearchService from "../services/globalSearchService";
 
-const SectionHeader = ({ icon: Icon, title, count, toAll, isDarkMode }) => (
+const SectionHeader = ({ icon: Icon, title, count, isDarkMode }) => (
   <div className="flex items-center justify-between mb-3">
     <div className="flex items-center gap-2">
       <Icon size={18} className="text-teal-600" />
@@ -17,15 +16,6 @@ const SectionHeader = ({ icon: Icon, title, count, toAll, isDarkMode }) => (
         {count}
       </span>
     </div>
-    {toAll && (
-      <Link
-        to={toAll}
-        className={`inline-flex items-center gap-1 text-xs ${isDarkMode ? "text-teal-300 hover:text-teal-200" : "text-teal-700 hover:text-teal-800"}`}
-      >
-        View all
-        <ArrowRight size={14} />
-      </Link>
-    )}
   </div>
 );
 
@@ -36,28 +26,24 @@ const SearchResults = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [invoiceResults, setInvoiceResults] = useState([]);
-  const [customerResults, setCustomerResults] = useState([]);
+  const [grouped, setGrouped] = useState({});
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
+      if (!q || q.length < 2) {
+        setGrouped({});
+        setTotal(0);
+        return;
+      }
       setLoading(true);
       setError("");
       try {
-        const [inv, cust] = await Promise.all([
-          q && authService.hasPermission("invoices", "read")
-            ? invoiceService.searchInvoices(q)
-            : Promise.resolve({ invoices: [] }),
-          q && authService.hasPermission("customers", "read")
-            ? customerService.searchCustomers(q)
-            : Promise.resolve({ customers: [] }),
-        ]);
+        const data = await globalSearchService.search(q, { limit: 100 });
         if (cancelled) return;
-        const invoices = Array.isArray(inv?.invoices) ? inv.invoices : Array.isArray(inv) ? inv : [];
-        const customers = Array.isArray(cust?.customers) ? cust.customers : Array.isArray(cust) ? cust : [];
-        setInvoiceResults(invoices);
-        setCustomerResults(customers);
+        setGrouped(data?.grouped || {});
+        setTotal(data?.total || 0);
       } catch (e) {
         if (!cancelled) setError(e?.message || "Failed to search");
       } finally {
@@ -70,6 +56,8 @@ const SearchResults = () => {
     };
   }, [q]);
 
+  const groupsWithResults = SEARCH_GROUPS.filter((g) => grouped[g.key] && grouped[g.key].length > 0);
+
   return (
     <div className={`p-4 md:p-6 min-h-[calc(100vh-64px)] ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
       <div
@@ -80,7 +68,11 @@ const SearchResults = () => {
           <h1 className={`text-xl md:text-2xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
             Search results
           </h1>
-          {q && <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>for “{q}”</span>}
+          {q && (
+            <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+              for &ldquo;{q}&rdquo; {!loading && `(${total} results)`}
+            </span>
+          )}
         </div>
 
         {error && (
@@ -97,80 +89,43 @@ const SearchResults = () => {
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600"></div>
             <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>Searching…</span>
           </div>
+        ) : groupsWithResults.length === 0 && q ? (
+          <div className="py-10 text-center">
+            <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+              No results for &ldquo;{q}&rdquo;
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-            {/* Invoices */}
-            <div
-              className={`rounded-lg border p-4 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
-            >
-              <SectionHeader
-                icon={FileText}
-                title="Invoices"
-                count={invoiceResults.length}
-                toAll={q ? `/app/invoices?search=${encodeURIComponent(q)}` : undefined}
-                isDarkMode={isDarkMode}
-              />
-              {invoiceResults.length === 0 ? (
-                <p className={`${isDarkMode ? "text-gray-400" : "text-gray-600"} text-sm`}>No matches</p>
-              ) : (
-                <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {invoiceResults.slice(0, 6).map((inv) => (
-                    <Link
-                      to={`/app/invoices/${inv.id}`}
-                      key={inv.id}
-                      className={`flex items-center justify-between py-2 px-1 rounded ${isDarkMode ? "hover:bg-gray-700/50" : "hover:bg-gray-50"} transition-colors`}
-                    >
-                      <div>
-                        <div className={`text-sm font-semibold text-teal-600`}>{inv.invoiceNumber}</div>
-                        <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                          {formatDate(inv.date)} • {inv.customer?.name || "—"}
-                        </div>
-                      </div>
-                      <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                        {formatCurrency(inv.total || 0)}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Customers */}
-            <div
-              className={`rounded-lg border p-4 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
-            >
-              <SectionHeader
-                icon={Users}
-                title="Customers"
-                count={customerResults.length}
-                toAll={q ? `/app/customers?search=${encodeURIComponent(q)}` : undefined}
-                isDarkMode={isDarkMode}
-              />
-              {customerResults.length === 0 ? (
-                <p className={`${isDarkMode ? "text-gray-400" : "text-gray-600"} text-sm`}>No matches</p>
-              ) : (
-                <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {customerResults.slice(0, 6).map((c) => {
-                    const term = c.name || c.email || String(c.id || "");
-                    const href = term ? `/app/customers?search=${encodeURIComponent(term)}` : "/app/customers";
-                    return (
+            {groupsWithResults.map((group) => {
+              const items = grouped[group.key];
+              const Icon = group.icon;
+              return (
+                <div
+                  key={group.key}
+                  className={`rounded-lg border p-4 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+                >
+                  <SectionHeader icon={Icon} title={group.label} count={items.length} isDarkMode={isDarkMode} />
+                  <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {items.map((item) => (
                       <Link
-                        to={href}
-                        key={c.id}
-                        className={`block py-2 px-1 rounded ${isDarkMode ? "hover:bg-gray-700/50" : "hover:bg-gray-50"} transition-colors`}
+                        to={group.path(item)}
+                        key={item.id}
+                        className={`flex items-center justify-between py-2 px-1 rounded ${isDarkMode ? "hover:bg-gray-700/50" : "hover:bg-gray-50"} transition-colors`}
                       >
-                        <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                          {c.name || "Unnamed customer"}
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-teal-600 truncate">{item.primaryText}</div>
+                          <div className={`text-xs truncate ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                            {item.secondaryText}
+                          </div>
                         </div>
-                        <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                          {c.email || "—"} {c.company ? `• ${c.company}` : ""}
-                        </div>
+                        <ArrowRight size={14} className="flex-shrink-0 text-gray-400 ml-2" />
                       </Link>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
-              )}
-            </div>
+              );
+            })}
           </div>
         )}
       </div>

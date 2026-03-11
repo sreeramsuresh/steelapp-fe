@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { userPreferencesService } from "../services/userPreferencesService";
 
-const DEFAULT_ORDER = ["quickAccess", "createNew", "recentItems", "integritySummary"];
+const DEFAULT_ORDER = ["quickAccess", "createNew", "integritySummary", "recentItems"];
 const VALID_SECTIONS = new Set(DEFAULT_ORDER);
 
 const validateSectionOrder = (order) => {

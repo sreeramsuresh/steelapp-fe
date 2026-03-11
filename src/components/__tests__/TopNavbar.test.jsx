@@ -34,14 +34,12 @@ vi.mock("../../contexts/NotificationCenterContext", () => ({
   }),
 }));
 
-// Mock services
-vi.mock("../../services/dataService", () => ({
-  invoiceService: { searchInvoices: vi.fn().mockResolvedValue({ invoices: [] }) },
-  customerService: { searchCustomers: vi.fn().mockResolvedValue({ customers: [] }) },
-}));
-
-vi.mock("../../services/productService", () => ({
-  productService: { searchProducts: vi.fn().mockResolvedValue({ products: [] }) },
+// Mock global search service
+vi.mock("../../services/globalSearchService", () => ({
+  default: {
+    search: vi.fn().mockResolvedValue({ grouped: {}, results: [], total: 0 }),
+    refreshIndex: vi.fn().mockResolvedValue({ refreshed: true }),
+  },
 }));
 
 // Mock HomeButton

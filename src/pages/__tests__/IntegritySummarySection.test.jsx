@@ -8,7 +8,7 @@
  * Coverage:
  *   1. Badge logic — green / yellow / red / grey based on (incomplete, total, critical)
  *   2. Group structure — 4 domain sections
- *   3. All 21 metric labels
+ *   3. All 23 metric labels
  *   4. Count display — "N / total", count-only for null-total, "—" for zero null-total
  *   5. Math invariants — incomplete never exceeds total in rendered output
  *   6. Null-total metrics always produce count-only or dash
@@ -47,6 +47,7 @@ const INTEGRITY_GROUPS = [
       { key: "stockReservedOverflow", label: "Reserved exceeds remaining", critical: true },
       { key: "stockBalanceMismatch", label: "Batch balance mismatch", critical: true },
       { key: "stockZeroCost", label: "Active batches with zero cost", critical: false },
+      { key: "stockBatchesNoBin", label: "Stock in warehouse without bin location", critical: false },
     ],
   },
   {
@@ -61,6 +62,7 @@ const INTEGRITY_GROUPS = [
   {
     label: "Documents",
     keys: [
+      { key: "grnsNotApproved", label: "GRNs pending approval", critical: true },
       { key: "purchaseOrdersIncomplete", label: "Purchase Orders pending GRN", critical: false },
       { key: "invoicesIncomplete", label: "Invoices pending Delivery Note", critical: false },
       { key: "importOrdersPendingGrn", label: "Import Orders pending GRN", critical: false },
@@ -117,10 +119,12 @@ function buildMetrics(overrides = {}) {
     stockReservedOverflow: { incomplete: 0, total: 50 },
     stockBalanceMismatch: { incomplete: 0, total: 50 },
     stockZeroCost: { incomplete: 2, total: 50 },
+    stockBatchesNoBin: { incomplete: 5, total: 50 },
     customersOverCreditLimit: { incomplete: 3, total: 60 },
     customersOnCreditHold: { incomplete: 1, total: 60 },
     invoicesOverpaid: { incomplete: 0, total: 120 },
     supplierBillsUnderpaid: { incomplete: 0, total: null },
+    grnsNotApproved: { incomplete: 3, total: null },
     purchaseOrdersIncomplete: { incomplete: 10, total: 32 },
     invoicesIncomplete: { incomplete: 5, total: 120 },
     importOrdersPendingGrn: { incomplete: 2, total: 15 },
@@ -229,16 +233,18 @@ describe("3. Group structure — 4 domain sections rendered", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 // 4. All 21 metric labels
 // ─────────────────────────────────────────────────────────────────────────────
-describe("4. All 21 metric labels rendered", () => {
+describe("4. All 23 metric labels rendered", () => {
   const ALL_LABELS = [
     "Negative stock batches",
     "Reserved exceeds remaining",
     "Batch balance mismatch",
     "Active batches with zero cost",
+    "Stock in warehouse without bin location",
     "Customers over credit limit",
     "Customers on credit hold",
     "Invoices overpaid (negative outstanding)",
     "Supplier bills marked paid with shortfall",
+    "GRNs pending approval",
     "Purchase Orders pending GRN",
     "Invoices pending Delivery Note",
     "Import Orders pending GRN",
@@ -254,10 +260,10 @@ describe("4. All 21 metric labels rendered", () => {
     "Warehouses missing address/city",
   ];
 
-  it("renders exactly 21 metric rows", () => {
+  it("renders exactly 23 metric rows", () => {
     render(<MockIntegritySummarySection metrics={buildMetrics()} />);
     const rows = screen.getAllByTestId(/^metric-row-/);
-    expect(rows).toHaveLength(21);
+    expect(rows).toHaveLength(23);
   });
 
   for (const label of ALL_LABELS) {
@@ -402,10 +408,12 @@ describe("8. camelCase key contract", () => {
     "stockReservedOverflow",
     "stockBalanceMismatch",
     "stockZeroCost",
+    "stockBatchesNoBin",
     "customersOverCreditLimit",
     "customersOnCreditHold",
     "invoicesOverpaid",
     "supplierBillsUnderpaid",
+    "grnsNotApproved",
     "purchaseOrdersIncomplete",
     "invoicesIncomplete",
     "importOrdersPendingGrn",
@@ -421,7 +429,7 @@ describe("8. camelCase key contract", () => {
     "warehousesMissingData",
   ];
 
-  it("INTEGRITY_GROUPS covers all 21 camelCase keys", () => {
+  it("INTEGRITY_GROUPS covers all 23 camelCase keys", () => {
     const allKeys = INTEGRITY_GROUPS.flatMap((g) => g.keys.map((k) => k.key));
     expect(allKeys.sort()).toEqual(EXPECTED_CAMEL_KEYS.sort());
   });
