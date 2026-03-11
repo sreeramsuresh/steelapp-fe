@@ -8,13 +8,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiClient } from "../services/api";
 import { tokenUtils } from "../services/axiosApi";
+import { uuid } from "../utils/uuid";
 
 const HEARTBEAT_INTERVAL = 45000; // 45 seconds
 const FETCH_INTERVAL = 30000; // 30 seconds
 
 export function useInvoicePresence(invoiceId, mode = "view") {
   const [activeSessions, setActiveSessions] = useState([]);
-  const [sessionId] = useState(() => crypto.randomUUID());
+  // uuid() handles non-secure contexts (e.g., Docker E2E over http://web)
+  // where crypto.randomUUID() is unavailable.
+  const [sessionId] = useState(() => uuid());
   const heartbeatRef = useRef(null);
   const fetchRef = useRef(null);
   const currentUser = tokenUtils.getUser();

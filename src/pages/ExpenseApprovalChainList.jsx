@@ -120,8 +120,8 @@ const ExpenseApprovalChainList = () => {
     return (
       <div className="p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/3" />
-          <div className="h-64 bg-gray-200 rounded" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
+          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded" />
         </div>
       </div>
     );
@@ -130,7 +130,7 @@ const ExpenseApprovalChainList = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Expense Approval Chains</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Expense Approval Chains</h1>
         <button
           type="button"
           onClick={openCreate}
@@ -142,7 +142,7 @@ const ExpenseApprovalChainList = () => {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg">
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg">
           {error}
           <button type="button" onClick={() => setError(null)} className="ml-2 underline">
             Dismiss
@@ -150,42 +150,58 @@ const ExpenseApprovalChainList = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-900">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Min Amount</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Max Amount</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expense Group</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Name
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Min Amount
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Max Amount
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Department
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Expense Group
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Status
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Actions
+              </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {chains.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={7} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                   No approval chains found
                 </td>
               </tr>
             ) : (
               chains.map((chain) => (
-                <tr key={chain.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">{chain.name}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
+                <tr key={chain.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">{chain.name}</td>
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                     {chain.minAmount != null ? Number(chain.minAmount).toLocaleString() : "-"}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                     {chain.maxAmount != null ? Number(chain.maxAmount).toLocaleString() : "-"}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{chain.departmentName || "-"}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{chain.expenseGroup || "-"}</td>
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{chain.departmentName || "-"}</td>
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{chain.expenseGroup || "-"}</td>
                   <td className="px-4 py-3 text-sm">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        chain.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"
+                        chain.isActive
+                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                          : "bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400"
                       }`}
                     >
                       {chain.isActive ? "Active" : "Inactive"}
@@ -196,7 +212,7 @@ const ExpenseApprovalChainList = () => {
                       <button
                         type="button"
                         onClick={() => openEdit(chain)}
-                        className="p-1 text-gray-500 hover:text-teal-600"
+                        className="p-1 text-gray-500 hover:text-teal-600 dark:text-gray-400 dark:hover:text-teal-400"
                         title="Edit"
                       >
                         <Pencil size={16} />
@@ -204,7 +220,7 @@ const ExpenseApprovalChainList = () => {
                       <button
                         type="button"
                         onClick={() => handleDelete(chain.id)}
-                        className="p-1 text-gray-500 hover:text-red-600"
+                        className="p-1 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
                         title="Delete"
                       >
                         <Trash2 size={16} />
@@ -221,72 +237,78 @@ const ExpenseApprovalChainList = () => {
       {/* Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-semibold">{editingId ? "Edit Approval Chain" : "New Approval Chain"}</h2>
-              <button type="button" onClick={() => setModalOpen(false)} className="p-1 hover:bg-gray-100 rounded">
-                <X size={20} />
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
+            <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
+              <h2 className="text-lg font-semibold dark:text-white">
+                {editingId ? "Edit Approval Chain" : "New Approval Chain"}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setModalOpen(false)}
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              >
+                <X size={20} className="dark:text-gray-400" />
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Name
                   <input
                     type="text"
                     required
                     value={form.name}
                     onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                    className="w-full border rounded-lg px-3 py-2 text-sm"
+                    className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
                   />
                 </label>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Min Amount
                     <input
                       type="number"
                       step="0.01"
                       value={form.minAmount}
                       onChange={(e) => setForm((f) => ({ ...f, minAmount: e.target.value }))}
-                      className="w-full border rounded-lg px-3 py-2 text-sm"
+                      className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
                     />
                   </label>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Max Amount
                     <input
                       type="number"
                       step="0.01"
                       value={form.maxAmount}
                       onChange={(e) => setForm((f) => ({ ...f, maxAmount: e.target.value }))}
-                      className="w-full border rounded-lg px-3 py-2 text-sm"
+                      className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
                     />
                   </label>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Department ID
                     <input
                       type="number"
                       value={form.departmentId}
                       onChange={(e) => setForm((f) => ({ ...f, departmentId: e.target.value }))}
-                      className="w-full border rounded-lg px-3 py-2 text-sm"
+                      className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
                     />
                   </label>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Expense Group
                     <input
                       type="text"
                       value={form.expenseGroup}
                       onChange={(e) => setForm((f) => ({ ...f, expenseGroup: e.target.value }))}
-                      className="w-full border rounded-lg px-3 py-2 text-sm"
+                      className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
                     />
                   </label>
                 </div>
@@ -298,7 +320,7 @@ const ExpenseApprovalChainList = () => {
                   onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
                   id="chain-active"
                 />
-                <label htmlFor="chain-active" className="text-sm text-gray-700">
+                <label htmlFor="chain-active" className="text-sm text-gray-700 dark:text-gray-300">
                   Active
                 </label>
               </div>
@@ -306,30 +328,35 @@ const ExpenseApprovalChainList = () => {
               {/* Steps */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">Approval Steps</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Approval Steps</span>
                   <button type="button" onClick={addStep} className="text-sm text-teal-600 hover:text-teal-700">
                     + Add Step
                   </button>
                 </div>
                 <div className="space-y-2">
                   {form.steps.map((step, idx) => (
-                    <div key={step.stepOrder} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-                      <span className="text-xs font-medium text-gray-500 w-8">#{step.stepOrder}</span>
+                    <div
+                      key={step.stepOrder}
+                      className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700 rounded"
+                    >
+                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400 w-8">
+                        #{step.stepOrder}
+                      </span>
                       <input
                         type="text"
                         placeholder="Role"
                         value={step.role}
                         onChange={(e) => updateStep(idx, "role", e.target.value)}
-                        className="flex-1 border rounded px-2 py-1 text-sm"
+                        className="flex-1 border dark:border-gray-600 rounded px-2 py-1 text-sm dark:bg-gray-600 dark:text-white dark:placeholder-gray-400"
                       />
                       <input
                         type="text"
                         placeholder="User ID"
                         value={step.userId}
                         onChange={(e) => updateStep(idx, "userId", e.target.value)}
-                        className="w-24 border rounded px-2 py-1 text-sm"
+                        className="w-24 border dark:border-gray-600 rounded px-2 py-1 text-sm dark:bg-gray-600 dark:text-white dark:placeholder-gray-400"
                       />
-                      <label className="flex items-center gap-1 text-xs text-gray-600">
+                      <label className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300">
                         <input
                           type="checkbox"
                           checked={step.isMandatory}
@@ -351,11 +378,11 @@ const ExpenseApprovalChainList = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t">
+              <div className="flex justify-end gap-3 pt-4 border-t dark:border-gray-700">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50"
+                  className="px-4 py-2 text-sm border dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300"
                 >
                   Cancel
                 </button>

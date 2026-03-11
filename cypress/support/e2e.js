@@ -19,8 +19,11 @@ Cypress.on("uncaught:exception", (err, runnable) => {
   // Vite lazy-load failures when chunks are not yet cached
   if (msg.includes("Loading chunk") || msg.includes("Failed to fetch dynamically imported module")) return false;
 
-  // React hydration mismatch (SSR not used, but React logs it)
-  if (msg.includes("Minified React error")) return false;
+  // React errors — in dev build, log the full message for diagnostics
+  if (msg.includes("Minified React error") || msg.includes("React error")) {
+    Cypress.log({ name: "REACT_ERROR", message: msg.substring(0, 500) });
+    return false;
+  }
 
   // ResizeObserver loop errors (browser-level, not app bugs)
   if (msg.includes("ResizeObserver loop")) return false;

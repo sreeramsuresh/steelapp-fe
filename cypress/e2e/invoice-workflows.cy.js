@@ -3,99 +3,22 @@
 // Route: /app/invoices
 
 /**
- * Navigate to the invoice list and wait for the component to fully mount.
+ * Navigate to invoice list and wait for data to load.
  *
- * InvoiceList is a React.lazy() component. Under 4-shard Docker contention,
- * the chunk can fail to load, causing ErrorBoundary to render instead.
- *
- * This helper:
- *   - Waits for auth to resolve (GET /api/auth/me)
- *   - Waits for app-ready state
- *   - Detects ErrorBoundary vs InvoiceList rendering
- *   - On ErrorBoundary: logs the error, retries with reload (chunks cached on 2nd try)
- *   - On persistent ErrorBoundary: fails with diagnostic info
+ * Intercepts auth and invoice API calls, waits for app initialization,
+ * then asserts invoice-list renders. No ErrorBoundary fallback — if the
+ * page crashes, the test fails immediately (root cause was crypto.randomUUID
+ * in non-secure context, fixed in useInvoicePresence.js and axiosApi.js).
  */
 function visitInvoiceList() {
   cy.intercept("GET", "/api/auth/me").as("authMe");
   cy.intercept("GET", "/api/invoices*").as("getInvoices");
 
   cy.visit("/app/invoices");
-
-  // Wait for auth to resolve — this unblocks ProtectedRoute
   cy.wait("@authMe", { timeout: 30000 });
-
-  // Wait for app-ready (auth init complete)
   cy.get('[data-testid="app-ready"]', { timeout: 15000 }).should("exist");
-
-  // Wait for EITHER invoice-list OR error-boundary to appear.
-  // Uses .should() which retries until one of the conditions is true.
-  cy.get("body", { timeout: 40000 }).should(($body) => {
-    const hasInvoiceList = $body.find('[data-testid="invoice-list"]').length > 0;
-    const hasErrorBoundary = $body.find('[data-testid="error-boundary"]').length > 0;
-    expect(
-      hasInvoiceList || hasErrorBoundary,
-      "Page should render invoice-list or error-boundary (not stuck on loading spinner)"
-    ).to.be.true;
-  });
-
-  // Branch: success or retry
-  cy.get("body").then(($body) => {
-    if ($body.find('[data-testid="invoice-list"]').length > 0) {
-      // Success path
-      cy.wait("@getInvoices", { timeout: 20000 });
-      return;
-    }
-
-    // ErrorBoundary path — log the error for diagnostics
-    const errorEl = $body.find('[data-testid="error-boundary"]');
-    const errorMsg = errorEl.attr("data-error") || "unknown error";
-    cy.log(`ErrorBoundary caught: ${errorMsg}`);
-
-    // Retry: reload the page. Chunks are cached after first load attempt.
-    cy.log("RETRY: Reloading page after ErrorBoundary (attempt 1)");
-    cy.intercept("GET", "/api/auth/me").as("authMeRetry1");
-    cy.intercept("GET", "/api/invoices*").as("getInvoicesRetry1");
-    cy.reload();
-    cy.wait("@authMeRetry1", { timeout: 30000 });
-    cy.get('[data-testid="app-ready"]', { timeout: 15000 }).should("exist");
-
-    // Wait again for either outcome
-    cy.get("body", { timeout: 40000 }).should(($body2) => {
-      const hasInvoiceList = $body2.find('[data-testid="invoice-list"]').length > 0;
-      const hasErrorBoundary = $body2.find('[data-testid="error-boundary"]').length > 0;
-      expect(
-        hasInvoiceList || hasErrorBoundary,
-        "After retry: page should render invoice-list or error-boundary"
-      ).to.be.true;
-    });
-
-    cy.get("body").then(($body2) => {
-      if ($body2.find('[data-testid="invoice-list"]').length > 0) {
-        cy.wait("@getInvoicesRetry1", { timeout: 20000 });
-        return;
-      }
-
-      // Second ErrorBoundary — try navigating away and back
-      const errorMsg2 = $body2.find('[data-testid="error-boundary"]').attr("data-error") || "unknown";
-      cy.log(`ErrorBoundary persists after retry: ${errorMsg2}`);
-      cy.log("RETRY: Navigating away and back (attempt 2)");
-
-      cy.intercept("GET", "/api/auth/me").as("authMeRetry2");
-      cy.intercept("GET", "/api/invoices*").as("getInvoicesRetry2");
-      cy.visit("/app");
-      cy.wait("@authMeRetry2", { timeout: 30000 });
-      cy.get('[data-testid="app-ready"]', { timeout: 15000 }).should("exist");
-
-      // Now navigate to invoices via fresh visit
-      cy.intercept("GET", "/api/auth/me").as("authMeRetry3");
-      cy.intercept("GET", "/api/invoices*").as("getInvoicesRetry3");
-      cy.visit("/app/invoices");
-      cy.wait("@authMeRetry3", { timeout: 30000 });
-      cy.get('[data-testid="app-ready"]', { timeout: 15000 }).should("exist");
-      cy.get('[data-testid="invoice-list"]', { timeout: 30000 }).should("be.visible");
-      cy.wait("@getInvoicesRetry3", { timeout: 20000 });
-    });
-  });
+  cy.get('[data-testid="invoice-list"]', { timeout: 30000 }).should("be.visible");
+  cy.wait("@getInvoices", { timeout: 20000 });
 }
 
 describe("Invoice Workflows - E2E Tests", () => {

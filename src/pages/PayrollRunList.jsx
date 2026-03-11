@@ -4,13 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { payrollRunService } from "../services/payrollRunService";
 
 const STATUS_BADGES = {
-  DRAFT: "bg-gray-100 text-gray-800",
-  PROCESSING: "bg-yellow-100 text-yellow-800",
-  COMPUTED: "bg-blue-100 text-blue-800",
-  SUBMITTED: "bg-purple-100 text-purple-800",
-  APPROVED: "bg-green-100 text-green-800",
-  POSTED: "bg-emerald-100 text-emerald-800",
-  CANCELLED: "bg-red-100 text-red-800",
+  DRAFT: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400",
+  PROCESSING: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+  COMPUTED: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+  SUBMITTED: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+  APPROVED: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  POSTED: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
+  CANCELLED: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
 };
 
 const PayrollRunList = () => {
@@ -108,8 +108,8 @@ const PayrollRunList = () => {
     return (
       <div className="p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/3" />
-          <div className="h-64 bg-gray-200 rounded" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
+          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded" />
         </div>
       </div>
     );
@@ -118,7 +118,7 @@ const PayrollRunList = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Payroll Runs</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Payroll Runs</h1>
         <button
           type="button"
           onClick={() => setShowCreate(true)}
@@ -130,7 +130,7 @@ const PayrollRunList = () => {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg">
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg">
           {error}
           <button type="button" onClick={() => setError(null)} className="ml-2 underline">
             Dismiss
@@ -139,17 +139,17 @@ const PayrollRunList = () => {
       )}
 
       {showCreate && (
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-          <h2 className="text-lg font-semibold mb-3">Create Payroll Run</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
+          <h2 className="text-lg font-semibold dark:text-white mb-3">Create Payroll Run</h2>
           <form onSubmit={handleCreate} className="grid grid-cols-4 gap-4 items-end">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Month
                 <select
                   required
                   value={newForm.month}
                   onChange={(e) => setNewForm((f) => ({ ...f, month: e.target.value }))}
-                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                  className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
                 >
                   <option value="">Select...</option>
                   {Array.from({ length: 12 }, (_, i) => {
@@ -164,7 +164,7 @@ const PayrollRunList = () => {
               </label>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Year
                 <input
                   type="number"
@@ -173,32 +173,32 @@ const PayrollRunList = () => {
                   max={2030}
                   value={newForm.year}
                   onChange={(e) => setNewForm((f) => ({ ...f, year: e.target.value }))}
-                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                  className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
                 />
               </label>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Period Start
                 <input
                   type="date"
                   required
                   value={newForm.periodStart}
                   onChange={(e) => setNewForm((f) => ({ ...f, periodStart: e.target.value }))}
-                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                  className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
                 />
               </label>
             </div>
             <div className="flex gap-2">
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Period End
                   <input
                     type="date"
                     required
                     value={newForm.periodEnd}
                     onChange={(e) => setNewForm((f) => ({ ...f, periodEnd: e.target.value }))}
-                    className="w-full border rounded-lg px-3 py-2 text-sm"
+                    className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
                   />
                 </label>
               </div>
@@ -213,7 +213,7 @@ const PayrollRunList = () => {
                 <button
                   type="button"
                   onClick={() => setShowCreate(false)}
-                  className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50"
+                  className="px-4 py-2 text-sm border dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300"
                 >
                   Cancel
                 </button>
@@ -223,30 +223,46 @@ const PayrollRunList = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-900">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Run #</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Month / Year</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Period</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Employees</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total Gross</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total Net</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Run #
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Month / Year
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Period
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Status
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Employees
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Total Gross
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Total Net
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Actions
+              </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {runs.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={8} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                   No payroll runs found
                 </td>
               </tr>
             ) : (
               runs.map((run) => (
-                <tr key={run.id} className="hover:bg-gray-50">
+                <tr key={run.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td className="px-4 py-3 text-sm">
                     <button
                       type="button"
@@ -256,28 +272,30 @@ const PayrollRunList = () => {
                       {run.runNumber || `PR-${run.id}`}
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                     {run.month
                       ? `${new Date(2000, run.month - 1).toLocaleString("default", { month: "short" })} ${run.year}`
                       : "-"}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                     {run.periodStart
                       ? `${new Date(run.periodStart).toLocaleDateString()} - ${new Date(run.periodEnd).toLocaleDateString()}`
                       : "-"}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_BADGES[run.status] || "bg-gray-100 text-gray-800"}`}
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_BADGES[run.status] || "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"}`}
                     >
                       {run.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600 text-right">{run.employeeCount ?? "-"}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600 text-right">
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 text-right">
+                    {run.employeeCount ?? "-"}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 text-right">
                     {run.totalGross != null ? Number(run.totalGross).toLocaleString() : "-"}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600 text-right">
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 text-right">
                     {run.totalNet != null ? Number(run.totalNet).toLocaleString() : "-"}
                   </td>
                   <td className="px-4 py-3 text-sm">

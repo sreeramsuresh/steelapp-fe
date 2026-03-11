@@ -1,4 +1,5 @@
 import axios from "axios";
+import { uuid } from "../utils/uuid";
 
 const IS_DEV = import.meta?.env?.DEV ?? false;
 
@@ -94,7 +95,9 @@ api.interceptors.request.use((config) => {
   // Auto-attach Idempotency-Key for mutating requests (POST, PUT, PATCH, DELETE)
   const method = (config.method || "").toUpperCase();
   if (["POST", "PUT", "PATCH", "DELETE"].includes(method) && !config.headers["Idempotency-Key"]) {
-    config.headers["Idempotency-Key"] = crypto.randomUUID();
+    // uuid() handles non-secure contexts (e.g., Docker E2E over http://web)
+    // where crypto.randomUUID() is unavailable.
+    config.headers["Idempotency-Key"] = uuid();
   }
 
   return config;

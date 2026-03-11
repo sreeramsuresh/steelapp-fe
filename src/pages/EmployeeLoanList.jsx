@@ -2,10 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { employeeLoanService } from "../services/employeeLoanService";
 
 const STATUS_BADGES = {
-  ACTIVE: "bg-blue-100 text-blue-800",
-  COMPLETED: "bg-green-100 text-green-800",
-  DEFAULTED: "bg-red-100 text-red-800",
-  WRITTEN_OFF: "bg-gray-100 text-gray-600",
+  ACTIVE: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+  COMPLETED: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  DEFAULTED: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+  WRITTEN_OFF: "bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400",
 };
 
 const EmployeeLoanList = () => {
@@ -80,8 +80,8 @@ const EmployeeLoanList = () => {
     return (
       <div className="p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/3" />
-          <div className="h-64 bg-gray-200 rounded" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
+          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded" />
         </div>
       </div>
     );
@@ -90,7 +90,7 @@ const EmployeeLoanList = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Employee Loans</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Employee Loans</h1>
         <button
           type="button"
           onClick={() => setShowForm(!showForm)}
@@ -101,7 +101,7 @@ const EmployeeLoanList = () => {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg">
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg">
           {error}
           <button type="button" onClick={() => setError(null)} className="ml-2 underline">
             Dismiss
@@ -112,68 +112,68 @@ const EmployeeLoanList = () => {
       {showForm && (
         <form
           onSubmit={handleCreate}
-          className="mb-6 bg-white rounded-lg shadow-sm p-6 grid grid-cols-1 md:grid-cols-3 gap-4"
+          className="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           <label className="block">
-            <span className="block text-sm font-medium text-gray-700 mb-1">Employee ID</span>
+            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee ID</span>
             <input
               type="number"
               required
               value={formData.employeeId}
               onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
             />
           </label>
           <label className="block">
-            <span className="block text-sm font-medium text-gray-700 mb-1">Loan Type</span>
+            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Loan Type</span>
             <input
               type="text"
               value={formData.loanType}
               onChange={(e) => setFormData({ ...formData, loanType: e.target.value })}
               placeholder="e.g., Personal, Housing"
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             />
           </label>
           <label className="block">
-            <span className="block text-sm font-medium text-gray-700 mb-1">Principal Amount</span>
+            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Principal Amount</span>
             <input
               type="number"
               required
               step="0.01"
               value={formData.principalAmount}
               onChange={(e) => setFormData({ ...formData, principalAmount: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
             />
           </label>
           <label className="block">
-            <span className="block text-sm font-medium text-gray-700 mb-1">Interest Rate (%)</span>
+            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Interest Rate (%)</span>
             <input
               type="number"
               step="0.01"
               value={formData.interestRate}
               onChange={(e) => setFormData({ ...formData, interestRate: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
             />
           </label>
           <label className="block">
-            <span className="block text-sm font-medium text-gray-700 mb-1">Start Date</span>
+            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</span>
             <input
               type="date"
               required
               value={formData.startDate}
               onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
             />
           </label>
           <label className="block">
-            <span className="block text-sm font-medium text-gray-700 mb-1">Monthly Installment</span>
+            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monthly Installment</span>
             <input
               type="number"
               required
               step="0.01"
               value={formData.monthlyInstallment}
               onChange={(e) => setFormData({ ...formData, monthlyInstallment: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
             />
           </label>
           <div className="md:col-span-3 flex justify-end">
@@ -188,7 +188,7 @@ const EmployeeLoanList = () => {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="border rounded-lg px-3 py-2 text-sm"
+          className="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
         >
           <option value="">All Statuses</option>
           {Object.keys(STATUS_BADGES).map((s) => (
@@ -199,51 +199,71 @@ const EmployeeLoanList = () => {
         </select>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-900">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Loan Type</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Principal</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Monthly EMI</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Paid</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Outstanding</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Start Date</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Employee
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Loan Type
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Principal
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Monthly EMI
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Paid
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Outstanding
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Start Date
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Status
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Actions
+              </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {loans.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={9} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                   No loans found
                 </td>
               </tr>
             ) : (
               loans.map((loan) => (
-                <tr key={loan.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm text-gray-900">{loan.employeeName || `#${loan.employeeId}`}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{loan.loanType || "-"}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600 text-right">
+                <tr key={loan.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                    {loan.employeeName || `#${loan.employeeId}`}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{loan.loanType || "-"}</td>
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 text-right">
                     {Number(loan.principalAmount || 0).toLocaleString()}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600 text-right">
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 text-right">
                     {Number(loan.monthlyInstallment || 0).toLocaleString()}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600 text-right">
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 text-right">
                     {Number(loan.totalPaid || 0).toLocaleString()}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600 text-right">
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 text-right">
                     {Number(loan.outstandingBalance || 0).toLocaleString()}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                     {loan.startDate ? new Date(loan.startDate).toLocaleDateString() : "-"}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_BADGES[loan.status] || "bg-gray-100 text-gray-800"}`}
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_BADGES[loan.status] || "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"}`}
                     >
                       {(loan.status || "").replace(/_/g, " ")}
                     </span>
