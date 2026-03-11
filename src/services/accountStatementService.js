@@ -1,5 +1,4 @@
 import { apiClient } from "./api.js";
-import { apiService } from "./axiosApi.js";
 
 export const accountStatementService = {
   // Get all account statements with pagination and filters
